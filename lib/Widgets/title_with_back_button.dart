@@ -1,0 +1,30 @@
+import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/Constants/properties.dart';
+
+class TitleWithBackButton extends StatelessWidget {
+  final double titleWidth;
+  final String title;
+  final void Function()? onPressed;
+  const TitleWithBackButton({
+    super.key,
+    required this.onPressed,
+    required this.title,
+    required this.titleWidth,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        IconButton(
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Colors.white,
+          ),
+          onPressed: onPressed,
+        ),
+          Expanded(child: Text(title, style: AppProperties.titleTextStyle,))
+      ],
+    );
+  }
+}
