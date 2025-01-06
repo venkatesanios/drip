@@ -131,9 +131,15 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
                                 runSpacing: 20,
                                 children: [
                                   for(var pumpMode in [1,2])
-                                    getPumpSelection(source, pumpMode),
-                                  for(var mode in [1,2,3])
-                                    getLevelAndFloatSelection(source, mode)
+                                    ...[
+                                      if(pumpMode == 1 && ![4,5].contains(source.sourceType))
+                                        getPumpSelection(source, pumpMode),
+                                      if(pumpMode == 2)
+                                        getPumpSelection(source, pumpMode),
+                                    ],
+                                  if(![4,5].contains(source.sourceType))
+                                    for(var mode in [1,2,3])
+                                      getLevelAndFloatSelection(source, mode)
                                 ],
                               ),
                             ),
