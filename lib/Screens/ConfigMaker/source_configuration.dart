@@ -91,34 +91,26 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
                                     if(source.inletPump.isNotEmpty)
                                       ...[
                                         if(source.inletPump.length == 1)
-                                          singlePump()
+                                          singlePump(source, true, widget.configPvd)
                                         else
-                                          multiplePump(source.inletPump.length)
+                                          multiplePump(source, true, widget.configPvd)
                                       ],
-                                    getTankImage(source),
-                                    // Stack(
-                                    //   children: [
-                                    //     SvgPicture.asset(
-                                    //       'assets/Images/Source/tank_1.svg',
-                                    //       width: 120,
-                                    //       height: 120,
-                                    //     ),
-                                    //   ],
-                                    // ),
+                                    Stack(
+                                      children: [
+                                        getTankImage(source, widget.configPvd),
+                                        Positioned(
+                                          left : 5,
+                                          top: 0,
+                                          child: Text(getObjectName(source.commonDetails.sNo!, widget.configPvd).name!,style: AppProperties.listTileBlackBoldStyle,),
+                                        ),
+                                      ],
+                                    ),
                                     if(source.outletPump.isNotEmpty)
                                       ...[
                                         if(source.outletPump.length == 1)
-                                          Transform(
-                                              alignment: Alignment.center,
-                                              transform: Matrix4.identity()..scale(-1.0, 1.0),
-                                              child: singlePump()
-                                          )
+                                          singlePump(source, false, widget.configPvd)
                                         else
-                                          Transform(
-                                              alignment: Alignment.center,
-                                              transform: Matrix4.identity()..scale(-1.0, 1.0),
-                                              child: multiplePump(source.outletPump.length)
-                                          )
+                                          multiplePump(source, false, widget.configPvd)
                                       ],
                                   ],
                                 ),
@@ -156,205 +148,6 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
       }),
     );
   }
-  
-  Widget getTankImage(SourceModel source){
-    bool levelAvailable = source.level != 0.0;
-    bool topFloatAvailable = source.topFloat != 0.0;
-    bool bottomFloatAvailable = source.bottomFloat != 0.0;
-    if(source.sourceType == 1){
-      return Stack(
-        children: [
-          SvgPicture.asset(
-            'assets/Images/Source/tank_1.svg',
-            width: 120,
-            height: 120,
-          ),
-          if(levelAvailable)
-            Positioned(
-            left: 52,
-            bottom: 28,
-            child: Container(
-              width: 10,
-              height: 40,
-              padding: const EdgeInsets.all(2),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(2),
-                  color: Colors.white
-              ),
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                height: 20,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(2),
-                    color: Colors.green
-                ),
-              ),
-            ),
-          ),
-          if(levelAvailable || topFloatAvailable || bottomFloatAvailable)
-            Positioned(
-              right: 42,
-              bottom: 23,
-              child: SvgPicture.asset(
-                'assets/Images/Source/water_view.svg',
-                width: 55,
-                height: 55,
-              ),
-            ),
-          if(topFloatAvailable)
-            Positioned(
-              right: 45,
-              bottom: 50,
-              child: SvgPicture.asset(
-                'assets/Images/Source/top_float.svg',
-                width: 30,
-                height: 40,
-              ),
-            ),
-          if(bottomFloatAvailable)
-            Positioned(
-              right: 60,
-              bottom: 25,
-              child: SvgPicture.asset(
-                'assets/Images/Source/bottom_float.svg',
-                width: 70,
-                height: 70,
-              ),
-            )
-        ],
-      );
-    }
-    else if(source.sourceType == 2){
-      return Stack(
-        children: [
-          SvgPicture.asset(
-            'assets/Images/Source/sump_1.svg',
-            width: 120,
-            height: 120,
-          ),
-          if(levelAvailable)
-            Positioned(
-            left: 52,
-            bottom: 35,
-            child: Container(
-              width: 10,
-              height: 40,
-              padding: const EdgeInsets.all(2),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(2),
-                  color: Colors.white
-              ),
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                height: 20,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(2),
-                    color: Colors.green
-                ),
-              ),
-            ),
-          ),
-          if(topFloatAvailable)
-            Positioned(
-              right: 55,
-              bottom: 55,
-              child: SvgPicture.asset(
-                'assets/Images/Source/top_float.svg',
-                width: 30,
-                height: 30,
-              ),
-            ),
-          if(bottomFloatAvailable)
-            Positioned(
-              right: 70,
-              bottom: 35,
-              child: SvgPicture.asset(
-                'assets/Images/Source/bottom_float.svg',
-                width: 50,
-                height: 50,
-              ),
-            )
-        ],
-      );
-    }
-    else if(source.sourceType == 3){
-      return Stack(
-        children: [
-          SvgPicture.asset(
-            'assets/Images/Source/well_1.svg',
-            width: 120,
-            height: 120,
-          ),
-          if(levelAvailable || topFloatAvailable || bottomFloatAvailable)
-            Positioned(
-            right: 47,
-            bottom: 20,
-            child: SvgPicture.asset(
-              'assets/Images/Source/water_view.svg',
-              width: 55,
-              height: 55,
-            ),
-          ),
-          if(levelAvailable)
-            Positioned(
-            left: 45,
-            bottom: 22,
-            child: Container(
-              width: 10,
-              height: 40,
-              padding: const EdgeInsets.all(2),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(2),
-                  color: Colors.white
-              ),
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                height: 20,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(2),
-                    color: Colors.green
-                ),
-              ),
-            ),
-          ),
-          if(topFloatAvailable)
-            Positioned(
-              right: 55,
-              bottom: 55,
-              child: SvgPicture.asset(
-                'assets/Images/Source/top_float.svg',
-                width: 30,
-                height: 30,
-              ),
-            ),
-          if(bottomFloatAvailable)
-            Positioned(
-              right: 70,
-              bottom: 35,
-              child: SvgPicture.asset(
-                'assets/Images/Source/bottom_float.svg',
-                width: 50,
-                height: 50,
-              ),
-            )
-        ],
-      );
-    }
-    else if(source.sourceType == 4){
-      return SvgPicture.asset(
-        'assets/Images/Source/bore_1.svg',
-        width: 120,
-        height: 120,
-      );
-    }else{
-      return SvgPicture.asset(
-        'assets/Images/Source/pond_1.svg',
-        width: 120,
-        height: 120,
-      );
-    }
-  }
-
 
   Widget getPumpSelection(SourceModel source, int pumpMode){
     List<double> currentParameter = pumpMode == 1 ? source.inletPump : source.outletPump;
@@ -466,67 +259,314 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
     );
   }
 
+}
 
-  Widget singlePump(){
+List<Widget> getWaterMeterAndPressure(double pressureSno, double waterMeterSno, ConfigMakerProvider configPvd){
+  return [
+    if(pressureSno != 0.0)
+      Positioned(
+        right: 0,
+        top: 15 * configPvd.ratio,
+        child: SvgPicture.asset(
+          'assets/Images/Svg/objectId_24.svg',
+          width: 30,
+          height: 30 * configPvd.ratio,
+        ),
+      ),
+    if(waterMeterSno != 0.0)
+      Positioned(
+      right: 0,
+      top: 50 * configPvd.ratio,
+      child: SvgPicture.asset(
+        'assets/Images/Svg/objectId_22.svg',
+        width: 25,
+        height: 25 * configPvd.ratio,
+      ),
+    ),
+  ];
+}
+
+Widget singlePump(SourceModel source, bool fillingPump, ConfigMakerProvider configPvd, {bool dashboard = false}){
+  List<double> currentParameter = fillingPump ? source.inletPump : source.outletPump;
+  return Stack(
+    children: [
+      Positioned(
+        left : fillingPump ? 40 : null,
+        right : (!fillingPump && dashboard) ? 0 : (!fillingPump) ? 40 : null,
+        bottom: 32 * configPvd.ratio,
+        child: SvgPicture.asset(
+          'assets/Images/Source/backside_pipe_1.svg',
+          width: 120 ,
+          height: 8.5 * configPvd.ratio,
+        ),
+      ),
+      SvgPicture.asset(
+        'assets/Images/Source/pump_1.svg',
+        width: 120,
+        height: 120 * configPvd.ratio,
+      ),
+      ...getWaterMeterAndPressure(
+          configPvd.pump.firstWhere((pump) => pump.commonDetails.sNo == currentParameter[0]).pressure,
+          configPvd.pump.firstWhere((pump) => pump.commonDetails.sNo == currentParameter[0]).waterMeter,
+        configPvd
+      ),
+      Positioned(
+        left : 5,
+        top: 0,
+        child: Text(getObjectName(currentParameter[0], configPvd).name!,style: TextStyle(fontSize: 12 * configPvd.ratio, fontWeight: FontWeight.bold),),
+      )
+    ],
+  );
+}
+
+Widget multiplePump(SourceModel source, bool fillingPump, ConfigMakerProvider configPvd,
+    {bool dashBoard = false}){
+  List<double> currentParameter = fillingPump ? source.inletPump : source.outletPump;
+  return Row(
+    children: [
+      for(var i = 0;i < currentParameter.length;i++)
+        Stack(
+          children: [
+            Positioned(
+              left: fillingPump ? (i == 0 ? 50 : null) : null,
+              right: (!fillingPump && i == currentParameter.length -1 && !dashBoard) ? 40 : null,
+              bottom: 32 * configPvd.ratio,
+              child: SvgPicture.asset(
+                'assets/Images/Source/backside_pipe_1.svg',
+                width: 120,
+                height: 8.5 * configPvd.ratio,
+              ),
+            ),
+            SvgPicture.asset(
+              'assets/Images/Source/pump_1.svg',
+              width: 120,
+              height: 120 * configPvd.ratio,
+            ),
+            ...getWaterMeterAndPressure(
+                configPvd.pump.firstWhere((pump) => pump.commonDetails.sNo == currentParameter[i]).pressure,
+                configPvd.pump.firstWhere((pump) => pump.commonDetails.sNo == currentParameter[i]).waterMeter,
+              configPvd
+            ),
+            Positioned(
+              right: i == 0 ? 0 : null,
+              left: i == 1 ? 0 : null,
+              bottom: 16 * configPvd.ratio,
+              child: SvgPicture.asset(
+                'assets/Images/Source/${
+                    i == 0
+                        ? 'front_corner_left_radius_pipe_1'
+                        : i == (currentParameter.length - 1)
+                        ? 'front_corner_right_radius_pipe_1'
+                        : 'backside_pipe_1'}.svg',
+                width: 120,
+                height: 8.5 * configPvd.ratio,
+              ),
+            ),
+            Positioned(
+              left : 5,
+              top: 0,
+              child: Text(getObjectName(currentParameter[i], configPvd).name!,style: TextStyle(fontSize: 12 * configPvd.ratio, fontWeight: FontWeight.bold),),
+            )
+          ],
+        ),
+    ],
+  );
+}
+
+Widget getTankImage(SourceModel source ,ConfigMakerProvider configPvd, {bool dashboard = false, bool inlet = true,}){
+  bool levelAvailable = source.level != 0.0;
+  bool topFloatAvailable = source.topFloat != 0.0;
+  bool bottomFloatAvailable = source.bottomFloat != 0.0;
+  if(source.sourceType == 1){
     return Stack(
       children: [
-        Positioned(
-          left : 40,
-          bottom: 32,
-          child: SvgPicture.asset(
-            'assets/Images/Source/backside_pipe_1.svg',
-            width: 120,
-            height: 8.5,
-          ),
-        ),
         SvgPicture.asset(
-          'assets/Images/Source/pump_1.svg',
+          'assets/Images/Source/tank_${!inlet ? 'outlet_' : ''}1.svg',
           width: 120,
-          height: 120,
+          height: 120 * configPvd.ratio,
         ),
-      ],
-    );
-  }
-
-  Widget multiplePump(int length){
-    return Row(
-      children: [
-        for(var i = 0;i < length;i++)
-          Stack(
-            children: [
-              Positioned(
-                left: i == 0 ? 50 : null,
-                bottom: 32,
-                child: SvgPicture.asset(
-                  'assets/Images/Source/backside_pipe_1.svg',
-                  width: 120,
-                  height: 8.5,
+        if(levelAvailable)
+          Positioned(
+            left: 52,
+            bottom: 28,
+            child: Container(
+              width: 10,
+              height: 40,
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(2),
+                  color: Colors.white
+              ),
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                height: 20,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(2),
+                    color: Colors.green
                 ),
               ),
-              SvgPicture.asset(
-                'assets/Images/Source/pump_1.svg',
-                width: 120,
-                height: 120,
-              ),
-              Positioned(
-                right: i == 0 ? 0 : null,
-                left: i == 1 ? 0 : null,
-                bottom: 16,
-                child: SvgPicture.asset(
-                  'assets/Images/Source/${
-                      i == 0
-                          ? 'front_corner_left_radius_pipe_1'
-                          : i == (length - 1)
-                          ? 'front_corner_right_radius_pipe_1'
-                          : 'backside_pipe_1'}.svg',
-                  width: 120,
-                  height: 8.5,
-                ),
-              ),
-            ],
+            ),
           ),
+        if(levelAvailable || topFloatAvailable || bottomFloatAvailable)
+          Positioned(
+            right: 42,
+            bottom: 23,
+            child: SvgPicture.asset(
+              'assets/Images/Source/water_view.svg',
+              width: 55,
+              height: 55,
+            ),
+          ),
+        if(topFloatAvailable)
+          Positioned(
+            right: 45,
+            bottom: 50,
+            child: SvgPicture.asset(
+              'assets/Images/Source/top_float.svg',
+              width: 30,
+              height: 40,
+            ),
+          ),
+        if(bottomFloatAvailable)
+          Positioned(
+            right: 60,
+            bottom: 25,
+            child: SvgPicture.asset(
+              'assets/Images/Source/bottom_float.svg',
+              width: 70,
+              height: 70,
+            ),
+          )
       ],
     );
   }
-
+  else if(source.sourceType == 2){
+    return Stack(
+      children: [
+        SvgPicture.asset(
+          'assets/Images/Source/sump_${!inlet ? 'outlet_' : ''}1.svg',
+          width: 120,
+          height: 120 * configPvd.ratio,
+        ),
+        if(levelAvailable)
+          Positioned(
+            left: 52,
+            bottom: 35,
+            child: Container(
+              width: 10,
+              height: 40,
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(2),
+                  color: Colors.white
+              ),
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                height: 20,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(2),
+                    color: Colors.green
+                ),
+              ),
+            ),
+          ),
+        if(topFloatAvailable)
+          Positioned(
+            right: 55,
+            bottom: 55,
+            child: SvgPicture.asset(
+              'assets/Images/Source/top_float.svg',
+              width: 30,
+              height: 30,
+            ),
+          ),
+        if(bottomFloatAvailable)
+          Positioned(
+            right: 70,
+            bottom: 35,
+            child: SvgPicture.asset(
+              'assets/Images/Source/bottom_float.svg',
+              width: 50,
+              height: 50,
+            ),
+          )
+      ],
+    );
+  }
+  else if(source.sourceType == 3){
+    return Stack(
+      children: [
+        SvgPicture.asset(
+          'assets/Images/Source/well_${!inlet ? 'outlet_' : ''}1.svg',
+          width: 120,
+          height: 120 * configPvd.ratio,
+        ),
+        if(levelAvailable || topFloatAvailable || bottomFloatAvailable)
+          Positioned(
+            right: 47,
+            bottom: 20,
+            child: SvgPicture.asset(
+              'assets/Images/Source/water_view.svg',
+              width: 55,
+              height: 55,
+            ),
+          ),
+        if(levelAvailable)
+          Positioned(
+            left: 45,
+            bottom: 22,
+            child: Container(
+              width: 10,
+              height: 40,
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(2),
+                  color: Colors.white
+              ),
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                height: 20,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(2),
+                    color: Colors.green
+                ),
+              ),
+            ),
+          ),
+        if(topFloatAvailable)
+          Positioned(
+            right: 55,
+            bottom: 55,
+            child: SvgPicture.asset(
+              'assets/Images/Source/top_float.svg',
+              width: 30,
+              height: 30,
+            ),
+          ),
+        if(bottomFloatAvailable)
+          Positioned(
+            right: 70,
+            bottom: 35,
+            child: SvgPicture.asset(
+              'assets/Images/Source/bottom_float.svg',
+              width: 50,
+              height: 50,
+            ),
+          )
+      ],
+    );
+  }
+  else if(source.sourceType == 4){
+    return SvgPicture.asset(
+      'assets/Images/Source/bore_1.svg',
+      width: 120,
+      height: 120* configPvd.ratio,
+    );
+  }else{
+    return SvgPicture.asset(
+      'assets/Images/Source/pond_1.svg',
+      width: 120,
+      height: 120* configPvd.ratio,
+    );
+  }
 }

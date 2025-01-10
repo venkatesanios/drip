@@ -1,0 +1,426 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:oro_drip_irrigation/Models/Configuration/source_model.dart';
+import 'package:oro_drip_irrigation/Screens/ConfigMaker/site_configure.dart';
+import 'package:oro_drip_irrigation/Screens/ConfigMaker/source_configuration.dart';
+import 'package:oro_drip_irrigation/StateManagement/config_maker_provider.dart';
+import 'fertilization_configuration.dart';
+import 'filtration_configuration.dart';
+
+class LineConfiguration extends StatefulWidget {
+  final ConfigMakerProvider configPvd;
+  const LineConfiguration({super.key, required this.configPvd});
+
+  @override
+  State<LineConfiguration> createState() => _LineConfigurationState();
+}
+
+class _LineConfigurationState extends State<LineConfiguration> {
+  double pumpExtendedWidth = 0.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+        padding: EdgeInsets.all(8),
+      child: LayoutBuilder(builder: (context, constraint){
+        double ratio = constraint.maxWidth < 500 ? 0.6 : 1.0;
+        return Container(
+          width: constraint.maxWidth,
+          height: constraint.maxHeight,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: Colors.white
+          ),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              width: 1600,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  getSuitableSourceConnection(),
+
+                  // Container(
+                  //   // color: Colors.green.shade50,
+                  //   width: double.infinity,
+                  //   height: 254,
+                  //   child: Row(
+                  //     children: [
+                  //       SvgPicture.asset(
+                  //         'assets/Images/Filtration/filtration_joint_1.svg',
+                  //         width: 120,
+                  //         height: 254,
+                  //       ),
+                  //       SizedBox(
+                  //         width: 1500,
+                  //         height: 254,
+                  //         child: Stack(
+                  //           children: [
+                  //             Positioned(
+                  //               top: 100,
+                  //               child: Row(
+                  //                 children: [
+                  //                   if(widget.configPvd.filtration[0].filters.length == 1)
+                  //                     singleFilter(ratio, constraint, widget.configPvd.filtration[0], widget.configPvd),
+                  //                   if(widget.configPvd.filtration[0].filters.length > 1)
+                  //                     multipleFilter(ratio, constraint, widget.configPvd.filtration[0], widget.configPvd),
+                  //                 ],
+                  //               ),
+                  //             ),
+                  //             Positioned(
+                  //               bottom: 6,
+                  //               left: 528,
+                  //               child: SvgPicture.asset(
+                  //                 'assets/Images/Filtration/filtration_to_fertilization_1.svg',
+                  //                 width: 95,
+                  //                 height: 17,
+                  //               )
+                  //             ),
+                  //
+                  //             Positioned(
+                  //               top: 34,
+                  //               left: 596,
+                  //               child: Column(
+                  //                 mainAxisAlignment: MainAxisAlignment.center,
+                  //                 crossAxisAlignment: CrossAxisAlignment.center,
+                  //                 children: [
+                  //                   // if(fertilizationSite.channel.length == 1)
+                  //                   //   getSingleChannel(fertilizerSite: fertilizationSite),
+                  //                   // if(fertilizationSite.channel.length > 1)
+                  //                     getMultipleChannel(fertilizerSite: widget.configPvd.fertilization[0])
+                  //                 ],
+                  //               ),
+                  //             )
+                  //           ],
+                  //         ),
+                  //       )
+                  //
+                  //     ],
+                  //   ),
+                  // )
+                ],
+              ),
+            ),
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget getSuitableSourceConnection(){
+    List<SourceModel> boreOrOthers = widget.configPvd.source.where((source) => ([4, 5].contains(source.sourceType) || (source.sourceType == 3 && source.inletPump.isEmpty))).toList();
+    List<SourceModel> wellSumpTank = widget.configPvd.source.where((source) => ![3, 4, 5].contains(source.sourceType) || (source.sourceType == 3 && source.inletPump.isNotEmpty)).toList();
+    if(boreOrOthers.length == 1 && wellSumpTank.isEmpty){
+      return oneSource();
+    }else if(boreOrOthers.isEmpty && wellSumpTank.length == 1){
+      return oneTank(widget.configPvd.source[0], inlet: false);
+    }else if(boreOrOthers.length == 1 && wellSumpTank.length == 1){
+      return oneSourceAndOneTank();
+    }else{
+      return multipleSourceAndOneTank(multipleSource: boreOrOthers, oneTankList: wellSumpTank);
+    }
+  }
+
+  Widget oneSource(){
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...oneSourceList(widget.configPvd.source[0]),
+        ...filtrationAndFertilization()      ],
+    );
+  }
+
+  Widget oneTank(SourceModel source, {bool inlet = true, bool fertilizerSite = true}){
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...oneTankList(source, inlet: inlet),
+        if(fertilizerSite)
+          ...filtrationAndFertilization()
+      ],
+    );
+  }
+
+  Widget oneSourceAndOneTank(){
+    List<SourceModel> source = widget.configPvd.source;
+    SourceModel boreOthers = [4,5].contains(source[0].sourceType) ? source[0] : source[1];
+    SourceModel sumpTankWell = ![4,5].contains(source[0].sourceType) ? source[0] : source[1];
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...oneSourceList(boreOthers),
+        ...oneTankList(sumpTankWell),
+        ...filtrationAndFertilization()
+      ],
+    );
+  }
+
+  Widget multipleSourceAndOneTank({required List<SourceModel> multipleSource, required List<SourceModel> oneTankList}){
+    return LayoutBuilder(builder: (context, constraint){
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            children: [
+              for(var src in multipleSource)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: Row(
+                    children: [
+                      ...oneSourceList(src)
+                    ],
+                  ),
+                )
+            ],
+          ),
+          Column(
+            children: [
+              for(var src = 0;src < multipleSource.length;src++)
+                Container(
+                  width: 8 * widget.configPvd.ratio,
+                  height: 160 * widget.configPvd.ratio,
+                  child: Stack(
+                    children: [
+                      if(src == 0)
+                        Positioned(
+                            left: 0,
+                            bottom: 0,
+                            child: Container(
+                              width: 8,
+                              height: 80  * widget.configPvd.ratio,
+                              decoration: const BoxDecoration(
+                                  gradient: RadialGradient(
+                                      radius: 2,
+                                      colors: [
+                                        Color(0xffC0E3EE),
+                                        Color(0xff67B1C1),
+                                      ]
+                                  )
+                              ),
+                            )
+                        ),
+                      if(multipleSource.length - 1 == src)
+                        Positioned(
+                            left: 0,
+                            top: 0,
+                            child: Container(
+                              width: 8,
+                              height: 109,
+                              decoration: const BoxDecoration(
+                                  gradient: RadialGradient(
+                                      radius: 3,
+                                      colors: [
+                                        Color(0xffC0E3EE),
+                                        Color(0xff67B1C1),
+                                      ]
+                                  )
+                              ),
+                            )
+                        ),
+                      if(multipleSource.length > 2 && ![0, multipleSource.length - 1].contains(src))
+                        Positioned(
+                            left: 0,
+                            top: 0,
+                            child: Container(
+                              width: 8,
+                              height: 160,
+                              decoration: const BoxDecoration(
+                                  gradient: RadialGradient(
+                                      radius: 3,
+                                      colors: [
+                                        Color(0xffC0E3EE),
+                                        Color(0xff67B1C1),
+                                      ]
+                                  )
+                              ),
+                            )
+                        ),
+                    ],
+                  ),
+                )
+            ],
+          ),
+          oneTank(oneTankList[0], fertilizerSite: false),
+          ...filtrationAndFertilization()
+        ],
+      );
+    });
+  }
+
+  List<Widget> filtrationAndFertilization(){
+    double connectingHeight = widget.configPvd.filtration.isEmpty ? 198 : 400;
+    return [
+      if(widget.configPvd.fertilization.isNotEmpty)
+        SizedBox(
+          width: 50,
+          height: connectingHeight * widget.configPvd.ratio,
+          child: Stack(
+            children: [
+              Positioned(
+                top: 80 * widget.configPvd.ratio,
+                child: Container(
+                  width: 8 * widget.configPvd.ratio ,
+                  height: 200 * widget.configPvd.ratio,
+                  decoration: const BoxDecoration(
+                      gradient: RadialGradient(
+                          radius: 2,
+                          colors: [
+                            Color(0xffC0E3EE),
+                            Color(0xff67B1C1),
+                          ]
+                      )
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 190 * widget.configPvd.ratio,
+                child: Container(
+                  width: 50,
+                  height: 8  * widget.configPvd.ratio,
+                  decoration: const BoxDecoration(
+                      gradient: RadialGradient(
+                          radius: 2,
+                          colors: [
+                            Color(0xffC0E3EE),
+                            Color(0xff67B1C1),
+                          ]
+                      )
+                  ),
+                ),
+              ),
+              if(widget.configPvd.filtration.isNotEmpty)
+                Positioned(
+                  top: 277  * widget.configPvd.ratio,
+                  child: Container(
+                    width: 50,
+                    height: 8 * widget.configPvd.ratio,
+                    decoration: const BoxDecoration(
+                        gradient: RadialGradient(
+                            radius: 2,
+                            colors: [
+                              Color(0xffC0E3EE),
+                              Color(0xff67B1C1),
+                            ]
+                        )
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      Stack(
+        children: [
+          if(widget.configPvd.fertilization.isNotEmpty && widget.configPvd.filtration.isNotEmpty)
+            Positioned(
+            right: 0,
+            top: 98 * widget.configPvd.ratio,
+            child: Container(
+              width: (widget.configPvd.filtration[0].filters.length * 150 - 50) * widget.configPvd.ratio,
+              height: 7 * widget.configPvd.ratio,
+              decoration: const BoxDecoration(
+                  gradient: RadialGradient(
+                      radius: 2,
+                      colors: [
+                        Color(0xffC0E3EE),
+                        Color(0xff67B1C1),
+                      ]
+                  )
+              ),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if(widget.configPvd.fertilization.isNotEmpty)
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    if(widget.configPvd.fertilization[0].channel.length == 1)
+                      FertilizationDashboardFormation(fertilizationFormation: FertilizationFormation.singleChannel, fertilizationSite: widget.configPvd.fertilization[0]),
+                    if(widget.configPvd.fertilization[0].channel.length > 1)
+                      FertilizationDashboardFormation(fertilizationFormation: FertilizationFormation.multipleChannel, fertilizationSite: widget.configPvd.fertilization[0]),
+                  ],
+                ),
+              if(widget.configPvd.filtration.isNotEmpty)
+                ...[
+                  SizedBox(height: 80 * widget.configPvd.ratio,),
+                  Row(
+                    children: [
+                      if(widget.configPvd.filtration[0].filters.length == 1)
+                        FiltrationDashboardFormation(filtrationFormation: FiltrationFormation.singleFilter, filtrationSite: widget.configPvd.filtration[0]),
+                      if(widget.configPvd.filtration[0].filters.length > 1)
+                        FiltrationDashboardFormation(filtrationFormation: FiltrationFormation.multipleFilter, filtrationSite: widget.configPvd.filtration[0]),
+                    ],
+                  ),
+                ]
+            ],
+          ),
+          if(widget.configPvd.fertilization.isNotEmpty && widget.configPvd.filtration.isNotEmpty)
+            Positioned(
+            right: 0,
+            bottom: 8 * widget.configPvd.ratio,
+            child: Container(
+              width: 8 * widget.configPvd.ratio ,
+              height: 320 * widget.configPvd.ratio,
+              decoration: const BoxDecoration(
+                  gradient: RadialGradient(
+                      radius: 2,
+                      colors: [
+                        Color(0xffC0E3EE),
+                        Color(0xff67B1C1),
+                      ]
+                  )
+              ),
+            ),
+          ),
+
+        ],
+      ),
+    ];
+  }
+
+  List<Widget> oneSourceList(SourceModel source, ){
+    pumpExtendedWidth += (120 * 2);
+    return [
+      getSource(source,widget.configPvd , inlet: false,dashboard: true),
+      if(source.outletPump.length == 1)
+        singlePump(source, false, widget.configPvd, dashboard: true)
+      else
+        multiplePump(source, false, widget.configPvd, dashBoard: true)
+    ];
+  }
+
+  List<Widget> oneTankList(SourceModel source, {bool inlet = true}){
+    pumpExtendedWidth += 120 + (source.outletPump.length * 120);
+    return [
+      getSource(source, widget.configPvd, inlet: inlet),
+      multiplePump(source, false, widget.configPvd, dashBoard: true),
+    ];
+  }
+
+  Widget lJointPipeConnectionForPumps(){
+    return Transform(
+      alignment: Alignment.center,
+      transform: Matrix4.identity()..scale(-1.0, 1.0),
+      child: SvgPicture.asset(
+        'assets/Images/Source/pump_joint_1.svg',
+        width: 120,
+        height: 154,
+      ),
+    );
+  }
+
+  Widget getSource(SourceModel source,ConfigMakerProvider configPvd, {bool dashboard = false, bool inlet = true}){
+    return Stack(
+      children: [
+        getTankImage(source, configPvd, dashboard: dashboard, inlet: inlet),
+        Positioned(
+          left : 5,
+          top: 0,
+          child: Text(getObjectName(source.commonDetails.sNo!, widget.configPvd).name!,style: TextStyle(fontSize: 12 * configPvd.ratio, fontWeight: FontWeight.bold),),
+        ),
+      ],
+    );
+  }
+}

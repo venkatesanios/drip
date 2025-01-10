@@ -2,20 +2,24 @@ import 'device_object_model.dart';
 
 class PumpModel{
   DeviceObjectModel commonDetails;
-  int? level;
-  int? pressure;
+  double level;
+  double pressure;
+  double waterMeter;
 
   PumpModel({
     required this.commonDetails,
-    required this.level,
-    required this.pressure
+    this.level = 0.0,
+    this.pressure = 0.0,
+    this.waterMeter = 0.0,
   });
 
   factory PumpModel.fromJson(dynamic data){
+    DeviceObjectModel deviceObjectModel = DeviceObjectModel.fromJson(data);
     return PumpModel(
-        commonDetails: data,
+        commonDetails: deviceObjectModel,
         level: data['level'],
-        pressure: data['pressure']
+        pressure: data['pressure'],
+        waterMeter: data['waterMeter']
     );
   }
 
@@ -24,6 +28,7 @@ class PumpModel{
     commonInfo.addAll({
       'level' : level,
       'pressure' : pressure,
+      'waterMeter' : waterMeter,
     });
     return commonInfo;
   }

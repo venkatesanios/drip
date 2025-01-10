@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/site_configure.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 
 import '../../Constants/dialog_boxes.dart';
@@ -54,7 +55,7 @@ class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
                         IntrinsicWidth(
                           stepWidth: 200,
                           child: ListTile(
-                            leading: SizedImage(imagePath: 'assets/Images/Png/objectId_4.png'),
+                            leading: const SizedImage(imagePath: 'assets/Images/Png/objectId_4.png'),
                             title: Text(filtrationSite.commonDetails.name!),
                             trailing: IntrinsicWidth(
                               child: MaterialButton(
@@ -110,9 +111,9 @@ class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
                                       ),
                                     ),
                                   if(filtrationSite.filters.length == 1)
-                                    singleFilter(ratio, constraint, filtrationSite),
+                                    FiltrationDashboardFormation(filtrationFormation: FiltrationFormation.singleFilter, filtrationSite: filtrationSite),
                                   if(filtrationSite.filters.length > 1)
-                                    multipleFilter(ratio, constraint, filtrationSite),
+                                    FiltrationDashboardFormation(filtrationFormation: FiltrationFormation.multipleFilter, filtrationSite: filtrationSite)
 
                                 ],
                               ),
@@ -126,8 +127,8 @@ class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
                               width: 30,
                               height: 30,
                             ),
-                            SizedBox(width: 20,),
-                            Text('Pressure In : ', style: AppProperties.listTileBlackBoldStyle,),
+                            const SizedBox(width: 20,),
+                            const Text('Pressure In : ', style: AppProperties.listTileBlackBoldStyle,),
                             SizedBox(
                               width: 150,
                               child: Center(
@@ -195,8 +196,6 @@ class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
                             )
                           ],
                         ),
-
-
                       ],
                     ),
                   )
@@ -241,11 +240,46 @@ class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
     }
     return widget.configPvd.listOfGeneratedObject.where((generatedObject) => sensorList.contains(generatedObject.sNo)).toList();
   }
+}
 
-  Widget firstHorizontalPipe(double ratio){
+
+enum FiltrationFormation {singleFilter, multipleFilter}
+
+class FiltrationDashboardFormation extends StatefulWidget {
+  FiltrationFormation filtrationFormation;
+  FiltrationModel filtrationSite;
+  FiltrationDashboardFormation({
+    super.key,
+    required this.filtrationFormation,
+    required this.filtrationSite,
+  });
+
+  @override
+  State<FiltrationDashboardFormation> createState() => _FiltrationDashboardFormationState();
+}
+
+class _FiltrationDashboardFormationState extends State<FiltrationDashboardFormation> {
+  late ConfigMakerProvider configPvd;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    configPvd = Provider.of<ConfigMakerProvider>(context, listen: false);
+  }
+  @override
+  Widget build(BuildContext context) {
+    configPvd = Provider.of<ConfigMakerProvider>(context, listen: true);
+    if(widget.filtrationFormation == FiltrationFormation.singleFilter){
+      return singleFilter();
+    }else{
+      return multipleFilter();
+    }
+  }
+  Widget firstHorizontalPipe(){
     return SizedBox(
-      width: 60 * ratio,
-      height: 150 * ratio,
+      width: 60 * configPvd.ratio,
+      height: 150 * configPvd.ratio,
       child: Stack(
         children: [
           Positioned(
@@ -254,40 +288,39 @@ class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
             child: SvgPicture.asset(
               'assets/Images/Filtration/horizontal_pipe_4.svg',
               width: 60,
-              height: 8 * ratio,
+              height: 8 * configPvd.ratio,
             ),
           ),
           Positioned(
-            top: 22,
+            top: 22 * configPvd.ratio,
             right: 0,
             child: SvgPicture.asset(
               'assets/Images/Filtration/horizontal_pipe_0.svg',
               width: 60,
-              height: 8 * ratio,
+              height: 8 * configPvd.ratio,
             ),
           ),
         ],
       ),
     );
   }
-
-  Widget secondHorizontalPipe(double ratio, BoxConstraints constraint, FiltrationModel filtrationSite){
+  Widget secondHorizontalPipe(){
     return SizedBox(
       width: 60,
-      height: 150 * ratio,
+      height: 150 * configPvd.ratio,
       child: Stack(
         children: [
           Positioned(
-            bottom: 2 * ratio,
+            bottom: 2 * configPvd.ratio,
             child: SvgPicture.asset(
               'assets/Images/Filtration/horizontal_pipe_4.svg',
-              width: 60 * ratio,
-              height: 8 * ratio,
+              width: 60 * configPvd.ratio,
+              height: 8 * configPvd.ratio,
             ),
           ),
-          if(filtrationSite.pressureOut != 0.0)
+          if(widget.filtrationSite.pressureOut != 0.0)
             Positioned(
-              bottom: constraint.maxWidth < 500 ? 5 : 10,
+              bottom: 10,
               child: SvgPicture.asset(
                 'assets/Images/Svg/objectId_24.svg',
                 width: 30,
@@ -298,107 +331,120 @@ class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
       ),
     );
   }
-
-  Widget multipleFilterFirstFilter(double ratio,double filterSno){
-    DeviceObjectModel filterObject = widget.configPvd.listOfGeneratedObject.firstWhere((object) => object.sNo == filterSno);
+  Widget singleFilter(){
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        firstHorizontalPipe(),
+        Stack(
+          children: [
+            SvgPicture.asset(
+              'assets/Images/Filtration/single_filter_4.svg',
+              width: 150,
+              height: 150 * configPvd.ratio,
+            ),
+            Positioned(
+              left : 20,
+              top: 6 * configPvd.ratio,
+              child: Text(getObjectName(widget.filtrationSite.filters[0], configPvd).name!,style: TextStyle(fontSize: 12 * configPvd.ratio, fontWeight: FontWeight.bold),),
+            ),
+          ],
+        ),
+        secondHorizontalPipe(),
+      ],
+    );
+  }
+  Widget multipleFilter(){
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        firstHorizontalPipe(),
+        if(widget.filtrationSite.filters.isNotEmpty)
+          multipleFilterFirstFilter(widget.filtrationSite.filters[0],),
+        if(widget.filtrationSite.filters.length > 2)
+          for(var middleFilter = 1;middleFilter < widget.filtrationSite.filters.length - 1;middleFilter++)
+            multipleFilterMiddleFilter(widget.filtrationSite.filters[middleFilter]),
+        if(widget.filtrationSite.filters.length > 1)
+          multipleFilterLastFilter(widget.filtrationSite.filters[widget.filtrationSite.filters.length - 1]),
+        secondHorizontalPipe(),
+      ],
+    );
+  }
+  Widget multipleFilterFirstFilter(double filterSno){
+    DeviceObjectModel filterObject = configPvd.listOfGeneratedObject.firstWhere((object) => object.sNo == filterSno);
     return Stack(
       children: [
         SvgPicture.asset(
           'assets/Images/Filtration/multiple_filter_first_4.svg',
           width: 150,
-          height: 150 * ratio,
+          height: 150 * configPvd.ratio,
         ),
         Positioned(
-          top: 20 * ratio,
+          top: 20 * configPvd.ratio,
           child: SvgPicture.asset(
             'assets/Images/Filtration/multiple_filter_first_backwash_pipe_0.svg',
             width: 150,
-            height: 17.3 * ratio,
+            height: 17.3 * configPvd.ratio,
           ),
+        ),
+        Positioned(
+          left : 20,
+          top: 6,
+          child: Text(getObjectName(filterSno, configPvd).name!,style: TextStyle(fontSize: 12 * configPvd.ratio, fontWeight: FontWeight.bold),),
         ),
       ],
     );
   }
-
-  Widget multipleFilterMiddleFilter(double ratio, double filterSno){
-    DeviceObjectModel filterObject = widget.configPvd.listOfGeneratedObject.firstWhere((object) => object.sNo == filterSno);
+  Widget multipleFilterMiddleFilter(double filterSno){
+    DeviceObjectModel filterObject = configPvd.listOfGeneratedObject.firstWhere((object) => object.sNo == filterSno);
     return Stack(
       children: [
         SvgPicture.asset(
           'assets/Images/Filtration/multiple_filter_middle_4.svg',
           width: 150,
-          height: 150 * ratio,
+          height: 150 * configPvd.ratio,
         ),
         Positioned(
-          top: 20 * ratio,
+          top: 20 * configPvd.ratio,
           child: SvgPicture.asset(
             'assets/Images/Filtration/multiple_filter_middle_backwash_pipe_0.svg',
             width: 150,
-            height: 17.1 * ratio,
+            height: 17.1 * configPvd.ratio,
           ),
+        ),
+        Positioned(
+          left : 20,
+          top: 6,
+          child: Text(getObjectName(filterSno, configPvd).name!,style: TextStyle(fontSize: 12 * configPvd.ratio, fontWeight: FontWeight.bold),),
         ),
 
       ],
     );
   }
-
-  Widget multipleFilterLastFilter(double ratio, double filterSno){
-    DeviceObjectModel filterObject = widget.configPvd.listOfGeneratedObject.firstWhere((object) => object.sNo == filterSno);
+  Widget multipleFilterLastFilter(double filterSno){
+    DeviceObjectModel filterObject = configPvd.listOfGeneratedObject.firstWhere((object) => object.sNo == filterSno);
     return Stack(
       children: [
         SvgPicture.asset(
           'assets/Images/Filtration/multiple_filter_last_4.svg',
           width: 150,
-          height: 150 * ratio,
+          height: 150 * configPvd.ratio,
         ),
         Positioned(
           bottom: 0,
           child: SvgPicture.asset(
             'assets/Images/Filtration/multiple_filter_last_bottom_filtration_pipe_4.svg',
             width: 150,
-            height: 17 * ratio,
+            height: 17 * configPvd.ratio,
           ),
         ),
-      ],
-    );
-  }
-
-  Widget singleFilter(double ratio, BoxConstraints constraint, FiltrationModel filtrationSite){
-    DeviceObjectModel filterObject = widget.configPvd.listOfGeneratedObject.firstWhere((object) => object.sNo == filtrationSite.filters[0]);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        firstHorizontalPipe(ratio),
-        Stack(
-          children: [
-            SvgPicture.asset(
-              'assets/Images/Filtration/single_filter_4.svg',
-              width: 150,
-              height: 150 * ratio,
-            ),
-          ],
+        Positioned(
+          left : 20,
+          top: 6,
+          child: Text(getObjectName(filterSno, configPvd).name!,style: TextStyle(fontSize: 12 * configPvd.ratio, fontWeight: FontWeight.bold),),
         ),
-        secondHorizontalPipe(ratio, constraint, filtrationSite),
       ],
     );
   }
-
-  Widget multipleFilter(double ratio, BoxConstraints constraint, FiltrationModel filtrationSite){
-    print('filtrationSite : ${filtrationSite.filters}');
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        firstHorizontalPipe(ratio),
-        if(filtrationSite.filters.isNotEmpty)
-          multipleFilterFirstFilter(ratio, filtrationSite.filters[0]),
-        if(filtrationSite.filters.length > 2)
-          for(var middleFilter = 1;middleFilter < filtrationSite.filters.length - 1;middleFilter++)
-            multipleFilterMiddleFilter(ratio, filtrationSite.filters[middleFilter]),
-        if(filtrationSite.filters.length > 1)
-          multipleFilterLastFilter(ratio, filtrationSite.filters[filtrationSite.filters.length - 1]),
-        secondHorizontalPipe(ratio, constraint, filtrationSite),
-      ],
-    );
-  }
-
 }
+

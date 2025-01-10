@@ -8,6 +8,7 @@ import 'package:oro_drip_irrigation/Models/Configuration/device_object_model.dar
 import 'package:oro_drip_irrigation/Models/Configuration/filtration_model.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/fertilization_configuration.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/filtration_configuration.dart';
+import 'package:oro_drip_irrigation/Screens/ConfigMaker/pump_configuration.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/source_configuration.dart';
 import 'package:oro_drip_irrigation/Widgets/custom_buttons.dart';
 import 'package:oro_drip_irrigation/Widgets/custom_drop_down_button.dart';
@@ -16,6 +17,7 @@ import 'package:responsive_grid_list/responsive_grid_list.dart';
 
 import '../../StateManagement/config_maker_provider.dart';
 import 'config_web_view.dart';
+import 'line_configuration.dart';
 
 class SiteConfigure extends StatefulWidget {
   final ConfigMakerProvider configPvd;
@@ -43,9 +45,13 @@ class _SiteConfigureState extends State<SiteConfigure> {
               Expanded(
                 child: widget.configPvd.selectedConfigurationTab == 0 ?
                     SourceConfiguration(configPvd: widget.configPvd)
+                    : widget.configPvd.selectedConfigurationTab == 1
+                    ? PumpConfiguration(configPvd: widget.configPvd)
                     : widget.configPvd.selectedConfigurationTab == 2
                     ? FiltrationConfiguration(configPvd: widget.configPvd)
-                    : FertilizationConfiguration(configPvd: widget.configPvd)
+                    : widget.configPvd.selectedConfigurationTab == 3
+                    ? FertilizationConfiguration(configPvd: widget.configPvd)
+                    : LineConfiguration(configPvd: widget.configPvd)
               )
             ],
           ),

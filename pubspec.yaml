@@ -88,6 +88,7 @@ flutter:
      - assets/Images/Png/objectId_20.png
      - assets/Images/Png/objectId_21.png
      - assets/Images/Png/objectId_22.png
+     - assets/Images/Svg/objectId_22.svg
      - assets/Images/Png/objectId_23.png
      - assets/Images/Png/objectId_24.png
      - assets/Images/Svg/objectId_24.svg
@@ -122,6 +123,8 @@ flutter:
      - assets/Images/Filtration/multiple_filter_last_bottom_filtration_pipe_4.svg
      - assets/Images/Filtration/horizontal_pipe_0.svg
      - assets/Images/Filtration/horizontal_pipe_4.svg
+     - assets/Images/Filtration/filtration_joint_1.svg
+     - assets/Images/Filtration/filtration_to_fertilization_1.svg
      - assets/Images/Fertilization/single_channel_0.svg
      - assets/Images/Fertilization/single_channel_1.svg
      - assets/Images/Fertilization/multiple_channel_first_0.svg
@@ -139,17 +142,25 @@ flutter:
      - assets/Images/Fertilization/agitator_connection_pipe_last_0.svg
      - assets/Images/Fertilization/agitator_connection_pipe_last_1.svg
      - assets/Images/Source/bore_1.svg
+     - assets/Images/Source/bore_opp_1.svg
      - assets/Images/Source/bottom_float.svg
      - assets/Images/Source/backside_pipe_1.svg
      - assets/Images/Source/front_corner_left_radius_pipe_1.svg
      - assets/Images/Source/front_corner_right_radius_pipe_1.svg
      - assets/Images/Source/pond_1.svg
      - assets/Images/Source/sump_1.svg
+     - assets/Images/Source/sump_outlet_1.svg
      - assets/Images/Source/tank_1.svg
+     - assets/Images/Source/tank_outlet_1.svg
      - assets/Images/Source/top_float.svg
      - assets/Images/Source/water_view.svg
      - assets/Images/Source/well_1.svg
+     - assets/Images/Source/well_outlet_1.svg
      - assets/Images/Source/pump_1.svg
+     - assets/Images/Source/pump_joint_1.svg
+     - assets/Images/Source/pump_t_joint_1.svg
+     - assets/Images/Source/vertical_pipe_1.svg
+     - assets/Images/Source/radius_pipe_1.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:oro_drip_irrigation/Models/Configuration/fertigation_model.dart';
 import 'package:oro_drip_irrigation/Models/Configuration/filtration_model.dart';
+import 'package:oro_drip_irrigation/Models/Configuration/pump_model.dart';
 import 'package:oro_drip_irrigation/Models/Configuration/weather_model.dart';
 
 import '../Models/Configuration/device_model.dart';
@@ -13,6 +14,7 @@ import '../Screens/ConfigMaker/config_web_view.dart';
 import '../Screens/ConfigMaker/connection.dart';
 
 class ConfigMakerProvider extends ChangeNotifier{
+  double ratio = 0.9;
   ConfigMakerTabs selectedTab = ConfigMakerTabs.siteConfigure;
   Map<int, String> configurationTab = {
     0 : 'Source Configuration',
@@ -82,7 +84,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     }
   ];
   List<dynamic> sampleObject = [
-    {"objectId" : 1, "type" : "-", "objectName" : "Tank"},
+    {"objectId" : 1, "type" : "-", "objectName" : "Source"},
     {"objectId" : 2, "type" : "-", "objectName" : "Irrigation Line"},
     {"objectId" : 3, "type" : "-", "objectName" : "Dosing Site"},
     {"objectId" : 4, "type" : "-", "objectName" : "Filtration Site"},
@@ -129,6 +131,7 @@ class ConfigMakerProvider extends ChangeNotifier{
   List<FiltrationModel> filtration = [];
   List<FertilizationModel> fertilization = [];
   List<SourceModel> source = [];
+  List<PumpModel> pump = [];
 
   DeviceObjectModel mapToDeviceObject(dynamic object) {
     return DeviceObjectModel(
@@ -177,6 +180,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         filtration = (jsonData['filtration'] as List<dynamic>).map((filtrationObject) => FiltrationModel.fromJson(filtrationObject)).toList();
         fertilization = (jsonData['fertilization'] as List<dynamic>).map((fertilizationObject) => FertilizationModel.fromJson(fertilizationObject)).toList();
         source = (jsonData['source'] as List<dynamic>).map((sourceObject) => SourceModel.fromJson(sourceObject)).toList();
+        pump = (jsonData['pump'] as List<dynamic>).map((pumpObject) => PumpModel.fromJson(pumpObject)).toList();
         selectedCategory = listOfDeviceModel[1].categoryId;
         selectedModelControllerId = listOfDeviceModel[1].controllerId;
 
@@ -254,9 +258,13 @@ class ConfigMakerProvider extends ChangeNotifier{
               );
             }
             if(deviceObjectModel.objectId == 1){
-              print('source is addded');
               source.add(
                 SourceModel(commonDetails: deviceObjectModel, inletPump: [], outletPump: [], valves: [])
+              );
+            }
+            if(deviceObjectModel.objectId == 5){
+              pump.add(
+                PumpModel(commonDetails: deviceObjectModel)
               );
             }
           }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:oro_drip_irrigation/Models/Configuration/fertigation_model.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/site_configure.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 
 import '../../Constants/dialog_boxes.dart';
@@ -28,7 +29,6 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
     return Padding(
       padding: const EdgeInsets.all(8),
       child: LayoutBuilder(builder: (context, constraint){
-        double ratio = constraint.maxWidth < 500 ? 0.6 : 1.0;
         return SizedBox(
           width: constraint.maxWidth,
           height: constraint.maxHeight,
@@ -98,7 +98,7 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
                             ),
                             Container(
                               alignment: Alignment.center,
-                              height: 250,
+                              height: 250 * widget.configPvd.ratio,
                               child: SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
                                 child: Column(
@@ -106,9 +106,9 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     if(fertilizationSite.channel.length == 1)
-                                      getSingleChannel(fertilizerSite: fertilizationSite),
+                                      FertilizationDashboardFormation(fertilizationFormation: FertilizationFormation.singleChannel, fertilizationSite: fertilizationSite),
                                     if(fertilizationSite.channel.length > 1)
-                                      getMultipleChannel(fertilizerSite: fertilizationSite)
+                                      FertilizationDashboardFormation(fertilizationFormation: FertilizationFormation.multipleChannel, fertilizationSite: fertilizationSite),
                                   ],
                                 ),
                               ),
@@ -159,6 +159,9 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
                           var source = widget.configPvd.source.map((object){
                             return object.toJson();
                           }).toList();
+                          var pump = widget.configPvd.pump.map((object){
+                            return object.toJson();
+                          }).toList();
                           String data = jsonEncode({
                             'listOfDeviceModel' : listOfDeviceModel,
                             'listOfSampleObjectModel' : listOfSampleObjectModel,
@@ -167,6 +170,7 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
                             'filtration' : filtration,
                             'fertilization' : fertilization,
                             'source' : source,
+                            'pump' : pump,
                           }
                           );
                           saveToSessionStorage('configData',data);
@@ -270,9 +274,57 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
     return listOfObject;
   }
 
-  Widget getSingleChannel({
-    required FertilizationModel fertilizerSite,
-}){
+
+
+}
+
+
+
+
+
+Widget getImageWithText(String title, String imagePath, ConfigMakerProvider configPvd){
+  return IntrinsicWidth(
+    stepWidth: 150 * configPvd.ratio,
+    child: ListTile(
+      title: Text(title),
+      leading: SizedImage(imagePath: imagePath),
+    ),
+  );
+}
+
+enum FertilizationFormation {singleChannel, multipleChannel}
+
+class FertilizationDashboardFormation extends StatefulWidget {
+  FertilizationFormation fertilizationFormation;
+  FertilizationModel fertilizationSite;
+  FertilizationDashboardFormation({
+    super.key,
+    required this.fertilizationFormation,
+    required this.fertilizationSite,
+  });
+  @override
+  State<FertilizationDashboardFormation> createState() => _FertilizationDashboardFormationState();
+}
+
+class _FertilizationDashboardFormationState extends State<FertilizationDashboardFormation> {
+  late ConfigMakerProvider configPvd;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    configPvd = Provider.of<ConfigMakerProvider>(context, listen: false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    configPvd = Provider.of<ConfigMakerProvider>(context, listen: true);
+    if(widget.fertilizationFormation == FertilizationFormation.singleChannel){
+      return getSingleChannel();
+    }else{
+      return getMultipleChannel();
+    }
+  }
+  Widget getSingleChannel(){
     return Row(
       children: [
         Column(
@@ -280,134 +332,117 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
           children: [
             Row(
               children: [
-                ...getAgitator(fertilizerSite: fertilizerSite),
-                if(fertilizerSite.agitator.isNotEmpty)
+                ...getAgitator(),
+                if(widget.fertilizationSite.agitator.isNotEmpty)
                   SvgPicture.asset(
                     'assets/Images/Fertilization/agitator_connection_pipe_last_1.svg',
                     width: 151,
-                    height: 45,
+                    height: 45 * configPvd.ratio,
                   ),
               ],
             ),
             Row(
               children: [
-                ...getBooster(fertilizerSite: fertilizerSite),
+                ...getBooster(),
                 SvgPicture.asset(
                   'assets/Images/Fertilization/single_channel_1.svg',
                   width: 150,
-                  height: 150,
+                  height: 150 * configPvd.ratio,
                 ),
               ],
             ),
           ],
         ),
-        getEcPhSelector(fertilizerSite)
+        getEcPhSelector()
       ],
     );
   }
-
-  List<Widget> getAgitator({
-    required FertilizationModel fertilizerSite,
-  }){
+  List<Widget> getAgitator(){
     return [
-      if(fertilizerSite.agitator.isNotEmpty || fertilizerSite.boosterPump.isNotEmpty)
+      if(widget.fertilizationSite.agitator.isNotEmpty || widget.fertilizationSite.boosterPump.isNotEmpty)
         SvgPicture.asset(
-          (fertilizerSite.agitator.isNotEmpty) ? 'assets/Images/Fertilization/agitator_1.svg' : '',
+          (widget.fertilizationSite.agitator.isNotEmpty) ? 'assets/Images/Fertilization/agitator_1.svg' : '',
           width: 150,
-          height: 47,
+          height: 47 * configPvd.ratio,
         ),
     ];
   }
-  List<Widget> getBooster({
-    required FertilizationModel fertilizerSite,
-  }){
+  List<Widget> getBooster(){
     return [
-      if(fertilizerSite.boosterPump.isNotEmpty || fertilizerSite.agitator.isNotEmpty)
+      if(widget.fertilizationSite.boosterPump.isNotEmpty || widget.fertilizationSite.agitator.isNotEmpty)
         SvgPicture.asset(
-          (fertilizerSite.boosterPump.isNotEmpty) ? 'assets/Images/Fertilization/booster_1.svg' : '',
+          (widget.fertilizationSite.boosterPump.isNotEmpty) ? 'assets/Images/Fertilization/booster_1.svg' : '',
           width: 150,
-          height: 150,
+          height: 150 * configPvd.ratio,
         ),
     ];
   }
-  Widget getMultipleChannel({
-    required FertilizationModel fertilizerSite,
-}){
+  Widget getEcPhSelector(){
+    return Column(
+      children: [
+        if(widget.fertilizationSite.selector.isNotEmpty)
+          getImageWithText('Selector', 'assets/Images/Png/objectId_8.png', configPvd),
+        if(widget.fertilizationSite.ec.isNotEmpty)
+          getImageWithText('Ec', 'assets/Images/Png/objectId_27.png', configPvd),
+        if(widget.fertilizationSite.ph.isNotEmpty)
+          getImageWithText('Ph', 'assets/Images/Png/objectId_28.png', configPvd),
+      ],
+    );
+  }
+  Widget getMultipleChannel(){
     return Row(
       children: [
         Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                ...getAgitator(fertilizerSite: fertilizerSite),
-                if(fertilizerSite.agitator.isNotEmpty)
+                ...getAgitator(),
+                if(widget.fertilizationSite.agitator.isNotEmpty)
                   ...[
-                    if(fertilizerSite.channel.length > 1)
-                      for(var middle = 0;middle < fertilizerSite.channel.length- 1;middle++)
+                    if(widget.fertilizationSite.channel.length > 1)
+                      for(var middle = 0;middle < widget.fertilizationSite.channel.length- 1;middle++)
                         SvgPicture.asset(
                           'assets/Images/Fertilization/agitator_connection_pipe_first_1.svg',
                           width: 151,
-                          height: 45,
+                          height: 45 * configPvd.ratio,
                         ),
                     SvgPicture.asset(
                       'assets/Images/Fertilization/agitator_connection_pipe_last_1.svg',
                       width: 151,
-                      height: 45,
+                      height: 45* configPvd.ratio,
                     ),
                   ]
               ],
             ),
             Row(
               children: [
-                ...getBooster(fertilizerSite: fertilizerSite),
+                ...getBooster(),
                 SvgPicture.asset(
                   'assets/Images/Fertilization/multiple_channel_first_1.svg',
                   width: 150,
-                  height: 150,
+                  height: 150 * configPvd.ratio,
                 ),
-                if(fertilizerSite.channel.length > 2)
-                  for(var middle = 1;middle < fertilizerSite.channel.length- 1;middle++)
+                if(widget.fertilizationSite.channel.length > 2)
+                  for(var middle = 1;middle < widget.fertilizationSite.channel.length- 1;middle++)
                     SvgPicture.asset(
                       'assets/Images/Fertilization/multiple_channel_middle_1.svg',
                       width: 150,
-                      height: 150,
+                      height: 150 * configPvd.ratio,
                     ),
                 SvgPicture.asset(
                   'assets/Images/Fertilization/multiple_channel_last_1.svg',
                   width: 150,
-                  height: 150,
+                  height: 150 * configPvd.ratio,
                 ),
               ],
             ),
           ],
         ),
-        getEcPhSelector(fertilizerSite)
+        getEcPhSelector()
 
       ],
     );
   }
-
-  Widget getEcPhSelector(FertilizationModel fertilizerSite){
-    return Column(
-      children: [
-        if(fertilizerSite.selector.isNotEmpty)
-          getImageWithText('Selector', 'assets/Images/Png/objectId_8.png'),
-        if(fertilizerSite.ec.isNotEmpty)
-          getImageWithText('Ec', 'assets/Images/Png/objectId_27.png'),
-        if(fertilizerSite.ph.isNotEmpty)
-          getImageWithText('Ph', 'assets/Images/Png/objectId_28.png'),
-      ],
-    );
-  }
-  Widget getImageWithText(String title, String imagePath){
-    return IntrinsicWidth(
-      stepWidth: 150,
-      child: ListTile(
-        title: Text(title),
-        leading: SizedImage(imagePath: imagePath),
-      ),
-    );
-  }
-
 }
+

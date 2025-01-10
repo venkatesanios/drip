@@ -380,7 +380,7 @@ class _ConnectionState extends State<Connection> {
     return child;
   }
   Widget getModelBySelectedCategory(){
-    List<DeviceModel> filteredDeviceModel = widget.configPvd.listOfDeviceModel.where((device) => device.categoryId == widget.configPvd.selectedCategory).toList();
+    List<DeviceModel> filteredDeviceModel = widget.configPvd.listOfDeviceModel.where((device) => (device.categoryId == widget.configPvd.selectedCategory && device.isUsedInConfig == 1)).toList();
     Widget child = SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(

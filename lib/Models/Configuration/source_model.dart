@@ -22,7 +22,6 @@ class SourceModel {
   });
 
   factory SourceModel.fromJson(data){
-    print('from json source model');
     DeviceObjectModel deviceObjectModel = DeviceObjectModel.fromJson(data);
 
     return SourceModel(
