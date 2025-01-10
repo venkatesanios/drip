@@ -116,8 +116,10 @@ class _LineConfigurationState extends State<LineConfiguration> {
       return oneTank(widget.configPvd.source[0], inlet: false);
     }else if(boreOrOthers.length == 1 && wellSumpTank.length == 1){
       return oneSourceAndOneTank();
-    }else{
+    }else if(boreOrOthers.length > 1 && wellSumpTank.length == 1){
       return multipleSourceAndOneTank(multipleSource: boreOrOthers, oneTankList: wellSumpTank);
+    }else{
+      return multipleSourceAndMultipleTank(multipleSource: boreOrOthers, multipleTank: wellSumpTank);
     }
   }
 
@@ -126,7 +128,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ...oneSourceList(widget.configPvd.source[0]),
-        ...filtrationAndFertilization()      ],
+        ...filtrationAndFertilization(maxLength: 1)      ],
     );
   }
 
@@ -136,7 +138,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
       children: [
         ...oneTankList(source, inlet: inlet),
         if(fertilizerSite)
-          ...filtrationAndFertilization()
+          ...filtrationAndFertilization(maxLength: 1)
       ],
     );
   }
@@ -150,7 +152,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
       children: [
         ...oneSourceList(boreOthers),
         ...oneTankList(sumpTankWell),
-        ...filtrationAndFertilization()
+        ...filtrationAndFertilization(maxLength: 1)
       ],
     );
   }
@@ -241,26 +243,134 @@ class _LineConfigurationState extends State<LineConfiguration> {
             ],
           ),
           oneTank(oneTankList[0], fertilizerSite: false),
-          ...filtrationAndFertilization()
+          ...filtrationAndFertilization(maxLength: 1)
         ],
       );
     });
   }
 
-  List<Widget> filtrationAndFertilization(){
+  Widget multipleSourceAndMultipleTank({
+    required List<SourceModel> multipleSource,
+    required List<SourceModel> multipleTank
+}){
+    int maxLength = multipleSource.length > multipleTank.length ? multipleSource.length : multipleTank.length;
+    print('maxLength : $maxLength');
+    return LayoutBuilder(builder: (context, constraint){
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            children: [
+              for(var src in multipleSource)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: Row(
+                    children: [
+                      ...oneSourceList(src)
+                    ],
+                  ),
+                )
+            ],
+          ),
+          Column(
+            children: [
+              for(var srcOrTank = 0;srcOrTank < maxLength;srcOrTank++)
+                Container(
+                  width: 8 * widget.configPvd.ratio,
+                  height: 160 * widget.configPvd.ratio,
+                  child: Stack(
+                    children: [
+                      if(srcOrTank == 0)
+                        Positioned(
+                            left: 0,
+                            bottom: 0,
+                            child: Container(
+                              width: 8,
+                              height: 60  * widget.configPvd.ratio,
+                              decoration: const BoxDecoration(
+                                  gradient: RadialGradient(
+                                      radius: 2,
+                                      colors: [
+                                        Color(0xffC0E3EE),
+                                        Color(0xff67B1C1),
+                                      ]
+                                  )
+                              ),
+                            )
+                        ),
+                      if(maxLength - 1 == srcOrTank)
+                        Positioned(
+                            left: 0,
+                            top: 0,
+                            child: Container(
+                              width: 8,
+                              height: 109,
+                              decoration: const BoxDecoration(
+                                  gradient: RadialGradient(
+                                      radius: 3,
+                                      colors: [
+                                        Color(0xffC0E3EE),
+                                        Color(0xff67B1C1),
+                                      ]
+                                  )
+                              ),
+                            )
+                        ),
+                      if(maxLength > 2 && ![0, maxLength - 1].contains(srcOrTank))
+                        Positioned(
+                            left: 0,
+                            top: 0,
+                            child: Container(
+                              width: 8,
+                              height: 160,
+                              decoration: const BoxDecoration(
+                                  gradient: RadialGradient(
+                                      radius: 3,
+                                      colors: [
+                                        Color(0xffC0E3EE),
+                                        Color(0xff67B1C1),
+                                      ]
+                                  )
+                              ),
+                            )
+                        ),
+                    ],
+                  ),
+                )
+            ],
+          ),
+          Column(
+            children: [
+              for(var tank = 0;tank < multipleTank.length;tank++)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: oneTank(multipleTank[tank], fertilizerSite: false),
+                ),
+            ],
+          ),
+          ...filtrationAndFertilization(maxLength: maxLength)
+        ],
+      );
+    });
+  }
+
+  List<Widget> filtrationAndFertilization({
+    required int maxLength
+}){
+    double connectionPipeHeight = maxLength * 160;
     double connectingHeight = widget.configPvd.filtration.isEmpty ? 198 : 400;
     return [
       if(widget.configPvd.fertilization.isNotEmpty)
         SizedBox(
           width: 50,
-          height: connectingHeight * widget.configPvd.ratio,
+          height: (connectionPipeHeight > connectingHeight ? connectionPipeHeight : connectingHeight) * widget.configPvd.ratio,
           child: Stack(
             children: [
               Positioned(
-                top: 80 * widget.configPvd.ratio,
+                top: (maxLength == 1 ? 80 : 100) * widget.configPvd.ratio,
                 child: Container(
                   width: 8 * widget.configPvd.ratio ,
-                  height: 200 * widget.configPvd.ratio,
+                  height: (maxLength == 1 ? 200 : (connectionPipeHeight - 135)) * widget.configPvd.ratio,
                   decoration: const BoxDecoration(
                       gradient: RadialGradient(
                           radius: 2,

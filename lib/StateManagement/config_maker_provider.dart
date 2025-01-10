@@ -14,7 +14,7 @@ import '../Screens/ConfigMaker/config_web_view.dart';
 import '../Screens/ConfigMaker/connection.dart';
 
 class ConfigMakerProvider extends ChangeNotifier{
-  double ratio = 0.9;
+  double ratio = 1.0;
   ConfigMakerTabs selectedTab = ConfigMakerTabs.siteConfigure;
   Map<int, String> configurationTab = {
     0 : 'Source Configuration',
@@ -23,7 +23,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     3 : 'Fertilization Configuration',
     4 : 'Line Configuration',
   };
-  int selectedConfigurationTab = 0;
+  int selectedConfigurationTab = 4;
   SelectionMode selectedSelectionMode = SelectionMode.auto;
   int selectedConnectionNo = 0;
   String selectedType = '';
@@ -387,9 +387,9 @@ class ConfigMakerProvider extends ChangeNotifier{
     for(var obj in listOfObjectModelConnection){
       print('connection : ${obj.toJson()}');
     }
-    for(var obj in listOfGeneratedObject){
-      print('generated : ${obj.toJson()}');
-    }
+    // for(var obj in listOfGeneratedObject){
+    //   print('generated : ${obj.toJson()}');
+    // }
 
 
     notifyListeners();
