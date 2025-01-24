@@ -125,7 +125,7 @@ class _ProductLimitGridListTileState extends State<ProductLimitGridListTile> wit
     }
   }
   int getConfiguredObjectByObjectId(int objectId){
-    List<DeviceObjectModel> configured = widget.configPvd.listOfGeneratedObject.where((object) => (object.objectId == objectId && object.deviceId != '')).toList();
+    List<DeviceObjectModel> configured = widget.configPvd.listOfGeneratedObject.where((object) => (object.objectId == objectId && object.controllerId != null)).toList();
     return configured.length;
   }
   bool dependentObjectByCommonObject(int objectId){

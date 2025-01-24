@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:oro_drip_irrigation/Models/Configuration/fertigation_model.dart';
 import 'package:oro_drip_irrigation/Models/Configuration/filtration_model.dart';
+import 'package:oro_drip_irrigation/Models/Configuration/moisture_model.dart';
 import 'package:oro_drip_irrigation/Models/Configuration/pump_model.dart';
 import 'package:oro_drip_irrigation/Models/Configuration/weather_model.dart';
 
@@ -21,9 +22,10 @@ class ConfigMakerProvider extends ChangeNotifier{
     1 : 'Pump Configuration',
     2 : 'Filtration Configuration',
     3 : 'Fertilization Configuration',
-    4 : 'Line Configuration',
+    4 : 'Moisture Configuration',
+    5 : 'Line Configuration',
   };
-  int selectedConfigurationTab = 4;
+  int selectedConfigurationTab = 5;
   SelectionMode selectedSelectionMode = SelectionMode.auto;
   int selectedConnectionNo = 0;
   String selectedType = '';
@@ -33,54 +35,57 @@ class ConfigMakerProvider extends ChangeNotifier{
   List<double> listOfSelectedSno = [];
   double selectedSno = 0.0;
   List<DeviceModel> listOfDeviceModel = [];
+  Map<String, dynamic> masterData = {
+    "controllerId": 1, "deviceId": "EDEFEADE0001", "deviceName": "Oro Gem 1", "categoryId": 1, "categoryName": "Oro Gem", "modelId": 1, "modelName": "Gem", "groupId" : 1, "groupName" : "Carrot"
+  };
   List<dynamic>sampleData = [
+    // {
+    //   "connectingObjectId" : [1, 2, 3, 4], "controllerId": 1, "deviceId": "EDEFEADE0001", "deviceName": "Oro Gem 1", "categoryId": 1, "categoryName": "Oro Gem", "modelId": 1, "modelName": "Gem", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 1, "masterId": "EDEFEADE0001", "noOfRelay": 0, "noOfLatch": 0, "noOfAnalogInput": 0, "noOfDigitalInput": 0, "noOfPulseInput": 0, "noOfMoistureInput": 0, "noOfI2CInput": 0
+    // },
     {
-      "connectingObjectId" : [1, 2, 3, 4], "controllerId": 1, "deviceId": "EDEFEADE0001", "deviceName": "Oro Gem 1", "categoryId": 1, "categoryName": "Oro Gem", "modelId": 1, "modelName": "Gem", "interfaceId": 1, "interval": 5, "serialNo": 0, "isUsedInConfig": 1, "masterDeviceId": "EDEFEADE0001", "noOfRelay": 0, "noOfLatch": 0, "noOfAnalogInput": 0, "noOfDigitalInput": 0, "noOfPulseInput": 0, "noOfMoistureInput": 0, "noOfI2CInput": 0
+      "connectingObjectId" : [5], "controllerId": 2, "deviceId": "EDEFEADE0002", "deviceName": "Oro Pump 1", "categoryId": 2, "categoryName": "Oro Pump", "modelId": 1, "modelName": "Oro Pump m1", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 1, "masterId": 1, "noOfRelay": 3, "noOfLatch": 0, "noOfAnalogInput": 0, "noOfDigitalInput": 0, "noOfPulseInput": 0, "noOfMoistureInput": 0, "noOfI2CInput": 0
     },
     {
-      "connectingObjectId" : [5], "controllerId": 2, "deviceId": "EDEFEADE0002", "deviceName": "Oro Pump 1", "categoryId": 2, "categoryName": "Oro Pump", "modelId": 1, "modelName": "Oro Pump m1", "interfaceId": 1, "interval": 5, "serialNo": 0, "isUsedInConfig": 1, "masterDeviceId": "EDEFEADE0001", "noOfRelay": 3, "noOfLatch": 0, "noOfAnalogInput": 0, "noOfDigitalInput": 0, "noOfPulseInput": 0, "noOfMoistureInput": 0, "noOfI2CInput": 0
+      "connectingObjectId" : [5, 22, 24, 26, 39], "controllerId": 3, "deviceId": "EDEFEADE0003", "deviceName": "Oro Pump Plus 1", "categoryId": 2, "categoryName": "Oro Pump Plus", "modelId": 2, "modelName": "Oro Pump m2", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 1, "masterId": 1, "noOfRelay": 3, "noOfLatch": 0, "noOfAnalogInput": 5, "noOfDigitalInput": 6, "noOfPulseInput": 1, "noOfMoistureInput": 0, "noOfI2CInput": 0
     },
     {
-      "connectingObjectId" : [5, 22, 24, 26, 39], "controllerId": 3, "deviceId": "EDEFEADE0003", "deviceName": "Oro Pump Plus 1", "categoryId": 2, "categoryName": "Oro Pump Plus", "modelId": 2, "modelName": "Oro Pump m2", "interfaceId": 1, "interval": 5, "serialNo": 0, "isUsedInConfig": 1, "masterDeviceId": "EDEFEADE0001", "noOfRelay": 3, "noOfLatch": 0, "noOfAnalogInput": 5, "noOfDigitalInput": 6, "noOfPulseInput": 1, "noOfMoistureInput": 0, "noOfI2CInput": 0
+      "connectingObjectId" : [24, 26, 39], "controllerId": 4, "deviceId": "EDEFEADE0004", "deviceName": "Oro Level 1", "categoryId": 3, "categoryName": "Oro Level", "modelId": 1, "modelName": "Oro Level m1", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 1, "masterId": 1, "noOfRelay": 0, "noOfLatch": 0, "noOfAnalogInput": 4, "noOfDigitalInput": 4, "noOfPulseInput": 0, "noOfMoistureInput": 0, "noOfI2CInput": 0
     },
     {
-      "connectingObjectId" : [24, 26, 39], "controllerId": 4, "deviceId": "EDEFEADE0004", "deviceName": "Oro Level 1", "categoryId": 3, "categoryName": "Oro Level", "modelId": 1, "modelName": "Oro Level m1", "interfaceId": 1, "interval": 5, "serialNo": 0, "isUsedInConfig": 1, "masterDeviceId": "EDEFEADE0001", "noOfRelay": 0, "noOfLatch": 0, "noOfAnalogInput": 4, "noOfDigitalInput": 4, "noOfPulseInput": 0, "noOfMoistureInput": 0, "noOfI2CInput": 0
+      "connectingObjectId" : [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 26, 39], "controllerId": 5, "deviceId": "EDEFEADE0005", "deviceName": "Oro Level 2", "categoryId": 3, "categoryName": "Oro Level", "modelId": 2, "modelName": "Oro Level m2", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 1, "masterId": 1, "noOfRelay": 0, "noOfLatch": 4, "noOfAnalogInput": 4, "noOfDigitalInput": 4, "noOfPulseInput": 1, "noOfMoistureInput": 0, "noOfI2CInput": 0
     },
     {
-      "connectingObjectId" : [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 26, 39], "controllerId": 5, "deviceId": "EDEFEADE0005", "deviceName": "Oro Level 2", "categoryId": 3, "categoryName": "Oro Level", "modelId": 2, "modelName": "Oro Level m2", "interfaceId": 1, "interval": 5, "serialNo": 0, "isUsedInConfig": 1, "masterDeviceId": "EDEFEADE0001", "noOfRelay": 0, "noOfLatch": 4, "noOfAnalogInput": 4, "noOfDigitalInput": 4, "noOfPulseInput": 1, "noOfMoistureInput": 0, "noOfI2CInput": 0
+      "connectingObjectId" : [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 24, 26, 27, 28, 31, 35, 37], "controllerId": 6, "deviceId": "EDEFEADE0006", "deviceName": "Oro Smart 1", "categoryId": 5, "categoryName": "Oro Smart", "modelId": 4, "modelName": "Oro Smart m4", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 1, "masterId": 1, "noOfRelay": 8, "noOfLatch": 0, "noOfAnalogInput": 4, "noOfDigitalInput": 0, "noOfPulseInput": 0, "noOfMoistureInput": 0, "noOfI2CInput": 0
     },
     {
-      "connectingObjectId" : [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 24, 26, 27, 28, 31, 35, 37], "controllerId": 6, "deviceId": "EDEFEADE0006", "deviceName": "Oro Smart 1", "categoryId": 5, "categoryName": "Oro Smart", "modelId": 4, "modelName": "Oro Smart m4", "interfaceId": 1, "interval": 5, "serialNo": 0, "isUsedInConfig": 1, "masterDeviceId": "EDEFEADE0001", "noOfRelay": 8, "noOfLatch": 0, "noOfAnalogInput": 4, "noOfDigitalInput": 0, "noOfPulseInput": 0, "noOfMoistureInput": 0, "noOfI2CInput": 0
+      "connectingObjectId" : [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 26, 27, 28, 30, 31, 32, 35, 37, 38, 39, 40], "controllerId": 7, "deviceId": "EDEFEADE0007", "deviceName": "Oro Smart Plus 1", "categoryId": 6, "categoryName": "Oro Smart Plus", "modelId": 3, "modelName": "Oro Smart Plus m3", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 1, "masterId": 1, "noOfRelay": 16, "noOfLatch": 0, "noOfAnalogInput": 8, "noOfDigitalInput": 5, "noOfPulseInput": 1, "noOfMoistureInput": 0, "noOfI2CInput": 0
     },
     {
-      "connectingObjectId" : [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 26, 27, 28, 30, 31, 32, 35, 37, 38, 39, 40], "controllerId": 7, "deviceId": "EDEFEADE0007", "deviceName": "Oro Smart Plus 1", "categoryId": 6, "categoryName": "Oro Smart Plus", "modelId": 3, "modelName": "Oro Smart Plus m3", "interfaceId": 1, "interval": 5, "serialNo": 0, "isUsedInConfig": 1, "masterDeviceId": "EDEFEADE0001", "noOfRelay": 16, "noOfLatch": 0, "noOfAnalogInput": 8, "noOfDigitalInput": 5, "noOfPulseInput": 1, "noOfMoistureInput": 0, "noOfI2CInput": 0
+      "connectingObjectId" : [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 26, 27, 28, 30, 31, 32, 35, 37, 38, 39, 40], "controllerId": 100, "deviceId": "EDEFEADE0100", "deviceName": "Oro Smart Plus 2", "categoryId": 6, "categoryName": "Oro Smart Plus", "modelId": 3, "modelName": "Oro Smart Plus m3", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 1, "masterId": 1, "noOfRelay": 16, "noOfLatch": 0, "noOfAnalogInput": 8, "noOfDigitalInput": 5, "noOfPulseInput": 1, "noOfMoistureInput": 0, "noOfI2CInput": 0
     },
     {
-      "connectingObjectId" : [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 26, 27, 28, 30, 31, 32, 35, 37, 38, 39, 40], "controllerId": 100, "deviceId": "EDEFEADE0100", "deviceName": "Oro Smart Plus 2", "categoryId": 6, "categoryName": "Oro Smart Plus", "modelId": 3, "modelName": "Oro Smart Plus m3", "interfaceId": 1, "interval": 5, "serialNo": 0, "isUsedInConfig": 1, "masterDeviceId": "EDEFEADE0001", "noOfRelay": 16, "noOfLatch": 0, "noOfAnalogInput": 8, "noOfDigitalInput": 5, "noOfPulseInput": 1, "noOfMoistureInput": 0, "noOfI2CInput": 0
+      "connectingObjectId" : [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 26, 27, 28, 30, 31, 32, 35, 37, 38, 39, 40], "controllerId": 99, "deviceId": "EDEFEADE0101", "deviceName": "Oro Smart Plus 3", "categoryId": 6, "categoryName": "Oro Smart Plus", "modelId": 3, "modelName": "Oro Smart Plus m3", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 1, "masterId": 1, "noOfRelay": 16, "noOfLatch": 0, "noOfAnalogInput": 8, "noOfDigitalInput": 5, "noOfPulseInput": 1, "noOfMoistureInput": 0, "noOfI2CInput": 0
     },
     {
-      "connectingObjectId" : [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 26, 27, 28, 30, 31, 32, 35, 37, 38, 39, 40], "controllerId": 99, "deviceId": "EDEFEADE0101", "deviceName": "Oro Smart Plus 3", "categoryId": 6, "categoryName": "Oro Smart Plus", "modelId": 3, "modelName": "Oro Smart Plus m3", "interfaceId": 1, "interval": 5, "serialNo": 0, "isUsedInConfig": 1, "masterDeviceId": "EDEFEADE0001", "noOfRelay": 16, "noOfLatch": 0, "noOfAnalogInput": 8, "noOfDigitalInput": 5, "noOfPulseInput": 1, "noOfMoistureInput": 0, "noOfI2CInput": 0
+      "connectingObjectId" : [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 24, 26, 27, 28, 31, 35, 37], "controllerId": 8, "deviceId": "EDEFEADE0008", "deviceName": "Oro Rtu 1", "categoryId": 7, "categoryName": "Oro Rtu", "modelId": 5, "modelName": "Oro Rtu m5", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 0, "masterId": null, "noOfRelay": 0, "noOfLatch": 8, "noOfAnalogInput": 4, "noOfDigitalInput": 0, "noOfPulseInput": 1, "noOfMoistureInput": 0, "noOfI2CInput": 0
     },
     {
-      "connectingObjectId" : [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 24, 26, 27, 28, 31, 35, 37], "controllerId": 8, "deviceId": "EDEFEADE0008", "deviceName": "Oro Rtu 1", "categoryId": 7, "categoryName": "Oro Rtu", "modelId": 5, "modelName": "Oro Rtu m5", "interfaceId": 1, "interval": 5, "serialNo": 0, "isUsedInConfig": 0, "masterDeviceId": "", "noOfRelay": 0, "noOfLatch": 8, "noOfAnalogInput": 4, "noOfDigitalInput": 0, "noOfPulseInput": 1, "noOfMoistureInput": 0, "noOfI2CInput": 0
+      "connectingObjectId" : [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25, 24, 26, 27, 28, 30, 31, 32, 35, 37, 38, 39, 40], "controllerId": 9, "deviceId": "EDEFEADE0009", "deviceName": "Oro Rtu Plus 1", "categoryId": 8, "categoryName": "Oro Rtu Plus", "modelId": 2, "modelName": "Oro Rtu Plus m2", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 0, "masterId": null, "noOfRelay": 0, "noOfLatch": 8, "noOfAnalogInput": 4, "noOfDigitalInput": 1, "noOfPulseInput": 0, "noOfMoistureInput": 4, "noOfI2CInput": 0
     },
     {
-      "connectingObjectId" : [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25, 24, 26, 27, 28, 30, 31, 32, 35, 37, 38, 39, 40], "controllerId": 9, "deviceId": "EDEFEADE0009", "deviceName": "Oro Rtu Plus 1", "categoryId": 8, "categoryName": "Oro Rtu Plus", "modelId": 2, "modelName": "Oro Rtu Plus m2", "interfaceId": 1, "interval": 5, "serialNo": 0, "isUsedInConfig": 0, "masterDeviceId": "", "noOfRelay": 0, "noOfLatch": 8, "noOfAnalogInput": 4, "noOfDigitalInput": 1, "noOfPulseInput": 0, "noOfMoistureInput": 4, "noOfI2CInput": 0
+      "connectingObjectId" : [ 23, 25, 30, 32, 38, 39, 40], "controllerId": 10, "deviceId": "EDEFEADE0010", "deviceName": "Oro Sense 1", "categoryId": 9, "categoryName": "Oro Sense", "modelId": 1, "modelName": "Oro Sense m1", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 0, "masterId": null, "noOfRelay": 0, "noOfLatch": 0, "noOfAnalogInput": 0, "noOfDigitalInput": 1, "noOfPulseInput": 0, "noOfMoistureInput": 4, "noOfI2CInput": 0
     },
     {
-      "connectingObjectId" : [ 23, 25, 30, 32, 38, 39, 40], "controllerId": 10, "deviceId": "EDEFEADE0010", "deviceName": "Oro Sense 1", "categoryId": 9, "categoryName": "Oro Sense", "modelId": 1, "modelName": "Oro Sense m1", "interfaceId": 1, "interval": 5, "serialNo": 0, "isUsedInConfig": 0, "masterDeviceId": "", "noOfRelay": 0, "noOfLatch": 0, "noOfAnalogInput": 0, "noOfDigitalInput": 1, "noOfPulseInput": 0, "noOfMoistureInput": 4, "noOfI2CInput": 0
+      "connectingObjectId" : [29, 33, 34], "controllerId": 11, "deviceId": "EDEFEADE0011", "deviceName": "Oro Sense 2", "categoryId": 9, "categoryName": "Oro Sense", "modelId": 2, "modelName": "Oro Sense m2", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 0, "masterId": null, "noOfRelay": 0, "noOfLatch": 0, "noOfAnalogInput": 0, "noOfDigitalInput": 0, "noOfPulseInput": 0, "noOfMoistureInput": 0, "noOfI2CInput": 2
     },
     {
-      "connectingObjectId" : [29, 33, 34], "controllerId": 11, "deviceId": "EDEFEADE0011", "deviceName": "Oro Sense 2", "categoryId": 9, "categoryName": "Oro Sense", "modelId": 2, "modelName": "Oro Sense m2", "interfaceId": 1, "interval": 5, "serialNo": 0, "isUsedInConfig": 0, "masterDeviceId": "", "noOfRelay": 0, "noOfLatch": 0, "noOfAnalogInput": 0, "noOfDigitalInput": 0, "noOfPulseInput": 0, "noOfMoistureInput": 0, "noOfI2CInput": 2
+      "connectingObjectId" : [0], "controllerId": 12, "deviceId": "EDEFEADE0012", "deviceName": "Oro Extend 1", "categoryId": 10, "categoryName": "Oro Extend", "modelId": 3, "modelName": "Oro Extend m3", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 0, "masterId": null, "noOfRelay": 0, "noOfLatch": 0, "noOfAnalogInput": 0, "noOfDigitalInput": 0, "noOfPulseInput": 0, "noOfMoistureInput": 0, "noOfI2CInput": 2
     },
     {
-      "connectingObjectId" : [0], "controllerId": 12, "deviceId": "EDEFEADE0012", "deviceName": "Oro Extend 1", "categoryId": 10, "categoryName": "Oro Extend", "modelId": 3, "modelName": "Oro Extend m3", "interfaceId": 1, "interval": 5, "serialNo": 0, "isUsedInConfig": 0, "masterDeviceId": "", "noOfRelay": 0, "noOfLatch": 0, "noOfAnalogInput": 0, "noOfDigitalInput": 0, "noOfPulseInput": 0, "noOfMoistureInput": 0, "noOfI2CInput": 2
+      "connectingObjectId" : [0], "controllerId": 13, "deviceId": "EDEFEADE0013", "deviceName": "Oro Extend 2", "categoryId": 10, "categoryName": "Oro Extend", "modelId": 3, "modelName": "Oro Extend m3", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 0, "masterId": null, "noOfRelay": 0, "noOfLatch": 0, "noOfAnalogInput": 0, "noOfDigitalInput": 0, "noOfPulseInput": 0, "noOfMoistureInput": 0, "noOfI2CInput": 0
     },
     {
-      "connectingObjectId" : [0], "controllerId": 13, "deviceId": "EDEFEADE0013", "deviceName": "Oro Extend 2", "categoryId": 10, "categoryName": "Oro Extend", "modelId": 3, "modelName": "Oro Extend m3", "interfaceId": 1, "interval": 5, "serialNo": 0, "isUsedInConfig": 0, "masterDeviceId": "", "noOfRelay": 0, "noOfLatch": 0, "noOfAnalogInput": 0, "noOfDigitalInput": 0, "noOfPulseInput": 0, "noOfMoistureInput": 0, "noOfI2CInput": 0
-    },
-    {
-      "connectingObjectId" : [25, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39], "controllerId": 14, "deviceId": "EDEFEADE0014", "deviceName": "Oro Weather 1", "categoryId": 4, "categoryName": "Oro Weather", "modelId": 1, "modelName": "Oro Weather m1", "interfaceId": 1, "interval": 5, "serialNo": 0, "isUsedInConfig": 0, "masterDeviceId": "", "noOfRelay": 0, "noOfLatch": 0, "noOfAnalogInput": 3, "noOfDigitalInput": 4, "noOfPulseInput": 0, "noOfMoistureInput": 4, "noOfI2CInput": 4
+      "connectingObjectId" : [25, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39], "controllerId": 14, "deviceId": "EDEFEADE0014", "deviceName": "Oro Weather 1", "categoryId": 4, "categoryName": "Oro Weather", "modelId": 1, "modelName": "Oro Weather m1", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 0, "masterId": null, "noOfRelay": 0, "noOfLatch": 0, "noOfAnalogInput": 3, "noOfDigitalInput": 4, "noOfPulseInput": 0, "noOfMoistureInput": 4, "noOfI2CInput": 4
     }
   ];
   List<dynamic> sampleObject = [
@@ -132,6 +137,7 @@ class ConfigMakerProvider extends ChangeNotifier{
   List<FertilizationModel> fertilization = [];
   List<SourceModel> source = [];
   List<PumpModel> pump = [];
+  List<MoistureModel> moisture = [];
 
   DeviceObjectModel mapToDeviceObject(dynamic object) {
     return DeviceObjectModel(
@@ -157,11 +163,10 @@ class ConfigMakerProvider extends ChangeNotifier{
               categoryName: devices['categoryName'],
               modelId: devices['modelId'],
               modelName: devices['modelName'],
-              interfaceId: devices['interfaceId'],
-              interval: 5,
-              serialNo: devices['serialNo'],
-              isUsedInConfig: devices['isUsedInConfig'],
-              masterDeviceId: devices['masterDeviceId'],
+              interfaceTypeId: devices['interfaceTypeId'],
+              interfaceInterval: 5,
+              serialNumber: devices['serialNo'],
+              masterId: devices['masterId'],
               extendDeviceId: devices['extendDeviceId'],
               noOfRelay: devices['noOfRelay'],
               noOfLatch: devices['noOfLatch'],
@@ -181,6 +186,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         fertilization = (jsonData['fertilization'] as List<dynamic>).map((fertilizationObject) => FertilizationModel.fromJson(fertilizationObject)).toList();
         source = (jsonData['source'] as List<dynamic>).map((sourceObject) => SourceModel.fromJson(sourceObject)).toList();
         pump = (jsonData['pump'] as List<dynamic>).map((pumpObject) => PumpModel.fromJson(pumpObject)).toList();
+        moisture = (jsonData['moisture'] as List<dynamic>).map((moistureObject) => MoistureModel.fromJson(moistureObject)).toList();
         selectedCategory = listOfDeviceModel[1].categoryId;
         selectedModelControllerId = listOfDeviceModel[1].controllerId;
 
@@ -194,11 +200,10 @@ class ConfigMakerProvider extends ChangeNotifier{
               categoryName: devices['categoryName'],
               modelId: devices['modelId'],
               modelName: devices['modelName'],
-              interfaceId: devices['interfaceId'],
-              interval: 5,
-              serialNo: devices['serialNo'],
-              isUsedInConfig: devices['isUsedInConfig'],
-              masterDeviceId: devices['masterDeviceId'],
+              interfaceTypeId: devices['interfaceTypeId'],
+              interfaceInterval: 5,
+              serialNumber: devices['serialNo'],
+              masterId: devices['masterId'],
               extendDeviceId: devices['extendDeviceId'],
               noOfRelay: devices['noOfRelay'],
               noOfLatch: devices['noOfLatch'],
@@ -215,8 +220,9 @@ class ConfigMakerProvider extends ChangeNotifier{
         listOfObjectModelConnection = sampleObject.map(mapToDeviceObject).toList();
       }
 
-    }catch (e){
+    }catch (e, stackTrace){
       print('Error on converting to device model :: $e');
+      print('stackTrace on converting to device model :: $stackTrace');
     }
     notifyListeners();
     return listOfDeviceModel;
@@ -238,7 +244,7 @@ class ConfigMakerProvider extends ChangeNotifier{
               type: object.type,
               name: '${object.objectName} ${start+1}',
               sNo: double.parse(StringDecimalNo),
-              deviceId: '',
+              controllerId: null,
               location: [],
             );
             listOfGeneratedObject.add(
@@ -251,20 +257,21 @@ class ConfigMakerProvider extends ChangeNotifier{
                   filters: []
                 )
               );
-            }
-            if(deviceObjectModel.objectId == 3){
+            }else if(deviceObjectModel.objectId == 3){
               fertilization.add(
                   FertilizationModel(commonDetails: deviceObjectModel, channel: [], boosterPump: [], agitator: [], selector: [], ec: [], ph: [])
               );
-            }
-            if(deviceObjectModel.objectId == 1){
+            }else if(deviceObjectModel.objectId == 1){
               source.add(
                 SourceModel(commonDetails: deviceObjectModel, inletPump: [], outletPump: [], valves: [])
               );
-            }
-            if(deviceObjectModel.objectId == 5){
+            }else if(deviceObjectModel.objectId == 5){
               pump.add(
                 PumpModel(commonDetails: deviceObjectModel)
+              );
+            }else if(deviceObjectModel.objectId == 25){
+              moisture.add(
+                MoistureModel(commonDetails: deviceObjectModel, valves: [])
               );
             }
           }
@@ -278,6 +285,7 @@ class ConfigMakerProvider extends ChangeNotifier{
           filtration.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
           fertilization.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
           source.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
+          moisture.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
         }
       }
     }
@@ -285,7 +293,7 @@ class ConfigMakerProvider extends ChangeNotifier{
       notifyListeners();
     });
     for(var object in listOfGeneratedObject){
-      print('generated :: ${object.name} , ${object.sNo}');
+      print('generated :: ${object.toJson()}');
     }
   }
 
@@ -311,9 +319,9 @@ class ConfigMakerProvider extends ChangeNotifier{
     List<DeviceObjectModel> filteredByObjectId = listOfGeneratedObject
         .where((object) => object.objectId == selectedConnectionObject.objectId)
         .toList();
-    List<DeviceObjectModel> filteredByNotConfigured = filteredByObjectId.where((object) => object.deviceId == '').toList();
-    List<DeviceObjectModel> filteredByConfigured = listOfGeneratedObject.where((object) => (object.deviceId == selectedDevice.deviceId && object.type == selectedConnectionObject.type)).toList();
-    List<DeviceObjectModel> filteredByObjectIdToConfigured = listOfGeneratedObject.where((object) => (object.deviceId == selectedDevice.deviceId && object.type == selectedConnectionObject.type && object.objectId == selectedConnectionObject.objectId)).toList();
+    List<DeviceObjectModel> filteredByNotConfigured = filteredByObjectId.where((object) => object.controllerId == null).toList();
+    List<DeviceObjectModel> filteredByConfigured = listOfGeneratedObject.where((object) => (object.controllerId == selectedDevice.controllerId && object.type == selectedConnectionObject.type)).toList();
+    List<DeviceObjectModel> filteredByObjectIdToConfigured = listOfGeneratedObject.where((object) => (object.controllerId == selectedDevice.controllerId && object.type == selectedConnectionObject.type && object.objectId == selectedConnectionObject.objectId)).toList();
     for(var configuredObject in filteredByConfigured){
       if(selectedModelDefaultConnectionList.contains(configuredObject.connectionNo)){
         selectedModelDefaultConnectionList.remove(configuredObject.connectionNo);
@@ -352,7 +360,7 @@ class ConfigMakerProvider extends ChangeNotifier{
           if(object.sNo == filteredByNotConfigured[notConfiguredObject].sNo){
             print('object.sNo : ${object.sNo}');
             object.connectionNo = selectedModelDefaultConnectionList[notConfiguredObject];
-            object.deviceId = selectedDevice.deviceId;
+            object.controllerId = selectedDevice.controllerId;
             break inner;
           }
         }
@@ -367,7 +375,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         inner : for(var object in listOfGeneratedObject){
           if(deletingObject.sNo == object.sNo){
             object.connectionNo = 0;
-            object.deviceId = '';
+            object.controllerId = null;
             break inner;
           }
         }
@@ -410,7 +418,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     for(var connectionObject in listOfObjectModelConnection){
       int count = 0;
       for(var object in listOfGeneratedObject){
-        if(connectionObject.objectId == object.objectId && selectedDevice.deviceId == object.deviceId){
+        if(connectionObject.objectId == object.objectId && selectedDevice.controllerId == object.controllerId){
           count += 1;
         }
       }
@@ -423,7 +431,7 @@ class ConfigMakerProvider extends ChangeNotifier{
   void removeSingleObjectFromConfigureToConfigure(DeviceObjectModel object){
     for(var generatedObject in listOfGeneratedObject){
       if(generatedObject.sNo == object.sNo){
-        generatedObject.deviceId = '';
+        generatedObject.controllerId = null;
         generatedObject.connectionNo = 0;
         break;
       }
@@ -478,11 +486,21 @@ class ConfigMakerProvider extends ChangeNotifier{
           fertilizerSite.ph.clear();
           fertilizerSite.ph.addAll(listOfSelectedSno);
         }
-
         listOfSelectedSno.clear();
       }
     }
 
+  }
+
+  void updateSelectionInMoisture(double sNo){
+    for(var moistureSensor in moisture){
+      if(moistureSensor.commonDetails.sNo == sNo){
+        moistureSensor.valves.clear();
+        moistureSensor.valves.addAll(listOfSelectedSno);
+        listOfSelectedSno.clear();
+      }
+    }
+    notifyListeners();
   }
 
 }

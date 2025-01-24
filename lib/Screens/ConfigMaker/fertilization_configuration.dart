@@ -162,6 +162,9 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
                           var pump = widget.configPvd.pump.map((object){
                             return object.toJson();
                           }).toList();
+                          var moisture = widget.configPvd.moisture.map((object){
+                            return object.toJson();
+                          }).toList();
                           String data = jsonEncode({
                             'listOfDeviceModel' : listOfDeviceModel,
                             'listOfSampleObjectModel' : listOfSampleObjectModel,
@@ -171,8 +174,10 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
                             'fertilization' : fertilization,
                             'source' : source,
                             'pump' : pump,
+                            'moisture' : moisture,
                           }
                           );
+                          print('data : $data');
                           saveToSessionStorage('configData',data);
                         },
                         child: const Text('Store')
@@ -440,7 +445,6 @@ class _FertilizationDashboardFormationState extends State<FertilizationDashboard
           ],
         ),
         getEcPhSelector()
-
       ],
     );
   }

@@ -8,6 +8,7 @@ import 'package:oro_drip_irrigation/Models/Configuration/device_object_model.dar
 import 'package:oro_drip_irrigation/Models/Configuration/filtration_model.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/fertilization_configuration.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/filtration_configuration.dart';
+import 'package:oro_drip_irrigation/Screens/ConfigMaker/moisture_configuration.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/pump_configuration.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/source_configuration.dart';
 import 'package:oro_drip_irrigation/Widgets/custom_buttons.dart';
@@ -51,6 +52,8 @@ class _SiteConfigureState extends State<SiteConfigure> {
                     ? FiltrationConfiguration(configPvd: widget.configPvd)
                     : widget.configPvd.selectedConfigurationTab == 3
                     ? FertilizationConfiguration(configPvd: widget.configPvd)
+                    : widget.configPvd.selectedConfigurationTab == 4 
+                    ? MoistureConfiguration(configPvd: widget.configPvd)
                     : LineConfiguration(configPvd: widget.configPvd)
               )
             ],
@@ -62,7 +65,7 @@ class _SiteConfigureState extends State<SiteConfigure> {
   Widget getConfigurationCategory(){
     List<int> listOfCategory = [];
     for(var device in widget.configPvd.listOfDeviceModel){
-      if(device.categoryId != 1 && device.isUsedInConfig == 1 && !listOfCategory.contains(device.categoryId)){
+      if(device.categoryId != 1 && device.masterId != null && !listOfCategory.contains(device.categoryId)){
         listOfCategory.add(device.categoryId);
       }
     }

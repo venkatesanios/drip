@@ -128,7 +128,7 @@ class _ConnectionGridListTileState extends State<ConnectionGridListTile> with Si
   }
 
   bool isConnectedToWeather(DeviceObjectModel object){
-    return widget.configPvd.listOfGeneratedObject.any((generatedObject) => (generatedObject.objectId == object.objectId && generatedObject.deviceId == widget.selectedDevice.deviceId));
+    return widget.configPvd.listOfGeneratedObject.any((generatedObject) => (generatedObject.objectId == object.objectId && generatedObject.controllerId == widget.selectedDevice.controllerId));
   }
 
 }
@@ -136,7 +136,7 @@ class _ConnectionGridListTileState extends State<ConnectionGridListTile> with Si
 
 
 int getNotConfiguredObjectByObjectId(int objectId, ConfigMakerProvider configPvd){
-  List<DeviceObjectModel> notConfigured = configPvd.listOfGeneratedObject.where((object) => (object.objectId == objectId && object.deviceId == '')).toList();
+  List<DeviceObjectModel> notConfigured = configPvd.listOfGeneratedObject.where((object) => (object.objectId == objectId && object.controllerId == null)).toList();
   return notConfigured.length;
 }
 

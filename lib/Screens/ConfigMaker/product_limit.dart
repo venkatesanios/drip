@@ -129,7 +129,7 @@ class _ProductLimitState extends State<ProductLimit> {
 int getRelayLatchCount(List<DeviceModel> listOfDevices){
   int count = 0;
   for(var node in listOfDevices){
-    if(node.isUsedInConfig == 1){
+    if(node.masterId != null){
       count += node.noOfRelay;
       count += node.noOfLatch;
     }
@@ -151,7 +151,7 @@ int balanceCountForRelayLatch(ConfigMakerProvider configPvd){
 int getInputCount(int code, List<DeviceModel> listOfDevices){
   int count = 0;
   for(var node in listOfDevices){
-    if(node.isUsedInConfig == 1){
+    if(node.masterId != null){
       if(code == 3){
         count += node.noOfAnalogInput;
       }else if(code == 4){

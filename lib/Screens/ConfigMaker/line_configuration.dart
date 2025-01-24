@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:oro_drip_irrigation/Constants/properties.dart';
 import 'package:oro_drip_irrigation/Models/Configuration/source_model.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/site_configure.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/source_configuration.dart';
 import 'package:oro_drip_irrigation/StateManagement/config_maker_provider.dart';
+import 'package:responsive_grid_list/responsive_grid_list.dart';
 import 'fertilization_configuration.dart';
 import 'filtration_configuration.dart';
 
@@ -21,9 +23,8 @@ class _LineConfigurationState extends State<LineConfiguration> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: EdgeInsets.all(8),
+        padding: const EdgeInsets.all(8),
       child: LayoutBuilder(builder: (context, constraint){
-        double ratio = constraint.maxWidth < 500 ? 0.6 : 1.0;
         return Container(
           width: constraint.maxWidth,
           height: constraint.maxHeight,
@@ -31,76 +32,121 @@ class _LineConfigurationState extends State<LineConfiguration> {
             borderRadius: BorderRadius.circular(8),
             color: Colors.white
           ),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: SizedBox(
-              width: 1600,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  width: 1600,
+                    child: getSuitableSourceConnection(),
+                ),
+              ),
+              const SizedBox(height: 20,),
+              ResponsiveGridList(
+                horizontalGridMargin: 0,
+                verticalGridMargin: 10,
+                minItemWidth: 100,
+                shrinkWrap: true,
+                listViewBuilderOptions: ListViewBuilderOptions(
+                  physics: const NeverScrollableScrollPhysics(),
+                ),
                 children: [
-                  getSuitableSourceConnection(),
-
-                  // Container(
-                  //   // color: Colors.green.shade50,
-                  //   width: double.infinity,
-                  //   height: 254,
-                  //   child: Row(
-                  //     children: [
-                  //       SvgPicture.asset(
-                  //         'assets/Images/Filtration/filtration_joint_1.svg',
-                  //         width: 120,
-                  //         height: 254,
-                  //       ),
-                  //       SizedBox(
-                  //         width: 1500,
-                  //         height: 254,
-                  //         child: Stack(
-                  //           children: [
-                  //             Positioned(
-                  //               top: 100,
-                  //               child: Row(
-                  //                 children: [
-                  //                   if(widget.configPvd.filtration[0].filters.length == 1)
-                  //                     singleFilter(ratio, constraint, widget.configPvd.filtration[0], widget.configPvd),
-                  //                   if(widget.configPvd.filtration[0].filters.length > 1)
-                  //                     multipleFilter(ratio, constraint, widget.configPvd.filtration[0], widget.configPvd),
-                  //                 ],
-                  //               ),
-                  //             ),
-                  //             Positioned(
-                  //               bottom: 6,
-                  //               left: 528,
-                  //               child: SvgPicture.asset(
-                  //                 'assets/Images/Filtration/filtration_to_fertilization_1.svg',
-                  //                 width: 95,
-                  //                 height: 17,
-                  //               )
-                  //             ),
-                  //
-                  //             Positioned(
-                  //               top: 34,
-                  //               left: 596,
-                  //               child: Column(
-                  //                 mainAxisAlignment: MainAxisAlignment.center,
-                  //                 crossAxisAlignment: CrossAxisAlignment.center,
-                  //                 children: [
-                  //                   // if(fertilizationSite.channel.length == 1)
-                  //                   //   getSingleChannel(fertilizerSite: fertilizationSite),
-                  //                   // if(fertilizationSite.channel.length > 1)
-                  //                     getMultipleChannel(fertilizerSite: widget.configPvd.fertilization[0])
-                  //                 ],
-                  //               ),
-                  //             )
-                  //           ],
-                  //         ),
-                  //       )
-                  //
-                  //     ],
-                  //   ),
-                  // )
+                  for(var i = 0;i < 2;i++)
+                    Column(
+                      children: [
+                        SizedBox(
+                          width: 30,
+                          height: 30,
+                          child: Image.asset('assets/Images/Png/objectId_12.png'),
+                        ),
+                        Text('Main Valve ${i+1}', style: AppProperties.listTileBlackBoldStyle,)
+                      ],
+                    ),
+                  for(var i = 0;i < 2;i++)
+                    Column(
+                      children: [
+                        SizedBox(
+                          width: 30,
+                          height: 30,
+                          child: Image.asset('assets/Images/Png/objectId_22.png'),
+                        ),
+                        Text('Water Meter ${i+1}', style: AppProperties.listTileBlackBoldStyle,)
+                      ],
+                    ),
+                  for(var i = 0;i < 14;i++)
+                    Column(
+                      children: [
+                        SizedBox(
+                          width: 30,
+                          height: 30,
+                          child: Image.asset('assets/Images/Png/objectId_13.png'),
+                        ),
+                        Text('Valve ${i+1}', style: AppProperties.listTileBlackBoldStyle,)
+                      ],
+                    )
                 ],
               ),
-            ),
+
+              // Container(
+              //   // color: Colors.green.shade50,
+              //   width: double.infinity,
+              //   height: 254,
+              //   child: Row(
+              //     children: [
+              //       SvgPicture.asset(
+              //         'assets/Images/Filtration/filtration_joint_1.svg',
+              //         width: 120,
+              //         height: 254,
+              //       ),
+              //       SizedBox(
+              //         width: 1500,
+              //         height: 254,
+              //         child: Stack(
+              //           children: [
+              //             Positioned(
+              //               top: 100,
+              //               child: Row(
+              //                 children: [
+              //                   if(widget.configPvd.filtration[0].filters.length == 1)
+              //                     singleFilter(ratio, constraint, widget.configPvd.filtration[0], widget.configPvd),
+              //                   if(widget.configPvd.filtration[0].filters.length > 1)
+              //                     multipleFilter(ratio, constraint, widget.configPvd.filtration[0], widget.configPvd),
+              //                 ],
+              //               ),
+              //             ),
+              //             Positioned(
+              //               bottom: 6,
+              //               left: 528,
+              //               child: SvgPicture.asset(
+              //                 'assets/Images/Filtration/filtration_to_fertilization_1.svg',
+              //                 width: 95,
+              //                 height: 17,
+              //               )
+              //             ),
+              //
+              //             Positioned(
+              //               top: 34,
+              //               left: 596,
+              //               child: Column(
+              //                 mainAxisAlignment: MainAxisAlignment.center,
+              //                 crossAxisAlignment: CrossAxisAlignment.center,
+              //                 children: [
+              //                   // if(fertilizationSite.channel.length == 1)
+              //                   //   getSingleChannel(fertilizerSite: fertilizationSite),
+              //                   // if(fertilizationSite.channel.length > 1)
+              //                     getMultipleChannel(fertilizerSite: widget.configPvd.fertilization[0])
+              //                 ],
+              //               ),
+              //             )
+              //           ],
+              //         ),
+              //       )
+              //
+              //     ],
+              //   ),
+              // )
+            ],
           ),
         );
       }),

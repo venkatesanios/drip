@@ -19,7 +19,7 @@ int getInterfaceStringToCode(String title){
       return 0;
   }
 }
-String getInterfaceCodeToString(int code){
+String getInterfaceCodeToString(int? code){
   switch(code){
     case 1 :
       return 'MQTT';

@@ -127,7 +127,7 @@ class _WeatherGridListTileState extends State<WeatherGridListTile> with SingleTi
     );
   }
   int getConfiguredObjectByObjectId(int objectId){
-    List<DeviceObjectModel> configured = widget.configPvd.listOfGeneratedObject.where((object) => (object.objectId == objectId && object.deviceId != '')).toList();
+    List<DeviceObjectModel> configured = widget.configPvd.listOfGeneratedObject.where((object) => (object.objectId == objectId && object.controllerId != null)).toList();
     return configured.length;
   }
   bool dependentObjectByCommonObject(int objectId){

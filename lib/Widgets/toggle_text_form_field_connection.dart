@@ -59,7 +59,7 @@ class _ToggleTextFormFieldForConnectionState extends State<ToggleTextFormFieldFo
             print('oldCount :: $oldCount  newCount :: $newCount    maxLimit :: $countLimitFromProductLimit  mappingBalanceType :: ${mappingBalanceType[widget.object.type]!}  balancePossibleCountToConfigure :: $balancePossibleCountToConfigure');
             if(newCount == oldCount){
               //  don't do anything....
-            }else if(newCount > countLimitFromProductLimit){ // validate non configured to configure count
+            }else if(newCount > countLimitFromProductLimit && newCount <= balancePossibleCountToConfigure){ // validate non configured to configure count
               print('111111111');
               bool updateOthers = updateConnectionForFixedInputs(oldCount: oldCount, newCount: newCount, countLimitFromProductLimit: countLimitFromProductLimit);
               if(updateOthers){
@@ -156,7 +156,7 @@ class _ToggleTextFormFieldForConnectionState extends State<ToggleTextFormFieldFo
   }
 
   int getConfigureCountByType(String type){
-    List<DeviceObjectModel> listOfObject = widget.configPvd.listOfGeneratedObject.where((object) => object.deviceId == widget.selectedDevice.deviceId && object.type == type).toList();
+    List<DeviceObjectModel> listOfObject = widget.configPvd.listOfGeneratedObject.where((object) => object.controllerId == widget.selectedDevice.controllerId && object.type == type).toList();
     return listOfObject.length;
   }
 

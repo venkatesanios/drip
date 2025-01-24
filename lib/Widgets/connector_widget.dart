@@ -26,7 +26,7 @@ class ConnectorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     DeviceObjectModel? object = configPvd.listOfGeneratedObject.cast<DeviceObjectModel?>().firstWhere(
-          (object) => object?.deviceId == selectedDevice.deviceId && object?.connectionNo == connectionNo && object?.type == type,
+          (object) => object?.controllerId == selectedDevice.controllerId && object?.connectionNo == connectionNo && object?.type == type,
       orElse: () => null as DeviceObjectModel?,
     );
     String? name = object?.name;

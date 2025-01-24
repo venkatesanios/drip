@@ -35,7 +35,7 @@ class _DeviceListState extends State<DeviceList> {
   late LinkedScrollControllerGroup _scrollable2;
   late ScrollController _horizontalScroll1;
   late ScrollController _horizontalScroll2;
-  String selectedMasterDeviceId = 'EDEFEADE0001';
+  int selectedMasterId = 1;
 
   @override
   void initState() {
@@ -103,12 +103,12 @@ class _DeviceListState extends State<DeviceList> {
       child: ListTile(
         contentPadding: const EdgeInsets.all(0),
         leading: const SizedImageMedium(imagePath: 'assets/Images/Png/category_1_model_1.png'),
-        title: const Text('ORO GEM', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
-        subtitle: Text(selectedMasterDeviceId, style: TextStyle(color: Colors.white,fontSize: 12 ),),
+        title: Text('${configPvd.masterData['deviceName']}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+        subtitle: Text('${configPvd.masterData['deviceId']}', style: const TextStyle(color: Colors.white,fontSize: 12 ),),
         trailing: IntrinsicWidth(
           child: RadiusButtonStyle(
               onPressed: (){
-                bool isThereNodeToConfigure = listOfDevices.any((node) => node.isUsedInConfig == 0);
+                bool isThereNodeToConfigure = listOfDevices.any((node) => node.masterId == null);
                 if(isThereNodeToConfigure){
                   showDialog(
                       context: context,
@@ -134,7 +134,7 @@ class _DeviceListState extends State<DeviceList> {
                                         ],
                                       ),
                                       ...listOfDevices
-                                          .where((node) => node.masterDeviceId!.isEmpty)
+                                          .where((node) => node.masterId == null)
                                           .toList()
                                           .asMap()
                                           .entries.map((entry){
@@ -171,8 +171,7 @@ class _DeviceListState extends State<DeviceList> {
                                         stateSetter(() {
                                           setState(() {
                                             if (node.select) {
-                                              node.masterDeviceId = selectedMasterDeviceId;
-                                              node.isUsedInConfig = 1;
+                                              node.masterId = selectedMasterId;
                                               node.select = false;
                                             }
                                           });
@@ -232,7 +231,7 @@ class _DeviceListState extends State<DeviceList> {
                             controller: _verticalScroll1,
                             child: Column(
                               children: listOfDevices
-                                  .where((node) => node.masterDeviceId == selectedMasterDeviceId)
+                                  .where((node) => node.masterId == selectedMasterId)
                                   .toList()
                                   .asMap()
                                   .entries
@@ -286,7 +285,7 @@ class _DeviceListState extends State<DeviceList> {
                                     child:  Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: listOfDevices
-                                          .where((node) => node.masterDeviceId == selectedMasterDeviceId)
+                                          .where((node) => node.masterId == selectedMasterId)
                                           .toList()
                                           .asMap()
                                           .entries
@@ -301,13 +300,13 @@ class _DeviceListState extends State<DeviceList> {
                                                     list: [
                                                       'RS485', 'LoRa', 'MQTT',
                                                       for(var extend in configPvd.listOfDeviceModel)
-                                                        if(extend.categoryId == 10 && extend.isUsedInConfig == 1)
+                                                        if(extend.categoryId == 10 && extend.masterId != null)
                                                           'Extend\n${extend.deviceId}'
                                                     ],
                                                     onChanged: (String? newValue) {
                                                       List<String> interface = newValue!.split('\n');
                                                       setState(() {
-                                                        device.interfaceId = getInterfaceStringToCode(interface[0]);
+                                                        device.interfaceTypeId = getInterfaceStringToCode(interface[0]);
                                                         if(interface.length > 1){
                                                           device.extendDeviceId = interface[1];
                                                         }else{
@@ -320,11 +319,11 @@ class _DeviceListState extends State<DeviceList> {
                                             ),
                                             CustomTableCellPassingWidget(
                                                 widget: CustomDropDownButton(
-                                                    value: getIntervalCodeToString(device.interval, 'Sec'),
+                                                    value: getIntervalCodeToString(device.interfaceInterval!, 'Sec'),
                                                     list: [5 , 10, 15, 20, 25].map((e) => getIntervalCodeToString(e, 'Sec')).toList(),
                                                     onChanged: (String? newValue) {
                                                       setState(() {
-                                                        device.interval = getIntervalStringToCode(newValue!);
+                                                        device.interfaceInterval = getIntervalStringToCode(newValue!);
                                                       });
                                                     }
                                                 ),
@@ -334,13 +333,12 @@ class _DeviceListState extends State<DeviceList> {
                                                 widget: IconButton(
                                                   icon: const Icon(Icons.delete, color: Colors.red,),
                                                   onPressed: (){
-                                                    bool configured = configPvd.listOfGeneratedObject.any((object) => object.deviceId == device.deviceId);
+                                                    bool configured = configPvd.listOfGeneratedObject.any((object) => object.controllerId == device.controllerId);
                                                     if(configured){
                                                       simpleDialogBox(context: context, title: 'Alert', message: '${device.deviceName} cannot be removed. Please detach all connected objects first.');
                                                     }else{
                                                       setState(() {
-                                                        device.isUsedInConfig = 0;
-                                                        device.masterDeviceId = '';
+                                                        device.masterId = null;
                                                       });
                                                     }
                                                   },
@@ -371,8 +369,8 @@ class _DeviceListState extends State<DeviceList> {
   }
 
   String getInterfaceValue(DeviceModel device){
-    String interface = getInterfaceCodeToString(device.interfaceId);
-    String interfaceWithDeviceId = device.interfaceId == 5
+    String interface = getInterfaceCodeToString(device.interfaceTypeId);
+    String interfaceWithDeviceId = device.interfaceTypeId == 5
         ? '$interface\n${device.extendDeviceId}'
         : interface;
     return interfaceWithDeviceId;

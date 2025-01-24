@@ -1,1 +1,62 @@
-{}
+{
+  "source" : [
+    {
+      "objectId" : 11,
+      "sNo" : 11.001,
+      "name" :  "Source 1",
+      "sourceType" : 1,
+      "level" : 11.001,
+      "topFloat" :  11.001,
+      "bottomFloat" : 11.001,
+      "inletPump" :  [11.001, 11.001, 11.001],
+      "outletPump" : [11.001, 11.001, 11.001],
+      "valves" :  [11.001, 11.001, 11.001]
+    }
+  ],
+  "pump" : [
+    {
+      "objectId" : 11,
+      "sNo" : 11.001,
+      "name" :  "Pump 1",
+      "level": 11.001,
+      "pressure": 11.001,
+      "waterMeter": 11.001
+    }
+  ],
+  "filtration" : [
+    {
+      "objectId" : 11,
+      "sNo" : 11.001,
+      "name" :  "Filtration 1",
+      "filters":  [11.001, 11.001, 11.001],
+      "pressureIn" : 11.001,
+      "pressureOut" : 11.001,
+      "backWashValve" : 11.001
+    }
+  ],
+  "fertilization" : [
+    {
+      "objectId" : 11,
+      "sNo" : 11.001,
+      "name" :  "Fertilization 1",
+      "channel" : [11.001, 11.001, 11.001],
+      "boosterPump" : [11.001, 11.001, 11.001],
+      "agitator" : [11.001, 11.001, 11.001],
+      "selector" : [11.001, 11.001, 11.001],
+      "ec" : [11.001, 11.001, 11.001],
+      "ph" : [11.001, 11.001, 11.001]
+    }
+  ],
+  "irrigationLine" : [
+    {
+      "objectId" : 11,
+      "sNo" : 11.001,
+      "name" :  "IrrigationLine 1",
+      "valve" : [11.001, 11.001, 11.001],
+      "mainValve" : [11.001, 11.001, 11.001],
+      "levelSensor" : [11.001, 11.001, 11.001],
+      "moistureSensor" : [11.001, 11.001, 11.001]
+    }
+  ]
+
+}

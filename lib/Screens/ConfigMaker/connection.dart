@@ -5,7 +5,6 @@ import 'package:oro_drip_irrigation/Models/Configuration/device_model.dart';
 import 'package:oro_drip_irrigation/Widgets/connection_grid_list_tile.dart';
 import 'package:oro_drip_irrigation/Widgets/connector_widget.dart';
 import 'package:oro_drip_irrigation/Widgets/sized_image.dart';
-import 'package:oro_drip_irrigation/Widgets/weather_grid_list_tile.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 import '../../Models/Configuration/device_object_model.dart';
 import '../../StateManagement/config_maker_provider.dart';
@@ -106,7 +105,7 @@ class _ConnectionState extends State<Connection> {
                             typeName: 'Moisture',
                             keyWord: 'M'
                         ),
-                      if(selectedDevice.noOfMoistureInput != 0)
+                      if(selectedDevice.noOfI2CInput != 0)
                         getConnectionBox(
                             selectedDevice: selectedDevice,
                             color: getObjectTypeCodeToColor(7),
@@ -147,10 +146,10 @@ class _ConnectionState extends State<Connection> {
         children: widget.configPvd.listOfGeneratedObject
             .where((object) => object.type == widget.configPvd.selectedType
             && selectedDevice.connectingObjectId.contains(object.objectId)
-            && object.deviceId == '' || (object.deviceId == selectedDevice.deviceId && object.connectionNo == widget.configPvd.selectedConnectionNo))
+            && object.controllerId == null || (object.controllerId == selectedDevice.controllerId && object.connectionNo == widget.configPvd.selectedConnectionNo))
             .toList()
             .map((object){
-          bool isSelected = object.deviceId == selectedDevice.deviceId
+          bool isSelected = object.controllerId == selectedDevice.controllerId
               && object.type == widget.configPvd.selectedType
               && object.connectionNo == widget.configPvd.selectedConnectionNo;
           return InkWell(
@@ -158,8 +157,8 @@ class _ConnectionState extends State<Connection> {
               setState(() {
                 // remove if there any old connection
                 for(var generatedObject in widget.configPvd.listOfGeneratedObject){
-                  if(widget.configPvd.selectedConnectionNo == generatedObject.connectionNo && selectedDevice.deviceId == generatedObject.deviceId){
-                    generatedObject.deviceId = '';
+                  if(widget.configPvd.selectedConnectionNo == generatedObject.connectionNo && selectedDevice.controllerId == generatedObject.controllerId){
+                    generatedObject.controllerId = null;
                     generatedObject.connectionNo = 0;
                     for(var connectionObject in widget.configPvd.listOfObjectModelConnection){
                      if(generatedObject.objectId == connectionObject.objectId){
@@ -172,7 +171,7 @@ class _ConnectionState extends State<Connection> {
                 // update connection for selected object
                 for(var generatedObject in widget.configPvd.listOfGeneratedObject){
                   if(object.sNo == generatedObject.sNo){
-                    generatedObject.deviceId = selectedDevice.deviceId;
+                    generatedObject.controllerId = selectedDevice.controllerId;
                     generatedObject.connectionNo = widget.configPvd.selectedConnectionNo;
                     for(var connectionObject in widget.configPvd.listOfObjectModelConnection){
                       if(generatedObject.objectId == connectionObject.objectId){
@@ -291,6 +290,7 @@ class _ConnectionState extends State<Connection> {
                       widget.configPvd.selectedSelectionMode = widget.configPvd.selectedSelectionMode == SelectionMode.auto
                           ? SelectionMode.manual
                           : SelectionMode.auto;
+                      widget.configPvd.selectedConnectionNo = 0;
                     });
                   },
                   icon: widget.configPvd.selectedSelectionMode == SelectionMode.auto ? const Icon(Icons.list) : const Icon(Icons.grid_view_outlined)
@@ -335,7 +335,7 @@ class _ConnectionState extends State<Connection> {
   Widget getAvailableDeviceCategory(){
     List<int> listOfCategory = [];
     for(var device in widget.configPvd.listOfDeviceModel){
-      if(device.categoryId != 1 && device.isUsedInConfig == 1 && !listOfCategory.contains(device.categoryId)){
+      if(![1, 10].contains(device.categoryId) && device.masterId != null && !listOfCategory.contains(device.categoryId)){
         listOfCategory.add(device.categoryId);
       }
     }
@@ -380,7 +380,7 @@ class _ConnectionState extends State<Connection> {
     return child;
   }
   Widget getModelBySelectedCategory(){
-    List<DeviceModel> filteredDeviceModel = widget.configPvd.listOfDeviceModel.where((device) => (device.categoryId == widget.configPvd.selectedCategory && device.isUsedInConfig == 1)).toList();
+    List<DeviceModel> filteredDeviceModel = widget.configPvd.listOfDeviceModel.where((device) => (device.categoryId == widget.configPvd.selectedCategory && device.masterId != null)).toList();
     Widget child = SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
