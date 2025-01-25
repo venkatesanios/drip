@@ -277,7 +277,7 @@ class ConfigMakerProvider extends ChangeNotifier{
               );
             }else if(deviceObjectModel.objectId == 2){
               line.add(
-                  IrrigationLineModel(commonDetails: deviceObjectModel, source: [], pump: [], valve: [], mainValve: [], fan: [], fogger: [], pesticides: [], heater: [], screen: [], vent: [], moisture: [], temperature: [], soilTemperature: [], humidity: [], co2: [])
+                  IrrigationLineModel(commonDetails: deviceObjectModel, source: [], sourcePump: [], irrigationPump: [], valve: [], mainValve: [], fan: [], fogger: [], pesticides: [], heater: [], screen: [], vent: [], moisture: [], temperature: [], soilTemperature: [], humidity: [], co2: [])
               );
             }
           }

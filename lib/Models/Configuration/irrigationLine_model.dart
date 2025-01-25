@@ -4,7 +4,8 @@ import 'device_object_model.dart';
 class IrrigationLineModel{
   DeviceObjectModel commonDetails;
   List<double> source;
-  List<double> pump;
+  List<double> sourcePump;
+  List<double> irrigationPump;
   double centralFiltration;
   double localFiltration;
   double centralFertilization;
@@ -31,7 +32,8 @@ class IrrigationLineModel{
   IrrigationLineModel({
     required this.commonDetails,
     required this.source,
-    required this.pump,
+    required this.sourcePump,
+    required this.irrigationPump,
     this.centralFiltration = 0.00,
     this.localFiltration = 0.00,
     this.centralFertilization = 0.00,
@@ -61,7 +63,8 @@ class IrrigationLineModel{
     return IrrigationLineModel(
         commonDetails: deviceObjectModel,
         source: (data['source'] as List<dynamic>).map((sNo) => sNo as double).toList(),
-        pump: (data['pump'] as List<dynamic>).map((sNo) => sNo as double).toList(),
+        sourcePump: (data['sourcePump'] as List<dynamic>).map((sNo) => sNo as double).toList(),
+        irrigationPump: (data['irrigationPump'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         centralFiltration: data['centralFiltration'],
         localFiltration: data['localFiltration'],
         centralFertilization: data['centralFertilization'],
@@ -91,7 +94,8 @@ class IrrigationLineModel{
     var commonInfo = commonDetails.toJson();
     commonInfo.addAll({
       'source' : source,
-      'pump' : pump,
+      'sourcePump' : sourcePump,
+      'irrigationPump' : irrigationPump,
       'centralFiltration' : centralFiltration,
       'localFiltration' : localFiltration,
       'centralFertilization' : centralFertilization,
