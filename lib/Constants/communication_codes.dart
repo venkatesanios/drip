@@ -150,3 +150,25 @@ int getTankStringToCode(String type){
   }
 }
 
+// Todo: tankType
+String getPumpTypeCodeToString(int code){
+  switch(code){
+    case 1 :
+      return 'source';
+    case 2 :
+      return 'irrigation';
+    default :
+      return '-';
+  }
+}
+int getPumpTypeStringToCode(String type){
+  switch(type){
+    case 'source' :
+      return 1;
+    case 'irrigation' :
+      return 2;
+    default :
+      return 0;
+  }
+}
+

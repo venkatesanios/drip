@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:oro_drip_irrigation/Models/Configuration/fertigation_model.dart';
 import 'package:oro_drip_irrigation/Models/Configuration/filtration_model.dart';
+import 'package:oro_drip_irrigation/Models/Configuration/irrigationLine_model.dart';
 import 'package:oro_drip_irrigation/Models/Configuration/moisture_model.dart';
 import 'package:oro_drip_irrigation/Models/Configuration/pump_model.dart';
-import 'package:oro_drip_irrigation/Models/Configuration/weather_model.dart';
 
 import '../Models/Configuration/device_model.dart';
 import '../Models/Configuration/device_object_model.dart';
@@ -31,6 +31,7 @@ class ConfigMakerProvider extends ChangeNotifier{
   String selectedType = '';
   int selectedCategory = 6;
   int selectedModelControllerId = 100;
+  double selectedLineSno = 2.001;
   List<int> noticeableObjectId = [];
   List<double> listOfSelectedSno = [];
   double selectedSno = 0.0;
@@ -138,6 +139,7 @@ class ConfigMakerProvider extends ChangeNotifier{
   List<SourceModel> source = [];
   List<PumpModel> pump = [];
   List<MoistureModel> moisture = [];
+  List<IrrigationLineModel> line = [];
 
   DeviceObjectModel mapToDeviceObject(dynamic object) {
     return DeviceObjectModel(
@@ -187,6 +189,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         source = (jsonData['source'] as List<dynamic>).map((sourceObject) => SourceModel.fromJson(sourceObject)).toList();
         pump = (jsonData['pump'] as List<dynamic>).map((pumpObject) => PumpModel.fromJson(pumpObject)).toList();
         moisture = (jsonData['moisture'] as List<dynamic>).map((moistureObject) => MoistureModel.fromJson(moistureObject)).toList();
+        line = (jsonData['line'] as List<dynamic>).map((lineObject) => IrrigationLineModel.fromJson(lineObject)).toList();
         selectedCategory = listOfDeviceModel[1].categoryId;
         selectedModelControllerId = listOfDeviceModel[1].controllerId;
 
@@ -245,7 +248,6 @@ class ConfigMakerProvider extends ChangeNotifier{
               name: '${object.objectName} ${start+1}',
               sNo: double.parse(StringDecimalNo),
               controllerId: null,
-              location: [],
             );
             listOfGeneratedObject.add(
                 deviceObjectModel
@@ -273,6 +275,10 @@ class ConfigMakerProvider extends ChangeNotifier{
               moisture.add(
                 MoistureModel(commonDetails: deviceObjectModel, valves: [])
               );
+            }else if(deviceObjectModel.objectId == 2){
+              line.add(
+                  IrrigationLineModel(commonDetails: deviceObjectModel, source: [], pump: [], valve: [], mainValve: [], fan: [], fogger: [], pesticides: [], heater: [], screen: [], vent: [], moisture: [], temperature: [], soilTemperature: [], humidity: [], co2: [])
+              );
             }
           }
         }else{
@@ -286,6 +292,7 @@ class ConfigMakerProvider extends ChangeNotifier{
           fertilization.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
           source.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
           moisture.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
+          line.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
         }
       }
     }

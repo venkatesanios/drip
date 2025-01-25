@@ -1,4 +1,3 @@
-import 'package:oro_drip_irrigation/Models/Configuration/weather_model.dart';
 
 class DeviceModel {
   final int controllerId;

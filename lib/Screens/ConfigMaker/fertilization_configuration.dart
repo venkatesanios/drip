@@ -35,7 +35,6 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
           child:  SingleChildScrollView(
             child: Column(
               children: [
-
                 ResponsiveGridList(
                   horizontalGridMargin: 0,
                   verticalGridMargin: 10,
@@ -127,7 +126,6 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
                                 ],
                               ),
                             ),
-
                           ],
                         ),
                       )
@@ -165,6 +163,15 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
                           var moisture = widget.configPvd.moisture.map((object){
                             return object.toJson();
                           }).toList();
+                          var line = widget.configPvd.line.map((object){
+                            return object.toJson();
+                          }).toList();
+                          // print('listOfGeneratedObject :: ${jsonEncode(listOfGeneratedObject)}');
+                          // print('filtration :: ${jsonEncode(filtration)}');
+                          // print('fertilization :: ${jsonEncode(fertilization)}');
+                          // print('source :: ${jsonEncode(source)}');
+                          // print('pump :: ${jsonEncode(pump)}');
+                          // print('moisture :: ${jsonEncode(moisture)}');
                           String data = jsonEncode({
                             'listOfDeviceModel' : listOfDeviceModel,
                             'listOfSampleObjectModel' : listOfSampleObjectModel,
@@ -175,8 +182,8 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
                             'source' : source,
                             'pump' : pump,
                             'moisture' : moisture,
-                          }
-                          );
+                            'line' : line,
+                          });
                           print('data : $data');
                           saveToSessionStorage('configData',data);
                         },

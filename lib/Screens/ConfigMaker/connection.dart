@@ -382,40 +382,40 @@ class _ConnectionState extends State<Connection> {
   Widget getModelBySelectedCategory(){
     List<DeviceModel> filteredDeviceModel = widget.configPvd.listOfDeviceModel.where((device) => (device.categoryId == widget.configPvd.selectedCategory && device.masterId != null)).toList();
     Widget child = SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          for(var model in filteredDeviceModel)
-            ...[
-              InkWell(
-                onTap: (){
-                  setState(() {
-                    widget.configPvd.selectedModelControllerId = model.controllerId;
-                  });
-                  widget.configPvd.updateConnectionListTile();
-                  widget.configPvd.updateSelectedConnectionNoAndItsType(0, '');
-                },
-                child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                        color: widget.configPvd.selectedModelControllerId == model.controllerId ? Color(0xff1C863F) :Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(8)
-                    ),
-                    child: Column(
-                      children: [
-                        Text(model.deviceName,style: TextStyle(color: widget.configPvd.selectedModelControllerId == model.controllerId ? Colors.white : Colors.black, fontSize: 13),),
-                        Text(model.deviceId,style: TextStyle(color: widget.configPvd.selectedModelControllerId == model.controllerId ? Colors.amberAccent : Colors.black, fontSize: 10, fontWeight: FontWeight.bold),),
-                      ],
-                    )
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            for(var model in filteredDeviceModel)
+              ...[
+                InkWell(
+                  onTap: (){
+                    setState(() {
+                      widget.configPvd.selectedModelControllerId = model.controllerId;
+                    });
+                    widget.configPvd.updateConnectionListTile();
+                    widget.configPvd.updateSelectedConnectionNoAndItsType(0, '');
+                  },
+                  child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                          color: widget.configPvd.selectedModelControllerId == model.controllerId ? Color(0xff1C863F) :Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(8)
+                      ),
+                      child: Column(
+                        children: [
+                          Text(model.deviceName,style: TextStyle(color: widget.configPvd.selectedModelControllerId == model.controllerId ? Colors.white : Colors.black, fontSize: 13),),
+                          Text(model.deviceId,style: TextStyle(color: widget.configPvd.selectedModelControllerId == model.controllerId ? Colors.amberAccent : Colors.black, fontSize: 10, fontWeight: FontWeight.bold),),
+                        ],
+                      )
+                  ),
                 ),
-              ),
-              const SizedBox(width: 10,)
-            ]
+                const SizedBox(width: 10,)
+              ]
 
-        ],
-      ),
-    );
+          ],
+        ),
+      );
     return child;
   }
 }

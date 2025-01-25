@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:oro_drip_irrigation/Constants/properties.dart';
+import 'package:oro_drip_irrigation/Models/Configuration/irrigationLine_model.dart';
 import 'package:oro_drip_irrigation/Models/Configuration/source_model.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/site_configure.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/source_configuration.dart';
 import 'package:oro_drip_irrigation/StateManagement/config_maker_provider.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
+import '../../Constants/dialog_boxes.dart';
+import '../../Models/Configuration/device_object_model.dart';
+import '../../Widgets/sized_image.dart';
 import 'fertilization_configuration.dart';
 import 'filtration_configuration.dart';
 
@@ -22,6 +26,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
 
   @override
   Widget build(BuildContext context) {
+    IrrigationLineModel? selectedIrrigationLine = widget.configPvd.line.cast<IrrigationLineModel?>().firstWhere((line)=> line!.commonDetails.sNo == widget.configPvd.selectedLineSno, orElse: ()=> null);
     return Padding(
         padding: const EdgeInsets.all(8),
       child: LayoutBuilder(builder: (context, constraint){
@@ -35,57 +40,89 @@ class _LineConfigurationState extends State<LineConfiguration> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: SizedBox(
-                  width: 1600,
-                    child: getSuitableSourceConnection(),
-                ),
-              ),
-              const SizedBox(height: 20,),
-              ResponsiveGridList(
-                horizontalGridMargin: 0,
-                verticalGridMargin: 10,
-                minItemWidth: 100,
-                shrinkWrap: true,
-                listViewBuilderOptions: ListViewBuilderOptions(
-                  physics: const NeverScrollableScrollPhysics(),
-                ),
-                children: [
-                  for(var i = 0;i < 2;i++)
-                    Column(
+              getLineTabs(),
+              const SizedBox(height: 10,),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.white,
+                    boxShadow: AppProperties.customBoxShadow
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(
-                          width: 30,
-                          height: 30,
-                          child: Image.asset('assets/Images/Png/objectId_12.png'),
+                        diagramWidget(),
+                        const SizedBox(height: 20,),
+                        Container(
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.black)
+                              // color: Colors.blueGrey.shade50,
+                              // boxShadow: AppProperties.customBoxShadow
+                          ),
+                          child: ResponsiveGridList(
+                            horizontalGridMargin: 0,
+                            verticalGridMargin: 10,
+                            minItemWidth: 100,
+                            shrinkWrap: true,
+                            listViewBuilderOptions: ListViewBuilderOptions(
+                              physics: const NeverScrollableScrollPhysics(),
+                            ),
+                            children: [
+                              for(var i = 0;i < 2;i++)
+                                Column(
+                                  children: [
+                                    SizedBox(
+                                      width: 30,
+                                      height: 30,
+                                      child: Image.asset('assets/Images/Png/objectId_12.png'),
+                                    ),
+                                    Text('Main Valve ${i+1}', style: AppProperties.listTileBlackBoldStyle,)
+                                  ],
+                                ),
+                              for(var i = 0;i < 2;i++)
+                                Column(
+                                  children: [
+                                    SizedBox(
+                                      width: 30,
+                                      height: 30,
+                                      child: Image.asset('assets/Images/Png/objectId_22.png'),
+                                    ),
+                                    Text('Water Meter ${i+1}', style: AppProperties.listTileBlackBoldStyle,)
+                                  ],
+                                ),
+                              for(var i = 0;i < 14;i++)
+                                Column(
+                                  children: [
+                                    SizedBox(
+                                      width: 30,
+                                      height: 30,
+                                      child: Image.asset('assets/Images/Png/objectId_13.png'),
+                                    ),
+                                    Text('Valve ${i+1}', style: AppProperties.listTileBlackBoldStyle,)
+                                  ],
+                                )
+                            ],
+                          ),
                         ),
-                        Text('Main Valve ${i+1}', style: AppProperties.listTileBlackBoldStyle,)
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Wrap(
+                            spacing: 30,
+                            runSpacing: 20,
+                            children: [
+                              getLineParameter(line: selectedIrrigationLine!, currentParameterValue: selectedIrrigationLine.source, parameterType: LineParameter.source, objectId: 1, objectName: 'Source'),
+                              getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.source, parameterType: LineParameter.source, objectId: 13, objectName: 'Valve'),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
-                  for(var i = 0;i < 2;i++)
-                    Column(
-                      children: [
-                        SizedBox(
-                          width: 30,
-                          height: 30,
-                          child: Image.asset('assets/Images/Png/objectId_22.png'),
-                        ),
-                        Text('Water Meter ${i+1}', style: AppProperties.listTileBlackBoldStyle,)
-                      ],
-                    ),
-                  for(var i = 0;i < 14;i++)
-                    Column(
-                      children: [
-                        SizedBox(
-                          width: 30,
-                          height: 30,
-                          child: Image.asset('assets/Images/Png/objectId_13.png'),
-                        ),
-                        Text('Valve ${i+1}', style: AppProperties.listTileBlackBoldStyle,)
-                      ],
-                    )
-                ],
+                  ),
+                ),
               ),
 
               // Container(
@@ -151,6 +188,143 @@ class _LineConfigurationState extends State<LineConfiguration> {
         );
       }),
     );
+  }
+
+  Widget getLineTabs(){
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          for(var line in widget.configPvd.line)
+            ...[
+              InkWell(
+                onTap: (){
+                  setState(() {
+                    widget.configPvd.selectedLineSno = line.commonDetails.sNo!;
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                      color: widget.configPvd.selectedLineSno == line.commonDetails.sNo! ? const Color(0xff1C863F) :Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(8)
+                  ),
+                  child: Text(line.commonDetails.name!.toString(),style: TextStyle(color: widget.configPvd.selectedLineSno == line.commonDetails.sNo! ? Colors.white : Colors.black, fontSize: 13),),
+
+                ),
+              ),
+              const SizedBox(width: 10,)
+            ]
+
+        ],
+      ),
+    );
+  }
+
+  Widget diagramWidget(){
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: SizedBox(
+        width: 1600,
+        child: getSuitableSourceConnection(),
+      ),
+    );
+  }
+
+  Widget getLineParameter({
+    required IrrigationLineModel line,
+    required List<double> currentParameterValue,
+    required LineParameter parameterType,
+    required int objectId,
+    required String objectName,
+  }){
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: Theme.of(context).primaryColorLight.withOpacity(0.1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedImage(imagePath: 'assets/Images/Png/objectId_$objectId.png'),
+          const SizedBox(width: 20,),
+          Text('$objectName : ', style: AppProperties.listTileBlackBoldStyle,),
+          Center(
+            child: Text(currentParameterValue.isEmpty ? '-' : currentParameterValue.map((sNo) => getObjectName(sNo, widget.configPvd).name!).join(', '), style: TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold),),
+          ),
+          IconButton(
+              onPressed: (){
+                setState(() {
+                  widget.configPvd.listOfSelectedSno.addAll(currentParameterValue);
+                });
+                selectionDialogBox(
+                    context: context,
+                    title: 'Select $objectName',
+                    singleSelection: false,
+                    listOfObject: getUnselectedLineParameterObject(
+                        currentParameterList: currentParameterValue,
+                        objectId: objectId,
+                        parameter: parameterType
+                    ),
+                    onPressed: (){
+                      setState(() {
+                        // widget.configPvd.updateSelectionInFertilization(fertilizationSite.commonDetails.sNo!, parameterType);
+                      });
+                      Navigator.pop(context);
+                    }
+                );
+              },
+              icon: Icon(Icons.touch_app, color: Theme.of(context).primaryColor, size: 20,)
+          )
+        ],
+      ),
+    );
+  }
+
+  List<DeviceObjectModel> getUnselectedLineParameterObject({
+    required List<double> currentParameterList,
+    required int objectId,
+    required LineParameter parameter
+  }){
+    List<DeviceObjectModel> listOfObject = widget.configPvd.listOfGeneratedObject
+        .where((object) => object.objectId == objectId)
+        .toList();
+    List<double> assigned = [];
+    List<double> unAssigned = [];
+    for(var line in widget.configPvd.line){
+      List<double> siteParameter = parameter == LineParameter.source
+          ? line.source
+          : parameter == LineParameter.valve
+          ? line.valve
+          : parameter == LineParameter.mainValve
+          ? line.mainValve
+          : parameter == LineParameter.fan
+          ? line.fan
+          : parameter == LineParameter.fogger
+          ? line.fogger
+          : parameter == LineParameter.pesticides
+          ? line.pesticides
+          : parameter == LineParameter.heater
+          ? line.heater
+          : parameter == LineParameter.screen
+          ? line.screen
+          : parameter == LineParameter.vent
+          ? line.vent
+          : parameter == LineParameter.moisture
+          ? line.moisture
+          : parameter == LineParameter.temperature
+          ? line.temperature
+          : parameter == LineParameter.soilTemperature
+          ? line.soilTemperature
+          : parameter == LineParameter.humidity
+          ? line.humidity : line.co2;
+      assigned.addAll(siteParameter);
+    }
+    listOfObject = listOfObject
+        .where((object) => (!assigned.contains(object.sNo!) || currentParameterList.contains(object.sNo))).toList();
+    return listOfObject;
   }
 
   Widget getSuitableSourceConnection(){

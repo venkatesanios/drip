@@ -1,11 +1,9 @@
-
 class DeviceObjectModel {
   final int objectId;
   double? sNo;
   String? name;
   String objectName;
   int? connectionNo;
-  List<int>? location;
   final String type;
   int? controllerId;
   String? count;
@@ -16,7 +14,6 @@ class DeviceObjectModel {
     this.name,
     this.connectionNo,
     required this.objectName,
-    this.location,
     required this.type,
     this.controllerId,
     this.count,
@@ -29,7 +26,6 @@ class DeviceObjectModel {
         name : data['name'],
         connectionNo : data['connectionNo'] ?? 0,
         objectName : data['objectName'],
-        location : data['location'] != null ? (data['location'] as List<dynamic>).map((sNo) => sNo as int).toList() : [],
         type : data['type'],
         controllerId : data['controllerId'],
         count: data['count']
@@ -43,12 +39,9 @@ class DeviceObjectModel {
       'name' : name,
       'connectionNo' : connectionNo,
       'objectName' : objectName,
-      'location' : location,
       'type' : type,
       'controllerId' : controllerId,
       'count' : count
     };
   }
 }
-
-

@@ -64,6 +64,17 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
                               child: ListTile(
                                 leading: SizedImage(imagePath: 'assets/Images/Png/objectId_5.png'),
                                 title: Text(pump.commonDetails.name!),
+                                trailing: IntrinsicWidth(
+                                  child: CustomDropDownButton(
+                                      value: getPumpTypeCodeToString(pump.type),
+                                      list: const ['-', 'source', 'irrigation'],
+                                      onChanged: (value){
+                                        setState(() {
+                                          pump.type = getPumpTypeStringToCode(value!);
+                                        });
+                                      }
+                                  ),
+                                ),
                               ),
                             ),
                             Container(
