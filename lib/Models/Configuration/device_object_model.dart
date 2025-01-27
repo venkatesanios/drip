@@ -20,6 +20,7 @@ class DeviceObjectModel {
 });
 
   factory DeviceObjectModel.fromJson(data){
+    print('data :: ${data}');
     return DeviceObjectModel(
         objectId : data['objectId'],
         sNo : data['sNo'],

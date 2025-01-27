@@ -5,14 +5,14 @@ class PumpModel{
   double level;
   double pressure;
   double waterMeter;
-  int type;
+  int pumpType;
 
   PumpModel({
     required this.commonDetails,
     this.level = 0.0,
     this.pressure = 0.0,
     this.waterMeter = 0.0,
-    this.type = 0,
+    this.pumpType = 0,
   });
 
   factory PumpModel.fromJson(dynamic data){
@@ -22,7 +22,7 @@ class PumpModel{
         level: data['level'],
         pressure: data['pressure'],
         waterMeter: data['waterMeter'],
-        type: data['type']
+        pumpType: data['pumpType']
     );
   }
 
@@ -32,7 +32,7 @@ class PumpModel{
       'level' : level,
       'pressure' : pressure,
       'waterMeter' : waterMeter,
-      'type' : type,
+      'pumpType' : pumpType,
     });
     return commonInfo;
   }

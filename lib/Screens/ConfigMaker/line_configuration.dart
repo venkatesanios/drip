@@ -54,6 +54,17 @@ class _LineConfigurationState extends State<LineConfiguration> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Wrap(
+                            spacing: 30,
+                            runSpacing: 20,
+                            children: [
+                              getLineParameter(line: selectedIrrigationLine!, currentParameterValue: selectedIrrigationLine.source, parameterType: LineParameter.source, objectId: 1, objectName: 'Source'),
+                              getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.source, parameterType: LineParameter.source, objectId: 13, objectName: 'Valve'),
+                            ],
+                          ),
+                        ),
                         diagramWidget(),
                         const SizedBox(height: 20,),
                         Container(
@@ -108,17 +119,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
                             ],
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Wrap(
-                            spacing: 30,
-                            runSpacing: 20,
-                            children: [
-                              getLineParameter(line: selectedIrrigationLine!, currentParameterValue: selectedIrrigationLine.source, parameterType: LineParameter.source, objectId: 1, objectName: 'Source'),
-                              getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.source, parameterType: LineParameter.source, objectId: 13, objectName: 'Valve'),
-                            ],
-                          ),
-                        ),
+
                       ],
                     ),
                   ),
