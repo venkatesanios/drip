@@ -499,6 +499,59 @@ class ConfigMakerProvider extends ChangeNotifier{
 
   }
 
+  void updateSelectionInLine(double sNo, LineParameter parameter){
+    print("parameter :: $parameter");
+    for(var irrigationLine in line){
+      if(irrigationLine.commonDetails.sNo == sNo){
+        if(parameter == LineParameter.source){
+          irrigationLine.source.clear();
+          irrigationLine.source.addAll(listOfSelectedSno);
+        }else if(parameter == LineParameter.valve){
+          irrigationLine.valve.clear();
+          irrigationLine.valve.addAll(listOfSelectedSno);
+        }else if(parameter == LineParameter.mainValve){
+          irrigationLine.mainValve.clear();
+          irrigationLine.mainValve.addAll(listOfSelectedSno);
+        }else if(parameter == LineParameter.moisture){
+          irrigationLine.moisture.clear();
+          irrigationLine.moisture.addAll(listOfSelectedSno);
+        }else if(parameter == LineParameter.fan){
+          irrigationLine.fan.clear();
+          irrigationLine.fan.addAll(listOfSelectedSno);
+        }else if(parameter == LineParameter.fogger){
+          irrigationLine.fogger.clear();
+          irrigationLine.fogger.addAll(listOfSelectedSno);
+        }else if(parameter == LineParameter.pesticides){
+          irrigationLine.pesticides.clear();
+          irrigationLine.pesticides.addAll(listOfSelectedSno);
+        }else if(parameter == LineParameter.heater){
+          irrigationLine.heater.clear();
+          irrigationLine.heater.addAll(listOfSelectedSno);
+        }else if(parameter == LineParameter.screen){
+          irrigationLine.screen.clear();
+          irrigationLine.screen.addAll(listOfSelectedSno);
+        }else if(parameter == LineParameter.vent){
+          irrigationLine.vent.clear();
+          irrigationLine.vent.addAll(listOfSelectedSno);
+        }else if(parameter == LineParameter.temperature){
+          irrigationLine.temperature.clear();
+          irrigationLine.temperature.addAll(listOfSelectedSno);
+        }else if(parameter == LineParameter.soilTemperature){
+          irrigationLine.soilTemperature.clear();
+          irrigationLine.soilTemperature.addAll(listOfSelectedSno);
+        }else if(parameter == LineParameter.humidity){
+          irrigationLine.humidity.clear();
+          irrigationLine.humidity.addAll(listOfSelectedSno);
+        }else if(parameter == LineParameter.co2){
+          irrigationLine.co2.clear();
+          irrigationLine.co2.addAll(listOfSelectedSno);
+        }
+        listOfSelectedSno.clear();
+      }
+    }
+
+  }
+
   void updateSelectionInMoisture(double sNo){
     for(var moistureSensor in moisture){
       if(moistureSensor.commonDetails.sNo == sNo){

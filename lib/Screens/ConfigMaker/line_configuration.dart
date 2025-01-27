@@ -27,6 +27,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
   @override
   Widget build(BuildContext context) {
     IrrigationLineModel? selectedIrrigationLine = widget.configPvd.line.cast<IrrigationLineModel?>().firstWhere((line)=> line!.commonDetails.sNo == widget.configPvd.selectedLineSno, orElse: ()=> null);
+    print('selectedIrrigationLine ::: ${selectedIrrigationLine!.commonDetails.name}');
     return Padding(
         padding: const EdgeInsets.all(8),
       child: LayoutBuilder(builder: (context, constraint){
@@ -60,8 +61,14 @@ class _LineConfigurationState extends State<LineConfiguration> {
                             spacing: 30,
                             runSpacing: 20,
                             children: [
-                              getLineParameter(line: selectedIrrigationLine!, currentParameterValue: selectedIrrigationLine.source, parameterType: LineParameter.source, objectId: 1, objectName: 'Source'),
-                              getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.source, parameterType: LineParameter.source, objectId: 13, objectName: 'Valve'),
+                              getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.source, parameterType: LineParameter.source, objectId: 1, objectName: 'Source', validateAllLine: false),
+                              getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.valve, parameterType: LineParameter.valve, objectId: 13, objectName: 'Valve', validateAllLine: true),
+                              getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.mainValve, parameterType: LineParameter.mainValve, objectId: 13, objectName: 'Main Valve', validateAllLine: true),
+                              getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.fan, parameterType: LineParameter.fan, objectId: 13, objectName: 'Fan', validateAllLine: true),
+                              getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.fogger, parameterType: LineParameter.fogger, objectId: 13, objectName: 'Fogger', validateAllLine: true),
+                              getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.heater, parameterType: LineParameter.heater, objectId: 13, objectName: 'Heater', validateAllLine: true),
+                              getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.humidity, parameterType: LineParameter.humidity, objectId: 13, objectName: 'Humidity', validateAllLine: true),
+                              getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.screen, parameterType: LineParameter.humidity, objectId: 13, objectName: 'Humidity', validateAllLine: true),
                             ],
                           ),
                         ),
@@ -239,47 +246,46 @@ class _LineConfigurationState extends State<LineConfiguration> {
     required LineParameter parameterType,
     required int objectId,
     required String objectName,
+    required bool validateAllLine,
   }){
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: Theme.of(context).primaryColorLight.withOpacity(0.1),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedImage(imagePath: 'assets/Images/Png/objectId_$objectId.png'),
-          const SizedBox(width: 20,),
-          Text('$objectName : ', style: AppProperties.listTileBlackBoldStyle,),
-          Center(
-            child: Text(currentParameterValue.isEmpty ? '-' : currentParameterValue.map((sNo) => getObjectName(sNo, widget.configPvd).name!).join(', '), style: TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold),),
-          ),
-          IconButton(
-              onPressed: (){
-                setState(() {
-                  widget.configPvd.listOfSelectedSno.addAll(currentParameterValue);
-                });
-                selectionDialogBox(
-                    context: context,
-                    title: 'Select $objectName',
-                    singleSelection: false,
-                    listOfObject: getUnselectedLineParameterObject(
-                        currentParameterList: currentParameterValue,
-                        objectId: objectId,
-                        parameter: parameterType
-                    ),
-                    onPressed: (){
-                      setState(() {
-                        // widget.configPvd.updateSelectionInFertilization(fertilizationSite.commonDetails.sNo!, parameterType);
-                      });
-                      Navigator.pop(context);
-                    }
-                );
-              },
-              icon: Icon(Icons.touch_app, color: Theme.of(context).primaryColor, size: 20,)
-          )
-        ],
+    return InkWell(
+      onTap: (){
+        setState(() {
+          widget.configPvd.listOfSelectedSno.clear();
+          widget.configPvd.listOfSelectedSno.addAll(currentParameterValue);
+        });
+        selectionDialogBox(
+            context: context,
+            title: 'Select $objectName',
+            singleSelection: false,
+            listOfObject: getUnselectedLineParameterObject(
+                currentParameterList: currentParameterValue,
+                objectId: objectId,
+                parameter: parameterType,
+              validateAllLine: validateAllLine
+            ),
+            onPressed: (){
+              setState(() {
+                widget.configPvd.updateSelectionInLine(line.commonDetails.sNo!, parameterType);
+              });
+              Navigator.pop(context);
+            }
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: Theme.of(context).primaryColorLight.withOpacity(0.1),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedImage(imagePath: 'assets/Images/Png/objectId_$objectId.png'),
+            const SizedBox(width: 20,),
+            Text('$objectName : ', style: AppProperties.listTileBlackBoldStyle,),
+          ],
+        ),
       ),
     );
   }
@@ -287,42 +293,50 @@ class _LineConfigurationState extends State<LineConfiguration> {
   List<DeviceObjectModel> getUnselectedLineParameterObject({
     required List<double> currentParameterList,
     required int objectId,
-    required LineParameter parameter
+    required LineParameter parameter,
+    required bool validateAllLine
   }){
     List<DeviceObjectModel> listOfObject = widget.configPvd.listOfGeneratedObject
         .where((object) => object.objectId == objectId)
         .toList();
     List<double> assigned = [];
     List<double> unAssigned = [];
-    for(var line in widget.configPvd.line){
-      List<double> siteParameter = parameter == LineParameter.source
-          ? line.source
-          : parameter == LineParameter.valve
-          ? line.valve
-          : parameter == LineParameter.mainValve
-          ? line.mainValve
-          : parameter == LineParameter.fan
-          ? line.fan
-          : parameter == LineParameter.fogger
-          ? line.fogger
-          : parameter == LineParameter.pesticides
-          ? line.pesticides
-          : parameter == LineParameter.heater
-          ? line.heater
-          : parameter == LineParameter.screen
-          ? line.screen
-          : parameter == LineParameter.vent
-          ? line.vent
-          : parameter == LineParameter.moisture
-          ? line.moisture
-          : parameter == LineParameter.temperature
-          ? line.temperature
-          : parameter == LineParameter.soilTemperature
-          ? line.soilTemperature
-          : parameter == LineParameter.humidity
-          ? line.humidity : line.co2;
-      assigned.addAll(siteParameter);
+    if(validateAllLine){
+      for(var line in widget.configPvd.line){
+        List<double> lineParameter = parameter == LineParameter.source
+            ? line.source
+            : parameter == LineParameter.sourcePump
+            ? line.sourcePump
+            : parameter == LineParameter.irrigationPump
+            ? line.irrigationPump
+            : parameter == LineParameter.valve
+            ? line.valve
+            : parameter == LineParameter.mainValve
+            ? line.mainValve
+            : parameter == LineParameter.fan
+            ? line.fan
+            : parameter == LineParameter.fogger
+            ? line.fogger
+            : parameter == LineParameter.pesticides
+            ? line.pesticides
+            : parameter == LineParameter.heater
+            ? line.heater
+            : parameter == LineParameter.screen
+            ? line.screen
+            : parameter == LineParameter.vent
+            ? line.vent
+            : parameter == LineParameter.moisture
+            ? line.moisture
+            : parameter == LineParameter.temperature
+            ? line.temperature
+            : parameter == LineParameter.soilTemperature
+            ? line.soilTemperature
+            : parameter == LineParameter.humidity
+            ? line.humidity : line.co2;
+        assigned.addAll(lineParameter);
+      }
     }
+
     listOfObject = listOfObject
         .where((object) => (!assigned.contains(object.sNo!) || currentParameterList.contains(object.sNo))).toList();
     return listOfObject;
