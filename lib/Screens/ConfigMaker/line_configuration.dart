@@ -57,21 +57,46 @@ class _LineConfigurationState extends State<LineConfiguration> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Wrap(
-                            spacing: 30,
-                            runSpacing: 20,
-                            children: [
-                              getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.source, parameterType: LineParameter.source, objectId: 1, objectName: 'Source', validateAllLine: false),
-                              getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.valve, parameterType: LineParameter.valve, objectId: 13, objectName: 'Valve', validateAllLine: true),
-                              getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.mainValve, parameterType: LineParameter.mainValve, objectId: 13, objectName: 'Main Valve', validateAllLine: true),
-                              getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.fan, parameterType: LineParameter.fan, objectId: 13, objectName: 'Fan', validateAllLine: true),
-                              getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.fogger, parameterType: LineParameter.fogger, objectId: 13, objectName: 'Fogger', validateAllLine: true),
-                              getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.heater, parameterType: LineParameter.heater, objectId: 13, objectName: 'Heater', validateAllLine: true),
-                              getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.humidity, parameterType: LineParameter.humidity, objectId: 13, objectName: 'Humidity', validateAllLine: true),
-                              getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.screen, parameterType: LineParameter.humidity, objectId: 13, objectName: 'Humidity', validateAllLine: true),
-                            ],
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              spacing: 30,
+                              children: [
+                                if(availability(13))
+                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.sourcePump, parameterType: LineParameter.sourcePump, objectId: 13, objectName: 'Source Pump', validateAllLine: false, mode: 1),
+                                if(availability(13))
+                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.irrigationPump, parameterType: LineParameter.irrigationPump, objectId: 13, objectName: 'Irrigation Pump', validateAllLine: false, mode: 2),
+                                if(availability(13))
+                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.valve, parameterType: LineParameter.valve, objectId: 13, objectName: 'Valve', validateAllLine: true),
+                                if(availability(14))
+                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.mainValve, parameterType: LineParameter.mainValve, objectId: 14, objectName: 'Main Valve', validateAllLine: true),
+                                if(availability(15))
+                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.fan, parameterType: LineParameter.fan, objectId: 15, objectName: 'Fan', validateAllLine: true),
+                                if(availability(16))
+                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.fogger, parameterType: LineParameter.fogger, objectId: 16, objectName: 'Fogger', validateAllLine: true),
+                                if(availability(17))
+                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.heater, parameterType: LineParameter.heater, objectId: 17, objectName: 'Heater', validateAllLine: true),
+                                if(availability(36))
+                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.humidity, parameterType: LineParameter.humidity, objectId: 36, objectName: 'Humidity', validateAllLine: true),
+                                if(availability(21))
+                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.screen, parameterType: LineParameter.screen, objectId: 21, objectName: 'Screen', validateAllLine: true),
+                                if(availability(33))
+                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.co2, parameterType: LineParameter.co2, objectId: 33, objectName: 'Co2', validateAllLine: true),
+                                if(availability(25))
+                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.moisture, parameterType: LineParameter.moisture, objectId: 25, objectName: 'Moisture', validateAllLine: true),
+                                if(availability(20))
+                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.vent, parameterType: LineParameter.vent, objectId: 20, objectName: 'Vent', validateAllLine: true),
+                                if(availability(18))
+                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.pesticides, parameterType: LineParameter.pesticides, objectId: 18, objectName: 'Pesticides', validateAllLine: true),
+                                if(availability(30))
+                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.soilTemperature, parameterType: LineParameter.soilTemperature, objectId: 30, objectName: 'Soil Temperature', validateAllLine: true),
+                                if(availability(29))
+                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.temperature, parameterType: LineParameter.temperature, objectId: 29, objectName: 'Temperature', validateAllLine: true),
+                              ],
+                            ),
                           ),
                         ),
+                        const SizedBox(height: 10,),
                         diagramWidget(),
                         const SizedBox(height: 20,),
                         Container(
@@ -126,7 +151,6 @@ class _LineConfigurationState extends State<LineConfiguration> {
                             ],
                           ),
                         ),
-
                       ],
                     ),
                   ),
@@ -198,6 +222,10 @@ class _LineConfigurationState extends State<LineConfiguration> {
     );
   }
 
+  bool availability(objectId){
+    return widget.configPvd.listOfSampleObjectModel.any((object) => (object.objectId == objectId && object.count != '0'));
+  }
+
   Widget getLineTabs(){
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -247,6 +275,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
     required int objectId,
     required String objectName,
     required bool validateAllLine,
+    int? mode,
   }){
     return InkWell(
       onTap: (){
@@ -258,11 +287,12 @@ class _LineConfigurationState extends State<LineConfiguration> {
             context: context,
             title: 'Select $objectName',
             singleSelection: false,
-            listOfObject: getUnselectedLineParameterObject(
+            listOfObject: mode != null ? widget.configPvd.pump.where((pump) => (mode == pump.pumpType)).toList().map((pump) => pump.commonDetails).toList() :
+            getUnselectedLineParameterObject(
                 currentParameterList: currentParameterValue,
                 objectId: objectId,
                 parameter: parameterType,
-              validateAllLine: validateAllLine
+              validateAllLine: validateAllLine,
             ),
             onPressed: (){
               setState(() {
@@ -283,7 +313,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
           children: [
             SizedImage(imagePath: 'assets/Images/Png/objectId_$objectId.png'),
             const SizedBox(width: 20,),
-            Text('$objectName : ', style: AppProperties.listTileBlackBoldStyle,),
+            Text(objectName, style: AppProperties.listTileBlackBoldStyle,),
           ],
         ),
       ),
