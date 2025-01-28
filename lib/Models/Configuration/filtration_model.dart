@@ -2,7 +2,7 @@ import 'device_object_model.dart';
 
 class FiltrationModel {
   DeviceObjectModel commonDetails;
-  int? siteMode;
+  int siteMode;
   List<double> filters;
   double pressureIn;
   double pressureOut;
@@ -10,7 +10,7 @@ class FiltrationModel {
 
   FiltrationModel({
     required this.commonDetails,
-    this.siteMode,
+    this.siteMode = 1,
     required this.filters,
     this.pressureIn = 0.0,
     this.pressureOut = 0.0,

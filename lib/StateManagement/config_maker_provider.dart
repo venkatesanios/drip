@@ -25,7 +25,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     4 : 'Moisture Configuration',
     5 : 'Line Configuration',
   };
-  int selectedConfigurationTab = 0;
+  int selectedConfigurationTab = 5;
   SelectionMode selectedSelectionMode = SelectionMode.auto;
   int selectedConnectionNo = 0;
   String selectedType = '';
@@ -501,11 +501,15 @@ class ConfigMakerProvider extends ChangeNotifier{
 
   void updateSelectionInLine(double sNo, LineParameter parameter){
     print("parameter :: $parameter");
+    listOfSelectedSno.sort();
     for(var irrigationLine in line){
       if(irrigationLine.commonDetails.sNo == sNo){
-        if(parameter == LineParameter.source){
-          irrigationLine.source.clear();
-          irrigationLine.source.addAll(listOfSelectedSno);
+        if(parameter == LineParameter.sourcePump){
+          irrigationLine.sourcePump.clear();
+          irrigationLine.sourcePump.addAll(listOfSelectedSno);
+        }else if(parameter == LineParameter.irrigationPump){
+          irrigationLine.irrigationPump.clear();
+          irrigationLine.irrigationPump.addAll(listOfSelectedSno);
         }else if(parameter == LineParameter.valve){
           irrigationLine.valve.clear();
           irrigationLine.valve.addAll(listOfSelectedSno);
@@ -549,6 +553,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         listOfSelectedSno.clear();
       }
     }
+    notifyListeners();
 
   }
 

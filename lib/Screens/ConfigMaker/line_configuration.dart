@@ -60,12 +60,12 @@ class _LineConfigurationState extends State<LineConfiguration> {
                           child: SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             child: Row(
-                              spacing: 30,
+                              spacing: 20,
                               children: [
-                                if(availability(13))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.sourcePump, parameterType: LineParameter.sourcePump, objectId: 13, objectName: 'Source Pump', validateAllLine: false, mode: 1),
-                                if(availability(13))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.irrigationPump, parameterType: LineParameter.irrigationPump, objectId: 13, objectName: 'Irrigation Pump', validateAllLine: false, mode: 2),
+                                if(availability(2))
+                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.sourcePump, parameterType: LineParameter.sourcePump, objectId: 2, objectName: 'Source Pump', validateAllLine: false, mode: 1),
+                                if(availability(2))
+                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.irrigationPump, parameterType: LineParameter.irrigationPump, objectId: 2, objectName: 'Irrigation Pump', validateAllLine: false, mode: 2),
                                 if(availability(13))
                                   getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.valve, parameterType: LineParameter.valve, objectId: 13, objectName: 'Valve', validateAllLine: true),
                                 if(availability(14))
@@ -99,58 +99,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
                         const SizedBox(height: 10,),
                         diagramWidget(),
                         const SizedBox(height: 20,),
-                        Container(
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.black)
-                              // color: Colors.blueGrey.shade50,
-                              // boxShadow: AppProperties.customBoxShadow
-                          ),
-                          child: ResponsiveGridList(
-                            horizontalGridMargin: 0,
-                            verticalGridMargin: 10,
-                            minItemWidth: 100,
-                            shrinkWrap: true,
-                            listViewBuilderOptions: ListViewBuilderOptions(
-                              physics: const NeverScrollableScrollPhysics(),
-                            ),
-                            children: [
-                              for(var i = 0;i < 2;i++)
-                                Column(
-                                  children: [
-                                    SizedBox(
-                                      width: 30,
-                                      height: 30,
-                                      child: Image.asset('assets/Images/Png/objectId_12.png'),
-                                    ),
-                                    Text('Main Valve ${i+1}', style: AppProperties.listTileBlackBoldStyle,)
-                                  ],
-                                ),
-                              for(var i = 0;i < 2;i++)
-                                Column(
-                                  children: [
-                                    SizedBox(
-                                      width: 30,
-                                      height: 30,
-                                      child: Image.asset('assets/Images/Png/objectId_22.png'),
-                                    ),
-                                    Text('Water Meter ${i+1}', style: AppProperties.listTileBlackBoldStyle,)
-                                  ],
-                                ),
-                              for(var i = 0;i < 14;i++)
-                                Column(
-                                  children: [
-                                    SizedBox(
-                                      width: 30,
-                                      height: 30,
-                                      child: Image.asset('assets/Images/Png/objectId_13.png'),
-                                    ),
-                                    Text('Valve ${i+1}', style: AppProperties.listTileBlackBoldStyle,)
-                                  ],
-                                )
-                            ],
-                          ),
-                        ),
+                        checkingAnyParameterAvailableInLine(selectedIrrigationLine),
                       ],
                     ),
                   ),
@@ -220,6 +169,61 @@ class _LineConfigurationState extends State<LineConfiguration> {
         );
       }),
     );
+  }
+
+  Widget checkingAnyParameterAvailableInLine(IrrigationLineModel selectedIrrigationLine){
+    List<Widget> childrenWidget = [
+      ...getObjectInLine(selectedIrrigationLine.mainValve, 12),
+      ...getObjectInLine(selectedIrrigationLine.mainValve, 12),
+      if(selectedIrrigationLine.waterMeter != 0.0)
+        ...getObjectInLine([selectedIrrigationLine.waterMeter], 22),
+      ...getObjectInLine(selectedIrrigationLine.valve, 13),
+      ...getObjectInLine(selectedIrrigationLine.fan, 15),
+      ...getObjectInLine(selectedIrrigationLine.fogger, 16),
+      ...getObjectInLine(selectedIrrigationLine.heater, 17),
+      ...getObjectInLine(selectedIrrigationLine.humidity, 36),
+      ...getObjectInLine(selectedIrrigationLine.screen, 21),
+      ...getObjectInLine(selectedIrrigationLine.co2, 33),
+      ...getObjectInLine(selectedIrrigationLine.moisture, 25),
+      ...getObjectInLine(selectedIrrigationLine.vent, 20),
+      ...getObjectInLine(selectedIrrigationLine.pesticides, 18),
+      ...getObjectInLine(selectedIrrigationLine.soilTemperature, 30),
+      ...getObjectInLine(selectedIrrigationLine.temperature, 29),
+    ];
+    return childrenWidget.isEmpty ? Container() : Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.black)
+      ),
+      child: ResponsiveGridList(
+        horizontalGridMargin: 0,
+        verticalGridMargin: 10,
+        minItemWidth: 100,
+        shrinkWrap: true,
+        listViewBuilderOptions: ListViewBuilderOptions(
+          physics: const NeverScrollableScrollPhysics(),
+        ),
+        children: childrenWidget,
+      ),
+    );
+  }
+
+  List<Widget> getObjectInLine(List<double> parameters, int objectId){
+    return [
+      for(var objectSno in parameters)
+        Column(
+          children: [
+            SizedBox(
+              width: 30,
+              height: 30,
+              child: Image.asset('assets/Images/Png/objectId_$objectId.png'),
+            ),
+            Text(getObjectName(objectSno, widget.configPvd).name!, style: AppProperties.listTileBlackBoldStyle,)
+          ],
+        )
+    ];
+
   }
 
   bool availability(objectId){

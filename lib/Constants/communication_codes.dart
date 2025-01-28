@@ -172,3 +172,21 @@ int getPumpTypeStringToCode(String type){
   }
 }
 
+// Todo: tankType
+String getCentralLocalCodeToString(int code){
+  switch(code){
+    case 1 :
+      return 'Central';
+    default :
+      return 'Local';
+  }
+}
+int getCentralLocalStringToCode(String type){
+  switch(type){
+    case 'Central' :
+      return 1;
+    default :
+      return 0;
+  }
+}
+

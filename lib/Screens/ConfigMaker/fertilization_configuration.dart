@@ -7,11 +7,13 @@ import 'package:oro_drip_irrigation/Screens/ConfigMaker/site_configure.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 
+import '../../Constants/communication_codes.dart';
 import '../../Constants/dialog_boxes.dart';
 import '../../Constants/properties.dart';
 import '../../Models/Configuration/device_object_model.dart';
 import '../../Models/Configuration/filtration_model.dart';
 import '../../StateManagement/config_maker_provider.dart';
+import '../../Widgets/custom_drop_down_button.dart';
 import '../../Widgets/sized_image.dart';
 import 'config_web_view.dart';
 
@@ -57,40 +59,17 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
                             IntrinsicWidth(
                               stepWidth: 200,
                               child: ListTile(
-                                leading: SizedImage(imagePath: 'assets/Images/Png/objectId_3.png'),
+                                leading: const SizedImage(imagePath: 'assets/Images/Png/objectId_3.png'),
                                 title: Text(fertilizationSite.commonDetails.name!),
                                 trailing: IntrinsicWidth(
-                                  child: MaterialButton(
-                                      color: Theme.of(context).primaryColorLight,
-                                      onPressed: (){
+                                  child: CustomDropDownButton(
+                                      value: getCentralLocalCodeToString(fertilizationSite.siteMode),
+                                      list: const ['Central', 'Local'],
+                                      onChanged: (value){
                                         setState(() {
-                                          widget.configPvd.listOfSelectedSno.addAll(fertilizationSite.channel);
+                                          fertilizationSite.siteMode = getCentralLocalStringToCode(value!);
                                         });
-                                        selectionDialogBox(
-                                            context: context,
-                                            title: 'Select Channel',
-                                            singleSelection: false,
-                                            listOfObject: getUnselectedFertilizationParameterObject(
-                                                currentParameterList: fertilizationSite.channel,
-                                                objectId: 10,
-                                                parameter: 1
-                                            ),
-                                            onPressed: (){
-                                              setState(() {
-                                                fertilizationSite.channel.clear();
-                                                fertilizationSite.channel.addAll(widget.configPvd.listOfSelectedSno);
-                                                widget.configPvd.listOfSelectedSno.clear();
-                                              });
-                                              Navigator.pop(context);
-                                            }
-                                        );
-                                      },
-                                      child: const Row(
-                                        children: [
-                                          Icon(Icons.add, color: Colors.white,),
-                                          Text('Add Channel', style: AppProperties.tableHeaderStyleWhite,)
-                                        ],
-                                      )
+                                      }
                                   ),
                                 ),
                               ),
@@ -118,6 +97,7 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
                                 spacing: 30,
                                 runSpacing: 20,
                                 children: [
+                                  getFertilizerParameter(fertilizationSite: fertilizationSite, currentParameterValue: fertilizationSite.channel, parameterType: 1, objectId: 10, objectName: 'Channel'),
                                   getFertilizerParameter(fertilizationSite: fertilizationSite, currentParameterValue: fertilizationSite.boosterPump, parameterType: 2, objectId: 7, objectName: 'Booster'),
                                   getFertilizerParameter(fertilizationSite: fertilizationSite, currentParameterValue: fertilizationSite.agitator, parameterType: 3, objectId: 9, objectName: 'Agitator'),
                                   getFertilizerParameter(fertilizationSite: fertilizationSite, currentParameterValue: fertilizationSite.selector, parameterType: 4, objectId: 8, objectName: 'Selector'),

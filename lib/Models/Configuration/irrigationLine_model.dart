@@ -121,7 +121,6 @@ class IrrigationLineModel{
     });
     return commonInfo;
   }
-
 }
 
 enum LineParameter{source, sourcePump, irrigationPump, centralFiltration, localFiltration, centralFertilization, localFertilization, valve, mainValve, fan, fogger, pesticides, heater, screen, vent, powerSupply, pressureSwitch, waterMeter, pressureIn, pressureOut, moisture, temperature, soilTemperature, humidity, co2}

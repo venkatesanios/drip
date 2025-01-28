@@ -6,11 +6,13 @@ import 'package:oro_drip_irrigation/Screens/ConfigMaker/site_configure.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 
+import '../../Constants/communication_codes.dart';
 import '../../Constants/dialog_boxes.dart';
 import '../../Constants/properties.dart';
 import '../../Models/Configuration/device_object_model.dart';
 import '../../Models/Configuration/filtration_model.dart';
 import '../../StateManagement/config_maker_provider.dart';
+import '../../Widgets/custom_drop_down_button.dart';
 import '../../Widgets/sized_image.dart';
 import 'config_web_view.dart';
 
@@ -58,33 +60,14 @@ class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
                             leading: const SizedImage(imagePath: 'assets/Images/Png/objectId_4.png'),
                             title: Text(filtrationSite.commonDetails.name!),
                             trailing: IntrinsicWidth(
-                              child: MaterialButton(
-                                  color: Theme.of(context).primaryColorLight,
-                                  onPressed: (){
+                              child: CustomDropDownButton(
+                                  value: getCentralLocalCodeToString(filtrationSite.siteMode),
+                                  list: const ['Central', 'Local'],
+                                  onChanged: (value){
                                     setState(() {
-                                      widget.configPvd.listOfSelectedSno.addAll(filtrationSite.filters);
+                                      filtrationSite.siteMode = getCentralLocalStringToCode(value!);
                                     });
-                                    selectionDialogBox(
-                                        context: context,
-                                        title: 'Select Filters',
-                                        singleSelection: false,
-                                        listOfObject: getUnselectedFilterObject(filtrationSite),
-                                        onPressed: (){
-                                          setState(() {
-                                            filtrationSite.filters.clear();
-                                            filtrationSite.filters.addAll(widget.configPvd.listOfSelectedSno);
-                                            widget.configPvd.listOfSelectedSno.clear();
-                                          });
-                                          Navigator.pop(context);
-                                        }
-                                    );
-                                  },
-                                  child: const Row(
-                                    children: [
-                                      Icon(Icons.add, color: Colors.white,),
-                                      Text('Add Filter', style: AppProperties.tableHeaderStyleWhite,)
-                                    ],
-                                  )
+                                  }
                               ),
                             ),
                           ),
@@ -119,6 +102,41 @@ class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
                               ),
                             ),
                           ),
+                        ),
+                        Row(
+                          children: [
+                            const SizedImage(imagePath: 'assets/Images/Png/objectId_11.png'),
+                            const SizedBox(width: 20,),
+                            const Text('Filter : ', style: AppProperties.listTileBlackBoldStyle,),
+                            SizedBox(
+                              width: 150,
+                              child: Center(
+                                child: Text(filtrationSite.filters.isEmpty ? '-' : filtrationSite.filters.map((sNo) => getObjectName(sNo, widget.configPvd).name!).join(', '), style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 12, fontWeight: FontWeight.bold),),
+                              ),
+                            ),
+                            IconButton(
+                                onPressed: (){
+                                  setState(() {
+                                    widget.configPvd.listOfSelectedSno.addAll(filtrationSite.filters);
+                                  });
+                                  selectionDialogBox(
+                                      context: context,
+                                      title: 'Select Filters',
+                                      singleSelection: false,
+                                      listOfObject: getUnselectedFilterObject(filtrationSite),
+                                      onPressed: (){
+                                        setState(() {
+                                          filtrationSite.filters.clear();
+                                          filtrationSite.filters.addAll(widget.configPvd.listOfSelectedSno);
+                                          widget.configPvd.listOfSelectedSno.clear();
+                                        });
+                                        Navigator.pop(context);
+                                      }
+                                  );
+                                },
+                                icon: Icon(Icons.touch_app, color: Theme.of(context).primaryColor, size: 20,)
+                            )
+                          ],
                         ),
                         Row(
                           children: [
