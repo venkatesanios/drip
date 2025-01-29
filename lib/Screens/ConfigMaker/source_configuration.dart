@@ -320,8 +320,9 @@ Widget singlePump(SourceModel source, bool fillingPump, ConfigMakerProvider conf
 }
 
 Widget multiplePump(SourceModel source, bool fillingPump, ConfigMakerProvider configPvd,
-    {bool dashBoard = false}){
+    {bool dashBoard = false, int? maxOutletPump}){
   List<double> currentParameter = fillingPump ? source.inletPump : source.outletPump;
+  print('multiplePump maxOutletPump :: $maxOutletPump');
   return Row(
     children: [
       for(var i = 0;i < currentParameter.length;i++)
@@ -347,7 +348,8 @@ Widget multiplePump(SourceModel source, bool fillingPump, ConfigMakerProvider co
                 configPvd.pump.firstWhere((pump) => pump.commonDetails.sNo == currentParameter[i]).waterMeter,
               configPvd
             ),
-            Positioned(
+            if(currentParameter.length > 1)
+              Positioned(
               right: i == 0 ? 0 : null,
               left: i == 1 ? 0 : null,
               bottom: 16 * configPvd.ratio,
@@ -369,6 +371,24 @@ Widget multiplePump(SourceModel source, bool fillingPump, ConfigMakerProvider co
             )
           ],
         ),
+      if(maxOutletPump != null)
+        for(var i = 0;i < (maxOutletPump - currentParameter.length);i++)
+          SizedBox(
+            width: 94,
+            height: 120 * configPvd.ratio,
+            child: Stack(
+              children: [
+                Positioned(
+                  bottom : 32 * configPvd.ratio,
+                  child: SvgPicture.asset(
+                    'assets/Images/Source/backside_pipe_1.svg',
+                    width: 120,
+                    height: 8.5 * configPvd.ratio,
+                  ),
+                )
+              ],
+            ),
+          )
     ],
   );
 }

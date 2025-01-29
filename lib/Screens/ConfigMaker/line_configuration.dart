@@ -36,20 +36,21 @@ class _LineConfigurationState extends State<LineConfiguration> {
           height: constraint.maxHeight,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            color: Colors.white
+            color: Theme.of(context).primaryColor == Colors.black ? Colors.white10 : Colors.white
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              getLineTabs(),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: getLineTabs(),
+              ),
               const SizedBox(height: 10,),
               Expanded(
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    color: Colors.white,
-                    boxShadow: AppProperties.customBoxShadow
                   ),
                   child: SingleChildScrollView(
                     child: Column(
@@ -245,7 +246,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                      color: widget.configPvd.selectedLineSno == line.commonDetails.sNo! ? const Color(0xff1C863F) :Colors.grey.shade300,
+                      color: widget.configPvd.selectedLineSno == line.commonDetails.sNo! ? const Color(0xff1C863F) : Colors.grey.shade300,
                       borderRadius: BorderRadius.circular(8)
                   ),
                   child: Text(line.commonDetails.name!.toString(),style: TextStyle(color: widget.configPvd.selectedLineSno == line.commonDetails.sNo! ? Colors.white : Colors.black, fontSize: 13),),
@@ -308,7 +309,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          color: Theme.of(context).primaryColorLight.withOpacity(0.1),
+          color: Theme.of(context).primaryColorLight.withOpacity(0.5),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -374,15 +375,16 @@ class _LineConfigurationState extends State<LineConfiguration> {
     return listOfObject;
   }
 
+
+  //Todo :: getSuitableSourceConnection
   Widget getSuitableSourceConnection(IrrigationLineModel selectedIrrigationLine){
     List<SourceModel> suitableSource = widget.configPvd.source
         .where(
-            (source) =>
-        (
-            selectedIrrigationLine.sourcePump.any((pump) => (source.outletPump.contains(pump) || source.inletPump.contains(pump)))
-                ||
-                selectedIrrigationLine.irrigationPump.any((pump) => (source.outletPump.contains(pump) || source.inletPump.contains(pump)))
-        )
+            (source){
+              bool sourcePumpAvailability = selectedIrrigationLine.sourcePump.any((pump) => (source.outletPump.contains(pump) || source.inletPump.contains(pump)));
+              bool irrigationPumpAvailability = selectedIrrigationLine.irrigationPump.any((pump) => (source.outletPump.contains(pump) || source.inletPump.contains(pump)));
+              return (source.sourceType == 4 ? (sourcePumpAvailability || irrigationPumpAvailability) : (sourcePumpAvailability && irrigationPumpAvailability));
+            }
     )
         .map((source) => source.copy())
         .toList();
@@ -416,11 +418,12 @@ class _LineConfigurationState extends State<LineConfiguration> {
     );
   }
 
-  Widget oneTank(SourceModel source, {bool inlet = true, bool fertilizerSite = true}){
+  Widget oneTank(SourceModel source, {bool inlet = true, bool fertilizerSite = true, int? maxOutletPump}){
+    print('oneTank maxOutletPump : $maxOutletPump');
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ...oneTankList(source, inlet: inlet),
+        ...oneTankList(source, inlet: inlet, maxOutletPump: maxOutletPump),
         if(fertilizerSite)
           ...filtrationAndFertilization(maxLength: 1)
       ],
@@ -538,12 +541,18 @@ class _LineConfigurationState extends State<LineConfiguration> {
     required List<SourceModel> multipleTank
 }){
     int maxLength = multipleSource.length > multipleTank.length ? multipleSource.length : multipleTank.length;
-    print('maxLength : $maxLength');
+    int maxOutletPump = 0;
+    for(var tank in multipleTank){
+      maxOutletPump = maxOutletPump < tank.outletPump.length ? tank.outletPump.length : maxOutletPump;
+    }
+    print('multipleSourceAndMultipleTank maxOutletPump : $maxOutletPump');
     return LayoutBuilder(builder: (context, constraint){
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               for(var src in multipleSource)
                 Padding(
@@ -557,6 +566,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
             ],
           ),
           Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               for(var srcOrTank = 0;srcOrTank < maxLength;srcOrTank++)
                 Container(
@@ -624,11 +634,12 @@ class _LineConfigurationState extends State<LineConfiguration> {
             ],
           ),
           Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               for(var tank = 0;tank < multipleTank.length;tank++)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 20),
-                  child: oneTank(multipleTank[tank], fertilizerSite: false),
+                  child: oneTank(multipleTank[tank], fertilizerSite: false, maxOutletPump: maxOutletPump),
                 ),
             ],
           ),
@@ -785,11 +796,11 @@ class _LineConfigurationState extends State<LineConfiguration> {
     ];
   }
 
-  List<Widget> oneTankList(SourceModel source, {bool inlet = true}){
+  List<Widget> oneTankList(SourceModel source, {bool inlet = true, int? maxOutletPump}){
     pumpExtendedWidth += 120 + (source.outletPump.length * 120);
     return [
       getSource(source, widget.configPvd, inlet: inlet),
-      multiplePump(source, false, widget.configPvd, dashBoard: true),
+      multiplePump(source, false, widget.configPvd, dashBoard: true, maxOutletPump: maxOutletPump),
     ];
   }
 

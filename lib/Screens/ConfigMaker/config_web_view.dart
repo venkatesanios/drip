@@ -79,10 +79,16 @@ class _ConfigWebViewState extends State<ConfigWebView> {
 
   Widget sideNavigationWidget(screenWidth, screenHeight){
     return Container(
-      // width: screenWidth * sideNavigationRatio,
       width: screenWidth  > webBreakPoint ? sideNavigationWidth : sideNavigationBreakPointWidth,
       decoration: BoxDecoration(
-          gradient: AppProperties.linearGradientPrimary
+          gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Theme.of(context).primaryColor,
+                Theme.of(context).primaryColor.withOpacity(0.8),
+              ]
+          )
       ),
       height: screenHeight,
       child: Column(

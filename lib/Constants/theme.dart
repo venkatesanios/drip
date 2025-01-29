@@ -37,7 +37,6 @@ class AppThemes {
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
       focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.blue)),
       labelStyle: const TextStyle(color: Colors.blue),
-
     ),
     tabBarTheme: TabBarTheme(
       indicatorColor: const Color(0xffB1FFCB),
@@ -65,7 +64,8 @@ class AppThemes {
 
   static final darkTheme = ThemeData(
     brightness: Brightness.dark,
-    primaryColor: Colors.teal,
+    primaryColor: Colors.black,
+    primaryColorLight: const Color(0xff1D808E),
     scaffoldBackgroundColor: const Color(0xFF121212),
     appBarTheme: const AppBarTheme(
       backgroundColor: Color(0xFF1E1E1E),

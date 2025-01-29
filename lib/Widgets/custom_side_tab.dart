@@ -20,6 +20,7 @@ class CustomSideTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('selected : $selected');
     Widget myChild =  Container(
       margin: const EdgeInsets.only(bottom: 20),
       width: width,

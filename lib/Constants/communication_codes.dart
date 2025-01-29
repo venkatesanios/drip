@@ -1,7 +1,5 @@
 import 'dart:ui';
 
-
-
 // Todo interface
 int getInterfaceStringToCode(String title){
   switch(title){
@@ -159,6 +157,7 @@ String getPumpTypeCodeToString(int code){
       return 'irrigation';
   }
 }
+
 int getPumpTypeStringToCode(String type){
   switch(type){
     case 'source' :
@@ -168,7 +167,7 @@ int getPumpTypeStringToCode(String type){
   }
 }
 
-// Todo: tankType
+// Todo: centralOrLocal
 String getCentralLocalCodeToString(int code){
   switch(code){
     case 1 :
@@ -177,12 +176,12 @@ String getCentralLocalCodeToString(int code){
       return 'Local';
   }
 }
+
 int getCentralLocalStringToCode(String type){
   switch(type){
     case 'Central' :
       return 1;
     default :
-      return 0;
+      return 2;
   }
 }
-
