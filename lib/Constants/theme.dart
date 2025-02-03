@@ -107,5 +107,6 @@ class AppThemes {
       onPrimary: Colors.white,
       onSurface: Colors.white70,
     ),
+    dialogBackgroundColor: Colors.white
   );
 }

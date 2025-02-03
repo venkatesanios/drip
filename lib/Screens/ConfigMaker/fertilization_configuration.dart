@@ -181,7 +181,6 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
               ],
             ),
           ),
-
         );
       }),
     );
@@ -362,10 +361,19 @@ class _FertilizationDashboardFormationState extends State<FertilizationDashboard
   List<Widget> getBooster(){
     return [
       if(widget.fertilizationSite.boosterPump.isNotEmpty || widget.fertilizationSite.agitator.isNotEmpty)
-        SvgPicture.asset(
-          (widget.fertilizationSite.boosterPump.isNotEmpty) ? 'assets/Images/Fertilization/booster_1.svg' : '',
-          width: 150,
-          height: 150 * configPvd.ratio,
+        Stack(
+          children: [
+            SvgPicture.asset(
+              (widget.fertilizationSite.boosterPump.isNotEmpty) ? 'assets/Images/Fertilization/booster_1.svg' : '',
+              width: 150,
+              height: 150 * configPvd.ratio,
+            ),
+            Positioned(
+              left: 0,
+              bottom: 50,
+              child: Text(widget.fertilizationSite.boosterPump.map((sNo) => getObjectName(sNo, configPvd).name!).join(', '), style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold),),
+            )
+          ],
         ),
     ];
   }

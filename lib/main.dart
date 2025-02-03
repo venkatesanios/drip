@@ -11,7 +11,7 @@ import 'Screens/ConfigMaker/config_web_view.dart';
 
 void main() {
   GlobalConfig.setEnvironment(Environment.development);
-  print(payloadConversion());
+  // print(payloadConversion());
   runApp(
       MultiProvider(
         providers: [

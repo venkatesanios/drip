@@ -590,7 +590,7 @@ class ConfigMakerProvider extends ChangeNotifier{
           generatedObj.name = obj.name;
         }
       }
-      for(var pump in pump){
+      for(var pump in pump) {
         if(pump.commonDetails.sNo == obj.sNo){
           pump.commonDetails.name = obj.name;
         }

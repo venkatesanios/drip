@@ -127,9 +127,9 @@ class _LineConfigurationState extends State<LineConfiguration> {
                                 if(availability(3))
                                   getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.localFertilization], parameterType: LineParameter.localFertilization, objectId: 3, objectName: 'Local Fertilization', validateAllLine: false, singleSelection: true, listOfObject: widget.configPvd.fertilization.where((site) => (site.siteMode == 2)).toList().map((site) => site.commonDetails).toList()),
                                 if(availability(4))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.centralFiltration], parameterType: LineParameter.centralFiltration, objectId: 4, objectName: 'Central Filtration', validateAllLine: false, singleSelection: true, listOfObject: widget.configPvd.filtration.where((site) => (site.siteMode == 2)).toList().map((site) => site.commonDetails).toList()),
+                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.centralFiltration], parameterType: LineParameter.centralFiltration, objectId: 4, objectName: 'Central Filtration', validateAllLine: false, singleSelection: true, listOfObject: widget.configPvd.filtration.where((site) => (site.siteMode == 1)).toList().map((site) => site.commonDetails).toList()),
                                 if(availability(4))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.localFiltration], parameterType: LineParameter.localFiltration, objectId: 4, objectName: 'Central Filtration', validateAllLine: false, singleSelection: true, listOfObject: widget.configPvd.filtration.where((site) => (site.siteMode == 2)).toList().map((site) => site.commonDetails).toList()),
+                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.localFiltration], parameterType: LineParameter.localFiltration, objectId: 4, objectName: 'Local Filtration', validateAllLine: false, singleSelection: true, listOfObject: widget.configPvd.filtration.where((site) => (site.siteMode == 2)).toList().map((site) => site.commonDetails).toList()),
                               ],
                             ),
                           ),
@@ -629,8 +629,9 @@ class _LineConfigurationState extends State<LineConfiguration> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               for(var src in multipleSource)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
+                Container(
+                  margin: const EdgeInsets.only(bottom: 20),
+                  // padding: const EdgeInsets.symmetric(vertical: 20),
                   child: Row(
                     children: [
                       ...oneSourceList(src, maxOutletPumpForTank: maxOutletPumpForTank, maxOutletPumpForSource: maxOutletPumpForSource)
@@ -655,7 +656,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
                             bottom: 0,
                             child: Container(
                               width: 8,
-                              height: 60  * widget.configPvd.ratio,
+                              height: 80  * widget.configPvd.ratio,
                               decoration: const BoxDecoration(
                                   gradient: RadialGradient(
                                       radius: 2,
@@ -673,7 +674,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
                             top: 0,
                             child: Container(
                               width: 8,
-                              height: 109,
+                              height: 68,
                               decoration: const BoxDecoration(
                                   gradient: RadialGradient(
                                       radius: 3,
@@ -712,8 +713,9 @@ class _LineConfigurationState extends State<LineConfiguration> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               for(var tank = 0;tank < multipleTank.length;tank++)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
+                Container(
+                  margin: const EdgeInsets.only(bottom: 20),
+                  // padding: const EdgeInsets.symmetric(vertical: 20),
                   child: oneTank(multipleTank[tank], selectedIrrigationLine, maxOutletPumpForTank: maxOutletPumpForTank),
                 ),
             ],
@@ -732,17 +734,17 @@ class _LineConfigurationState extends State<LineConfiguration> {
     double connectionPipeHeight = maxLength * 160;
     double connectingHeight = filterSite == null ? 198 : 400;
     return [
-      if(filterSite != null || fertilizerSite != null)
+      if(fertilizerSite != null)
         SizedBox(
           width: 50,
           height: (connectionPipeHeight > connectingHeight ? connectionPipeHeight : connectingHeight) * widget.configPvd.ratio,
           child: Stack(
             children: [
               Positioned(
-                top: (maxLength == 1 ? 80 : 100) * widget.configPvd.ratio,
+                top: 80 * widget.configPvd.ratio,
                 child: Container(
                   width: 8 * widget.configPvd.ratio,
-                  height: (maxLength == 1 ? 200 : (connectionPipeHeight - 135)) * widget.configPvd.ratio,
+                  height: (maxLength == 1 ? 200 : (connectionPipeHeight - 123)) * widget.configPvd.ratio,
                   decoration: const BoxDecoration(
                       gradient: RadialGradient(
                           radius: 2,
@@ -770,7 +772,8 @@ class _LineConfigurationState extends State<LineConfiguration> {
                   ),
                 ),
               ),
-              Positioned(
+              if(filterSite != null)
+                Positioned(
                 top: 277  * widget.configPvd.ratio,
                 child: Container(
                   width: 50,
@@ -789,14 +792,13 @@ class _LineConfigurationState extends State<LineConfiguration> {
             ],
           ),
         ),
-
       Stack(
         children: [
           if(fertilizerSite != null && filterSite != null)
             Positioned(
-            right: 0,
-            top: 98 * widget.configPvd.ratio,
-            child: Container(
+              right: 0,
+              top: 98 * widget.configPvd.ratio,
+              child: Container(
               width: (filterSite.filters.length * 150 - 50) * widget.configPvd.ratio,
               height: 7 * widget.configPvd.ratio,
               decoration: const BoxDecoration(
@@ -809,7 +811,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
                   )
               ),
             ),
-          ),
+            ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -856,7 +858,6 @@ class _LineConfigurationState extends State<LineConfiguration> {
               ),
             ),
           ),
-
         ],
       ),
     ];
@@ -867,7 +868,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
     print("oneSourceList maxOutletPumpForTank : $maxOutletPumpForTank");
     pumpExtendedWidth += (120 * 2);
     return [
-      getSource(source,widget.configPvd , inlet: false,dashboard: true),
+      getSource(source,widget.configPvd , inlet: false, dashboard: true),
       if(source.outletPump.length == 1)
         Row(
           children: [
