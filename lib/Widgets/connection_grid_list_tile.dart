@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/Constants/dialog_boxes.dart';
-import 'package:oro_drip_irrigation/Models/Configuration/device_model.dart';
-import 'package:oro_drip_irrigation/Screens/ConfigMaker/product_limit.dart';
-import 'package:oro_drip_irrigation/Widgets/blinking_container.dart';
 import 'package:oro_drip_irrigation/Widgets/sized_image.dart';
 import 'package:oro_drip_irrigation/Widgets/toggle_text_form_field_connection.dart';
-import 'package:oro_drip_irrigation/Widgets/toggle_text_form_field_product_limit.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 import '../Constants/communication_codes.dart';
 import '../Constants/properties.dart';
+import '../Models/Configuration/device_model.dart';
 import '../Models/Configuration/device_object_model.dart';
 import '../StateManagement/config_maker_provider.dart';
 

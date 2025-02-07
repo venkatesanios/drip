@@ -2,23 +2,17 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:oro_drip_irrigation/Constants/dialog_boxes.dart';
-import 'package:oro_drip_irrigation/Constants/properties.dart';
-import 'package:oro_drip_irrigation/Models/Configuration/device_object_model.dart';
-import 'package:oro_drip_irrigation/Models/Configuration/filtration_model.dart';
-import 'package:oro_drip_irrigation/Screens/ConfigMaker/fertilization_configuration.dart';
-import 'package:oro_drip_irrigation/Screens/ConfigMaker/filtration_configuration.dart';
-import 'package:oro_drip_irrigation/Screens/ConfigMaker/moisture_configuration.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/pump_configuration.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/source_configuration.dart';
-import 'package:oro_drip_irrigation/Widgets/custom_buttons.dart';
-import 'package:oro_drip_irrigation/Widgets/custom_drop_down_button.dart';
-import 'package:oro_drip_irrigation/Widgets/sized_image.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 
+import '../../Models/Configuration/device_object_model.dart';
 import '../../StateManagement/config_maker_provider.dart';
 import 'config_web_view.dart';
+import 'fertilization_configuration.dart';
+import 'filtration_configuration.dart';
 import 'line_configuration.dart';
+import 'moisture_configuration.dart';
 
 class SiteConfigure extends StatefulWidget {
   final ConfigMakerProvider configPvd;

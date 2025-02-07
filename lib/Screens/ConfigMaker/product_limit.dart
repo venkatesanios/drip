@@ -1,16 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
-import 'package:oro_drip_irrigation/Constants/properties.dart';
-import 'package:oro_drip_irrigation/Widgets/legend.dart';
-import 'package:oro_drip_irrigation/Widgets/product_limit_grid_list_tile.dart';
-import 'package:oro_drip_irrigation/Widgets/toggle_text_form_field_product_limit.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 
 import '../../Constants/communication_codes.dart';
+import '../../Constants/properties.dart';
 import '../../Models/Configuration/device_model.dart';
 import '../../Models/Configuration/device_object_model.dart';
 import '../../StateManagement/config_maker_provider.dart';
+import '../../Widgets/legend.dart';
+import '../../Widgets/product_limit_grid_list_tile.dart';
 import '../../Widgets/sized_image.dart';
 
 class ProductLimit extends StatefulWidget {

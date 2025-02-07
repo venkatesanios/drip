@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Widgets/sized_image.dart';
-
 import '../Constants/properties.dart';
 
 class CustomSideTab extends StatelessWidget {

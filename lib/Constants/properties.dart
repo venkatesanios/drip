@@ -18,7 +18,7 @@ class AppProperties {
   static const tableHeaderStyle = TextStyle(fontWeight: FontWeight.bold,overflow: TextOverflow.ellipsis, fontSize: 12);
   static const tableHeaderStyleWhite = TextStyle(fontWeight: FontWeight.bold,overflow: TextOverflow.ellipsis, fontSize: 12, color: Colors.white);
   static const normalWhiteBoldTextStyle = TextStyle(overflow: TextOverflow.ellipsis, color: Colors.white);
-  static const listTileBlackBoldStyle = TextStyle(fontSize: 13, fontWeight: FontWeight.bold);
+  static const listTileBlackBoldStyle = TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.black);
 
   //Todo padding style
   static const symmetric8to5 = EdgeInsets.symmetric(horizontal: 8, vertical: 5);

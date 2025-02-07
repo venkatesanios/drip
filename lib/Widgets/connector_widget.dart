@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/Constants/properties.dart';
-import 'package:oro_drip_irrigation/Screens/ConfigMaker/connection.dart';
 import 'package:oro_drip_irrigation/Widgets/sized_image.dart';
-
+import '../Constants/properties.dart';
 import '../Models/Configuration/device_model.dart';
 import '../Models/Configuration/device_object_model.dart';
+import '../Screens/ConfigMaker/connection.dart';
 import '../StateManagement/config_maker_provider.dart';
 
 

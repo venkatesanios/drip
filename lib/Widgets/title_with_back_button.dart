@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/Constants/properties.dart';
+
+import '../Constants/properties.dart';
 
 class TitleWithBackButton extends StatelessWidget {
   final double titleWidth;

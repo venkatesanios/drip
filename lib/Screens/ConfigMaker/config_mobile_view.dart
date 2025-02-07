@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/Screens/ConfigMaker/connection.dart';
-import 'package:oro_drip_irrigation/Screens/ConfigMaker/device_list.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/product_limit.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/site_configure.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +7,8 @@ import '../../Models/Configuration/device_model.dart';
 import '../../Models/Configuration/device_object_model.dart';
 import '../../StateManagement/config_maker_provider.dart';
 import 'config_base_page.dart';
+import 'connection.dart';
+import 'device_list.dart';
 
 
 

@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:oro_drip_irrigation/Constants/properties.dart';
 import 'package:oro_drip_irrigation/Models/Configuration/fertigation_model.dart';
-import 'package:oro_drip_irrigation/Models/Configuration/filtration_model.dart';
-import 'package:oro_drip_irrigation/Models/Configuration/irrigationLine_model.dart';
-import 'package:oro_drip_irrigation/Models/Configuration/source_model.dart';
-import 'package:oro_drip_irrigation/Screens/ConfigMaker/config_object_name_editing.dart';
+import 'package:oro_drip_irrigation/Models/Configuration/pump_model.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/site_configure.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/source_configuration.dart';
-import 'package:oro_drip_irrigation/StateManagement/config_maker_provider.dart';
-import 'package:oro_drip_irrigation/Widgets/custom_buttons.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
+import '../../Constants/constants.dart';
 import '../../Constants/dialog_boxes.dart';
+import '../../Constants/properties.dart';
 import '../../Models/Configuration/device_object_model.dart';
+import '../../Models/Configuration/filtration_model.dart';
+import '../../Models/Configuration/irrigationLine_model.dart';
+import '../../Models/Configuration/source_model.dart';
+import '../../Models/LineDataModel.dart';
+import '../../StateManagement/config_maker_provider.dart';
 import '../../Widgets/sized_image.dart';
+import 'config_object_name_editing.dart';
 import 'fertilization_configuration.dart';
 import 'filtration_configuration.dart';
 
@@ -35,173 +37,210 @@ class _LineConfigurationState extends State<LineConfiguration> {
     return Padding(
         padding: const EdgeInsets.all(8),
       child: LayoutBuilder(builder: (context, constraint){
-        return Container(
-          width: constraint.maxWidth,
-          height: constraint.maxHeight,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            color: Theme.of(context).primaryColor == Colors.black ? Colors.white10 : Colors.white
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: getLineTabs(),
+        return Scaffold(
+          body: SafeArea(
+            child: Container(
+              width: constraint.maxWidth,
+              height: constraint.maxHeight,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Theme.of(context).primaryColor == Colors.black ? Colors.white10 : Colors.white
               ),
-              const SizedBox(height: 10,),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: getLineTabs(),
                   ),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              spacing: 20,
-                              children: [
-                                IconButton(
-                                    onPressed: (){
-                                      showModalBottomSheet(
-                                        shape: Border.all(),
-                                        isScrollControlled: true,
-                                          context: context,
-                                          builder: (context){
-                                            return SizedBox(
-                                              width: 700,
-                                              child: ConfigObjectNameEditing(listOfObjectInLine: widget.configPvd.listOfGeneratedObject, configPvd: widget.configPvd,),
-                                            );
-                                          }
-                                      );
-                                    }, icon: const Icon(Icons.dataset)
+                  const SizedBox(height: 10,),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  spacing: 20,
+                                  children: [
+                                    IconButton(
+                                        onPressed: (){
+                                          showModalBottomSheet(
+                                            shape: Border.all(),
+                                            isScrollControlled: true,
+                                              context: context,
+                                              builder: (context){
+                                                return SizedBox(
+                                                  width: 700,
+                                                  child: ConfigObjectNameEditing(listOfObjectInLine: widget.configPvd.listOfGeneratedObject, configPvd: widget.configPvd,),
+                                                );
+                                              }
+                                          );
+                                        }, icon: const Icon(Icons.dataset)
+                                    ),
+                                    if(availability(2))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.sourcePump, parameterType: LineParameter.sourcePump, objectId: 5, objectName: 'Source Pump', validateAllLine: false, listOfObject: widget.configPvd.pump.cast<PumpModel>().where((pump) => (pump.pumpType == 1)).toList().map((pump) => pump.commonDetails).toList()),
+                                    if(availability(2))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.irrigationPump, parameterType: LineParameter.irrigationPump, objectId: 5, objectName: 'Irrigation Pump', validateAllLine: false, listOfObject: widget.configPvd.pump.cast<PumpModel>().where((pump) => (pump.pumpType == 2)).toList().map((pump) => pump.commonDetails).toList()),
+                                    if(availability(13))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.valve, parameterType: LineParameter.valve, objectId: 13, objectName: 'Valve', validateAllLine: true),
+                                    if(availability(14))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.mainValve, parameterType: LineParameter.mainValve, objectId: 14, objectName: 'Main Valve', validateAllLine: true),
+                                    if(availability(15))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.fan, parameterType: LineParameter.fan, objectId: 15, objectName: 'Fan', validateAllLine: true),
+                                    if(availability(16))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.fogger, parameterType: LineParameter.fogger, objectId: 16, objectName: 'Fogger', validateAllLine: true),
+                                    if(availability(17))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.heater, parameterType: LineParameter.heater, objectId: 17, objectName: 'Heater', validateAllLine: true),
+                                    if(availability(36))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.humidity, parameterType: LineParameter.humidity, objectId: 36, objectName: 'Humidity', validateAllLine: true),
+                                    if(availability(21))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.screen, parameterType: LineParameter.screen, objectId: 21, objectName: 'Screen', validateAllLine: true),
+                                    if(availability(33))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.co2, parameterType: LineParameter.co2, objectId: 33, objectName: 'Co2', validateAllLine: true),
+                                    if(availability(25))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.moisture, parameterType: LineParameter.moisture, objectId: 25, objectName: 'Moisture', validateAllLine: true),
+                                    if(availability(20))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.vent, parameterType: LineParameter.vent, objectId: 20, objectName: 'Vent', validateAllLine: true),
+                                    if(availability(18))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.pesticides, parameterType: LineParameter.pesticides, objectId: 18, objectName: 'Pesticides', validateAllLine: true),
+                                    if(availability(30))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.soilTemperature, parameterType: LineParameter.soilTemperature, objectId: 30, objectName: 'Soil Temperature', validateAllLine: true),
+                                    if(availability(29))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.temperature, parameterType: LineParameter.temperature, objectId: 29, objectName: 'Temperature', validateAllLine: true),
+                                    if(availability(22))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.waterMeter], parameterType: LineParameter.waterMeter, objectId: 22, objectName: 'Water Meter', validateAllLine: true, singleSelection: true),
+                                    if(availability(42))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.powerSupply], parameterType: LineParameter.powerSupply, objectId: 42, objectName: 'Power Supply', validateAllLine: true, singleSelection: true),
+                                    if(availability(23))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.pressureSwitch], parameterType: LineParameter.pressureSwitch, objectId: 23, objectName: 'Power Switch', validateAllLine: true, singleSelection: true),
+                                    if(availability(24))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.pressureIn], parameterType: LineParameter.pressureIn, objectId: 24, objectName: 'Pressure In', validateAllLine: true, singleSelection: true),
+                                    if(availability(24))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.pressureOut], parameterType: LineParameter.pressureOut, objectId: 24, objectName: 'Pressure Out', validateAllLine: true, singleSelection: true),
+                                    if(availability(3))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.centralFertilization], parameterType: LineParameter.centralFertilization, objectId: 3, objectName: 'Central Fertilization', validateAllLine: false, singleSelection: true, listOfObject: widget.configPvd.fertilization.cast<FertilizationModel>().where((site) => (site.siteMode == 1)).toList().map((site) => site.commonDetails).toList()),
+                                    if(availability(3))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.localFertilization], parameterType: LineParameter.localFertilization, objectId: 3, objectName: 'Local Fertilization', validateAllLine: false, singleSelection: true, listOfObject: widget.configPvd.fertilization.cast<FertilizationModel>().where((site) => (site.siteMode == 2)).toList().map((site) => site.commonDetails).toList()),
+                                    if(availability(4))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.centralFiltration], parameterType: LineParameter.centralFiltration, objectId: 4, objectName: 'Central Filtration', validateAllLine: false, singleSelection: true, listOfObject: widget.configPvd.filtration.cast<FiltrationModel>().where((site) => (site.siteMode == 1)).toList().map((site) => site.commonDetails).toList()),
+                                    if(availability(4))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.localFiltration], parameterType: LineParameter.localFiltration, objectId: 4, objectName: 'Local Filtration', validateAllLine: false, singleSelection: true, listOfObject: widget.configPvd.filtration.cast<FiltrationModel>().where((site) => (site.siteMode == 2)).toList().map((site) => site.commonDetails).toList()),
+                                  ],
                                 ),
-                                if(availability(2))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.sourcePump, parameterType: LineParameter.sourcePump, objectId: 5, objectName: 'Source Pump', validateAllLine: false, listOfObject: widget.configPvd.pump.where((pump) => (pump.pumpType == 1)).toList().map((pump) => pump.commonDetails).toList()),
-                                if(availability(2))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.irrigationPump, parameterType: LineParameter.irrigationPump, objectId: 5, objectName: 'Irrigation Pump', validateAllLine: false, listOfObject: widget.configPvd.pump.where((pump) => (pump.pumpType == 2)).toList().map((pump) => pump.commonDetails).toList()),
-                                if(availability(13))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.valve, parameterType: LineParameter.valve, objectId: 13, objectName: 'Valve', validateAllLine: true),
-                                if(availability(14))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.mainValve, parameterType: LineParameter.mainValve, objectId: 14, objectName: 'Main Valve', validateAllLine: true),
-                                if(availability(15))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.fan, parameterType: LineParameter.fan, objectId: 15, objectName: 'Fan', validateAllLine: true),
-                                if(availability(16))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.fogger, parameterType: LineParameter.fogger, objectId: 16, objectName: 'Fogger', validateAllLine: true),
-                                if(availability(17))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.heater, parameterType: LineParameter.heater, objectId: 17, objectName: 'Heater', validateAllLine: true),
-                                if(availability(36))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.humidity, parameterType: LineParameter.humidity, objectId: 36, objectName: 'Humidity', validateAllLine: true),
-                                if(availability(21))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.screen, parameterType: LineParameter.screen, objectId: 21, objectName: 'Screen', validateAllLine: true),
-                                if(availability(33))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.co2, parameterType: LineParameter.co2, objectId: 33, objectName: 'Co2', validateAllLine: true),
-                                if(availability(25))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.moisture, parameterType: LineParameter.moisture, objectId: 25, objectName: 'Moisture', validateAllLine: true),
-                                if(availability(20))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.vent, parameterType: LineParameter.vent, objectId: 20, objectName: 'Vent', validateAllLine: true),
-                                if(availability(18))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.pesticides, parameterType: LineParameter.pesticides, objectId: 18, objectName: 'Pesticides', validateAllLine: true),
-                                if(availability(30))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.soilTemperature, parameterType: LineParameter.soilTemperature, objectId: 30, objectName: 'Soil Temperature', validateAllLine: true),
-                                if(availability(29))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.temperature, parameterType: LineParameter.temperature, objectId: 29, objectName: 'Temperature', validateAllLine: true),
-                                if(availability(22))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.waterMeter], parameterType: LineParameter.waterMeter, objectId: 22, objectName: 'Water Meter', validateAllLine: true, singleSelection: true),
-                                if(availability(42))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.powerSupply], parameterType: LineParameter.powerSupply, objectId: 42, objectName: 'Power Supply', validateAllLine: true, singleSelection: true),
-                                if(availability(23))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.pressureSwitch], parameterType: LineParameter.pressureSwitch, objectId: 23, objectName: 'Power Switch', validateAllLine: true, singleSelection: true),
-                                if(availability(24))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.pressureIn], parameterType: LineParameter.pressureIn, objectId: 24, objectName: 'Pressure In', validateAllLine: true, singleSelection: true),
-                                if(availability(24))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.pressureOut], parameterType: LineParameter.pressureOut, objectId: 24, objectName: 'Pressure Out', validateAllLine: true, singleSelection: true),
-                                if(availability(3))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.centralFertilization], parameterType: LineParameter.centralFertilization, objectId: 3, objectName: 'Central Fertilization', validateAllLine: false, singleSelection: true, listOfObject: widget.configPvd.fertilization.where((site) => (site.siteMode == 1)).toList().map((site) => site.commonDetails).toList()),
-                                if(availability(3))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.localFertilization], parameterType: LineParameter.localFertilization, objectId: 3, objectName: 'Local Fertilization', validateAllLine: false, singleSelection: true, listOfObject: widget.configPvd.fertilization.where((site) => (site.siteMode == 2)).toList().map((site) => site.commonDetails).toList()),
-                                if(availability(4))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.centralFiltration], parameterType: LineParameter.centralFiltration, objectId: 4, objectName: 'Central Filtration', validateAllLine: false, singleSelection: true, listOfObject: widget.configPvd.filtration.where((site) => (site.siteMode == 2)).toList().map((site) => site.commonDetails).toList()),
-                                if(availability(4))
-                                  getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.localFiltration], parameterType: LineParameter.localFiltration, objectId: 4, objectName: 'Central Filtration', validateAllLine: false, singleSelection: true, listOfObject: widget.configPvd.filtration.where((site) => (site.siteMode == 2)).toList().map((site) => site.commonDetails).toList()),
-                              ],
+                              ),
                             ),
-                          ),
+                            const SizedBox(height: 10,),
+                            diagramWidget(selectedIrrigationLine),
+                            const SizedBox(height: 20,),
+                            checkingAnyParameterAvailableInLine(selectedIrrigationLine),
+                          ],
                         ),
-                        const SizedBox(height: 10,),
-                        diagramWidget(selectedIrrigationLine),
-                        const SizedBox(height: 20,),
-                        checkingAnyParameterAvailableInLine(selectedIrrigationLine),
-                      ],
+                      ),
                     ),
                   ),
-                ),
+                  // Container(
+                  //   // color: Colors.green.shade50,
+                  //   width: double.infinity,
+                  //   height: 254,
+                  //   child: Row(
+                  //     children: [
+                  //       SvgPicture.asset(
+                  //         'assets/Images/Filtration/filtration_joint_1.svg',
+                  //         width: 120,
+                  //         height: 254,
+                  //       ),
+                  //       SizedBox(
+                  //         width: 1500,
+                  //         height: 254,
+                  //         child: Stack(
+                  //           children: [
+                  //             Positioned(
+                  //               top: 100,
+                  //               child: Row(
+                  //                 children: [
+                  //                   if(widget.configPvd.filtration[0].filters.length == 1)
+                  //                     singleFilter(ratio, constraint, widget.configPvd.filtration[0], widget.configPvd),
+                  //                   if(widget.configPvd.filtration[0].filters.length > 1)
+                  //                     multipleFilter(ratio, constraint, widget.configPvd.filtration[0], widget.configPvd),
+                  //                 ],
+                  //               ),
+                  //             ),
+                  //             Positioned(
+                  //               bottom: 6,
+                  //               left: 528,
+                  //               child: SvgPicture.asset(
+                  //                 'assets/Images/Filtration/filtration_to_fertilization_1.svg',
+                  //                 width: 95,
+                  //                 height: 17,
+                  //               )
+                  //             ),
+                  //
+                  //             Positioned(
+                  //               top: 34,
+                  //               left: 596,
+                  //               child: Column(
+                  //                 mainAxisAlignment: MainAxisAlignment.center,
+                  //                 crossAxisAlignment: CrossAxisAlignment.center,
+                  //                 children: [
+                  //                   // if(fertilizationSite.channel.length == 1)
+                  //                   //   getSingleChannel(fertilizerSite: fertilizationSite),
+                  //                   // if(fertilizationSite.channel.length > 1)
+                  //                     getMultipleChannel(fertilizerSite: widget.configPvd.fertilization[0])
+                  //                 ],
+                  //               ),
+                  //             )
+                  //           ],
+                  //         ),
+                  //       )
+                  //
+                  //     ],
+                  //   ),
+                  // )
+                ],
               ),
-              // Container(
-              //   // color: Colors.green.shade50,
-              //   width: double.infinity,
-              //   height: 254,
-              //   child: Row(
-              //     children: [
-              //       SvgPicture.asset(
-              //         'assets/Images/Filtration/filtration_joint_1.svg',
-              //         width: 120,
-              //         height: 254,
-              //       ),
-              //       SizedBox(
-              //         width: 1500,
-              //         height: 254,
-              //         child: Stack(
-              //           children: [
-              //             Positioned(
-              //               top: 100,
-              //               child: Row(
-              //                 children: [
-              //                   if(widget.configPvd.filtration[0].filters.length == 1)
-              //                     singleFilter(ratio, constraint, widget.configPvd.filtration[0], widget.configPvd),
-              //                   if(widget.configPvd.filtration[0].filters.length > 1)
-              //                     multipleFilter(ratio, constraint, widget.configPvd.filtration[0], widget.configPvd),
-              //                 ],
-              //               ),
-              //             ),
-              //             Positioned(
-              //               bottom: 6,
-              //               left: 528,
-              //               child: SvgPicture.asset(
-              //                 'assets/Images/Filtration/filtration_to_fertilization_1.svg',
-              //                 width: 95,
-              //                 height: 17,
-              //               )
-              //             ),
-              //
-              //             Positioned(
-              //               top: 34,
-              //               left: 596,
-              //               child: Column(
-              //                 mainAxisAlignment: MainAxisAlignment.center,
-              //                 crossAxisAlignment: CrossAxisAlignment.center,
-              //                 children: [
-              //                   // if(fertilizationSite.channel.length == 1)
-              //                   //   getSingleChannel(fertilizerSite: fertilizationSite),
-              //                   // if(fertilizationSite.channel.length > 1)
-              //                     getMultipleChannel(fertilizerSite: widget.configPvd.fertilization[0])
-              //                 ],
-              //               ),
-              //             )
-              //           ],
-              //         ),
-              //       )
-              //
-              //     ],
-              //   ),
-              // )
-            ],
+            ),
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () async {
+              final Map<String, dynamic> deviceListPayload = {
+                "100": [
+                  {"101": widget.configPvd.getDeviceListPayload()}
+                ]
+              };
+              final Map<String, dynamic> configMakerPayload = {
+                "200": [
+                  {"201": widget.configPvd.getPumpPayload()},
+                  {"202": widget.configPvd.getIrrigationLinePayload()},
+                  {"203": widget.configPvd.getFertilizerPayload()},
+                  {"204": widget.configPvd.getFilterPayload()},
+                  {"205": widget.configPvd.getWeatherPayload()},
+                  {"206": widget.configPvd.getObjectPayload()},
+                  {"207": 0},
+                  {"208": '1'}
+                ]
+              };
+
+              /*print("getIrrigationLinePayload ==> ${jsonEncode(configMakerPayload)}");
+                print("deviceListPayload ==> ${jsonEncode(deviceListPayload)}");*/
+              // print("getOroPumpPayload ==> ${widget.configPvd.getOroPumpPayload()}");
+              print(payloadConversion()['irrigationLine']);
+              List<FilterSite> filterSite = (payloadConversion()['filterSite'] as List).map((element) => FilterSite.fromJson(element as Map<String, dynamic>)).toList();
+              List<FertilizerSite> fertilizerSite = (payloadConversion()['fertilizerSite'] as List).map((element) => FertilizerSite.fromJson(element as Map<String, dynamic>)).toList();
+              List<WaterSource> waterSource = (payloadConversion()['waterSource'] as List).map((element) => WaterSource.fromJson(element as Map<String, dynamic>)).toList();
+              List<Pump> pump = (payloadConversion()['pump'] as List).map((element) => Pump.fromJson(element as Map<String, dynamic>)).toList();
+              List<MoistureSensor> moistureSensor = (payloadConversion()['moistureSensor'] as List).map((element) => MoistureSensor.fromJson(element as Map<String, dynamic>)).toList();
+              List<IrrigationLine> irrigationLine = (payloadConversion()['irrigationLine'] as List).map((element) => IrrigationLine.fromJson(element as Map<String, dynamic>)).toList();
+            },
+            child: const Icon(Icons.send),
           ),
         );
       }),
@@ -309,7 +348,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: SizedBox(
-        width: 1600,
+        width: 1700,
         child: getSuitableSourceConnection(selectedIrrigationLine),
       ),
     );
@@ -382,7 +421,6 @@ class _LineConfigurationState extends State<LineConfiguration> {
         .where((object) => object.objectId == objectId)
         .toList();
     List<double> assigned = [];
-    List<double> unAssigned = [];
     if(validateAllLine){
       for(var line in widget.configPvd.line){
         List<double> lineParameter = parameter == LineParameter.source
@@ -427,8 +465,22 @@ class _LineConfigurationState extends State<LineConfiguration> {
 
   //Todo :: getSuitableSourceConnection
   Widget getSuitableSourceConnection(IrrigationLineModel selectedIrrigationLine){
-    FiltrationModel? filterSite = widget.configPvd.filtration.cast<FiltrationModel?>().firstWhere((site) => site!.commonDetails.sNo == selectedIrrigationLine.centralFiltration, orElse: ()=> null);
-    FertilizationModel? fertilizerSite = widget.configPvd.fertilization.cast<FertilizationModel?>().firstWhere((site) => site!.commonDetails.sNo == selectedIrrigationLine.centralFertilization, orElse: ()=> null);
+    List<FiltrationModel> filterSite = [];
+    for(var site in widget.configPvd.filtration){
+      if(site.commonDetails.sNo == selectedIrrigationLine.centralFiltration){
+        filterSite.add(site);
+      }if(site.commonDetails.sNo == selectedIrrigationLine.localFiltration){
+        filterSite.add(site);
+      }
+    }
+    List<FertilizationModel> fertilizerSite = [];
+    for(var site in widget.configPvd.fertilization){
+      if(site.commonDetails.sNo == selectedIrrigationLine.centralFertilization){
+        fertilizerSite.add(site);
+      }if(site.commonDetails.sNo == selectedIrrigationLine.localFertilization){
+        fertilizerSite.add(site);
+      }
+    }
     List<SourceModel> suitableSource = widget.configPvd.source
         .where(
             (source){
@@ -447,25 +499,27 @@ class _LineConfigurationState extends State<LineConfiguration> {
       print('source name : ${src.commonDetails.name}  ${src.sourceType}');
     }
 
-    List<SourceModel> boreOrOthers = suitableSource.where((source) => source.outletPump.any((pumpSno) => widget.configPvd.pump.firstWhere((pump) => pump.commonDetails.sNo == pumpSno).pumpType == 1)).toList();
-    List<SourceModel> wellSumpTank = suitableSource.where((source) => source.outletPump.any((pumpSno) => widget.configPvd.pump.firstWhere((pump) => pump.commonDetails.sNo == pumpSno).pumpType == 2)).toList();
+    List<SourceModel> boreOrOthers = suitableSource.where((source) => source.outletPump.any((pumpSno) => widget.configPvd.pump.cast<PumpModel>().firstWhere((pump) => pump.commonDetails.sNo == pumpSno).pumpType == 1)).toList();
+    List<SourceModel> wellSumpTank = suitableSource.where((source) => source.outletPump.any((pumpSno) => widget.configPvd.pump.cast<PumpModel>().firstWhere((pump) => pump.commonDetails.sNo == pumpSno).pumpType == 2)).toList();
     print('boreOrOthers: ${boreOrOthers.length}');
     print('wellSumpTank: ${wellSumpTank.length}');
 
     if(boreOrOthers.length == 1 && wellSumpTank.isEmpty){
-      return oneSource(suitableSource, selectedIrrigationLine);
+      return oneSource(suitableSource, selectedIrrigationLine, filterSite: filterSite, fertilizerSite: fertilizerSite);
     }else if(boreOrOthers.isEmpty && wellSumpTank.length == 1){
-      return oneTank(suitableSource[0],selectedIrrigationLine, inlet: false);
+      return oneTank(suitableSource[0],selectedIrrigationLine, inlet: false , filterSite: filterSite, fertilizerSite: fertilizerSite);
     }else if(boreOrOthers.length == 1 && wellSumpTank.length == 1){
-      return oneSourceAndOneTank(boreOthers: boreOrOthers[0],sumpTankWell: wellSumpTank[0], selectedIrrigationLine: selectedIrrigationLine);
+      return oneSourceAndOneTank(boreOthers: boreOrOthers[0],sumpTankWell: wellSumpTank[0], selectedIrrigationLine: selectedIrrigationLine, filterSite: filterSite, fertilizerSite: fertilizerSite);
     }else{
       return multipleSourceAndMultipleTank(multipleSource: boreOrOthers, multipleTank: wellSumpTank, selectedIrrigationLine: selectedIrrigationLine);
     }
   }
 
-  Widget oneSource(List<SourceModel> suitableSource, IrrigationLineModel selectedIrrigationLine,){
-    FiltrationModel? filterSite = widget.configPvd.filtration.cast<FiltrationModel?>().firstWhere((site) => site!.commonDetails.sNo == selectedIrrigationLine.centralFiltration, orElse: ()=> null);
-    FertilizationModel? fertilizerSite = widget.configPvd.fertilization.cast<FertilizationModel?>().firstWhere((site) => site!.commonDetails.sNo == selectedIrrigationLine.centralFertilization, orElse: ()=> null);
+  Widget oneSource(List<SourceModel> suitableSource, IrrigationLineModel selectedIrrigationLine,
+      {
+        required List<FiltrationModel> filterSite,
+        required List<FertilizationModel> fertilizerSite
+      }){
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -476,21 +530,19 @@ class _LineConfigurationState extends State<LineConfiguration> {
   }
 
   // Todo :: oneTank
-  Widget oneTank(SourceModel source, IrrigationLineModel selectedIrrigationLine, {bool inlet = true, int? maxOutletPumpForTank, FiltrationModel? filterSite, FertilizationModel? fertilizerSite}){
+  Widget oneTank(SourceModel source, IrrigationLineModel selectedIrrigationLine, {bool inlet = true, int? maxOutletPumpForTank, required List<FiltrationModel> filterSite, required List<FertilizationModel> fertilizerSite}){
     print('oneTank maxOutletPumpForTank : $maxOutletPumpForTank');
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ...oneTankList(source, inlet: inlet, maxOutletPumpForTank: maxOutletPumpForTank),
-        if(fertilizerSite != null || filterSite != null)
+        if(fertilizerSite.isNotEmpty || filterSite.isNotEmpty)
           ...filtrationAndFertilization(maxLength: 1, filterSite: filterSite, fertilizerSite: fertilizerSite)
       ],
     );
   }
 
-  Widget oneSourceAndOneTank({required SourceModel boreOthers, required SourceModel sumpTankWell, required IrrigationLineModel selectedIrrigationLine,}){
-    FiltrationModel? filterSite = widget.configPvd.filtration.cast<FiltrationModel?>().firstWhere((site) => site!.commonDetails.sNo == selectedIrrigationLine.centralFiltration, orElse: ()=> null);
-    FertilizationModel? fertilizerSite = widget.configPvd.fertilization.cast<FertilizationModel?>().firstWhere((site) => site!.commonDetails.sNo == selectedIrrigationLine.centralFertilization, orElse: ()=> null);
+  Widget oneSourceAndOneTank({required SourceModel boreOthers, required SourceModel sumpTankWell, required IrrigationLineModel selectedIrrigationLine, required List<FiltrationModel> filterSite, required List<FertilizationModel> fertilizerSite}){
     print('oneSourceAndOneTank filterSite : $filterSite');
     print('oneSourceAndOneTank fertilizerSite : $fertilizerSite');
     return Row(
@@ -503,107 +555,27 @@ class _LineConfigurationState extends State<LineConfiguration> {
     );
   }
 
-  // Widget multipleSourceAndOneTank({required List<SourceModel> multipleSource, required List<SourceModel> oneTankList}){
-  //   print("multipleSourceAndOneTank");
-  //   return LayoutBuilder(builder: (context, constraint){
-  //     return Row(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         Column(
-  //           children: [
-  //             for(var src in multipleSource)
-  //               Padding(
-  //                 padding: const EdgeInsets.symmetric(vertical: 20),
-  //                 child: Row(
-  //                   children: [
-  //                     ...oneSourceList(src)
-  //                   ],
-  //                 ),
-  //               )
-  //           ],
-  //         ),
-  //         Column(
-  //           children: [
-  //             for(var src = 0;src < multipleSource.length;src++)
-  //               Container(
-  //                 width: 8 * widget.configPvd.ratio,
-  //                 height: 160 * widget.configPvd.ratio,
-  //                 child: Stack(
-  //                   children: [
-  //                     if(src == 0)
-  //                       Positioned(
-  //                           left: 0,
-  //                           bottom: 0,
-  //                           child: Container(
-  //                             width: 8,
-  //                             height: 80  * widget.configPvd.ratio,
-  //                             decoration: const BoxDecoration(
-  //                                 gradient: RadialGradient(
-  //                                     radius: 2,
-  //                                     colors: [
-  //                                       Color(0xffC0E3EE),
-  //                                       Color(0xff67B1C1),
-  //                                     ]
-  //                                 )
-  //                             ),
-  //                           )
-  //                       ),
-  //                     if(multipleSource.length - 1 == src)
-  //                       Positioned(
-  //                           left: 0,
-  //                           top: 0,
-  //                           child: Container(
-  //                             width: 8,
-  //                             height: 109,
-  //                             decoration: const BoxDecoration(
-  //                                 gradient: RadialGradient(
-  //                                     radius: 3,
-  //                                     colors: [
-  //                                       Color(0xffC0E3EE),
-  //                                       Color(0xff67B1C1),
-  //                                     ]
-  //                                 )
-  //                             ),
-  //                           )
-  //                       ),
-  //                     if(multipleSource.length > 2 && ![0, multipleSource.length - 1].contains(src))
-  //                       Positioned(
-  //                           left: 0,
-  //                           top: 0,
-  //                           child: Container(
-  //                             width: 8,
-  //                             height: 160,
-  //                             decoration: const BoxDecoration(
-  //                                 gradient: RadialGradient(
-  //                                     radius: 3,
-  //                                     colors: [
-  //                                       Color(0xffC0E3EE),
-  //                                       Color(0xff67B1C1),
-  //                                     ]
-  //                                 )
-  //                             ),
-  //                           )
-  //                       ),
-  //                   ],
-  //                 ),
-  //               )
-  //           ],
-  //         ),
-  //         oneTank(oneTankList[0], fertilizerSite: false),
-  //         ...filtrationAndFertilization(maxLength: 1)
-  //       ],
-  //     );
-  //   });
-  // }
-
-  //Todo :: multipleSourceAndMultipleTank
   Widget multipleSourceAndMultipleTank({
     required List<SourceModel> multipleSource,
     required List<SourceModel> multipleTank,
     required IrrigationLineModel selectedIrrigationLine
 }){
-    FiltrationModel? filterSite = widget.configPvd.filtration.cast<FiltrationModel?>().firstWhere((site) => site!.commonDetails.sNo == selectedIrrigationLine.centralFiltration, orElse: ()=> null);
-    FertilizationModel? fertilizerSite = widget.configPvd.fertilization.cast<FertilizationModel?>().firstWhere((site) => site!.commonDetails.sNo == selectedIrrigationLine.centralFertilization, orElse: ()=> null);
+    List<FiltrationModel> filterSite = [];
+    for(var site in widget.configPvd.filtration){
+      if(site.commonDetails.sNo == selectedIrrigationLine.centralFiltration){
+        filterSite.add(site);
+      }if(site.commonDetails.sNo == selectedIrrigationLine.localFiltration){
+        filterSite.add(site);
+      }
+    }
+    List<FertilizationModel> fertilizerSite = [];
+    for(var site in widget.configPvd.fertilization){
+      if(site.commonDetails.sNo == selectedIrrigationLine.centralFertilization){
+        fertilizerSite.add(site);
+      }if(site.commonDetails.sNo == selectedIrrigationLine.localFertilization){
+        fertilizerSite.add(site);
+      }
+    }
     print('filterSite : $filterSite');
     print('fertilizerSite : $fertilizerSite');
     int maxLength = multipleSource.length > multipleTank.length ? multipleSource.length : multipleTank.length;
@@ -629,8 +601,9 @@ class _LineConfigurationState extends State<LineConfiguration> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               for(var src in multipleSource)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
+                Container(
+                  margin: const EdgeInsets.only(bottom: 20),
+                  // padding: const EdgeInsets.symmetric(vertical: 20),
                   child: Row(
                     children: [
                       ...oneSourceList(src, maxOutletPumpForTank: maxOutletPumpForTank, maxOutletPumpForSource: maxOutletPumpForSource)
@@ -655,7 +628,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
                             bottom: 0,
                             child: Container(
                               width: 8,
-                              height: 60  * widget.configPvd.ratio,
+                              height: 80  * widget.configPvd.ratio,
                               decoration: const BoxDecoration(
                                   gradient: RadialGradient(
                                       radius: 2,
@@ -673,7 +646,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
                             top: 0,
                             child: Container(
                               width: 8,
-                              height: 109,
+                              height: 68,
                               decoration: const BoxDecoration(
                                   gradient: RadialGradient(
                                       radius: 3,
@@ -712,9 +685,10 @@ class _LineConfigurationState extends State<LineConfiguration> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               for(var tank = 0;tank < multipleTank.length;tank++)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  child: oneTank(multipleTank[tank], selectedIrrigationLine, maxOutletPumpForTank: maxOutletPumpForTank),
+                Container(
+                  margin: const EdgeInsets.only(bottom: 20),
+                  // padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: oneTank(multipleTank[tank], selectedIrrigationLine, maxOutletPumpForTank: maxOutletPumpForTank, fertilizerSite: [], filterSite: []),
                 ),
             ],
           ),
@@ -725,24 +699,24 @@ class _LineConfigurationState extends State<LineConfiguration> {
   }
 
   List<Widget> filtrationAndFertilization({
-    required FertilizationModel? fertilizerSite,
-    required FiltrationModel? filterSite,
+    required List<FertilizationModel> fertilizerSite,
+    required List<FiltrationModel> filterSite,
     required int maxLength
 }){
     double connectionPipeHeight = maxLength * 160;
-    double connectingHeight = filterSite == null ? 198 : 400;
+    double connectingHeight = filterSite.isEmpty ? 198 : 400;
     return [
-      if(filterSite != null || fertilizerSite != null)
+      if(fertilizerSite.isNotEmpty)
         SizedBox(
           width: 50,
           height: (connectionPipeHeight > connectingHeight ? connectionPipeHeight : connectingHeight) * widget.configPvd.ratio,
           child: Stack(
             children: [
               Positioned(
-                top: (maxLength == 1 ? 80 : 100) * widget.configPvd.ratio,
+                top: 80 * widget.configPvd.ratio,
                 child: Container(
                   width: 8 * widget.configPvd.ratio,
-                  height: (maxLength == 1 ? 200 : (connectionPipeHeight - 135)) * widget.configPvd.ratio,
+                  height: (maxLength == 1 ? 200 : (connectionPipeHeight - 123)) * widget.configPvd.ratio,
                   decoration: const BoxDecoration(
                       gradient: RadialGradient(
                           radius: 2,
@@ -770,93 +744,116 @@ class _LineConfigurationState extends State<LineConfiguration> {
                   ),
                 ),
               ),
-              Positioned(
-                top: 277  * widget.configPvd.ratio,
-                child: Container(
-                  width: 50,
-                  height: 8 * widget.configPvd.ratio,
-                  decoration: const BoxDecoration(
-                      gradient: RadialGradient(
-                          radius: 2,
-                          colors: [
-                            Color(0xffC0E3EE),
-                            Color(0xff67B1C1),
-                          ]
-                      )
+              if(filterSite.isNotEmpty)
+                Positioned(
+                  top: 277  * widget.configPvd.ratio,
+                  child: Container(
+                    width: 50,
+                    height: 8 * widget.configPvd.ratio,
+                    decoration: const BoxDecoration(
+                        gradient: RadialGradient(
+                            radius: 2,
+                            colors: [
+                              Color(0xffC0E3EE),
+                              Color(0xff67B1C1),
+                            ]
+                        )
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ),
-
       Stack(
         children: [
-          if(fertilizerSite != null && filterSite != null)
+          if(fertilizerSite.isNotEmpty && filterSite.isNotEmpty)
             Positioned(
-            right: 0,
-            top: 98 * widget.configPvd.ratio,
-            child: Container(
-              width: (filterSite.filters.length * 150 - 50) * widget.configPvd.ratio,
-              height: 7 * widget.configPvd.ratio,
-              decoration: const BoxDecoration(
-                  gradient: RadialGradient(
-                      radius: 2,
-                      colors: [
-                        Color(0xffC0E3EE),
-                        Color(0xff67B1C1),
-                      ]
-                  )
+              right: 0,
+              top: 98 * widget.configPvd.ratio,
+              child: Container(
+                width: (filterSite[0].filters.length * 150 - 50) * widget.configPvd.ratio,
+                height: 7 * widget.configPvd.ratio,
+                decoration: const BoxDecoration(
+                    gradient: RadialGradient(
+                        radius: 2,
+                        colors: [
+                          Color(0xffC0E3EE),
+                          Color(0xff67B1C1),
+                        ]
+                    )
+                ),
               ),
             ),
-          ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if(fertilizerSite != null)
+              if(fertilizerSite.isNotEmpty)
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    if(fertilizerSite.channel.length == 1)
-                      FertilizationDashboardFormation(fertilizationFormation: FertilizationFormation.singleChannel, fertilizationSite: fertilizerSite),
-                    if(fertilizerSite.channel.length > 1)
-                      FertilizationDashboardFormation(fertilizationFormation: FertilizationFormation.multipleChannel, fertilizationSite: fertilizerSite),
+                    if(fertilizerSite[0].channel.length == 1)
+                      FertilizationDashboardFormation(fertilizationFormation: FertilizationFormation.singleChannel, fertilizationSite: fertilizerSite[0]),
+                    if(fertilizerSite[0].channel.length > 1)
+                      FertilizationDashboardFormation(fertilizationFormation: FertilizationFormation.multipleChannel, fertilizationSite: fertilizerSite[0]),
                   ],
                 ),
-              if(filterSite != null)
+              if(filterSite.isNotEmpty)
                 ...[
                   SizedBox(height: 80 * widget.configPvd.ratio,),
                   Row(
                     children: [
-                      if(filterSite.filters.length == 1)
-                        FiltrationDashboardFormation(filtrationFormation: FiltrationFormation.singleFilter, filtrationSite: filterSite),
-                      if(filterSite.filters.length > 1)
-                        FiltrationDashboardFormation(filtrationFormation: FiltrationFormation.multipleFilter, filtrationSite: filterSite),
+                      if(filterSite[0].filters.length == 1)
+                        FiltrationDashboardFormation(filtrationFormation: FiltrationFormation.singleFilter, filtrationSite: filterSite[0]),
+                      if(filterSite[0].filters.length > 1)
+                        FiltrationDashboardFormation(filtrationFormation: FiltrationFormation.multipleFilter, filtrationSite: filterSite[0]),
                     ],
                   ),
                 ]
             ],
           ),
-          if(fertilizerSite != null && filterSite != null)
+          if(fertilizerSite.isNotEmpty && filterSite.isNotEmpty)
             Positioned(
-            right: 0,
-            bottom: 8 * widget.configPvd.ratio,
-            child: Container(
-              width: 8 * widget.configPvd.ratio ,
-              height: 320 * widget.configPvd.ratio,
-              decoration: const BoxDecoration(
-                  gradient: RadialGradient(
-                      radius: 2,
-                      colors: [
-                        Color(0xffC0E3EE),
-                        Color(0xff67B1C1),
-                      ]
-                  )
+              right: 0,
+              bottom: 8 * widget.configPvd.ratio,
+              child: Container(
+                width: 8 * widget.configPvd.ratio ,
+                height: 320 * widget.configPvd.ratio,
+                decoration: const BoxDecoration(
+                    gradient: RadialGradient(
+                        radius: 2,
+                        colors: [
+                          Color(0xffC0E3EE),
+                          Color(0xff67B1C1),
+                        ]
+                    )
+                ),
               ),
             ),
+        ],
+      ),
+      if(fertilizerSite.length > 1 || filterSite.length > 1)
+        Column(
+        children: [
+          Container(
+            margin: const EdgeInsets.only(left: 30),
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              border: Border.all(width: 1),
+              borderRadius: BorderRadius.circular(10)
+            ),
+            child: FertilizationDashboardFormation(fertilizationFormation: fertilizerSite[1].channel.length == 1 ? FertilizationFormation.singleChannel : FertilizationFormation.multipleChannel, fertilizationSite: fertilizerSite[1]),
           ),
-
+          const SizedBox(height: 20,),
+          Container(
+            margin: const EdgeInsets.only(left: 30),
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              border: Border.all(width: 1),
+              borderRadius: BorderRadius.circular(10)
+            ),
+            child: FiltrationDashboardFormation(filtrationFormation: filterSite[1].filters.length == 1 ? FiltrationFormation.singleFilter : FiltrationFormation.multipleFilter, filtrationSite: filterSite[1]) ,
+          ),
         ],
       ),
     ];
@@ -867,7 +864,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
     print("oneSourceList maxOutletPumpForTank : $maxOutletPumpForTank");
     pumpExtendedWidth += (120 * 2);
     return [
-      getSource(source,widget.configPvd , inlet: false,dashboard: true),
+      getSource(source,widget.configPvd , inlet: false, dashboard: true),
       if(source.outletPump.length == 1)
         Row(
           children: [

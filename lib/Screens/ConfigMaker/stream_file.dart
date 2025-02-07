@@ -24,6 +24,7 @@ class _CounterStreamDemoState extends State<CounterStreamDemo> {
 
   @override
   Widget build(BuildContext context) {
+    print('rebuild');
     return Scaffold(
       appBar: AppBar(title: Text('StreamBuilder')),
       body: Center(
@@ -31,6 +32,7 @@ class _CounterStreamDemoState extends State<CounterStreamDemo> {
           stream: _streamController.stream,
           initialData: [0],
           builder: (context, snapshot) {
+            print('stream rebuild');
             if (snapshot.connectionState == ConnectionState.waiting) {
               return CircularProgressIndicator();
             } else if (snapshot.hasError) {

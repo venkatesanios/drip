@@ -2,7 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:oro_drip_irrigation/Models/Configuration/fertigation_model.dart';
+import 'package:oro_drip_irrigation/Models/Configuration/irrigationLine_model.dart';
+import 'package:oro_drip_irrigation/Models/Configuration/moisture_model.dart';
+import 'package:oro_drip_irrigation/Models/Configuration/pump_model.dart';
+import 'package:oro_drip_irrigation/Models/Configuration/source_model.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/site_configure.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
@@ -11,6 +14,7 @@ import '../../Constants/communication_codes.dart';
 import '../../Constants/dialog_boxes.dart';
 import '../../Constants/properties.dart';
 import '../../Models/Configuration/device_object_model.dart';
+import '../../Models/Configuration/fertigation_model.dart';
 import '../../Models/Configuration/filtration_model.dart';
 import '../../StateManagement/config_maker_provider.dart';
 import '../../Widgets/custom_drop_down_button.dart';
@@ -128,22 +132,22 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
                           var listOfGeneratedObject = widget.configPvd.listOfGeneratedObject.map((object){
                             return object.toJson();
                           }).toList();
-                          var filtration = widget.configPvd.filtration.map((object){
+                          var filtration = widget.configPvd.filtration.cast<FiltrationModel>().map((object){
                             return object.toJson();
                           }).toList();
-                          var fertilization = widget.configPvd.fertilization.map((object){
+                          var fertilization = widget.configPvd.fertilization.cast<FertilizationModel>().map((object){
                             return object.toJson();
                           }).toList();
-                          var source = widget.configPvd.source.map((object){
+                          var source = widget.configPvd.source.cast<SourceModel>().map((object){
                             return object.toJson();
                           }).toList();
-                          var pump = widget.configPvd.pump.map((object){
+                          var pump = widget.configPvd.pump.cast<PumpModel>().map((object){
                             return object.toJson();
                           }).toList();
-                          var moisture = widget.configPvd.moisture.map((object){
+                          var moisture = widget.configPvd.moisture.cast<MoistureModel>().map((object){
                             return object.toJson();
                           }).toList();
-                          var line = widget.configPvd.line.map((object){
+                          var line = widget.configPvd.line.cast<IrrigationLineModel>().map((object){
                             return object.toJson();
                           }).toList();
                           // print('listOfGeneratedObject :: ${jsonEncode(listOfGeneratedObject)}');
@@ -181,7 +185,6 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
               ],
             ),
           ),
-
         );
       }),
     );
@@ -362,10 +365,19 @@ class _FertilizationDashboardFormationState extends State<FertilizationDashboard
   List<Widget> getBooster(){
     return [
       if(widget.fertilizationSite.boosterPump.isNotEmpty || widget.fertilizationSite.agitator.isNotEmpty)
-        SvgPicture.asset(
-          (widget.fertilizationSite.boosterPump.isNotEmpty) ? 'assets/Images/Fertilization/booster_1.svg' : '',
-          width: 150,
-          height: 150 * configPvd.ratio,
+        Stack(
+          children: [
+            SvgPicture.asset(
+              (widget.fertilizationSite.boosterPump.isNotEmpty) ? 'assets/Images/Fertilization/booster_1.svg' : '',
+              width: 150,
+              height: 150 * configPvd.ratio,
+            ),
+            Positioned(
+              left: 0,
+              bottom: 50,
+              child: Text(widget.fertilizationSite.boosterPump.map((sNo) => getObjectName(sNo, configPvd).name!).join(', '), style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold),),
+            )
+          ],
         ),
     ];
   }

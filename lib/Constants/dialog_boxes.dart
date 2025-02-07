@@ -1,10 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Constants/properties.dart';
-import 'package:oro_drip_irrigation/Models/Configuration/device_object_model.dart';
 import 'package:provider/provider.dart';
-import 'package:responsive_grid_list/responsive_grid_list.dart';
 
+import '../Models/Configuration/device_object_model.dart';
 import '../StateManagement/config_maker_provider.dart';
 import '../Widgets/custom_buttons.dart';
 

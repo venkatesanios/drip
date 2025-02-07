@@ -2,21 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
-import 'package:oro_drip_irrigation/Constants/communication_codes.dart';
-import 'package:oro_drip_irrigation/Screens/ConfigMaker/config_web_view.dart';
-import 'package:oro_drip_irrigation/Screens/ConfigMaker/device_list.dart';
-import 'package:oro_drip_irrigation/Screens/ConfigMaker/config_mobile_view.dart';
-import 'package:oro_drip_irrigation/Widgets/custom_buttons.dart';
-import 'package:oro_drip_irrigation/Widgets/custom_drop_down_button.dart';
-import 'package:oro_drip_irrigation/Widgets/custom_side_tab.dart';
-import 'package:oro_drip_irrigation/Widgets/custom_table.dart';
-import 'package:oro_drip_irrigation/Widgets/sized_image.dart';
-import 'package:oro_drip_irrigation/Widgets/title_with_back_button.dart';
 import 'package:provider/provider.dart';
 
 import '../../Constants/properties.dart';
 import '../../Models/Configuration/device_model.dart';
 import '../../StateManagement/config_maker_provider.dart';
+import 'config_mobile_view.dart';
+import 'config_web_view.dart';
 
 
 enum ConfigMakerTabs {deviceList, productLimit, connection, siteConfigure}

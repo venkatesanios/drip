@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/Constants/dialog_boxes.dart';
-import 'package:oro_drip_irrigation/Screens/ConfigMaker/connection.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/product_limit.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/site_configure.dart';
 import 'package:provider/provider.dart';
@@ -14,20 +12,21 @@ import '../../Widgets/custom_side_tab.dart';
 import '../../Widgets/title_with_back_button.dart';
 import 'config_base_page.dart';
 import 'config_mobile_view.dart';
+import 'connection.dart';
 import 'device_list.dart';
-import 'dart:html';
+// import 'dart:html';
 
 
 void saveToSessionStorage(String key, String value) {
-  window.sessionStorage[key] = value;
+  // window.sessionStorage[key] = value;
 }
 
 String? readFromSessionStorage(String key) {
-  return window.sessionStorage[key];
+  // return window.sessionStorage[key];
 }
 
 void deleteFromSessionStorage(String key) {
-  window.sessionStorage.remove(key);
+  // window.sessionStorage.remove(key);
 }
 
 class ConfigWebView extends StatefulWidget {

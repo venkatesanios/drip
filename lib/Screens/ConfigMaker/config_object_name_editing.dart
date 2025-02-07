@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/Models/Configuration/device_object_model.dart';
-import 'package:oro_drip_irrigation/StateManagement/config_maker_provider.dart';
-import 'package:oro_drip_irrigation/Widgets/sized_image.dart';
+
+import '../../Models/Configuration/device_object_model.dart';
+import '../../StateManagement/config_maker_provider.dart';
+import '../../Widgets/sized_image.dart';
 
 class ConfigObjectNameEditing extends StatefulWidget {
   final ConfigMakerProvider configPvd;

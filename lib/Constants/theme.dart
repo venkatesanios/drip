@@ -44,7 +44,7 @@ class AppThemes {
       unselectedLabelColor: Colors.grey.shade400
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: Colors.blue,
+      backgroundColor: Color(0xff054750),
       foregroundColor: Colors.white,
     ),
     cardTheme: CardTheme(
@@ -107,5 +107,6 @@ class AppThemes {
       onPrimary: Colors.white,
       onSurface: Colors.white70,
     ),
+    dialogBackgroundColor: Colors.white
   );
 }

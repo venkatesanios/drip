@@ -28,15 +28,17 @@ dynamic payloadConversion(){
       for(var site in data[globalKey]){
         dynamic siteFormation = site;
         for(var siteKey in site.keys){
-          if(!['objectId', 'sNo', 'name', 'objectName', 'connectionNo', 'type', 'controllerId', 'count', 'siteMode', 'pumpMode'].contains(siteKey)){
-            siteFormation[siteKey] = siteFormation[siteKey] is List<dynamic> ? (siteFormation[siteKey] as List<dynamic>).map((element) => (data['listOfGeneratedObject'] as List<dynamic>).firstWhere((object) => object['sNo'] == element)).toList() : (data['listOfGeneratedObject'] as List<dynamic>).firstWhere((object) => object['sNo'] == siteFormation[siteKey], orElse: ()=> {});
+          if(!['objectId', 'sNo', 'name', 'objectName', 'connectionNo', 'type', 'controllerId', 'count', 'siteMode', 'pumpType'].contains(siteKey)){
+            siteFormation[siteKey] = siteFormation[siteKey] is List<dynamic>
+                ? (siteFormation[siteKey] as List<dynamic>).map((element) => (data['listOfGeneratedObject'] as List<dynamic>).firstWhere((object) => object['sNo'] == element)).toList()
+                : (data['listOfGeneratedObject'] as List<dynamic>).firstWhere((object) => object['sNo'] == siteFormation[siteKey], orElse: ()=> {});
           }
         }
         dataFormation[globalKey].add(site);
       }
     }
   }
-  print('dataFormation : ${jsonEncode(dataFormation)}');
-  print('-------------------------------------------');
+  // print('dataFormation : ${jsonEncode(dataFormation)}');
+  // print('-------------------------------------------');
   return dataFormation;
 }

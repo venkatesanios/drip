@@ -2,18 +2,17 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:oro_drip_irrigation/Constants/communication_codes.dart';
-import 'package:oro_drip_irrigation/Models/Configuration/fertigation_model.dart';
-import 'package:oro_drip_irrigation/Models/Configuration/source_model.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/site_configure.dart';
-import 'package:oro_drip_irrigation/Widgets/custom_drop_down_button.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 
+import '../../Constants/communication_codes.dart';
 import '../../Constants/dialog_boxes.dart';
 import '../../Constants/properties.dart';
 import '../../Models/Configuration/device_object_model.dart';
 import '../../Models/Configuration/filtration_model.dart';
+import '../../Models/Configuration/source_model.dart';
 import '../../StateManagement/config_maker_provider.dart';
+import '../../Widgets/custom_drop_down_button.dart';
 import '../../Widgets/sized_image.dart';
 import 'config_web_view.dart';
 
