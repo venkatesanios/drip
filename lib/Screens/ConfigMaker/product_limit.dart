@@ -26,6 +26,7 @@ class ProductLimit extends StatefulWidget {
 }
 
 class _ProductLimitState extends State<ProductLimit> {
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -55,7 +56,7 @@ class _ProductLimitState extends State<ProductLimit> {
   }
 
   Widget commonObject(){
-    List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => object.type == '-').toList();
+    List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => (widget.configPvd.masterData['categoryId'] != 2 ? object.type == '-' : object.objectId == 1)).toList();
     return ProductLimitGridListTile(
       listOfObjectModel: filteredList,
       title: 'Common Object',
@@ -65,7 +66,7 @@ class _ProductLimitState extends State<ProductLimit> {
   }
 
   Widget outputObject(){
-    List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => object.type == '1,2').toList();
+    List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => (widget.configPvd.masterData['categoryId'] != 2 ? object.type == '1,2' : [5].contains(object.objectId))).toList();
     return ProductLimitGridListTile(
       listOfObjectModel: filteredList,
       title: 'Output Object',
@@ -75,7 +76,7 @@ class _ProductLimitState extends State<ProductLimit> {
   }
 
   Widget analogObject(){
-    List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => !['-', '1,2'].contains(object.type)).toList();
+    List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => (widget.configPvd.masterData['categoryId'] != 2 ? !['-', '1,2'].contains(object.type) : [22, 24, 26, 40].contains(object.objectId))).toList();
     filteredList.sort((a, b) => a.type.compareTo(b.type));
     return ProductLimitGridListTile(
       listOfObjectModel: filteredList,
@@ -121,7 +122,6 @@ class _ProductLimitState extends State<ProductLimit> {
       )
     ];
   }
-
 }
 
 

@@ -171,8 +171,10 @@ class _DeviceListState extends State<DeviceList> {
                                         stateSetter(() {
                                           setState(() {
                                             if (node.select) {
+                                              configPvd.serialNumberIncrement += 1;
                                               node.masterId = selectedMasterId;
                                               node.select = false;
+                                              node.serialNumber = configPvd.serialNumberIncrement;
                                             }
                                           });
                                         });
@@ -308,9 +310,9 @@ class _DeviceListState extends State<DeviceList> {
                                                       setState(() {
                                                         device.interfaceTypeId = getInterfaceStringToCode(interface[0]);
                                                         if(interface.length > 1){
-                                                          device.extendDeviceId = interface[1];
+                                                          device.extendId = configPvd.listOfDeviceModel.firstWhere((device) => device.deviceId == interface[1]).controllerId;
                                                         }else{
-                                                          device.extendDeviceId = '';
+                                                          device.extendId = null;
                                                         }
                                                       });
                                                     }
@@ -371,7 +373,7 @@ class _DeviceListState extends State<DeviceList> {
   String getInterfaceValue(DeviceModel device){
     String interface = getInterfaceCodeToString(device.interfaceTypeId);
     String interfaceWithDeviceId = device.interfaceTypeId == 5
-        ? '$interface\n${device.extendDeviceId}'
+        ? '$interface\n${configPvd.listOfDeviceModel.firstWhere((deviceObject) => deviceObject.controllerId == device.extendId).deviceId}'
         : interface;
     return interfaceWithDeviceId;
   }

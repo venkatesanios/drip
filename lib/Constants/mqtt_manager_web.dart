@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:mqtt_client/mqtt_browser_client.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:uuid/uuid.dart';
@@ -45,73 +46,125 @@ class MqttManager {
           .withWillMessage('My Will message')
           .startClean()
           .withWillQos(MqttQos.atLeastOnce);
-      print('Mosquitto client connecting....');
+      if (kDebugMode) {
+        print('Mosquitto client initialize....');
+      }
       _client!.connectionMessage = connMess;
     }
   }
 
   void connect() async {
-    assert(_client != null);
+    print('inside connect function');
+    // assert(_client != null);
     if (!isConnected) {
       try {
-        print('Mosquitto start client connecting....');
+        if (kDebugMode) {
+          print('Mosquitto start client connecting....');
+        }
+        await Future.delayed(Duration.zero);
         await _client!.connect();
+        _client?.updates!.listen(_onMessageReceived);
       } on Exception catch (e, stackTrace) {
-        print('Client exception - $e');
-        print('StackTrace: $stackTrace');
-        //disconnect();
+        if (kDebugMode) {
+          print('Client exception - $e');
+          print('StackTrace: $stackTrace');
+        }
       }
     }
   }
 
-  void subscribeToTopic(String topic) {
-
-    if (currentTopic != null) {
-      _client!.unsubscribe(currentTopic!);
+  void disconnect() {
+    if (kDebugMode) {
+      print('Disconnected');
     }
-
-    Future.delayed(const Duration(milliseconds: 1000), () {
-      _client!.subscribe(topic, MqttQos.atLeastOnce);
-      currentTopic = topic;
-    });
-
-    _client!.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
-      final MqttPublishMessage recMess = c![0].payload as MqttPublishMessage;
-      final String pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-      // providerState?.updateReceivedPayload(pt);
-
-    });
+    _client!.disconnect();
   }
 
-  publish(String message, String topic) {
-    final MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
-    builder.addString(message);
-    _client!.publishMessage(topic, MqttQos.exactlyOnce, builder.payload!);
+  void _onMessageReceived(List<MqttReceivedMessage<MqttMessage?>>? c) async {
+    final MqttPublishMessage recMess = c![0].payload as MqttPublishMessage;
+    final String pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+    // print('Received message: $pt');
+    // providerState?.updateReceivedPayload(pt,false);
+  }
+
+  Future<void> topicToSubscribe(String topic) async {
+    if (isConnected) {
+      _client!.subscribe(topic, MqttQos.atLeastOnce);
+      if (kDebugMode) {
+        print("topic to subscribe: $topic");
+      }
+    } else {
+      Future.delayed(const Duration(seconds: 1), () {
+        topicToSubscribe(topic);
+      });
+    }
+  }
+
+  void topicToUnSubscribe(String topic){
+    if(isConnected){
+      _client!.unsubscribe(topic);
+      if (kDebugMode) {
+        print('topic to unSubscribe:  $topic');
+      }
+    }else{
+      Future.delayed(const Duration(seconds: 1),(){
+        topicToUnSubscribe(topic);
+      });
+    }
+  }
+
+  Future<void> topicToPublishAndItsMessage(String topic, String message) async{
+    if (kDebugMode) {
+      print('connect state :: $isConnected');
+    }
+
+    if (kDebugMode) {
+      print('publish topic in web: $topic');
+      print('publish message in web: $message');
+    }
+    try{
+      final MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
+      builder.addString(message);
+      _client!.publishMessage(topic, MqttQos.exactlyOnce, builder.payload!);
+    }catch (e){
+      print('web mqtt error while publish : ${e}');
+    }
+
   }
 
   /// The subscribed callback
   void onSubscribed(String topic) {
-    print('Subscription confirmed for topic $topic');
+    if (kDebugMode) {
+      print('Subscription confirmed for topic $topic');
+    }
   }
 
   /// The unsolicited disconnect callback
-  void onDisconnected() {
-    print('OnDisconnected client callback - Client disconnection');
-    if (_client!.connectionStatus!.returnCode == MqttConnectReturnCode.noneSpecified) {
-      print('OnDisconnected callback is solicited, this is correct');
+  void onDisconnected() async{
+    await Future.delayed(const Duration(seconds: 5,));
+    try{
+      if (kDebugMode) {
+        print('OnDisconnected client callback - Client disconnection');
+      }
+      if (_client!.connectionStatus!.returnCode == MqttConnectReturnCode.noneSpecified) {
+        if (kDebugMode) {
+          print('OnDisconnected callback is solicited, this is correct');
+        }
+      }
+      await Future.delayed(Duration.zero);
+      connect();
+    }catch(e){
+      if (kDebugMode) {
+        print('Mqtt connectivity issue => ${e.toString()}');
+      }
     }
-    // providerState?.setAppConnectionState(MQTTConnectionState.disconnected);
-
-    // Attempt reconnection after a delay
-    Future.delayed(const Duration(seconds: 03), () {
-      //_client!.disconnect();
-      //connect();
-    });
   }
 
-  void onConnected() {
+  void onConnected() async{
     assert(isConnected);
-    // providerState?.setAppConnectionState(MQTTConnectionState.connected);
-    print('Mosquitto client connected....');
+    await Future.delayed(Duration.zero);
+    if (kDebugMode) {
+      print('Mosquitto client connected....');
+    }
   }
 }

@@ -23,7 +23,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     4 : 'Moisture Configuration',
     5 : 'Line Configuration',
   };
-  int selectedConfigurationTab = 5;
+  int selectedConfigurationTab = 0;
   SelectionMode selectedSelectionMode = SelectionMode.auto;
   int selectedConnectionNo = 0;
   String selectedType = '';
@@ -34,9 +34,11 @@ class ConfigMakerProvider extends ChangeNotifier{
   List<double> listOfSelectedSno = [];
   double selectedSno = 0.0;
   List<DeviceModel> listOfDeviceModel = [];
+  int serialNumberIncrement = 0;
   Map<String, dynamic> masterData = {
     "controllerId": 1, "deviceId": "EDEFEADE0001", "deviceName": "Oro Gem 1", "categoryId": 1, "categoryName": "Oro Gem", "modelId": 1, "modelName": "Gem", "groupId" : 1, "groupName" : "Carrot"
   };
+
   List<dynamic>sampleData = [
     // {
     //   "connectingObjectId" : [1, 2, 3, 4], "controllerId": 1, "deviceId": "EDEFEADE0001", "deviceName": "Oro Gem 1", "categoryId": 1, "categoryName": "Oro Gem", "modelId": 1, "modelName": "Gem", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 1, "masterId": "EDEFEADE0001", "noOfRelay": 0, "noOfLatch": 0, "noOfAnalogInput": 0, "noOfDigitalInput": 0, "noOfPulseInput": 0, "noOfMoistureInput": 0, "noOfI2CInput": 0
@@ -87,6 +89,15 @@ class ConfigMakerProvider extends ChangeNotifier{
       "connectingObjectId" : [25, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39], "controllerId": 14, "deviceId": "EDEFEADE0014", "deviceName": "Oro Weather 1", "categoryId": 4, "categoryName": "Oro Weather", "modelId": 1, "modelName": "Oro Weather m1", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 0, "masterId": null, "noOfRelay": 0, "noOfLatch": 0, "noOfAnalogInput": 3, "noOfDigitalInput": 4, "noOfPulseInput": 0, "noOfMoistureInput": 4, "noOfI2CInput": 4
     }
   ];
+  // Map<String, dynamic> masterData = {
+  //   "controllerId": 1, "deviceId": "EDEFEADE0001", "deviceName": "Oro Pump 1", "categoryId": 2, "categoryName": "Oro Pump", "modelId": 4, "modelName": "Gem", "groupId" : 1, "groupName" : "Carrot"
+  // };
+  // List<dynamic>sampleData = [
+  //     {
+  //       "connectingObjectId" : [5], "controllerId": 2, "deviceId": "EDEFEADE0002", "deviceName": "Oro Pump 1", "categoryId": 2, "categoryName": "Oro Pump", "modelId": 1, "modelName": "Oro Pump m1", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 1, "masterId": 1, "noOfRelay": 3, "noOfLatch": 0, "noOfAnalogInput": 0, "noOfDigitalInput": 0, "noOfPulseInput": 0, "noOfMoistureInput": 0, "noOfI2CInput": 0
+  //     },
+  // ];
+
   List<dynamic> sampleObject = [
     {"objectId" : 1, "type" : "-", "objectName" : "Source"},
     {"objectId" : 2, "type" : "-", "objectName" : "Irrigation Line"},
@@ -167,7 +178,7 @@ class ConfigMakerProvider extends ChangeNotifier{
             interfaceInterval: 5,
             serialNumber: devices['serialNo'],
             masterId: devices['masterId'],
-            extendDeviceId: devices['extendDeviceId'],
+            extendId: devices['extendId'],
             noOfRelay: devices['noOfRelay'],
             noOfLatch: devices['noOfLatch'],
             noOfAnalogInput: devices['noOfAnalogInput'],
@@ -204,7 +215,7 @@ class ConfigMakerProvider extends ChangeNotifier{
             interfaceInterval: 5,
             serialNumber: devices['serialNo'],
             masterId: devices['masterId'],
-            extendDeviceId: devices['extendDeviceId'],
+            extendId: devices['extendId'],
             noOfRelay: devices['noOfRelay'],
             noOfLatch: devices['noOfLatch'],
             noOfAnalogInput: devices['noOfAnalogInput'],
@@ -668,7 +679,6 @@ class ConfigMakerProvider extends ChangeNotifier{
 
   String getDeviceListPayload() {
     List<dynamic> devicePayload = [];
-
     for (var i = 0; i < listOfDeviceModel.length; i++) {
       var device = listOfDeviceModel[i];
       if (device.masterId != null) {
@@ -678,7 +688,7 @@ class ConfigMakerProvider extends ChangeNotifier{
           "DeviceRunningNumber": i + 1,
           "DeviceId": device.deviceId,
           "InterfaceType": device.interfaceTypeId,
-          "ExtendNode": device.extendDeviceId,
+          "ExtendNode": device.extendId ?? '',
         }.entries.map((e) => e.value).join(","));
       }
     }

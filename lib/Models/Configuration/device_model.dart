@@ -1,4 +1,3 @@
-
 class DeviceModel {
   final int controllerId;
   final String deviceId;
@@ -11,7 +10,7 @@ class DeviceModel {
   int? interfaceInterval;
   int? serialNumber;
   int? masterId;
-  String? extendDeviceId;
+  int? extendId;
   final int noOfRelay;
   final int noOfLatch;
   final int noOfAnalogInput;
@@ -34,7 +33,7 @@ class DeviceModel {
     required this.interfaceInterval,
     required this.serialNumber,
     required this.masterId,
-    required this.extendDeviceId,
+    required this.extendId,
     required this.noOfRelay,
     required this.noOfLatch,
     required this.noOfAnalogInput,
@@ -59,7 +58,7 @@ class DeviceModel {
       interfaceInterval: data['interfaceInterval'],
       serialNumber: data['serialNumber'],
       masterId: data['masterId'],
-      extendDeviceId: data['extendDeviceId'] ?? '',
+      extendId: data['extendId'] ?? '',
       noOfRelay: data['noOfRelay'],
       noOfLatch: data['noOfLatch'],
       noOfAnalogInput: data['noOfAnalogInput'],
@@ -85,7 +84,7 @@ class DeviceModel {
       'interfaceInterval': interfaceInterval,
       'serialNumber': serialNumber,
       'masterId': masterId,
-      'extendDeviceId': extendDeviceId,
+      'extendId': extendId,
       'noOfRelay': noOfRelay,
       'noOfLatch': noOfLatch,
       'noOfAnalogInput': noOfAnalogInput,
@@ -96,4 +95,5 @@ class DeviceModel {
       'connectingObjectId': connectingObjectId,
     };
   }
+
 }

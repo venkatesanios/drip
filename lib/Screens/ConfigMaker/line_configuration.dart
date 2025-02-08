@@ -18,6 +18,7 @@ import '../../Widgets/sized_image.dart';
 import 'config_object_name_editing.dart';
 import 'fertilization_configuration.dart';
 import 'filtration_configuration.dart';
+import 'package:oro_drip_irrigation/Constants/mqtt_manager_mobile.dart' if (dart.library.html) 'package:oro_drip_irrigation/Constants/mqtt_manager_web.dart';
 
 class LineConfiguration extends StatefulWidget {
   final ConfigMakerProvider configPvd;
@@ -90,9 +91,6 @@ class _LineConfigurationState extends State<LineConfiguration> {
                                       getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.sourcePump, parameterType: LineParameter.sourcePump, objectId: 5, objectName: 'Source Pump', validateAllLine: false, listOfObject: widget.configPvd.pump.where((pump) => (pump.pumpType == 1)).toList().map((pump) => pump.commonDetails).toList()),
                                     if(availability(2))
                                       getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.irrigationPump, parameterType: LineParameter.irrigationPump, objectId: 5, objectName: 'Irrigation Pump', validateAllLine: false, listOfObject: widget.configPvd.pump.where((pump) => (pump.pumpType == 2)).toList().map((pump) => pump.commonDetails).toList()),
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.sourcePump, parameterType: LineParameter.sourcePump, objectId: 5, objectName: 'Source Pump', validateAllLine: false, listOfObject: widget.configPvd.pump.cast<PumpModel>().where((pump) => (pump.pumpType == 1)).toList().map((pump) => pump.commonDetails).toList()),
-                                    if(availability(2))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.irrigationPump, parameterType: LineParameter.irrigationPump, objectId: 5, objectName: 'Irrigation Pump', validateAllLine: false, listOfObject: widget.configPvd.pump.cast<PumpModel>().where((pump) => (pump.pumpType == 2)).toList().map((pump) => pump.commonDetails).toList()),
                                     if(availability(13))
                                       getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.valve, parameterType: LineParameter.valve, objectId: 13, objectName: 'Valve', validateAllLine: true),
                                     if(availability(14))
@@ -226,29 +224,32 @@ class _LineConfigurationState extends State<LineConfiguration> {
                   {"101": widget.configPvd.getDeviceListPayload()}
                 ]
               };
-              final Map<String, dynamic> configMakerPayload = {
-                "200": [
-                  {"201": widget.configPvd.getPumpPayload()},
-                  {"202": widget.configPvd.getIrrigationLinePayload()},
-                  {"203": widget.configPvd.getFertilizerPayload()},
-                  {"204": widget.configPvd.getFilterPayload()},
-                  {"205": widget.configPvd.getWeatherPayload()},
-                  {"206": widget.configPvd.getObjectPayload()},
-                  {"207": 0},
-                  {"208": '1'}
-                ]
-              };
+              print('deviceListPayload : $deviceListPayload');
+              // final Map<String, dynamic> configMakerPayload = {
+              //   "200": [
+              //     {"201": widget.configPvd.getPumpPayload()},
+              //     {"202": widget.configPvd.getIrrigationLinePayload()},
+              //     {"203": widget.configPvd.getFertilizerPayload()},
+              //     {"204": widget.configPvd.getFilterPayload()},
+              //     {"205": widget.configPvd.getWeatherPayload()},
+              //     {"206": widget.configPvd.getObjectPayload()},
+              //     {"207": 0},
+              //     {"208": '1'}
+              //   ]
+              // };
 
               /*print("getIrrigationLinePayload ==> ${jsonEncode(configMakerPayload)}");
                 print("deviceListPayload ==> ${jsonEncode(deviceListPayload)}");*/
               // print("getOroPumpPayload ==> ${widget.configPvd.getOroPumpPayload()}");
-              print(payloadConversion()['irrigationLine']);
-              List<FilterSite> filterSite = (payloadConversion()['filterSite'] as List).map((element) => FilterSite.fromJson(element as Map<String, dynamic>)).toList();
-              List<FertilizerSite> fertilizerSite = (payloadConversion()['fertilizerSite'] as List).map((element) => FertilizerSite.fromJson(element as Map<String, dynamic>)).toList();
-              List<WaterSource> waterSource = (payloadConversion()['waterSource'] as List).map((element) => WaterSource.fromJson(element as Map<String, dynamic>)).toList();
-              List<Pump> pump = (payloadConversion()['pump'] as List).map((element) => Pump.fromJson(element as Map<String, dynamic>)).toList();
-              List<MoistureSensor> moistureSensor = (payloadConversion()['moistureSensor'] as List).map((element) => MoistureSensor.fromJson(element as Map<String, dynamic>)).toList();
-              List<IrrigationLine> irrigationLine = (payloadConversion()['irrigationLine'] as List).map((element) => IrrigationLine.fromJson(element as Map<String, dynamic>)).toList();
+              // print(payloadConversion()['irrigationLine']);
+              // List<FilterSite> filterSite = (payloadConversion()['filterSite'] as List).map((element) => FilterSite.fromJson(element as Map<String, dynamic>)).toList();
+              // List<FertilizerSite> fertilizerSite = (payloadConversion()['fertilizerSite'] as List).map((element) => FertilizerSite.fromJson(element as Map<String, dynamic>)).toList();
+              // List<WaterSource> waterSource = (payloadConversion()['waterSource'] as List).map((element) => WaterSource.fromJson(element as Map<String, dynamic>)).toList();
+              // List<Pump> pump = (payloadConversion()['pump'] as List).map((element) => Pump.fromJson(element as Map<String, dynamic>)).toList();
+              // List<MoistureSensor> moistureSensor = (payloadConversion()['moistureSensor'] as List).map((element) => MoistureSensor.fromJson(element as Map<String, dynamic>)).toList();
+              // List<IrrigationLine> irrigationLine = (payloadConversion()['irrigationLine'] as List).map((element) => IrrigationLine.fromJson(element as Map<String, dynamic>)).toList();
+              MqttManager().topicToPublishAndItsMessage('siva', 'hi from siva');
+
             },
             child: const Icon(Icons.send),
           ),

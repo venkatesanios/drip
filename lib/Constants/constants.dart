@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import '../Screens/ConfigMaker/config_web_view.dart';
 
 class Constants {

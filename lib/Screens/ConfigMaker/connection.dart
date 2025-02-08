@@ -26,9 +26,24 @@ class _ConnectionState extends State<Connection> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    List<int> listOfCategory = [];
+    Future.delayed(const Duration(seconds: 0),(){
+      for(var device in widget.configPvd.listOfDeviceModel){
+        if(![1, 10].contains(device.categoryId) && device.masterId != null && !listOfCategory.contains(device.categoryId)){
+          listOfCategory.add(device.categoryId);
+        }
+      }
+      widget.configPvd.selectedCategory = listOfCategory[0];
+      for(var device in widget.configPvd.listOfDeviceModel){
+        if(device.categoryId == listOfCategory[0]){
+          widget.configPvd.selectedModelControllerId = device.controllerId;
+          break;
+        }
+      }
+      widget.configPvd.updateSelectedConnectionNoAndItsType(0, '');
+      widget.configPvd.updateConnectionListTile();
+    });
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -318,6 +333,7 @@ class _ConnectionState extends State<Connection> {
       selectedDevice: selectedDevice,
     );
   }
+
   Widget analogObject(){
     DeviceModel selectedDevice = widget.configPvd.listOfDeviceModel.firstWhere((device) => device.controllerId == widget.configPvd.selectedModelControllerId);
     List<int> filteredObjectList = widget.configPvd.listOfSampleObjectModel
@@ -332,6 +348,7 @@ class _ConnectionState extends State<Connection> {
       selectedDevice: selectedDevice,
     );
   }
+
   Widget getAvailableDeviceCategory(){
     List<int> listOfCategory = [];
     for(var device in widget.configPvd.listOfDeviceModel){
@@ -379,6 +396,7 @@ class _ConnectionState extends State<Connection> {
     );
     return child;
   }
+
   Widget getModelBySelectedCategory(){
     List<DeviceModel> filteredDeviceModel = widget.configPvd.listOfDeviceModel.where((device) => (device.categoryId == widget.configPvd.selectedCategory && device.masterId != null)).toList();
     Widget child = SingleChildScrollView(
@@ -418,6 +436,7 @@ class _ConnectionState extends State<Connection> {
       );
     return child;
   }
+
 }
 
 enum SelectionMode {auto, manual}

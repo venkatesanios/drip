@@ -14,6 +14,11 @@ import 'Screens/ConfigMaker/config_web_view.dart';
 void main() {
   GlobalConfig.setEnvironment(Environment.development);
   MqttManager mqttManager = MqttManager();
+  mqttManager.initializeMQTTClient();
+  mqttManager.connect();
+  Future.delayed(Duration(seconds: 5),(){
+    mqttManager.topicToPublishAndItsMessage('siva', 'hi from siva');
+  });
   // print(payloadConversion());
   runApp(
       MultiProvider(
@@ -41,4 +46,51 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+class TimeInputModel{
+  int type;
+  String value;
+
+  TimeInputModel({
+    required this.type,
+    required this.value,
+  });
+
+  String getHours(){
+    return value.split(':')[0];
+  }
+
+  String getMinutes(){
+    return value.split(':')[1];
+  }
+
+  String getSeconds(){
+    return value.split(':')[2];
+  }
+}
+
+class IntInput{
+  int inputId;
+  int type;
+  int value;
+
+  IntInput({
+    required this.inputId,
+    required this.type,
+    required this.value,
+  });
+
+  String stringValue(){
+    return value.toString();
+  }
+
+  void updateValue(String val){
+    if(val.isEmpty){
+      value = 0;
+    }else{
+      value = int.parse(val);
+    }
+  }
+}
+
 

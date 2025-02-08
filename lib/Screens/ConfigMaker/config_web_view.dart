@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:html';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/product_limit.dart';
@@ -17,11 +18,11 @@ import 'device_list.dart';
 
 
 void saveToSessionStorage(String key, String value) {
-  // window.sessionStorage[key] = value;
+  window.sessionStorage[key] = value;
 }
 
 String? readFromSessionStorage(String key) {
-  // return window.sessionStorage[key];
+  return window.sessionStorage[key];
 }
 
 void deleteFromSessionStorage(String key) {
@@ -111,7 +112,8 @@ class _ConfigWebViewState extends State<ConfigWebView> {
   List<Widget> getSideNavigationTab(screenWidth){
     return [
       for(var i in ConfigMakerTabs.values)
-        CustomSideTab(
+        if(configPvd.masterData['categoryId'] != 2 || (![ConfigMakerTabs.deviceList, ConfigMakerTabs.connection].contains(i)))
+          CustomSideTab(
           width: screenWidth  > webBreakPoint ? sideNavigationTabWidth : sideNavigationTabBreakPointWidth,
           imagePath: 'assets/Images/Png/${getTabImage(i)}${i == configPvd.selectedTab ? 1 : 0}.png',
           title: getTabName(i),
