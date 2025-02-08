@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
+
 class Formatters {
   static String formatCurrency(double amount) {
     final format = NumberFormat.currency(locale: 'en_US', symbol: '\$');
