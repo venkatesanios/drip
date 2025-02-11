@@ -102,7 +102,6 @@ class Repository{
     return await apiService.putRequest('/user/updateDetails', body);
   }
 
-
   Future<http.Response> addProductToDealer(body) async {
     return await apiService.postRequest('/product/addToDealer', body);
   }

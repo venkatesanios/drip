@@ -36,7 +36,8 @@ class Master {
   final String categoryName;
   final int modelId;
   final String modelName;
-
+  final String inputObjectId;
+  final String outputObjectId;
 
   Master({
     required this.controllerId,
@@ -49,6 +50,8 @@ class Master {
     required this.categoryName,
     required this.modelId,
     required this.modelName,
+    required this.inputObjectId,
+    required this.outputObjectId,
   });
 
   factory Master.fromJson(Map<String, dynamic> json) {
@@ -64,6 +67,8 @@ class Master {
       categoryName: json['categoryName'],
       modelId: json['modelId'],
       modelName: json['modelName'],
+      inputObjectId: json['inputObjectId'],
+      outputObjectId: json['outputObjectId'],
     );
   }
 }
