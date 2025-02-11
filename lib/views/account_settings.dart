@@ -3,7 +3,7 @@ import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:provider/provider.dart';
 
 import '../repository/repository.dart';
-import '../services/api_service.dart';
+import '../services/http_service.dart';
 import '../view_models/account_setting_view_model.dart';
 
 class AccountSettings extends StatelessWidget {
@@ -14,7 +14,7 @@ class AccountSettings extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => UserSettingViewModel(Repository(ApiService()), userName, mobileNo, emailId)..getLanguage(),
+      create: (_) => UserSettingViewModel(Repository(HttpService()), userName, mobileNo, emailId)..getLanguage(),
       child: Consumer<UserSettingViewModel>(
         builder: (context, viewModel, _) {
           return Scaffold(

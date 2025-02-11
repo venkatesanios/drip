@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../models/admin&dealer/stock_model.dart';
 import '../../repository/repository.dart';
-import '../../services/api_service.dart';
+import '../../services/http_service.dart';
 import '../../view_models/admin&dealer/dealer_device_list_view_model.dart';
 
 class DealerDeviceList extends StatelessWidget {
@@ -27,7 +27,7 @@ class DealerDeviceList extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) {
-        final viewModel = DealerDeviceListViewModel(Repository(ApiService()), userId, customerId, productStockList.length);
+        final viewModel = DealerDeviceListViewModel(Repository(HttpService()), userId, customerId, productStockList.length);
         viewModel.loadDeviceList(1);
         return viewModel;
       },

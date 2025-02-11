@@ -4,7 +4,7 @@ import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:provider/provider.dart';
 
 import '../repository/repository.dart';
-import '../services/api_service.dart';
+import '../services/http_service.dart';
 import '../utils/constants.dart';
 import '../utils/formatters.dart';
 import '../view_models/create_account_view_model.dart';
@@ -19,7 +19,7 @@ class CreateAccount extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) {
-        final viewModel = CreateAccountViewModel(Repository(ApiService()));
+        final viewModel = CreateAccountViewModel(Repository(HttpService()));
         viewModel.getCountryList();
         return viewModel;
       },

@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../models/admin&dealer/stock_model.dart';
 import '../../repository/repository.dart';
-import '../../services/api_service.dart';
+import '../../services/http_service.dart';
 import '../../view_models/admin&dealer/customer_device_list_view_model.dart';
 
 enum MasterController {gem1, gem2, gem3, gem4, gem5, gem6, gem7, gem8, gem9, gem10,}
@@ -38,7 +38,7 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
   @override
   void initState() {
     super.initState();
-    viewModel = CustomerDeviceListViewModel(Repository(ApiService()), widget.userId, widget.customerId, widget.productStockList.length);
+    viewModel = CustomerDeviceListViewModel(Repository(HttpService()), widget.userId, widget.customerId, widget.productStockList.length);
     tabController = TabController(length: tabList.length, vsync: this);
     tabController.addListener(() {
       setState(() {});

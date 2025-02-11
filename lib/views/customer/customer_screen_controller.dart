@@ -3,7 +3,7 @@ import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
 import 'package:oro_drip_irrigation/views/customer/site_config.dart';
 import 'package:provider/provider.dart';
 import '../../repository/repository.dart';
-import '../../services/api_service.dart';
+import '../../services/http_service.dart';
 import '../../utils/formatters.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../../view_models/nav_rail_view_model.dart';
@@ -23,7 +23,7 @@ class CustomerScreenController extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => NavRailViewModel()),
         ChangeNotifierProvider(
-          create: (_) => CustomerScreenControllerViewModel(Repository(ApiService()))..getAllMySites(),
+          create: (_) => CustomerScreenControllerViewModel(Repository(HttpService()))..getAllMySites(),
         ),
       ],
       child: Consumer2<NavRailViewModel, CustomerScreenControllerViewModel>(

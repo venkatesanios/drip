@@ -4,7 +4,7 @@ import 'dart:convert';
 import '../utils/constants.dart';
 import '../utils/shared_preferences_helper.dart';
 
-class ApiService
+class HttpService
 {
   Future<http.Response> getRequest(String endpoint, {Map<String, String>? queryParams}) async {
     final token = await PreferenceHelper.getToken();

@@ -2,7 +2,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../repository/repository.dart';
-import '../../services/api_service.dart';
+import '../../services/http_service.dart';
 import '../../view_models/customer/customer_product_view_model.dart';
 
 class CustomerProduct extends StatelessWidget {
@@ -12,7 +12,7 @@ class CustomerProduct extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => CustomerProductViewModel(Repository(ApiService()))..getCustomerProducts(customerId),
+      create: (_) => CustomerProductViewModel(Repository(HttpService()))..getCustomerProducts(customerId),
       child: Consumer<CustomerProductViewModel>(
         builder: (context, viewModel, _) {
           return Padding(

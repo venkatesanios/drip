@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../repository/repository.dart';
-import '../../../services/api_service.dart';
+import '../../../services/http_service.dart';
 import '../../../view_models/admin&dealer/from_view_models/category_form_view_model.dart';
 
 class ProductCategoryForm extends StatelessWidget {
@@ -12,7 +12,7 @@ class ProductCategoryForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => CategoryFormViewModel(Repository(ApiService()))..getCategoryList(),
+      create: (_) => CategoryFormViewModel(Repository(HttpService()))..getCategoryList(),
       child: Consumer<CategoryFormViewModel>(
         builder: (context, viewModel, _) {
           return Row(

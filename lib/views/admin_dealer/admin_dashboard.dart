@@ -4,7 +4,7 @@ import 'package:loading_indicator/loading_indicator.dart';
 import 'package:oro_drip_irrigation/views/admin_dealer/sales_bar_chart.dart';
 import 'package:provider/provider.dart';
 import '../../repository/repository.dart';
-import '../../services/api_service.dart';
+import '../../services/http_service.dart';
 import '../../utils/constants.dart';
 import '../../utils/snack_bar.dart';
 import '../../view_models/admin&dealer/admin&dealer_dashboard_view_model.dart';
@@ -24,7 +24,7 @@ class AdminDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
 
     return ChangeNotifierProvider(
-      create: (_) => AdminAndDealerDashboardViewModel(Repository(ApiService()))..getMySalesData(userId, MySegment.all)
+      create: (_) => AdminAndDealerDashboardViewModel(Repository(HttpService()))..getMySalesData(userId, MySegment.all)
       ..getMyStock(userId, 1)..getMyCustomers(userId, 1),
       child: Consumer<AdminAndDealerDashboardViewModel>(
         builder: (context, viewModel, _) {

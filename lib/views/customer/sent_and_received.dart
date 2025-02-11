@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../repository/repository.dart';
-import '../../services/api_service.dart';
+import '../../services/http_service.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../../view_models/customer/sent_and_received_view_model.dart';
 
@@ -16,7 +16,7 @@ class SentAndReceived extends StatelessWidget {
   Widget build(BuildContext context) {
     final cvm = Provider.of<CustomerScreenControllerViewModel>(context);
     return ChangeNotifierProvider(
-      create: (_) => SentAndReceivedViewModel(Repository(ApiService()))..getSentAndReceivedData(customerId, cvm.controllerId, DateFormat('yyyy-MM-dd').format(DateTime.now())),
+      create: (_) => SentAndReceivedViewModel(Repository(HttpService()))..getSentAndReceivedData(customerId, cvm.controllerId, DateFormat('yyyy-MM-dd').format(DateTime.now())),
       child: Consumer<SentAndReceivedViewModel>(
         builder: (context, viewModel, _) {
           return SizedBox(

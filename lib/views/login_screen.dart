@@ -3,7 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:provider/provider.dart';
 import '../repository/repository.dart';
-import '../services/api_service.dart';
+import '../services/http_service.dart';
 import '../utils/constants.dart';
 import '../view_models/login_view_model.dart';
 
@@ -15,7 +15,7 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
 
     return ChangeNotifierProvider(
-      create: (_) => LoginViewModel(Repository(ApiService()), onLoginSuccess: (pageRoute) {
+      create: (_) => LoginViewModel(Repository(HttpService()), onLoginSuccess: (pageRoute) {
         Navigator.pushReplacementNamed(context, '/dashboard');
       }),
       child: Consumer<LoginViewModel>(

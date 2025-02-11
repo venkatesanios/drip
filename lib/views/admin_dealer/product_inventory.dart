@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
 import '../../repository/repository.dart';
-import '../../services/api_service.dart';
+import '../../services/http_service.dart';
 import '../../utils/constants.dart';
 import '../../view_models/admin&dealer/inventory_view_model.dart';
 
@@ -16,7 +16,7 @@ class ProductInventory extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => InventoryViewModel(Repository(ApiService()))..loadInventoryData(userId, userRole, 1)
+      create: (_) => InventoryViewModel(Repository(HttpService()))..loadInventoryData(userId, userRole, 1)
       ..getCategoryModelList(userId, userRole),
       child: Consumer<InventoryViewModel>(
         builder: (context, viewModel, _) {

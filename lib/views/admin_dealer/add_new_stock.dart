@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import '../../models/admin&dealer/new_stock_model.dart';
 import '../../models/admin&dealer/simple_category.dart';
 import '../../repository/repository.dart';
-import '../../services/api_service.dart';
+import '../../services/http_service.dart';
 import '../../view_models/admin&dealer/new_stock_view_model.dart';
 
 class AddNewStock extends StatelessWidget {
@@ -18,7 +18,7 @@ class AddNewStock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => NewStockViewModel(Repository(ApiService()))..fetchCategoryList(),
+      create: (_) => NewStockViewModel(Repository(HttpService()))..fetchCategoryList(),
       child: Consumer<NewStockViewModel>(
         builder: (context, viewModel, _) {
           return Column(

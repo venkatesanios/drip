@@ -1,9 +1,9 @@
 import 'package:http/http.dart' as http;
-import '../services/api_service.dart';
+import '../services/http_service.dart';
 
 class Repository{
 
-  final ApiService apiService;
+  final HttpService apiService;
   Repository(this.apiService);
 
   Future<dynamic> checkLoginAuth(body) async {
@@ -101,7 +101,6 @@ class Repository{
   Future<http.Response> updateUserDetails(body) async {
     return await apiService.putRequest('/user/updateDetails', body);
   }
-
 
   Future<http.Response> addProductToDealer(body) async {
     return await apiService.postRequest('/product/addToDealer', body);
