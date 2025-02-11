@@ -505,22 +505,21 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
                                                   MaterialButton(
                                                     onPressed:() async {
                                                       Navigator.push(context, MaterialPageRoute(builder: (context){
+                                                        var masterData = viewModel.customerSiteList[siteIndex].master[mstIndex];
                                                         return ConfigBasePage(
                                                           masterData: {
                                                             "userId": widget.userId,
                                                             "customerId": widget.customerId,
-                                                            "controllerId": viewModel.customerSiteList[siteIndex].master[mstIndex].controllerId,
-                                                            "deviceId": viewModel.customerSiteList[siteIndex].master[mstIndex].deviceId,
-                                                            "deviceName": viewModel.customerSiteList[siteIndex].master[mstIndex].deviceName,
-                                                            "categoryId": viewModel.customerSiteList[siteIndex].master[mstIndex].categoryId,
-                                                            "categoryName": viewModel.customerSiteList[siteIndex].master[mstIndex].categoryName,
-                                                            "modelId": viewModel.customerSiteList[siteIndex].master[mstIndex].modelId,
-                                                            "modelName": viewModel.customerSiteList[siteIndex].master[mstIndex].modelName,
+                                                            "controllerId": masterData.controllerId,
+                                                            "deviceId": masterData.deviceId,
+                                                            "deviceName": masterData.deviceName,
+                                                            "categoryId": masterData.categoryId,
+                                                            "categoryName": masterData.categoryName,
+                                                            "modelId": masterData.modelId,
+                                                            "modelName": masterData.modelName,
                                                             "groupId" : viewModel.customerSiteList[siteIndex].userGroupId,
                                                             "groupName" : viewModel.customerSiteList[siteIndex].groupName,
-                                                            "inputObjectId" : viewModel.customerSiteList[siteIndex]..master[mstIndex].inputObjectId,
-                                                            "outputObjectId" : viewModel.customerSiteList[siteIndex]..master[mstIndex].outputObjectId,
-
+                                                            "connectingObjectId" : [...masterData.outputObjectId.split(','), ...masterData.inputObjectId.split(',')],
                                                           },
                                                         );
                                                       }));
