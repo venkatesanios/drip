@@ -225,7 +225,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
 
               // MqttManager().topicToPublishAndItsMessage('siva', 'hi from siva');
               sendToMqtt();
-              // sendToHttp();
+              sendToHttp();
 
 
             },
