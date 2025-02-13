@@ -86,7 +86,7 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
                                     height: 120,
                                   ),
                                   ...getWaterMeterAndPressure(
-                                      pump.pressure,
+                                      pump.pressureIn,
                                       pump.waterMeter,
                                     widget.configPvd
                                   ),
@@ -99,7 +99,7 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
                                 spacing: 30,
                                 runSpacing: 20,
                                 children: [
-                                  for(var mode in [1,2])
+                                  for(var mode in [1,2,3])
                                     getWaterMeterAndPressureSelection(pump, mode)
                                 ],
                               ),
@@ -119,15 +119,18 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
   }
 
   Widget getWaterMeterAndPressureSelection(PumpModel currentPump, int mode){
-    int objectId = mode == 1 ? 24 : 22;
-    String objectName = mode == 1 ? 'Pressure' : 'Water Meter';
-    double currentSno = mode == 1 ? currentPump.pressure : currentPump.waterMeter;
+    int objectId = mode == 1 ? 24 : mode == 2 ? 24 : 22;
+    String objectName = mode == 1 ? 'PressureIn' : mode == 2 ? 'PressureOut' : 'Water Meter';
+    double currentSno = mode == 1 ? currentPump.pressureIn : mode == 2 ? currentPump.pressureOut : currentPump.waterMeter;
     List<double> validateSensorFromOtherSource = [];
     for(var pump in widget.configPvd.pump){
       if(pump.commonDetails.sNo != currentPump.commonDetails.sNo){
         validateSensorFromOtherSource.add(pump.level);
         validateSensorFromOtherSource.add(pump.waterMeter);
-        validateSensorFromOtherSource.add(pump.pressure);
+        validateSensorFromOtherSource.add(pump.pressureIn);
+        validateSensorFromOtherSource.add(pump.pressureOut);
+      }else{
+        validateSensorFromOtherSource.add(mode == 1 ? pump.pressureOut : pump.pressureIn);
       }
     }
     return Container(
@@ -142,9 +145,7 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
           SizedImage(imagePath: 'assets/Images/Png/objectId_$objectId.png'),
           const SizedBox(width: 20,),
           Text('$objectName : ', style: AppProperties.listTileBlackBoldStyle,),
-          Center(
-            child: Text(currentSno == 0.0 ? '-' : getObjectName(currentSno, widget.configPvd).name!, style: TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold),),
-          ),
+          Expanded(child: Text(currentSno == 0.0 ? '-' : getObjectName(currentSno, widget.configPvd).name!, style: const TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold,),)),
           IconButton(
               onPressed: (){
                 setState(() {
@@ -158,8 +159,10 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
                     onPressed: (){
                       setState(() {
                         if(mode == 1){
-                          currentPump.pressure = widget.configPvd.selectedSno;
+                          currentPump.pressureIn = widget.configPvd.selectedSno;
                         }else if(mode == 2){
+                          currentPump.pressureOut = widget.configPvd.selectedSno;
+                        }else{
                           currentPump.waterMeter = widget.configPvd.selectedSno;
                         }
                         widget.configPvd.selectedSno = 0.0;

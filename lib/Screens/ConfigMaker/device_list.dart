@@ -80,6 +80,13 @@ class _DeviceListState extends State<DeviceList> {
                 listOfDevices: widget.listOfDevices
             ),
           ),
+          // Container(
+          //   height: 60,
+          //   width: double.infinity,
+          //   decoration: BoxDecoration(
+          //       color: Theme.of(context).primaryColorDark
+          //   ),
+          // )
         ],
       ),
     );
@@ -252,113 +259,116 @@ class _DeviceListState extends State<DeviceList> {
                       )
                     ],
                   ),
-                  Column(
-                    children: [
-                      SizedBox(
-                        width: width-fixedColumnWidth,
-                        child: SingleChildScrollView(
-                          controller: _horizontalScroll1,
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: [
-                              CustomTableHeader(title: 'DEVICE ID', width: headerWidth),
-                              CustomTableHeader(title: 'INTERFACE', width: headerWidth),
-                              CustomTableHeader(title: 'INTERVAL', width: headerWidth),
-                              CustomTableHeader(title: 'ACTION', width: headerWidth),
-                            ],
+                  Expanded(
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          width: width-fixedColumnWidth,
+                          child: SingleChildScrollView(
+                            controller: _horizontalScroll1,
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                CustomTableHeader(title: 'DEVICE ID', width: headerWidth),
+                                CustomTableHeader(title: 'INTERFACE', width: headerWidth),
+                                CustomTableHeader(title: 'INTERVAL', width: headerWidth),
+                                CustomTableHeader(title: 'ACTION', width: headerWidth),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      Expanded(
-                        child: SizedBox(
-                          width: width-fixedColumnWidth,
-                          child: Scrollbar(
-                            thumbVisibility: true,
-                            controller: _horizontalScroll2,
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
+                        Expanded(
+                          child: SizedBox(
+                            width: width-fixedColumnWidth,
+                            child: Scrollbar(
+                              thumbVisibility: true,
                               controller: _horizontalScroll2,
-                              child: Scrollbar(
-                                thumbVisibility: true,
-                                controller: _verticalScroll2,
-                                child: SingleChildScrollView(
-                                    scrollDirection: Axis.vertical,
-                                    controller: _verticalScroll2,
-                                    child:  Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: listOfDevices
-                                          .where((node) => node.masterId == selectedMasterId)
-                                          .toList()
-                                          .asMap()
-                                          .entries
-                                          .map((entry) {
-                                        DeviceModel device = entry.value;
-                                        return Row(
-                                          children: [
-                                            CustomTableCell(title: device.deviceId, width: headerWidth),
-                                            CustomTableCellPassingWidget(
-                                                widget: CustomDropDownButton(
-                                                    value: getInterfaceValue(device),
-                                                    list: [
-                                                      'RS485', 'LoRa', 'MQTT',
-                                                      for(var extend in configPvd.listOfDeviceModel)
-                                                        if(extend.categoryId == 10 && extend.masterId != null)
-                                                          'Extend\n${extend.deviceId}'
-                                                    ],
-                                                    onChanged: (String? newValue) {
-                                                      List<String> interface = newValue!.split('\n');
-                                                      setState(() {
-                                                        device.interfaceTypeId = getInterfaceStringToCode(interface[0]);
-                                                        if(interface.length > 1){
-                                                          device.extendId = configPvd.listOfDeviceModel.firstWhere((device) => device.deviceId == interface[1]).controllerId;
-                                                        }else{
-                                                          device.extendId = null;
-                                                        }
-                                                      });
-                                                    }
-                                                ),
-                                                width: headerWidth
-                                            ),
-                                            CustomTableCellPassingWidget(
-                                                widget: CustomDropDownButton(
-                                                    value: getIntervalCodeToString(device.interfaceInterval!, 'Sec'),
-                                                    list: [5 , 10, 15, 20, 25].map((e) => getIntervalCodeToString(e, 'Sec')).toList(),
-                                                    onChanged: (String? newValue) {
-                                                      setState(() {
-                                                        device.interfaceInterval = getIntervalStringToCode(newValue!);
-                                                      });
-                                                    }
-                                                ),
-                                                width: headerWidth
-                                            ),
-                                            CustomTableCellPassingWidget(
-                                                widget: IconButton(
-                                                  icon: const Icon(Icons.delete, color: Colors.red,),
-                                                  onPressed: (){
-                                                    bool configured = configPvd.listOfGeneratedObject.any((object) => object.controllerId == device.controllerId);
-                                                    if(configured){
-                                                      simpleDialogBox(context: context, title: 'Alert', message: '${device.deviceName} cannot be removed. Please detach all connected objects first.');
-                                                    }else{
-                                                      setState(() {
-                                                        device.masterId = null;
-                                                      });
-                                                    }
-                                                  },
-                                                ),
-                                                width: headerWidth
-                                            )
-                                          ],
-                                        );
-                                      }).toList(),
-                                    )
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                controller: _horizontalScroll2,
+                                child: Scrollbar(
+                                  thumbVisibility: true,
+                                  controller: _verticalScroll2,
+                                  child: SingleChildScrollView(
+                                      scrollDirection: Axis.vertical,
+                                      controller: _verticalScroll2,
+                                      child:  Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: listOfDevices
+                                            .where((node) => node.masterId == selectedMasterId)
+                                            .toList()
+                                            .asMap()
+                                            .entries
+                                            .map((entry) {
+                                          DeviceModel device = entry.value;
+                                          return Row(
+                                            children: [
+                                              CustomTableCell(title: device.deviceId, width: headerWidth),
+                                              CustomTableCellPassingWidget(
+                                                  widget: CustomDropDownButton(
+                                                      value: getInterfaceValue(device),
+                                                      list: [
+                                                        'RS485', 'LoRa', 'MQTT',
+                                                        for(var extend in configPvd.listOfDeviceModel)
+                                                          if(extend.categoryId == 10 && extend.masterId != null)
+                                                            'Extend\n${extend.deviceId}'
+                                                      ],
+                                                      onChanged: (String? newValue) {
+                                                        List<String> interface = newValue!.split('\n');
+                                                        setState(() {
+                                                          device.interfaceTypeId = getInterfaceStringToCode(interface[0]);
+                                                          if(interface.length > 1){
+                                                            device.extendControllerId = configPvd.listOfDeviceModel.firstWhere((device) => device.deviceId == interface[1]).controllerId;
+                                                          }else{
+                                                            device.extendControllerId = null;
+                                                          }
+                                                        });
+                                                      }
+                                                  ),
+                                                  width: headerWidth
+                                              ),
+                                              CustomTableCellPassingWidget(
+                                                  widget: CustomDropDownButton(
+                                                      value: getIntervalCodeToString(device.interfaceInterval!, 'Sec'),
+                                                      list: [5 , 10, 15, 20, 25].map((e) => getIntervalCodeToString(e, 'Sec')).toList(),
+                                                      onChanged: (String? newValue) {
+                                                        setState(() {
+                                                          device.interfaceInterval = getIntervalStringToCode(newValue!);
+                                                        });
+                                                      }
+                                                  ),
+                                                  width: headerWidth
+                                              ),
+                                              CustomTableCellPassingWidget(
+                                                  widget: IconButton(
+                                                    icon: const Icon(Icons.delete, color: Colors.red,),
+                                                    onPressed: (){
+                                                      bool configured = configPvd.listOfGeneratedObject.any((object) => object.controllerId == device.controllerId);
+                                                      if(configured){
+                                                        simpleDialogBox(context: context, title: 'Alert', message: '${device.deviceName} cannot be removed. Please detach all connected objects first.');
+                                                      }else{
+                                                        setState(() {
+                                                          device.masterId = null;
+                                                        });
+                                                      }
+                                                    },
+                                                  ),
+                                                  width: headerWidth
+                                              )
+                                            ],
+                                          );
+                                        }).toList(),
+                                      )
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
 
-                    ],
+                    
+                      ],
+                    ),
                   ),
 
                 ],
@@ -373,7 +383,7 @@ class _DeviceListState extends State<DeviceList> {
   String getInterfaceValue(DeviceModel device){
     String interface = getInterfaceCodeToString(device.interfaceTypeId);
     String interfaceWithDeviceId = device.interfaceTypeId == 5
-        ? '$interface\n${configPvd.listOfDeviceModel.firstWhere((deviceObject) => deviceObject.controllerId == device.extendId).deviceId}'
+        ? '$interface\n${configPvd.listOfDeviceModel.firstWhere((deviceObject) => deviceObject.controllerId == device.extendControllerId).deviceId}'
         : interface;
     return interfaceWithDeviceId;
   }

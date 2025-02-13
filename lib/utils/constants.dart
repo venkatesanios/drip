@@ -68,20 +68,6 @@ class AppConstants {
   static const String valveNotON = "valve_orange.png";
   static const String valveNotOFF = "valve_red.png";
 
-  //siva prakash
-  static const String sNo = 'sNo';
-  static const String objectId = 'objectId';
-  static const String name = 'name';
-  static const String connectionNo = 'connectionNo';
-  static const String objectName = 'objectName';
-  static const String location = 'location';
-  static const String type = 'type';
-  static const String pumpType = 'pumpType';
-  static const String controllerId = 'controllerId';
-  static const String count = 'count';
-  static const String level = 'level';
-  static const String pressure = 'pressure';
-  static const String waterMeter = 'waterMeter';
 
   static const Map<UserRole, String> formTitle = {
     UserRole.admin: "Dealer Account Form",
@@ -274,9 +260,7 @@ class AppConstants {
     }
   }
 
-  dynamic payloadConversion(){
-    String? dataFromSession = readFromSessionStorage('configData');
-    Map<String, dynamic> data = jsonDecode(dataFromSession!);
+  dynamic payloadConversion(data){
     dynamic dataFormation = {};
     for(var globalKey in data.keys){
       if(['filterSite', 'fertilizerSite', 'waterSource', 'pump', 'moistureSensor', 'irrigationLine'].contains(globalKey)){
@@ -294,7 +278,8 @@ class AppConstants {
         }
       }
     }
-
+    // print('dataFormation : ${jsonEncode(dataFormation)}');
+    // print('-------------------------------------------');
     return dataFormation;
   }
 

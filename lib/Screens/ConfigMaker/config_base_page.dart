@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -32,8 +34,9 @@ class _ConfigBasePageState extends State<ConfigBasePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    print("widget.masterData :: ${jsonEncode(widget.masterData)}");
     configPvd = Provider.of<ConfigMakerProvider>(context, listen: false);
-    listOfDevices = configPvd.fetchData();
+    listOfDevices = configPvd.fetchData({"userId":3,"customerId":4,"controllerId":1,"deviceId":"ABC123456703","deviceName":"ORO GEM","categoryId":1,"categoryName":"ORO GEM","modelId":3,"modelName":"OGEMPRL","groupId":1,"groupName":"testing site","connectingObjectId":["1","2","3","4","1","2","3","4"]});
   }
 
   @override

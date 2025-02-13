@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
+import 'package:oro_drip_irrigation/Constants/sample_data.dart';
+import 'package:oro_drip_irrigation/services/http_service.dart';
 import '../Models/Configuration/device_model.dart';
 import '../Models/Configuration/device_object_model.dart';
 import '../Models/Configuration/fertigation_model.dart';
@@ -152,84 +154,116 @@ class ConfigMakerProvider extends ChangeNotifier{
 
   DeviceObjectModel mapToDeviceObject(dynamic object) {
     return DeviceObjectModel(
-      objectId: object['objectId'],
-      objectName: object['objectName'],
-      type: object['type'],
+      objectId: object['objectTypeId'],
+      objectName: object['object'],
+      type: object['ioType'],
       count: '0',
     );
   }
 
-  Future<List<DeviceModel>> fetchData()async {
+  Future<List<DeviceModel>> fetchData(masterDataFromSiteConfigure)async {
     await Future.delayed(const Duration(seconds: 0));
     try{
-      String? dataFromSession = readFromSessionStorage('configData');
-      if(dataFromSession != null){
-        Map<String, dynamic> jsonData = jsonDecode(dataFromSession);
-        listOfDeviceModel = (jsonData['listOfDeviceModel'] as List<dynamic>).map((devices) {
-          return DeviceModel(
-            controllerId: devices['controllerId'],
-            deviceId: devices['deviceId'],
-            deviceName: devices['deviceName'],
-            categoryId: devices['categoryId'],
-            categoryName: devices['categoryName'],
-            modelId: devices['modelId'],
-            modelName: devices['modelName'],
-            interfaceTypeId: devices['interfaceTypeId'],
-            interfaceInterval: 5,
-            serialNumber: devices['serialNo'],
-            masterId: devices['masterId'],
-            extendId: devices['extendId'],
-            noOfRelay: devices['noOfRelay'],
-            noOfLatch: devices['noOfLatch'],
-            noOfAnalogInput: devices['noOfAnalogInput'],
-            noOfDigitalInput: devices['noOfDigitalInput'],
-            noOfPulseInput: devices['noOfPulseInput'],
-            noOfMoistureInput: devices['noOfMoistureInput'],
-            noOfI2CInput: devices['noOfI2CInput'],
-            select: false,
-            connectingObjectId: (devices['connectingObjectId'] as List<dynamic>).map((e) => e as int).toList(),
-          );
-        }).toList();
-        listOfSampleObjectModel = (jsonData['listOfSampleObjectModel'] as List<dynamic>).map((object) => DeviceObjectModel.fromJson(object)).toList();
-        listOfObjectModelConnection = (jsonData['listOfObjectModelConnection'] as List<dynamic>).map((object) => DeviceObjectModel.fromJson(object)).toList();
-        listOfGeneratedObject = (jsonData['listOfGeneratedObject'] as List<dynamic>).map((object) => DeviceObjectModel.fromJson(object)).toList();
-        filtration = (jsonData['filterSite'] as List<dynamic>).map((filtrationObject) => FiltrationModel.fromJson(filtrationObject)).toList();
-        fertilization = (jsonData['fertilizerSite'] as List<dynamic>).map((fertilizationObject) => FertilizationModel.fromJson(fertilizationObject)).toList();
-        source = (jsonData['waterSource'] as List<dynamic>).map((sourceObject) => SourceModel.fromJson(sourceObject)).toList();
-        pump = (jsonData['pump'] as List<dynamic>).map((pumpObject) => PumpModel.fromJson(pumpObject)).toList();
-        moisture = (jsonData['moistureSensor'] as List<dynamic>).map((moistureObject) => MoistureModel.fromJson(moistureObject)).toList();
-        line = (jsonData['irrigationLine'] as List<dynamic>).map((lineObject) => IrrigationLineModel.fromJson(lineObject)).toList();
-        selectedCategory = listOfDeviceModel[1].categoryId;
-        selectedModelControllerId = listOfDeviceModel[1].controllerId;
-      }else{
-        listOfDeviceModel = sampleData.map((devices) {
-          return DeviceModel(
-            controllerId: devices['controllerId'],
-            deviceId: devices['deviceId'],
-            deviceName: devices['deviceName'],
-            categoryId: devices['categoryId'],
-            categoryName: devices['categoryName'],
-            modelId: devices['modelId'],
-            modelName: devices['modelName'],
-            interfaceTypeId: devices['interfaceTypeId'],
-            interfaceInterval: 5,
-            serialNumber: devices['serialNo'],
-            masterId: devices['masterId'],
-            extendId: devices['extendId'],
-            noOfRelay: devices['noOfRelay'],
-            noOfLatch: devices['noOfLatch'],
-            noOfAnalogInput: devices['noOfAnalogInput'],
-            noOfDigitalInput: devices['noOfDigitalInput'],
-            noOfPulseInput: devices['noOfPulseInput'],
-            noOfMoistureInput: devices['noOfMoistureInput'],
-            noOfI2CInput: devices['noOfI2CInput'],
-            select: false,
-            connectingObjectId: devices['connectingObjectId'],
-          );
-        }).toList();
-        listOfSampleObjectModel = sampleObject.map(mapToDeviceObject).toList();
-        listOfObjectModelConnection = sampleObject.map(mapToDeviceObject).toList();
-      }
+      var body = {
+        "userId" : masterDataFromSiteConfigure['customerId'],
+        "controllerId" : masterDataFromSiteConfigure['controllerId'],
+        "groupId": masterDataFromSiteConfigure['groupId'],
+        "categoryId" : masterDataFromSiteConfigure['categoryId']
+      };
+      var response = await HttpService().postRequest('/user/configMaker/get', body);
+
+      Map<String, dynamic> jsonData = jsonDecode(response.body);
+      print('jsonData : ${jsonData}');
+      Map<String, dynamic> defaultData = jsonData['data']['default'];
+      Map<String, dynamic> configMakerData = jsonData['data']['configMaker'];
+      masterData = masterDataFromSiteConfigure;
+      listOfDeviceModel = (defaultData['deviceList'] as List<dynamic>).map((devices) {
+        Map<String, dynamic> deviceProperty = defaultData['productModel'].firstWhere((product) => devices['modelId'] == product['modelId']);
+        var inputObjectId = deviceProperty['inputObjectId'] == '-' ? [] : deviceProperty['inputObjectId'].split(',').map((e) => int.parse(e.toString())).toList();
+        var outputObjectId = deviceProperty['outputObjectId'] == '-' ? [] : deviceProperty['outputObjectId'].split(',').map((e) => int.parse(e.toString())).toList();
+        return DeviceModel(
+          productId: devices['productId'],
+          controllerId: devices['controllerId'],
+          deviceId: devices['deviceId'],
+          deviceName: devices['deviceName'],
+          categoryId: devices['categoryId'],
+          categoryName: devices['categoryName'],
+          modelId: devices['modelId'],
+          modelName: devices['modelName'],
+          interfaceTypeId: devices['interfaceTypeId'] ?? 1,
+          interfaceId: deviceProperty['interfaceId'],
+          interfaceInterval: 5,
+          serialNumber: devices['serialNumber'],
+          masterId: devices['masterId'],
+          extendControllerId: devices['extendControllerId'],
+          noOfRelay: deviceProperty['relayOutput'] == '-' ? 0 : int.parse(deviceProperty['relayOutput']),
+          noOfLatch: deviceProperty['latchOutput'] == '-' ? 0 : int.parse(deviceProperty['latchOutput']),
+          noOfAnalogInput: deviceProperty['analogInput'] == '-' ? 0 : int.parse(deviceProperty['analogInput']),
+          noOfDigitalInput: deviceProperty['digitalInput'] == '-' ? 0 : int.parse(deviceProperty['digitalInput']),
+          noOfPulseInput: deviceProperty['pulseInput'] == '-' ? 0 : int.parse(deviceProperty['pulseInput']),
+          noOfMoistureInput: deviceProperty['moistureInput'] == '-' ? 0 : int.parse(deviceProperty['moistureInput']),
+          noOfI2CInput: deviceProperty['i2cInput'] == '-' ? 0 : int.parse(deviceProperty['i2cInput']),
+          select: false,
+          connectingObjectId: [
+            ...inputObjectId,
+            ...outputObjectId
+          ],
+        );
+      }).toList();
+
+      listOfDeviceModel.sort((a, b) {
+        if(a.serialNumber == null) return 1;
+        if(b.serialNumber == null) return -1;
+        return a.serialNumber!.compareTo(b.serialNumber!);
+      });
+
+      listOfSampleObjectModel = configMakerData['productLimit'].isNotEmpty
+          ? (configMakerData['productLimit'] as List<dynamic>).map((object) => DeviceObjectModel.fromJson(object)).toList()
+          : (defaultData['objectType'] as List<dynamic>).map(mapToDeviceObject).toList();
+      listOfObjectModelConnection = configMakerData['connectionCount'].isNotEmpty
+          ? (configMakerData['connectionCount'] as List<dynamic>).map((object) => DeviceObjectModel.fromJson(object)).toList()
+          : (defaultData['objectType'] as List<dynamic>).map(mapToDeviceObject).toList();
+      listOfGeneratedObject = (configMakerData['configObject'] as List<dynamic>).map((object) => DeviceObjectModel.fromJson(object)).toList();
+      filtration = (configMakerData['filterSite'] as List<dynamic>).map((filtrationObject) => FiltrationModel.fromJson(filtrationObject)).toList();
+      fertilization = (configMakerData['fertilizerSite'] as List<dynamic>).map((fertilizationObject) => FertilizationModel.fromJson(fertilizationObject)).toList();
+      source = (configMakerData['waterSource'] as List<dynamic>).map((sourceObject) => SourceModel.fromJson(sourceObject)).toList();
+      pump = (configMakerData['pump'] as List<dynamic>).map((pumpObject) => PumpModel.fromJson(pumpObject)).toList();
+      moisture = (configMakerData['moistureSensor'] as List<dynamic>).map((moistureObject) => MoistureModel.fromJson(moistureObject)).toList();
+      line = (configMakerData['irrigationLine'] as List<dynamic>).map((lineObject) => IrrigationLineModel.fromJson(lineObject)).toList();
+
+      // String? dataFromSession = readFromSessionStorage('configData');
+      // if(dataFromSession != null){
+      //   Map<String, dynamic> jsonData = jsonDecode(dataFromSession);
+      //
+      // }else{
+      //   listOfDeviceModel = sampleData.map((devices) {
+      //     return DeviceModel(
+      //       controllerId: devices['controllerId'],
+      //       deviceId: devices['deviceId'],
+      //       deviceName: devices['deviceName'],
+      //       categoryId: devices['categoryId'],
+      //       categoryName: devices['categoryName'],
+      //       modelId: devices['modelId'],
+      //       modelName: devices['modelName'],
+      //       interfaceTypeId: devices['interfaceTypeId'],
+      //       interfaceInterval: 5,
+      //       serialNumber: devices['serialNo'],
+      //       masterId: devices['masterId'],
+      //       extendControllerId: devices['extendId'],
+      //       noOfRelay: devices['noOfRelay'],
+      //       noOfLatch: devices['noOfLatch'],
+      //       noOfAnalogInput: devices['noOfAnalogInput'],
+      //       noOfDigitalInput: devices['noOfDigitalInput'],
+      //       noOfPulseInput: devices['noOfPulseInput'],
+      //       noOfMoistureInput: devices['noOfMoistureInput'],
+      //       noOfI2CInput: devices['noOfI2CInput'],
+      //       select: false,
+      //       connectingObjectId: devices['connectingObjectId'],
+      //     );
+      //   }).toList();
+      //   listOfSampleObjectModel = sampleObject.map(mapToDeviceObject).toList();
+      //   listOfObjectModelConnection = sampleObject.map(mapToDeviceObject).toList();
+      // }
 
     }catch (e, stackTrace){
       print('Error on converting to device model :: $e');
@@ -634,47 +668,50 @@ class ConfigMakerProvider extends ChangeNotifier{
     notifyListeners();
   }
 
+  String serialNoOrEmpty(double sNo){
+    return sNo == 0.0 ? '' : sNo.toString();
+  }
+
   String getPumpPayload() {
     List<String> pumpPayload = [];
 
     for (var i = 0; i < pump.length; i++) {
       var pumpModelObject = pump[i];
-      var actualPump = listOfGeneratedObject.firstWhere((object) => object.sNo == pumpModelObject.commonDetails.sNo);
-      var controller = listOfDeviceModel.firstWhere((e) => e.controllerId == actualPump.controllerId);
       var relatedSources = source.where((e) => e.inletPump.contains(pumpModelObject.commonDetails.sNo) || e.outletPump.contains(pumpModelObject.commonDetails.sNo)).toList();
-      var sump = source.where((e) => ![1, 4].contains(e.sourceType));
-      var tank = source.where((e) => e.sourceType == 1);
-      var irrigationLine = line.where((line) => (pumpModelObject.pumpType == 1 ? line.sourcePump : line.irrigationPump).contains(pumpModelObject.commonDetails.sNo)).toList();
+      var sumpTankLevel = relatedSources.cast<SourceModel?>().firstWhere((source) => source!.sourceType == 2, orElse: ()=>null);
+      var topTankLevel = relatedSources.cast<SourceModel?>().firstWhere((source) => source!.sourceType == 1, orElse: ()=>null as SourceModel?);
 
       Map<String, dynamic> payload = {
         "S_No": pumpModelObject.commonDetails.sNo,
         "PumpCategory": pumpModelObject.pumpType,
-        "PumpNumber": i + 1,
-        "WaterMeterAvailable": pumpModelObject.waterMeter == 0.0 ? 0 : 1,
-        "OroPumpPlus": (controller.categoryId == 2 && controller.modelId == 5) ? 1 : 0,
-        "OroPump": (controller.categoryId == 2 && controller.modelId == 4) ? 1 : 0,
-        "RelayCount": pumpModelObject.commonDetails.connectionNo == 0.0 ? '' : pumpModelObject.commonDetails.connectionNo,
-        "LevelType": relatedSources.any((level) => level.level != 0.0) ? 1 : 0,
-        "PressureSensorAvailable": pumpModelObject.pressure == 0.0 ? 0 : 1,
-        "TopTankHighAvailable": sump.any((src) => src.topFloat != 0.0) ? 1 : 0,
-        "TopTankLowAvailable": sump.any((src) => src.bottomFloat != 0.0) ? 1 : 0,
-        "SumpTankHighAvailable": tank.any((src) => src.topFloat != 0.0) ? 1 : 0,
-        "SumpTankLowAvailable": tank.any((src) => src.bottomFloat != 0.0) ? 1 : 0,
-        "IrrigationLine": irrigationLine.map((line) => line.commonDetails.sNo).join('_'),
-        "WaterMeter": pumpModelObject.waterMeter == 0.0 ? '' : pumpModelObject.waterMeter,
-        "Level": relatedSources.map((src) => src.level).join('_'),
-        "PressureSensor": pumpModelObject.pressure == 0.0 ? '' : pumpModelObject.pressure,
-        "TopTankHigh": sump.map((src) => src.topFloat).join('_'),
-        "TopTankLow": sump.map((src) => src.bottomFloat).join('_'),
-        "SumpTankHigh": tank.map((src) => src.topFloat).join('_'),
-        "SumpTankLow": tank.map((src) => src.bottomFloat).join('_'),
-        "LevelControlOnOff": 0
+        "PressureIn" : serialNoOrEmpty(pumpModelObject.pressureIn),
+        "PressureOut" : serialNoOrEmpty(pumpModelObject.pressureIn),
+        "WaterMeter": serialNoOrEmpty(pumpModelObject.waterMeter),
+        "SumpTankLevel" : sumpTankLevel == null ? '' : sumpTankLevel.level,
+        "TopTankLevel" : topTankLevel == null ? '' : topTankLevel.level,
+        "TopTankFloatHigh" : topTankLevel == null ? '' : topTankLevel.topFloat,
+        "TopTankFloatLow" : topTankLevel == null ? '' : topTankLevel.bottomFloat,
+        "SumpTankFloatHigh" : sumpTankLevel == null ? '' : sumpTankLevel.topFloat,
+        "SumpTankFloatLow" : sumpTankLevel == null ? '' : sumpTankLevel.bottomFloat,
       };
 
       pumpPayload.add(payload.entries.map((e) => e.value).join(","));
     }
 
     return pumpPayload.join(";");
+  }
+
+  int? findOutReferenceNumber(DeviceModel device){
+    int referenceNo = 0;
+    for(var d = 0; d < listOfDeviceModel.length; d++){
+      if(device.masterId != null && listOfDeviceModel[d].categoryId == device.categoryId){
+        referenceNo += 1;
+        if(listOfDeviceModel[d].controllerId == device.controllerId){
+          break;
+        }
+      }
+    }
+    return referenceNo == 0 ? null : referenceNo;
   }
 
   String getDeviceListPayload() {
@@ -685,10 +722,10 @@ class ConfigMakerProvider extends ChangeNotifier{
         devicePayload.add({
           "S_No": device.serialNumber,
           "DeviceTypeNumber": device.categoryId,
-          "DeviceRunningNumber": i + 1,
+          "DeviceRunningNumber": findOutReferenceNumber(device),
           "DeviceId": device.deviceId,
           "InterfaceType": device.interfaceTypeId,
-          "ExtendNode": device.extendId ?? '',
+          "ExtendNode": device.extendControllerId ?? '',
         }.entries.map((e) => e.value).join(","));
       }
     }
@@ -698,62 +735,67 @@ class ConfigMakerProvider extends ChangeNotifier{
 
   String getFilterPayload() {
     List<dynamic> filterPayload = [];
-    var centralFiltration = filtration.where((filtration) => filtration.siteMode == 1).toList();
-    var localFiltration = filtration.where((filtration) => filtration.siteMode == 2).toList();
-    for(var filtration in [centralFiltration, localFiltration]){
-      for(var i = 0;i < filtration.length;i++){
-        var filter = filtration[i];
-        filterPayload.add({
-          "S_No": filter.commonDetails.sNo,
-          "FilterSiteNumber": "${filter.siteMode}.${i + 1}",
-          "FilterCount": filter.filters.length,
-          "DownstreamValve": filter.backWashValve,
-          "PressureIn": filter.pressureIn,
-          "PressureOut": filter.pressureOut,
-          "PressureSwitch": 0,
-          "DifferentialPressureSensor": 0,
-          "IrrigationLine": line.where((line) => line.source.contains(filter.commonDetails.sNo)).map((line) => line.commonDetails.sNo).join('_'),
-        }.entries.map((e) => e.value).join(","));
-      }
+    for(var i = 0;i < filtration.length;i++){
+      var filterSite = filtration[i];
+      filterPayload.add({
+        "S_No": filterSite.commonDetails.sNo,
+        "Filter": filterSite.filters.join('_'),
+        "PressureIn": serialNoOrEmpty(filterSite.pressureIn),
+        "PressureOut": serialNoOrEmpty(filterSite.pressureOut),
+        "IrrigationLine": line.where((irrigationLine) => [irrigationLine.centralFiltration, irrigationLine.localFiltration].contains(filterSite.commonDetails.sNo)).map((filteredLine) => filteredLine.commonDetails.sNo).toList().join('_'),
+      }.entries.map((e) => e.value).join(","));
     }
-
-
-
     return filterPayload.join(";");
   }
 
   String getFertilizerPayload() {
 
     List<dynamic> fertilizerPayload = [];
-    var centralFiltration = fertilization.where((filtration) => filtration.siteMode == 1).toList();
-    var localFiltration = fertilization.where((filtration) => filtration.siteMode == 2).toList();
-    for(var fertilization in [centralFiltration, localFiltration]){
-      for(var i = 0;i < fertilization.length;i++){
-        var fertilizer = fertilization[i];
-        var selectedBoosterPumps = fertilization.where((e) => e.boosterPump.contains(fertilizer.commonDetails.sNo)).map((boosterPump) => boosterPump.commonDetails.sNo).toList().join('_');
-        // var relatedSources = source.where((e) => e.inletPump.contains(fertilizer.commonDetails.sNo)).toList();
-        var irrigationLine = line.where((line) => (fertilizer.siteMode == 1 ? line.centralFertilization : line.localFertilization) == fertilizer.commonDetails.sNo).toList().join('_');
-        fertilizerPayload.add({
-          "S_No": fertilizer.commonDetails.sNo,
-          "FertilizerSiteNumber": "${fertilizer.siteMode}.${i + 1}",
-          "BoosterCount": fertilizer.boosterPump.length,
-          "EcSensorCount": fertilizer.ec.length,
-          "PhSensorCount": fertilizer.ph.length,
-          "PressureSwitch": 0,
-          "FertilizerChannel": 0,
-          "FertilizationMeter": 0,
-          "LevelSensor": 0,
-          "InjectorType": 1,
-          "BoosterSelection": selectedBoosterPumps,
-          "IrrigationLine": irrigationLine,
-          "Agitator": fertilizer.agitator.join('_'),
-        }.entries.map((e) => e.value).join(","));
-      }
+    for(var i = 0;i < fertilization.length;i++){
+      var fertilizer = fertilization[i];
+      fertilizerPayload.add({
+        "S_No": fertilizer.commonDetails.sNo,
+        "FertilizerChannel": fertilizer.channel.join('_'),
+        "BoosterSelection": fertilizer.boosterPump.join('_'),
+        "IrrigationLine": line.where((irrigationLine) => [irrigationLine.centralFertilization, irrigationLine.localFertilization].contains(fertilizer.commonDetails.sNo)).map((filteredLine) => filteredLine.commonDetails.sNo).toList().join('_'),
+        "Agitator": fertilizer.agitator.join('_'),
+        "TankSelector": fertilizer.selector.join('_'),
+      }.entries.map((e) => e.value).join(","));
     }
 
 
 
     return fertilizerPayload.join(";");
+  }
+
+  String getFertilizerInjectorPayload() {
+    List<dynamic> fertilizerInjectorPayload = [];
+    for(var i = 0;i < fertilization.length;i++){
+      var fertilizerSite = fertilization[i];
+      for(var injector = 0;injector < fertilizerSite.channel.length;injector++){
+        fertilizerInjectorPayload.add({
+          "S_No": fertilizerSite.channel[injector],
+          "FertilizerSite": fertilizerSite.commonDetails.sNo,
+          "InjectorNumber": injector + 1,
+          "FertilizationMeter": '',
+          "LevelSensor": '',
+        }.entries.map((e) => e.value).join(","));
+      }
+
+    }
+    return fertilizerInjectorPayload.join(";");
+  }
+
+  String getMoisturePayload() {
+    List<dynamic> moisturePayload = [];
+    for(var i = 0;i < moisture.length;i++){
+      var moistureSensor = moisture[i];
+      moisturePayload.add({
+        "S_No": moistureSensor.commonDetails.sNo,
+        "Valve": moistureSensor.valves.join('_'),
+      }.entries.map((e) => e.value).join(","));
+    }
+    return moisturePayload.join(";");
   }
 
   String getObjectPayload() {
@@ -765,7 +807,6 @@ class ConfigMakerProvider extends ChangeNotifier{
         var controller = listOfDeviceModel.firstWhere((e) => e.controllerId == object.controllerId);
         objectPayload.add({
           "S_No": object.sNo,
-          "Name": '',
           "DeviceTypeNumber": controller.categoryId,
           "DeviceRunningNumber": 0,
           "Output_InputNumber": object.connectionNo,
@@ -830,31 +871,23 @@ class ConfigMakerProvider extends ChangeNotifier{
 
   String getIrrigationLinePayload() {
     List<String> irrigationLinePayload = [];
-
     for (var i = 0; i < line.length; i++) {
       var lineModelObject = line[i];
       irrigationLinePayload.add({
         "S_No": lineModelObject.commonDetails.sNo,
-        "Name": '',
-        "ValveCount": lineModelObject.valve.toList().join('_'),
-        "MainValveCount": lineModelObject.mainValve.toList().join('_'),
-        "MoistureSensorCount": lineModelObject.moisture.toList().join('_'),
-        "LevelSensorCount": '',
-        "FoggerCount": lineModelObject.fogger.toList().join('_'),
-        "FanCount": lineModelObject.fan.toList().join('_'),
-        "CentralFertSiteNumber": lineModelObject.centralFertilization != 0.0 ? lineModelObject.centralFertilization : '',
-        "CentralFilterSiteNumber": lineModelObject.centralFiltration != 0.0 ? lineModelObject.centralFiltration : '',
-        "LocalFertSite": lineModelObject.localFertilization != 0.0 ? lineModelObject.localFertilization : '',
-        "LocalFilterSite": lineModelObject.localFiltration != 0.0 ? lineModelObject.localFiltration : '',
-        "PressureIn": lineModelObject.pressureIn != 0.0 ? lineModelObject.pressureIn : '',
-        "PressureOut":lineModelObject.pressureOut != 0.0 ? lineModelObject.pressureOut : '',
-        "IrrigationPump": lineModelObject.irrigationPump.toList().join('_'),
-        "WaterMeter": lineModelObject.waterMeter != 0.0 ? lineModelObject.waterMeter : '',
-        "NoPowerSupplyInput": lineModelObject.powerSupply != 0.0 ? lineModelObject.powerSupply : '',
-        "PressureSwitch": lineModelObject.pressureSwitch != 0.0 ? lineModelObject.pressureSwitch : '',
-        "LevelSensor": '',
-        "Agitator": ''
-      }.entries.map((e) => e.value).toList().join('_'));
+        "CentralFertSite": serialNoOrEmpty(lineModelObject.centralFertilization),
+        "CentralFilterSite": serialNoOrEmpty(lineModelObject.centralFiltration),
+        "LocalFertSite": serialNoOrEmpty(lineModelObject.localFertilization),
+        "LocalFilterSite": serialNoOrEmpty(lineModelObject.localFiltration),
+        "SourcePump": lineModelObject.sourcePump.join('_'),
+        "IrrigationPump": lineModelObject.irrigationPump.join('_'),
+        "PressureIn": serialNoOrEmpty(lineModelObject.pressureIn),
+        "PressureOut": serialNoOrEmpty(lineModelObject.pressureOut),
+        "PressureSwitch": serialNoOrEmpty(lineModelObject.pressureSwitch),
+        "WaterMeter": serialNoOrEmpty(lineModelObject.waterMeter),
+        "Agitator" : '',
+        "PowerSupplyFeedbackInput" : serialNoOrEmpty(lineModelObject.powerSupply),
+      }.entries.map((e) => e.value).toList().join(','));
     }
 
     return irrigationLinePayload.join(";");

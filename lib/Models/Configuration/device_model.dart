@@ -1,5 +1,6 @@
 class DeviceModel {
   final int controllerId;
+  final int productId;
   final String deviceId;
   final String deviceName;
   final int categoryId;
@@ -7,10 +8,11 @@ class DeviceModel {
   final int modelId;
   final String modelName;
   int? interfaceTypeId;
+  String interfaceId;
   int? interfaceInterval;
   int? serialNumber;
   int? masterId;
-  int? extendId;
+  int? extendControllerId;
   final int noOfRelay;
   final int noOfLatch;
   final int noOfAnalogInput;
@@ -23,6 +25,7 @@ class DeviceModel {
 
   DeviceModel({
     required this.controllerId,
+    required this.productId,
     required this.deviceId,
     required this.deviceName,
     required this.categoryId,
@@ -30,10 +33,11 @@ class DeviceModel {
     required this.modelId,
     required this.modelName,
     required this.interfaceTypeId,
+    required this.interfaceId,
     required this.interfaceInterval,
     required this.serialNumber,
     required this.masterId,
-    required this.extendId,
+    required this.extendControllerId,
     required this.noOfRelay,
     required this.noOfLatch,
     required this.noOfAnalogInput,
@@ -47,6 +51,7 @@ class DeviceModel {
 
   factory DeviceModel.fromJson(data) {
     return DeviceModel(
+      productId: data['productId'],
       controllerId: data['controllerId'],
       deviceId: data['deviceId'],
       deviceName: data['deviceName'],
@@ -55,10 +60,11 @@ class DeviceModel {
       modelId: data['modelId'],
       modelName: data['modelName'],
       interfaceTypeId: data['interfaceTypeId'],
+      interfaceId: data['interfaceId'],
       interfaceInterval: data['interfaceInterval'],
       serialNumber: data['serialNumber'],
       masterId: data['masterId'],
-      extendId: data['extendId'] ?? '',
+      extendControllerId: data['extendControllerId'],
       noOfRelay: data['noOfRelay'],
       noOfLatch: data['noOfLatch'],
       noOfAnalogInput: data['noOfAnalogInput'],
@@ -73,6 +79,7 @@ class DeviceModel {
 
   dynamic toJson() {
     return {
+      'productId': productId,
       'controllerId': controllerId,
       'deviceId': deviceId,
       'deviceName': deviceName,
@@ -81,10 +88,11 @@ class DeviceModel {
       'modelId': modelId,
       'modelName': modelName,
       'interfaceTypeId': interfaceTypeId,
+      'interfaceId': interfaceId,
       'interfaceInterval': interfaceInterval,
       'serialNumber': serialNumber,
       'masterId': masterId,
-      'extendId': extendId,
+      'extendControllerId': extendControllerId,
       'noOfRelay': noOfRelay,
       'noOfLatch': noOfLatch,
       'noOfAnalogInput': noOfAnalogInput,

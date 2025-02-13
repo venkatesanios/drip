@@ -305,7 +305,7 @@ Widget singlePump(SourceModel source, bool fillingPump, ConfigMakerProvider conf
         height: 120 * configPvd.ratio,
       ),
       ...getWaterMeterAndPressure(
-          configPvd.pump.firstWhere((pump) => pump.commonDetails.sNo == currentParameter[0]).pressure,
+          configPvd.pump.firstWhere((pump) => pump.commonDetails.sNo == currentParameter[0]).pressureIn,
           configPvd.pump.firstWhere((pump) => pump.commonDetails.sNo == currentParameter[0]).waterMeter,
         configPvd
       ),
@@ -343,7 +343,7 @@ Widget multiplePump(SourceModel source, bool fillingPump, ConfigMakerProvider co
               height: 120 * configPvd.ratio,
             ),
             ...getWaterMeterAndPressure(
-                configPvd.pump.firstWhere((pump) => pump.commonDetails.sNo == currentParameter[i]).pressure,
+                configPvd.pump.firstWhere((pump) => pump.commonDetails.sNo == currentParameter[i]).pressureIn,
                 configPvd.pump.firstWhere((pump) => pump.commonDetails.sNo == currentParameter[i]).waterMeter,
               configPvd
             ),

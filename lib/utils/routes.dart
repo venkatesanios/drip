@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/Screens/ConfigMaker/config_base_page.dart';
 
 import '../views/screen_controller.dart';
 import '../views/login_screen.dart';
@@ -25,7 +26,8 @@ class Routes {
 
       case dashboard:
         return MaterialPageRoute(
-          builder: (_) => const ScreenController(),
+          builder: (_) => const ConfigBasePage(masterData: {}),
+          // builder: (_) => const ScreenController(),
           settings: settings,
         );
 

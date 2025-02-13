@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:oro_drip_irrigation/Models/Configuration/fertigation_model.dart';
@@ -5,16 +7,17 @@ import 'package:oro_drip_irrigation/Models/Configuration/pump_model.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/site_configure.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/source_configuration.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
-import '../../Constants/constants.dart';
 import '../../Constants/dialog_boxes.dart';
 import '../../Constants/properties.dart';
 import '../../Models/Configuration/device_object_model.dart';
 import '../../Models/Configuration/filtration_model.dart';
 import '../../Models/Configuration/irrigationLine_model.dart';
+import '../../Models/Configuration/moisture_model.dart';
 import '../../Models/Configuration/source_model.dart';
 import '../../Models/LineDataModel.dart';
 import '../../StateManagement/config_maker_provider.dart';
 import '../../Widgets/sized_image.dart';
+import '../../services/http_service.dart';
 import 'config_object_name_editing.dart';
 import 'fertilization_configuration.dart';
 import 'filtration_configuration.dart';
@@ -124,7 +127,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
                                     if(availability(23))
                                       getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.pressureSwitch], parameterType: LineParameter.pressureSwitch, objectId: 23, objectName: 'Power Switch', validateAllLine: true, singleSelection: true),
                                     if(availability(24))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.pressureIn], parameterType: LineParameter.pressureIn, objectId: 24, objectName: 'Pressure In', validateAllLine: true, singleSelection: true),
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.pressureIn], parameterType: LineParameter.pressureIn, objectId: 24, objectName: 'Pressure In', validateAllLine: true, singleSelection: true, listOfObject: widget.configPvd.listOfGeneratedObject.where((object) => !widget.configPvd.pump.any((pump) => [pump.pressureIn,pump.pressureOut].contains(object.sNo))).toList()),
                                     if(availability(24))
                                       getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.pressureOut], parameterType: LineParameter.pressureOut, objectId: 24, objectName: 'Pressure Out', validateAllLine: true, singleSelection: true),
                                     if(availability(3))
@@ -135,6 +138,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
                                       getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.centralFiltration], parameterType: LineParameter.centralFiltration, objectId: 4, objectName: 'Central Filtration', validateAllLine: false, singleSelection: true, listOfObject: widget.configPvd.filtration.where((site) => (site.siteMode == 1)).toList().map((site) => site.commonDetails).toList()),
                                     if(availability(4))
                                       getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.localFiltration], parameterType: LineParameter.localFiltration, objectId: 4, objectName: 'Local Filtration', validateAllLine: false, singleSelection: true, listOfObject: widget.configPvd.filtration.where((site) => (site.siteMode == 2)).toList().map((site) => site.commonDetails).toList()),
+                                    if(availability(3))
                                       getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.centralFertilization], parameterType: LineParameter.centralFertilization, objectId: 3, objectName: 'Central Fertilization', validateAllLine: false, singleSelection: true, listOfObject: widget.configPvd.fertilization.cast<FertilizationModel>().where((site) => (site.siteMode == 1)).toList().map((site) => site.commonDetails).toList()),
                                     if(availability(3))
                                       getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.localFertilization], parameterType: LineParameter.localFertilization, objectId: 3, objectName: 'Local Fertilization', validateAllLine: false, singleSelection: true, listOfObject: widget.configPvd.fertilization.cast<FertilizationModel>().where((site) => (site.siteMode == 2)).toList().map((site) => site.commonDetails).toList()),
@@ -219,36 +223,11 @@ class _LineConfigurationState extends State<LineConfiguration> {
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () async {
-              final Map<String, dynamic> deviceListPayload = {
-                "100": [
-                  {"101": widget.configPvd.getDeviceListPayload()}
-                ]
-              };
-              print('deviceListPayload : $deviceListPayload');
-              // final Map<String, dynamic> configMakerPayload = {
-              //   "200": [
-              //     {"201": widget.configPvd.getPumpPayload()},
-              //     {"202": widget.configPvd.getIrrigationLinePayload()},
-              //     {"203": widget.configPvd.getFertilizerPayload()},
-              //     {"204": widget.configPvd.getFilterPayload()},
-              //     {"205": widget.configPvd.getWeatherPayload()},
-              //     {"206": widget.configPvd.getObjectPayload()},
-              //     {"207": 0},
-              //     {"208": '1'}
-              //   ]
-              // };
 
-              /*print("getIrrigationLinePayload ==> ${jsonEncode(configMakerPayload)}");
-                print("deviceListPayload ==> ${jsonEncode(deviceListPayload)}");*/
-              // print("getOroPumpPayload ==> ${widget.configPvd.getOroPumpPayload()}");
-              // print(payloadConversion()['irrigationLine']);
-              // List<FilterSite> filterSite = (payloadConversion()['filterSite'] as List).map((element) => FilterSite.fromJson(element as Map<String, dynamic>)).toList();
-              // List<FertilizerSite> fertilizerSite = (payloadConversion()['fertilizerSite'] as List).map((element) => FertilizerSite.fromJson(element as Map<String, dynamic>)).toList();
-              // List<WaterSource> waterSource = (payloadConversion()['waterSource'] as List).map((element) => WaterSource.fromJson(element as Map<String, dynamic>)).toList();
-              // List<Pump> pump = (payloadConversion()['pump'] as List).map((element) => Pump.fromJson(element as Map<String, dynamic>)).toList();
-              // List<MoistureSensor> moistureSensor = (payloadConversion()['moistureSensor'] as List).map((element) => MoistureSensor.fromJson(element as Map<String, dynamic>)).toList();
-              // List<IrrigationLine> irrigationLine = (payloadConversion()['irrigationLine'] as List).map((element) => IrrigationLine.fromJson(element as Map<String, dynamic>)).toList();
-              MqttManager().topicToPublishAndItsMessage('siva', 'hi from siva');
+              // MqttManager().topicToPublishAndItsMessage('siva', 'hi from siva');
+              sendToMqtt();
+              // sendToHttp();
+
 
             },
             child: const Icon(Icons.send),
@@ -256,6 +235,88 @@ class _LineConfigurationState extends State<LineConfiguration> {
         );
       }),
     );
+  }
+
+  void sendToMqtt(){
+    final Map<String, dynamic> configMakerPayload = {
+      "100": [
+        {"101": widget.configPvd.getDeviceListPayload()},
+        {"102": widget.configPvd.getObjectPayload()},
+        {"102": widget.configPvd.getPumpPayload()},
+        {"202": widget.configPvd.getIrrigationLinePayload()},
+        {"203": widget.configPvd.getFertilizerPayload()},
+        {"203": widget.configPvd.getFertilizerInjectorPayload()},
+        {"203": widget.configPvd.getMoisturePayload()},
+      ]
+    };
+
+    print("configMakerPayload ==> ${jsonEncode(configMakerPayload)}");
+    // print("getOroPumpPayload ==> ${widget.configPvd.getOroPumpPayload()}");
+  }
+
+  void sendToHttp()async{
+    var listOfSampleObjectModel = widget.configPvd.listOfSampleObjectModel.map((object){
+      return object.toJson();
+    }).toList();
+    var listOfObjectModelConnection = widget.configPvd.listOfObjectModelConnection.map((object){
+      return object.toJson();
+    }).toList();
+    var listOfGeneratedObject = widget.configPvd.listOfGeneratedObject.map((object){
+      return object.toJson();
+    }).toList();
+    var filtration = widget.configPvd.filtration.cast<FiltrationModel>().map((object){
+      return object.toJson();
+    }).toList();
+    var fertilization = widget.configPvd.fertilization.cast<FertilizationModel>().map((object){
+      return object.toJson();
+    }).toList();
+    var source = widget.configPvd.source.cast<SourceModel>().map((object){
+      return object.toJson();
+    }).toList();
+    var pump = widget.configPvd.pump.cast<PumpModel>().map((object){
+      return object.toJson();
+    }).toList();
+    var moisture = widget.configPvd.moisture.cast<MoistureModel>().map((object){
+      return object.toJson();
+    }).toList();
+    var line = widget.configPvd.line.cast<IrrigationLineModel>().map((object){
+      return object.toJson();
+    }).toList();
+
+    var body = {
+      "userId" : widget.configPvd.masterData['customerId'],
+      "controllerId" : widget.configPvd.masterData['controllerId'],
+      'groupId' : widget.configPvd.masterData['groupId'],
+      "isNewConfig" : '0',
+      "productLimit" : listOfSampleObjectModel,
+      "connectionCount" : listOfObjectModelConnection,
+      "configObject" : listOfGeneratedObject,
+      "waterSource" : source,
+      "pump" : pump,
+      "filterSite" : filtration,
+      "fertilizerSite" : fertilization,
+      "moistureSensor" : moisture,
+      "irrigationLine" : line,
+      "deviceList" : widget.configPvd.listOfDeviceModel.map((device) {
+        return {
+          'productId' : device.productId,
+          'controllerId' : device.controllerId,
+          'masterId' : device.masterId,
+          'referenceNumber' : widget.configPvd.findOutReferenceNumber(device),
+          'serialNumber' : device.serialNumber,
+          'interfaceTypeId' : device.interfaceTypeId,
+          'interfaceInterval' : device.masterId == null ? null : device.interfaceInterval,
+          'extendControllerId' : device.extendControllerId,
+        };
+      }).toList(),
+      "hardware" : {},
+      "controllerReadStatus" : '0',
+      "createUser" : widget.configPvd.masterData['userId']
+    };
+    var response = await HttpService().postRequest('/user/configMaker/create', body);
+    // print('response : ${response.body}');
+    print('body : ${jsonEncode(body)}');
+    print('response : ${response.body}');
   }
 
   Widget checkingAnyParameterAvailableInLine(IrrigationLineModel selectedIrrigationLine){
