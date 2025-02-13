@@ -95,7 +95,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
         children: [
           TitleWithBackButton(
             onPressed: (){
-
+              Navigator.pop(context);
             },
             title: 'Config Maker',
 
