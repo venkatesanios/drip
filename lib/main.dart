@@ -11,13 +11,13 @@ import 'app/app.dart';
 
 void main() {
   NetworkUtils.initialize();
-  GlobalConfig.setEnvironment(Environment.development);
+  /*GlobalConfig.setEnvironment(Environment.development);
   MqttManager mqttManager = MqttManager();
   mqttManager.initializeMQTTClient();
   mqttManager.connect();
   Future.delayed(Duration(seconds: 5),(){
     mqttManager.topicToPublishAndItsMessage('siva', 'hi from siva');
-  });
+  });*/
   // print(payloadConversion());
   runApp(
       MultiProvider(

@@ -219,7 +219,6 @@ class CustomerDeviceListViewModel extends ChangeNotifier {
             child: Column(
               children: <Widget>[
                 ListTile(
-                  leading: const CircleAvatar(),
                   title: Text(ctrlName),
                   subtitle: Text('$ctrlModel\n$ctrlIMEI'),
                 ),
@@ -233,9 +232,10 @@ class CustomerDeviceListViewModel extends ChangeNotifier {
                     return null;
                   },
                 ),
+                const SizedBox(height: 8,),
                 TextFormField(
                   controller: textFieldSiteDisc,
-                  decoration: const InputDecoration(hintText: "Description"),
+                  decoration: const InputDecoration(hintText: "address"),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter some text';
@@ -267,6 +267,7 @@ class CustomerDeviceListViewModel extends ChangeNotifier {
                   "productId": myMasterControllerList[selectedRadioTile].productId,
                   "createUser": userId,
                   "groupName": textFieldSiteName.text,
+                  "groupAddress": textFieldSiteDisc.text,
                 };
 
                 try {
