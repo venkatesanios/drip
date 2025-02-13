@@ -14,7 +14,6 @@ import '../../Models/Configuration/filtration_model.dart';
 import '../../Models/Configuration/irrigationLine_model.dart';
 import '../../Models/Configuration/moisture_model.dart';
 import '../../Models/Configuration/source_model.dart';
-import '../../Models/LineDataModel.dart';
 import '../../StateManagement/config_maker_provider.dart';
 import '../../Widgets/sized_image.dart';
 import '../../services/http_service.dart';
@@ -242,11 +241,12 @@ class _LineConfigurationState extends State<LineConfiguration> {
       "100": [
         {"101": widget.configPvd.getDeviceListPayload()},
         {"102": widget.configPvd.getObjectPayload()},
-        {"102": widget.configPvd.getPumpPayload()},
-        {"202": widget.configPvd.getIrrigationLinePayload()},
-        {"203": widget.configPvd.getFertilizerPayload()},
-        {"203": widget.configPvd.getFertilizerInjectorPayload()},
-        {"203": widget.configPvd.getMoisturePayload()},
+        {"103": widget.configPvd.getPumpPayload()},
+        {"104": widget.configPvd.getFilterPayload()},
+        {"105": widget.configPvd.getFertilizerPayload()},
+        {"106": widget.configPvd.getFertilizerInjectorPayload()},
+        {"107": widget.configPvd.getMoisturePayload()},
+        {"108": widget.configPvd.getIrrigationLinePayload()},
       ]
     };
 

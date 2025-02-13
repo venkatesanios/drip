@@ -807,8 +807,9 @@ class ConfigMakerProvider extends ChangeNotifier{
         var controller = listOfDeviceModel.firstWhere((e) => e.controllerId == object.controllerId);
         objectPayload.add({
           "S_No": object.sNo,
+          "ObjectType": object.objectId,
           "DeviceTypeNumber": controller.categoryId,
-          "DeviceRunningNumber": 0,
+          "DeviceRunningNumber": findOutReferenceNumber(controller),
           "Output_InputNumber": object.connectionNo,
           "IO_Mode": getObjectTypeCodeToHardware(object.type),
         }.entries.map((e) => e.value).join(","));
