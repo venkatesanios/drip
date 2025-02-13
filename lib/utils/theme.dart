@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MyTheme {
   static ThemeData lightTheme = ThemeData.light().copyWith(
@@ -6,6 +7,7 @@ class MyTheme {
     primaryColor: const Color(0xFF1D808E),
     primaryColorLight: const Color(0x6438D3E8),
     scaffoldBackgroundColor:  Colors.blueGrey[50],
+
     appBarTheme: const AppBarTheme(
       backgroundColor: Color(0xFF036673),
       titleTextStyle: TextStyle(color: Colors.white, fontSize: 22),
@@ -73,12 +75,16 @@ class MyTheme {
       ),
     ),
 
-    textTheme: const TextTheme(
-      titleLarge: TextStyle(fontSize: 22, color: Colors.black),
-      titleMedium: TextStyle(fontSize: 15, color: Colors.black),
-      titleSmall: TextStyle(fontSize: 12, color: Colors.black),
-      bodyMedium : TextStyle(fontSize: 13, color: Colors.black, fontWeight: FontWeight.bold),
-      bodySmall : TextStyle(fontSize: 12, color: Colors.black, fontWeight: FontWeight.bold),
+    textTheme: TextTheme(
+      titleLarge: GoogleFonts.roboto(fontSize: 22, color: Colors.black),
+      titleMedium: GoogleFonts.roboto(fontSize: 15, color: Colors.black),
+      titleSmall: GoogleFonts.roboto(fontSize: 12, color: Colors.black),
+
+      headlineLarge: GoogleFonts.roboto(fontSize: 20, color: Colors.black),
+
+      bodyLarge: GoogleFonts.roboto(fontSize: 13, color: Colors.black, fontWeight: FontWeight.bold),
+      bodyMedium: GoogleFonts.roboto(fontSize: 13, color: Colors.black, fontWeight: FontWeight.bold),
+      bodySmall: GoogleFonts.roboto(fontSize: 12, color: Colors.black, fontWeight: FontWeight.bold),
     ),
 
     cardTheme: CardTheme(

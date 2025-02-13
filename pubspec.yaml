@@ -39,6 +39,7 @@ dependencies:
   data_table_2: ^2.5.18
   table_calendar: ^3.0.9
   calendar_view: ^1.2.0
+  google_fonts: ^6.2.1
 
 
 dev_dependencies:

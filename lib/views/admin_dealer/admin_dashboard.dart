@@ -1,6 +1,7 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:oro_drip_irrigation/utils/theme.dart';
 import 'package:oro_drip_irrigation/views/admin_dealer/sales_bar_chart.dart';
 import 'package:provider/provider.dart';
 import '../../repository/repository.dart';
@@ -181,11 +182,10 @@ class AdminDashboard extends StatelessWidget {
                                     title: RichText(
                                         text: TextSpan(
                                           text: 'Product Stock : ',
-                                          style: const TextStyle(fontSize: 20, color: Colors.black),
+                                          style: Theme.of(context).textTheme.headlineLarge,
                                           children: [
                                             TextSpan(
                                               text: viewModel.productStockList.length.toString().padLeft(2, '0'),
-                                              style: const TextStyle(fontSize: 20, color: Colors.black54),
                                             ),
                                           ],
                                         ),
