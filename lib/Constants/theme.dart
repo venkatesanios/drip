@@ -53,7 +53,7 @@ class AppThemes {
       elevation: 4,
     ),
     colorScheme: const ColorScheme.light(
-      primary: Colors.blue,
+      primary: Color(0xff054750),
       secondary: Colors.blueAccent,
       surface: Colors.white,
       background: Colors.white,

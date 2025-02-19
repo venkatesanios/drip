@@ -16,7 +16,7 @@ import '../Screens/ConfigMaker/connection.dart';
 
 class ConfigMakerProvider extends ChangeNotifier{
   double ratio = 1.0;
-  ConfigMakerTabs selectedTab = ConfigMakerTabs.siteConfigure;
+  ConfigMakerTabs selectedTab = ConfigMakerTabs.deviceList;
   Map<int, String> configurationTab = {
     0 : 'Source Configuration',
     1 : 'Pump Configuration',
@@ -25,7 +25,15 @@ class ConfigMakerProvider extends ChangeNotifier{
     4 : 'Moisture Configuration',
     5 : 'Line Configuration',
   };
-  int selectedConfigurationTab = 0;
+  Map<int, int> configurationTabObjectId = {
+    0 : 1,
+    1 : 5,
+    2 : 4,
+    3 : 3,
+    4 : 25,
+    5 : 2,
+  };
+  int selectedConfigurationTab = 3;
   SelectionMode selectedSelectionMode = SelectionMode.auto;
   int selectedConnectionNo = 0;
   String selectedType = '';
@@ -152,6 +160,28 @@ class ConfigMakerProvider extends ChangeNotifier{
   List<MoistureModel> moisture = [];
   List<IrrigationLineModel> line = [];
 
+  void clearData(){
+    for(var i in listOfSampleObjectModel){
+      i.count = '0';
+    }
+    for(var i in listOfObjectModelConnection){
+      i.count = '0';
+    }
+    for(var i in listOfDeviceModel){
+      i.masterId = null;
+      i.serialNumber = null;
+      i.extendControllerId = null;
+    }
+    listOfGeneratedObject.clear();
+    filtration.clear();
+    fertilization.clear();
+    source.clear();
+    pump.clear();
+    moisture.clear();
+    line.clear();
+    notifyListeners();
+  }
+
   DeviceObjectModel mapToDeviceObject(dynamic object) {
     return DeviceObjectModel(
       objectId: object['objectTypeId'],
@@ -210,7 +240,6 @@ class ConfigMakerProvider extends ChangeNotifier{
           ],
         );
       }).toList();
-
       listOfDeviceModel.sort((a, b) {
         if(a.serialNumber == null) return 1;
         if(b.serialNumber == null) return -1;
@@ -505,6 +534,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     }else{
       listOfSelectedSno.add(sNo);
     }
+    listOfSelectedSno.sort();
     notifyListeners();
   }
 
@@ -517,8 +547,27 @@ class ConfigMakerProvider extends ChangeNotifier{
     for(var fertilizerSite in fertilization){
       if(fertilizerSite.commonDetails.sNo == sNo){
         if(parameter == 1){
+          List<Injector> channelList = [];
+          for(var selectedSno in listOfSelectedSno){
+            if(fertilizerSite.channel.any((injector) => injector.sNo == selectedSno)){
+              channelList.add(
+                  Injector(
+                  sNo: selectedSno,
+                  level: fertilizerSite.channel.firstWhere((injector)=> injector.sNo == selectedSno).level
+                  )
+              );
+            }else{
+              channelList.add(
+                  Injector(
+                      sNo: selectedSno,
+                      level: 0.0
+                  )
+              );
+            }
+          }
+
           fertilizerSite.channel.clear();
-          fertilizerSite.channel.addAll(listOfSelectedSno);
+          fertilizerSite.channel.addAll(channelList);
         }else if(parameter == 2){
           fertilizerSite.boosterPump.clear();
           fertilizerSite.boosterPump.addAll(listOfSelectedSno);
@@ -803,7 +852,8 @@ class ConfigMakerProvider extends ChangeNotifier{
 
     for (var i = 0; i < listOfGeneratedObject.length; i++) {
       var object = listOfGeneratedObject[i];
-      if(object.connectionNo != 0){
+      if(object.connectionNo != 0 && object.connectionNo != null){
+        print(object.toJson());
         var controller = listOfDeviceModel.firstWhere((e) => e.controllerId == object.controllerId);
         objectPayload.add({
           "S_No": object.sNo,

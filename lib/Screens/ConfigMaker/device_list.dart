@@ -1,3 +1,4 @@
+import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../Constants/communication_codes.dart';
@@ -28,25 +29,13 @@ class DeviceList extends StatefulWidget {
 
 class _DeviceListState extends State<DeviceList> {
   late ConfigMakerProvider configPvd;
-  ScrollController _scrollController = ScrollController();
-  late LinkedScrollControllerGroup _scrollable1;
-  late ScrollController _verticalScroll1;
-  late ScrollController _verticalScroll2;
-  late LinkedScrollControllerGroup _scrollable2;
-  late ScrollController _horizontalScroll1;
-  late ScrollController _horizontalScroll2;
   int selectedMasterId = 1;
+  bool selectAllNode = false;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _scrollable1 = LinkedScrollControllerGroup();
-    _verticalScroll1 = _scrollable1.addAndGet();
-    _verticalScroll2 = _scrollable1.addAndGet();
-    _scrollable2 = LinkedScrollControllerGroup();
-    _horizontalScroll1 = _scrollable2.addAndGet();
-    _horizontalScroll2 = _scrollable2.addAndGet();
     configPvd = Provider.of<ConfigMakerProvider>(context, listen: false);
   }
 
@@ -54,67 +43,153 @@ class _DeviceListState extends State<DeviceList> {
   Widget build(BuildContext context) {
     configPvd = Provider.of<ConfigMakerProvider>(context, listen: true);
     double screenWidth = MediaQuery.of(context).size.width - 16;
-    double screenHeight = MediaQuery.of(context).size.height;
-    double headerBoxWidth = screenWidth * 0.5;
-    double headerBoxMinimumWidth = 300;
-    double headerWidth = 120;
-    double fixedColumnWidth = headerWidth * 2;
-    double scrollableColumnWidth = headerWidth * 6;
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        children: [
-          const SizedBox(height: 10,),
-          masterBox(
-              headerWidth: headerWidth,
-              headerBoxWidth: headerBoxWidth,
-              headerBoxMinimumWidth: headerBoxMinimumWidth,
-              listOfDevices: widget.listOfDevices
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: SizedBox(
+          width: screenWidth > 500 ? 880 : screenWidth,
+          child: Column(
+            children: [
+              masterBox(
+                  listOfDevices: widget.listOfDevices
+              ),
+              const SizedBox(height: 20,),
+              Expanded(
+                child: DataTable2(
+                  minWidth: 900,
+                  headingRowColor: WidgetStateProperty.all(Colors.white),
+                  dataRowColor: WidgetStateProperty.all(Colors.white),
+                    fixedLeftColumns: 2,
+                    columns: const [
+                      DataColumn2(
+                        fixedWidth: 80,
+                        label: Text('SNO'),
+                      ),
+                      DataColumn2(
+                        fixedWidth: 180,
+                        label: Text('MODEL NAME'),
+                      ),
+                      DataColumn2(
+                        fixedWidth: 180,
+                        label: Text('DEVICE ID'),
+                      ),
+                      DataColumn2(
+                        fixedWidth: 150,
+                        label: Text('INTERFACE'),
+                      ),
+                      DataColumn2(
+                        fixedWidth: 150,
+                        label: Text('INTERVAL'),
+                      ),
+                      DataColumn2(
+                        fixedWidth: 100,
+                        label: Text(''),
+                      ),
+                    ],
+                    rows: widget.listOfDevices
+                        .where((node) => node.masterId == selectedMasterId)
+                        .toList()
+                        .asMap()
+                        .entries
+                        .map((entry) {
+                      DeviceModel device = entry.value;
+                      int index = entry.key;
+                      var node = entry.value;
+                      return DataRow(
+                          cells: [
+                            DataCell(
+                              Text('${index + 1}', style: textStyleInCell),
+                            ),
+                            DataCell(
+                              Text(device.deviceName, style: textStyleInCell),
+                            ),
+                            DataCell(
+                              Text(device.deviceId, style: TextStyle(color: Theme.of(context).primaryColorDark),),
+                            ),
+                            DataCell(
+                                CustomDropDownButton(
+                                    value: getInterfaceValue(device),
+                                    list: [
+                                      'RS485', 'LoRa', 'MQTT',
+                                      for(var extend in configPvd.listOfDeviceModel)
+                                        if(extend.categoryId == 10 && extend.masterId != null)
+                                          'Extend\n${extend.deviceId}'
+                                    ],
+                                    onChanged: (String? newValue) {
+                                      List<String> interface = newValue!.split('\n');
+                                      setState(() {
+                                        device.interfaceTypeId = getInterfaceStringToCode(interface[0]);
+                                        if(interface.length > 1){
+                                          device.extendControllerId = configPvd.listOfDeviceModel.firstWhere((device) => device.deviceId == interface[1]).controllerId;
+                                        }else{
+                                          device.extendControllerId = null;
+                                        }
+                                      });
+                                    }
+                                )
+                            ),
+                            DataCell(
+                              CustomDropDownButton(
+                                  value: getIntervalCodeToString(device.interfaceInterval!, 'Sec'),
+                                  list: [5 , 10, 15, 20, 25].map((e) => getIntervalCodeToString(e, 'Sec')).toList(),
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      device.interfaceInterval = getIntervalStringToCode(newValue!);
+                                    });
+                                  }
+                              ),
+                            ),
+                            DataCell(
+                              IconButton(
+                                icon: const Icon(Icons.delete, color: Colors.red,),
+                                onPressed: (){
+                                  bool configured = configPvd.listOfGeneratedObject.any((object) => object.controllerId == device.controllerId);
+                                  if(configured){
+                                    simpleDialogBox(context: context, title: 'Alert', message: '${device.deviceName} cannot be removed. Please detach all connected objects first.');
+                                  }else{
+                                    setState(() {
+                                      device.masterId = null;
+                                    });
+                                  }
+                                },
+                              ),
+                            ),
+                          ]
+                      );
+                    }).toList()
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 20,),
-          Expanded(
-            child: tableWidget(
-                fixedColumnWidth: fixedColumnWidth,
-                scrollableColumnWidth: scrollableColumnWidth,
-                headerWidth: headerWidth,
-                listOfDevices: widget.listOfDevices
-            ),
-          ),
-          // Container(
-          //   height: 60,
-          //   width: double.infinity,
-          //   decoration: BoxDecoration(
-          //       color: Theme.of(context).primaryColorDark
-          //   ),
-          // )
-        ],
+        ),
       ),
     );
   }
 
   Widget masterBox(
       {
-        required double headerWidth,
-        required double headerBoxWidth,
-        required double headerBoxMinimumWidth,
         required List<DeviceModel> listOfDevices
       }
       ){
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      width: headerBoxMinimumWidth < headerBoxWidth ? headerBoxWidth : double.infinity,
+      width:  double.infinity,
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          gradient: AppProperties.linearGradientPrimaryLite
+        color: Colors.white,
+        border: Border.all(width: 0.5, color: const Color(0xffC9C6C6))
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.all(0),
         leading: const SizedImageMedium(imagePath: 'assets/Images/Png/category_1_model_1.png'),
-        title: Text('${configPvd.masterData['deviceName']}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
-        subtitle: Text('${configPvd.masterData['deviceId']}', style: const TextStyle(color: Colors.white,fontSize: 12 ),),
+        title: Text('${configPvd.masterData['deviceName']}', style: const TextStyle(fontWeight: FontWeight.bold),),
+        subtitle: Text('${configPvd.masterData['deviceId']}', style: const TextStyle(fontSize: 12 ),),
         trailing: IntrinsicWidth(
           child: RadiusButtonStyle(
               onPressed: (){
+                setState(() {
+                  selectAllNode = false;
+                });
                 bool isThereNodeToConfigure = listOfDevices.any((node) => node.masterId == null);
                 if(isThereNodeToConfigure){
                   showDialog(
@@ -123,35 +198,53 @@ class _DeviceListState extends State<DeviceList> {
                         return StatefulBuilder(
                             builder: (context, stateSetter){
                               return AlertDialog(
-                                title: const Text('Choose Node for Configuration Under Master',style: AppProperties.normalBlackBoldTextStyle,),
+                                backgroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(0)
+                                ),
+                                title: const Text('Choose Node for Configuration Under Master',),
                                 content: SizedBox(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          const CustomTableCellPassingWidget(
-                                              widget: Icon(Icons.touch_app),
-                                              width: 50
-                                          ),
-                                          CustomTableHeader(title: 'MODEL NAME', width: headerWidth),
-                                          CustomTableHeader(title: 'DEVICE ID', width: headerWidth),
-                                        ],
-                                      ),
-                                      ...listOfDevices
+                                  width: MediaQuery.of(context).size.width >= 400 ? 400 : MediaQuery.of(context).size.width,
+                                  child: DataTable2(
+                                    headingRowColor: const WidgetStatePropertyAll(Color(0xffEAECF0)),
+                                    dataRowColor: const WidgetStatePropertyAll(Color(0xffFCFCFD)),
+                                    dataTextStyle: textStyleInCell,
+                                      columns: [
+                                        DataColumn2(
+                                          label: Checkbox(
+                                              value: selectAllNode,
+                                              onChanged: (value){
+                                                stateSetter((){
+                                                  setState(() {
+                                                    selectAllNode = !selectAllNode;
+                                                    for(var device in configPvd.listOfDeviceModel){
+                                                      device.select = selectAllNode;
+                                                    }
+                                                  });
+                                                });
+                                              }
+                                          )
+                                        ),
+                                        DataColumn2(
+                                          label: Text('MODEL NAME'),
+                                          fixedWidth: 180,
+                                        ),
+                                        DataColumn2(
+                                          fixedWidth: 180,
+                                          label: Text('DEVICE ID'),
+                                        )
+                                      ],
+                                      rows: listOfDevices
                                           .where((node) => node.masterId == null)
                                           .toList()
                                           .asMap()
                                           .entries.map((entry){
                                         int index = entry.key;
                                         DeviceModel device = entry.value;
-                                        return Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            CustomTableCellPassingWidget(
-                                                widget: Checkbox(
+                                        return DataRow(
+                                            cells: [
+                                              DataCell(
+                                                Checkbox(
                                                   value: device.select,
                                                   onChanged: (value){
                                                     stateSetter((){
@@ -161,14 +254,16 @@ class _DeviceListState extends State<DeviceList> {
                                                     });
                                                   },
                                                 ),
-                                                width: 50
-                                            ),
-                                            CustomTableCell(title: device.deviceName, width: 120),
-                                            CustomTableCell(title: device.deviceId, width: 120),
-                                          ],
+                                              ),
+                                              DataCell(
+                                                Text(device.deviceName,)
+                                              ),
+                                              DataCell(
+                                                  Text(device.deviceId, style: TextStyle(color: Theme.of(context).primaryColor))
+                                              ),
+                                            ]
                                         );
-                                      })
-                                    ],
+                                      }).toList(),
                                   ),
                                 ),
                                 actions: [
@@ -186,7 +281,6 @@ class _DeviceListState extends State<DeviceList> {
                                           });
                                         });
                                       }
-
                                       Navigator.pop(context);
                                     },
                                     title: 'Add',
@@ -206,177 +300,6 @@ class _DeviceListState extends State<DeviceList> {
           ),
         ),
       ),
-    );
-  }
-  Widget tableWidget(
-      {
-        required double fixedColumnWidth,
-        required double scrollableColumnWidth,
-        required double headerWidth,
-        required List<DeviceModel> listOfDevices,
-      }
-      ){
-    return Column(
-      children: [
-        Expanded(
-          child: SizedBox(
-            width: scrollableColumnWidth,
-            height: double.infinity,
-            child: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
-              var width = constraints.maxWidth;
-              return Row(
-                children: [
-                  Column(
-                    children: [
-                      //Todo : first column
-                      Row(
-                        children: [
-                          CustomTableHeader(title: 'SNO', width: headerWidth),
-                          CustomTableHeader(title: 'MODEL NAME', width: headerWidth),
-                        ],
-                      ),
-                      Expanded(
-                        child: SingleChildScrollView(
-                            controller: _verticalScroll1,
-                            child: Column(
-                              children: listOfDevices
-                                  .where((node) => node.masterId == selectedMasterId)
-                                  .toList()
-                                  .asMap()
-                                  .entries
-                                  .map((entry) {
-                                int index = entry.key;
-                                var node = entry.value;
-                                return Row(
-                                  children: [
-                                    CustomTableCell(title: '${index + 1}', width: 120),
-                                    CustomTableCell(title: node.deviceName, width: 120),
-                                  ],
-                                );
-                              }).toList(),
-                            )
-                        ),
-                      )
-                    ],
-                  ),
-                  Expanded(
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          width: width-fixedColumnWidth,
-                          child: SingleChildScrollView(
-                            controller: _horizontalScroll1,
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children: [
-                                CustomTableHeader(title: 'DEVICE ID', width: headerWidth),
-                                CustomTableHeader(title: 'INTERFACE', width: headerWidth),
-                                CustomTableHeader(title: 'INTERVAL', width: headerWidth),
-                                CustomTableHeader(title: 'ACTION', width: headerWidth),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: SizedBox(
-                            width: width-fixedColumnWidth,
-                            child: Scrollbar(
-                              thumbVisibility: true,
-                              controller: _horizontalScroll2,
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                controller: _horizontalScroll2,
-                                child: Scrollbar(
-                                  thumbVisibility: true,
-                                  controller: _verticalScroll2,
-                                  child: SingleChildScrollView(
-                                      scrollDirection: Axis.vertical,
-                                      controller: _verticalScroll2,
-                                      child:  Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: listOfDevices
-                                            .where((node) => node.masterId == selectedMasterId)
-                                            .toList()
-                                            .asMap()
-                                            .entries
-                                            .map((entry) {
-                                          DeviceModel device = entry.value;
-                                          return Row(
-                                            children: [
-                                              CustomTableCell(title: device.deviceId, width: headerWidth),
-                                              CustomTableCellPassingWidget(
-                                                  widget: CustomDropDownButton(
-                                                      value: getInterfaceValue(device),
-                                                      list: [
-                                                        'RS485', 'LoRa', 'MQTT',
-                                                        for(var extend in configPvd.listOfDeviceModel)
-                                                          if(extend.categoryId == 10 && extend.masterId != null)
-                                                            'Extend\n${extend.deviceId}'
-                                                      ],
-                                                      onChanged: (String? newValue) {
-                                                        List<String> interface = newValue!.split('\n');
-                                                        setState(() {
-                                                          device.interfaceTypeId = getInterfaceStringToCode(interface[0]);
-                                                          if(interface.length > 1){
-                                                            device.extendControllerId = configPvd.listOfDeviceModel.firstWhere((device) => device.deviceId == interface[1]).controllerId;
-                                                          }else{
-                                                            device.extendControllerId = null;
-                                                          }
-                                                        });
-                                                      }
-                                                  ),
-                                                  width: headerWidth
-                                              ),
-                                              CustomTableCellPassingWidget(
-                                                  widget: CustomDropDownButton(
-                                                      value: getIntervalCodeToString(device.interfaceInterval!, 'Sec'),
-                                                      list: [5 , 10, 15, 20, 25].map((e) => getIntervalCodeToString(e, 'Sec')).toList(),
-                                                      onChanged: (String? newValue) {
-                                                        setState(() {
-                                                          device.interfaceInterval = getIntervalStringToCode(newValue!);
-                                                        });
-                                                      }
-                                                  ),
-                                                  width: headerWidth
-                                              ),
-                                              CustomTableCellPassingWidget(
-                                                  widget: IconButton(
-                                                    icon: const Icon(Icons.delete, color: Colors.red,),
-                                                    onPressed: (){
-                                                      bool configured = configPvd.listOfGeneratedObject.any((object) => object.controllerId == device.controllerId);
-                                                      if(configured){
-                                                        simpleDialogBox(context: context, title: 'Alert', message: '${device.deviceName} cannot be removed. Please detach all connected objects first.');
-                                                      }else{
-                                                        setState(() {
-                                                          device.masterId = null;
-                                                        });
-                                                      }
-                                                    },
-                                                  ),
-                                                  width: headerWidth
-                                              )
-                                            ],
-                                          );
-                                        }).toList(),
-                                      )
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                    
-                      ],
-                    ),
-                  ),
-
-                ],
-              );
-            },),
-          ),
-        )
-      ],
     );
   }
 
@@ -417,3 +340,6 @@ class _DeviceListState extends State<DeviceList> {
     }
   }
 }
+
+Color textColorInCell = const Color(0xff667085);
+TextStyle textStyleInCell = TextStyle(color: textColorInCell, fontWeight: FontWeight.bold, fontSize: 13);

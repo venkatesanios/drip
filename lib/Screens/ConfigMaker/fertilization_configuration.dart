@@ -101,7 +101,7 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
                                 spacing: 30,
                                 runSpacing: 20,
                                 children: [
-                                  getFertilizerParameter(fertilizationSite: fertilizationSite, currentParameterValue: fertilizationSite.channel, parameterType: 1, objectId: 10, objectName: 'Channel'),
+                                  getFertilizerParameter(fertilizationSite: fertilizationSite, currentParameterValue: fertilizationSite.channel.map((channel) => channel.sNo).toList(), parameterType: 1, objectId: 10, objectName: 'Channel'),
                                   getFertilizerParameter(fertilizationSite: fertilizationSite, currentParameterValue: fertilizationSite.boosterPump, parameterType: 2, objectId: 7, objectName: 'Booster'),
                                   getFertilizerParameter(fertilizationSite: fertilizationSite, currentParameterValue: fertilizationSite.agitator, parameterType: 3, objectId: 9, objectName: 'Agitator'),
                                   getFertilizerParameter(fertilizationSite: fertilizationSite, currentParameterValue: fertilizationSite.selector, parameterType: 4, objectId: 8, objectName: 'Selector'),
@@ -115,73 +115,6 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
                       )
                   ],
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                        onPressed: (){
-                          var listOfDeviceModel = widget.configPvd.listOfDeviceModel.map((object){
-                            return object.toJson();
-                          }).toList();
-                          var listOfSampleObjectModel = widget.configPvd.listOfSampleObjectModel.map((object){
-                            return object.toJson();
-                          }).toList();
-                          var listOfObjectModelConnection = widget.configPvd.listOfObjectModelConnection.map((object){
-                            return object.toJson();
-                          }).toList();
-                          var listOfGeneratedObject = widget.configPvd.listOfGeneratedObject.map((object){
-                            return object.toJson();
-                          }).toList();
-                          var filtration = widget.configPvd.filtration.cast<FiltrationModel>().map((object){
-                            return object.toJson();
-                          }).toList();
-                          var fertilization = widget.configPvd.fertilization.cast<FertilizationModel>().map((object){
-                            return object.toJson();
-                          }).toList();
-                          var source = widget.configPvd.source.cast<SourceModel>().map((object){
-                            return object.toJson();
-                          }).toList();
-                          var pump = widget.configPvd.pump.cast<PumpModel>().map((object){
-                            return object.toJson();
-                          }).toList();
-                          var moisture = widget.configPvd.moisture.cast<MoistureModel>().map((object){
-                            return object.toJson();
-                          }).toList();
-                          var line = widget.configPvd.line.cast<IrrigationLineModel>().map((object){
-                            return object.toJson();
-                          }).toList();
-                          // print('listOfGeneratedObject :: ${jsonEncode(listOfGeneratedObject)}');
-                          // print('filtration :: ${jsonEncode(filtration)}');
-                          // print('fertilization :: ${jsonEncode(fertilization)}');
-                          // print('source :: ${jsonEncode(source)}');
-                          // print('pump :: ${jsonEncode(pump)}');
-                          // print('moisture :: ${jsonEncode(moisture)}');
-                          String data = jsonEncode({
-                            'listOfDeviceModel' : listOfDeviceModel,
-                            'listOfSampleObjectModel' : listOfSampleObjectModel,
-                            'listOfObjectModelConnection' : listOfObjectModelConnection,
-                            'listOfGeneratedObject' : listOfGeneratedObject,
-                            'filterSite' : filtration,
-                            'fertilizerSite' : fertilization,
-                            'waterSource' : source,
-                            'pump' : pump,
-                            'moistureSensor' : moisture,
-                            'irrigationLine' : line,
-                          });
-                          print('data : $data');
-                          saveToSessionStorage('configData',data);
-                        },
-                        child: const Text('Store')
-                    ),
-                    ElevatedButton(
-                        onPressed: (){
-                          String dataFromSession = readFromSessionStorage('configData')!;
-                          print('dataFromSession :: $dataFromSession');
-                        },
-                        child: const Text('Read')
-                    ),
-                  ],
-                )
               ],
             ),
           ),
@@ -253,7 +186,7 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
     List<double> unAssigned = [];
     for(var site in widget.configPvd.fertilization){
       List<double> siteParameter = parameter == 1
-          ? site.channel
+          ? site.channel.map((channel) => channel.sNo).toList()
           : parameter == 2
           ? site.boosterPump
           : parameter == 3
@@ -381,6 +314,7 @@ class _FertilizationDashboardFormationState extends State<FertilizationDashboard
         ),
     ];
   }
+
   Widget getEcPhSelector(){
     return Column(
       children: [
@@ -422,29 +356,105 @@ class _FertilizationDashboardFormationState extends State<FertilizationDashboard
             Row(
               children: [
                 ...getBooster(),
-                SvgPicture.asset(
-                  'assets/Images/Fertilization/multiple_channel_first_1.svg',
-                  width: 150,
-                  height: 150 * configPvd.ratio,
-                ),
-                if(widget.fertilizationSite.channel.length > 2)
-                  for(var middle = 1;middle < widget.fertilizationSite.channel.length- 1;middle++)
-                    SvgPicture.asset(
-                      'assets/Images/Fertilization/multiple_channel_middle_1.svg',
+                mergeInjectorWithLevel(
+                  injector: widget.fertilizationSite.channel[0],
+                    fertilizerSno: widget.fertilizationSite.commonDetails.sNo!,
+                    child: SvgPicture.asset(
+                      'assets/Images/Fertilization/multiple_channel_first_1.svg',
                       width: 150,
                       height: 150 * configPvd.ratio,
                     ),
-                SvgPicture.asset(
-                  'assets/Images/Fertilization/multiple_channel_last_1.svg',
-                  width: 150,
-                  height: 150 * configPvd.ratio,
                 ),
+                if(widget.fertilizationSite.channel.length > 2)
+                  for(var middle = 1;middle < widget.fertilizationSite.channel.length- 1;middle++)
+                    mergeInjectorWithLevel(
+                      fertilizerSno: widget.fertilizationSite.commonDetails.sNo!,
+                      injector: widget.fertilizationSite.channel[middle],
+                        child: SvgPicture.asset(
+                          'assets/Images/Fertilization/multiple_channel_middle_1.svg',
+                          width: 150,
+                          height: 150 * configPvd.ratio,
+                        ),
+                    ),
+                mergeInjectorWithLevel(
+                  fertilizerSno: widget.fertilizationSite.commonDetails.sNo!,
+                  injector: widget.fertilizationSite.channel[widget.fertilizationSite.channel.length - 1],
+                  child: SvgPicture.asset(
+                    'assets/Images/Fertilization/multiple_channel_last_1.svg',
+                    width: 150,
+                    height: 150 * configPvd.ratio,
+                  ),
+                )
               ],
             ),
           ],
         ),
         getEcPhSelector()
       ],
+    );
+  }
+
+  Widget mergeInjectorWithLevel({required Widget child, required Injector injector, required double fertilizerSno}){
+    return Tooltip(
+      verticalOffset: 0,
+      message: '${getObjectName(injector.sNo, configPvd).name} \n level : ${injector.level == 0.0 ? '' : getObjectName(injector.level, configPvd).name}',
+      decoration: const BoxDecoration(
+          color: Colors.black
+      ),
+      textStyle: const TextStyle(fontSize: 10, color: Colors.white),
+      child: GestureDetector(
+        onTap: (){
+          FertilizationModel fertilizerSite = configPvd.fertilization.firstWhere((site) => site.commonDetails.sNo == fertilizerSno);
+          setState(() {
+            configPvd.selectedSno = injector.level;
+          });
+          selectionDialogBox(
+              context: context,
+              title: 'Select Level',
+              singleSelection: true,
+              listOfObject: configPvd.listOfGeneratedObject
+                  .where(
+                      (object)=> (object.objectId == 26 && !configPvd.source.any((src) => src.level == object.sNo) && !fertilizerSite.channel.any((channel)=> channel.level == object.sNo))
+                          ||
+                            (object.sNo == injector.level)
+              ).toList(),
+              onPressed: (){
+                setState(() {
+                  for(var channel in fertilizerSite.channel){
+                    if(channel.sNo == injector.sNo){
+                      injector.level = configPvd.selectedSno;
+                      break;
+                    }
+                  }
+                });
+                Navigator.pop(context);
+              }
+          );
+        },
+        child: Stack(
+          children: [
+            child,
+            Positioned(
+              left: 28,
+              top: 14,
+              child: Container(
+                padding: const EdgeInsets.all(3),
+                height: 28,
+                alignment: Alignment.bottomCenter,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(2)
+                ),
+                child: Container(
+                  width: 5,
+                  height: 15,
+                  color: injector.level == 0.0 ? Colors.grey.shade400 : Colors.red,
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 }

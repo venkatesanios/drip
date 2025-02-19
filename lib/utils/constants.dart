@@ -1,6 +1,4 @@
-
 import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 
 import '../Screens/ConfigMaker/config_web_view.dart';
@@ -18,7 +16,6 @@ class AppConstants {
   static const String  publishTopic = 'AppToFirmware';
   static const String subscribeTopic = 'FirmwareToApp';
 
-
   static const String appTitle = 'ORO DRIP IRRIGATION';
   static const String appShortContent = 'Drip irrigation is a type of watering system used in agriculture, gardening, and landscaping to efficiently deliver water directly to the roots of plants.';
 
@@ -34,7 +31,6 @@ class AppConstants {
   static const pleaseFillDetails = 'Please fill out all the details correctly.';
   static const enterValidEmail = 'Please enter a valid email';
   static const nameValidationError = 'Name must not contain numbers or special characters';
-
 
   static const String pngPath = "assets/png_images/";
   static const String gifPath = "assets/gif_images/";
@@ -68,7 +64,6 @@ class AppConstants {
   static const String valveNotON = "valve_orange.png";
   static const String valveNotOFF = "valve_red.png";
 
-
   static const Map<UserRole, String> formTitle = {
     UserRole.admin: "Dealer Account Form",
     UserRole.dealer: "Customer Account Form",
@@ -80,7 +75,6 @@ class AppConstants {
     UserRole.dealer: "Please enter your customer name",
     UserRole.subUser: "Please enter your sub-user name",
   };
-
 
   static const Map<UserRole, String> mobileErrors = {
     UserRole.admin: "Please enter your dealer mobile number",
@@ -260,9 +254,9 @@ class AppConstants {
     }
   }
 
-  dynamic payloadConversion(data){
+  dynamic payloadConversion(data) {
     dynamic dataFormation = {};
-    for(var globalKey in data.keys){
+    for(var globalKey in data.keys) {
       if(['filterSite', 'fertilizerSite', 'waterSource', 'pump', 'moistureSensor', 'irrigationLine'].contains(globalKey)){
         dataFormation[globalKey] = [];
         for(var site in data[globalKey]){
@@ -270,7 +264,19 @@ class AppConstants {
           for(var siteKey in site.keys){
             if(!['objectId', 'sNo', 'name', 'objectName', 'connectionNo', 'type', 'controllerId', 'count', 'siteMode', 'pumpType'].contains(siteKey)){
               siteFormation[siteKey] = siteFormation[siteKey] is List<dynamic>
-                  ? (siteFormation[siteKey] as List<dynamic>).map((element) => (data['listOfGeneratedObject'] as List<dynamic>).firstWhere((object) => object['sNo'] == element)).toList()
+                  ? (siteFormation[siteKey] as List<dynamic>).map((element) {
+                    if(element is double){
+                      return (data['configObject'] as List<dynamic>).firstWhere((object) => object['sNo'] == element);
+                    }else{
+                      var object = (data['configObject'] as List<dynamic>).firstWhere((object) => object['sNo'] == element['sNo']);
+                      for(var key in element.keys){
+                        if(!(object as Map<String, dynamic>).containsKey(key)){
+                          object[key] = element[key];
+                        }
+                      }
+                      return object;
+                    }
+              }).toList()
                   : (data['listOfGeneratedObject'] as List<dynamic>).firstWhere((object) => object['sNo'] == siteFormation[siteKey], orElse: ()=> {});
             }
           }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../Constants/properties.dart';
+import '../Screens/ConfigMaker/device_list.dart';
 
 
 class CustomDropDownButton extends StatelessWidget {
@@ -20,7 +21,7 @@ class CustomDropDownButton extends StatelessWidget {
     return DropdownButton<String>(
       underline: Container(),
       value: value,
-      style: AppProperties.tableHeaderStyle,
+      style: textStyleInCell,
       items: list.map((String item) {
         return DropdownMenuItem<String>(
           value: item,

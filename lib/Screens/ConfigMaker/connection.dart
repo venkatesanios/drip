@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 import '../../Constants/communication_codes.dart';
@@ -21,129 +22,165 @@ class Connection extends StatefulWidget {
 }
 
 class _ConnectionState extends State<Connection> {
+  late Future<bool> updateValuesConnectionPageInitialize;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    List<int> listOfCategory = [];
-    Future.delayed(const Duration(seconds: 0),(){
-      for(var device in widget.configPvd.listOfDeviceModel){
-        if(![1, 10].contains(device.categoryId) && device.masterId != null && !listOfCategory.contains(device.categoryId)){
+    updateValuesConnectionPageInitialize = updateConnection(); // Initialize Future
+  }
+
+  Future<bool> updateConnection() async {
+    try {
+      await Future.delayed(Duration(milliseconds: 100));
+      List<int> listOfCategory = [];
+
+      for (var device in widget.configPvd.listOfDeviceModel) {
+        if (![1, 10].contains(device.categoryId) &&
+            device.masterId != null &&
+            !listOfCategory.contains(device.categoryId)) {
           listOfCategory.add(device.categoryId);
         }
       }
+
+      if (listOfCategory.isEmpty) {
+        return false; // Return false if no valid category found
+      }
+
       widget.configPvd.selectedCategory = listOfCategory[0];
-      for(var device in widget.configPvd.listOfDeviceModel){
-        if(device.categoryId == listOfCategory[0]){
+
+      for (var device in widget.configPvd.listOfDeviceModel) {
+        if (device.categoryId == listOfCategory[0]) {
           widget.configPvd.selectedModelControllerId = device.controllerId;
           break;
         }
       }
+
       widget.configPvd.updateSelectedConnectionNoAndItsType(0, '');
       widget.configPvd.updateConnectionListTile();
-    });
+
+      return true;
+    } catch (e) {
+      print('Error in updateConnection: ${e.toString()}');
+      return false; // Return false on error
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    DeviceModel selectedDevice = widget.configPvd.listOfDeviceModel.firstWhere((device) => device.controllerId == widget.configPvd.selectedModelControllerId);
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: LayoutBuilder(builder: (context, constraint){
-        return SizedBox(
-          width: constraint.maxWidth,
-          height: constraint.maxHeight,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                getAvailableDeviceCategory(),
-                const SizedBox(height: 8,),
-                getModelBySelectedCategory(),
-                const SizedBox(height: 10,),
-                // if(selectedDevice.categoryId == 4)
-                //   WeatherGridListTile( configPvd: widget.configPvd, device: selectedDevice)
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    spacing: 20,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if((selectedDevice.noOfRelay == 0 ? selectedDevice.noOfLatch : selectedDevice.noOfRelay) != 0)
-                        getConnectionBox(
-                            selectedDevice: selectedDevice,
-                            color: const Color(0xffD2EAFF),
-                            from: 0,
-                            to: selectedDevice.noOfRelay == 0 ? selectedDevice.noOfLatch : selectedDevice.noOfRelay,
-                            type: '1,2',
-                            typeName: selectedDevice.noOfRelay == 0 ? 'Latch' : 'Relay',
-                            keyWord: selectedDevice.noOfRelay == 0 ? 'L' : 'R'
+    return FutureBuilder(
+        future: updateValuesConnectionPageInitialize,
+        builder: (context, snapShot){
+          if (snapShot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator()); // Show loading
+          }
+          if (snapShot.hasError) {
+            return const Center(child: Text('Error loading data'));
+          }
+          if(snapShot.hasData && snapShot.data == true){
+            DeviceModel selectedDevice = widget.configPvd.listOfDeviceModel.firstWhere((device) => device.controllerId == widget.configPvd.selectedModelControllerId);
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: LayoutBuilder(builder: (context, constraint){
+                return SizedBox(
+                  width: constraint.maxWidth,
+                  height: constraint.maxHeight,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        getAvailableDeviceCategory(),
+                        const SizedBox(height: 8,),
+                        getModelBySelectedCategory(),
+                        const SizedBox(height: 10,),
+                        // if(selectedDevice.categoryId == 4)
+                        //   WeatherGridListTile( configPvd: widget.configPvd, device: selectedDevice)
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            spacing: 20,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if((selectedDevice.noOfRelay == 0 ? selectedDevice.noOfLatch : selectedDevice.noOfRelay) != 0)
+                                getConnectionBox(
+                                    selectedDevice: selectedDevice,
+                                    color: const Color(0xffD2EAFF),
+                                    from: 0,
+                                    to: selectedDevice.noOfRelay == 0 ? selectedDevice.noOfLatch : selectedDevice.noOfRelay,
+                                    type: '1,2',
+                                    typeName: selectedDevice.noOfRelay == 0 ? 'Latch' : 'Relay',
+                                    keyWord: selectedDevice.noOfRelay == 0 ? 'L' : 'R'
+                                ),
+                              if(selectedDevice.noOfAnalogInput != 0)
+                                getConnectionBox(
+                                    selectedDevice: selectedDevice,
+                                    color: getObjectTypeCodeToColor(3),
+                                    from: 0,
+                                    to: selectedDevice.noOfAnalogInput,
+                                    type: '3',
+                                    typeName: 'Analog',
+                                    keyWord: 'A'
+                                ),
+                              if(selectedDevice.noOfDigitalInput != 0)
+                                getConnectionBox(
+                                    selectedDevice: selectedDevice,
+                                    color: getObjectTypeCodeToColor(4),
+                                    from: 0,
+                                    to: selectedDevice.noOfDigitalInput,
+                                    type: '4',
+                                    typeName: 'Digital',
+                                    keyWord: 'D'
+                                ),
+                              if(selectedDevice.noOfPulseInput != 0)
+                                getConnectionBox(
+                                    selectedDevice: selectedDevice,
+                                    color: getObjectTypeCodeToColor(6),
+                                    from: 0,
+                                    to: selectedDevice.noOfPulseInput,
+                                    type: '6',
+                                    typeName: 'Pulse',
+                                    keyWord: 'P'
+                                ),
+                              if(selectedDevice.noOfMoistureInput != 0)
+                                getConnectionBox(
+                                    selectedDevice: selectedDevice,
+                                    color: getObjectTypeCodeToColor(5),
+                                    from: 0,
+                                    to: selectedDevice.noOfMoistureInput,
+                                    type: '5',
+                                    typeName: 'Moisture',
+                                    keyWord: 'M'
+                                ),
+                              if(selectedDevice.noOfI2CInput != 0)
+                                getConnectionBox(
+                                    selectedDevice: selectedDevice,
+                                    color: getObjectTypeCodeToColor(7),
+                                    from: 0,
+                                    to: selectedDevice.noOfI2CInput,
+                                    type: '7',
+                                    typeName: 'I2c',
+                                    keyWord: 'I2c'
+                                ),
+                            ],
+                          ),
                         ),
-                      if(selectedDevice.noOfAnalogInput != 0)
-                        getConnectionBox(
-                            selectedDevice: selectedDevice,
-                            color: getObjectTypeCodeToColor(3),
-                            from: 0,
-                            to: selectedDevice.noOfAnalogInput,
-                            type: '3',
-                            typeName: 'Analog',
-                            keyWord: 'A'
-                        ),
-                      if(selectedDevice.noOfDigitalInput != 0)
-                        getConnectionBox(
-                            selectedDevice: selectedDevice,
-                            color: getObjectTypeCodeToColor(4),
-                            from: 0,
-                            to: selectedDevice.noOfDigitalInput,
-                            type: '4',
-                            typeName: 'Digital',
-                            keyWord: 'D'
-                        ),
-                      if(selectedDevice.noOfPulseInput != 0)
-                        getConnectionBox(
-                            selectedDevice: selectedDevice,
-                            color: getObjectTypeCodeToColor(6),
-                            from: 0,
-                            to: selectedDevice.noOfPulseInput,
-                            type: '6',
-                            typeName: 'Pulse',
-                            keyWord: 'P'
-                        ),
-                      if(selectedDevice.noOfMoistureInput != 0)
-                        getConnectionBox(
-                            selectedDevice: selectedDevice,
-                            color: getObjectTypeCodeToColor(5),
-                            from: 0,
-                            to: selectedDevice.noOfMoistureInput,
-                            type: '5',
-                            typeName: 'Moisture',
-                            keyWord: 'M'
-                        ),
-                      if(selectedDevice.noOfI2CInput != 0)
-                        getConnectionBox(
-                            selectedDevice: selectedDevice,
-                            color: getObjectTypeCodeToColor(7),
-                            from: 0,
-                            to: selectedDevice.noOfI2CInput,
-                            type: '7',
-                            typeName: 'I2c',
-                            keyWord: 'I2c'
-                        ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20,),
-                if(widget.configPvd.selectedSelectionMode == SelectionMode.auto)
-                  ...getAutoSelection(selectedDevice)
-                else
-                  ...getManualSelection(selectedDevice),
+                        const SizedBox(height: 20,),
+                        if(widget.configPvd.selectedSelectionMode == SelectionMode.auto)
+                          ...getAutoSelection(selectedDevice)
+                        else
+                          ...getManualSelection(selectedDevice),
 
-              ],
-            ),
-          ),
-        );
-      }),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            );
+          }else{
+            return const Center(child: CircularProgressIndicator());
+          }
+
+        }
     );
   }
 
@@ -380,7 +417,7 @@ class _ConnectionState extends State<Connection> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
                   decoration: BoxDecoration(
-                    color: widget.configPvd.selectedCategory == categoryId ? Theme.of(context).primaryColorLight : Colors.grey.shade300
+                    color: widget.configPvd.selectedCategory == categoryId ? Theme.of(context).primaryColor : Colors.grey.shade300
                   ),
                   child: Text(getDeviceCodeToString(categoryId), style: TextStyle(color: widget.configPvd.selectedCategory == categoryId ? Colors.white : Colors.black, fontSize: 13),),
                 ),
@@ -390,7 +427,7 @@ class _ConnectionState extends State<Connection> {
         Container(
           width: double.infinity,
           height: 3,
-          color: Theme.of(context).primaryColorLight,
+          color: Theme.of(context).primaryColor,
         )
       ],
     );

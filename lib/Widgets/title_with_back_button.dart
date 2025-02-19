@@ -24,7 +24,7 @@ class TitleWithBackButton extends StatelessWidget {
           ),
           onPressed: onPressed,
         ),
-          Expanded(child: Text(title, style: AppProperties.titleTextStyle,))
+          Text(title, style: AppProperties.titleTextStyle,)
       ],
     );
   }

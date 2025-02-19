@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class MyTheme {
+Color primaryDark = const Color(0xFF036673);
+// Color primaryDark = const Color(0xFF005C8F);
+Color primary = const Color(0xFF2999A9);
+// Color primary = const Color(0xFF1B8BCB);
+
+class OroTheme {
   static ThemeData lightTheme = ThemeData.light().copyWith(
-    primaryColorDark: const Color(0xFF036673),
-    primaryColor: const Color(0xFF1D808E),
+    primaryColorDark: primaryDark,
+    primaryColor: primary,
     primaryColorLight: const Color(0x6438D3E8),
     scaffoldBackgroundColor:  Colors.blueGrey[50],
-
     appBarTheme: const AppBarTheme(
       backgroundColor: Color(0xFF036673),
       titleTextStyle: TextStyle(color: Colors.white, fontSize: 22),
@@ -17,7 +21,7 @@ class MyTheme {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xffB1FFCB),
+        backgroundColor: primary,
         foregroundColor: Colors.black,
         textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 20),
@@ -32,7 +36,11 @@ class MyTheme {
       labelStyle: const TextStyle(color: Colors.blue),
     ),
     dialogBackgroundColor: Colors.white,
-
+    dialogTheme: DialogTheme(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(0)
+      ),
+    ),
     navigationRailTheme: const NavigationRailThemeData(
       backgroundColor: Color(0xFF036673),
       elevation: 0,
@@ -40,7 +48,6 @@ class MyTheme {
       indicatorColor: Color(0x6438D3E8),
       unselectedIconTheme: IconThemeData(color: Colors.white54),
     ),
-
     segmentedButtonTheme: SegmentedButtonThemeData(
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
@@ -74,7 +81,6 @@ class MyTheme {
         ),
       ),
     ),
-
     textTheme: TextTheme(
       titleLarge: GoogleFonts.roboto(fontSize: 22, color: Colors.black),
       titleMedium: GoogleFonts.roboto(fontSize: 15, color: Colors.black),
@@ -86,7 +92,6 @@ class MyTheme {
       bodyMedium: GoogleFonts.roboto(fontSize: 13, color: Colors.black, fontWeight: FontWeight.bold),
       bodySmall: GoogleFonts.roboto(fontSize: 12, color: Colors.black, fontWeight: FontWeight.bold),
     ),
-
     cardTheme: CardTheme(
       color: Colors.grey[100],
       shadowColor: Colors.black,
@@ -96,7 +101,6 @@ class MyTheme {
         borderRadius: BorderRadius.circular(5.0),
       ),
     ),
-
   );
 
   static ThemeData darkTheme = ThemeData.dark().copyWith(

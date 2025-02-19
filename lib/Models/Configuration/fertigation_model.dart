@@ -3,7 +3,7 @@ import 'device_object_model.dart';
 class FertilizationModel{
   DeviceObjectModel commonDetails;
   int siteMode;
-  List<double> channel;
+  List<Injector> channel;
   List<double> boosterPump;
   List<double> agitator;
   List<double> selector;
@@ -27,7 +27,7 @@ class FertilizationModel{
     return FertilizationModel(
         commonDetails: deviceObjectModel,
       siteMode: data['siteMode'],
-        channel: (data['channel'] as List<dynamic>).map((sNo) => sNo as double).toList(),
+        channel: (data['channel'] as List<dynamic>).map((channel) => Injector.fromJson(channel)).toList(),
         boosterPump: (data['boosterPump'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         agitator: (data['agitator'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         selector: (data['selector'] as List<dynamic>).map((sNo) => sNo as double).toList(),
@@ -48,5 +48,28 @@ class FertilizationModel{
       'ph' : ph,
     });
     return commonInfo;
+  }
+}
+
+class Injector{
+  final double sNo;
+  double level;
+  Injector({
+    required this.sNo,
+    this.level = 0.0,
+  });
+
+  factory Injector.fromJson(data){
+    return Injector(
+        sNo: data['sNo'],
+      level: data['level'] ?? 0.0
+    );
+  }
+
+  Map<String, dynamic> toJson(){
+    return {
+      'sNo' : sNo,
+      'level' : level
+    };
   }
 }

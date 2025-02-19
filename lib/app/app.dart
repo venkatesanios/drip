@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../utils/routes.dart';
 import '../utils/shared_preferences_helper.dart';
-import '../utils/theme.dart';
+import '../utils/oro_theme.dart';
 import '../views/login_screen.dart';
 import '../views/screen_controller.dart';
 import '../views/splash_screen.dart';
@@ -33,8 +33,8 @@ class MyApp extends StatelessWidget {
       builder: (context, snapshot) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          theme: MyTheme.lightTheme,
-          darkTheme: MyTheme.darkTheme,
+          theme: OroTheme.lightTheme,
+          darkTheme: OroTheme.darkTheme,
           themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
           home: navigateToInitialScreen(snapshot.data ?? Routes.login),
           onGenerateRoute: Routes.generateRoute,

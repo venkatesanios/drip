@@ -24,13 +24,13 @@ class CustomSideTab extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 20),
       width: width,
       decoration: BoxDecoration(
-          color: selected ? Colors.white : null,
+          color: selected ? Theme.of(context).primaryColor : null,
           borderRadius: BorderRadius.circular(8)
       ),
       child: ListTile(
         contentPadding: width < 100 ? const EdgeInsets.symmetric(horizontal: 8,vertical: 4) : null,
         onTap: onTap,
-        title: width < 100 ? null : Text(title,style: selected ? AppProperties.normalBlackBoldTextStyle : AppProperties.normalWhiteBoldTextStyle,),
+        title: width < 100 ? null : Text(title,style: AppProperties.normalWhiteBoldTextStyle,),
         leading: SizedImage(imagePath: imagePath,),
       ),
     );

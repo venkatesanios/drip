@@ -14,6 +14,7 @@ class ProductLimitGridListTile extends StatefulWidget {
   final ConfigMakerProvider configPvd;
   final String title;
   Color? leadingColor;
+
   ProductLimitGridListTile({
     super.key,
     required this.listOfObjectModel,
@@ -46,6 +47,7 @@ class _ProductLimitGridListTileState extends State<ProductLimitGridListTile> wit
     ).animate(_controller);
     _startBlinking();
   }
+
   void _startBlinking() async {
     for (int i = 0; i < 2; i++) {
       await _controller.forward(); // Blink to red
@@ -53,8 +55,12 @@ class _ProductLimitGridListTileState extends State<ProductLimitGridListTile> wit
     }
   }
 
-
-
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _controller.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +95,7 @@ class _ProductLimitGridListTileState extends State<ProductLimitGridListTile> wit
     Widget myWidget = ListTile(
       contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
       title: Text(object.objectName, style: AppProperties.listTileBlackBoldStyle,),
-      subtitle: Text('Configured : ${getConfiguredObjectByObjectId(object.objectId)}', style: TextStyle(fontSize: 11),),
+      subtitle: Text('Configured : ${getConfiguredObjectByObjectId(object.objectId)}', style: const TextStyle(fontSize: 11),),
       leading: Container(
         padding: const EdgeInsets.all(5),
         decoration: BoxDecoration(
@@ -123,10 +129,12 @@ class _ProductLimitGridListTileState extends State<ProductLimitGridListTile> wit
       );
     }
   }
+
   int getConfiguredObjectByObjectId(int objectId){
     List<DeviceObjectModel> configured = widget.configPvd.listOfGeneratedObject.where((object) => (object.objectId == objectId && object.controllerId != null)).toList();
     return configured.length;
   }
+
   bool dependentObjectByCommonObject(int objectId){
     bool visible = true;
     if(objectIdDependsOnDosing.contains(objectId)){
@@ -159,7 +167,6 @@ class _ProductLimitGridListTileState extends State<ProductLimitGridListTile> wit
 
     return visible;
   }
-
 }
 
 List<int> objectIdDependsOnDosing = [7, 8, 10, 27, 28];

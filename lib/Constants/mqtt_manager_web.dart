@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:mqtt_client/mqtt_browser_client.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:uuid/uuid.dart';
+import '../utils/environment.dart';
 
 class MqttManager {
   static MqttManager? _instance;
@@ -27,8 +28,10 @@ class MqttManager {
     //   int port = 9001;
 
     // cloud
-    String baseURL = 'ws://13.235.254.21:8083/mqtt';
-    int port = 8083;
+    // String baseURL = 'ws://13.235.254.21:8083/mqtt';
+    String baseURL = Environment.mqttWebUrl;
+    // int port = 8083;
+    int port = Environment.mqttPort;
 
     if (_client == null) {
       _client = MqttBrowserClient(baseURL, uniqueId);

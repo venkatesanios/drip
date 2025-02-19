@@ -17,6 +17,10 @@ void simpleDialogBox({
       context: context,
       builder: (context){
         return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(0)
+          ),
           title: Row(
             children: [
               const Icon(
@@ -31,9 +35,20 @@ void simpleDialogBox({
               ),
             ],
           ),
-          content: Text(
-            message,
-            style: const TextStyle(fontSize: 16),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 100,
+                height: 100,
+                child: Image.asset('assets/Images/Png/no_data.png'),
+              ),
+              SizedBox(height: 10,),
+              Text(
+                message,
+                style: const TextStyle(fontSize: 16, color: Color(0xff727272)),
+              ),
+            ],
           ),
           actions: [
             CustomTextButton()

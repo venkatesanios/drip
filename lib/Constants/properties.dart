@@ -17,7 +17,7 @@ class AppProperties {
   static const normalBlackBoldTextStyle = TextStyle(fontWeight: FontWeight.bold,overflow: TextOverflow.ellipsis, color: Colors.black);
   static const tableHeaderStyle = TextStyle(fontWeight: FontWeight.bold,overflow: TextOverflow.ellipsis, fontSize: 12);
   static const tableHeaderStyleWhite = TextStyle(fontWeight: FontWeight.bold,overflow: TextOverflow.ellipsis, fontSize: 12, color: Colors.white);
-  static const normalWhiteBoldTextStyle = TextStyle(overflow: TextOverflow.ellipsis, color: Colors.white);
+  static const normalWhiteBoldTextStyle = TextStyle(overflow: TextOverflow.ellipsis, color: Colors.white, fontSize: 15);
   static const listTileBlackBoldStyle = TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.black);
 
   //Todo padding style

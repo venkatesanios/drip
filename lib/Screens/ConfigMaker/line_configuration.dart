@@ -20,7 +20,6 @@ import '../../services/http_service.dart';
 import 'config_object_name_editing.dart';
 import 'fertilization_configuration.dart';
 import 'filtration_configuration.dart';
-import 'package:oro_drip_irrigation/Constants/mqtt_manager_mobile.dart' if (dart.library.html) 'package:oro_drip_irrigation/Constants/mqtt_manager_web.dart';
 
 class LineConfiguration extends StatefulWidget {
   final ConfigMakerProvider configPvd;
@@ -220,104 +219,11 @@ class _LineConfigurationState extends State<LineConfiguration> {
               ),
             ),
           ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () async {
-
-              // MqttManager().topicToPublishAndItsMessage('siva', 'hi from siva');
-              sendToMqtt();
-              sendToHttp();
-
-
-            },
-            child: const Icon(Icons.send),
-          ),
-        );
+         );
       }),
     );
   }
 
-  void sendToMqtt(){
-    final Map<String, dynamic> configMakerPayload = {
-      "100": [
-        {"101": widget.configPvd.getDeviceListPayload()},
-        {"102": widget.configPvd.getObjectPayload()},
-        {"103": widget.configPvd.getPumpPayload()},
-        {"104": widget.configPvd.getFilterPayload()},
-        {"105": widget.configPvd.getFertilizerPayload()},
-        {"106": widget.configPvd.getFertilizerInjectorPayload()},
-        {"107": widget.configPvd.getMoisturePayload()},
-        {"108": widget.configPvd.getIrrigationLinePayload()},
-      ]
-    };
-
-    print("configMakerPayload ==> ${jsonEncode(configMakerPayload)}");
-    // print("getOroPumpPayload ==> ${widget.configPvd.getOroPumpPayload()}");
-  }
-
-  void sendToHttp()async{
-    var listOfSampleObjectModel = widget.configPvd.listOfSampleObjectModel.map((object){
-      return object.toJson();
-    }).toList();
-    var listOfObjectModelConnection = widget.configPvd.listOfObjectModelConnection.map((object){
-      return object.toJson();
-    }).toList();
-    var listOfGeneratedObject = widget.configPvd.listOfGeneratedObject.map((object){
-      return object.toJson();
-    }).toList();
-    var filtration = widget.configPvd.filtration.cast<FiltrationModel>().map((object){
-      return object.toJson();
-    }).toList();
-    var fertilization = widget.configPvd.fertilization.cast<FertilizationModel>().map((object){
-      return object.toJson();
-    }).toList();
-    var source = widget.configPvd.source.cast<SourceModel>().map((object){
-      return object.toJson();
-    }).toList();
-    var pump = widget.configPvd.pump.cast<PumpModel>().map((object){
-      return object.toJson();
-    }).toList();
-    var moisture = widget.configPvd.moisture.cast<MoistureModel>().map((object){
-      return object.toJson();
-    }).toList();
-    var line = widget.configPvd.line.cast<IrrigationLineModel>().map((object){
-      return object.toJson();
-    }).toList();
-
-    var body = {
-      "userId" : widget.configPvd.masterData['customerId'],
-      "controllerId" : widget.configPvd.masterData['controllerId'],
-      'groupId' : widget.configPvd.masterData['groupId'],
-      "isNewConfig" : '0',
-      "productLimit" : listOfSampleObjectModel,
-      "connectionCount" : listOfObjectModelConnection,
-      "configObject" : listOfGeneratedObject,
-      "waterSource" : source,
-      "pump" : pump,
-      "filterSite" : filtration,
-      "fertilizerSite" : fertilization,
-      "moistureSensor" : moisture,
-      "irrigationLine" : line,
-      "deviceList" : widget.configPvd.listOfDeviceModel.map((device) {
-        return {
-          'productId' : device.productId,
-          'controllerId' : device.controllerId,
-          'masterId' : device.masterId,
-          'referenceNumber' : widget.configPvd.findOutReferenceNumber(device),
-          'serialNumber' : device.serialNumber,
-          'interfaceTypeId' : device.interfaceTypeId,
-          'interfaceInterval' : device.masterId == null ? null : device.interfaceInterval,
-          'extendControllerId' : device.extendControllerId,
-        };
-      }).toList(),
-      "hardware" : {},
-      "controllerReadStatus" : '0',
-      "createUser" : widget.configPvd.masterData['userId']
-    };
-    var response = await HttpService().postRequest('/user/configMaker/create', body);
-    // print('response : ${response.body}');
-    print('body : ${jsonEncode(body)}');
-    print('response : ${response.body}');
-  }
 
   Widget checkingAnyParameterAvailableInLine(IrrigationLineModel selectedIrrigationLine){
     List<Widget> childrenWidget = [
