@@ -268,6 +268,7 @@ class AppConstants {
                     if(element is double){
                       return (data['configObject'] as List<dynamic>).firstWhere((object) => object['sNo'] == element);
                     }else{
+                      print('element : $element');
                       var object = (data['configObject'] as List<dynamic>).firstWhere((object) => object['sNo'] == element['sNo']);
                       for(var key in element.keys){
                         if(!(object as Map<String, dynamic>).containsKey(key)){
@@ -277,7 +278,7 @@ class AppConstants {
                       return object;
                     }
               }).toList()
-                  : (data['listOfGeneratedObject'] as List<dynamic>).firstWhere((object) => object['sNo'] == siteFormation[siteKey], orElse: ()=> {});
+                  : (data['configObject'] as List<dynamic>).firstWhere((object) => object['sNo'] == siteFormation[siteKey], orElse: ()=> {});
             }
           }
           dataFormation[globalKey].add(site);

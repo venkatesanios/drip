@@ -40,7 +40,7 @@ class FertilizationModel{
     var commonInfo = commonDetails.toJson();
     commonInfo.addAll({
       'siteMode' : siteMode,
-      'channel' : channel,
+      'channel' : channel.map((injector) => injector.toJson()).toList(),
       'boosterPump' : boosterPump,
       'agitator' : agitator,
       'selector' : selector,

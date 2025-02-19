@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-Color primaryDark = const Color(0xFF036673);
-// Color primaryDark = const Color(0xFF005C8F);
-Color primary = const Color(0xFF2999A9);
-// Color primary = const Color(0xFF1B8BCB);
+Color primaryDark = const Color(0xFF005C8F);
+Color primary = const Color(0xFF1B8BCB);
 
-class OroTheme {
+class LkTheme {
   static ThemeData lightTheme = ThemeData.light().copyWith(
     primaryColorDark: primaryDark,
     primaryColor: primary,
@@ -38,7 +36,7 @@ class OroTheme {
     dialogBackgroundColor: Colors.white,
     dialogTheme: DialogTheme(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(0)
+          borderRadius: BorderRadius.circular(0)
       ),
     ),
     navigationRailTheme: const NavigationRailThemeData(
@@ -51,11 +49,11 @@ class OroTheme {
     segmentedButtonTheme: SegmentedButtonThemeData(
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
-            if (states.contains(WidgetState.selected)) {
-              return lightTheme.primaryColor.withValues(alpha: 0.7);
-            }
-            return Colors.grey[300];
-          },
+          if (states.contains(WidgetState.selected)) {
+            return lightTheme.primaryColor.withValues(alpha: 0.7);
+          }
+          return Colors.grey[300];
+        },
         ),
         foregroundColor: WidgetStateProperty.resolveWith<Color?>(
               (states) {
