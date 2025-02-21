@@ -435,11 +435,11 @@ class _FertilizationDashboardFormationState extends State<FertilizationDashboard
           children: [
             child,
             Positioned(
-              left: 28,
-              top: 14,
+              left: 28 * configPvd.ratio,
+              top: 14 * configPvd.ratio,
               child: Container(
-                padding: const EdgeInsets.all(3),
-                height: 28,
+                padding: EdgeInsets.all(3 * configPvd.ratio),
+                height: 28 * configPvd.ratio,
                 alignment: Alignment.bottomCenter,
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -447,7 +447,7 @@ class _FertilizationDashboardFormationState extends State<FertilizationDashboard
                 ),
                 child: Container(
                   width: 5,
-                  height: 15,
+                  height: 15 * configPvd.ratio,
                   color: injector.level == 0.0 ? Colors.grey.shade400 : Colors.red,
                 ),
               ),

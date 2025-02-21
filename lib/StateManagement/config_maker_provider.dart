@@ -15,7 +15,7 @@ import '../Screens/ConfigMaker/config_web_view.dart';
 import '../Screens/ConfigMaker/connection.dart';
 
 class ConfigMakerProvider extends ChangeNotifier{
-  double ratio = 1.0;
+  double ratio = 0.85;
   ConfigMakerTabs selectedTab = ConfigMakerTabs.deviceList;
   Map<int, String> configurationTab = {
     0 : 'Source Configuration',
@@ -33,7 +33,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     4 : 25,
     5 : 2,
   };
-  int selectedConfigurationTab = 3;
+  int selectedConfigurationTab = 0;
   SelectionMode selectedSelectionMode = SelectionMode.auto;
   int selectedConnectionNo = 0;
   String selectedType = '';

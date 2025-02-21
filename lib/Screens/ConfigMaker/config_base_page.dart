@@ -36,8 +36,9 @@ class _ConfigBasePageState extends State<ConfigBasePage> {
     super.initState();
     print("widget.masterData :: ${jsonEncode(widget.masterData)}");
     configPvd = Provider.of<ConfigMakerProvider>(context, listen: false);
-    listOfDevices = configPvd.fetchData({"userId":3,"customerId":4,"controllerId":1,"deviceId":"ABC123456703","deviceName":"ORO GEM","categoryId":1,"categoryName":"ORO GEM","modelId":3,"modelName":"OGEMPRL","groupId":1,"groupName":"testing site","connectingObjectId":["1","2","3","4","1","2","3","4"]});
-    // listOfDevices = configPvd.fetchData(widget.masterData);
+    // listOfDevices = configPvd.fetchData({"userId":3,"customerId":4,"controllerId":1,"deviceId":"ABC123456703","deviceName":"ORO GEM","categoryId":1,"categoryName":"ORO GEM","modelId":3,"modelName":"OGEMPRL","groupId":1,"groupName":"testing site","connectingObjectId":["1","2","3","4","1","2","3","4"]});
+    // listOfDevices = configPvd.fetchData({"userId":3,"customerId":7,"controllerId":9,"deviceId":"GEM123456701","deviceName":"ORO GEM","categoryId":1,"categoryName":"ORO GEM","modelId":3,"modelName":"OGEMPRL","groupId":1,"groupName":"testing site","connectingObjectId":["1","2","3","4","1","2","3","4"]});
+    listOfDevices = configPvd.fetchData(widget.masterData);
   }
 
   @override
