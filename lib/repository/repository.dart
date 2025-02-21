@@ -721,7 +721,37 @@ class Repository{
     };
   }
 
+  Future<http.Response> getUserProgramSequence(body) async {
+    return await apiService.postRequest('/user/program/sequence/get', body);
+  }
 
+  Future<http.Response> getUserProgramSchedule(body) async {
+    return await apiService.postRequest('/user/program/schedule/get', body);
+  }
+
+  Future<http.Response> getUserProgramCondition(body) async {
+    return await apiService.postRequest('/user/program/condition/get', body);
+  }
+
+  Future<http.Response> getUserProgramSelection(body) async {
+    return await apiService.postRequest('/user/program/selection/get', body);
+  }
+
+  Future<http.Response> getUserProgramAlarm(body) async {
+    return await apiService.postRequest('/user/program/alarm/get', body);
+  }
+
+  Future<http.Response> getUserProgramDetails(body) async {
+    return await apiService.postRequest('/user/program/details/get', body);
+  }
+
+  Future<http.Response> getUserConfigMaker(body) async {
+    return await apiService.postRequest('/user/configMaker/getAsDefault', body);
+  }
+
+  Future<http.Response> getProgramLibraryData(body) async {
+    return await apiService.postRequest('/user/program/getLibrary', body);
+  }
 }
 
 /*

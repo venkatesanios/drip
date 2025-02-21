@@ -8,8 +8,8 @@ class NetworkUtils {
   static Stream<bool> get connectionStream => _connectionController.stream;
 
   static void initialize() {
-    _connectivity.onConnectivityChanged.listen((ConnectivityResult result) async {
-      bool isConnected = result != ConnectivityResult.none;
+    _connectivity.onConnectivityChanged.listen((List<ConnectivityResult> results) async {
+      bool isConnected = results.any((result) => result != ConnectivityResult.none);
       _connectionController.add(isConnected);
     });
   }
