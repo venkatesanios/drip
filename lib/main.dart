@@ -1,7 +1,10 @@
 import 'package:oro_drip_irrigation/Constants/mqtt_manager_mobile.dart'
 if (dart.library.html) 'package:oro_drip_irrigation/Constants/mqtt_manager_web.dart';
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/Screens/ValveGroup/valve_group_screen.dart';
 import 'package:oro_drip_irrigation/StateManagement/config_maker_provider.dart';
+import 'package:oro_drip_irrigation/StateManagement/preference_provider.dart';
+import 'package:oro_drip_irrigation/StateManagement/system_definition_provider.dart';
 import 'package:oro_drip_irrigation/utils/environment.dart';
 import 'package:oro_drip_irrigation/utils/network_utils.dart';
 import 'package:provider/provider.dart';
@@ -36,11 +39,13 @@ void main() {
           ChangeNotifierProvider(create: (_) => IrrigationProgramMainProvider()),
           ChangeNotifierProvider(create: (_) => MqttPayloadProvider()),
           ChangeNotifierProvider(create: (_) => OverAllUse()),
+          ChangeNotifierProvider(create: (_) => PreferenceProvider()),
+          ChangeNotifierProvider(create: (_) => SystemDefinitionProvider()),
           // Provider<Logger>(
           //   create: (_) => GlobalConfig.getService<Logger>(),
           // ),
         ],
-        child: const MyApp(),
+        child: MyApp(),
       )
   );
 }

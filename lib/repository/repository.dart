@@ -752,6 +752,38 @@ class Repository{
   Future<http.Response> getProgramLibraryData(body) async {
     return await apiService.postRequest('/user/program/getLibrary', body);
   }
+
+  Future<http.Response> getUserPreferenceSetting(body) async {
+    return await apiService.postRequest('/user/preference/setting/get', body);
+  }
+
+  Future<http.Response> getUserPreferenceGeneral(body) async {
+    return await apiService.postRequest('/user/preference/general/get', body);
+  }
+
+  Future<http.Response> getUserPreferenceCalibration(body) async {
+    return await apiService.postRequest('/user/preference/calibration/get', body);
+  }
+
+  Future<http.Response> getUserPreferenceNotification(body) async {
+    return await apiService.postRequest('/user/preference/notification/get', body);
+  }
+
+  Future<http.Response> createUserPreference(body) async {
+    return await apiService.postRequest('/user/preference/create', body);
+  }
+
+  Future<http.Response> checkPassword(body) async {
+    return await apiService.postRequest('/user/check', body);
+  }
+
+  Future<http.Response> getUserPlanningSystemDefinition(body) async {
+    return await apiService.postRequest('/user/planning/systemDefinition/get', body);
+  }
+
+  Future<http.Response> createUserPlanningSystemDefinition(body) async {
+    return await apiService.postRequest('/user/planning/systemDefinition/create', body);
+  }
 }
 
 /*
