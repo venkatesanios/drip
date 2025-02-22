@@ -19,6 +19,7 @@ import '../../Widgets/SCustomWidgets/custom_date_picker.dart';
 import '../../Widgets/SCustomWidgets/custom_list_tile.dart';
 import '../../Widgets/SCustomWidgets/custom_native_time_picker.dart';
 import '../../services/http_service.dart';
+import '../../utils/constants.dart';
 import '../../utils/snack_bar.dart';
 import '../NewIrrigationProgram/preview_screen.dart';
 import '../NewIrrigationProgram/schedule_screen.dart';
@@ -52,21 +53,579 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin{
   final String _correctPassword = 'Oro@321';
   dynamic newlivedata = {
     "code": 200,
-    "message": "",
+    "message": "User dashboard listed successfully",
     "data": [
       {
-        "groupId": 1,
-        "groupName": "GroupName",
+        "customerId": 4,
+        "customerName": "Cutomer",
+        "userGroupId": 1,
+        "groupName": "testing site",
+        "groupAddress": "testing site",
         "master": [
           {
             "controllerId": 1,
-            "deviceId": "2CCF676089F2",
+            "deviceId": "ABC123456703",
             "deviceName": "ORO GEM",
-            "categoryId": 2,
+            "categoryId": 1,
             "categoryName": "ORO GEM",
-            "modelId": 16,
-            "modelName": "5G",
-            "conditionLibraryCount": 10,
+            "modelId": 3,
+            "modelName": "OGEMPRL",
+            "liveMessage": null,
+            "config": {
+              "configObject": [
+                {
+                  "objectId": 1,
+                  "sNo": 1.001,
+                  "name": "Tank 1",
+                  "connectionNo": null,
+                  "objectName": "Tank",
+                  "type": "-",
+                  "controllerId": null,
+                  "count": null
+                },
+                {
+                  "objectId": 1,
+                  "sNo": 1.002,
+                  "name": "Tank 2",
+                  "connectionNo": null,
+                  "objectName": "Tank",
+                  "type": "-",
+                  "controllerId": null,
+                  "count": null
+                },
+                {
+                  "objectId": 2,
+                  "sNo": 2.001,
+                  "name": "Irrigation Line 1",
+                  "connectionNo": null,
+                  "objectName": "Irrigation Line",
+                  "type": "-",
+                  "controllerId": null,
+                  "count": null
+                },
+                {
+                  "objectId": 3,
+                  "sNo": 3.001,
+                  "name": "Dosing Site 1",
+                  "connectionNo": null,
+                  "objectName": "Dosing Site",
+                  "type": "-",
+                  "controllerId": null,
+                  "count": null
+                },
+                {
+                  "objectId": 4,
+                  "sNo": 4.001,
+                  "name": "Filtration Site 1",
+                  "connectionNo": null,
+                  "objectName": "Filtration Site",
+                  "type": "-",
+                  "controllerId": null,
+                  "count": null
+                },
+                {
+                  "objectId": 5,
+                  "sNo": 5.001,
+                  "name": "Pump 1",
+                  "connectionNo": null,
+                  "objectName": "Pump",
+                  "type": "1,2",
+                  "controllerId": null,
+                  "count": null
+                },
+                {
+                  "objectId": 5,
+                  "sNo": 5.002,
+                  "name": "Pump 2",
+                  "connectionNo": null,
+                  "objectName": "Pump",
+                  "type": "1,2",
+                  "controllerId": null,
+                  "count": null
+                },
+                {
+                  "objectId": 7,
+                  "sNo": 7.001,
+                  "name": "Booster Pump 1",
+                  "connectionNo": null,
+                  "objectName": "Booster Pump",
+                  "type": "1,2",
+                  "controllerId": null,
+                  "count": null
+                },
+                {
+                  "objectId": 9,
+                  "sNo": 9.001,
+                  "name": "Agitator 1",
+                  "connectionNo": null,
+                  "objectName": "Agitator",
+                  "type": "1,2",
+                  "controllerId": null,
+                  "count": null
+                },
+                {
+                  "objectId": 10,
+                  "sNo": 10.001,
+                  "name": "Injector 1",
+                  "connectionNo": null,
+                  "objectName": "Injector",
+                  "type": "1,2",
+                  "controllerId": null,
+                  "count": null
+                },
+                {
+                  "objectId": 10,
+                  "sNo": 10.002,
+                  "name": "Injector 2",
+                  "connectionNo": null,
+                  "objectName": "Injector",
+                  "type": "1,2",
+                  "controllerId": null,
+                  "count": null
+                },
+                {
+                  "objectId": 10,
+                  "sNo": 10.003,
+                  "name": "Injector 3",
+                  "connectionNo": null,
+                  "objectName": "Injector",
+                  "type": "1,2",
+                  "controllerId": null,
+                  "count": null
+                },
+                {
+                  "objectId": 10,
+                  "sNo": 10.004,
+                  "name": "Injector 4",
+                  "connectionNo": null,
+                  "objectName": "Injector",
+                  "type": "1,2",
+                  "controllerId": null,
+                  "count": null
+                },
+                {
+                  "objectId": 10,
+                  "sNo": 10.005,
+                  "name": "Injector 5",
+                  "connectionNo": null,
+                  "objectName": "Injector",
+                  "type": "1,2",
+                  "controllerId": null,
+                  "count": null
+                },
+                {
+                  "objectId": 10,
+                  "sNo": 10.006,
+                  "name": "Injector 6",
+                  "connectionNo": null,
+                  "objectName": "Injector",
+                  "type": "1,2",
+                  "controllerId": null,
+                  "count": null
+                },
+                {
+                  "objectId": 10,
+                  "sNo": 10.007,
+                  "name": "Injector 7",
+                  "connectionNo": null,
+                  "objectName": "Injector",
+                  "type": "1,2",
+                  "controllerId": null,
+                  "count": null
+                },
+                {
+                  "objectId": 10,
+                  "sNo": 10.008,
+                  "name": "Injector 8",
+                  "connectionNo": null,
+                  "objectName": "Injector",
+                  "type": "1,2",
+                  "controllerId": null,
+                  "count": null
+                },
+                {
+                  "objectId": 11,
+                  "sNo": 11.001,
+                  "name": "Filter 1",
+                  "connectionNo": null,
+                  "objectName": "Filter",
+                  "type": "1,2",
+                  "controllerId": null,
+                  "count": null
+                },
+                {
+                  "objectId": 11,
+                  "sNo": 11.002,
+                  "name": "Filter 2",
+                  "connectionNo": null,
+                  "objectName": "Filter",
+                  "type": "1,2",
+                  "controllerId": null,
+                  "count": null
+                },
+                {
+                  "objectId": 13,
+                  "sNo": 13.001,
+                  "name": "Valve 1",
+                  "connectionNo": null,
+                  "objectName": "Valve",
+                  "type": "1,2",
+                  "controllerId": null,
+                  "count": null
+                },
+                {
+                  "objectId": 13,
+                  "sNo": 13.002,
+                  "name": "Valve 2",
+                  "connectionNo": null,
+                  "objectName": "Valve",
+                  "type": "1,2",
+                  "controllerId": null,
+                  "count": null
+                },
+                {
+                  "objectId": 14,
+                  "sNo": 14.001,
+                  "name": "Main Valve 1",
+                  "connectionNo": null,
+                  "objectName": "Main Valve",
+                  "type": "1,2",
+                  "controllerId": null,
+                  "count": null
+                },
+                {
+                  "objectId": 27,
+                  "sNo": 27.001,
+                  "name": "EC Sensor 1",
+                  "connectionNo": 7,
+                  "objectName": "EC Sensor",
+                  "type": "3",
+                  "controllerId": 10,
+                  "count": null
+                },
+                {
+                  "objectId": 27,
+                  "sNo": 27.002,
+                  "name": "EC Sensor 2",
+                  "connectionNo": 8,
+                  "objectName": "EC Sensor",
+                  "type": "3",
+                  "controllerId": 10,
+                  "count": null
+                },
+                {
+                  "objectId": 28,
+                  "sNo": 28.001,
+                  "name": "PH Sensor 1",
+                  "connectionNo": 5,
+                  "objectName": "PH Sensor",
+                  "type": "3",
+                  "controllerId": 10,
+                  "count": null
+                },
+                {
+                  "objectId": 28,
+                  "sNo": 28.002,
+                  "name": "PH Sensor 2",
+                  "connectionNo": 6,
+                  "objectName": "PH Sensor",
+                  "type": "3",
+                  "controllerId": 10,
+                  "count": null
+                }
+              ],
+              "waterSource": [
+                {
+                  "objectId": 1,
+                  "sNo": 1.001,
+                  "name": "Tank 1",
+                  "connectionNo": null,
+                  "objectName": "Tank",
+                  "type": "-",
+                  "controllerId": null,
+                  "count": null,
+                  "sourceType": 5,
+                  "level": 0,
+                  "topFloat": 0,
+                  "bottomFloat": 0,
+                  "inletPump": [],
+                  "outletPump": [
+                    5.001
+                  ],
+                  "valves": []
+                },
+                {
+                  "objectId": 1,
+                  "sNo": 1.002,
+                  "name": "Tank 2",
+                  "connectionNo": null,
+                  "objectName": "Tank",
+                  "type": "-",
+                  "controllerId": null,
+                  "count": null,
+                  "sourceType": 1,
+                  "level": 0,
+                  "topFloat": 0,
+                  "bottomFloat": 0,
+                  "inletPump": [
+                    5.001
+                  ],
+                  "outletPump": [
+                    5.002
+                  ],
+                  "valves": []
+                }
+              ],
+              "pump": [
+                {
+                  "objectId": 5,
+                  "sNo": 5.001,
+                  "name": "Pump 1",
+                  "connectionNo": null,
+                  "objectName": "Pump",
+                  "type": "1,2",
+                  "controllerId": null,
+                  "count": null,
+                  "level": 0,
+                  "pressureIn": 0,
+                  "pressureOut": 0,
+                  "waterMeter": 0,
+                  "pumpType": 1
+                },
+                {
+                  "objectId": 5,
+                  "sNo": 5.002,
+                  "name": "Pump 2",
+                  "connectionNo": null,
+                  "objectName": "Pump",
+                  "type": "1,2",
+                  "controllerId": null,
+                  "count": null,
+                  "level": 0,
+                  "pressureIn": 0,
+                  "pressureOut": 0,
+                  "waterMeter": 0,
+                  "pumpType": 2
+                }
+              ],
+              "filterSite": [
+                {
+                  "objectId": 4,
+                  "sNo": 4.001,
+                  "name": "Filtration Site 1",
+                  "connectionNo": null,
+                  "objectName": "Filtration Site",
+                  "type": "-",
+                  "controllerId": null,
+                  "count": null,
+                  "siteMode": 1,
+                  "filters": [
+                    11.001,
+                    11.002
+                  ],
+                  "pressureIn": 0,
+                  "pressureOut": 0,
+                  "backWashValve": 0
+                }
+              ],
+              "fertilizerSite": [
+                {
+                  "objectId": 3,
+                  "sNo": 3.001,
+                  "name": "Dosing Site 1",
+                  "connectionNo": null,
+                  "objectName": "Dosing Site",
+                  "type": "-",
+                  "controllerId": null,
+                  "count": null,
+                  "siteMode": 1,
+                  "channel": [
+                    {
+                      "sNo": 10.001,
+                      "level": 0
+                    },
+                    {
+                      "sNo": 10.002,
+                      "level": 0
+                    },
+                    {
+                      "sNo": 10.003,
+                      "level": 0
+                    },
+                    {
+                      "sNo": 10.004,
+                      "level": 0
+                    },
+                    {
+                      "sNo": 10.005,
+                      "level": 0
+                    },
+                    {
+                      "sNo": 10.006,
+                      "level": 0
+                    },
+                    {
+                      "sNo": 10.007,
+                      "level": 0
+                    },
+                    {
+                      "sNo": 10.008,
+                      "level": 0
+                    }
+                  ],
+                  "boosterPump": [
+                    7.001
+                  ],
+                  "agitator": [
+                    9.001
+                  ],
+                  "selector": [],
+                  "ec": [
+                    27.001,
+                    27.002
+                  ],
+                  "ph": [
+                    28.001,
+                    28.002
+                  ]
+                }
+              ],
+              "moistureSensor": [],
+              "irrigationLine": [
+                {
+                  "objectId": 2,
+                  "sNo": 2.001,
+                  "name": "Irrigation Line 1",
+                  "connectionNo": null,
+                  "objectName": "Irrigation Line",
+                  "type": "-",
+                  "controllerId": null,
+                  "count": null,
+                  "source": [],
+                  "sourcePump": [
+                    5.001
+                  ],
+                  "irrigationPump": [
+                    5.002
+                  ],
+                  "centralFiltration": 4.001,
+                  "localFiltration": 0,
+                  "centralFertilization": 3.001,
+                  "localFertilization": 0,
+                  "valve": [
+                    13.001,
+                    13.002
+                  ],
+                  "mainValve": [
+                    14.001
+                  ],
+                  "fan": [],
+                  "fogger": [],
+                  "pesticides": [],
+                  "heater": [],
+                  "screen": [],
+                  "vent": [],
+                  "powerSupply": 0,
+                  "pressureSwitch": 0,
+                  "waterMeter": 0,
+                  "pressureIn": 0,
+                  "pressureOut": 0,
+                  "moisture": [],
+                  "temperature": [],
+                  "soilTemperature": [],
+                  "humidity": [],
+                  "co2": []
+                }
+              ]
+            },
+            "nodeList": [
+              {
+                "controllerId": 2,
+                "deviceId": "ABCD12345678",
+                "deviceName": "ORO SMART+",
+                "categoryId": 6,
+                "categoryName": "ORO SMART+",
+                "modelId": 14,
+                "modelName": "OSP8R",
+                "referenceNumber": 1,
+                "serialNumber": 1,
+                "interfaceTypeId": 1,
+                "interface": "MQTT",
+                "extendControllerId": null
+              },
+              {
+                "controllerId": 10,
+                "deviceId": "AACCDDE11223",
+                "deviceName": "ORO SMART+",
+                "categoryId": 6,
+                "categoryName": "ORO SMART+",
+                "modelId": 16,
+                "modelName": "OSP16RADC",
+                "referenceNumber": 2,
+                "serialNumber": 1,
+                "interfaceTypeId": 1,
+                "interface": "MQTT",
+                "extendControllerId": null
+              },
+              {
+                "controllerId": 3,
+                "deviceId": "ABC123456702",
+                "deviceName": "ORO SMART",
+                "categoryId": 5,
+                "categoryName": "ORO SMART",
+                "modelId": 11,
+                "modelName": "OS8R",
+                "referenceNumber": 1,
+                "serialNumber": 2,
+                "interfaceTypeId": 1,
+                "interface": "MQTT",
+                "extendControllerId": null
+              },
+              {
+                "controllerId": 4,
+                "deviceId": "PUMP12345678",
+                "deviceName": "ORO PUMP",
+                "categoryId": 2,
+                "categoryName": "ORO PUMP",
+                "modelId": 4,
+                "modelName": "OPUMP",
+                "referenceNumber": 1,
+                "serialNumber": 3,
+                "interfaceTypeId": 1,
+                "interface": "MQTT",
+                "extendControllerId": null
+              },
+              {
+                "controllerId": 6,
+                "deviceId": "ABC123456714",
+                "deviceName": "ORO SMART+",
+                "categoryId": 6,
+                "categoryName": "ORO SMART+",
+                "modelId": 14,
+                "modelName": "OSP8R",
+                "referenceNumber": 3,
+                "serialNumber": 4,
+                "interfaceTypeId": 1,
+                "interface": "MQTT",
+                "extendControllerId": null
+              }
+            ],
+            "program": [
+              {
+                "programId": 1,
+                "serialNumber": 1,
+                "programName": "Program 1",
+                "defaultProgramName": "Program 1",
+                "programType": "Irrigation Program"
+              },
+              {
+                "programId": 2,
+                "serialNumber": 2,
+                "programName": "Program 2",
+                "defaultProgramName": "Program 2",
+                "programType": "Irrigation Program"
+              }
+            ],
             "units": [
               {
                 "dealerDefinitionId": 114,
@@ -143,1226 +702,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin{
                 "parameter": "LDX Sensor",
                 "value": "lux"
               }
-            ],
-            "nodeList": [],
-            "config":  {
-              "filterSite": [
-                {
-                  "objectId": 4,
-                  "sNo": 4.001,
-                  "name": "Filtration Site 1",
-                  "connectionNo": null,
-                  "objectName": "Filtration Site",
-                  "type": "-",
-                  "controllerId": null,
-                  "count": null,
-                  "siteMode": 1,
-                  "filters": [
-                    {
-                      "objectId": 11,
-                      "sNo": 11.001,
-                      "name": "Filter 1",
-                      "connectionNo": null,
-                      "objectName": "Filter",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 11,
-                      "sNo": 11.002,
-                      "name": "Filter 2",
-                      "connectionNo": null,
-                      "objectName": "Filter",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 11,
-                      "sNo": 11.003,
-                      "name": "Filter 3",
-                      "connectionNo": null,
-                      "objectName": "Filter",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ],
-                  "pressureIn": {
-                    "objectId": 24,
-                    "sNo": 24.001,
-                    "name": "Pressure Sensor 1",
-                    "connectionNo": null,
-                    "objectName": "Pressure Sensor",
-                    "type": "3",
-                    "controllerId": null,
-                    "count": null
-                  },
-                  "pressureOut": {
-                    "objectId": 24,
-                    "sNo": 24.002,
-                    "name": "Pressure Sensor 2",
-                    "connectionNo": null,
-                    "objectName": "Pressure Sensor",
-                    "type": "3",
-                    "controllerId": null,
-                    "count": null
-                  },
-                  "backWashValve": {}
-                },
-                {
-                  "objectId": 4,
-                  "sNo": 4.002,
-                  "name": "Filtration Site 2",
-                  "connectionNo": null,
-                  "objectName": "Filtration Site",
-                  "type": "-",
-                  "controllerId": null,
-                  "count": null,
-                  "siteMode": 2,
-                  "filters": [
-                    {
-                      "objectId": 11,
-                      "sNo": 11.004,
-                      "name": "Filter 4",
-                      "connectionNo": null,
-                      "objectName": "Filter",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 11,
-                      "sNo": 11.005,
-                      "name": "Filter 5",
-                      "connectionNo": null,
-                      "objectName": "Filter",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 11,
-                      "sNo": 11.006,
-                      "name": "Filter 6",
-                      "connectionNo": null,
-                      "objectName": "Filter",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ],
-                  "pressureIn": {},
-                  "pressureOut": {},
-                  "backWashValve": {}
-                }
-              ],
-              "fertilizerSite": [
-                {
-                  "objectId": 3,
-                  "sNo": 3.001,
-                  "name": "Dosing Site 1",
-                  "connectionNo": null,
-                  "objectName": "Dosing Site",
-                  "type": "-",
-                  "controllerId": null,
-                  "count": null,
-                  "siteMode": 1,
-                  "channel": [
-                    {
-                      "objectId": 10,
-                      "sNo": 10.001,
-                      "name": "Injector 1",
-                      "connectionNo": null,
-                      "objectName": "Injector",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 10,
-                      "sNo": 10.002,
-                      "name": "Injector 2",
-                      "connectionNo": null,
-                      "objectName": "Injector",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 10,
-                      "sNo": 10.003,
-                      "name": "Injector 3",
-                      "connectionNo": null,
-                      "objectName": "Injector",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ],
-                  "boosterPump": [
-                    {
-                      "objectId": 7,
-                      "sNo": 7.001,
-                      "name": "Booster Pump 1",
-                      "connectionNo": null,
-                      "objectName": "Booster Pump",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ],
-                  "agitator": [
-                    {
-                      "objectId": 9,
-                      "sNo": 9.001,
-                      "name": "Agitator 1",
-                      "connectionNo": null,
-                      "objectName": "Agitator",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ],
-                  "selector": [],
-                  "ec": [
-                    {
-                      "objectId": 27,
-                      "sNo": 27.001,
-                      "name": "EC Sensor 1",
-                      "connectionNo": null,
-                      "objectName": "EC Sensor",
-                      "type": "3",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 27,
-                      "sNo": 27.002,
-                      "name": "EC Sensor 2",
-                      "connectionNo": null,
-                      "objectName": "EC Sensor",
-                      "type": "3",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ],
-                  "ph": [
-                    {
-                      "objectId": 28,
-                      "sNo": 28.001,
-                      "name": "PH Sensor 1",
-                      "connectionNo": null,
-                      "objectName": "PH Sensor",
-                      "type": "3",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 28,
-                      "sNo": 28.002,
-                      "name": "PH Sensor 2",
-                      "connectionNo": null,
-                      "objectName": "PH Sensor",
-                      "type": "3",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ]
-                },
-                {
-                  "objectId": 3,
-                  "sNo": 3.002,
-                  "name": "Dosing Site 2",
-                  "connectionNo": null,
-                  "objectName": "Dosing Site",
-                  "type": "-",
-                  "controllerId": null,
-                  "count": null,
-                  "siteMode": 2,
-                  "channel": [
-                    {
-                      "objectId": 10,
-                      "sNo": 10.004,
-                      "name": "Injector 4",
-                      "connectionNo": null,
-                      "objectName": "Injector",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 10,
-                      "sNo": 10.005,
-                      "name": "Injector 5",
-                      "connectionNo": null,
-                      "objectName": "Injector",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 10,
-                      "sNo": 10.006,
-                      "name": "Injector 6",
-                      "connectionNo": null,
-                      "objectName": "Injector",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ],
-                  "boosterPump": [
-                    {
-                      "objectId": 7,
-                      "sNo": 7.002,
-                      "name": "Booster Pump 2",
-                      "connectionNo": null,
-                      "objectName": "Booster Pump",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ],
-                  "agitator": [
-                    {
-                      "objectId": 9,
-                      "sNo": 9.002,
-                      "name": "Agitator 2",
-                      "connectionNo": null,
-                      "objectName": "Agitator",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ],
-                  "selector": [],
-                  "ec": [
-                    {
-                      "objectId": 27,
-                      "sNo": 27.003,
-                      "name": "EC Sensor 3",
-                      "connectionNo": null,
-                      "objectName": "EC Sensor",
-                      "type": "3",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 27,
-                      "sNo": 27.004,
-                      "name": "EC Sensor 4",
-                      "connectionNo": null,
-                      "objectName": "EC Sensor",
-                      "type": "3",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ],
-                  "ph": [
-                    {
-                      "objectId": 28,
-                      "sNo": 28.003,
-                      "name": "PH Sensor 3",
-                      "connectionNo": null,
-                      "objectName": "PH Sensor",
-                      "type": "3",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 28,
-                      "sNo": 28.004,
-                      "name": "PH Sensor 4",
-                      "connectionNo": null,
-                      "objectName": "PH Sensor",
-                      "type": "3",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ]
-                }
-              ],
-              "waterSource": [
-                {
-                  "objectId": 1,
-                  "sNo": 1.001,
-                  "name": "Source 1",
-                  "connectionNo": null,
-                  "objectName": "Source",
-                  "type": "-",
-                  "controllerId": null,
-                  "count": null,
-                  "sourceType": {},
-                  "level": {},
-                  "topFloat": {},
-                  "bottomFloat": {},
-                  "inletPump": [],
-                  "outletPump": [
-                    {
-                      "objectId": 5,
-                      "sNo": 5.001,
-                      "name": "Pump 1",
-                      "connectionNo": null,
-                      "objectName": "Pump",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ],
-                  "valves": []
-                },
-                {
-                  "objectId": 1,
-                  "sNo": 1.002,
-                  "name": "Source 2",
-                  "connectionNo": null,
-                  "objectName": "Source",
-                  "type": "-",
-                  "controllerId": null,
-                  "count": null,
-                  "sourceType": {},
-                  "level": {},
-                  "topFloat": {},
-                  "bottomFloat": {},
-                  "inletPump": [],
-                  "outletPump": [
-                    {
-                      "objectId": 5,
-                      "sNo": 5.002,
-                      "name": "Pump 2",
-                      "connectionNo": null,
-                      "objectName": "Pump",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ],
-                  "valves": []
-                },
-                {
-                  "objectId": 1,
-                  "sNo": 1.003,
-                  "name": "Source 3",
-                  "connectionNo": null,
-                  "objectName": "Source",
-                  "type": "-",
-                  "controllerId": null,
-                  "count": null,
-                  "sourceType": {},
-                  "level": {},
-                  "topFloat": {},
-                  "bottomFloat": {},
-                  "inletPump": [
-                    {
-                      "objectId": 5,
-                      "sNo": 5.001,
-                      "name": "Pump 1",
-                      "connectionNo": null,
-                      "objectName": "Pump",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 5,
-                      "sNo": 5.002,
-                      "name": "Pump 2",
-                      "connectionNo": null,
-                      "objectName": "Pump",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ],
-                  "outletPump": [
-                    {
-                      "objectId": 5,
-                      "sNo": 5.003,
-                      "name": "Pump 3",
-                      "connectionNo": null,
-                      "objectName": "Pump",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ],
-                  "valves": [{
-                    "objectId": 13,
-                    "sNo": 13.001,
-                    "name": "Valve 1",
-                    "connectionNo": null,
-                    "objectName": "Valve",
-                    "type": "1,2",
-                    "controllerId": null,
-                    "count": null
-                  },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.002,
-                      "name": "Valve 2",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    }]
-                }
-              ],
-              "pump": [
-                {
-                  "objectId": 5,
-                  "sNo": 5.001,
-                  "name": "Pump 1",
-                  "connectionNo": null,
-                  "objectName": "Pump",
-                  "type": "1,2",
-                  "controllerId": null,
-                  "count": null,
-                  "pressure": {},
-                  "waterMeter": {
-                    "objectId": 22,
-                    "sNo": 22.001,
-                    "name": "Water Meter 1",
-                    "connectionNo": null,
-                    "objectName": "Water Meter",
-                    "type": "6",
-                    "controllerId": null,
-                    "count": null
-                  },
-                  "pumpType": 1,
-                  "level": {}
-                },
-                {
-                  "objectId": 5,
-                  "sNo": 5.002,
-                  "name": "Pump 2",
-                  "connectionNo": null,
-                  "objectName": "Pump",
-                  "type": "1,2",
-                  "controllerId": null,
-                  "count": null,
-                  "pressure": {},
-                  "waterMeter": {
-                    "objectId": 22,
-                    "sNo": 22.002,
-                    "name": "Water Meter 2",
-                    "connectionNo": null,
-                    "objectName": "Water Meter",
-                    "type": "6",
-                    "controllerId": null,
-                    "count": null
-                  },
-                  "pumpType": 1,
-                  "level": {}
-                },
-                {
-                  "objectId": 5,
-                  "sNo": 5.003,
-                  "name": "Pump 3",
-                  "connectionNo": null,
-                  "objectName": "Pump",
-                  "type": "1,2",
-                  "controllerId": null,
-                  "count": null,
-                  "pressure": {},
-                  "waterMeter": {
-                    "objectId": 22,
-                    "sNo": 22.003,
-                    "name": "Water Meter 3",
-                    "connectionNo": null,
-                    "objectName": "Water Meter",
-                    "type": "6",
-                    "controllerId": null,
-                    "count": null
-                  },
-                  "pumpType": 2,
-                  "level": {}
-                }
-              ],
-              "moistureSensor": [
-                {
-                  "objectId": 25,
-                  "sNo": 25.001,
-                  "name": "Moisture Sensor 1",
-                  "connectionNo": null,
-                  "objectName": "Moisture Sensor",
-                  "type": "5",
-                  "controllerId": null,
-                  "count": null,
-                  "valves": [
-                    {
-                      "objectId": 13,
-                      "sNo": 13.001,
-                      "name": "Valve 1",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.002,
-                      "name": "Valve 2",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.003,
-                      "name": "Valve 3",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.004,
-                      "name": "Valve 4",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.005,
-                      "name": "Valve 5",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.006,
-                      "name": "Valve 6",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.007,
-                      "name": "Valve 7",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ]
-                },
-                {
-                  "objectId": 25,
-                  "sNo": 25.002,
-                  "name": "Moisture Sensor 2",
-                  "connectionNo": null,
-                  "objectName": "Moisture Sensor",
-                  "type": "5",
-                  "controllerId": null,
-                  "count": null,
-                  "valves": [
-                    {
-                      "objectId": 13,
-                      "sNo": 13.008,
-                      "name": "Valve 8",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.009,
-                      "name": "Valve 9",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.01,
-                      "name": "Valve 10",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.011,
-                      "name": "Valve 11",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.012,
-                      "name": "Valve 12",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.013,
-                      "name": "Valve 13",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.014,
-                      "name": "Valve 14",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ]
-                },
-                {
-                  "objectId": 25,
-                  "sNo": 25.003,
-                  "name": "Moisture Sensor 3",
-                  "connectionNo": null,
-                  "objectName": "Moisture Sensor",
-                  "type": "5",
-                  "controllerId": null,
-                  "count": null,
-                  "valves": [
-                    {
-                      "objectId": 13,
-                      "sNo": 13.015,
-                      "name": "Valve 15",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.016,
-                      "name": "Valve 16",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.017,
-                      "name": "Valve 17",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ]
-                },
-                {
-                  "objectId": 25,
-                  "sNo": 25.004,
-                  "name": "Moisture Sensor 4",
-                  "connectionNo": null,
-                  "objectName": "Moisture Sensor",
-                  "type": "5",
-                  "controllerId": null,
-                  "count": null,
-                  "valves": [
-                    {
-                      "objectId": 13,
-                      "sNo": 13.018,
-                      "name": "Valve 18",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.019,
-                      "name": "Valve 19",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.02,
-                      "name": "Valve 20",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ]
-                }
-              ],
-              "irrigationLine": [
-                {
-                  "objectId": 2,
-                  "sNo": 2.001,
-                  "name": "Irrigation Line 1",
-                  "connectionNo": null,
-                  "objectName": "Irrigation Line",
-                  "type": "-",
-                  "controllerId": null,
-                  "count": null,
-                  "source": [],
-                  "sourcePump": [
-                    {
-                      "objectId": 5,
-                      "sNo": 5.001,
-                      "name": "Pump 1",
-                      "connectionNo": null,
-                      "objectName": "Pump",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 5,
-                      "sNo": 5.002,
-                      "name": "Pump 2",
-                      "connectionNo": null,
-                      "objectName": "Pump",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ],
-                  "irrigationPump": [
-                    {
-                      "objectId": 5,
-                      "sNo": 5.003,
-                      "name": "Pump 3",
-                      "connectionNo": null,
-                      "objectName": "Pump",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ],
-                  "centralFiltration": {
-                    "objectId": 4,
-                    "sNo": 4.002,
-                    "name": "Filtration Site 2",
-                    "connectionNo": null,
-                    "objectName": "Filtration Site",
-                    "type": "-",
-                    "controllerId": null,
-                    "count": null
-                  },
-                  "localFiltration": {},
-                  "centralFertilization": {
-                    "objectId": 3,
-                    "sNo": 3.001,
-                    "name": "Dosing Site 1",
-                    "connectionNo": null,
-                    "objectName": "Dosing Site",
-                    "type": "-",
-                    "controllerId": null,
-                    "count": null
-                  },
-                  "localFertilization": {},
-                  "valve": [
-                    {
-                      "objectId": 13,
-                      "sNo": 13.001,
-                      "name": "Valve 1",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.002,
-                      "name": "Valve 2",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.003,
-                      "name": "Valve 3",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.004,
-                      "name": "Valve 4",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.005,
-                      "name": "Valve 5",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.006,
-                      "name": "Valve 6",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.007,
-                      "name": "Valve 7",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ],
-                  "mainValve": [],
-                  "fan": [],
-                  "fogger": [],
-                  "pesticides": [],
-                  "heater": [],
-                  "screen": [],
-                  "vent": [],
-                  "powerSupply": {},
-                  "pressureSwitch": {
-                    "objectId": 23,
-                    "sNo": 23.001,
-                    "name": "Pressure Switch 1",
-                    "connectionNo": null,
-                    "objectName": "Pressure Switch",
-                    "type": "4",
-                    "controllerId": null,
-                    "count": null
-                  },
-                  "waterMeter": {
-                    "objectId": 22,
-                    "sNo": 22.005,
-                    "name": "Water Meter 5",
-                    "connectionNo": null,
-                    "objectName": "Water Meter",
-                    "type": "6",
-                    "controllerId": null,
-                    "count": null
-                  },
-                  "pressureIn": {},
-                  "pressureOut": {},
-                  "moisture": [
-                    {
-                      "objectId": 25,
-                      "sNo": 25.001,
-                      "name": "Moisture Sensor 1",
-                      "connectionNo": null,
-                      "objectName": "Moisture Sensor",
-                      "type": "5",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 25,
-                      "sNo": 25.002,
-                      "name": "Moisture Sensor 2",
-                      "connectionNo": null,
-                      "objectName": "Moisture Sensor",
-                      "type": "5",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ],
-                  "temperature": [],
-                  "soilTemperature": [],
-                  "humidity": [],
-                  "co2": []
-                },
-                {
-                  "objectId": 2,
-                  "sNo": 2.002,
-                  "name": "Irrigation Line 2",
-                  "connectionNo": null,
-                  "objectName": "Irrigation Line",
-                  "type": "-",
-                  "controllerId": null,
-                  "count": null,
-                  "source": [],
-                  "sourcePump": [
-                    {
-                      "objectId": 5,
-                      "sNo": 5.001,
-                      "name": "Pump 1",
-                      "connectionNo": null,
-                      "objectName": "Pump",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ],
-                  "irrigationPump": [
-                    {
-                      "objectId": 5,
-                      "sNo": 5.003,
-                      "name": "Pump 3",
-                      "connectionNo": null,
-                      "objectName": "Pump",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ],
-                  "centralFiltration": {},
-                  "localFiltration": {},
-                  "centralFertilization": {},
-                  "localFertilization": {},
-                  "valve": [
-                    {
-                      "objectId": 13,
-                      "sNo": 13.008,
-                      "name": "Valve 8",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.009,
-                      "name": "Valve 9",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.01,
-                      "name": "Valve 10",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.011,
-                      "name": "Valve 11",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.012,
-                      "name": "Valve 12",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.013,
-                      "name": "Valve 13",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.014,
-                      "name": "Valve 14",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.015,
-                      "name": "Valve 15",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.016,
-                      "name": "Valve 16",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.017,
-                      "name": "Valve 17",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.018,
-                      "name": "Valve 18",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.019,
-                      "name": "Valve 19",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 13,
-                      "sNo": 13.02,
-                      "name": "Valve 20",
-                      "connectionNo": null,
-                      "objectName": "Valve",
-                      "type": "1,2",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ],
-                  "mainValve": [],
-                  "fan": [],
-                  "fogger": [],
-                  "pesticides": [],
-                  "heater": [],
-                  "screen": [],
-                  "vent": [],
-                  "powerSupply": {},
-                  "pressureSwitch": {},
-                  "waterMeter": {
-                    "objectId": 22,
-                    "sNo": 22.004,
-                    "name": "Water Meter 4",
-                    "connectionNo": null,
-                    "objectName": "Water Meter",
-                    "type": "6",
-                    "controllerId": null,
-                    "count": null
-                  },
-                  "pressureIn": {},
-                  "pressureOut": {},
-                  "moisture": [
-                    {
-                      "objectId": 25,
-                      "sNo": 25.003,
-                      "name": "Moisture Sensor 3",
-                      "connectionNo": null,
-                      "objectName": "Moisture Sensor",
-                      "type": "5",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    {
-                      "objectId": 25,
-                      "sNo": 25.004,
-                      "name": "Moisture Sensor 4",
-                      "connectionNo": null,
-                      "objectName": "Moisture Sensor",
-                      "type": "5",
-                      "controllerId": null,
-                      "count": null
-                    }
-                  ],
-                  "temperature": [],
-                  "soilTemperature": [],
-                  "humidity": [],
-                  "co2": []
-                }
-              ]
-            },
-            "live": {
-              "cC": "1234567890AB",
-              "cD": "2024-11-14",
-              "cT": "12:15:00",
-              "mC": "2400",
-              "2402": "1,1;2,2;3,3;4,3;5,3;6,3;7,3;8,3;9,3;10,3;11,3;12,3;13,3;14,3;15,3;16,3;17,3;18,3;",
-              "2403": "19,25.5,123456;20,1,;21,12.0,;22,10.0,;23,200.0,;24,200.0,;25,1,;25,1,;27,1,;28,1,;29,5,50;",
-              "2404": "1,20,12.5,19.5,1,230,240,235,11.1,11.2,12.3;1,20,12.5,19.5,1,230,240,235,11.1,11.2,12.3;",
-              "2405": "1,1;",
-              "2406": "10,-1,0,01:00:00,00:38:00,2.1;",
-              "2407": "1,400,1,00:05:00,00:05:00,10,20;",
-              "2408": "1,1.1,1,00:30:00,00:29:00,6,2,5,1,10,9,10:00:00,2,15000,00:00:00,00:00:00,1;",
-              "2409": "1,1.2,1,00:50:00,1;",
-              "2410": "1,1,10,29-11-24,10:00:00,30-11-24,1,100,10,11,1,10,11,,,;2,1,10,29-11-24,10:00:00,30-11-24,1,100,10,11,1,10,11,,,;3,1,10,29-11-24,10:00:00,30-11-24,1,100,10,11,1,10,11,,,;4,1,10,29-11-24,10:00:00,30-11-24,1,100,10,11,1,10,11,,,;",
-              "2412": "1,10,100000,100700,29-11-24,10:00:00,1;"
-            }
+            ]
           }
         ]
       }
@@ -1411,11 +751,12 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin{
       var getUserDetails = await service.postRequest('/user/dashboard', {'userId' : '4',});
       // var getUserDetails = await service.postRequest('getCustomerDashboard', {'userId' : userIdFromPref,});
 
-      var jsonData1 = jsonDecode(getUserDetails.body);
-      print("jsonData1: $jsonData1");
-      Map<String, dynamic> jsonData =  newlivedata;
+      // var jsonData1 = jsonDecode(getUserDetails.body);
+      // print("jsonData1: $jsonData1");
+      Map<String, dynamic> jsonData = newlivedata;
 
       if(jsonData['code'] == 200){
+        print('jsonData[code] ; ${jsonData['code']}');
         payloadProvider.updatedashboard(jsonData);
         if(jsonData['data'].isNotEmpty){
           //Modified by saravanan
@@ -1524,14 +865,21 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin{
   @override
   Widget build(BuildContext context)
   {
+    var selectedLine = null;
+    var selectedSite = null;
+    var selectedMaster = null;
+    var selectedfiltersite = null;
+    var selectedfertilizer = null;
+    if(payloadProvider.dashboardLiveInstance.data != null && payloadProvider.dashboardLiveInstance.data!.isNotEmpty)
+      {
     var selectedSite = payloadProvider.dashboardLiveInstance.data![payloadProvider.selectedSite];
     var selectedMaster = payloadProvider.dashboardLiveInstance.data![payloadProvider.selectedSite].master![payloadProvider.selectedMaster];
-    var selectedLine = payloadProvider.dashboardLiveInstance.data![payloadProvider.selectedSite].master![payloadProvider.selectedMaster].config!.irrigationLine![payloadProvider.selectedLine];
+     selectedLine =  payloadProvider.dashboardLiveInstance.data![payloadProvider.selectedSite].master![payloadProvider.selectedMaster].config!.irrigationLine![payloadProvider.selectedLine];
     var selectedfiltersite = payloadProvider.dashboardLiveInstance.data![payloadProvider.selectedSite].master![payloadProvider.selectedMaster].config!.filterSite;
     var selectedfertilizer = payloadProvider.dashboardLiveInstance.data![payloadProvider.selectedSite].master![payloadProvider.selectedMaster].config!.irrigationLine![payloadProvider.selectedLine];
-
+      }
     return ((payloadProvider.dashboardLiveInstance.data != null && payloadProvider.dashboardLiveInstance.data!.isNotEmpty)) ?
-    Scaffold(
+     Scaffold(
       body: SafeArea(child: Center(child: Column(
         children: [
           Column(

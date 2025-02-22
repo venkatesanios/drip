@@ -257,6 +257,7 @@ class AppConstants {
   }
 
   dynamic payloadConversion(data) {
+    print('dataFormation data : ${data}');
     dynamic dataFormation = {};
     for (var globalKey in data.keys) {
       if ([
@@ -321,8 +322,8 @@ class AppConstants {
           }
         }
       }
-      // print('dataFormation : ${jsonEncode(dataFormation)}');
-      // print('-------------------------------------------');
+      print('dataFormation : ${dataFormation}');
+      print('-------------------------------------------');
       return dataFormation;
     }
   }

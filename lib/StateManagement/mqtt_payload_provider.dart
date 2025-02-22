@@ -738,6 +738,7 @@ class MqttPayloadProvider with ChangeNotifier {
 
   void updatedashboard(Map<String, dynamic> payload) {
     dashboardLiveInstance =  LiveData.fromJson(payload);
+    print('dashboardLiveInstance update payload');
     notifyListeners();
   }
 

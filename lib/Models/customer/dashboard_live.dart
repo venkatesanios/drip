@@ -1,3 +1,5 @@
+import 'package:oro_drip_irrigation/utils/constants.dart';
+
 class LiveData {
   int? code;
   String? message;
@@ -98,7 +100,7 @@ class Master {
       conditionLibraryCount: json['conditionLibraryCount'],
       units: (json['units'] as List?)?.map((e) => Unit.fromJson(e)).toList(),
       nodeList: json['nodeList'],
-      config: json['config'] != null ? Config.fromJson(json['config']) : null,
+      config: json['config'] != null ? Config.fromJson(AppConstants().payloadConversion(json['config'])) : null,
       live: json['live'] != null ? Live.fromJson(json['live']) : null,
     );
   }
