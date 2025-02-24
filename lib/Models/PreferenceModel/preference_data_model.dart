@@ -45,42 +45,6 @@ class GeneralData {
   }
 }
 
-class NotificationsData {
-  int notificationTypeId;
-  String notification;
-  String notificationDescription;
-  String iconCodePoint;
-  String? iconFontFamily;
-  bool? value;
-
-  NotificationsData({
-    required this.notificationTypeId,
-    required this.notification,
-    required this.notificationDescription,
-    required this.iconCodePoint,
-    this.iconFontFamily,
-    this.value
-  });
-
-  factory NotificationsData.fromJson(Map<String, dynamic> json) {
-    return NotificationsData(
-        notificationTypeId: json['notificationTypeId'],
-        notification: json['notification'],
-        notificationDescription: json['notificationDescription'],
-        iconCodePoint: json['iconCodePoint'],
-        iconFontFamily: json['iconFontFamily'],
-        value: json['value'] ?? false
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'notificationTypeId': notificationTypeId,
-      'value': value,
-    };
-  }
-}
-
 class RtcTimeSetting {
   int rtc;
   String onTime;
@@ -214,11 +178,6 @@ class SettingList {
     };
   }
 
-  dynamic toGem() {
-    if(type == 22) {
-      return "${setting.firstWhere((element) => element.serialNumber == 1).value}";
-    }
-  }
   List gemPayload() {
     List<String> result = [];
 
@@ -291,7 +250,7 @@ class IndividualPumpSetting {
 
   String toGem() {
     return '';
-    // return "$sNo,${id.contains("SP") ? 1 : 2},$id";
+    // return "$sNo,${id.contains("SP") ? 1 : 2}";
   }
 
   String oDt() {

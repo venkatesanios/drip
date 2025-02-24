@@ -753,6 +753,31 @@ class Repository{
     return await apiService.postRequest('/user/program/getLibrary', body);
   }
 
+  Future<http.Response> createUserProgram(body) async {
+    return await apiService.postRequest('/user/program/create', body);
+  }
+
+  Future<http.Response> inactiveUserProgram(body) async {
+    return await apiService.putRequest('/user/program/inactive', body);
+  }
+
+  Future<http.Response> activeUserProgram(body) async {
+    return await apiService.putRequest('/user/program/active', body);
+  }
+
+  Future<http.Response> deleteUserProgram(body) async {
+    return await apiService.putRequest('/user/program/delete', body);
+  }
+
+  Future<http.Response> createProgramFromCopy(body) async {
+    return await apiService.postRequest('/user/program/createFromCopy', body);
+  }
+
+  Future<http.Response> updateProgramDetails(body) async {
+    return await apiService.putRequest('/user/program/updateDetails', body);
+  }
+
+
   Future<http.Response> getUserPreferenceSetting(body) async {
     return await apiService.postRequest('/user/preference/setting/get', body);
   }

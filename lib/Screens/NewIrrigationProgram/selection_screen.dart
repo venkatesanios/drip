@@ -35,23 +35,34 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
     ctrlValue.addListener(() {setState(() {});});
     ctrlValue.repeat();
     irrigationProgramProvider = Provider.of<IrrigationProgramMainProvider>(context, listen: false);
+    print(irrigationProgramProvider.selectedObjects.map((element) {
+      print(element.objectId);
+      print(element.objectId != 2);
+    }));
+
     // print("headunit ==> ${irrigationProgramProvider.selectionModel!.data.headUnits!.length == 1}");
-    if(irrigationProgramProvider.selectionModel!.data.headUnits!.length == 1) {
-      irrigationProgramProvider.selectionModel!.data.headUnits![0].selected = true;
+    if(irrigationProgramProvider.sampleIrrigationLine?.map((e) => e.irrigationLine).toList().length == 1 && irrigationProgramProvider.selectedObjects.any((element) => element.objectId != 2)) {
+      irrigationProgramProvider.selectedObjects.add(
+          irrigationProgramProvider.sampleIrrigationLine!.map((e) => e.irrigationLine).toList()[0]
+      );
     }
     if(!irrigationProgramProvider.isPumpStationMode) {
-      if(irrigationProgramProvider.selectionModel!.data.headUnits!.where((e) => e.selected == true).length > 1) {
-        for(var i = 0; i < irrigationProgramProvider.selectionModel!.data.headUnits!.length; i++) {
+      if(irrigationProgramProvider.selectedObjects.where((element) => element.objectId == 5).length > 1) {
+        for(var i = 0; i < irrigationProgramProvider.sampleIrrigationLine!.map((e) => e.irrigationLine).toList().length; i++) {
           if(i != 0) {
-            irrigationProgramProvider.selectionModel!.data.headUnits![i].selected = false;
+            irrigationProgramProvider.selectedObjects.removeWhere((element) => element.objectId == 5);
           } else {
-            irrigationProgramProvider.selectionModel!.data.headUnits!.where((headUnit) {
-              return irrigationProgramProvider.irrigationLine!.sequence.any((sequenceItem) {
-                return sequenceItem['valve'].any((valve) {
-                  return valve['location'] == headUnit.id.toString();
-                });
-              });
-            }).toList()[0].selected = true;
+            irrigationProgramProvider.selectedObjects.add(
+                irrigationProgramProvider.sampleIrrigationLine!.where((headUnit) {
+                  return irrigationProgramProvider.irrigationLine!.sequence.any((sequenceItem) {
+                    return sequenceItem['valve'].any((valve) {
+                      return headUnit.valve!.any((valveItem) {
+                        return valveItem.sNo == valve['sNo'];
+                      });
+                    });
+                  });
+                }).map((e) => e.irrigationLine).toList()[0]
+            );
           }
         }
       }
@@ -184,7 +195,8 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                         });
                       });
                     });
-                  }).map((e) => e.irrigationLine).toList() : irrigationLine.map((e) => e.irrigationLine).toList(),
+                  }).map((e) => e.irrigationLine).toList()
+                      : irrigationLine.map((e) => e.irrigationLine).toList(),
                   lightColor: greenLight,
                   darkColor: greenDark,
                 ),

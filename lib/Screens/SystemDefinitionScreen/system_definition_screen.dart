@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Constants/properties.dart';
 import 'package:provider/provider.dart';
-import '../../../constants/http_service.dart';
 import '../../Models/system_definition_model.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../StateManagement/overall_use.dart';

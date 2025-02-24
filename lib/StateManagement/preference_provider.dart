@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import '../Models/PreferenceModel/preference_data_model.dart';
-import '../constants/http_service.dart';
 import '../repository/repository.dart';
 import '../services/http_service.dart';
 
@@ -14,7 +13,6 @@ const actionForUserPassword = "checkUserUsingUserIdAndPassword";
 const actionForCalibration = "getUserPreferenceCalibration";
 
 class PreferenceProvider extends ChangeNotifier {
-  final HttpServiceOld httpService = HttpServiceOld();
   final Repository repository = Repository(HttpService());
 
 
@@ -131,7 +129,7 @@ class PreferenceProvider extends ChangeNotifier {
         'userId': userId,
         "password": password
       };
-      final response = await httpService.postRequest(actionForUserPassword, userData);
+      final response = await repository.checkPassword(userData);
       print(userData);
       final result = jsonDecode(response.body);
       passwordValidationCode = result['code'];

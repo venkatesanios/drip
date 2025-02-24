@@ -7,13 +7,14 @@ import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../../../Models/IrrigationModel/sequence_model.dart';
-import '../../Constants/http_service.dart';
 import '../../Models/Configuration/device_object_model.dart';
 import '../../StateManagement/irrigation_program_provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../Widgets/SCustomWidgets/custom_alert_dialog.dart';
 import '../../Widgets/SCustomWidgets/custom_data_table.dart';
 import '../../Widgets/SCustomWidgets/custom_snack_bar.dart';
+import '../../repository/repository.dart';
+import '../../services/http_service.dart';
 import 'program_library.dart';
 
 final dateFormat = DateFormat('dd-MM-yyyy');
@@ -267,7 +268,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
                       child: buildAlarmDetails()
                   ),
                   const SizedBox(height: 20,),
-                  Container(
+                  /*Container(
                     margin: MediaQuery.of(context).size.width > 1200 ? const EdgeInsets.all(20) : const EdgeInsets.symmetric(horizontal: 20),
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
@@ -309,7 +310,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
                             (data, index) => buildDataCell(dataItem: data['levelCondition'], widthRatio: constraints.maxWidth * 0.1),
                       ],
                     ),
-                  ),
+                  ),*/
                   const SizedBox(height: 20,),
                   if(fertilizerCondition)
                     Container(
@@ -494,7 +495,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
   void sendFunction() async{
     final mainProvider = Provider.of<IrrigationProgramMainProvider>(context, listen: false);
     Map<String, dynamic> dataToMqtt = {};
-    dataToMqtt = mainProvider.dataToMqtt(widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber, widget.programType);
+    // dataToMqtt = mainProvider.dataToMqtt(widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber, widget.programType);
     var userData = {
       "defaultProgramName": mainProvider.defaultProgramName,
       "userId": widget.userId,
@@ -504,36 +505,34 @@ class _PreviewScreenState extends State<PreviewScreen> {
     };
     if(mainProvider.irrigationLine!.sequence.isNotEmpty) {
       // print(mainProvider.selectionModel.data!.toJson());
+      print(mainProvider.additionalData!.toJson());
       var dataToSend = {
         "sequence": mainProvider.irrigationLine!.sequence,
         "schedule": mainProvider.sampleScheduleModel!.toJson(),
-        "conditions": mainProvider.sampleConditions!.toJson(),
-        "waterAndFert": mainProvider.sequenceData,
-        "selection": mainProvider.selectionModel!.data.toJson(),
+        "conditions": {},
+        // "conditions": mainProvider.sampleConditions!.toJson(),
+        "waterAndFert": {},
+        // "waterAndFert": mainProvider.sequenceData,
+        "selection": {
+          ...mainProvider.additionalData!.toJson(),
+          "selected": mainProvider.selectedObjects.map((e) => e.toJson()).toList(),
+        },
         "alarm": mainProvider.newAlarmList!.toJson(),
         "programName": mainProvider.programName,
         "priority": mainProvider.priority,
         "delayBetweenZones": mainProvider.programDetails!.delayBetweenZones,
         "adjustPercentage": mainProvider.programDetails!.adjustPercentage,
         "incompleteRestart": mainProvider.isCompletionEnabled ? "1" : "0",
-        "controllerReadStatus": 0,
+        "controllerReadStatus": '0',
         "programType": mainProvider.selectedProgramType,
         "hardware": dataToMqtt
       };
       userData.addAll(dataToSend);
-      try {
-        for(var i = 0; i < dataToMqtt['2500'][1]['2502'].split(',').length; i++) {
-          print("${i+1} ==> ${dataToMqtt['2500'][1]['2502'].split(',')[i]}");
-        }
-      } catch(e, stack) {
-        print('error : $e');
-        print('stack : $stack');
-      }
       // print(dataToMqtt['2500'][1]['2502'].split(',').join('\n'));
       // print(dataToMqtt['2500'][1]['2502'].split(',').length);
       try {
         // MQTTManager().publish(jsonEncode(dataToMqtt), "AppToFirmware/${widget.deviceId}");
-        await validatePayloadSent(
+        /*await validatePayloadSent(
             dialogContext: context,
             context: context,
             mqttPayloadProvider: mqttPayloadProvider,
@@ -548,7 +547,8 @@ class _PreviewScreenState extends State<PreviewScreen> {
             deviceId: widget.deviceId
         ).whenComplete(() {
           Future.delayed(const Duration(milliseconds: 300), () async {
-            /*final createUserProgram = await HttpService().postRequest('createUserProgram', userData);
+            final Repository repository = Repository(HttpService());
+            final createUserProgram = await repository.createUserProgram(userData);
             final response = jsonDecode(createUserProgram.body);
             if(createUserProgram.statusCode == 200) {
               await irrigationProvider.programLibraryData(widget.userId, widget.controllerId);
@@ -557,10 +557,10 @@ class _PreviewScreenState extends State<PreviewScreen> {
                 irrigationProvider.updateBottomNavigation(0);
                 Navigator.of(context).pop();
                 print(irrigationProvider.selectedIndex);
-               *//* Navigator.push(
-                  context,
-                  // MaterialPageRoute(builder: (context) => HomeScreen(userId: widget.userId, fromDealer: widget.fromDealer,)),
-                );*//*
+                // Navigator.push(
+                //   context,
+                //   // MaterialPageRoute(builder: (context) => HomeScreen(userId: widget.userId, fromDealer: widget.fromDealer,)),
+                // );
               } else {
                 Navigator.of(context).pop();
                 irrigationProvider.updateBottomNavigation(1);
@@ -569,8 +569,33 @@ class _PreviewScreenState extends State<PreviewScreen> {
                 //   MaterialPageRoute(builder: (context) => HomeScreen(userId: widget.userId, fromDealer: widget.fromDealer,)),
                 // );
               }
-            }*/
+            }
           });
+        });*/
+        Future.delayed(const Duration(milliseconds: 300), () async {
+          final Repository repository = Repository(HttpService());
+          final createUserProgram = await repository.createUserProgram(userData);
+          final response = jsonDecode(createUserProgram.body);
+          if(createUserProgram.statusCode == 200) {
+            // await irrigationProvider.programLibraryData(widget.userId, widget.controllerId);
+            ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: response['message']));
+           /* if(widget.toDashboard) {
+              irrigationProvider.updateBottomNavigation(0);
+              Navigator.of(context).pop();
+              print(irrigationProvider.selectedIndex);
+              // Navigator.push(
+              //   context,
+              //   // MaterialPageRoute(builder: (context) => HomeScreen(userId: widget.userId, fromDealer: widget.fromDealer,)),
+              // );
+            } else {
+              Navigator.of(context).pop();
+              irrigationProvider.updateBottomNavigation(1);
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => HomeScreen(userId: widget.userId, fromDealer: widget.fromDealer,)),
+              // );
+            }*/
+          }
         });
       } catch (error) {
         ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: 'Failed to update because of $error'));

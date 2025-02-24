@@ -8,7 +8,6 @@ import 'package:oro_drip_irrigation/Screens/NewIrrigationProgram/selection_scree
 import 'package:oro_drip_irrigation/Screens/NewIrrigationProgram/sequence_screen.dart';
 import 'package:oro_drip_irrigation/Screens/NewIrrigationProgram/water_and_fertilizer_screen.dart';
 import 'package:provider/provider.dart';
-import '../../../../constants/http_service.dart';
 import '../../StateManagement/irrigation_program_provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../StateManagement/overall_use.dart';
@@ -47,7 +46,6 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
   final IrrigationProgramMainProvider irrigationProvider = IrrigationProgramMainProvider();
   late MqttPayloadProvider mqttPayloadProvider;
   late OverAllUse overAllPvd;
-  final HttpServiceOld httpServiceOld = HttpServiceOld();
   dynamic waterAndFertData = [];
   late List<String> labels;
   late List<IconData> icons;
@@ -83,10 +81,9 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
     }
   }
 
-  void getData(IrrigationProgramMainProvider programPvd, userId, controllerId, serialNumber)async{
+  /*void getData(IrrigationProgramMainProvider programPvd, userId, controllerId, serialNumber)async{
     programPvd.clearWaterFert();
     try{
-      HttpServiceOld service = HttpServiceOld();
       var fert = await service.postRequest('getUserPlanningFertilizerSet', {'userId' : userId,'controllerId' : controllerId, 'serialNumber': serialNumber});
       var response = await service.postRequest('getUserProgramWaterAndFert', {'userId' : userId,'controllerId' : controllerId, 'serialNumber': serialNumber});
       var response1 = await service.postRequest('getUserConstant', {'userId' : userId,'controllerId' : controllerId, 'serialNumber': serialNumber});
@@ -103,7 +100,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
     }catch(e){
       log(e.toString());
     }
-  }
+  }*/
 
   @override
   void dispose() {
@@ -354,12 +351,12 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
 
     if(widget.programType == "Irrigation Program") {
       if(labels.length == 7 ? _tabController.index == 2 : _tabController.index == 3){
-        if(mainProvider.selectionModel!.data.headUnits!.isNotEmpty && mainProvider.selectionModel!.data.headUnits!.every((element) => element.selected == false)) {
+        if(!mainProvider.selectedObjects.any((element) => element.objectId == 2)) {
           showValidationAlert(content: "Please select at least one head unit!");
-        } else if(!(mainProvider.isPumpStationMode) && mainProvider.selectionModel!.data.irrigationPump!.isNotEmpty && mainProvider.selectionModel!.data.irrigationPump!.every((element) => element.selected == false)){
+        } else if(!(mainProvider.isPumpStationMode) && mainProvider.pump!.isNotEmpty && !mainProvider.selectedObjects.any((element) => element.objectId == 5)){
           showValidationAlert(
               content: "Are you sure to proceed without pump selection?",
-              ignoreValidation: mainProvider.selectionModel!.data.irrigationPump!.length > 1
+              ignoreValidation: mainProvider.pump!.length > 1
           );
         } else if(mainProvider.isPumpStationMode) {
           mainProvider.calculateTotalFlowRate();
@@ -427,12 +424,12 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
     final mainProvider = Provider.of<IrrigationProgramMainProvider>(context, listen: false);
     if(widget.programType == "Irrigation Program") {
       if(labels.length == 7 ? _tabController.index == 2 : _tabController.index == 3){
-        if(mainProvider.selectionModel!.data.headUnits!.isNotEmpty && mainProvider.selectionModel!.data.headUnits!.every((element) => element.selected == false)) {
+        if(!mainProvider.selectedObjects.any((element) => element.objectId == 2)) {
           showValidationAlert(content: "Please select at least one head unit!");
-        } else if(!(mainProvider.isPumpStationMode) && mainProvider.selectionModel!.data.irrigationPump!.isNotEmpty && mainProvider.selectionModel!.data.irrigationPump!.every((element) => element.selected == false)){
+        } else if(!(mainProvider.isPumpStationMode) && mainProvider.pump!.isNotEmpty && !mainProvider.selectedObjects.any((element) => element.objectId == 5)){
           showValidationAlert(
               content: "Are you sure to proceed without pump selection?",
-              ignoreValidation: mainProvider.selectionModel!.data.irrigationPump!.length >= 1
+              ignoreValidation: mainProvider.pump!.length > 1
           );
         } else if(mainProvider.isPumpStationMode) {
           mainProvider.calculateTotalFlowRate();
@@ -545,7 +542,10 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
         "schedule": mainProvider.sampleScheduleModel!.toJson(),
         "conditions": mainProvider.sampleConditions!.toJson(),
         "waterAndFert": mainProvider.sequenceData,
-        "selection": mainProvider.selectionModel!.data.toJson(),
+        "selection": {
+          ...mainProvider.additionalData!.toJson(),
+          "selected": mainProvider.selectedObjects.map((e) => e.toJson()).toList(),
+        },
         "alarm": mainProvider.newAlarmList!.toJson(),
         "programName": mainProvider.programName,
         "priority": mainProvider.priority,
@@ -557,6 +557,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
         "hardware": dataToMqtt
       };
       userData.addAll(dataToSend);
+      print(userData);
       // print(dataToMqtt['2500'][1]['2502'].split(',').join('\n'));
       // print(dataToMqtt['2500'][1]['2502'].split(',').length);
       /*try {
