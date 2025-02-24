@@ -15,8 +15,8 @@ import '../Screens/ConfigMaker/config_web_view.dart';
 import '../Screens/ConfigMaker/connection.dart';
 
 class ConfigMakerProvider extends ChangeNotifier{
-  double ratio = 0.85;
-  ConfigMakerTabs selectedTab = ConfigMakerTabs.productLimit;
+  double ratio = 1.0;
+  ConfigMakerTabs selectedTab = ConfigMakerTabs.siteConfigure;
   Map<int, String> configurationTab = {
     0 : 'Source Configuration',
     1 : 'Pump Configuration',
@@ -798,7 +798,7 @@ class ConfigMakerProvider extends ChangeNotifier{
       var fertilizer = fertilization[i];
       fertilizerPayload.add({
         "S_No": fertilizer.commonDetails.sNo,
-        "FertilizerChannel": fertilizer.channel.join('_'),
+        "FertilizerChannel": fertilizer.channel.map((injector) => injector.sNo).toList().join('_'),
         "BoosterSelection": fertilizer.boosterPump.join('_'),
         "IrrigationLine": line.where((irrigationLine) => [irrigationLine.centralFertilization, irrigationLine.localFertilization].contains(fertilizer.commonDetails.sNo)).map((filteredLine) => filteredLine.commonDetails.sNo).toList().join('_'),
         "Agitator": fertilizer.agitator.join('_'),
@@ -817,7 +817,7 @@ class ConfigMakerProvider extends ChangeNotifier{
       var fertilizerSite = fertilization[i];
       for(var injector = 0;injector < fertilizerSite.channel.length;injector++){
         fertilizerInjectorPayload.add({
-          "S_No": fertilizerSite.channel[injector],
+          "S_No": fertilizerSite.channel[injector].sNo,
           "FertilizerSite": fertilizerSite.commonDetails.sNo,
           "InjectorNumber": injector + 1,
           "FertilizationMeter": '',

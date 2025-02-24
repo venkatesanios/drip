@@ -6,6 +6,7 @@ Color primary = const Color(0xFF2999A9);
 Color lightThemeBackGroundColor = const Color(0xffF6F6F6);
 Color darkThemeBackGroundColor = Colors.black;
 Color blackColor = const Color(0xff000000);
+Color outputColor = const Color(0xff078BFF);
 
 
 // Color primaryDark = const Color(0xFF005C8F);
@@ -106,6 +107,11 @@ class OroTheme {
         borderRadius: BorderRadius.circular(5.0),
       ),
     ),
+    tabBarTheme: TabBarTheme(
+      indicatorColor: Colors.white70,
+      labelColor: Colors.white70,
+      unselectedLabelColor: Colors.white54,
+    )
   );
 
 
@@ -189,9 +195,9 @@ class OroTheme {
       titleSmall: GoogleFonts.roboto(fontSize: 13, color: Colors.black, fontWeight: FontWeight.bold),
       headlineLarge: GoogleFonts.roboto(fontSize: 20, color: Colors.grey),
 
-      bodyLarge: GoogleFonts.roboto(fontSize: 13, color: Colors.white, fontWeight: FontWeight.bold),
-      bodyMedium: GoogleFonts.roboto(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.bold),
-      bodySmall: GoogleFonts.roboto(fontSize: 12, color: Colors.black, fontWeight: FontWeight.bold),
+      bodyLarge: GoogleFonts.roboto(fontSize: 13, color: Colors.white70, fontWeight: FontWeight.bold),
+      bodyMedium: GoogleFonts.roboto(fontSize: 13, color: Colors.black, fontWeight: FontWeight.bold),
+      bodySmall: GoogleFonts.roboto(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.bold),
     ),
     cardTheme: CardTheme(
       color: Colors.white24,
@@ -202,5 +208,10 @@ class OroTheme {
         borderRadius: BorderRadius.circular(5.0),
       ),
     ),
+      tabBarTheme: TabBarTheme(
+        indicatorColor: Colors.white70,
+        labelColor: Colors.white70,
+        unselectedLabelColor: Colors.white54,
+      )
   );
 }

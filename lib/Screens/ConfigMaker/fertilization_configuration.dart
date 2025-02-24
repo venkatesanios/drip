@@ -19,6 +19,7 @@ import '../../Models/Configuration/filtration_model.dart';
 import '../../StateManagement/config_maker_provider.dart';
 import '../../Widgets/custom_drop_down_button.dart';
 import '../../Widgets/sized_image.dart';
+import '../../utils/constants.dart';
 import 'config_web_view.dart';
 
 class FertilizationConfiguration extends StatefulWidget {
@@ -30,6 +31,18 @@ class FertilizationConfiguration extends StatefulWidget {
 }
 
 class _FertilizationConfigurationState extends State<FertilizationConfiguration> {
+  late ThemeData themeData;
+  late bool themeMode;
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    themeData = Theme.of(context);
+    themeMode = themeData.brightness == Brightness.light;
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -63,7 +76,7 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
                             IntrinsicWidth(
                               stepWidth: 200,
                               child: ListTile(
-                                leading: const SizedImage(imagePath: 'assets/Images/Png/objectId_3.png'),
+                                leading: SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_3.svg', color: themeMode ? Colors.black : Colors.white,),
                                 title: Text(fertilizationSite.commonDetails.name!),
                                 trailing: IntrinsicWidth(
                                   child: CustomDropDownButton(
@@ -139,7 +152,7 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedImage(imagePath: 'assets/Images/Png/objectId_$objectId.png'),
+          SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_$objectId.svg',color: themeMode ? Colors.black : Colors.white),
           const SizedBox(width: 20,),
           Text('$objectName : ', style: AppProperties.listTileBlackBoldStyle,),
           Center(
@@ -215,7 +228,7 @@ Widget getImageWithText(String title, String imagePath, ConfigMakerProvider conf
     stepWidth: 150 * configPvd.ratio,
     child: ListTile(
       title: Text(title),
-      leading: SizedImage(imagePath: imagePath),
+      leading: SizedImage(imagePath: imagePath, color: Colors.black),
     ),
   );
 }
@@ -319,11 +332,11 @@ class _FertilizationDashboardFormationState extends State<FertilizationDashboard
     return Column(
       children: [
         if(widget.fertilizationSite.selector.isNotEmpty)
-          getImageWithText('Selector', 'assets/Images/Png/objectId_8.png', configPvd),
+          getImageWithText('Selector', '${AppConstants.svgObjectPath}objectId_8.svg', configPvd),
         if(widget.fertilizationSite.ec.isNotEmpty)
-          getImageWithText('Ec', 'assets/Images/Png/objectId_27.png', configPvd),
+          getImageWithText('Ec', '${AppConstants.svgObjectPath}objectId_27.svg', configPvd),
         if(widget.fertilizationSite.ph.isNotEmpty)
-          getImageWithText('Ph', 'assets/Images/Png/objectId_28.png', configPvd),
+          getImageWithText('Ph', '${AppConstants.svgObjectPath}objectId_28.svg', configPvd),
       ],
     );
   }

@@ -255,6 +255,8 @@ class AppConstants {
     }
   }
 
+  static const String svgObjectPath = 'assets/Images/Svg/';
+
   dynamic payloadConversion(data) {
     dynamic dataFormation = {};
     for(var globalKey in data.keys) {

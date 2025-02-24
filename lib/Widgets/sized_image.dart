@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 class SizedImage extends StatelessWidget {
   final String imagePath;
-  const SizedImage({super.key, required this.imagePath});
+  Color? color;
+  SizedImage({super.key, required this.imagePath, this.color});
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return SvgPicture.asset(
+      color: color,
+      imagePath,
       width: 30,
       height: 30,
-      child: Image.asset(imagePath),
     );
   }
 }
@@ -34,10 +37,12 @@ class SizedImageSmall extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    bool themeMode = Theme.of(context).brightness == Brightness.light;
+    return SvgPicture.asset(
+      color: themeMode ? Colors.black : Colors.white70,
+      imagePath,
       width: 20,
       height: 20,
-      child: Image.asset(imagePath),
     );
   }
 }

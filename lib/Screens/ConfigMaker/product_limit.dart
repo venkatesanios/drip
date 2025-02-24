@@ -11,6 +11,7 @@ import '../../StateManagement/config_maker_provider.dart';
 import '../../Widgets/legend.dart';
 import '../../Widgets/product_limit_grid_list_tile.dart';
 import '../../Widgets/sized_image.dart';
+import '../../utils/Theme/oro_theme.dart';
 
 class ProductLimit extends StatefulWidget {
   final ConfigMakerProvider configPvd;
@@ -60,7 +61,7 @@ class _ProductLimitState extends State<ProductLimit> {
     return ProductLimitGridListTile(
       listOfObjectModel: filteredList,
       title: 'Common Object',
-      leadingColor: const Color(0xffDBDEFF),
+      leadingColor: const Color(0xff8589AE),
       configPvd: widget.configPvd,
     );
   }
@@ -70,7 +71,7 @@ class _ProductLimitState extends State<ProductLimit> {
     return ProductLimitGridListTile(
       listOfObjectModel: filteredList,
       title: 'Output Object',
-      leadingColor: const Color(0xff078BFF),
+      leadingColor: outputColor,
       configPvd: widget.configPvd,
     );
   }
@@ -87,7 +88,7 @@ class _ProductLimitState extends State<ProductLimit> {
 
   List<Widget> colorLegendBox(double screenWidth,double screenHeight){
     return [
-      const Text('Enter The Count Of The Object'),
+      Text('Enter The Count Of The Object', style: Theme.of(context).textTheme.bodyLarge,),
       const SizedBox(height: 10,),
       Container(
         width: screenWidth > 500 ? null : double.infinity,

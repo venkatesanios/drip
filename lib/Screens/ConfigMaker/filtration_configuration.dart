@@ -14,6 +14,7 @@ import '../../Models/Configuration/filtration_model.dart';
 import '../../StateManagement/config_maker_provider.dart';
 import '../../Widgets/custom_drop_down_button.dart';
 import '../../Widgets/sized_image.dart';
+import '../../utils/constants.dart';
 import 'config_web_view.dart';
 
 class FiltrationConfiguration extends StatefulWidget {
@@ -25,6 +26,9 @@ class FiltrationConfiguration extends StatefulWidget {
 }
 
 class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
+  late ThemeData themeData;
+  late bool themeMode;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -57,7 +61,7 @@ class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
                         IntrinsicWidth(
                           stepWidth: 200,
                           child: ListTile(
-                            leading: const SizedImage(imagePath: 'assets/Images/Png/objectId_4.png'),
+                            leading: SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_4.svg', color: Colors.black,),
                             title: Text(filtrationSite.commonDetails.name!),
                             trailing: IntrinsicWidth(
                               child: CustomDropDownButton(
@@ -88,7 +92,7 @@ class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
                                       alignment: Alignment.centerLeft,
                                       width: 250,
                                       child: SvgPicture.asset(
-                                        'assets/Images/Svg/objectId_24.svg',
+                                        '${AppConstants.svgObjectPath}objectId_24.svg',
                                         width: 30,
                                         height: 30,
                                       ),
@@ -105,7 +109,7 @@ class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
                         ),
                         Row(
                           children: [
-                            const SizedImage(imagePath: 'assets/Images/Png/objectId_11.png'),
+                            SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_11.svg', color: Colors.black,),
                             const SizedBox(width: 20,),
                             const Text('Filter : ', style: AppProperties.listTileBlackBoldStyle,),
                             SizedBox(
@@ -140,11 +144,7 @@ class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
                         ),
                         Row(
                           children: [
-                            SvgPicture.asset(
-                              'assets/Images/Svg/objectId_24.svg',
-                              width: 30,
-                              height: 30,
-                            ),
+                            SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_24.svg', color: Colors.black,),
                             const SizedBox(width: 20,),
                             const Text('Pressure In : ', style: AppProperties.listTileBlackBoldStyle,),
                             SizedBox(
@@ -178,11 +178,7 @@ class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
                         ),
                         Row(
                           children: [
-                            SvgPicture.asset(
-                              'assets/Images/Svg/objectId_24.svg',
-                              width: 30,
-                              height: 30,
-                            ),
+                            SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_24.svg', color: Colors.black,),
                             const SizedBox(width: 20,),
                             const Text('Pressure Out : ', style: AppProperties.listTileBlackBoldStyle,),
                             SizedBox(
@@ -340,7 +336,7 @@ class _FiltrationDashboardFormationState extends State<FiltrationDashboardFormat
             Positioned(
               bottom: 10,
               child: SvgPicture.asset(
-                'assets/Images/Svg/objectId_24.svg',
+                '${AppConstants.svgObjectPath}objectId_24.svg',
                 width: 30,
                 height: 30,
               ),

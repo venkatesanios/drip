@@ -60,15 +60,16 @@ class IrrigationLineModel{
 
   factory IrrigationLineModel.fromJson(data){
     DeviceObjectModel deviceObjectModel = DeviceObjectModel.fromJson(data);
+
     return IrrigationLineModel(
         commonDetails: deviceObjectModel,
         source: (data['source'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         sourcePump: (data['sourcePump'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         irrigationPump: (data['irrigationPump'] as List<dynamic>).map((sNo) => sNo as double).toList(),
-        centralFiltration: data['centralFiltration'],
-        localFiltration: data['localFiltration'],
-        centralFertilization: data['centralFertilization'],
-        localFertilization: data['localFertilization'],
+        centralFiltration: intOrDoubleValidate(data['centralFiltration']),
+        localFiltration: intOrDoubleValidate(data['localFiltration']),
+        centralFertilization: intOrDoubleValidate(data['centralFertilization']),
+        localFertilization: intOrDoubleValidate(data['localFertilization']),
         valve: (data['valve'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         mainValve: (data['mainValve'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         fan: (data['fan'] as List<dynamic>).map((sNo) => sNo as double).toList(),
@@ -77,11 +78,11 @@ class IrrigationLineModel{
         heater: (data['heater'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         screen: (data['screen'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         vent: (data['vent'] as List<dynamic>).map((sNo) => sNo as double).toList(),
-        powerSupply: data['powerSupply'],
-        pressureSwitch: data['pressureSwitch'],
-        waterMeter: data['waterMeter'],
-        pressureIn: data['pressureIn'],
-        pressureOut: data['pressureOut'],
+        powerSupply: (data['powerSupply'] as int).toDouble(),
+        pressureSwitch: (data['pressureSwitch'] as int).toDouble(),
+        waterMeter: (data['waterMeter'] as int).toDouble(),
+        pressureIn: (data['pressureIn'] as int).toDouble(),
+        pressureOut: (data['pressureOut'] as int).toDouble(),
         moisture: (data['moisture'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         temperature: (data['temperature'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         soilTemperature: (data['soilTemperature'] as List<dynamic>).map((sNo) => sNo as double).toList(),
@@ -120,6 +121,14 @@ class IrrigationLineModel{
       'co2' : co2,
     });
     return commonInfo;
+  }
+}
+
+double intOrDoubleValidate(value){
+  if(value is int){
+    return value.toDouble();
+  }else{
+    return value;
   }
 }
 

@@ -23,9 +23,9 @@ class FiltrationModel {
         commonDetails: deviceObjectModel,
         siteMode: data['siteMode'],
         filters: (data['filters'] as List<dynamic>).map((sNo) => sNo as double).toList(),
-        pressureIn: data['pressureIn'],
-        pressureOut: data['pressureOut'],
-        backWashValve: data['backWashValve'],
+        pressureIn: (data['pressureIn'] as int).toDouble(),
+        pressureOut: (data['pressureOut'] as int).toDouble() ,
+        backWashValve: (data['backWashValve'] as int).toDouble(),
     );
   }
 

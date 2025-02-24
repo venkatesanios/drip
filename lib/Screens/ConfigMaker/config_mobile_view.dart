@@ -23,6 +23,8 @@ class _ConfigMobileViewState extends State<ConfigMobileView>
     with SingleTickerProviderStateMixin {
   late ConfigMakerProvider configPvd;
   late TabController _tabController;
+  late ThemeData themeData;
+  late bool themeMode;
 
   @override
   void initState() {
@@ -41,6 +43,14 @@ class _ConfigMobileViewState extends State<ConfigMobileView>
   }
 
   @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    themeData = Theme.of(context);
+    themeMode = themeData.brightness == Brightness.light;
+  }
+
+  @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
@@ -50,6 +60,7 @@ class _ConfigMobileViewState extends State<ConfigMobileView>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: themeData.primaryColorDark.withOpacity(themeMode ? 1.0 : 0.2),
         title: const Text("Config Maker"),
         bottom: TabBar(
           tabAlignment: TabAlignment.start,

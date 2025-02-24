@@ -6,6 +6,7 @@ import '../Constants/properties.dart';
 import '../Models/Configuration/device_model.dart';
 import '../Models/Configuration/device_object_model.dart';
 import '../StateManagement/config_maker_provider.dart';
+import '../utils/constants.dart';
 
 class WeatherGridListTile extends StatefulWidget {
   final DeviceModel device;
@@ -102,7 +103,7 @@ class _WeatherGridListTileState extends State<WeatherGridListTile> with SingleTi
           borderRadius: BorderRadius.circular(5),
         ),
         child: SizedImage(
-          imagePath: 'assets/Images/Png/objectId_${weatherData[object]['objectId']}.png',
+          imagePath: '${AppConstants.svgObjectPath}objectId_${weatherData[object]['objectId']}.svg',
         ),
       ),
       // trailing: Checkbox(

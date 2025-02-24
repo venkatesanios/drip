@@ -160,17 +160,17 @@ class _ConfigWebViewState extends State<ConfigWebView> {
   }
 
   void sendToMqtt(){
+
     final Map<String, dynamic> configMakerPayload = {
-      "100": [
-        {"101": configPvd.getDeviceListPayload()},
-        {"102": configPvd.getObjectPayload()},
-        {"103": configPvd.getPumpPayload()},
-        {"104": configPvd.getFilterPayload()},
-        {"105": configPvd.getFertilizerPayload()},
-        {"106": configPvd.getFertilizerInjectorPayload()},
-        {"107": configPvd.getMoisturePayload()},
-        {"108": configPvd.getIrrigationLinePayload()},
-      ]
+      '100' : {
+        '101' : configPvd.getDeviceListPayload(),
+        '102' : configPvd.getObjectPayload(),
+        '103' : configPvd.getPumpPayload(),
+        '104' : configPvd.getFilterPayload(),
+        '105' : configPvd.getFertilizerPayload(),
+        '106' : configPvd.getFertilizerInjectorPayload(),
+        '107' : configPvd.getIrrigationLinePayload(),
+      }
     };
     MqttManager().topicToPublishAndItsMessage('${Environment.mqttWebPublishTopic}/${configPvd.masterData['deviceId']}', jsonEncode(configMakerPayload));
     print("configMakerPayload ==> ${jsonEncode(configMakerPayload)}");
@@ -262,7 +262,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
         if(configPvd.masterData['categoryId'] != 2 || (![ConfigMakerTabs.deviceList, ConfigMakerTabs.connection].contains(i)))
           CustomSideTab(
           width: screenWidth  > webBreakPoint ? sideNavigationTabWidth : sideNavigationTabBreakPointWidth,
-          imagePath: 'assets/Images/Png/${getTabImage(i)}.png',
+          imagePath: '${AppConstants.svgObjectPath}${getTabImage(i)}.svg',
           title: getTabName(i),
           selected: i == configPvd.selectedTab,
           onTap: (){

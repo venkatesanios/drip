@@ -15,6 +15,7 @@ import '../../Models/Configuration/pump_model.dart';
 import '../../StateManagement/config_maker_provider.dart';
 import '../../Widgets/custom_drop_down_button.dart';
 import '../../Widgets/sized_image.dart';
+import '../../utils/constants.dart';
 import 'config_web_view.dart';
 
 class PumpConfiguration extends StatefulWidget {
@@ -60,7 +61,7 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
                             IntrinsicWidth(
                               stepWidth: 250,
                               child: ListTile(
-                                leading: SizedImage(imagePath: 'assets/Images/Png/objectId_5.png'),
+                                leading: SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_5.svg', color: Colors.black,),
                                 title: Text(pump.commonDetails.name!),
                                 trailing: IntrinsicWidth(
                                   child: CustomDropDownButton(
@@ -142,7 +143,7 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedImage(imagePath: 'assets/Images/Png/objectId_$objectId.png'),
+          SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_$objectId.svg', color: Colors.black,),
           const SizedBox(width: 20,),
           Text('$objectName : ', style: AppProperties.listTileBlackBoldStyle,),
           Expanded(child: Text(currentSno == 0.0 ? '-' : getObjectName(currentSno, widget.configPvd).name!, style: const TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold,),)),

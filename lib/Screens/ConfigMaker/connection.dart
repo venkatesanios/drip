@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/Screens/NewIrrigationProgram/schedule_screen.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 import '../../Constants/communication_codes.dart';
 import '../../Constants/properties.dart';
@@ -9,6 +10,8 @@ import '../../StateManagement/config_maker_provider.dart';
 import '../../Widgets/connection_grid_list_tile.dart';
 import '../../Widgets/connector_widget.dart';
 import '../../Widgets/sized_image.dart';
+import '../../utils/Theme/oro_theme.dart';
+import '../../utils/constants.dart';
 
 class Connection extends StatefulWidget {
   final ConfigMakerProvider configPvd;
@@ -23,11 +26,21 @@ class Connection extends StatefulWidget {
 
 class _ConnectionState extends State<Connection> {
   late Future<bool> updateValuesConnectionPageInitialize;
+  late ThemeData themeData;
+  late bool themeMode;
 
   @override
   void initState() {
     super.initState();
     updateValuesConnectionPageInitialize = updateConnection(); // Initialize Future
+  }
+
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    themeData = Theme.of(context);
+    themeMode = themeData.brightness == Brightness.light;
   }
 
   Future<bool> updateConnection() async {
@@ -104,7 +117,7 @@ class _ConnectionState extends State<Connection> {
                               if((selectedDevice.noOfRelay == 0 ? selectedDevice.noOfLatch : selectedDevice.noOfRelay) != 0)
                                 getConnectionBox(
                                     selectedDevice: selectedDevice,
-                                    color: const Color(0xffD2EAFF),
+                                    color: outputColor,
                                     from: 0,
                                     to: selectedDevice.noOfRelay == 0 ? selectedDevice.noOfLatch : selectedDevice.noOfRelay,
                                     type: '1,2',
@@ -239,12 +252,12 @@ class _ConnectionState extends State<Connection> {
               padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(5),
-                  color: isSelected ? Theme.of(context).primaryColor : Colors.grey.shade200
+                  color: isSelected ? themeData.primaryColor : Colors.grey.shade200
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  SizedImageSmall(imagePath: 'assets/Images/Png/objectId_${object.objectId}.png'),
+                  SizedImageSmall(imagePath: '${AppConstants.svgObjectPath}objectId_${object.objectId}.svg'),
                   Text('${object.name}', style: isSelected ? AppProperties.tableHeaderStyleWhite : AppProperties.tableHeaderStyle,),
                 ],
               ),
@@ -285,8 +298,8 @@ class _ConnectionState extends State<Connection> {
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          color: color,
-          // boxShadow: AppProperties.customBoxShadow
+          color: themeData.cardColor,
+          boxShadow: AppProperties.customBoxShadowLiteTheme
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -335,7 +348,7 @@ class _ConnectionState extends State<Connection> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Text('$typeName ${from+1} to $typeName $to', style: AppProperties.tableHeaderStyle,),
+              Text('$typeName ${from+1} to $typeName $to', style: TextStyle(color: color),),
               IconButton(
                   onPressed: (){
                     setState(() {
@@ -365,7 +378,7 @@ class _ConnectionState extends State<Connection> {
     return ConnectionGridListTile(
       listOfObjectModel: filteredList,
       title: 'Output Object',
-      leadingColor: const Color(0xffD2EAFF),
+      leadingColor: outputColor,
       configPvd: widget.configPvd,
       selectedDevice: selectedDevice,
     );
@@ -387,6 +400,7 @@ class _ConnectionState extends State<Connection> {
   }
 
   Widget getAvailableDeviceCategory(){
+    Color borderColor = themeMode ? Colors.black : Colors.white;
     List<int> listOfCategory = [];
     for(var device in widget.configPvd.listOfDeviceModel){
       if(![1, 10].contains(device.categoryId) && device.masterId != null && !listOfCategory.contains(device.categoryId)){
@@ -398,6 +412,9 @@ class _ConnectionState extends State<Connection> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Row(
+          spacing: 5,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             for(var categoryId in listOfCategory)
               InkWell(
@@ -414,12 +431,15 @@ class _ConnectionState extends State<Connection> {
                   widget.configPvd.updateSelectedConnectionNoAndItsType(0, '');
                   widget.configPvd.updateConnectionListTile();
                 },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 500),
+                  padding: EdgeInsets.symmetric(horizontal: 15,vertical: widget.configPvd.selectedCategory == categoryId ? 12 :10),
                   decoration: BoxDecoration(
-                    color: widget.configPvd.selectedCategory == categoryId ? Theme.of(context).primaryColor : Colors.grey.shade300
+                      border: Border(top: BorderSide(width: 0.5, color: borderColor), left: BorderSide(width: 0.5, color: borderColor), right: BorderSide(width: 0.5, color: borderColor),),
+                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5)),
+                      color: widget.configPvd.selectedCategory == categoryId ? themeData.primaryColorDark.withOpacity(themeMode ? 1.0 : 0.5) : themeData.cardColor
                   ),
-                  child: Text(getDeviceCodeToString(categoryId), style: TextStyle(color: widget.configPvd.selectedCategory == categoryId ? Colors.white : Colors.black, fontSize: 13),),
+                  child: Text(getDeviceCodeToString(categoryId), style: widget.configPvd.selectedCategory == categoryId ? const TextStyle(color: Colors.white70) : const TextStyle(color: Colors.grey),),
                 ),
               )
           ],
@@ -427,7 +447,7 @@ class _ConnectionState extends State<Connection> {
         Container(
           width: double.infinity,
           height: 3,
-          color: Theme.of(context).primaryColor,
+          color: themeData.primaryColorDark.withOpacity(themeMode ? 1.0 : 0.4),
         )
       ],
     );
@@ -454,13 +474,13 @@ class _ConnectionState extends State<Connection> {
                   child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                          color: widget.configPvd.selectedModelControllerId == model.controllerId ? Color(0xff1C863F) :Colors.grey.shade300,
-                        borderRadius: BorderRadius.circular(8)
+                      color: widget.configPvd.selectedModelControllerId == model.controllerId ? themeData.primaryColorDark.withOpacity(themeMode ? 1.0 : 0.5) : themeData.cardColor,
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: Column(
                         children: [
-                          Text(model.deviceName,style: TextStyle(color: widget.configPvd.selectedModelControllerId == model.controllerId ? Colors.white : Colors.black, fontSize: 13),),
-                          Text(model.deviceId,style: TextStyle(color: widget.configPvd.selectedModelControllerId == model.controllerId ? Colors.amberAccent : Colors.black, fontSize: 10, fontWeight: FontWeight.bold),),
+                          Text(model.deviceName, style: widget.configPvd.selectedModelControllerId == model.controllerId ? const TextStyle(color: Colors.white70) : const TextStyle(color: Colors.grey),),
+                          Text(model.deviceId,style: TextStyle(color: Colors.amberAccent.withOpacity(themeMode ? 1.0 : 0.7), fontSize: 10, fontWeight: FontWeight.bold),),
                         ],
                       )
                   ),

@@ -7,6 +7,7 @@ import '../Constants/properties.dart';
 import '../Models/Configuration/device_model.dart';
 import '../Models/Configuration/device_object_model.dart';
 import '../StateManagement/config_maker_provider.dart';
+import '../utils/constants.dart';
 
 class ConnectionGridListTile extends StatefulWidget {
   final List<DeviceObjectModel> listOfObjectModel;
@@ -82,18 +83,21 @@ class _ConnectionGridListTileState extends State<ConnectionGridListTile> with Si
   }
 
   Widget objectTile(DeviceObjectModel object){
-    Widget myWidget = ListTile(
+    bool themeMode = Theme.of(context).brightness == Brightness.light;
+    Color typeColor = widget.leadingColor ?? getObjectTypeCodeToColor(int.parse(object.type));
+
+  Widget myWidget = ListTile(
       contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-      title: Text(object.objectName, style: AppProperties.listTileBlackBoldStyle,),
-      subtitle: Text('Not Configured : ${getNotConfiguredObjectByObjectId(object.objectId, widget.configPvd)}', style: TextStyle(fontSize: 11),),
+    title: Text(object.objectName, style: TextStyle(color: typeColor),),
+      subtitle: Text('Not Configured : ${getNotConfiguredObjectByObjectId(object.objectId, widget.configPvd)}/${widget.configPvd.listOfGeneratedObject.where((element) => (element.objectId == object.objectId)).length}', style: TextStyle(fontSize: 11),),
       leading: Container(
         padding: const EdgeInsets.all(5),
         decoration: BoxDecoration(
-          color: widget.leadingColor ?? getObjectTypeCodeToColor(int.parse(object.type)),
+          color: Theme.of(context).primaryColorDark.withOpacity(themeMode ? 1.0 : 0.5),
           borderRadius: BorderRadius.circular(5),
         ),
         child: SizedImage(
-          imagePath: 'assets/Images/Png/objectId_${object.objectId}.png',
+          imagePath: '${AppConstants.svgObjectPath}objectId_${object.objectId}.svg',
         ),
       ),
       trailing: (widget.selectedDevice.categoryId == 4 && object.objectId != 25)
@@ -115,7 +119,7 @@ class _ConnectionGridListTileState extends State<ConnectionGridListTile> with Si
     return Container(
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(5),
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           boxShadow: AppProperties.customBoxShadowLiteTheme
       ),
       width: 300,

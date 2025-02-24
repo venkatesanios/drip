@@ -74,7 +74,7 @@ Color getObjectTypeCodeToColor(int code){
     case 3 :
       return const Color(0xffBFB976);
     case 4 :
-      return const Color(0xff98C07D);
+      return const Color(0xff79B054);
     case 5 :
       return const Color(0xffB67FB8);
     case 6 :

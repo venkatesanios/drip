@@ -85,7 +85,7 @@ class _SiteConfigureState extends State<SiteConfigure> {
                     });
                   },
                     child: AnimatedContainer(
-                      duration: Duration(milliseconds: 500),
+                      duration: const Duration(milliseconds: 500),
                     padding: EdgeInsets.symmetric(horizontal: 15,vertical: widget.configPvd.selectedConfigurationTab == tab.key ? 12 :10),
                     decoration: BoxDecoration(
                       border: const Border(top: BorderSide(width: 0.5), left: BorderSide(width: 0.5), right: BorderSide(width: 0.5)),

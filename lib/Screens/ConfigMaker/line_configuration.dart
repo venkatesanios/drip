@@ -17,6 +17,7 @@ import '../../Models/Configuration/source_model.dart';
 import '../../StateManagement/config_maker_provider.dart';
 import '../../Widgets/sized_image.dart';
 import '../../services/http_service.dart';
+import '../../utils/constants.dart';
 import 'config_object_name_editing.dart';
 import 'fertilization_configuration.dart';
 import 'filtration_configuration.dart';
@@ -31,6 +32,16 @@ class LineConfiguration extends StatefulWidget {
 
 class _LineConfigurationState extends State<LineConfiguration> {
   double pumpExtendedWidth = 0.0;
+  late ThemeData themeData;
+  late bool themeMode;
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    themeData = Theme.of(context);
+    themeMode = themeData.brightness == Brightness.light;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -275,11 +286,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
       for(var objectSno in parameters)
         Column(
           children: [
-            SizedBox(
-              width: 30,
-              height: 30,
-              child: Image.asset('assets/Images/Png/objectId_$objectId.png'),
-            ),
+            SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_$objectId.svg', color: themeMode ? Colors.black : Colors.white,),
             Text(getObjectName(objectSno, widget.configPvd).name!, style: AppProperties.listTileBlackBoldStyle,)
           ],
         )
@@ -375,13 +382,13 @@ class _LineConfigurationState extends State<LineConfiguration> {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          color: Theme.of(context).primaryColorLight.withOpacity(0.5),
+          color: Theme.of(context).primaryColor.withOpacity(0.2),
         ),
         child: Row(
+          spacing: 20,
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedImage(imagePath: 'assets/Images/Png/objectId_$objectId.png'),
-            const SizedBox(width: 20,),
+            SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_$objectId.svg', color: themeMode ? Colors.black : Colors.white,),
             Text(objectName, style: AppProperties.listTileBlackBoldStyle,),
           ],
         ),

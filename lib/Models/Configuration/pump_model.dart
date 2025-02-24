@@ -21,10 +21,10 @@ class PumpModel{
     DeviceObjectModel deviceObjectModel = DeviceObjectModel.fromJson(data);
     return PumpModel(
         commonDetails: deviceObjectModel,
-        level: data['level'],
-        pressureIn: data['pressureIn'] ?? 0.0,
-        pressureOut: data['pressureOut'] ?? 0.0,
-        waterMeter: data['waterMeter'] ?? 0.0,
+        level: (data['level'] as int).toDouble(),
+        pressureIn: (data['pressureIn'] as int).toDouble(),
+        pressureOut: (data['pressureOut'] as int).toDouble(),
+        waterMeter: (data['waterMeter'] as int).toDouble(),
         pumpType: data['pumpType']
     );
   }

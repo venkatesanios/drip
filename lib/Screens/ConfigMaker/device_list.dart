@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -7,6 +9,7 @@ import '../../Constants/properties.dart';
 import '../../Models/Configuration/device_model.dart';
 import '../../StateManagement/config_maker_provider.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
+import 'package:oro_drip_irrigation/Constants/mqtt_manager_mobile.dart' if (dart.library.html) 'package:oro_drip_irrigation/Constants/mqtt_manager_web.dart';
 
 import '../../Widgets/custom_buttons.dart';
 import '../../Widgets/custom_drop_down_button.dart';
@@ -14,6 +17,7 @@ import '../../Widgets/custom_side_tab.dart';
 import '../../Widgets/custom_table.dart';
 import '../../Widgets/sized_image.dart';
 import '../../Widgets/title_with_back_button.dart';
+import '../../utils/environment.dart';
 import 'config_base_page.dart';
 
 class DeviceList extends StatefulWidget {
@@ -29,7 +33,6 @@ class DeviceList extends StatefulWidget {
 
 class _DeviceListState extends State<DeviceList> {
   late ConfigMakerProvider configPvd;
-  int selectedMasterId = 1;
   bool selectAllNode = false;
 
   @override
@@ -57,29 +60,29 @@ class _DeviceListState extends State<DeviceList> {
               Expanded(
                 child: DataTable2(
                   minWidth: 900,
-                  headingRowColor: WidgetStateProperty.all(Colors.white),
-                  dataRowColor: WidgetStateProperty.all(Colors.white),
+                  headingRowColor: WidgetStateProperty.all(Theme.of(context).cardColor),
+                  dataRowColor: WidgetStateProperty.all(Theme.of(context).cardColor),
                     fixedLeftColumns: 2,
-                    columns: const [
+                    columns: [
                       DataColumn2(
                         fixedWidth: 80,
-                        label: Text('SNO'),
+                        label: Text('SNO', style: Theme.of(context).textTheme.bodyLarge,),
                       ),
                       DataColumn2(
                         fixedWidth: 180,
-                        label: Text('MODEL NAME'),
+                        label: Text('MODEL NAME', style: Theme.of(context).textTheme.bodyLarge,),
                       ),
                       DataColumn2(
                         fixedWidth: 180,
-                        label: Text('DEVICE ID'),
+                        label: Text('DEVICE ID', style: Theme.of(context).textTheme.bodyLarge,),
                       ),
                       DataColumn2(
                         fixedWidth: 150,
-                        label: Text('INTERFACE'),
+                        label: Text('INTERFACE', style: Theme.of(context).textTheme.bodyLarge,),
                       ),
                       DataColumn2(
                         fixedWidth: 150,
-                        label: Text('INTERVAL'),
+                        label: Text('INTERVAL', style: Theme.of(context).textTheme.bodyLarge,),
                       ),
                       DataColumn2(
                         fixedWidth: 100,
@@ -87,7 +90,7 @@ class _DeviceListState extends State<DeviceList> {
                       ),
                     ],
                     rows: widget.listOfDevices
-                        .where((node) => node.masterId == selectedMasterId)
+                        .where((node) => node.masterId == configPvd.masterData['controllerId'])
                         .toList()
                         .asMap()
                         .entries
@@ -176,14 +179,14 @@ class _DeviceListState extends State<DeviceList> {
       width:  double.infinity,
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         border: Border.all(width: 0.5, color: const Color(0xffC9C6C6))
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.all(0),
         leading: const SizedImageMedium(imagePath: 'assets/Images/Png/category_1_model_1.png'),
-        title: Text('${configPvd.masterData['deviceName']}', style: const TextStyle(fontWeight: FontWeight.bold),),
-        subtitle: Text('${configPvd.masterData['deviceId']}', style: const TextStyle(fontSize: 12 ),),
+        title: Text('${configPvd.masterData['deviceName']}', style: Theme.of(context).textTheme.bodyLarge,),
+        subtitle: Text('${configPvd.masterData['deviceId']}', style: Theme.of(context).textTheme.bodySmall,),
         trailing: IntrinsicWidth(
           child: CustomMaterialButton(
               onPressed: (){
@@ -274,7 +277,7 @@ class _DeviceListState extends State<DeviceList> {
                                           setState(() {
                                             if (node.select) {
                                               configPvd.serialNumberIncrement += 1;
-                                              node.masterId = selectedMasterId;
+                                              node.masterId = configPvd.masterData['controllerId'];
                                               node.select = false;
                                               node.serialNumber = configPvd.serialNumberIncrement;
                                             }
@@ -302,6 +305,19 @@ class _DeviceListState extends State<DeviceList> {
       ),
     );
   }
+
+  // void sendToMqttSetSerial(){
+  //
+  //   final Map<String, dynamic> setSerialPayload = {
+  //     '2300' : {
+  //       '2301' : configPvd.listOfDeviceModel.where((device) => device.masterId != null).map((device) => device.serialNumber).toList().join(','),
+  //
+  //     }
+  //   };
+  //   MqttManager().topicToPublishAndItsMessage('${Environment.mqttWebPublishTopic}/${configPvd.masterData['deviceId']}', jsonEncode(setSerialPayload));
+  //   print("configMakerPayload ==> ${jsonEncode(setSerialPayload)}");
+  //   // print("getOroPumpPayload ==> ${widget.configPvd.getOroPumpPayload()}");
+  // }
 
   String getInterfaceValue(DeviceModel device){
     String interface = getInterfaceCodeToString(device.interfaceTypeId);

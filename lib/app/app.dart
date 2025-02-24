@@ -8,7 +8,6 @@ import '../views/login_screen.dart';
 import '../views/screen_controller.dart';
 import '../views/splash_screen.dart';
 
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -27,14 +26,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     bool isDarkMode = false;
     return FutureBuilder<String>(
       future: getInitialRoute(),
       builder: (context, snapshot) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          theme: Environment.currentEnvironment == 'oroDevelopment' ? OroTheme.lightTheme : LkTheme.lightTheme,
+          theme: Environment.currentEnvironment == 'oroDevelopment' ? OroTheme.lightTheme : SmartCommTheme.lightTheme,
           darkTheme: OroTheme.darkTheme,
           themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
           home: navigateToInitialScreen(snapshot.data ?? Routes.login),

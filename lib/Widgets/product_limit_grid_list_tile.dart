@@ -7,6 +7,7 @@ import '../Constants/properties.dart';
 import '../Models/Configuration/device_object_model.dart';
 import '../Screens/ConfigMaker/product_limit.dart';
 import '../StateManagement/config_maker_provider.dart';
+import '../utils/constants.dart';
 import 'blinking_container.dart';
 
 class ProductLimitGridListTile extends StatefulWidget {
@@ -97,7 +98,7 @@ class _ProductLimitGridListTileState extends State<ProductLimitGridListTile> wit
     Widget myWidget = ListTile(
       contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
       title: Text(object.objectName, style: TextStyle(color: typeColor),),
-      subtitle: Text('Configured : ${getConfiguredObjectByObjectId(object.objectId)}', style: const TextStyle(fontSize: 11),),
+      subtitle: Text('Configured : ${getConfiguredObjectByObjectId(object.objectId)}', style: Theme.of(context).textTheme.bodySmall,),
       leading: Container(
         padding: const EdgeInsets.all(5),
         decoration: BoxDecoration(
@@ -105,7 +106,7 @@ class _ProductLimitGridListTileState extends State<ProductLimitGridListTile> wit
           borderRadius: BorderRadius.circular(5),
         ),
         child: SizedImage(
-          imagePath: 'assets/Images/Png/objectId_${object.objectId}.png',
+          imagePath: '${AppConstants.svgObjectPath}objectId_${object.objectId}.svg',
         ),
       ),
       trailing: SizedBox(

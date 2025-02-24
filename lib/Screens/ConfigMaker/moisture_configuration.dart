@@ -12,6 +12,7 @@ import '../../Models/Configuration/filtration_model.dart';
 import '../../Models/Configuration/moisture_model.dart';
 import '../../StateManagement/config_maker_provider.dart';
 import '../../Widgets/sized_image.dart';
+import '../../utils/constants.dart';
 import 'config_web_view.dart';
 
 class MoistureConfiguration extends StatefulWidget {
@@ -56,7 +57,7 @@ class _MoistureConfigurationState extends State<MoistureConfiguration> {
                             IntrinsicWidth(
                               stepWidth: 300,
                               child: ListTile(
-                                leading: SizedImage(imagePath: 'assets/Images/Png/objectId_25.png'),
+                                leading: SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_25.svg'),
                                 title: Text(moistureSensor.commonDetails.name!),
                               ),
                             ),
@@ -109,7 +110,7 @@ class _MoistureConfigurationState extends State<MoistureConfiguration> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedImage(imagePath: 'assets/Images/Png/objectId_13.png'),
+          SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_13.svg'),
           const SizedBox(width: 20,),
           const Text('Valves : ', style: AppProperties.listTileBlackBoldStyle,),
           Center(

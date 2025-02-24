@@ -1,3 +1,9 @@
+import 'package:oro_drip_irrigation/Models/Configuration/irrigationLine_model.dart';
+
+import 'package:oro_drip_irrigation/Models/Configuration/irrigationLine_model.dart';
+
+import 'package:oro_drip_irrigation/Models/Configuration/irrigationLine_model.dart';
+
 import 'device_object_model.dart';
 
 class SourceModel {
@@ -27,9 +33,9 @@ class SourceModel {
     return SourceModel(
         commonDetails: deviceObjectModel,
         sourceType: data['sourceType'],
-        level: data['level'],
-        topFloat: data['topFloat'],
-        bottomFloat: data['bottomFloat'],
+        level: intOrDoubleValidate(data['level']),
+        topFloat: intOrDoubleValidate(data['topFloat']),
+        bottomFloat: intOrDoubleValidate(data['bottomFloat']),
         inletPump: (data['inletPump'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         outletPump: (data['outletPump'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         valves: (data['valves'] as List<dynamic>).map((sNo) => sNo as double).toList(),

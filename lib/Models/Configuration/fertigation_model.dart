@@ -62,7 +62,7 @@ class Injector{
   factory Injector.fromJson(data){
     return Injector(
         sNo: data['sNo'],
-      level: data['level'] ?? 0.0
+      level: (data['level'] as int).toDouble()
     );
   }
 

@@ -14,6 +14,7 @@ import '../../Models/Configuration/source_model.dart';
 import '../../StateManagement/config_maker_provider.dart';
 import '../../Widgets/custom_drop_down_button.dart';
 import '../../Widgets/sized_image.dart';
+import '../../utils/constants.dart';
 import 'config_web_view.dart';
 
 class SourceConfiguration extends StatefulWidget {
@@ -59,7 +60,7 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
                             IntrinsicWidth(
                               stepWidth: 250,
                               child: ListTile(
-                                leading: SizedImage(imagePath: 'assets/Images/Png/objectId_1.png'),
+                                leading: SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_1.svg', color: Colors.black,),
                                 title: Text(source.commonDetails.name!),
                                 trailing: IntrinsicWidth(
                                   child: CustomDropDownButton(
@@ -160,7 +161,7 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedImage(imagePath: 'assets/Images/Png/objectId_5.png'),
+          SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_5.svg', color: Colors.black,),
           const SizedBox(width: 20,),
           Text('${pumpMode == 1 ? 'Inlet' : 'Outlet'} Pump : ', style: AppProperties.listTileBlackBoldStyle,),
           Center(
@@ -220,7 +221,7 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedImage(imagePath: 'assets/Images/Png/objectId_$objectId.png'),
+          SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_$objectId.svg', color: Colors.black,),
           const SizedBox(width: 20,),
           Text('$objectName : ', style: AppProperties.listTileBlackBoldStyle,),
           Center(
@@ -267,7 +268,7 @@ List<Widget> getWaterMeterAndPressure(double pressureSno, double waterMeterSno, 
         right: 0,
         top: 15 * configPvd.ratio,
         child: SvgPicture.asset(
-          'assets/Images/Svg/objectId_24.svg',
+          '${AppConstants.svgObjectPath}objectId_24.svg',
           width: 30,
           height: 30 * configPvd.ratio,
         ),
@@ -277,7 +278,7 @@ List<Widget> getWaterMeterAndPressure(double pressureSno, double waterMeterSno, 
       right: 0,
       top: 50 * configPvd.ratio,
       child: SvgPicture.asset(
-        'assets/Images/Svg/objectId_22.svg',
+        '${AppConstants.svgObjectPath}objectId_22.svg',
         width: 25,
         height: 25 * configPvd.ratio,
       ),

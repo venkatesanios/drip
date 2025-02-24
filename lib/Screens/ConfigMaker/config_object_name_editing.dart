@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../Models/Configuration/device_object_model.dart';
 import '../../StateManagement/config_maker_provider.dart';
 import '../../Widgets/sized_image.dart';
+import '../../utils/constants.dart';
 
 class ConfigObjectNameEditing extends StatefulWidget {
   final ConfigMakerProvider configPvd;
@@ -29,7 +30,7 @@ class _ConfigObjectNameEditingState extends State<ConfigObjectNameEditing> {
           itemCount: listOfObjectInLine.length,
             itemBuilder: (context, index){
             return ListTile(
-              leading: SizedImage(imagePath: 'assets/Images/Png/objectId_${listOfObjectInLine[index].objectId}.png'),
+              leading: SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_${listOfObjectInLine[index].objectId}.svg'),
               title: Text('${widget.listOfObjectInLine[index].name} --->'),
               trailing: SizedBox(
                 width: 200,
@@ -59,7 +60,7 @@ class _ConfigObjectNameEditingState extends State<ConfigObjectNameEditing> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  SizedImage(imagePath: 'assets/Images/Png/objectId_${listOfObjectInLine[index].objectId}.png'),
+                  SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_${listOfObjectInLine[index].objectId}.svg'),
                   Text('${listOfObjectInLine[index].name} --->'),
                   SizedBox(
                     width: 200,

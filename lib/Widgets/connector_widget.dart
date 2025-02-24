@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Widgets/sized_image.dart';
-import '../Constants/properties.dart';
 import '../Models/Configuration/device_model.dart';
 import '../Models/Configuration/device_object_model.dart';
 import '../Screens/ConfigMaker/connection.dart';
 import '../StateManagement/config_maker_provider.dart';
+import '../utils/constants.dart';
 
 
 class ConnectorWidget extends StatelessWidget {
@@ -30,6 +30,7 @@ class ConnectorWidget extends StatelessWidget {
     );
     String? name = object?.name;
     bool selectedConnector = (configPvd.selectedModelControllerId == selectedDevice.controllerId && configPvd.selectedType == type && configPvd.selectedConnectionNo == connectionNo);
+    bool themeMode = Theme.of(context).brightness == Brightness.light;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -42,7 +43,6 @@ class ConnectorWidget extends StatelessWidget {
           },
           onTap: configPvd.selectedSelectionMode == SelectionMode.auto ? null : (){
             configPvd.updateSelectedConnectionNoAndItsType(connectionNo, type);
-            print('connectionNo : $connectionNo   type : $type');
           },
           child: Row(
             children: [
@@ -52,7 +52,7 @@ class ConnectorWidget extends StatelessWidget {
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(2),
-                    color:  selectedConnector ? Colors.red : Colors.black
+                    color: selectedConnector ? Theme.of(context).primaryColorDark : themeMode ? Colors.black : Colors.grey.shade400,
                 ),
                 child: Center(
                   child: Container(
@@ -60,7 +60,7 @@ class ConnectorWidget extends StatelessWidget {
                     height: double.infinity,
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(2),
-                        color: object != null ? const Color(0xff72E6A7) : Colors.white
+                        color: selectedConnector ? Colors.white : (object != null ? Theme.of(context).primaryColor : Colors.grey.shade500)
                     ),
                   ),
                 ),
@@ -69,11 +69,11 @@ class ConnectorWidget extends StatelessWidget {
                 width: 20,
                 height: 5,
                 decoration: BoxDecoration(
-                  color: selectedConnector ? Colors.red : Colors.black,
+                  color: selectedConnector ? Theme.of(context).primaryColorDark : themeMode ? Colors.black : Colors.grey.shade400,
                 ),
               ),
               const SizedBox(width: 5,),
-              Text('${getSuitableKeyWord()} - ',style: AppProperties.tableHeaderStyle,)
+              Text('${getSuitableKeyWord()} - ',style: Theme.of(context).textTheme.bodySmall,)
             ],
           ),
         ),
@@ -83,10 +83,10 @@ class ConnectorWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               if(object != null)
-                Expanded(child: Text(name.toString(),style: const TextStyle(fontSize: 12),overflow: TextOverflow.ellipsis,)),
+                Expanded(child: Text(name.toString(),style: Theme.of(context).textTheme.bodySmall)),
               const SizedBox(width: 5,),
               if(object != null)
-                SizedImageSmall(imagePath: 'assets/Images/Png/objectId_${object.objectId}.png')
+                SizedImageSmall(imagePath: '${AppConstants.svgObjectPath}objectId_${object.objectId}.svg')
             ],
           ),
         )
