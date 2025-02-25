@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:oro_drip_irrigation/Screens/NewIrrigationProgram/preview_screen.dart';
 import 'package:oro_drip_irrigation/Screens/NewIrrigationProgram/schedule_screen.dart';
 import 'package:provider/provider.dart';
-import '../../../../constants/http_service.dart';
 import '../../StateManagement/irrigation_program_provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../StateManagement/overall_use.dart';
@@ -144,13 +143,12 @@ class _AdditionalDataScreenState extends State<AdditionalDataScreen> {
                                     doneProvider.updateProgramName(newTime, 'delayBetweenZones');
                                   },
                                 ),
-                                SizedBox(
-                                  width: 65,
+                                IntrinsicWidth(
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       SizedBox(
-                                        width: 50 ,
+                                        width: 50,
                                         child: TextFormField(
                                           initialValue: doneProvider.adjustPercentage != "" ? doneProvider.adjustPercentage : "100",
                                           decoration: const InputDecoration(
@@ -213,7 +211,10 @@ class _AdditionalDataScreenState extends State<AdditionalDataScreen> {
         "schedule": mainProvider.sampleScheduleModel!.toJson(),
         "conditions": mainProvider.sampleConditions!.toJson(),
         "waterAndFert": mainProvider.sequenceData,
-        "selection": mainProvider.selectionModel!.data.toJson(),
+        "selection": {
+          ...mainProvider.additionalData!.toJson(),
+          "selected": mainProvider.selectedObjects.map((e) => e.toJson()).toList(),
+        },
         "alarm": mainProvider.newAlarmList!.toJson(),
         "programName": mainProvider.programName,
         "priority": mainProvider.priority,

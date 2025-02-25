@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
 import 'package:oro_drip_irrigation/views/customer/site_config.dart';
+import 'package:oro_drip_irrigation/views/customer/stand_alone.dart';
 import '../../Models/customer/site_model.dart';
 import 'package:provider/provider.dart';
 import '../../repository/repository.dart';
@@ -11,12 +12,21 @@ import '../../view_models/nav_rail_view_model.dart';
 import '../account_settings.dart';
 import 'customer_home.dart';
 import 'customer_product.dart';
+import 'node_list.dart';
 
 class CustomerScreenController extends StatelessWidget {
   const CustomerScreenController({super.key, required this.userId, required this.customerName, required this.mobileNo, required this.emailId, required this.customerId, required this.fromLogin});
   final int customerId, userId;
   final String customerName, mobileNo, emailId;
   final bool fromLogin;
+
+  void callbackFunction(message)
+  {
+    /*Navigator.pop(context);
+    Future.delayed(const Duration(milliseconds: 500), () {
+      _showSnackBar(message);
+    });*/
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +40,7 @@ class CustomerScreenController extends StatelessWidget {
       child: Consumer2<NavRailViewModel, CustomerScreenControllerViewModel>(
         builder: (context, navViewModel, vm, _) {
           if(vm.isLoading){
-            return const Center(child: Text('Loading please waite....'));
+            return const Scaffold(body: Center(child: Text('Site loading please waite....')));
           }
           return Scaffold(
             appBar: AppBar(
@@ -99,13 +109,13 @@ class CustomerScreenController extends StatelessWidget {
 
                   (vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1 ||
                       vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 2) &&
-                      vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData!.length>1?
+                      vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData.length>1?
                   DropdownButton(
                     underline: Container(),
-                    items: (vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData! ?? []).map((line) {
+                    items: (vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData ?? []).map((line) {
                       return DropdownMenuItem(
                         value: line.name,
-                        child: Text(line.name!, style: const TextStyle(color: Colors.white, fontSize: 17),),
+                        child: Text(line.name, style: const TextStyle(color: Colors.white, fontSize: 17),),
                       );
                     }).toList(),
                     onChanged: (lineName) =>vm.lineOnChanged(lineName),
@@ -117,8 +127,8 @@ class CustomerScreenController extends StatelessWidget {
                   ) :
                   (vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1 ||
                       vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 2)?
-                  Text(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData!.isNotEmpty?
-                  vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData![0].name!:
+                  Text(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData.isNotEmpty?
+                  vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData[0].name:
                   'Line empty', style: const TextStyle(fontSize: 17),):
                   const SizedBox(),
 
@@ -144,7 +154,7 @@ class CustomerScreenController extends StatelessWidget {
                   ),
 
                   Text(
-                    'Last sync @ - ${Formatters.formatDateTime(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].live.cD)}',
+                    'Last sync @ - ${Formatters.formatDateTime(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].live?.cD)}',
                     style: const TextStyle(fontSize: 15, color: Colors.white70),
                   ),
                 ],
@@ -387,7 +397,38 @@ class CustomerScreenController extends StatelessWidget {
                           child: IconButton(
                             tooltip: 'Node status',
                             onPressed: () {
-                              //sideSheet();
+                              showGeneralDialog(
+                                barrierLabel: "Side sheet",
+                                barrierDismissible: true,
+                                barrierColor: const Color(0xff66000000),
+                                transitionDuration: const Duration(milliseconds: 300),
+                                context: context,
+                                pageBuilder: (context, animation1, animation2) {
+                                  return Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Material(
+                                      elevation: 15,
+                                      color: Colors.transparent,
+                                      borderRadius: BorderRadius.zero,
+                                      child: StatefulBuilder(
+                                        builder: (BuildContext context, StateSetter stateSetter) {
+                                          return NodeList(customerId: customerId, nodeList: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList,
+                                            deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                                            lastSyncDate: '21-02-2025} - 00:10:00',
+                                            deviceName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
+                                            controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId, userId: userId,);
+                                        },
+                                      ),
+                                    ),
+                                  );
+                                },
+                                transitionBuilder: (context, animation1, animation2, child) {
+                                  return SlideTransition(
+                                    position: Tween(begin: const Offset(1, 0), end: const Offset(0, 0)).animate(animation1),
+                                    child: child,
+                                  );
+                                },
+                              );
                             },
                             icon: const Icon(Icons.format_list_numbered),
                             color: Colors.white,
@@ -485,8 +526,7 @@ class CustomerScreenController extends StatelessWidget {
                         height: 45,
                         child: IconButton(
                           tooltip: 'Manual',
-                          onPressed: (){},
-                          /*onPressed: getPermissionStatusBySNo(context, 2) ? () {
+                          onPressed:  () {
                             showGeneralDialog(
                               barrierLabel: "Side sheet",
                               barrierDismissible: true,
@@ -502,12 +542,12 @@ class CustomerScreenController extends StatelessWidget {
                                     borderRadius: BorderRadius.zero,
                                     child: StatefulBuilder(
                                       builder: (BuildContext context, StateSetter stateSetter) {
-                                        return RunByManual(siteID: mySiteList[siteIndex].userGroupId,
-                                          siteName: mySiteList[siteIndex].groupName,
-                                          controllerID: mySiteList[siteIndex].master[masterIndex].controllerId,
-                                          customerID: mySiteList[siteIndex].customerId,
-                                          imeiNo: mySiteList[siteIndex].master[masterIndex].deviceId,
-                                          callbackFunction: callbackFunction, userId: widget.userId,);
+                                        return StandAlone(siteID: vm.mySiteList.data[vm.sIndex].groupId,
+                                          siteName: vm.mySiteList.data[vm.sIndex].groupName,
+                                          controllerID: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                                          customerID: customerId,
+                                          imeiNo: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                                          callbackFunction: callbackFunction, userId: userId,);
                                       },
                                     ),
                                   ),
@@ -520,8 +560,7 @@ class CustomerScreenController extends StatelessWidget {
                                 );
                               },
                             );
-                          }:
-                          null,*/
+                          },
                           icon: const Icon(Icons.touch_app_outlined),
                           color: Colors.white,
                           iconSize: 24.0,

@@ -4,6 +4,8 @@ import 'package:oro_drip_irrigation/app/app.dart';
 import 'package:provider/provider.dart';
 import 'StateManagement/config_maker_provider.dart';
 import 'StateManagement/irrigation_program_provider.dart';
+import 'StateManagement/preference_provider.dart';
+import 'StateManagement/system_definition_provider.dart';
 import 'StateManagement/mqtt_payload_provider.dart';
 import 'StateManagement/overall_use.dart';
 import 'app.dart';
@@ -22,8 +24,8 @@ FutureOr<void> main() async {
         ChangeNotifierProvider(create: (_) => IrrigationProgramMainProvider()),
         ChangeNotifierProvider(create: (_) => MqttPayloadProvider()),
         ChangeNotifierProvider(create: (_) => OverAllUse()),
-        // ChangeNotifierProvider(create: (_) => PreferenceProvider()),
-        // ChangeNotifierProvider(create: (_) => SystemDefinitionProvider()),
+        ChangeNotifierProvider(create: (_) => PreferenceProvider()),
+        ChangeNotifierProvider(create: (_) => SystemDefinitionProvider()),
       ],
       child: MyApp(),
     ),

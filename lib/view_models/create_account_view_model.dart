@@ -8,6 +8,7 @@ import '../utils/constants.dart';
 class CreateAccountViewModel extends ChangeNotifier {
   final Repository repository;
   bool isLoading = false;
+  String errorMsg = '';
 
   List<CountryListModel> countryList = [];
   List<StateListModel> stateList = [];
@@ -22,7 +23,9 @@ class CreateAccountViewModel extends ChangeNotifier {
   final TextEditingController mobileNoController = TextEditingController();
   String dialCode = '91';
 
-  CreateAccountViewModel(this.repository);
+  final Function(Map<String, dynamic>) onAccountCreatedSuccess;
+
+  CreateAccountViewModel(this.repository, {required this.onAccountCreatedSuccess});
 
   Future<void> getCountryList() async {
     setLoading(true);
@@ -74,52 +77,63 @@ class CreateAccountViewModel extends ChangeNotifier {
     )?.stateId;
   }
 
-  Future<Map<String, dynamic>> createAccount(int userId, UserRole role, int customerId) async {
-    setLoading(true);
-    try {
-      final cusType = role == UserRole.admin ? '2' : '3';
-      final body = {
-        'userName': name ?? '',
-        'countryCode': dialCode.replaceAll('+', ''),
-        'mobileNumber': mobileNoController.text,
-        'userType': cusType,
-        'createUser': userId,
-        'address': address ?? '',
-        'pinCode': '',
-        'city': city ?? '',
-        'country': selectedCountryID.toString(),
-        'state': selectedStateID.toString(),
-        'email': email ?? '',
-        'mainUserId': customerId != 0 ? customerId : userId,
-      };
+  Future<void> createAccount(int userId, UserRole role, int customerId) async {
 
-      final response = customerId != 0
-          ? await repository.createSubUserAccount(body)
-          : await repository.createCustomerAccount(body);
+    if (formKey.currentState!.validate()) {
+      formKey.currentState!.save();
 
-      if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-        if (jsonData["code"] == 200) {
-          return {
-            'status': 'success',
-            'message': 'Account created successfully',
-            'userId': jsonData["data"]['userId'],
-            'userName': name ?? '',
-            'countryCode': dialCode.replaceAll('+', ''),
-            'mobileNumber': mobileNoController.text,
-            'emailId': email ?? '',
-            'serviceRequestCount': 0,
-            'criticalAlarmCount': 0,
-          };
+      errorMsg = '';
+      setLoading(true);
+
+      try {
+        final cusType = role == UserRole.admin ? '2' : '3';
+        final body = {
+          'userName': name ?? '',
+          'countryCode': dialCode.replaceAll('+', ''),
+          'mobileNumber': mobileNoController.text,
+          'userType': cusType,
+          'createUser': userId,
+          'address': address ?? '',
+          'pinCode': '',
+          'city': city ?? '',
+          'country': selectedCountryID.toString(),
+          'state': selectedStateID.toString(),
+          'email': email ?? '',
+          'mainUserId': customerId != 0 ? customerId : userId,
+        };
+
+        final response = customerId != 0
+            ? await repository.createSubUserAccount(body)
+            : await repository.createCustomerAccount(body);
+
+        if (response.statusCode == 200) {
+          final jsonData = jsonDecode(response.body);
+          print(response.body);
+          if (jsonData["code"] == 200) {
+            onAccountCreatedSuccess({
+              'status': 'success',
+              'message': 'Account created successfully',
+              'userId': jsonData["data"]['userId'],
+              'userName': name ?? '',
+              'countryCode': dialCode.replaceAll('+', ''),
+              'mobileNumber': mobileNoController.text,
+              'emailId': email ?? '',
+              'serviceRequestCount': 0,
+              'criticalAlarmCount': 0,
+            });
+          }else{
+            errorMsg = jsonData["message"];
+          }
         }
+      } catch (error) {
+        debugPrint('Error creating account: $error');
+      } finally {
+        setLoading(false);
       }
-      return {'status': 'failed', 'message': 'Account creation failed'};
-    } catch (error) {
-      debugPrint('Error creating account: $error');
-      return {'status': 'failed', 'message': 'Error occurred during account creation'};
-    } finally {
-      setLoading(false);
+
+      //Navigator.pop(context);
     }
+
   }
 
   void setLoading(bool value) {

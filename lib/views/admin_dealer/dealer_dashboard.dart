@@ -15,9 +15,10 @@ import 'admin_dashboard.dart';
 import 'customer_device_list.dart';
 
 class DealerDashboard extends StatelessWidget {
-  const DealerDashboard({super.key, required this.userId, required this.userName, required this.mobileNo});
+  const DealerDashboard({super.key, required this.userId, required this.userName, required this.mobileNo, required this.fromLogin});
   final int userId;
   final String userName, mobileNo;
+  final bool fromLogin;
 
 
   @override
@@ -447,7 +448,7 @@ class DealerDashboard extends StatelessWidget {
                                             builder: (BuildContext context) {
                                               return CustomerDeviceList(userId: userId, customerName: viewModel.myCustomerList[index]
                                                   .userName, customerId: viewModel.myCustomerList[index]
-                                                  .userId, userRole: 'Customer', productStockList: viewModel.productStockList, onDeviceListAdded: viewModel.removeStockList);
+                                                  .userId, userRole: 'Customer', productStockList: viewModel.productStockList, onDeviceListAdded: viewModel.removeStockList, comingFrom: fromLogin?'Dealer':'Admin');
                                             },
                                           );
                                         },
@@ -462,7 +463,8 @@ class DealerDashboard extends StatelessWidget {
                                       MaterialPageRoute(
                                           builder: (context) => CustomerScreenController(userId: viewModel.myCustomerList[index].userId,
                                             customerName: viewModel.myCustomerList[index].userName,
-                                            mobileNo: viewModel.myCustomerList[index].mobileNumber, fromLogin: false, emailId: viewModel.myCustomerList[index].emailId,
+                                            mobileNo: viewModel.myCustomerList[index].mobileNumber, fromLogin: false,
+                                            emailId: viewModel.myCustomerList[index].emailId,
                                             customerId: viewModel.myCustomerList[index].userId,)),
                                     );
                                   },

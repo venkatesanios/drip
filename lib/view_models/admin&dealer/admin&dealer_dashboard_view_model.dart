@@ -179,7 +179,7 @@ class AdminAndDealerDashboardViewModel extends ChangeNotifier {
   Future<void> removeStockList(Map<String, dynamic> jsonData) async {
     if(jsonData['status']=='success'){
       for (var product in jsonData['products']) {
-        productStockList.removeWhere((stockItem) => stockItem.productId == int.parse(product['productId']));
+        productStockList.removeWhere((stockItem) => stockItem.productId == product['productId']);
       }
       notifyListeners();
     }

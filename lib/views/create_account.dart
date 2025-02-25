@@ -19,7 +19,10 @@ class CreateAccount extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) {
-        final viewModel = CreateAccountViewModel(Repository(HttpService()));
+        final viewModel = CreateAccountViewModel(Repository(HttpService()), onAccountCreatedSuccess: (result) async {
+          await onAccountCreated(result);
+          Navigator.pop(context);
+        });
         viewModel.getCountryList();
         return viewModel;
       },
@@ -35,6 +38,12 @@ class CreateAccount extends StatelessWidget {
                 ),
               ),
               const Divider(height: 0),
+              viewModel.errorMsg!=''?Container(
+                width: MediaQuery.sizeOf(context).width,
+                color: Colors.redAccent,
+                child: Text(viewModel.errorMsg, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.normal), textAlign: TextAlign.center,)
+              ):
+              const SizedBox(),
               Expanded(
                 child: SingleChildScrollView(
                   child: Padding(
@@ -227,15 +236,7 @@ class CreateAccount extends StatelessWidget {
                           ),
                           const SizedBox(width: 10),
                           MaterialButton(
-                            onPressed:() async {
-                              if (viewModel.formKey.currentState!.validate()) {
-                                viewModel.formKey.currentState!.save();
-                                Map<String, dynamic> result = await viewModel.createAccount(userId, role, customerId);
-                                await onAccountCreated(result);
-
-                                Navigator.pop(context);
-                              }
-                            },
+                            onPressed: () => viewModel.createAccount(userId, role, customerId),
                             textColor: Colors.white,
                             color: Theme.of(context).primaryColor,
                             child: const Text('Create Account',style: TextStyle(color: Colors.white)),

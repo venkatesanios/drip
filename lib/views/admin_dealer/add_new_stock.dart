@@ -18,7 +18,10 @@ class AddNewStock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => NewStockViewModel(Repository(HttpService()))..fetchCategoryList(),
+      create: (_) => NewStockViewModel(Repository(HttpService()), onStockCreatedCallbackFunction:(result) {
+        onStockCreated(result);
+        Navigator.pop(context);
+      })..fetchCategoryList(),
       child: Consumer<NewStockViewModel>(
         builder: (context, viewModel, _) {
           return Column(
@@ -210,12 +213,13 @@ class AddNewStock extends StatelessWidget {
                                       child: const Text('Cancel'),
                                     ),
                                     TextButton(
-                                      onPressed: () async {
+                                      onPressed: () => viewModel.addProductStock(userId, context),
+                                      /*onPressed: () async {
                                         Navigator.pop(context);
                                         Navigator.pop(context);
                                         Map<String, dynamic> result = await viewModel.createProduct(userId);
                                         onStockCreated(result);
-                                      },
+                                      },*/
                                       child: const Text('Save'),
                                     ),
                                   ],

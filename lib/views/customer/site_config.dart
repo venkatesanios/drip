@@ -211,6 +211,7 @@ class SiteConfig extends StatelessWidget {
                                               const SizedBox(width: 8),
                                               MaterialButton(
                                                 onPressed: () async {
+                                                  print('controllerId:${masterData[mstIndex].controllerId}');
                                                   Navigator.push(context, MaterialPageRoute(builder: (context) {
                                                     return ConfigBasePage(
                                                       masterData: {

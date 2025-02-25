@@ -52,7 +52,9 @@ class Master {
   final String modelName;
   final List<Unit> units;
   final Config config;
-  final Live live;
+  List<ConfigObject> configObjects;
+  final Live? live;
+  List<NodeDataList> nodeList;
 
   Master({
     required this.controllerId,
@@ -64,10 +66,18 @@ class Master {
     required this.modelName,
     required this.units,
     required this.config,
+    required this.configObjects,
     required this.live,
+    required this.nodeList,
   });
 
   factory Master.fromJson(Map<String, dynamic> json) {
+    List<ConfigObject> configObjects = json["config"]['configObject'] != null
+        ? (json["config"]['configObject'] as List)
+        .map((item) => ConfigObject.fromJson(item))
+        .toList()
+        : [];
+
     return Master(
       controllerId: json['controllerId'],
       deviceId: json['deviceId'],
@@ -77,8 +87,16 @@ class Master {
       modelId: json['modelId'],
       modelName: json['modelName'],
       units: List<Unit>.from(json['units'].map((x) => Unit.fromJson(x))),
-      config: Config.fromJson(AppConstants().payloadConversion(json['config'])),
-      live: Live.fromJson(json['liveMessage']),
+      config: (json["config"] != null && json["config"] is Map<String, dynamic> && json["config"].isNotEmpty)
+          ? Config.fromJson(Map<String, dynamic>.from(AppConstants().payloadConversion(json["config"])))
+          : Config(waterSource: [], pump: [], filterSite: [], fertilizerSite: [], moistureSensor: [], lineData: []),
+      configObjects: configObjects,
+      live: json['liveMessage'] != null ? Live.fromJson(json['liveMessage']) : null,
+      nodeList: json['nodeList'] != null
+          ? (json['nodeList'] as List)
+          .map((item) => NodeDataList.fromJson(item, configObjects))
+          .toList()
+          : [],
     );
   }
 
@@ -93,9 +111,35 @@ class Master {
       'modelName': modelName,
       'units': units.map((x) => x.toJson()).toList(),
       'config': config,
-      'liveMessage': live.toJson(),
+      'liveMessage': live?.toJson(),
     };
   }
+}
+
+class RelayStatus {
+  final double? sNo;
+  final String? name;
+  String? swName;
+  final int? rlyNo;
+  int status;
+
+  RelayStatus({
+    required this.sNo,
+    required this.name,
+    required this.swName,
+    required this.rlyNo,
+    this.status=0,
+  });
+
+  factory RelayStatus.fromJson(Map<String, dynamic> json) {
+    return RelayStatus(
+      sNo: json['sNo'],
+      name: json['name'],
+      swName: json['name'] ?? json['objectName'],
+      rlyNo: json['connectionNo'],
+    );
+  }
+
 }
 
 class Unit {
@@ -122,126 +166,308 @@ class Unit {
   }
 }
 
-class Config {
-  List<FilterSite>? filterSite;
-  List<FilterSite>? fertilizerSite;
-  List<WaterSource>? waterSource;
-  List<Pump>? pump;
-  List<MoistureSensor>? moistureSensor;
-  List<IrrigationLineData>? lineData;
+class ConfigObject {
+  final int objectId;
+  final double sNo;
+  final String name;
+  final int? connectionNo;
+  final String objectName;
+  final String type;
+  final int? controllerId;
+  final int? count;
 
-  Config({
-    this.filterSite,
-    this.fertilizerSite,
-    this.waterSource,
-    this.pump,
-    this.moistureSensor,
-    this.lineData,
+  ConfigObject({
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+    this.connectionNo,
+    required this.objectName,
+    required this.type,
+    this.controllerId,
+    this.count,
   });
 
-  factory Config.fromJson(Map<String, dynamic> json) => Config(
-    filterSite: json["filterSite"] != null
-        ? (json["filterSite"] as List).map((i) => FilterSite.fromJson(i)).toList()
-        : [],
-    fertilizerSite: json["fertilizerSite"] != null
-        ? (json["fertilizerSite"] as List).map((i) => FilterSite.fromJson(i)).toList()
-        : [],
-    waterSource: json["waterSource"] != null
-        ? (json["waterSource"] as List)
-        .map((i) => WaterSource.fromJson(i))
-        .toList()
-        : [],
-    pump: json["pump"] != null
-        ? (json["pump"] as List).map((i) => Pump.fromJson(i)).toList()
-        : [],
-    moistureSensor: json["moistureSensor"] != null
-        ? (json["moistureSensor"] as List)
-        .map((i) => MoistureSensor.fromJson(i))
-        .toList()
-        : [],
-    lineData: json["irrigationLine"] != null
-        ? (json["irrigationLine"] as List)
-        .map((i) => IrrigationLineData.fromJson(i))
-        .toList()
-        : [],
-  );
+  factory ConfigObject.fromJson(Map<String, dynamic> json) {
+    return ConfigObject(
+      objectId: json['objectId'],
+      sNo: (json['sNo'] as num).toDouble(), // Ensures proper double conversion
+      name: json['name'],
+      connectionNo: json['connectionNo'],
+      objectName: json['objectName'],
+      type: json['type'],
+      controllerId: json['controllerId'],
+      count: json['count'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'connectionNo': connectionNo,
+      'objectName': objectName,
+      'type': type,
+      'controllerId': controllerId,
+      'count': count,
+    };
+  }
 }
 
-class FilterSite {
-  int? objectId;
-  double? sNo;
-  String? name;
-  int? siteMode;
-  List<Item>? filters;
-  Item? pressureIn;
-  Item? pressureOut;
-  List<Item>? channel;
-  List<Item>? boosterPump;
-  List<Item>? agitator;
-  List<Item>? ec;
-  List<Item>? ph;
+class Config {
+  final List<WaterSource> waterSource;
+  final List<Pump> pump;
+  final List<dynamic> filterSite;
+  final List<FertilizerSite> fertilizerSite;
+  final List<dynamic> moistureSensor;
+  final List<IrrigationLineData> lineData;
 
-  FilterSite({
-    this.objectId,
-    this.sNo,
-    this.name,
-    this.siteMode,
-    this.filters,
-    this.pressureIn,
-    this.pressureOut,
-    this.channel,
-    this.boosterPump,
-    this.agitator,
-    this.ec,
-    this.ph,
+  Config({
+    required this.waterSource,
+    required this.pump,
+    required this.filterSite,
+    required this.fertilizerSite,
+    required this.moistureSensor,
+    required this.lineData,
   });
 
-  factory FilterSite.fromJson(Map<String, dynamic> json) => FilterSite(
-    objectId: json['objectId'],
-    sNo: json['sNo'],
-    name: json['name'],
-    siteMode: json['siteMode'],
-    filters: (json['filters'] as List?)?.map((i) => Item.fromJson(i)).toList(),
-    pressureIn: json['pressureIn'] != null ? Item.fromJson(json['pressureIn']) : null,
-    pressureOut: json['pressureOut'] != null ? Item.fromJson(json['pressureOut']) : null,
-    channel: (json['channel'] as List?)?.map((i) => Item.fromJson(i)).toList(),
-    boosterPump: (json['boosterPump'] as List?)?.map((i) => Item.fromJson(i)).toList(),
-    agitator: (json['agitator'] as List?)?.map((i) => Item.fromJson(i)).toList(),
-    ec: (json['ec'] as List?)?.map((i) => Item.fromJson(i)).toList(),
-    ph: (json['ph'] as List?)?.map((i) => Item.fromJson(i)).toList(),
-  );
+  factory Config.fromJson(Map<String, dynamic> json) {
+    return Config(
+      waterSource: (json['waterSource'] as List)
+          .map((e) => WaterSource.fromJson(e))
+          .toList(),
+      pump: (json['pump'] as List).map((e) => Pump.fromJson(e)).toList(),
+      filterSite: json['filterSite'] ?? [],
+      fertilizerSite: (json['fertilizerSite'] as List)
+          .map((e) => FertilizerSite.fromJson(e))
+          .toList(),
+      moistureSensor: json['moistureSensor'] ?? [],
+      lineData: (json['irrigationLine'] != null && json['irrigationLine'] is List && json['irrigationLine'].isNotEmpty)
+          ? (json['irrigationLine'] as List)
+          .map((e) => IrrigationLineData.fromJson(e))
+          .toList()
+          : [],
+    );
+  }
 }
 
 class WaterSource {
-  int? objectId;
-  double? sNo;
-  String? name;
-  Level? level;
-  List<Item>? inletPump;
-  List<Item>? outletPump;
-  List<Item>? valves;
+  final int objectId;
+  final double sNo;
+  final String name;
+  final int? connectionNo;
+  final String objectName;
+  final String type;
+  final int? controllerId;
+  final dynamic count;
+  final Level? level;
+  final List<Pump> outletPump;
+  final List<dynamic> valves;
 
   WaterSource({
-    this.objectId,
-    this.sNo,
-    this.name,
-    this.level,
-    this.inletPump,
-    this.outletPump,
-    this.valves,
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+    required this.connectionNo,
+    required this.objectName,
+    required this.type,
+    required this.controllerId,
+    required this.count,
+    required this.level,
+    required this.outletPump,
+    required this.valves,
   });
 
-  factory WaterSource.fromJson(Map<String, dynamic> json) => WaterSource(
-    objectId: json['objectId'],
-    sNo: json['sNo'],
-    name: json['name'],
-    level: (json['level'] != null && json['level'].isNotEmpty)
-        ? Level.fromJson(json['level'])
-        : null,
-    inletPump: (json['inletPump'] as List?)?.map((i) => Item.fromJson(i)).toList(),
-    outletPump: (json['outletPump'] as List?)?.map((i) => Item.fromJson(i)).toList(),
-    valves: (json['valves'] as List?)?.map((i) => Item.fromJson(i)).toList(),
-  );
+  factory WaterSource.fromJson(Map<String, dynamic> json) {
+    return WaterSource(
+      objectId: json['objectId'],
+      sNo: json['sNo'].toDouble(),
+      name: json['name'],
+      connectionNo: json['connectionNo'],
+      objectName: json['objectName'],
+      type: json['type'],
+      controllerId: json['controllerId'] ?? 0,
+      count: json['count'] ?? 0,
+      level: json['level'] != null && json['level'].isNotEmpty
+          ? Level.fromJson(json['level'])
+          : null,
+      outletPump: (json['outletPump'] as List)
+          .map((e) => Pump.fromJson(e))
+          .toList(),
+      valves: json['valves'] ?? [],
+    );
+  }
+}
+
+class Pump {
+  final int objectId;
+  final double sNo;
+  final String name;
+  final int connectionNo;
+  final String objectName;
+  final String type;
+  final int controllerId;
+  final dynamic count;
+  int status;
+
+  Pump({
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+    required this.connectionNo,
+    required this.objectName,
+    required this.type,
+    required this.controllerId,
+    required this.count,
+    this.status=0,
+  });
+
+  factory Pump.fromJson(Map<String, dynamic> json) {
+    return Pump(
+      objectId: json['objectId'],
+      sNo: json['sNo'].toDouble(),
+      name: json['name'],
+      connectionNo: json['connectionNo'],
+      objectName: json['objectName'],
+      type: json['type'],
+      controllerId: json['controllerId'],
+      count: json['count'],
+    );
+  }
+}
+
+class FertilizerSite {
+  final int objectId;
+  final double sNo;
+  final String name;
+  final int? connectionNo;
+  final String objectName;
+  final String type;
+  final int? controllerId;
+  final dynamic count;
+  final int siteMode;
+
+  FertilizerSite({
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+    required this.connectionNo,
+    required this.objectName,
+    required this.type,
+    required this.controllerId,
+    required this.count,
+    required this.siteMode,
+  });
+
+  factory FertilizerSite.fromJson(Map<String, dynamic> json) {
+    return FertilizerSite(
+      objectId: json['objectId'],
+      sNo: json['sNo'].toDouble(),
+      name: json['name'],
+      connectionNo: json['connectionNo'],
+      objectName: json['objectName'],
+      type: json['type'],
+      controllerId: json['controllerId'],
+      count: json['count'],
+      siteMode: json['siteMode'],
+    );
+  }
+}
+
+class IrrigationLineData {
+  final int objectId;
+  final double sNo;
+  final String name;
+  final int? connectionNo;
+  final String objectName;
+  final String type;
+  final int? controllerId;
+  final dynamic count;
+  final List<Pump> irrigationPump;
+  final List<Valve> valves;
+
+  IrrigationLineData({
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+    required this.connectionNo,
+    required this.objectName,
+    required this.type,
+    required this.controllerId,
+    required this.count,
+    required this.irrigationPump,
+    required this.valves,
+  });
+
+  factory IrrigationLineData.fromJson(Map<String, dynamic> json) {
+    return IrrigationLineData(
+      objectId: json['objectId'],
+      sNo: json['sNo'].toDouble(),
+      name: json['name'],
+      connectionNo: json['connectionNo'],
+      objectName: json['objectName'],
+      type: json['type'],
+      controllerId: json['controllerId'],
+      count: json['count'],
+      irrigationPump: (json['irrigationPump'] as List)
+          .map((e) => Pump.fromJson(e))
+          .toList(),
+      valves: (json['valve'] as List).map((v) => Valve.fromJson(v))
+          .toList(),
+    );
+  }
+}
+
+class Valve {
+  final int objectId;
+  final double sNo;
+  final String name;
+  final int connectionNo;
+  final String objectName;
+  final String type;
+  final int? controllerId;
+  final int? count;
+  int status;
+
+  Valve({
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+    required this.connectionNo,
+    required this.objectName,
+    required this.type,
+    required this.controllerId,
+    this.count,
+    this.status = 0
+  });
+
+  factory Valve.fromJson(Map<String, dynamic> json) {
+    print(json);
+    return Valve(
+      objectId: json['objectId'],
+      sNo: (json['sNo'] as num).toDouble(),
+      name: json['name'],
+      connectionNo: json['connectionNo'],
+      objectName: json['objectName'],
+      type: json['type'],
+      controllerId: json['controllerId']??0,
+      count: json['count']??0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'connectionNo': connectionNo,
+      'objectName': objectName,
+      'type': type,
+      'controllerId': controllerId,
+      'count': count,
+      "status": status,
+    };
+  }
 }
 
 class Level {
@@ -249,14 +475,14 @@ class Level {
   double? sNo;
   String? name;
   String? percentage;
-  String? connectionNo;
-  String? controllerId;
+  int? connectionNo;
+  int? controllerId;
 
   Level({
     this.objectId,
     this.sNo,
     this.name,
-    this.percentage,
+    this.percentage='0',
     this.connectionNo,
     this.controllerId,
   });
@@ -265,80 +491,9 @@ class Level {
     objectId: json['objectId'],
     sNo: json['sNo'],
     name: json['name'],
-    percentage: json['percentage'],
+    //percentage: json['percentage'],
     connectionNo: json['connectionNo'],
     controllerId: json['controllerId'],
-  );
-}
-
-class Pump {
-  int? objectId;
-  double? sNo;
-  String? name;
-  Item? waterMeter;
-  Item? pumpType;
-
-  Pump({this.objectId, this.sNo, this.name, this.waterMeter, this.pumpType});
-
-  factory Pump.fromJson(Map<String, dynamic> json) => Pump(
-    objectId: json['objectId'],
-    sNo: json['sNo'],
-    name: json['name'],
-    waterMeter: (json['waterMeter'] != null && json['waterMeter'] is Map<String, dynamic> && json['waterMeter'].isNotEmpty)
-        ? Item.fromJson(json['waterMeter'])
-        : null,
-    pumpType: (json['pumpType'] != null && json['pumpType'] is Map<String, dynamic> && json['pumpType'].isNotEmpty)
-        ? Item.fromJson(json['pumpType'])
-        : null,
-  );
-}
-
-class MoistureSensor {
-  int? objectId;
-  double? sNo;
-  String? name;
-  List<Item>? valves;
-
-  MoistureSensor({this.objectId, this.sNo, this.name, this.valves});
-
-  factory MoistureSensor.fromJson(Map<String, dynamic> json) => MoistureSensor(
-    objectId: json['objectId'],
-    sNo: json['sNo'],
-    name: json['name'],
-    valves: (json['valves'] as List?)?.map((i) => Item.fromJson(i)).toList(),
-  );
-}
-
-class IrrigationLineData {
-  int? objectId;
-  double? sNo;
-  String? name;
-  List<Item>? sourcePump;
-  List<Item>? irrigationPump;
-  //Item? centralFiltration;
-  //Item? centralFertilization;
-  List<Item>? valve;
-
-  IrrigationLineData({
-    this.objectId,
-    this.sNo,
-    this.name,
-    this.sourcePump,
-    this.irrigationPump,
-    //this.centralFiltration,
-    //this.centralFertilization,
-    this.valve,
-  });
-
-  factory IrrigationLineData.fromJson(Map<String, dynamic> json) => IrrigationLineData(
-    objectId: json['objectId'],
-    sNo: json['sNo'],
-    name: json['name'],
-    sourcePump: (json['sourcePump'] as List?)?.map((i) => Item.fromJson(i)).toList(),
-    irrigationPump: (json['irrigationPump'] as List?)?.map((i) => Item.fromJson(i)).toList(),
-    //centralFiltration: json['centralFiltration'] != null ? Item.fromJson(json['centralFiltration']) : null,
-    //centralFertilization: json['centralFertilization'] != null ? Item.fromJson(json['centralFertilization']) : null,
-    valve: (json['valve'] as List?)?.map((i) => Item.fromJson(i)).toList(),
   );
 }
 
@@ -364,7 +519,6 @@ class Item {
   };
 }
 
-
 class Live {
   final String cC;
   final String cD;
@@ -385,6 +539,88 @@ class Live {
       'cC': cC,
       'cD': cD,
       'cT': cT,
+    };
+  }
+}
+
+class NodeDataList{
+  int controllerId;
+  String deviceId;
+  String deviceName;
+  int categoryId;
+  String categoryName;
+  int modelId;
+  String modelName;
+  int serialNumber;
+  int referenceNumber;
+  int interfaceTypeId;
+  String interface;
+  String? extendControllerId;
+  int status;
+  String communicationCount;
+  String lastFeedbackReceivedTime;
+  double sVolt;
+  double batVolt;
+  List<RelayStatus> rlyStatus;
+
+  NodeDataList({
+    required this.controllerId,
+    required this.deviceId,
+    required this.deviceName,
+    required this.categoryId,
+    required this.categoryName,
+    required this.modelId,
+    required this.modelName,
+    required this.serialNumber,
+    required this.referenceNumber,
+    required this.interfaceTypeId,
+    required this.interface,
+    required this.extendControllerId,
+    this.status = 0,
+    this.communicationCount = '0,0',
+    this.lastFeedbackReceivedTime = '',
+    this.sVolt = 0.0,
+    this.batVolt = 0.0,
+    required this.rlyStatus,
+  });
+
+  factory NodeDataList.fromJson(Map<String, dynamic> json, List<ConfigObject> configObjects) {
+
+    List<ConfigObject> filteredConfigObjects =
+    configObjects.where((config) => config.controllerId == json['controllerId']).toList();
+    List<RelayStatus> rlyStatus = filteredConfigObjects.map((config) => RelayStatus.fromJson(config.toJson())).toList();
+
+    return NodeDataList(
+      controllerId: json['controllerId'],
+      deviceId: json['deviceId'],
+      deviceName: json['deviceName'],
+      categoryId: json['categoryId'],
+      categoryName: json['categoryName'],
+      modelId: json['modelId'],
+      modelName: json['modelName'],
+      serialNumber: json['serialNumber'],
+      referenceNumber: json['referenceNumber'],
+      interfaceTypeId: json['interfaceTypeId'] ?? 0,
+      interface: json['interface'] ?? '',
+      extendControllerId: json['extendControllerId'] ?? '',
+      rlyStatus: rlyStatus,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'controllerId': controllerId,
+      'DeviceId': deviceId,
+      'deviceName': deviceName,
+      'categoryId': categoryId,
+      'categoryName': categoryName,
+      'modelId': modelId,
+      'modelName': modelName,
+      'serialNumber': serialNumber,
+      'referenceNumber': referenceNumber,
+      'InterfaceType': interfaceTypeId,
+      'interface': interface,
+      'Status': status,
     };
   }
 }

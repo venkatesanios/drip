@@ -49,11 +49,12 @@ class IrrigationLine extends StatelessWidget {
                           bool isLastItem = index == viewModel.valves.length - 1;
 
                           return buildValveWidget(
-                            viewModel.valves[index].name!,
+                            viewModel.valves[index].name,
                             viewModel.valves[index].status,
                             isLastInRow,
                             isLastItem,
                           );
+
                         },
                       ),
                     ),

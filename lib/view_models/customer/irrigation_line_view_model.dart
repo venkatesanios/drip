@@ -7,7 +7,7 @@ class IrrigationLineViewModel extends ChangeNotifier {
 
   int crossAxisCount = 1;
   double gridHeight = 0;
-  List<Item> valves = [];
+  List<Valve> valves = [];
 
   IrrigationLineViewModel(BuildContext context, this.lineData, this.screenWidth) {
     _initialize(context);
@@ -20,7 +20,7 @@ class IrrigationLineViewModel extends ChangeNotifier {
   }
 
   void updateGridAlign(){
-    valves = lineData![0].valve ?? [];
+    valves = lineData![0].valves ?? [];
 
     crossAxisCount = (screenWidth / 95).floor().clamp(1, double.infinity).toInt();
     int rowCount = (valves.length / crossAxisCount).ceil();

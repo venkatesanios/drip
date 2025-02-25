@@ -20,9 +20,9 @@ class CustomerHome extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        if (lineData?.length == 1 && fertilizerSite!.isEmpty)
+        if (lineData.length == 1 && fertilizerSite.isEmpty)
           SingleSourcePumpStation(
-            sourceName: waterSources![0].name!,
+            sourceName: waterSources[0].name,
             level: waterSources[0].level,
             outletPump:  waterSources[0].outletPump ?? [],
             irrLineData: lineData,
@@ -38,7 +38,7 @@ class SingleSourcePumpStation extends StatelessWidget {
 
   final String sourceName;
   final Level? level;
-  final List<Item> outletPump;
+  final List<Pump> outletPump;
   final List<IrrigationLineData>? irrLineData;
 
   const SingleSourcePumpStation({super.key, required this.level, required this.outletPump, required this.irrLineData, required this.sourceName});
@@ -147,7 +147,7 @@ class SingleSourcePumpStation extends StatelessWidget {
     );
   }
 
-  Widget displayPump(Item pump){
+  Widget displayPump(Pump pump){
     return Stack(
       children: [
         SizedBox(
@@ -175,7 +175,7 @@ class SingleSourcePumpStation extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                pump.name!,
+                pump.name,
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 10, color: Colors.black54),
               ),

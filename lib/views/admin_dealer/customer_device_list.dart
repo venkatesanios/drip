@@ -19,10 +19,11 @@ class CustomerDeviceList extends StatefulWidget {
     required this.userRole,
     required this.productStockList,
     required this.onDeviceListAdded,
+    required this.comingFrom,
   });
 
   final int userId, customerId;
-  final String userRole, customerName;
+  final String userRole, customerName, comingFrom;
   final List<StockModel> productStockList;
   final Function(Map<String, dynamic>) onDeviceListAdded;
 
@@ -34,11 +35,12 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
 
   late TabController tabController;
   late CustomerDeviceListViewModel viewModel;
-  List<Object> tabList = ['Products List', 'Site'];
+  List<Object> tabList = [];
 
   @override
   void initState() {
     super.initState();
+    widget.comingFrom == 'Admin'?tabList = ['Products List', 'Site']:tabList = ['Products List'];
     viewModel = CustomerDeviceListViewModel(Repository(HttpService()), widget.userId, widget.customerId, widget.productStockList.length);
     tabController = TabController(length: tabList.length, vsync: this);
     tabController.addListener(() {

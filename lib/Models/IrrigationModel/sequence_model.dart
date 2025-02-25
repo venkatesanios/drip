@@ -1,3 +1,5 @@
+import 'package:oro_drip_irrigation/Models/Configuration/device_object_model.dart';
+
 class SequenceModel {
   List<dynamic> sequence;
   Default defaultData;
@@ -5,7 +7,6 @@ class SequenceModel {
   SequenceModel({required this.sequence, required this.defaultData});
 
   factory SequenceModel.fromJson(Map<String, dynamic> json) {
-    print("json in the SequenceModel ::: $json");
     return SequenceModel(
       sequence: json['data']['sequence'] ?? [],
       defaultData: Default.fromJson(json['data']['default']),
@@ -27,7 +28,7 @@ class Default {
   bool reuseValve;
   bool namedGroup;
   // List<Line> line;
-  List<Line> group;
+  List<ValveGroup> group;
   // List<Valve> agitator;
 
   Default(
@@ -41,7 +42,7 @@ class Default {
       });
 
   factory Default.fromJson(Map<String, dynamic> json) {
-    List<Line> groupList = List<Line>.from(json['valveGroupList'].map((x) => Line.fromJson(x)));
+    List<ValveGroup> groupList = List<ValveGroup>.from(json['valveGroupList'].map((x) => ValveGroup.fromJson(x)));
 
     return Default(
       startTogether: json['startTogether'],
@@ -54,10 +55,10 @@ class Default {
     );
   }
 
-  factory Default.fromJson2(Map<String, dynamic> json) {
-    List<Line> lineList = List<Line>.from(json['line'].map((x) => Line.fromJson(x)));
+/*  factory Default.fromJson2(Map<String, dynamic> json) {
+    // List<Line> lineList = List<Line>.from(json['line'].map((x) => Line.fromJson(x)));
     List<Line> groupList = List<Line>.from(json['group'].map((x) => Line.fromJson(x)));
-    List<Valve> agitatorList = List<Valve>.from(json['agitator'].map((x) => Valve.fromJson(x)));
+    // List<Valve> agitatorList = List<Valve>.from(json['agitator'].map((x) => Valve.fromJson(x)));
 
     return Default(
       startTogether: json['startTogether'] ?? false,
@@ -68,7 +69,7 @@ class Default {
       group: groupList,
       // agitator: agitatorList,
     );
-  }
+  }*/
 
   Map<String, dynamic> toJson() {
     return {
@@ -83,88 +84,38 @@ class Default {
   }
 }
 
-class Line {
-  int sNo;
+class ValveGroup {
   String id;
-  String hid;
-  String location;
   String name;
-  bool? selected;
-  List<Valve> valve;
+  List<DeviceObjectModel> valve;
 
-  Line(
-      {required this.sNo,
+  ValveGroup(
+      {
         required this.id,
-        required this.hid,
-        required this.location,
         required this.name,
-        this.selected,
         required this.valve});
 
-  factory Line.fromJson(Map<String, dynamic> json) {
+  factory ValveGroup.fromJson(Map<String, dynamic> json) {
     var valveList = json['valve'] as List<dynamic>?;
 
-    List<Valve> valves = valveList != null
+    List<DeviceObjectModel> valves = valveList != null
         ? valveList
-        .map((e) => Valve.fromJson(e as Map<String, dynamic>))
+        .map((e) => DeviceObjectModel.fromJson(e as Map<String, dynamic>))
         .toList()
         : [];
 
-    return Line(
-      sNo: json['sNo'],
-      id: json['id'],
-      hid: json['hid'] ?? "",
-      location: json['location'],
-      name: json['name'],
-      selected: json['selected'] ?? false,
+    return ValveGroup(
+      id: json['groupID'],
+      name: json['groupName'],
       valve: valves,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      "sNo": sNo,
       "id": id,
-      "hid": hid,
-      "location": location,
       "name": name,
-      "selected": selected ?? false,
       "valve": valve.map((e) => e.toJson()).toList(),
-    };
-  }
-}
-
-class Valve {
-  int sNo;
-  String id;
-  String hid;
-  String location;
-  String name;
-
-  Valve(
-      {required this.sNo,
-        required this.id,
-        required this.hid,
-        required this.location,
-        required this.name});
-
-  factory Valve.fromJson(Map<String, dynamic> json) {
-    return Valve(
-      sNo: json['sNo'],
-      id: json['id'],
-      hid: json['hid'] ?? "",
-      location: json['location'],
-      name: json['name'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      "sNo": sNo,
-      "id": id,
-      "hid": hid,
-      "location": location,
-      "name": name,
     };
   }
 }
@@ -464,49 +415,25 @@ class ConditionLibraryItem {
   }
 }
 
-class SelectionModel {
-  int code;
-  String message;
-  SelectionData data;
-
-  SelectionModel({
-    required this.code,
-    required this.message,
-    required this.data,
-  });
-
-  factory SelectionModel.fromJson(Map<String, dynamic> json) => SelectionModel(
-    code: json["code"],
-    message: json["message"],
-    data: SelectionData.fromJson(json["data"]),
-  );
-
-  Map<String, dynamic> toJson() => {
-    "code": code,
-    "message": message,
-    "data": data.toJson(),
-  };
-}
-
-class SelectionData {
-  List<NameData>? irrigationPump;
-  List<NameData>? mainValve;
-  List<NameData>? centralFertilizerSite;
-  List<NameData>? centralFertilizerInjector;
-  List<NameData>? localFertilizerSite;
-  List<NameData>? localFertilizerInjector;
-  List<NameData>? centralFilterSite;
-  List<NameData>? centralFilter;
-  List<NameData>? localFilterSite;
-  List<NameData>? localFilter;
+/*class SelectionData {
+  List<DeviceObjectModel>? irrigationPump;
+  List<DeviceObjectModel>? mainValve;
+  List<DeviceObjectModel>? centralFertilizerSite;
+  List<DeviceObjectModel>? centralFertilizerInjector;
+  List<DeviceObjectModel>? localFertilizerSite;
+  List<DeviceObjectModel>? localFertilizerInjector;
+  List<DeviceObjectModel>? centralFilterSite;
+  List<DeviceObjectModel>? centralFilter;
+  List<DeviceObjectModel>? localFilterSite;
+  List<DeviceObjectModel>? localFilter;
   AdditionalData? additionalData;
   // List<FertilizerSet>? centralFertilizerSet;
   // List<FertilizerSet>? localFertilizerSet;
-  List<NameData>? ecSensor;
-  List<NameData>? phSensor;
-  List<NameData>? selectorForCentral;
-  List<NameData>? selectorForLocal;
-  List<NameData>? headUnits;
+  List<DeviceObjectModel>? ecSensor;
+  List<DeviceObjectModel>? phSensor;
+  List<DeviceObjectModel>? selectorForCentral;
+  List<DeviceObjectModel>? selectorForLocal;
+  List<DeviceObjectModel>? headUnits;
 
   SelectionData(
       {this.irrigationPump,
@@ -530,24 +457,24 @@ class SelectionData {
 
   factory SelectionData.fromJson(Map<String, dynamic> json) {
     return SelectionData(
-      irrigationPump: json["irrigationPump"] == null ? [] : List<NameData>.from(json["irrigationPump"]!.map((x) => NameData.fromJson(x))),
-      mainValve: json["mainValve"] == null ? [] : List<NameData>.from(json["mainValve"]!.map((x) => NameData.fromJson(x))),
-      centralFertilizerSite: json["centralFertilizerSite"] == null ? [] : List<NameData>.from(json["centralFertilizerSite"]!.map((x) => NameData.fromJson(x))),
-      centralFertilizerInjector: json["centralFertilizerSite"] == null ? [] : List<NameData>.from(json["centralFertilizer"]!.map((x) => NameData.fromJson(x))),
-      localFertilizerSite: json["localFertilizerSite"] == null ? [] : List<NameData>.from(json["localFertilizerSite"]!.map((x) => NameData.fromJson(x))),
-      localFertilizerInjector: json["localFertilizer"] == null ? [] : List<NameData>.from(json["localFertilizer"]!.map((x) => NameData.fromJson(x))),
-      centralFilterSite: json["centralFilterSite"] == null ? [] : List<NameData>.from(json["centralFilterSite"]!.map((x) => NameData.fromJson(x))),
-      centralFilter: json["centralFilter"] == null ? [] : List<NameData>.from(json["centralFilter"]!.map((x) => NameData.fromJson(x))),
-      localFilterSite: json["localFilterSite"] == null ? [] : List<NameData>.from(json["localFilterSite"]!.map((x) => NameData.fromJson(x))),
-      localFilter: json["localFilter"] == null ? [] : List<NameData>.from(json["localFilter"]!.map((x) => NameData.fromJson(x))),
+      irrigationPump: json["irrigationPump"] == null ? [] : List<DeviceObjectModel>.from(json["irrigationPump"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      mainValve: json["mainValve"] == null ? [] : List<DeviceObjectModel>.from(json["mainValve"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      centralFertilizerSite: json["centralFertilizerSite"] == null ? [] : List<DeviceObjectModel>.from(json["centralFertilizerSite"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      centralFertilizerInjector: json["centralFertilizerSite"] == null ? [] : List<DeviceObjectModel>.from(json["centralFertilizer"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      localFertilizerSite: json["localFertilizerSite"] == null ? [] : List<DeviceObjectModel>.from(json["localFertilizerSite"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      localFertilizerInjector: json["localFertilizer"] == null ? [] : List<DeviceObjectModel>.from(json["localFertilizer"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      centralFilterSite: json["centralFilterSite"] == null ? [] : List<DeviceObjectModel>.from(json["centralFilterSite"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      centralFilter: json["centralFilter"] == null ? [] : List<DeviceObjectModel>.from(json["centralFilter"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      localFilterSite: json["localFilterSite"] == null ? [] : List<DeviceObjectModel>.from(json["localFilterSite"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      localFilter: json["localFilter"] == null ? [] : List<DeviceObjectModel>.from(json["localFilter"]!.map((x) => DeviceObjectModel.fromJson(x))),
       additionalData: AdditionalData.fromJson(json['additionalData']),
       // centralFertilizerSet: json["centralFertilizerSet"] == null ? [] : List<FertilizerSet>.from(json["centralFertilizerSet"].map((x) => FertilizerSet.fromJson(x))),
       // localFertilizerSet: json["localFertilizerSet"] == null ? [] : List<FertilizerSet>.from(json["localFertilizerSet"].map((x) => FertilizerSet.fromJson(x))),
-      ecSensor: json["ecSensor"] == null ? [] : List<NameData>.from(json["ecSensor"]!.map((x) => NameData.fromJson(x))),
-      phSensor: json["phSensor"] == null ? [] : List<NameData>.from(json["phSensor"]!.map((x) => NameData.fromJson(x))),
-      selectorForCentral: json["centralSelector"] == null ? [] : List<NameData>.from(json["centralSelector"]!.map((x) => NameData.fromJson(x))),
-      selectorForLocal: json["localSelector"] == null ? [] : List<NameData>.from(json["localSelector"]!.map((x) => NameData.fromJson(x))),
-      headUnits: json["headUnits"] == null ? [] : List<NameData>.from(json["headUnits"]!.map((x) => NameData.fromJson(x))),
+      ecSensor: json["ecSensor"] == null ? [] : List<DeviceObjectModel>.from(json["ecSensor"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      phSensor: json["phSensor"] == null ? [] : List<DeviceObjectModel>.from(json["phSensor"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      selectorForCentral: json["centralSelector"] == null ? [] : List<DeviceObjectModel>.from(json["centralSelector"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      selectorForLocal: json["localSelector"] == null ? [] : List<DeviceObjectModel>.from(json["localSelector"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      headUnits: json["headUnits"] == null ? [] : List<DeviceObjectModel>.from(json["headUnits"]!.map((x) => DeviceObjectModel.fromJson(x))),
     );
   }
 
@@ -612,7 +539,7 @@ class SelectionData {
       "headUnits": headUnits == null ? [] : List<dynamic>.from(headUnits!.map((e) => e.toJson()))
     };
   }
-}
+}*/
 
 class NameData {
   int? sNo;
@@ -670,16 +597,19 @@ class AdditionalData {
         required this.programBasedSet,
         required this.programBasedInjector});
 
-  factory AdditionalData.fromJson(Map<String, dynamic> json) => AdditionalData(
-    centralFiltrationOperationMode: json['centralFiltrationOperationMode'] ?? "TIME",
-    localFiltrationOperationMode: json['localFiltrationOperationMode'] ?? "TIME",
-    centralFiltrationBeginningOnly: json['centralFiltrationBeginningOnly'] ?? false,
-    localFiltrationBeginningOnly: json['localFiltrationBeginningOnly'] ?? false,
-    pumpStationMode: json['pumpStationMode'] ?? false,
-    changeOverMode: json['changeOverMode'] ?? false,
-    programBasedSet: json['programBasedSet'] ?? false,
-    programBasedInjector: json['programBasedInjector'] ?? false,
-  );
+  factory AdditionalData.fromJson(Map<String, dynamic> json) {
+    print("json in the AdditionalData ::: $json");
+    return AdditionalData(
+      centralFiltrationOperationMode: json['centralFiltrationOperationMode'] ?? "TIME",
+      localFiltrationOperationMode: json['localFiltrationOperationMode'] ?? "TIME",
+      centralFiltrationBeginningOnly: json['centralFiltrationBeginningOnly'] ?? false,
+      localFiltrationBeginningOnly: json['localFiltrationBeginningOnly'] ?? false,
+      pumpStationMode: json['pumpStationMode'] ?? false,
+      changeOverMode: json['changeOverMode'] ?? false,
+      programBasedSet: json['programBasedSet'] ?? false,
+      programBasedInjector: json['programBasedInjector'] ?? false,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
     "centralFiltrationOperationMode": centralFiltrationOperationMode,
@@ -691,284 +621,6 @@ class AdditionalData {
     "programBasedSet": programBasedSet,
     "programBasedInjector": programBasedInjector
   };
-}
-
-class FertilizerSet {
-  int sNo;
-  String id;
-  String hid;
-  String name;
-  String location;
-  List<Recipe> recipe;
-
-  FertilizerSet({
-    required this.sNo,
-    required this.id,
-    required this.hid,
-    required this.name,
-    required this.location,
-    required this.recipe,
-  });
-
-  factory FertilizerSet.fromJson(Map<String, dynamic> json) {
-    List<Recipe> recipes = (json['recipe'] as List)
-        .map((recipeJson) => Recipe.fromJson(recipeJson))
-        .toList();
-
-    return FertilizerSet(
-      sNo: json['sNo'],
-      id: json['id'],
-      hid: json['hid'] ?? "",
-      name: json['name'],
-      location: json['location'],
-      recipe: recipes,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    List<Map<String, dynamic>> recipeList =
-    recipe.map((recipe) => recipe.toJson()).toList();
-
-    return {
-      "sNo": sNo,
-      "id": id,
-      "hid": hid,
-      "name": name,
-      "location": location,
-      "recipe": recipeList,
-    };
-  }
-}
-
-class Recipe {
-  int sNo;
-  String id;
-  String hid;
-  String name;
-  String location;
-  bool selected;
-  bool select;
-  String ec;
-  String ph;
-  List<Fertilizer> fertilizer;
-
-  Recipe({
-    required this.sNo,
-    required this.id,
-    required this.hid,
-    required this.name,
-    required this.location,
-    required this.selected,
-    required this.ec,
-    required this.ph,
-    required this.fertilizer,
-    required this.select
-  });
-
-  factory Recipe.fromJson(Map<String, dynamic> json) {
-    List<Fertilizer> fertilizers = (json['fertilizer'] as List)
-        .map((fertilizerJson) => Fertilizer.fromJson(fertilizerJson))
-        .toList();
-
-    return Recipe(
-      sNo: json['sNo'],
-      id: json['id'],
-      hid: json['hid'] ?? "",
-      name: json['name'],
-      location: json['location'],
-      selected: json['selected'] ?? false,
-      select: json['select'] ?? false,
-      ec: json['Ec'] ?? "",
-      ph: json['Ph'] ?? "",
-      fertilizer: fertilizers,
-    );
-  }
-  Map<String, dynamic> toJson() {
-    List<Map<String, dynamic>> fertilizerList =
-    fertilizer.map((fertilizer) => fertilizer.toJson()).toList();
-
-    return {
-      "sNo": sNo,
-      "id": id,
-      "hid": hid,
-      "name": name,
-      "location": location,
-      "select": select,
-      "selected": selected,
-      "ec": ec,
-      "ph": ph,
-      "fertilizer": fertilizerList,
-    };
-  }
-}
-
-class Fertilizer {
-  int sNo;
-  String id;
-  String hid;
-  String name;
-  String location;
-  List<NameData> fertilizerMeter;
-  bool active;
-  String method;
-  String timeValue;
-  String quantityValue;
-  bool dmControl;
-
-  Fertilizer({
-    required this.sNo,
-    required this.id,
-    required this.hid,
-    required this.name,
-    required this.location,
-    required this.fertilizerMeter,
-    required this.active,
-    required this.method,
-    required this.timeValue,
-    required this.quantityValue,
-    required this.dmControl,
-  });
-
-  factory Fertilizer.fromJson(Map<String, dynamic> json) {
-    List<NameData> meterList = (json['fertilizerMeter'] as List)
-        .map((meterJson) => NameData.fromJson(meterJson))
-        .toList();
-
-    return Fertilizer(
-      sNo: json['sNo'],
-      id: json['id'],
-      hid: json['hid'] ?? "",
-      name: json['name'],
-      location: json['location'],
-      fertilizerMeter: meterList,
-      active: json['active'],
-      method: json['method'],
-      timeValue: json['timeValue'],
-      quantityValue: json['quantityValue'],
-      dmControl: json['dmControl'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      "sNo": sNo,
-      "id": id,
-      "hid": hid,
-      "name": name,
-      "location": location,
-      "fertilizerMeter": fertilizerMeter,
-      "active": active,
-      "method": method,
-      "timeValue": timeValue,
-      "quantityValue": quantityValue,
-      "dmControl": dmControl
-    };
-  }
-}
-
-class Selector{
-  int sNo;
-  String rtu;
-  String rfNo;
-  String output;
-  String outputType;
-  bool selected;
-
-  Selector({required this.sNo, required this.rtu, required this.rfNo, required this.output, required this.outputType, required this.selected});
-
-  factory Selector.fromJson(Map<String, dynamic> json) {
-    return Selector(
-        sNo: json["sNo"],
-        rtu: json["rtu"],
-        rfNo: json["rfNo"],
-        output: json["output"],
-        outputType: json["output_type"],
-        selected: json["selected"]
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      "sNo": sNo,
-      "rtu": rtu,
-      "rfNo": rfNo,
-      "output": output,
-      "output_type": outputType,
-      "selected": selected
-    };
-  }
-}
-
-class AlarmType {
-  int notificationTypeId;
-  String notification;
-  String notificationDescription;
-  String iconCodePoint;
-  String iconFontFamily;
-  bool selected;
-
-  AlarmType({
-    required this.notificationTypeId,
-    required this.notification,
-    required this.notificationDescription,
-    required this.iconCodePoint,
-    required this.iconFontFamily,
-    required this.selected,
-  });
-
-  factory AlarmType.fromJson(Map<String, dynamic> json) {
-    return AlarmType(
-      notificationTypeId: json['notificationTypeId'],
-      notification: json['notification'],
-      notificationDescription: json['notificationDescription'],
-      iconCodePoint: json['iconCodePoint'],
-      iconFontFamily: json['iconFontFamily'],
-      selected: json['selected'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      "notificationTypeId": notificationTypeId,
-      "notification": notification,
-      "notificationDescription": notificationDescription,
-      "iconCodePoint": iconCodePoint,
-      "iconFontFamily": iconFontFamily,
-      "selected": selected,
-    };
-  }
-}
-
-class AlarmData {
-  List<AlarmType> general;
-  List<AlarmType> ecPh;
-
-  AlarmData({
-    required this.general,
-    required this.ecPh,
-  });
-
-  factory AlarmData.fromJson(Map<String, dynamic> json) {
-    List<AlarmType> generalList = (json['data']['general'] as List)
-        .map((item) => AlarmType.fromJson(item))
-        .toList();
-
-    List<AlarmType> ecPhList = (json['data']['ecPh'] as List)
-        .map((item) => AlarmType.fromJson(item))
-        .toList();
-
-    return AlarmData(
-      general: generalList,
-      ecPh: ecPhList,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      "general": general.map((e) => e.toJson()).toList(),
-      "ecPh": ecPh.map((e) => e.toJson()).toList()
-    };
-  }
 }
 
 class NewAlarmData{
@@ -1034,7 +686,7 @@ class ProgramLibrary {
   factory ProgramLibrary.fromJson(Map<String, dynamic> json) {
     return ProgramLibrary(
       programType: List<String>.from(json['data']['programType'] ?? []),
-      programLimit: 2,
+      programLimit: 4,
       // programLimit: json['data']['programLimit'],
       agitatorCount: json['data']['agitatorCount'] ?? 0,
       program: List<Program>.from(

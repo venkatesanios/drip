@@ -63,7 +63,7 @@ class DealerScreenController extends StatelessWidget {
                   destinations: getNavigationDestinations(),
                 ),
                 Expanded(
-                  child: mainMenu(viewModel.selectedIndex, userId, userName, mobileNo, emailId),
+                  child: mainMenu(viewModel.selectedIndex, userId, userName, mobileNo, emailId, fromLogin),
                 ),
               ],
             ),
@@ -96,13 +96,14 @@ class DealerScreenController extends StatelessWidget {
     return destinations;
   }
 
-  Widget mainMenu(int index, int userId, String userName, String mobileNo, String emailId) {
+  Widget mainMenu(int index, int userId, String userName, String mobileNo, String emailId, bool fromLogin) {
     switch (index) {
       case 0:
         return DealerDashboard(
           userId: userId,
           userName: userName,
           mobileNo: mobileNo,
+          fromLogin: fromLogin,
         );
       case 1:
         return ProductInventory(

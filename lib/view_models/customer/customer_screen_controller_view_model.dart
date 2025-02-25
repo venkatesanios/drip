@@ -37,10 +37,10 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   }
 
   void onSubscribeTopic(){
-    Future.delayed(const Duration(milliseconds: 2000), () {
+    /*Future.delayed(const Duration(milliseconds: 2000), () {
       mqttService.topicToSubscribe('${AppConstants.subscribeTopic}/${mySiteList.data[sIndex].master[mIndex].deviceId}');
       onRefreshClicked();
-    });
+    });*/
   }
 
   void updateReceivedPayload(String payload) {
@@ -70,7 +70,6 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
       errorMsg = 'Error fetching site list: $error';
     } finally {
       setLoading(false);
-      notifyListeners();  // Ensure UI updates
     }
   }
 
@@ -101,9 +100,9 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   }
 
   void lineOnChanged(lineName){
-    int lInx = mySiteList.data[sIndex].master[mIndex].config.lineData!.indexWhere((line)
+    int lInx = mySiteList.data[sIndex].master[mIndex].config.lineData.indexWhere((line)
     => line.name == lineName);
-    if (lInx != -1 && mySiteList.data[sIndex].master[mIndex].config.lineData!.length > 1) {
+    if (lInx != -1 && mySiteList.data[sIndex].master[mIndex].config.lineData.length > 1) {
       lIndex = lInx;
       fromWhere='line';
       updateMasterLine(sIndex, mIndex, lInx);
@@ -132,8 +131,8 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   }
 
   void updateMasterLine(sIdx, mIdx, lIdx){
-    if(mySiteList.data[sIdx].master[mIdx].config.lineData!.isNotEmpty){
-      myCurrentIrrLine = mySiteList.data[sIdx].master[mIdx].config.lineData![lIdx].name!;
+    if(mySiteList.data[sIdx].master[mIdx].config.lineData.isNotEmpty){
+      myCurrentIrrLine = mySiteList.data[sIdx].master[mIdx].config.lineData[lIdx].name;
       notifyListeners();
     }
   }

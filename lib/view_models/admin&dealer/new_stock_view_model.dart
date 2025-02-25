@@ -26,7 +26,9 @@ class NewStockViewModel extends ChangeNotifier {
 
   List<Map<String, dynamic>> addedProductList = [];
 
-  NewStockViewModel(this.repository) {
+  final Function(Map<String, dynamic>) onStockCreatedCallbackFunction;
+
+  NewStockViewModel(this.repository, {required this.onStockCreatedCallbackFunction}) {
     _setupInitialValues();
   }
 
@@ -136,7 +138,8 @@ class NewStockViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Map<String, dynamic>> createProduct(int userId) async {
+  Future<void> addProductStock(int userId, context) async {
+    Navigator.pop(context);
     setLoading(true);
     try {
       var response = await repository.createProduct({
@@ -154,12 +157,13 @@ class NewStockViewModel extends ChangeNotifier {
             'data': jsonData["data"],
             'products': addedProductList,
           };
-          return result;
+          onStockCreatedCallbackFunction(result);
+        }else{
+          errorMsg = jsonData["message"];
         }
       }
-      return {'status': 'failed', 'message': 'Failed to add stock', 'data': []};
     } catch (error) {
-      return {'status': 'failed', 'message': 'Error: $error', 'data': []};
+      debugPrint(error.toString());
     } finally {
       setLoading(false);
     }

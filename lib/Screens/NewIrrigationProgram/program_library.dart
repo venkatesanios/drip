@@ -37,7 +37,6 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
   TextEditingController copyController = TextEditingController();
   String tempProgramName = '';
   String controllerReadStatus = "0";
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -434,6 +433,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                           } else {
                             showConfirmationDialog(programItem, "delete");
                           }*/
+                          showConfirmationDialog(programItem, "delete");
                         },
                       ),
                       // const SizedBox(width: 10,),
@@ -485,7 +485,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                       programItem.programName.isNotEmpty
                           ? programItem.schedule['selected'].toString().toLowerCase().substring(0,1).toUpperCase() + programItem.schedule['selected'].toString().toLowerCase().substring(1) ?? "-"
                           : "Inactive program", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: programItem.programName.isNotEmpty ? Colors.black : Colors.grey),),
-                    Container(
+                    SizedBox(
                       height: 30,
                       width: cardSize - 180,
                       child: GestureDetector(
@@ -549,11 +549,11 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
             // SizedBox(height: 5,),
             const Divider(color: Color(0xffE5DADA),),
             // SizedBox(height: 5,),
-            Container(
+            SizedBox(
               height: 75,
               child: Column(
                 children: [
-                  Container(
+                  SizedBox(
                     height: 65,
                     width: double.maxFinite,
                     child: (scheduleByDays || scheduleAsRunList)
@@ -607,29 +607,27 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                         ),
                         child: const Center(child: Text("RTC not available for this method", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.w500),))),
                   ),
-                  Container(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        for(var i = 0; i < pageCount; i++)
-                          InkWell(
-                            onTap: () {
-                              pageController.animateToPage(i, duration: const Duration(milliseconds: 500), curve: Curves.easeIn);
-                            },
-                            child: AnimatedContainer(
-                              height: 8,
-                              width: currentIndex == i ? 20 : 8,
-                              margin: const EdgeInsets.only(right: 3),
-                              decoration: BoxDecoration(
-                                  color: pageCount > 1 ? currentIndex == i ? Theme.of(context).primaryColor : Colors.grey : Colors.white,
-                                  // shape: BoxShape.circle
-                                  borderRadius: BorderRadius.circular(10)
-                              ),
-                              duration: const Duration(milliseconds: 200),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      for(var i = 0; i < pageCount; i++)
+                        InkWell(
+                          onTap: () {
+                            pageController.animateToPage(i, duration: const Duration(milliseconds: 500), curve: Curves.easeIn);
+                          },
+                          child: AnimatedContainer(
+                            height: 8,
+                            width: currentIndex == i ? 20 : 8,
+                            margin: const EdgeInsets.only(right: 3),
+                            decoration: BoxDecoration(
+                                color: pageCount > 1 ? currentIndex == i ? Theme.of(context).primaryColor : Colors.grey : Colors.white,
+                                // shape: BoxShape.circle
+                                borderRadius: BorderRadius.circular(10)
                             ),
+                            duration: const Duration(milliseconds: 200),
                           ),
-                      ],
-                    ),
+                        ),
+                    ],
                   ),
                 ],
               ),
@@ -649,7 +647,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
     required String defaultProgramName,
     required List<Program> programLibraryData,
   }) {
-    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
     String tempProgramName = "";
 
     showAdaptiveDialog(
@@ -660,7 +658,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
             return AlertDialog(
               title: const Text("Program copy!"),
               content: Form(
-                key: _formKey,
+                key: formKey,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -696,7 +694,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                 ),
                 TextButton(
                   onPressed: () {
-                    if (_formKey.currentState!.validate()) {
+                    if (formKey.currentState!.validate()) {
                       createCopyOfProgram(
                         oldSerialNumber: program.serialNumber,
                         serialNumber: serialNumber,
@@ -742,7 +740,9 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                 ),
                 TextButton(
                   onPressed: () async{
-                   /* if(toMove == "active" || toMove == "inactive") {
+                    deleteProgram(program, toMove);
+
+                    if(toMove == "active" || toMove == "inactive") {
                       Map<String, dynamic> dataToMqtt = program.hardwareData;
                       Map<String, dynamic> deleteProgramToHardware = {
                         "3800": [{
@@ -751,7 +751,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                       };
                       try {
                         Navigator.of(dialogContext).pop();
-                        await validatePayloadSent(
+                        /*await validatePayloadSent(
                             dialogContext: context,
                             context: context,
                             mqttPayloadProvider: mqttPayloadProvider,
@@ -771,7 +771,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                               controllerReadStatus = "0";
                             });
                           }
-                        });
+                        });*/
                         // await saveProgramDetails(program, dataToMqtt);
                         await Future.delayed(const Duration(seconds: 1), () async{
                           await irrigationProgramMainProvider.programLibraryData(overAllUse.takeSharedUserId ? overAllUse.sharedUserId : overAllUse.userId, overAllUse.controllerId,);
@@ -791,7 +791,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                         irrigationProgramMainProvider.updateSelectedFilterType(0);
                       }
                       Navigator.of(dialogContext).pop();
-                    }*/
+                    }
                   },
                   child: const Text('Yes'),
                 )
