@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/utils/environment.dart';
+import '../flavors.dart';
 import '../utils/Theme/smart_comm_theme.dart';
 import '../utils/routes.dart';
 import '../utils/shared_preferences_helper.dart';
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
       builder: (context, snapshot) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          theme: Environment.currentEnvironment == 'oroDevelopment' ? OroTheme.lightTheme : SmartCommTheme.lightTheme,
+          theme: F.appFlavor!.name.contains('oro') ? OroTheme.lightTheme : SmartCommTheme.lightTheme,
           darkTheme: OroTheme.darkTheme,
           themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
           home: navigateToInitialScreen(snapshot.data ?? Routes.login),

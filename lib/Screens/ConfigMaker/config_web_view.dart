@@ -25,7 +25,7 @@ import 'config_base_page.dart';
 import 'config_mobile_view.dart';
 import 'connection.dart';
 import 'device_list.dart';
-import 'package:oro_drip_irrigation/services/mqtt_manager_mobile.dart' if (dart.library.html) 'package:oro_drip_irrigation/Constants/mqtt_manager_web.dart';
+import 'package:oro_drip_irrigation/services/mqtt_manager_mobile.dart' if (dart.library.html) 'package:oro_drip_irrigation/services/mqtt_manager_web.dart';
 
 
 
