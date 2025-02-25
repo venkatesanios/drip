@@ -813,7 +813,6 @@ class Repository{
   Future<http.Response> getUserPlanningValveGroup(body) async {
     return await apiService.postRequest('/user/planning/valveGroup/get', body);
   }
-}
 
   Future<http.Response> fetchStandAloneData(body) async {
     return await apiService.postRequest('/user/getUserDashboardByManual', body);
