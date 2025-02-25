@@ -505,7 +505,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
     };
     if(mainProvider.irrigationLine!.sequence.isNotEmpty) {
       // print(mainProvider.selectionModel.data!.toJson());
-      print(mainProvider.additionalData!.toJson());
+      // print(mainProvider.additionalData!.toJson());
       var dataToSend = {
         "sequence": mainProvider.irrigationLine!.sequence,
         "schedule": mainProvider.sampleScheduleModel!.toJson(),

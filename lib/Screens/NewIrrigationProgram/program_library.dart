@@ -433,6 +433,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                           } else {
                             showConfirmationDialog(programItem, "delete");
                           }*/
+                          showConfirmationDialog(programItem, "delete");
                         },
                       ),
                       // const SizedBox(width: 10,),

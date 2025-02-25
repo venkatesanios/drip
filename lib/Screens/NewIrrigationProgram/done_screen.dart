@@ -143,13 +143,12 @@ class _AdditionalDataScreenState extends State<AdditionalDataScreen> {
                                     doneProvider.updateProgramName(newTime, 'delayBetweenZones');
                                   },
                                 ),
-                                SizedBox(
-                                  width: 65,
+                                IntrinsicWidth(
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       SizedBox(
-                                        width: 50 ,
+                                        width: 50,
                                         child: TextFormField(
                                           initialValue: doneProvider.adjustPercentage != "" ? doneProvider.adjustPercentage : "100",
                                           decoration: const InputDecoration(

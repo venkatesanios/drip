@@ -8,6 +8,8 @@ class DeviceObjectModel {
   final String type;
   int? controllerId;
   String? count;
+  int? connectedObject;
+  int? siteMode;
 
   DeviceObjectModel({
     required this.objectId,
@@ -18,11 +20,13 @@ class DeviceObjectModel {
     required this.type,
     this.controllerId,
     this.count,
+    this.connectedObject,
+    this.siteMode,
   });
 
   @override
   String toString() {
-    return '$objectName(name: $name, objectId: $objectId, connectionNo: $connectionNo, type: $type, controllerId: $controllerId, count: $count)';
+    return '$objectName(name: $name, objectId: $objectId, connectionNo: $connectionNo, type: $type, controllerId: $controllerId, count: $count, connectedObject: $connectedObject)';
   }
 
   factory DeviceObjectModel.fromJson(Map<String, dynamic> data) {
@@ -35,6 +39,8 @@ class DeviceObjectModel {
       type: data['type'],
       controllerId: data['controllerId'],
       count: data['count'],
+      connectedObject: data['connectedObject'],
+      siteMode: data['siteMode'],
     );
   }
 
@@ -48,6 +54,8 @@ class DeviceObjectModel {
       'type': type,
       'controllerId': controllerId,
       'count': count,
+      'connectedObject': connectedObject,
+      'siteMode': siteMode,
     };
   }
 }

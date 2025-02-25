@@ -3,6 +3,7 @@ import 'package:oro_drip_irrigation/Screens/NewIrrigationProgram/program_library
 import 'package:oro_drip_irrigation/utils/environment.dart';
 import '../Screens/NewPreference/preference_main_screen.dart';
 import '../Screens/SystemDefinitionScreen/system_definition_screen.dart';
+import '../Screens/ValveGroup/valve_group_screen.dart';
 import '../utils/Theme/lk_theme.dart';
 import '../utils/routes.dart';
 import '../utils/shared_preferences_helper.dart';
@@ -51,6 +52,7 @@ class MyApp extends StatelessWidget {
 Widget navigateToInitialScreen(String route) {
   switch (route) {
     case Routes.login:
+      return GroupListScreen();
       // return SystemDefinition(userId: 4, controllerId: 1, deviceId: '', menuId: 0,);
       // return PreferenceMainScreen(userId: 4, controllerId: 1, deviceId: '', customerId: 4, menuId: 0,);
       return const ProgramLibraryScreenNew(userId: 4, controllerId: 1, deviceId: '', fromDealer: false);

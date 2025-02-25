@@ -63,9 +63,6 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   List<DeviceObjectModel> selectedObjects = [];
   int selectedPumpLocation = 0;
 
-  // SequenceModel2? _irrigationLine2;
-  // SequenceModel2? get irrigationLine2 => _irrigationLine2;
-
   Future<void> getUserProgramSequence({required int userId, required int controllerId, required int serialNumber}) async {
     try {
       var userData = {
@@ -73,24 +70,24 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         "controllerId": controllerId,
         "serialNumber": serialNumber
       };
-      print("userData ==> $userData");
+      // print("userData ==> $userData");
       var userBody = {
         "userId": userId,
         "controllerId": controllerId,
         "serialNumber": serialNumber,
-        "groupId": 1,
+        "groupId": 3,
         "categoryId": 1
       };
       var getUserConfigMaker = await repository.getUserConfigMaker(userBody);
       var getUserProgramSequence = await repository.getUserProgramSequence(userData);
       // var getUserProgramSequence = await httpService.postRequest('getUserProgramSequence', userData);
-      print("getUserConfigMaker ::: ${jsonDecode(getUserConfigMaker.body)['data']}");
+      // print("getUserConfigMaker ::: ${jsonDecode(getUserConfigMaker.body)['data']}");
       if(getUserConfigMaker.statusCode == 200) {
         final responseJson = getUserProgramSequence.body;
         final convertedJson = jsonDecode(responseJson);
         final convertedJson2 = jsonDecode(getUserConfigMaker.body);
 
-        print("convertedJson2 ::: ${Constants.payloadConversion(convertedJson2['data'])}");
+        // print("convertedJson2 ::: ${Constants.payloadConversion(convertedJson2['data'])}");
 
         final sampleData = Constants.payloadConversion(convertedJson2['data']);
         _sampleIrrigationLine = (sampleData['irrigationLine'] as List).map((e) => IrrigationLine.fromJson(e as Map<String, dynamic>)).toList();
@@ -241,14 +238,12 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   }
 
   void addNextSequence({int? serialNumber, zoneSno, indexToInsert}) {
-    print("indexToInsert ==> $indexToInsert");
     dynamic missingNum = null;
     for(var i = 0; i < _irrigationLine!.sequence.length; i++) {
       if(!_irrigationLine!.sequence.map((e)=> e['sNo']).toList().contains("${serialNumber == 0 ? serialNumberCreation : serialNumber}.${i+1}")) {
         missingNum = "${i+1}";
       }
     }
-    print(missingNum);
     if(missingNum == null) {
       missingNum = "${_irrigationLine!.sequence.length + 1}";
     }
@@ -2516,8 +2511,11 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     try {
       final response = await repository.getUserProgramSelection(userData);
       final jsonData = json.decode(response.body);
-      selectedObjects = (jsonData['data']['selection']['selected'] as List).map((e) => DeviceObjectModel.fromJson(e as Map<String, dynamic>)).toList();
+      if(jsonData['data']['selection']['selected'] != null) {
+        selectedObjects = (jsonData['data']['selection']['selected'] as List).map((e) => DeviceObjectModel.fromJson(e as Map<String, dynamic>)).toList();
+      }
       _additionalData = AdditionalData.fromJson(jsonData['data']);
+      print(_additionalData?.toJson());
     } catch (e) {
       log('Error: $e');
     }

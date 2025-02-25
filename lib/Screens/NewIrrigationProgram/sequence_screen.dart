@@ -274,6 +274,7 @@ class _SequenceScreenState extends State<SequenceScreen> {
                     margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.05, vertical: MediaQuery.of(context).size.width * 0.012),
                     child: Column(
                       children: [
+                        if(irrigationProgramProvider.sampleIrrigationLine!.expand((element) => element.mainValve!).toList().isNotEmpty && irrigationProgram)
                           buildIrrigationLinesList(
                               context: context,
                               dataList: irrigationProgramProvider.sampleIrrigationLine!,

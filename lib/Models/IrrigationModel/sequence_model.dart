@@ -1,3 +1,5 @@
+import 'package:oro_drip_irrigation/Models/Configuration/device_object_model.dart';
+
 class SequenceModel {
   List<dynamic> sequence;
   Default defaultData;
@@ -5,7 +7,6 @@ class SequenceModel {
   SequenceModel({required this.sequence, required this.defaultData});
 
   factory SequenceModel.fromJson(Map<String, dynamic> json) {
-    print("json in the SequenceModel ::: $json");
     return SequenceModel(
       sequence: json['data']['sequence'] ?? [],
       defaultData: Default.fromJson(json['data']['default']),
@@ -463,6 +464,132 @@ class ConditionLibraryItem {
     );
   }
 }
+
+/*class SelectionData {
+  List<DeviceObjectModel>? irrigationPump;
+  List<DeviceObjectModel>? mainValve;
+  List<DeviceObjectModel>? centralFertilizerSite;
+  List<DeviceObjectModel>? centralFertilizerInjector;
+  List<DeviceObjectModel>? localFertilizerSite;
+  List<DeviceObjectModel>? localFertilizerInjector;
+  List<DeviceObjectModel>? centralFilterSite;
+  List<DeviceObjectModel>? centralFilter;
+  List<DeviceObjectModel>? localFilterSite;
+  List<DeviceObjectModel>? localFilter;
+  AdditionalData? additionalData;
+  // List<FertilizerSet>? centralFertilizerSet;
+  // List<FertilizerSet>? localFertilizerSet;
+  List<DeviceObjectModel>? ecSensor;
+  List<DeviceObjectModel>? phSensor;
+  List<DeviceObjectModel>? selectorForCentral;
+  List<DeviceObjectModel>? selectorForLocal;
+  List<DeviceObjectModel>? headUnits;
+
+  SelectionData(
+      {this.irrigationPump,
+        this.mainValve,
+        this.centralFertilizerSite,
+        this.centralFertilizerInjector,
+        this.localFertilizerSite,
+        this.localFertilizerInjector,
+        this.centralFilterSite,
+        this.centralFilter,
+        this.localFilterSite,
+        this.localFilter,
+        this.additionalData,
+        // this.centralFertilizerSet,
+        // this.localFertilizerSet,
+        this.ecSensor,
+        this.phSensor,
+        this.selectorForCentral,
+        this.selectorForLocal,
+        this.headUnits});
+
+  factory SelectionData.fromJson(Map<String, dynamic> json) {
+    return SelectionData(
+      irrigationPump: json["irrigationPump"] == null ? [] : List<DeviceObjectModel>.from(json["irrigationPump"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      mainValve: json["mainValve"] == null ? [] : List<DeviceObjectModel>.from(json["mainValve"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      centralFertilizerSite: json["centralFertilizerSite"] == null ? [] : List<DeviceObjectModel>.from(json["centralFertilizerSite"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      centralFertilizerInjector: json["centralFertilizerSite"] == null ? [] : List<DeviceObjectModel>.from(json["centralFertilizer"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      localFertilizerSite: json["localFertilizerSite"] == null ? [] : List<DeviceObjectModel>.from(json["localFertilizerSite"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      localFertilizerInjector: json["localFertilizer"] == null ? [] : List<DeviceObjectModel>.from(json["localFertilizer"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      centralFilterSite: json["centralFilterSite"] == null ? [] : List<DeviceObjectModel>.from(json["centralFilterSite"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      centralFilter: json["centralFilter"] == null ? [] : List<DeviceObjectModel>.from(json["centralFilter"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      localFilterSite: json["localFilterSite"] == null ? [] : List<DeviceObjectModel>.from(json["localFilterSite"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      localFilter: json["localFilter"] == null ? [] : List<DeviceObjectModel>.from(json["localFilter"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      additionalData: AdditionalData.fromJson(json['additionalData']),
+      // centralFertilizerSet: json["centralFertilizerSet"] == null ? [] : List<FertilizerSet>.from(json["centralFertilizerSet"].map((x) => FertilizerSet.fromJson(x))),
+      // localFertilizerSet: json["localFertilizerSet"] == null ? [] : List<FertilizerSet>.from(json["localFertilizerSet"].map((x) => FertilizerSet.fromJson(x))),
+      ecSensor: json["ecSensor"] == null ? [] : List<DeviceObjectModel>.from(json["ecSensor"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      phSensor: json["phSensor"] == null ? [] : List<DeviceObjectModel>.from(json["phSensor"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      selectorForCentral: json["centralSelector"] == null ? [] : List<DeviceObjectModel>.from(json["centralSelector"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      selectorForLocal: json["localSelector"] == null ? [] : List<DeviceObjectModel>.from(json["localSelector"]!.map((x) => DeviceObjectModel.fromJson(x))),
+      headUnits: json["headUnits"] == null ? [] : List<DeviceObjectModel>.from(json["headUnits"]!.map((x) => DeviceObjectModel.fromJson(x))),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    var centralSet = [];
+    var localSet = [];
+    var centralFilters = [];
+    var localFilters = [];
+    // for(var i = 0; i < centralFertilizerSet!.length; i++) {
+    //   for(var j = 0; j < centralFertilizerSet![i].recipe.length; j++) {
+    //     // centralFertilizerSet![i].recipe[j].toJson();
+    //     centralSet.add(centralFertilizerSet![i].recipe[j].toJson());
+    //   }
+    // }
+    // for(var i = 0; i < localFertilizerSet!.length; i++) {
+    //   for(var j = 0; j < localFertilizerSet![i].recipe.length; j++) {
+    //     // centralFertilizerSet![i].recipe[j].toJson();
+    //     localSet.add(localFertilizerSet![i].recipe[j].toJson());
+    //   }
+    // }
+    for(var i = 0; i < centralFilter!.length; i++) {
+      for(var j = 0; j < centralFilterSite!.length; j++) {
+        if(centralFilterSite![j].selected == false) {
+          if(centralFilterSite![j].id == centralFilter![i].location) {
+            centralFilter![i].selected = false;
+          }
+        }
+      }
+      centralFilters.add(centralFilter![i].toJson());
+    }
+    for(var i = 0; i < localFilter!.length; i++) {
+      for(var j = 0; j < localFilterSite!.length; j++) {
+        if(localFilterSite![j].selected == false) {
+          if(localFilterSite![j].id == localFilter![i].location) {
+            localFilter![i].selected = false;
+          }
+        }
+      }
+      localFilters.add(localFilter![i].toJson());
+    }
+    return {
+      "irrigationPump": irrigationPump == null ? [] : List<dynamic>.from(irrigationPump!.map((x) => x.toJson())),
+      "mainValve": mainValve == null ? [] : List<dynamic>.from(mainValve!.map((x) => x.toJson())),
+      "centralFertilizerSite": centralFertilizerSite == null ? [] : List<dynamic>.from(centralFertilizerSite!.map((x) => x.toJson())),
+      "centralFertilizer": centralFertilizerSite == null ? [] : List<dynamic>.from(centralFertilizerInjector!.map((x) => x.toJson())),
+      "localFertilizerSite": localFertilizerSite == null ? [] : List<dynamic>.from(localFertilizerSite!.map((e) => e.toJson())),
+      "localFertilizer": localFertilizerInjector == null ? [] : List<dynamic>.from(localFertilizerInjector!.map((x) => x.toJson())),
+      "centralFilterSite": centralFilterSite == null ? [] : List<dynamic>.from(centralFilterSite!.map((x) => x.toJson())),
+      "centralFilter": centralFilter == null ? [] : centralFilters,
+      // "centralFilter": centralFilter == null ? [] : List<dynamic>.from(centralFilter!.map((x) => x.toJson())),
+      "localFilterSite": localFilterSite == null ? [] : List<dynamic>.from(localFilterSite!.map((x) => x.toJson())),
+      "localFilter": localFilter == null ? [] : localFilters,
+      "additionalData": additionalData,
+      // "centralFertilizerSet": centralFertilizerSet == null ? [] : List<dynamic>.from(centralFertilizerSet!.map((e) => e.toJson())),
+      // "localFertilizerSet": localFertilizerSet == null ? [] : List<dynamic>.from(localFertilizerSet!.map((e) => e.toJson())),
+      "centralFertilizerSet": centralSet,
+      "localFertilizerSet": localSet,
+      "ecSensor": ecSensor == null ? [] : List<dynamic>.from(ecSensor!.map((x) => x.toJson())),
+      "phSensor": phSensor == null ? [] : List<dynamic>.from(phSensor!.map((x) => x.toJson())),
+      "centralSelector": selectorForCentral == null ? [] : List<dynamic>.from(selectorForCentral!.map((x) => x.toJson())),
+      "localSelector": selectorForLocal == null ? [] : List<dynamic>.from(selectorForLocal!.map((x) => x.toJson())),
+      "headUnits": headUnits == null ? [] : List<dynamic>.from(headUnits!.map((e) => e.toJson()))
+    };
+  }
+}*/
 
 class NameData {
   int? sNo;

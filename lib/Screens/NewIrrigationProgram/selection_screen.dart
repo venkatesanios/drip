@@ -35,22 +35,16 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
     ctrlValue.addListener(() {setState(() {});});
     ctrlValue.repeat();
     irrigationProgramProvider = Provider.of<IrrigationProgramMainProvider>(context, listen: false);
-    print(irrigationProgramProvider.selectedObjects.map((element) {
-      print(element.objectId);
-      print(element.objectId != 2);
-    }));
-
-    // print("headunit ==> ${irrigationProgramProvider.selectionModel!.data.headUnits!.length == 1}");
-    if(irrigationProgramProvider.sampleIrrigationLine?.map((e) => e.irrigationLine).toList().length == 1 && irrigationProgramProvider.selectedObjects.any((element) => element.objectId != 2)) {
+    if(irrigationProgramProvider.sampleIrrigationLine?.map((e) => e.irrigationLine).toList().length == 1 && !(irrigationProgramProvider.selectedObjects.any((element) => element.objectId == 2))) {
       irrigationProgramProvider.selectedObjects.add(
           irrigationProgramProvider.sampleIrrigationLine!.map((e) => e.irrigationLine).toList()[0]
       );
     }
     if(!irrigationProgramProvider.isPumpStationMode) {
-      if(irrigationProgramProvider.selectedObjects.where((element) => element.objectId == 5).length > 1) {
+      if(irrigationProgramProvider.selectedObjects.where((element) => element.objectId == 2).length > 1) {
         for(var i = 0; i < irrigationProgramProvider.sampleIrrigationLine!.map((e) => e.irrigationLine).toList().length; i++) {
           if(i != 0) {
-            irrigationProgramProvider.selectedObjects.removeWhere((element) => element.objectId == 5);
+            irrigationProgramProvider.selectedObjects.removeWhere((element) => element.objectId == 2);
           } else {
             irrigationProgramProvider.selectedObjects.add(
                 irrigationProgramProvider.sampleIrrigationLine!.where((headUnit) {
@@ -211,7 +205,8 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                     image: Image.asset(
                       'assets/Images/central_fertilizer_site2.png',
                     ),
-                  siteMode: 1
+                  siteMode: 1,
+                  connectedObject: 3
                 ),
                 buildRow(
                     context: context,
@@ -223,7 +218,12 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                     lightColor: primaryColorLight,
                     darkColor: primaryColorDark,
                     height: -70.00,
-                    condition: centralFertilizerSite.isNotEmpty
+                    condition: centralFertilizerSite.map((e) => e.selector != null ? List<DeviceObjectModel>.from(e.selector!) : [])
+                        .expand((list) => list)
+                        .whereType<DeviceObjectModel>()
+                        .toList().isNotEmpty,
+                    siteMode: 1,
+                    connectedObject: 3
                 ),
                 // buildSection("Central fertilizer set", selectionData.centralFertilizerSet, lightColor: yellowLight, darkColor: yellowDark),
                 buildRow(
@@ -237,7 +237,13 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                     lightColor: greenLight,
                     darkColor: greenDark,
                     height: centralFertilizerSite.map((e) => e.selector).toList().isNotEmpty ? -140.00 : -70.00,
-                    condition: centralFertilizerSite.map((e) => e.ec).toList().isNotEmpty
+                    condition: centralFertilizerSite
+                        .map((e) => e.ec != null ? List<DeviceObjectModel>.from(e.ec!) : [])
+                        .expand((list) => list)
+                        .whereType<DeviceObjectModel>()
+                        .toList().isNotEmpty,
+                    siteMode: 1,
+                    connectedObject: 3
                 ),
                 buildRow(
                     context: context,
@@ -250,14 +256,21 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                     lightColor: redLight,
                     darkColor: redDark,
                     height: centralFertilizerSite.isNotEmpty ? -210.0 : -140.0,
-                    condition: centralFertilizerSite.map((e) => e.ph).toList().isNotEmpty
+                    condition: centralFertilizerSite
+                        .map((e) => e.ph != null ? List<DeviceObjectModel>.from(e.ph!) : [])
+                        .expand((list) => list)
+                        .whereType<DeviceObjectModel>()
+                        .toList().isNotEmpty,
+                    siteMode: 1,
+                    connectedObject: 3
                 ),
                 buildSection(
                     title: "Local fertilizer site",
                     dataList: irrigationLine.map((e) => e.localFertilization != null ? [e.localFertilization!] : []).expand((list) => list).whereType<DeviceObjectModel>().toList(),
                     lightColor: purpleLight,
                     darkColor: purpleDark,
-                    siteMode: 2
+                    siteMode: 2,
+                    connectedObject: 3
                 ),
                 buildRow(
                     context: context,
@@ -270,7 +283,9 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                     lightColor: yellowLight,
                     darkColor: yellowDark,
                     height: -70.0,
-                    condition: localFertilizerSite.map((e) => e.selector).toList().isNotEmpty
+                    condition: localFertilizerSite.map((e) => e.selector).toList().isNotEmpty,
+                    siteMode: 2,
+                    connectedObject: 3
                 ),
                 // // buildSection("Local fertilizer set", selectionData.localFertilizerSet, lightColor: greenLight, darkColor: greenDark),
                 buildRow(
@@ -284,7 +299,9 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                     lightColor: greenLight,
                     darkColor: greenDark,
                     height: localFertilizerSite.map((e) => e.selector).toList().isNotEmpty ? -140.0: -70.0,
-                    condition: localFertilizerSite.map((e) => e.ec).toList().isNotEmpty
+                    condition: localFertilizerSite.map((e) => e.ec).toList().isNotEmpty,
+                    siteMode: 2,
+                    connectedObject: 3
                 ),
                 buildRow(
                     context: context,
@@ -297,7 +314,9 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                     lightColor: redLight,
                     darkColor: redDark,
                     height: localFertilizerSite.map((e) => e.selector).toList().isNotEmpty ? -210.0: -70.0,
-                   condition: localFertilizerSite.map((e) => e.ph).toList().isNotEmpty
+                   condition: localFertilizerSite.map((e) => e.ph).toList().isNotEmpty,
+                    siteMode: 2,
+                    connectedObject: 3
                 ),
                 if(irrigationLine.map((e) => e.centralFiltration != null ? [e.centralFiltration!] : []).expand((list) => list).whereType<DeviceObjectModel>().isNotEmpty
                     || irrigationLine.map((e) => e.localFiltration != null ? [e.localFiltration!] : []).expand((list) => list).whereType<DeviceObjectModel>().isNotEmpty)
@@ -307,7 +326,8 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                     dataList: irrigationLine.map((e) => e.centralFiltration != null ? [e.centralFiltration!] : []).expand((list) => list).whereType<DeviceObjectModel>().toList(),
                     lightColor: yellowLight,
                     darkColor: yellowDark,
-                    siteMode: 1
+                    siteMode: 1,
+                    connectedObject: 4
                 ),
                 buildRow(
                     context: context,
@@ -320,7 +340,9 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                     lightColor: greenLight,
                     darkColor: greenDark,
                     height: -70.0,
-                    condition: centralFilterSite.isNotEmpty
+                    condition: centralFilterSite.isNotEmpty,
+                    siteMode: 1,
+                    connectedObject: 4
                 ),
                 if(MediaQuery.of(context).size.width > 1200)
                   buildRow(
@@ -420,7 +442,8 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                     dataList: irrigationLine.map((e) => e.localFiltration != null ? [e.localFiltration!] : []).expand((list) => list).whereType<DeviceObjectModel>().toList(),
                     lightColor: redLight,
                     darkColor: redDark,
-                    siteMode: 2
+                    siteMode: 2,
+                    connectedObject: 4
                 ),
                buildRow(
                     context: context,
@@ -433,7 +456,9 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                     lightColor: purpleLight,
                     darkColor: purpleDark,
                     height: -70.0,
-                    condition: localFilterSite.isNotEmpty
+                    condition: localFilterSite.isNotEmpty,
+                   siteMode: 1,
+                   connectedObject: 4
                 ),
                 if(MediaQuery.of(context).size.width > 1200)
                   buildRow(
@@ -558,7 +583,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
   }
 
   Widget buildSection({required String title, required List<DeviceObjectModel> dataList,
-    required Color lightColor, required Color darkColor, bool showSubList = false, Widget? image, int? siteMode}) {
+    required Color lightColor, required Color darkColor, bool showSubList = false, Widget? image, int? siteMode, int? connectedObject}) {
     if (dataList.isNotEmpty) {
       final data = dataList.fold<List<DeviceObjectModel>>([], (list, pump) {
         if (!list.any((p) => p.sNo == pump.sNo)) {
@@ -566,6 +591,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
         }
         return list;
       });
+
       return Column(
         children: [
           showSubList ?
@@ -582,6 +608,8 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                     context: context,
                     onTap: () {
                       setState(() {
+                        e.connectedObject = connectedObject;
+                        e.siteMode = siteMode;
                         if (isSelected) {
                           irrigationProgramProvider.selectedObjects.removeWhere((element) => element.sNo == e.sNo);
                         } else {
@@ -598,6 +626,8 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                   buildListOfContainer(
                     context: context,
                     onTap: () {
+                      dataList[index].connectedObject = connectedObject;
+                      dataList[index].siteMode = siteMode;
                       bool isAlreadySelected = irrigationProgramProvider.selectedObjects.any((element) => element.sNo == dataList[index].sNo);
                       if (isAlreadySelected) {
                         irrigationProgramProvider.selectedObjects.removeWhere((element) => element.sNo == dataList[index].sNo);
@@ -620,7 +650,8 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
             title: title,
             showSubList: showSubList,
             dataList: dataList,
-            leading: image != null ? Container(
+            leading: image != null
+                ? Container(
               padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
                   color: cardColor,
@@ -634,6 +665,8 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                 buildListOfContainer(
                   context: context,
                   onTap: () {
+                    data[index].siteMode = siteMode;
+                    data[index].connectedObject = connectedObject;
                     if ((data[index].objectId == 4 && siteMode == 1) || (data[index].objectId == 4 && siteMode == 2) || (data[index].objectId == 5 && siteMode == 1) || (data[index].objectId == 5 && siteMode == 2)) {
                       toggleSelection(data[index].objectId, siteMode!, index, data);
                     } else {
@@ -659,7 +692,8 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
   }
 
   Widget buildRow({required BuildContext context, required String title, required dataList,
-    required darkColor, required lightColor, required height, required bool condition, child}) {
+    required darkColor, required lightColor, required height, required bool condition, child, int? siteMode, int? connectedObject}) {
+
     return CustomAnimatedSwitcher(
       condition: condition,
       child: Row(
@@ -669,7 +703,12 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
             flex: 15,
             child: child ?? buildSection(
               showSubList: true,
-              title: title, dataList: dataList, lightColor: lightColor, darkColor: darkColor,
+              title: title,
+              dataList: dataList,
+              lightColor: lightColor,
+              darkColor: darkColor,
+              siteMode: siteMode,
+              connectedObject: connectedObject
             ),
           )
         ],

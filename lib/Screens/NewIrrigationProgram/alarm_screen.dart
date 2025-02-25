@@ -3,17 +3,18 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:oro_drip_irrigation/Constants/properties.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:responsive_grid_list/responsive_grid_list.dart';
 
 import '../../StateManagement/irrigation_program_provider.dart';
 
-class NewAlarmScreen2 extends StatefulWidget {
-  const NewAlarmScreen2({super.key});
+class AlarmScreen extends StatefulWidget {
+  const AlarmScreen({super.key});
 
   @override
-  State<NewAlarmScreen2> createState() => _NewAlarmScreen2State();
+  State<AlarmScreen> createState() => _AlarmScreenState();
 }
 
-class _NewAlarmScreen2State extends State<NewAlarmScreen2> {
+class _AlarmScreenState extends State<AlarmScreen> {
   late IrrigationProgramMainProvider irrigationProgramMainProvider;
 
   @override
@@ -77,76 +78,62 @@ class _NewAlarmScreen2State extends State<NewAlarmScreen2> {
           ),
           const SizedBox(height: 5,),
           Expanded(
-            child: ListView.builder(
-                itemCount: irrigationProgramMainProvider.newAlarmList!.alarmList.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final item = irrigationProgramMainProvider.newAlarmList!.alarmList[index];
-                  return Container(
-                    margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.05, vertical: 5),
-                    child: Column(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Colors.white,
-                              boxShadow: AppProperties.customBoxShadow
-                          ),
-                          padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.width > 1200 ? 8 : 0),
-                          child: ListTile(
-                            horizontalTitleGap: 30,
-                            title: Text(item.name),
-                            trailing: IntrinsicWidth(
-                              child: Switch(
-                                  value: item.value,
-                                  onChanged: (newValue) {
-                                    setState(() {
-                                      item.value = newValue;
-                                    });
-                                  }
-                              ),
+            child: ResponsiveGridList(
+              horizontalGridMargin: 20,
+              verticalGridMargin: 10,
+              minItemWidth: 350,
+              children: [
+                for(var index = 0; index < irrigationProgramMainProvider.newAlarmList!.alarmList.length; index++)
+                  Column(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.white,
+                            boxShadow: AppProperties.customBoxShadow
+                        ),
+                        padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.width > 1200 ? 8 : 0),
+                        child: ListTile(
+                          horizontalTitleGap: 30,
+                          title: Text(irrigationProgramMainProvider.newAlarmList!.alarmList[index].name),
+                          trailing: IntrinsicWidth(
+                            child: Switch(
+                                value: irrigationProgramMainProvider.newAlarmList!.alarmList[index].value,
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    irrigationProgramMainProvider.newAlarmList!.alarmList[index].value = newValue;
+                                  });
+                                }
                             ),
-                            leading: Container(
-                              width: 40,
-                              height: 40,
-                              padding: const EdgeInsets.all(3),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                gradient: AppProperties.linearGradientLeading,
-                              ),
-                              child: iconList[index] is IconData
-                                  ? Icon(
-                                iconList[index] as IconData,
-                                color: Colors.white,
-                                size: 24,
-                              )
-                                  : SvgPicture.asset(
-                                iconList[index] as String,
-                                fit: BoxFit.cover,
-                              ),
+                          ),
+                          leading: Container(
+                            width: 40,
+                            height: 40,
+                            padding: const EdgeInsets.all(3),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: AppProperties.linearGradientLeading,
+                            ),
+                            child: iconList[irrigationProgramMainProvider.newAlarmList!.alarmList.indexOf(irrigationProgramMainProvider.newAlarmList!.alarmList[index])] is IconData
+                                ? Icon(
+                              iconList[irrigationProgramMainProvider.newAlarmList!.alarmList.indexOf(irrigationProgramMainProvider.newAlarmList!.alarmList[index])] as IconData,
+                              color: Colors.white,
+                              size: 24,
+                            )
+                                : SvgPicture.asset(
+                              iconList[irrigationProgramMainProvider.newAlarmList!.alarmList.indexOf(irrigationProgramMainProvider.newAlarmList!.alarmList[index])] as String,
+                              fit: BoxFit.cover,
                             ),
                           ),
                         ),
-                       /* buildCustomListTile(
-                            context: context,
-                            padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.width > 1200 ? 8 : 0),
-                            title: item.name,
-                            icon: iconList[index],
-                            // icon: Icons.alarm,
-                            isSwitch: true,
-                            switchValue: item.value,
-                            onSwitchChanged: (newValue) {
-                              setState(() {
-                                item.value = newValue;
-                              });
-                            }
-                        ),*/
-                        SizedBox(height: index == irrigationProgramMainProvider.newAlarmList!.alarmList.length - 1 ? 80 : 5,)
-                      ],
-                    ),
-                  );
-                }
+                      ),
+                      if(index == irrigationProgramMainProvider.newAlarmList!.alarmList.length - 1)
+                        const SizedBox(height: 80)
+                    ],
+                  ),
+              ],
             ),
-          )
+          ),
         ],
       ),
     );

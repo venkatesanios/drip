@@ -735,17 +735,17 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
             ? conditionsLibraryIsNotEmpty
             ? const SelectionScreen()
             : WaterAndFertilizerScreen(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram,)
-            : const NewAlarmScreen2();
+            : const AlarmScreen();
       case 4:
         return isIrrigationProgram
             ? conditionsLibraryIsNotEmpty
             ? WaterAndFertilizerScreen(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram,)
-            : const NewAlarmScreen2()
+            : const AlarmScreen()
             : AdditionalDataScreen(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, isIrrigationProgram: isIrrigationProgram,);
       case 5:
         return isIrrigationProgram
             ? conditionsLibraryIsNotEmpty
-            ? const NewAlarmScreen2()
+            ? const AlarmScreen()
             : AdditionalDataScreen(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, isIrrigationProgram: isIrrigationProgram,)
             : PreviewScreen(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,);
       case 6:

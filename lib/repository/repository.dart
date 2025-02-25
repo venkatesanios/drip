@@ -809,6 +809,10 @@ class Repository{
   Future<http.Response> createUserPlanningSystemDefinition(body) async {
     return await apiService.postRequest('/user/planning/systemDefinition/create', body);
   }
+
+  Future<http.Response> getUserPlanningValveGroup(body) async {
+    return await apiService.postRequest('/user/planning/valveGroup/get', body);
+  }
 }
 
 /*

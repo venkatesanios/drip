@@ -249,8 +249,8 @@ class IndividualPumpSetting {
   }
 
   String toGem() {
-    return '';
-    // return "$sNo,${id.contains("SP") ? 1 : 2}";
+    // return '';
+    return "$sNo";
   }
 
   String oDt() {
@@ -261,9 +261,9 @@ class IndividualPumpSetting {
     //     onDelayTimer.add(element.toGem());
     //   }
     // });
-    settingList.forEach((element) {
+    for (var element in settingList) {
       onDelayTimer.addAll(element.gemPayload());
-    });
+    }
     // print(onDelayTimer);
     return onDelayTimer.join(',');
   }
