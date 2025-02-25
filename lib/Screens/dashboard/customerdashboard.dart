@@ -96,18 +96,18 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin{
       // var getUserDetails = Repository().fetchAllMySite({'userId' : '4',});
       // var getUserDetails = await service.postRequest('getCustomerDashboard', {'userId' : userIdFromPref,});
       // var jsonData = jsonDecode(newlivedata);
-      var jsonData = jsonDecode(newlivedata);
+      // var jsonData = jsonDecode(newlivedata);
       // var jsonData = jsonDecode(getUserDetails.body) as Map<String, dynamic>;
-      print("jsonData1: ${jsonData.runtimeType}");
-      print("jsonData1: ${jsonData}");
+      // print("jsonData1: ${jsonData.runtimeType}");
+      // print("jsonData1: ${jsonData}");
+      //
+      // if (jsonData is Map<String, dynamic>) {
+      //   print("Parsed JSON is a Map");
+      // } else if (jsonData is List) {
+      //   print("Parsed JSON is a List");
+      // }
 
-      if (jsonData is Map<String, dynamic>) {
-        print("Parsed JSON is a Map");
-      } else if (jsonData is List) {
-        print("Parsed JSON is a List");
-      }
-
-      // Map<String, dynamic> jsonData = jsonDecode(newlivedata);
+      Map<String, dynamic> jsonData = newlivedata;
 
       if(jsonData['code'] == 200){
         print('jsonData[code] ; ${jsonData['code']}');
