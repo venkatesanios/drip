@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import '../../Models/customer/site_model.dart';
@@ -5,54 +6,55 @@ import '../../repository/repository.dart';
 import '../../services/mqtt_service.dart';
 import '../../utils/constants.dart';
 
-enum MQTTConnectionState { connected, disconnected, connecting}
+
 
 class CustomerScreenControllerViewModel extends ChangeNotifier {
-
-  late MqttService mqttService = MqttService();
 
   final Repository repository;
   bool isLoading = false;
   String errorMsg = '';
 
   late SiteModel mySiteList = SiteModel(data: []);
-  int sIndex = 0,
-      mIndex = 0, lIndex = 0, wifiStrength = 0;
+  int sIndex = 0, mIndex = 0, lIndex = 0, wifiStrength = 0;
   late String myCurrentSite;
   late String myCurrentMaster;
   String fromWhere = '';
   String myCurrentIrrLine= 'No Line Available';
   int controllerId = 0;
 
+  final mqttService = MqttService();
+
   CustomerScreenControllerViewModel(this.repository){
     mqttService.initializeMQTTClient(state: this);
     mqttService.connect();
+
+    mqttService.liveMessageStream.listen((liveMsg) {
+
+      Map<String, dynamic> liveMessage = jsonDecode(liveMsg);
+      mySiteList.data[sIndex].master[mIndex].live?.cD = liveMessage['cD'];
+      mySiteList.data[sIndex].master[mIndex].live?.cT = liveMessage['cT'];
+      mySiteList.data[sIndex].master[mIndex].live?.cM = liveMessage['cM'];
+      wifiStrength = liveMessage['cM']['WifiStrength'];
+
+      notifyListeners();
+    });
+
   }
 
   void changeMQTTConnectionState(MQTTConnectionState state) {
     if (state == MQTTConnectionState.connected) {
-      notifyListeners();
       onSubscribeTopic();
     }
   }
 
   void onSubscribeTopic(){
-    /*Future.delayed(const Duration(milliseconds: 2000), () {
-      mqttService.topicToSubscribe('${AppConstants.subscribeTopic}/${mySiteList.data[sIndex].master[mIndex].deviceId}');
+    Future.delayed(const Duration(milliseconds: 2000), () {
+      MqttService().topicToSubscribe('${AppConstants.subscribeTopic}/${mySiteList.data[sIndex].master[mIndex].deviceId}');
       onRefreshClicked();
-    });*/
+    });
   }
 
-  void updateReceivedPayload(String payload) {
-    debugPrint('payload: $payload');
-    try {
-      Map<String, dynamic> data = jsonDecode(payload);
-      notifyListeners();
-    } catch (e) {
-      debugPrint('Error parsing JSON: $e');
-    }
-    notifyListeners();
-  }
+
 
   Future<void> getAllMySites(customerId) async {
     setLoading(true);
@@ -64,6 +66,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
         final jsonData = jsonDecode(response.body);
         if (jsonData["code"] == 200) {
           mySiteList = SiteModel.fromJson(jsonData);
+          wifiStrength = mySiteList.data[sIndex].master[mIndex].live?.cM['WifiStrength'];
         }
       }
     } catch (error) {
@@ -138,26 +141,22 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   }
 
   void onRefreshClicked() {
-    notifyListeners();
-
-   /* MqttPayloadProvider payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
+    String livePayload = '';
     Future.delayed(const Duration(milliseconds: 1000), () {
-
-      payloadProvider.liveSyncCall(true);
-      String livePayload = '';
-
-      if(mySiteList[siteIndex].master[masterIndex].categoryId==1 ||
-          mySiteList[siteIndex].master[masterIndex].categoryId==2){
-        livePayload = jsonEncode({"3000": [{"3001": ""}]});
+      //payloadProvider.liveSyncCall(true);
+      if(mySiteList.data[sIndex].master[mIndex].categoryId==1 ||
+          mySiteList.data[sIndex].master[mIndex].categoryId==2){
+        livePayload = jsonEncode({"3000": {"3001": ""}});
       }else{
         livePayload = jsonEncode({"sentSMS": "#live"});
       }
-      MQTTManager().publish(livePayload, 'AppToFirmware/${mySiteList[siteIndex].master[masterIndex].deviceId}');
-    });*/
-
-    Future.delayed(const Duration(milliseconds: 6000), () {
-      //payloadProvider.liveSyncCall(false);
+      MqttService().topicToPublishAndItsMessage(livePayload, '${AppConstants.publishTopic}/${mySiteList.data[sIndex].master[mIndex].deviceId}');
     });
+
+    /*Future.delayed(const Duration(milliseconds: 6000), () {
+      //payloadProvider.liveSyncCall(false);
+    });*/
   }
+
 
 }

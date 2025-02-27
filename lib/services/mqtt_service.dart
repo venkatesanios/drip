@@ -1,8 +1,13 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:mqtt_client/mqtt_browser_client.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import '../utils/constants.dart';
 import '../view_models/customer/customer_screen_controller_view_model.dart';
+
+enum MQTTConnectionState {connected, disconnected, connecting}
 
 class MqttService {
   static MqttService? _instance;
@@ -15,6 +20,9 @@ class MqttService {
     _instance ??= MqttService._internal();
     return _instance!;
   }
+
+  final StreamController<String> liveMessageStreamController = StreamController.broadcast();
+  Stream<String> get liveMessageStream => liveMessageStreamController.stream;
 
   MqttService._internal();
   bool get isConnected => _client?.connectionStatus?.state == MqttConnectionState.connected;
@@ -73,8 +81,19 @@ class MqttService {
     _client!.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
       final MqttPublishMessage recMess = c![0].payload as MqttPublishMessage;
       final String pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-      viewModelState?.updateReceivedPayload(pt);
+      onMqttPayloadReceived(pt);
     });
+  }
+
+  void onMqttPayloadReceived(String payload) {
+    try {
+      Map<String, dynamic> payloadMessage = jsonDecode(payload);
+      if (payloadMessage['mC']=='2400') {
+        liveMessageStreamController.add(payload);
+      }
+    } catch (e) {
+      debugPrint('Error parsing MQTT payload: $e');
+    }
   }
 
   topicToPublishAndItsMessage(String message, String topic) {
@@ -100,4 +119,5 @@ class MqttService {
     viewModelState?.changeMQTTConnectionState(MQTTConnectionState.connected);
     debugPrint('Mosquitto client connected....');
   }
+
 }

@@ -34,6 +34,18 @@ class Repository{
     return await apiService.postRequest('/product/getList', body);
   }
 
+  Future<http.Response> fetchMasterControllerDetails(body) async {
+    return await apiService.postRequest('/user/deviceList/getMasterDetails', body);
+  }
+
+  Future<http.Response> fetchSubUserList(body) async {
+    return await apiService.postRequest('/user/sharedUser/get', body);
+  }
+
+  Future<http.Response> fetchUserPushNotificationType(body) async {
+    return await apiService.postRequest('/user/deviceList/pushNotificationType/get', body);
+  }
+
   Future<http.Response> fetchCountryList() async {
     return await apiService.getRequest('/country/get');
   }
@@ -43,7 +55,11 @@ class Repository{
   }
 
   Future<http.Response> fetchSentAndReceivedData(body) async {
-    return await apiService.postRequest('/user/getSentAndReceivedMessage/getStatus', body);
+    return await apiService.postRequest('/user/sentAndReceivedMessage/getStatus', body);
+  }
+
+  Future<http.Response> fetchSentAndReceivedHardwarePayload(body) async {
+    return await apiService.postRequest('/user/sentAndReceivedMessage/getHardwarePayload', body);
   }
 
   Future<http.Response> fetchLanguageByActive(body) async {
@@ -124,601 +140,6 @@ class Repository{
 
   Future<http.Response> fetchAllMySite(body) async {
     return await apiService.postRequest('/user/dashboard', body);
-  }
-
-  Future<Map<String, dynamic>> fetchAllMySiteOld(body) async {
-    return {
-      "code": 200,
-      "message": "",
-      "data": [
-        {
-          "groupId": 1,
-          "groupName": "New Config Site",
-          "groupAddress": "Testing address",
-          "master": [
-            {
-              "controllerId": 1,
-              "deviceId": "2CCF676089F2",
-              "deviceName": "ORO GEM",
-              "categoryId": 2,
-              "categoryName": "ORO GEM",
-              "modelId": 16,
-              "modelName": "5G",
-              "conditionLibraryCount": 10,
-              "units": [
-                {
-                  "dealerDefinitionId": 114,
-                  "parameter": "Water Meter",
-                  "value": "l/s"
-                },
-                {
-                  "dealerDefinitionId": 115,
-                  "parameter": "Pressure Sensor",
-                  "value": "bar"
-                },
-                {
-                  "dealerDefinitionId": 116,
-                  "parameter": "Moisture Sensor",
-                  "value": "cb"
-                },
-                {
-                  "dealerDefinitionId": 117,
-                  "parameter": "Level Sensor",
-                  "value": "feet"
-                },
-                {
-                  "dealerDefinitionId": 118,
-                  "parameter": "Temperature Sensor",
-                  "value": "°C"
-                },
-                {
-                  "dealerDefinitionId": 119,
-                  "parameter": "Soil Temperature Sensor",
-                  "value": "°C"
-                },
-                {
-                  "dealerDefinitionId": 120,
-                  "parameter": "Humdity Sensor",
-                  "value": "%"
-                },
-                {
-                  "dealerDefinitionId": 121,
-                  "parameter": "CO2 Sensor",
-                  "value": "ppm"
-                },
-                {
-                  "dealerDefinitionId": 122,
-                  "parameter": "LUX Sensor",
-                  "value": "lux"
-                },
-                {
-                  "dealerDefinitionId": 123,
-                  "parameter": "Leaf Wetness Sensor",
-                  "value": "%"
-                },
-                {
-                  "dealerDefinitionId": 124,
-                  "parameter": "Rain Fall",
-                  "value": "mm"
-                },
-                {
-                  "dealerDefinitionId": 125,
-                  "parameter": "Wind Speed",
-                  "value": "km/h"
-                },
-                {
-                  "dealerDefinitionId": 126,
-                  "parameter": "Wind Direction",
-                  "value": "°"
-                },
-                {
-                  "dealerDefinitionId": 128,
-                  "parameter": "Atmospheric Pressure Sensor",
-                  "value": "kPa"
-                },
-                {
-                  "dealerDefinitionId": 129,
-                  "parameter": "LDX Sensor",
-                  "value": "lux"
-                }
-              ],
-              "nodeList": [],
-              "config":  {
-                "filterSite": [],
-                "fertilizerSite": [],
-                "waterSource": [
-                  {
-                    "objectId": 1,
-                    "sNo": 1.001,
-                    "name": "Source 1",
-                    "connectionNo": null,
-                    "objectName": "Source",
-                    "type": "-",
-                    "controllerId": null,
-                    "count": null,
-                    "sourceType": {},
-                    "level": {
-                      "objectId": 5,
-                      "sNo": 5.001,
-                      "name": "Pump 1",
-                      "connectionNo": null,
-                      "objectName": "Pump",
-                      "type": "1,2",
-                      "percentage": "35",
-                      "controllerId": null,
-                      "count": null
-                    },
-                    "topFloat": {},
-                    "bottomFloat": {},
-                    "inletPump": [],
-                    "outletPump": [
-                      {
-                        "objectId": 5,
-                        "sNo": 5.001,
-                        "name": "Pump 1",
-                        "connectionNo": null,
-                        "objectName": "Pump",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 5,
-                        "sNo": 5.002,
-                        "name": "Pump 2",
-                        "connectionNo": null,
-                        "objectName": "Pump",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                    ],
-                    "valves": []
-                  },
-                ],
-                "pump": [
-                  {
-                    "objectId": 5,
-                    "sNo": 5.001,
-                    "name": "Pump 1",
-                    "connectionNo": null,
-                    "objectName": "Pump",
-                    "type": "1,2",
-                    "controllerId": null,
-                    "count": null,
-                    "level": {},
-                    "pressure": {},
-                    "waterMeter": {},
-                    "pumpType": {}
-                  },
-                  {
-                    "objectId": 5,
-                    "sNo": 5.002,
-                    "name": "Pump 2",
-                    "connectionNo": null,
-                    "objectName": "Pump",
-                    "type": "1,2",
-                    "controllerId": null,
-                    "count": null,
-                    "level": {},
-                    "pressure": {},
-                    "waterMeter": {},
-                    "pumpType": {}
-                  },
-                ],
-                "moistureSensor": [],
-                "irrigationLine": [
-                  {
-                    "objectId": 2,
-                    "sNo": 2.001,
-                    "name": "Irrigation Line 1",
-                    "connectionNo": null,
-                    "objectName": "Irrigation Line",
-                    "type": "-",
-                    "controllerId": null,
-                    "count": null,
-                    "source": [],
-                    "sourcePump": [
-                      {
-                        "objectId": 5,
-                        "sNo": 5.001,
-                        "name": "Pump 1",
-                        "connectionNo": null,
-                        "objectName": "Pump",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 5,
-                        "sNo": 5.002,
-                        "name": "Pump 2",
-                        "connectionNo": null,
-                        "objectName": "Pump",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      }
-                    ],
-                    "irrigationPump": [
-                      {
-                        "objectId": 5,
-                        "sNo": 5.003,
-                        "name": "Pump 3",
-                        "connectionNo": null,
-                        "objectName": "Pump",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      }
-                    ],
-                    "centralFiltration": [],
-                    "localFiltration": [],
-                    "centralFertilization": [],
-                    "localFertilization": [],
-                    "valve": [
-                      {
-                        "objectId": 13,
-                        "sNo": 13.001,
-                        "name": "Valve 1",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.002,
-                        "name": "Valve 2",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.003,
-                        "name": "Valve 3",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.004,
-                        "name": "Valve 4",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.005,
-                        "name": "Valve 5",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.006,
-                        "name": "Valve 6",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.007,
-                        "name": "Valve 7",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.008,
-                        "name": "Valve 8",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.009,
-                        "name": "Valve 9",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.01,
-                        "name": "Valve 10",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.001,
-                        "name": "Valve 1",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.002,
-                        "name": "Valve 2",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.003,
-                        "name": "Valve 3",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.004,
-                        "name": "Valve 4",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.005,
-                        "name": "Valve 5",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.006,
-                        "name": "Valve 6",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.007,
-                        "name": "Valve 7",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.008,
-                        "name": "Valve 8",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.009,
-                        "name": "Valve 9",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.01,
-                        "name": "Valve 10",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.001,
-                        "name": "Valve 1",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.002,
-                        "name": "Valve 2",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.001,
-                        "name": "Valve 1",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.002,
-                        "name": "Valve 2",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.005,
-                        "name": "Valve 5",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.006,
-                        "name": "Valve 6",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.007,
-                        "name": "Valve 7",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.008,
-                        "name": "Valve 8",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.009,
-                        "name": "Valve 9",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.01,
-                        "name": "Valve 10",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.001,
-                        "name": "Valve 1",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.002,
-                        "name": "Valve 2",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-                      {
-                        "objectId": 13,
-                        "sNo": 13.001,
-                        "name": "Valve 1",
-                        "connectionNo": null,
-                        "objectName": "Valve",
-                        "type": "1,2",
-                        "controllerId": null,
-                        "count": null
-                      },
-
-                    ],
-                    "mainValve": [],
-                    "fan": [],
-                    "fogger": [],
-                    "pesticides": [],
-                    "heater": [],
-                    "screen": [],
-                    "vent": [],
-                    "powerSupply": {},
-                    "pressureSwitch": {},
-                    "waterMeter": {},
-                    "pressureIn": {},
-                    "pressureOut": {},
-                    "moisture": [],
-                    "temperature": [],
-                    "soilTemperature": [],
-                    "humidity": [],
-                    "co2": []
-                  }
-                ]
-              },
-              "live": {
-                "cC": "1234567890AB",
-                "cD": "2024-11-14",
-                "cT": "12:15:00",
-              },
-            }
-          ]
-        }
-      ]
-    };
   }
 
   Future<http.Response> getUserProgramSequence(body) async {
@@ -818,21 +239,31 @@ class Repository{
     return await apiService.postRequest('/user/planning/valveGroup/get', body);
   }
 
-  Future<http.Response> fetchStandAloneData(body) async {
-    return await apiService.postRequest('/user/getUserDashboardByManual', body);
-  }
 
   Future<http.Response> fetchCustomerProgramList(body) async {
-    return await apiService.postRequest('/user/getUserProgramNameList', body);
+    return await apiService.postRequest('/user/program/getNameList', body);
   }
 
   Future<http.Response> fetchUserManualOperation(body) async {
-    return await apiService.postRequest('/user/getUserManualOperation', body);
+    return await apiService.postRequest('/user/manualOperation/recent/get', body);
   }
 
   Future<http.Response> createUserValveGroup(body) async {
     return await apiService.postRequest('/user/deviceList/create', body);
   }
+
+  Future<http.Response> fetchStandAloneData(body) async {
+    return await apiService.postRequest('/user/getUserDashboardByManual', body);
+  }
+
+  Future<http.Response> fetchManualOperation(body) async {
+    return await apiService.postRequest('/user/manualOperation/get', body);
+  }
+
+  Future<http.Response> updateStandAloneData(body) async {
+    return await apiService.postRequest('/user/manualOperation/create', body);
+  }
+
 
 }
 

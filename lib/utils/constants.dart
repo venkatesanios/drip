@@ -5,6 +5,54 @@ import 'environment.dart';
 
 enum UserRole { admin, dealer, subUser }
 
+enum GemProgramStartStopReasonCode {
+  rs1(1, 'Running As Per Schedule'),
+  rs2(2, 'Turned On Manually'),
+  rs3(3, 'Started By Condition'),
+  rs4(4, 'Turned Off Manually'),
+  rs5(5, 'Program Turned Off'),
+  rs6(6, 'Zone Turned Off'),
+  rs7(7, 'Stopped By Condition'),
+  rs8(8, 'Disabled By Condition'),
+  rs9(9, 'StandAlone Program Started'),
+  rs10(10, 'StandAlone Program Stopped'),
+  rs11(11, 'StandAlone Program Stopped After Set Value'),
+  rs12(12, 'StandAlone Manual Started'),
+  rs13(13, 'StandAlone Manual Stopped'),
+  rs14(14, 'StandAlone Manual Stopped After Set Value'),
+  rs15(15, 'Started By Day Count Rtc'),
+  rs16(16, 'Paused By User'),
+  rs17(17, 'Manually Started Paused By User'),
+  rs18(18, 'Program Deleted'),
+  rs19(19, 'Program Ready'),
+  rs20(20, 'Program Completed'),
+  rs21(21, 'Resumed By User'),
+  rs22(22, 'Paused By Condition'),
+  rs23(23, 'Program Ready And Run By Condition'),
+  rs24(24, 'Running As Per Schedule And Condition'),
+  rs25(25, 'Started By Condition Paused By User'),
+  rs26(26, 'Resumed By Condition'),
+  rs27(27, 'Bypassed Start Condition Manually'),
+  rs28(28, 'Bypassed Stop Condition Manually'),
+  rs29(29, 'Continue Manually'),
+  rs30(30, '-'),
+  rs31(31, 'Program Completed'),
+  rs32(32, 'Waiting For Condition'),
+  rs33(33, 'Started By Condition and run as per Schedule'),
+  unknown(0, 'Unknown content');
+
+  final int code;
+  final String content;
+
+  const GemProgramStartStopReasonCode(this.code, this.content);
+
+  static GemProgramStartStopReasonCode fromCode(int code) {
+    return GemProgramStartStopReasonCode.values.firstWhere((e) => e.code == code,
+      orElse: () => GemProgramStartStopReasonCode.unknown,
+    );
+  }
+}
+
 class AppConstants {
   static String apiUrl = Environment.apiUrl;
   static const int timeoutDuration = 30;
