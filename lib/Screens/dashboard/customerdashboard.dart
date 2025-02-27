@@ -24,6 +24,7 @@ import '../../utils/constants.dart';
 import '../../utils/snack_bar.dart';
 import '../NewIrrigationProgram/preview_screen.dart';
 import '../NewIrrigationProgram/schedule_screen.dart';
+import 'Inlet Pump Dashboard/inlet_pump_true.dart';
 
 
 final double speed = 100.0;
@@ -841,7 +842,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin{
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               if(sourcePumpMode)
-    Container(child: Text("true irrigationPumpMode"),)// inletPumpDashBoardTrue(active: 1, selectedLine: payloadProvider.selectedLine, imeiNo: overAllPvd.imeiNo,)
+  inletPumpDashBoardTrue(active: 1, selectedLine: payloadProvider.selectedLine, imeiNo: overAllPvd.imeiNo,)
                               else
                                 Container(child: Text("true irrigationPumpMode"),),// inletPumpDashBoardFalse(active: payloadProvider.active, selectedLine: payloadProvider.selectedLine, imeiNo: overAllPvd.imeiNo,),
                               if(sourcePumpMode)

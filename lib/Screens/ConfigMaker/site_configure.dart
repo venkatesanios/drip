@@ -72,8 +72,7 @@ class _SiteConfigureState extends State<SiteConfigure> {
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
-            spacing: 5,
-            mainAxisAlignment: MainAxisAlignment.start,
+             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               for(var tab in widget.configPvd.configurationTab.entries)
