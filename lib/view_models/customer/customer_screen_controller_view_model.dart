@@ -158,5 +158,9 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     });*/
   }
 
+  bool getPermissionStatusBySNo(BuildContext context, int sNo) {
+    return true;
+  }
+
 
 }

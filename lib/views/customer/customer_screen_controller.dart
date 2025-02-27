@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/views/customer/program_schedule.dart';
 import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
 import 'package:oro_drip_irrigation/views/customer/site_config.dart';
 import 'package:oro_drip_irrigation/views/customer/stand_alone.dart';
@@ -471,21 +472,20 @@ class CustomerScreenController extends StatelessWidget {
                         height: 45,
                         child: IconButton(
                           tooltip: 'Program',
-                          onPressed: (){},
-                          /*onPressed: getPermissionStatusBySNo(context, 10) ? () {
+                          onPressed: vm.getPermissionStatusBySNo(context, 10) ? () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ProgramSchedule(
-                                  customerID: mySiteList[siteIndex].customerId,
-                                  controllerID: mySiteList[siteIndex].master[masterIndex].controllerId,
-                                  siteName: mySiteList[siteIndex].groupName,
-                                  imeiNumber: mySiteList[siteIndex].master[masterIndex].deviceId,
-                                  userId: widget.userId,
+                                  customerID: customerId,
+                                  controllerID: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                                  siteName: vm.mySiteList.data[vm.sIndex].groupName,
+                                  imeiNumber: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                                  userId: userId,
                                 ),
                               ),
                             );
-                          }:null,*/
+                          }:null,
                           icon: const Icon(Icons.list_alt),
                           color: Colors.white,
                           iconSize: 24.0,
