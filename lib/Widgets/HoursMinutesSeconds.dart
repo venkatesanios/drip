@@ -284,7 +284,7 @@ class _HoursMinutesSecondsState extends State<HoursMinutesSeconds> {
                                 child: Container(
                                     width: 145,
                                     height: 145,
-                                    child: Image.asset('assets/images/clock_needle.png')
+                                    child: Image.asset('assets/Images/Png/clock_needle.png')
                                 ),
                               ),
                             ),
@@ -410,7 +410,7 @@ class _HoursMinutesSecondsState extends State<HoursMinutesSeconds> {
                                 child: Container(
                                     width: 145,
                                     height: 145,
-                                    child: Image.asset('assets/images/clock_needle.png')
+                                    child: Image.asset('assets/Images/Png/clock_needle.png')
                                 ),
                               ),
                             ),
@@ -528,10 +528,10 @@ class _HoursMinutesSecondsState extends State<HoursMinutesSeconds> {
                             Center(
                               child: Transform.rotate(
                                 angle: overAllPvd.sec * 0.1047,
-                                child: Container(
+                                child: SizedBox(
                                     width: 145,
                                     height: 145,
-                                    child: Image.asset('assets/images/clock_needle.png')
+                                    child: Image.asset('assets/Images/Png/clock_needle.png')
                                 ),
                               ),
                             ),

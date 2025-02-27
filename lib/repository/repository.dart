@@ -749,6 +749,10 @@ class Repository{
     return await apiService.postRequest('/user/configMaker/getAsDefault', body);
   }
 
+  Future<http.Response> getUserProgramWaterAndFert(body) async {
+    return await apiService.postRequest('/user/program/waterAndFert/get', body);
+  }
+
   Future<http.Response> getProgramLibraryData(body) async {
     return await apiService.postRequest('/user/program/getLibrary', body);
   }

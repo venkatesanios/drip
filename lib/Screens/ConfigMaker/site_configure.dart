@@ -23,10 +23,19 @@ class SiteConfigure extends StatefulWidget {
 }
 
 class _SiteConfigureState extends State<SiteConfigure> {
+  late ThemeData themeData;
+  late bool themeMode;
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    themeData = Theme.of(context);
+    themeMode = themeData.brightness == Brightness.light;
+  }
+
   @override
   Widget build(BuildContext context) {
-    // return FertilizationConfiguration(configPvd: widget.configPvd);
-    // return FiltrationConfiguration(configPvd: widget.configPvd);
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: LayoutBuilder(builder: (context, constraint){
@@ -90,7 +99,7 @@ class _SiteConfigureState extends State<SiteConfigure> {
                     decoration: BoxDecoration(
                       border: const Border(top: BorderSide(width: 0.5), left: BorderSide(width: 0.5), right: BorderSide(width: 0.5)),
                       borderRadius: const BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5)),
-                        color: widget.configPvd.selectedConfigurationTab == tab.key ? Theme.of(context).primaryColor : Colors.grey.shade100
+                        color: widget.configPvd.selectedConfigurationTab == tab.key ? themeData.primaryColor : Colors.grey.shade100
                     ),
                     child: Text(tab.value, style: TextStyle(color: widget.configPvd.selectedConfigurationTab == tab.key ? Colors.white : Colors.black, fontSize: 13),),
                   ),
@@ -101,7 +110,7 @@ class _SiteConfigureState extends State<SiteConfigure> {
         Container(
           width: double.infinity,
           height: 3,
-          color: Theme.of(context).primaryColor,
+          color: themeData.primaryColor,
         )
       ],
     );

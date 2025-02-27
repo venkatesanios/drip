@@ -64,10 +64,10 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
       WidgetsBinding.instance.addPostFrameCallback((_) {
         irrigationProvider.updateTabIndex(0);
         irrigationProvider.getUserProgramSequence(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, controllerId: widget.controllerId, serialNumber: widget.serialNumber);
+        irrigationProvider.getWaterAndFertData(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, controllerId: widget.controllerId, serialNumber: widget.serialNumber);
         irrigationProvider.scheduleData(overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, widget.controllerId, widget.serialNumber);
         irrigationProvider.getUserProgramCondition(overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, widget.controllerId, widget.serialNumber);
         irrigationProvider.getUserProgramSelection(overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, widget.controllerId, widget.serialNumber);
-        // getData(irrigationProvider, overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, widget.controllerId, widget.serialNumber);
         irrigationProvider.getUserProgramAlarm(overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, widget.controllerId, widget.serialNumber);
         irrigationProvider.doneData(overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, widget.controllerId, widget.serialNumber);
       });
@@ -80,27 +80,6 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
       });
     }
   }
-
-  /*void getData(IrrigationProgramMainProvider programPvd, userId, controllerId, serialNumber)async{
-    programPvd.clearWaterFert();
-    try{
-      var fert = await service.postRequest('getUserPlanningFertilizerSet', {'userId' : userId,'controllerId' : controllerId, 'serialNumber': serialNumber});
-      var response = await service.postRequest('getUserProgramWaterAndFert', {'userId' : userId,'controllerId' : controllerId, 'serialNumber': serialNumber});
-      var response1 = await service.postRequest('getUserConstant', {'userId' : userId,'controllerId' : controllerId, 'serialNumber': serialNumber});
-      var jsonData = response.body;
-      var jsonData1 = response1.body;
-      var jsonData2 = fert.body;
-      var myData = jsonDecode(jsonData);
-      var myData1 = jsonDecode(jsonData1);
-      var myData2 = jsonDecode(jsonData2);
-      programPvd.editApiData(myData['data']['default']);
-      programPvd.editSequenceData(myData['data']['waterAndFert']);
-      programPvd.editRecipe(myData2['data']['fertilizerSet']['fertilizerSet']);
-      programPvd.editConstantSetting(myData1['data']['constant']);
-    }catch(e){
-      log(e.toString());
-    }
-  }*/
 
   @override
   void dispose() {
@@ -163,15 +142,15 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
                     ?
                 PreferredSize(
                   preferredSize: const Size.fromHeight(80.0),
-                  child: Container(
+                  child: SizedBox(
                     width: double.infinity,
-                    color: Theme.of(context).colorScheme.background,
+                    // color: Theme.of(context).colorScheme.background,
                     child: TabBar(
                       controller: _tabController,
                       tabAlignment: TabAlignment.start,
                       isScrollable: true,
                       tabs: [
-                        for (int i = 0; i <  labels.length; i++)
+                        for (int i = 0; i < labels.length; i++)
                           InkWell(
                             onTap: () {
                               if(_tabController.index == 0 && mainProvider.irrigationLine!.sequence.every((element) => element['valve'].isEmpty)) {
@@ -192,8 +171,10 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
                     ),
                   ),
                 ) : null,
-              )
-                  : PreferredSize(preferredSize: const Size(0, 0), child: Container()),
+              ) : PreferredSize(
+                  preferredSize: const Size(0, 0),
+                  child: Container()
+              ),
               backgroundColor: const Color(0xffF9FEFF),
               body: Row(
                 children: <Widget>[

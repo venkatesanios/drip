@@ -52,13 +52,13 @@ class ConfigWebView extends StatefulWidget {
 class _ConfigWebViewState extends State<ConfigWebView> {
   late ConfigMakerProvider configPvd;
   late Future<List<DeviceModel>> listOfDevices;
-  double sideNavigationRatio = 0.15;
   double sideNavigationWidth = 220;
   double sideNavigationBreakPointWidth = 60;
   double sideNavigationTabWidth = 200;
   double sideNavigationTabBreakPointWidth = 50;
-  double sideNavigationTabRatio = 0.07;
   double webBreakPoint = 1000;
+  late ThemeData themeData;
+  late bool themeMode;
 
   @override
   void initState() {
@@ -68,12 +68,20 @@ class _ConfigWebViewState extends State<ConfigWebView> {
   }
 
   @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    themeData = Theme.of(context);
+    themeMode = themeData.brightness == Brightness.light;
+  }
+
+  @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-    bool themeMode = Theme.of(context).brightness == Brightness.light;
+    bool themeMode = themeData.brightness == Brightness.light;
     return Material(
-      color: Theme.of(context).primaryColorDark.withOpacity(themeMode ? 1.0 : 0.2),
+      color: themeData.primaryColorDark.withOpacity(themeMode ? 1.0 : 0.2),
       child: Column(
         children: [
           SizedBox(
@@ -139,7 +147,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Theme.of(context).scaffoldBackgroundColor,
+                      color: themeData.scaffoldBackgroundColor,
                       borderRadius: const BorderRadius.only(topLeft: Radius.circular(10))
                     ),
                       child: configPvd.selectedTab == ConfigMakerTabs.deviceList

@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:oro_drip_irrigation/Constants/properties.dart';
+import 'package:oro_drip_irrigation/app.dart';
+import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
 import '../../../../constants/theme.dart';
 import '../../StateManagement/irrigation_program_provider.dart';
@@ -25,6 +27,8 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
 
   FocusNode myFocus = FocusNode();
   final ScrollController _scrollController = ScrollController();
+  late ThemeData themeData;
+  late bool themeMode;
 
 
   @override
@@ -59,7 +63,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                   child: Container(
                     width: 80,
                     height: 30,
-                    color: Theme.of(context).primaryColor,
+                    color: themeData.primaryColor,
                     child: const Center(
                       child: Text('Ok',style: TextStyle(color: Colors.white,fontSize: 16),
                       ),
@@ -77,6 +81,14 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
     });
   }
 
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    themeData = themeData;
+    themeMode = themeData.brightness == Brightness.light;
+  }
+
   void closeKeyboard(BuildContext context) {
     FocusScope.of(context).unfocus();
   }
@@ -85,6 +97,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
   Widget build(BuildContext context) {
     final programPvd = Provider.of<IrrigationProgramMainProvider>(context);
     var overAllPvd = Provider.of<OverAllUse>(context,listen: true);
+    // return Container();
     if(programPvd.sequenceData.isEmpty){
       return const Center(
           child: Text('Please Create At least One Sequence')
@@ -418,7 +431,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                   width: 30,
                                   height: 30,
                                   child: SvgPicture.asset(
-                                      'assets/images/method.svg',
+                                      '${AppConstants.svgObjectPath}method.svg',
                                       semanticsLabel: 'Acme Logo'
                                   ),
                                 ),
@@ -445,7 +458,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                   width: 30,
                                   height: 30,
                                   child: SvgPicture.asset(
-                                    'assets/images/time_quantity.svg',
+                                    '${AppConstants.svgObjectPath}time_quantity.svg',
                                   ),
                                 ),
                                 trailing:  SizedBox(
@@ -512,7 +525,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                       width: 40,
                                       height: 40,
                                       child: SvgPicture.asset(
-                                          'assets/images/pre_post_method.svg',
+                                          '${AppConstants.svgObjectPath}pre_post_method.svg',
                                           semanticsLabel: 'Acme Logo'
                                       ),
                                     ),
@@ -539,7 +552,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                     width: 30,
                                     height: 30,
                                     child: SvgPicture.asset(
-                                        'assets/images/pre_value.svg',
+                                        '${AppConstants.svgObjectPath}pre_value.svg',
                                         semanticsLabel: 'Acme Logo'
                                     ),
                                   ),
@@ -592,7 +605,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                                           child: Container(
                                                             width: 80,
                                                             height: 30,
-                                                            color: Theme.of(context).primaryColor,
+                                                            color: themeData.primaryColor,
                                                             child: const Center(
                                                               child: Text('Ok',style: TextStyle(color: Colors.white,fontSize: 16),
                                                               ),
@@ -628,7 +641,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                     width: 30,
                                     height: 30,
                                     child: SvgPicture.asset(
-                                      'assets/images/post_value.svg',
+                                      '${AppConstants.svgObjectPath}post_value.svg',
                                     ),
                                   ),
                                   trailing: SizedBox(
@@ -680,7 +693,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                                           child: Container(
                                                             width: 80,
                                                             height: 30,
-                                                            color: Theme.of(context).primaryColor,
+                                                            color: themeData.primaryColor,
                                                             child: const Center(
                                                               child: Text('Ok',style: TextStyle(color: Colors.white,fontSize: 16),
                                                               ),
@@ -712,64 +725,65 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                     ),
                                   ),
                                 ),
-                              if(returnMoistureCondition(programPvd.apiData['moisture']).length!= 1)
-                                ListTile(
-                                  title: const Text('Moisture Condition',style: TextStyle(color: Colors.black,fontSize: 14),),
-                                  leading: SizedBox(
-                                    width: 30,
-                                    height: 30,
-                                    child: SvgPicture.asset(
-                                      'assets/images/moisture_condition.svg',
-                                    ),
-                                  ),
-                                  trailing: DropdownButton(
-                                    icon: const Icon(Icons.keyboard_arrow_down,color: Colors.black,size: 15,),
-                                    dropdownColor: Colors.white,
-                                    value: programPvd.sequenceData[programPvd.selectedGroup]['moistureCondition'],
-                                    underline: Container(),
-                                    items: returnMoistureCondition(programPvd.apiData['moisture']).map((items) {
-                                      return DropdownMenuItem(
-                                        value: items['name'],
-                                        child: Text(
-                                          items['name'],
-                                          style: const TextStyle(fontSize: 14, color: Colors.black),
-                                        ),
-                                      );
-                                    }).toList(),
-                                    onChanged: (value) {
-                                      programPvd.editGroupSiteInjector('applyMoisture', returnMoistureCondition(programPvd.apiData['moisture']).where((element) => element['name'] == value).toList()[0]);
-                                    },
-                                  ),
-                                ),
-                              if(returnMoistureCondition(programPvd.apiData['level']).length != 1)
-                                ListTile(
-                                  title: const Text('Level Condition',style: TextStyle(color: Colors.black,fontSize: 14),),
-                                  leading: SizedBox(
-                                    width: 30,
-                                    height: 30,
-                                    child: SvgPicture.asset(
-                                      'assets/images/level_condition.svg',
-                                    ),
-                                  ),
-                                  trailing: DropdownButton(
-                                    icon: const Icon(Icons.keyboard_arrow_down,color: Colors.black,size: 15,),
-                                    dropdownColor: Colors.white,
-                                    value: programPvd.sequenceData[programPvd.selectedGroup]['levelCondition'],
-                                    underline: Container(),
-                                    items: returnMoistureCondition(programPvd.apiData['level']).map((items) {
-                                      return DropdownMenuItem(
-                                        value: items['name'],
-                                        child: Text(
-                                          items['name'],
-                                          style: const TextStyle(fontSize: 14, color: Colors.black),
-                                        ),
-                                      );
-                                    }).toList(),
-                                    onChanged: (value) {
-                                      programPvd.editGroupSiteInjector('applyLevel', returnMoistureCondition(programPvd.apiData['level']).where((element) => element['name'] == value).toList()[0]);
-                                    },
-                                  ),
-                                ),
+                              //Todo : level and moisture condition
+                              // if(returnMoistureCondition(programPvd.apiData['moisture']).length!= 1)
+                              //   ListTile(
+                              //     title: const Text('Moisture Condition',style: TextStyle(color: Colors.black,fontSize: 14),),
+                              //     leading: SizedBox(
+                              //       width: 30,
+                              //       height: 30,
+                              //       child: SvgPicture.asset(
+                              //         '${AppConstants.svgObjectPath}moisture_condition.svg',
+                              //       ),
+                              //     ),
+                              //     trailing: DropdownButton(
+                              //       icon: const Icon(Icons.keyboard_arrow_down,color: Colors.black,size: 15,),
+                              //       dropdownColor: Colors.white,
+                              //       value: programPvd.sequenceData[programPvd.selectedGroup]['moistureCondition'],
+                              //       underline: Container(),
+                              //       items: returnMoistureCondition(programPvd.apiData['moisture']).map((items) {
+                              //         return DropdownMenuItem(
+                              //           value: items['name'],
+                              //           child: Text(
+                              //             items['name'],
+                              //             style: const TextStyle(fontSize: 14, color: Colors.black),
+                              //           ),
+                              //         );
+                              //       }).toList(),
+                              //       onChanged: (value) {
+                              //         programPvd.editGroupSiteInjector('applyMoisture', returnMoistureCondition(programPvd.apiData['moisture']).where((element) => element['name'] == value).toList()[0]);
+                              //       },
+                              //     ),
+                              //   ),
+                              // if(returnMoistureCondition(programPvd.apiData['level']).length != 1)
+                              //   ListTile(
+                              //     title: const Text('Level Condition',style: TextStyle(color: Colors.black,fontSize: 14),),
+                              //     leading: SizedBox(
+                              //       width: 30,
+                              //       height: 30,
+                              //       child: SvgPicture.asset(
+                              //         '${AppConstants.svgObjectPath}level_condition.svg',
+                              //       ),
+                              //     ),
+                              //     trailing: DropdownButton(
+                              //       icon: const Icon(Icons.keyboard_arrow_down,color: Colors.black,size: 15,),
+                              //       dropdownColor: Colors.white,
+                              //       value: programPvd.sequenceData[programPvd.selectedGroup]['levelCondition'],
+                              //       underline: Container(),
+                              //       items: returnMoistureCondition(programPvd.apiData['level']).map((items) {
+                              //         return DropdownMenuItem(
+                              //           value: items['name'],
+                              //           child: Text(
+                              //             items['name'],
+                              //             style: const TextStyle(fontSize: 14, color: Colors.black),
+                              //           ),
+                              //         );
+                              //       }).toList(),
+                              //       onChanged: (value) {
+                              //         programPvd.editGroupSiteInjector('applyLevel', returnMoistureCondition(programPvd.apiData['level']).where((element) => element['name'] == value).toList()[0]);
+                              //       },
+                              //     ),
+                              //   ),
                             ],
                           ),
                         ),
@@ -791,7 +805,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                   shape: const RoundedRectangleBorder(
                                       borderRadius: BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10))
                                   ),
-                                  color: programPvd.segmentedControlCentralLocal == 0 ? Theme.of(context).primaryColor : Colors.white,
+                                  color: programPvd.segmentedControlCentralLocal == 0 ? themeData.primaryColor : Colors.white,
                                   onPressed: (){
                                     programPvd.editSegmentedCentralLocal(0);
                                     // programPvd.selectingTheSite();
@@ -803,7 +817,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                 width: 150,
                                 child: MaterialButton(
                                   elevation: 1,
-                                  color: programPvd.segmentedControlCentralLocal == 1 ? Theme.of(context).primaryColor : Colors.white,
+                                  color: programPvd.segmentedControlCentralLocal == 1 ? themeData.primaryColor : Colors.white,
                                   shape: const RoundedRectangleBorder(
                                       borderRadius: BorderRadius.only(topRight: Radius.circular(10), bottomRight: Radius.circular(10))
                                   ),
@@ -897,7 +911,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                                                   child: Container(
                                                                     width: 80,
                                                                     height: 30,
-                                                                    color: Theme.of(context).primaryColor,
+                                                                    color: themeData.primaryColor,
                                                                     child: const Center(
                                                                       child: Text('Ok',style: TextStyle(color: Colors.white,fontSize: 16),
                                                                       ),
@@ -1144,14 +1158,14 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                                 SizedBox(
                                                   width: 30,
                                                   child: Checkbox(
-                                                      activeColor: Theme.of(context).primaryColorDark,
+                                                      activeColor: themeData.primaryColorDark,
                                                       value: programPvd.sequenceData[programPvd.selectedGroup][programPvd.segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['fertilizer'][index]['onOff'],
                                                       onChanged: (value){
                                                         programPvd.editOnOffInInjector(programPvd.segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing',index,value!);
                                                       }
                                                   ),
                                                 ),
-                                                Text('${programPvd.sequenceData[programPvd.selectedGroup][programPvd.segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['fertilizer'][index]['id']}',style: const TextStyle(fontWeight: FontWeight.normal,fontSize: 12),)
+                                                Text('CH ${index + 1}',style: const TextStyle(fontWeight: FontWeight.normal,fontSize: 12),)
                                               ],
                                             ),
                                           ),
@@ -1219,7 +1233,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                                                 child: Container(
                                                                   width: 80,
                                                                   height: 30,
-                                                                  color: Theme.of(context).primaryColor,
+                                                                  color: themeData.primaryColor,
                                                                   child: const Center(
                                                                     child: Text('Ok',style: TextStyle(color: Colors.white,fontSize: 16),
                                                                     ),
@@ -1417,7 +1431,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
           width: 30,
           height: 30,
           child: SvgPicture.asset(
-            'assets/images/default_icon.svg',
+            '${AppConstants.svgObjectPath}default_icon.svg',
           ),
         ),
         trailing: DropdownButton(
@@ -1444,7 +1458,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
           width: 30,
           height: 30,
           child: SvgPicture.asset(
-            'assets/images/default_icon.svg',
+            '${AppConstants.svgObjectPath}default_icon.svg',
           ),
         ),
         trailing:  SizedBox(
@@ -1509,7 +1523,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
           width: 30,
           height: 30,
           child: SvgPicture.asset(
-            'assets/images/default_icon.svg',
+            '${AppConstants.svgObjectPath}default_icon.svg',
           ),
         ),
         trailing: DropdownButton(
@@ -1539,7 +1553,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
           width: 30,
           height: 30,
           child: SvgPicture.asset(
-            'assets/images/default_icon.svg',
+            '${AppConstants.svgObjectPath}default_icon.svg',
           ),
         ),
         trailing: DropdownButton(
@@ -1572,14 +1586,14 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
         //   width: 30,
         //   height: 30,
         //   child: SvgPicture.asset(
-        //       'assets/images/default_icon.svg',
+        //       '${AppConstants.svgObjectPath}default_icon.svg',
         //       semanticsLabel: 'Acme Logo'
         //   ),
         // ),
         leading: const Icon(Icons.add_alert,),
         trailing: Checkbox(
             checkColor: Colors.white,
-            fillColor: MaterialStateProperty.all(Theme.of(context).primaryColor),
+            fillColor: MaterialStateProperty.all(themeData.primaryColor),
             value: programPvd.sequenceData[programPvd.selectedGroup][programPvd.segmentedControlCentralLocal == 0 ? 'applyFertilizerForCentral' : 'applyFertilizerForLocal'],
             onChanged: (value){
               programPvd.editGroupSiteInjector(programPvd.segmentedControlCentralLocal == 0 ? 'applyFertilizer' : 'applyFertilizer', value);
@@ -1595,7 +1609,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
           //   width: 30,
           //   height: 30,
           //   child: SvgPicture.asset(
-          //       'assets/images/default_icon.svg',
+          //       '${AppConstants.svgObjectPath}default_icon.svg',
           //       semanticsLabel: 'Acme Logo'
           //   ),
           // ),
@@ -1625,7 +1639,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
         //   width: 30,
         //   height: 30,
         //   child: SvgPicture.asset(
-        //       'assets/images/default_icon.svg',
+        //       '${AppConstants.svgObjectPath}default_icon.svg',
         //       semanticsLabel: 'Acme Logo'
         //   ),
         // ),
@@ -1679,7 +1693,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                 child: Container(
                                   width: 80,
                                   height: 30,
-                                  color: Theme.of(context).primaryColor,
+                                  color: themeData.primaryColor,
                                   child: const Center(
                                     child: Text('Ok',style: TextStyle(color: Colors.white,fontSize: 16),
                                     ),
@@ -1720,7 +1734,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
         //   width: 30,
         //   height: 30,
         //   child: SvgPicture.asset(
-        //     'assets/images/default_icon.svg',
+        //     '${AppConstants.svgObjectPath}default_icon.svg',
         //   ),
         // ),
         leading: const Icon(Icons.add_alert,),
@@ -1772,7 +1786,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                 child: Container(
                                   width: 80,
                                   height: 30,
-                                  color: Theme.of(context).primaryColor,
+                                  color: themeData.primaryColor,
                                   child: const Center(
                                     child: Text('Ok',style: TextStyle(color: Colors.white,fontSize: 16),
                                     ),
@@ -1962,7 +1976,7 @@ Widget currentSequence(){
         width: 30,
         height: 30,
         child: SvgPicture.asset(
-            'assets/images/default.svg',
+            '${AppConstants.svgObjectPath}default.svg',
             semanticsLabel: 'Acme Logo'
         ),
       ),

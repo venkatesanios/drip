@@ -820,25 +820,27 @@ class _LineConfigurationState extends State<LineConfiguration> {
       if(fertilizerSite.length > 1 || filterSite.length > 1)
         Column(
         children: [
-          Container(
-            margin: const EdgeInsets.only(left: 30),
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              border: Border.all(width: 1),
-              borderRadius: BorderRadius.circular(10)
+          if(fertilizerSite.length > 1)
+            Container(
+              margin: const EdgeInsets.only(left: 30),
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                border: Border.all(width: 1),
+                borderRadius: BorderRadius.circular(10)
+              ),
+              child: FertilizationDashboardFormation(fertilizationFormation: fertilizerSite[1].channel.length == 1 ? FertilizationFormation.singleChannel : FertilizationFormation.multipleChannel, fertilizationSite: fertilizerSite[1]),
             ),
-            child: FertilizationDashboardFormation(fertilizationFormation: fertilizerSite[1].channel.length == 1 ? FertilizationFormation.singleChannel : FertilizationFormation.multipleChannel, fertilizationSite: fertilizerSite[1]),
-          ),
           const SizedBox(height: 20,),
-          Container(
-            margin: const EdgeInsets.only(left: 30),
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              border: Border.all(width: 1),
-              borderRadius: BorderRadius.circular(10)
+          if(filterSite.length > 1)
+            Container(
+              margin: const EdgeInsets.only(left: 30),
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                border: Border.all(width: 1),
+                borderRadius: BorderRadius.circular(10)
+              ),
+              child: FiltrationDashboardFormation(filtrationFormation: filterSite[1].filters.length == 1 ? FiltrationFormation.singleFilter : FiltrationFormation.multipleFilter, filtrationSite: filterSite[1]) ,
             ),
-            child: FiltrationDashboardFormation(filtrationFormation: filterSite[1].filters.length == 1 ? FiltrationFormation.singleFilter : FiltrationFormation.multipleFilter, filtrationSite: filterSite[1]) ,
-          ),
         ],
       ),
     ];
