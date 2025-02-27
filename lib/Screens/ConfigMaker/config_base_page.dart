@@ -32,8 +32,8 @@ class _ConfigBasePageState extends State<ConfigBasePage> {
     configPvd = Provider.of<ConfigMakerProvider>(context, listen: false);
     // listOfDevices = configPvd.fetchData({"userId":3,"customerId":4,"controllerId":1,"deviceId":"ABC123456703","deviceName":"ORO GEM","categoryId":1,"categoryName":"ORO GEM","modelId":3,"modelName":"OGEMPRL","groupId":1,"groupName":"testing site","connectingObjectId":["1","2","3","4","1","2","3","4"]});
     // listOfDevices = configPvd.fetchData({"userId":3,"customerId":7,"controllerId":9,"deviceId":"GEM123456701","deviceName":"ORO GEM","categoryId":1,"categoryName":"ORO GEM","modelId":1,"modelName":"OGEMR","groupId":2,"groupName":"Kamaraj Testing Farm","connectingObjectId":["1","2","3","4","1","2","3","4"]});
-    listOfDevices = configPvd.fetchData({"userId":3,"customerId":8,"controllerId":13,"deviceId":"2CCF674C0F8A","deviceName":"ORO GEM","categoryId":1,"categoryName":"ORO GEM","modelId":1,"modelName":"OGEMR","groupId":3,"groupName":"Hardware Testing site","connectingObjectId":["1","2","3","4","1","2","3","4"]});
-    // listOfDevices = configPvd.fetchData(widget.masterData);
+    // listOfDevices = configPvd.fetchData({"userId":3,"customerId":8,"controllerId":13,"deviceId":"2CCF674C0F8A","deviceName":"ORO GEM","categoryId":1,"categoryName":"ORO GEM","modelId":1,"modelName":"OGEMR","groupId":3,"groupName":"Hardware Testing site","connectingObjectId":["1","2","3","4","1","2","3","4"]});
+    listOfDevices = configPvd.fetchData(widget.masterData);
   }
 
   @override

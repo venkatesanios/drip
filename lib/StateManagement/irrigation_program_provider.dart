@@ -1318,6 +1318,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
 
   dynamic hwPayloadForWF(serialNumber){
     var wf = '';
+    var payload = '';
     editGroupSiteInjector('selectedGroup', 0);
     for(var sq in sequenceData){
       editGroupSiteInjector('selectedGroup', sequenceData.indexOf(sq));
@@ -1332,7 +1333,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       var centralMethod = '';
       var centralTimeAndQuantity = '';
       var centralFertOnOff = '';
-      var centralFertId = '';
+      var centralFertSno = '';
       var centralEcActive = 0;
       var centralEcValue = '';
       var centralPhActive = 0;
@@ -1349,10 +1350,6 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       var centralPH = '';
       var localEC = '';
       var localPH = '';
-      // // print('c1 : ${isSiteVisible(sq['centralDosing'],'central')}');
-      // // print('c2 : ${sq[segmentedControlCentralLocal == 0 ? 'applyFertilizerForCentral' : 'applyFertilizerForLocal'] == false}');
-      // // print('c3 : ${sq['centralDosing'].isEmpty}');
-      // // print('c4 : ${sq['selectedCentralSite'] == -1}');
       if(!isSiteVisible(sq['centralDosing'],'central') || sq[segmentedControlCentralLocal == 0 ? 'applyFertilizerForCentral' : 'applyFertilizerForLocal'] == false || sq['centralDosing'].isEmpty || sq['selectedCentralSite'] == -1){
         centralMethod = '0_0_0_0_0_0_0_0';
         centralTimeAndQuantity += '0_0_0_0_0_0_0_0';
@@ -1366,7 +1363,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         for(var ft in sq['centralDosing'][sq['selectedCentralSite']]['fertilizer']){
           centralMethod += '${centralMethod.isNotEmpty ? '_' : ''}${fertMethodHw(ft['method'])}';
           centralFertOnOff += '${centralFertOnOff.isNotEmpty ? '_' : ''}${ft['onOff'] == true ? 1 : 0}';
-          centralFertId += '${centralFertId.isNotEmpty ? '_' : ''}${ft['sNo']}';
+          centralFertSno += '${centralFertSno.isNotEmpty ? '_' : ''}${ft['sNo']}';
           centralTimeAndQuantity += '${centralTimeAndQuantity.isNotEmpty ? '_' : ''}${ft['method'].contains('ime') ? ft['timeValue'] : ft['quantityValue']}';
           centralEcActive = sq['centralDosing'][sq['selectedCentralSite']]['needEcValue'] == null ? 0 : sq['centralDosing'][sq['selectedCentralSite']]['needEcValue'] == true ? 1 : 0;
           centralEcValue = '${sq['centralDosing'][sq['selectedCentralSite']]['ecValue'] ?? 0}';
@@ -1375,9 +1372,9 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
           fertList.add(fertMethodHw(ft['method']));
         }
         for(var coma = fertList.length;coma < 8;coma++){
-          centralMethod += '${centralMethod.length != 0 ? '_' : ''}0';
-          centralTimeAndQuantity += '${centralTimeAndQuantity.length != 0 ? '_' : ''}0';
-          centralFertOnOff += '${centralFertOnOff.length != 0 ? '_' : ''}0';
+          centralMethod += '${centralMethod.isNotEmpty ? '_' : ''}0';
+          centralTimeAndQuantity += '${centralTimeAndQuantity.isNotEmpty ? '_' : ''}0';
+          centralFertOnOff += '${centralFertOnOff.isNotEmpty ? '_' : ''}0';
         }
       }
 
@@ -1408,6 +1405,28 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
           localFertOnOff += '${localFertOnOff.length != 0 ? '_' : ''}0';
         }
       }
+      // payload += {
+      //   'S_No' : sq['sNo'],
+      //   'ProgramS_No' : serialNumber,
+      //   'SequenceData' : sq['valve'].map((valve) => valve['sNo']).toList().join('_'),
+      //   'MainValve' : sq['mainValve'].map((mainValve) => mainValve['sNo']).toList().join('_'),
+      //   'Pump' : '',
+      //   'ValveFlowrate' : getNominalFlow(),
+      //   'IrrigationMethod' : sq['method'] == 'Time' ? 1 : 2,
+      //   'IrrigationDuration_Quantity' : sq['method'] == 'Time' ? sq['timeValue'] : sq['quantityValue'],
+      //   'CentralFertOnOff' : sq['applyFertilizerForCentral'] == false ? 0 : sq['selectedCentralSite'] == -1 ? 0 : 1,
+      //   'CentralFertilizerSite' : sq['selectedLocalSite'] == -1 ? 0 : sq['localDosing'].isEmpty ? 0 : sq['localDosing'][sq['selectedLocalSite']]['sNo'],
+      //   'LocalFertOnOff' : sq['applyFertilizerForLocal'] == false ? 0 : sq['selectedLocalSite'] == -1 ? 0 : 1,
+      //   'LocalFertilizerSite' : sq['selectedLocalSite'] == -1 ? 0 : sq['localDosing'].isEmpty ? 0 : sq['localDosing'][sq['selectedLocalSite']]['sNo'],
+      //   'PrePostMethod' : sq['prePostMethod'] == 'Time' ? 1 : 2,
+      //   'PreTime_PreQty' : sq['preValue'],
+      //   'PostTime_PostQty' : sq['postValue'],
+      //   'CentralFertMethod' : centralMethod,
+      //   'LocalFertMethod' : localMethod,
+      //   'CentralFertChannelSelection' : centralFertOnOff,
+      //   'LocalFertChannelSelection' : localFertOnOff,
+      //   'CentralFertDuration_Qty' : centralTimeAndQuantity,
+      // }.values.toList().join(',');
       wf += '${wf.length != 0 ? ';' : ''}'
           '${sq['sNo']},'
           '$serialNumber,'
@@ -1428,7 +1447,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
           '$centralMethod,'
           '$localMethod,'
           '$centralFertOnOff,'
-          '$centralFertId,'
+          '$centralFertSno,'
           '$localFertOnOff,'
           '$localFertId,'
           '$centralTimeAndQuantity,'

@@ -84,7 +84,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
-    themeData = themeData;
+    themeData = Theme.of(context);
     themeMode = themeData.brightness == Brightness.light;
   }
 
