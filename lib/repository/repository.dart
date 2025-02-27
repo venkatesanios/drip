@@ -34,6 +34,18 @@ class Repository{
     return await apiService.postRequest('/product/getList', body);
   }
 
+  Future<http.Response> fetchMasterControllerDetails(body) async {
+    return await apiService.postRequest('/user/deviceList/getMasterDetails', body);
+  }
+
+  Future<http.Response> fetchSubUserList(body) async {
+    return await apiService.postRequest('/user/sharedUser/get', body);
+  }
+
+  Future<http.Response> fetchUserPushNotificationType(body) async {
+    return await apiService.postRequest('/user/deviceList/pushNotificationType/get', body);
+  }
+
   Future<http.Response> fetchCountryList() async {
     return await apiService.getRequest('/country/get');
   }
@@ -43,7 +55,11 @@ class Repository{
   }
 
   Future<http.Response> fetchSentAndReceivedData(body) async {
-    return await apiService.postRequest('/user/getSentAndReceivedMessage/getStatus', body);
+    return await apiService.postRequest('/user/sentAndReceivedMessage/getStatus', body);
+  }
+
+  Future<http.Response> fetchSentAndReceivedHardwarePayload(body) async {
+    return await apiService.postRequest('/user/sentAndReceivedMessage/getHardwarePayload', body);
   }
 
   Future<http.Response> fetchLanguageByActive(body) async {
@@ -785,17 +801,22 @@ class Repository{
     return await apiService.postRequest('/user/planning/systemDefinition/create', body);
   }
 
-  Future<http.Response> fetchStandAloneData(body) async {
-    return await apiService.postRequest('/user/getUserDashboardByManual', body);
-  }
-
   Future<http.Response> fetchCustomerProgramList(body) async {
-    return await apiService.postRequest('/user/getUserProgramNameList', body);
+    return await apiService.postRequest('/user/program/getNameList', body);
   }
 
   Future<http.Response> fetchUserManualOperation(body) async {
-    return await apiService.postRequest('/user/getUserManualOperation', body);
+    return await apiService.postRequest('/user/manualOperation/recent/get', body);
   }
+
+  Future<http.Response> fetchStandAloneData(body) async {
+    return await apiService.postRequest('/user/manualOperation/get', body);
+  }
+
+  Future<http.Response> updateStandAloneData(body) async {
+    return await apiService.postRequest('/user/manualOperation/create', body);
+  }
+
 
 }
 
