@@ -48,8 +48,8 @@ Widget navigateToInitialScreen(String route) {
   switch (route) {
     case Routes.login:
       return const LoginScreen();
-    // case Routes.dashboard:
-    //   return const ScreenController();
+    case Routes.dashboard:
+      return const ScreenController();
     default:
       return const SplashScreen();
   }
