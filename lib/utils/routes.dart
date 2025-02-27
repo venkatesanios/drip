@@ -27,7 +27,7 @@ class Routes {
 
       case dashboard:
         return MaterialPageRoute(
-          //builder: (_) => const ConfigBasePage(masterData: {}),
+          // builder: (_) => const ConfigBasePage(masterData: {}),
            builder: (_) => const ScreenController(),
           settings: settings,
         );

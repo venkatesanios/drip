@@ -34,12 +34,22 @@ class DeviceList extends StatefulWidget {
 class _DeviceListState extends State<DeviceList> {
   late ConfigMakerProvider configPvd;
   bool selectAllNode = false;
+  late ThemeData themeData;
+  late bool themeMode;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     configPvd = Provider.of<ConfigMakerProvider>(context, listen: false);
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    themeData = Theme.of(context);
+    themeMode = themeData.brightness == Brightness.light;
   }
 
   @override
@@ -60,29 +70,29 @@ class _DeviceListState extends State<DeviceList> {
               Expanded(
                 child: DataTable2(
                   minWidth: 900,
-                  headingRowColor: WidgetStateProperty.all(Theme.of(context).cardColor),
-                  dataRowColor: WidgetStateProperty.all(Theme.of(context).cardColor),
+                  headingRowColor: WidgetStateProperty.all(themeData.cardColor),
+                  dataRowColor: WidgetStateProperty.all(themeData.cardColor),
                     fixedLeftColumns: 2,
                     columns: [
                       DataColumn2(
                         fixedWidth: 80,
-                        label: Text('SNO', style: Theme.of(context).textTheme.bodyLarge,),
+                        label: Text('SNO', style: themeData.textTheme.bodyLarge,),
                       ),
                       DataColumn2(
                         fixedWidth: 180,
-                        label: Text('MODEL NAME', style: Theme.of(context).textTheme.bodyLarge,),
+                        label: Text('MODEL NAME', style: themeData.textTheme.bodyLarge,),
                       ),
                       DataColumn2(
                         fixedWidth: 180,
-                        label: Text('DEVICE ID', style: Theme.of(context).textTheme.bodyLarge,),
+                        label: Text('DEVICE ID', style: themeData.textTheme.bodyLarge,),
                       ),
                       DataColumn2(
                         fixedWidth: 150,
-                        label: Text('INTERFACE', style: Theme.of(context).textTheme.bodyLarge,),
+                        label: Text('INTERFACE', style: themeData.textTheme.bodyLarge,),
                       ),
                       DataColumn2(
                         fixedWidth: 150,
-                        label: Text('INTERVAL', style: Theme.of(context).textTheme.bodyLarge,),
+                        label: Text('INTERVAL', style: themeData.textTheme.bodyLarge,),
                       ),
                       DataColumn2(
                         fixedWidth: 100,
@@ -107,7 +117,7 @@ class _DeviceListState extends State<DeviceList> {
                               Text(device.deviceName, style: textStyleInCell),
                             ),
                             DataCell(
-                              Text(device.deviceId, style: TextStyle(color: Theme.of(context).primaryColorDark),),
+                              Text(device.deviceId, style: TextStyle(color: themeData.primaryColorDark),),
                             ),
                             DataCell(
                                 CustomDropDownButton(
@@ -179,14 +189,14 @@ class _DeviceListState extends State<DeviceList> {
       width:  double.infinity,
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-        color: Theme.of(context).cardColor,
+        color: themeData.cardColor,
         border: Border.all(width: 0.5, color: const Color(0xffC9C6C6))
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.all(0),
         leading: const SizedImageMedium(imagePath: 'assets/Images/Png/category_1_model_1.png'),
-        title: Text('${configPvd.masterData['deviceName']}', style: Theme.of(context).textTheme.bodyLarge,),
-        subtitle: Text('${configPvd.masterData['deviceId']}', style: Theme.of(context).textTheme.bodySmall,),
+        title: Text('${configPvd.masterData['deviceName']}', style: themeData.textTheme.bodyLarge,),
+        subtitle: Text('${configPvd.masterData['deviceId']}', style: themeData.textTheme.bodySmall,),
         trailing: IntrinsicWidth(
           child: CustomMaterialButton(
               onPressed: (){
@@ -262,7 +272,7 @@ class _DeviceListState extends State<DeviceList> {
                                                 Text(device.deviceName,)
                                               ),
                                               DataCell(
-                                                  Text(device.deviceId, style: TextStyle(color: Theme.of(context).primaryColor))
+                                                  Text(device.deviceId, style: TextStyle(color: themeData.primaryColor))
                                               ),
                                             ]
                                         );

@@ -30,6 +30,14 @@ class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
   late bool themeMode;
 
   @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    themeData = Theme.of(context);
+    themeMode = themeData.brightness == Brightness.light;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8),
@@ -115,7 +123,7 @@ class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
                             SizedBox(
                               width: 150,
                               child: Center(
-                                child: Text(filtrationSite.filters.isEmpty ? '-' : filtrationSite.filters.map((sNo) => getObjectName(sNo, widget.configPvd).name!).join(', '), style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 12, fontWeight: FontWeight.bold),),
+                                child: Text(filtrationSite.filters.isEmpty ? '-' : filtrationSite.filters.map((sNo) => getObjectName(sNo, widget.configPvd).name!).join(', '), style: TextStyle(color: themeData.primaryColor, fontSize: 12, fontWeight: FontWeight.bold),),
                               ),
                             ),
                             IconButton(
@@ -138,7 +146,7 @@ class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
                                       }
                                   );
                                 },
-                                icon: Icon(Icons.touch_app, color: Theme.of(context).primaryColor, size: 20,)
+                                icon: Icon(Icons.touch_app, color: themeData.primaryColor, size: 20,)
                             )
                           ],
                         ),
@@ -150,7 +158,7 @@ class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
                             SizedBox(
                               width: 150,
                               child: Center(
-                                child: Text(filtrationSite.pressureIn == 0.0 ? '-' : getObjectName(filtrationSite.pressureIn, widget.configPvd).name!, style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 12, fontWeight: FontWeight.bold),),
+                                child: Text(filtrationSite.pressureIn == 0.0 ? '-' : getObjectName(filtrationSite.pressureIn, widget.configPvd).name!, style: TextStyle(color: themeData.primaryColor, fontSize: 12, fontWeight: FontWeight.bold),),
                               ),
                             ),
                             IconButton(
@@ -172,7 +180,7 @@ class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
                                       }
                                   );
                                 },
-                                icon: Icon(Icons.touch_app, color: Theme.of(context).primaryColor, size: 20,)
+                                icon: Icon(Icons.touch_app, color: themeData.primaryColor, size: 20,)
                             )
                           ],
                         ),
@@ -184,7 +192,7 @@ class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
                             SizedBox(
                               width: 150,
                               child: Center(
-                                child: Text(filtrationSite.pressureOut == 0.0 ? '-' : getObjectName(filtrationSite.pressureOut, widget.configPvd).name!, style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 12, fontWeight: FontWeight.bold),),
+                                child: Text(filtrationSite.pressureOut == 0.0 ? '-' : getObjectName(filtrationSite.pressureOut, widget.configPvd).name!, style: TextStyle(color: themeData.primaryColor, fontSize: 12, fontWeight: FontWeight.bold),),
                               ),
                             ),
                             IconButton(
@@ -206,7 +214,7 @@ class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
                                       }
                                   );
                                 },
-                                icon: Icon(Icons.touch_app, color: Theme.of(context).primaryColor, size: 20,)
+                                icon: Icon(Icons.touch_app, color: themeData.primaryColor, size: 20,)
                             )
                           ],
                         ),
@@ -221,6 +229,7 @@ class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
       }),
     );
   }
+
   List<DeviceObjectModel> getUnselectedFilterObject(FiltrationModel filtrationSite){
     List<DeviceObjectModel> filterObject = widget.configPvd.listOfGeneratedObject
         .where((object) => object.objectId == 11)
@@ -235,6 +244,7 @@ class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
     filterObject = filterObject.where((object) => (!assignedFilters.contains(object.sNo!) || filtrationSite.filters.contains(object.sNo))).toList();
     return filterObject;
   }
+
   List<DeviceObjectModel> getPressureSensor(FiltrationModel filtrationSite, int pressureMode){
     List<double> assignedPressureSensor = [];
     List<double> sensorList = [];

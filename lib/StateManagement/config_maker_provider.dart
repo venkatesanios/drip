@@ -728,7 +728,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         "S_No": pumpModelObject.commonDetails.sNo,
         "PumpCategory": pumpModelObject.pumpType,
         "PressureIn" : serialNoOrEmpty(pumpModelObject.pressureIn),
-        "PressureOut" : serialNoOrEmpty(pumpModelObject.pressureIn),
+        "PressureOut" : serialNoOrEmpty(pumpModelObject.pressureOut),
         "WaterMeter": serialNoOrEmpty(pumpModelObject.waterMeter),
         "SumpTankLevel" : sumpTankLevel == null ? '' : sumpTankLevel.level,
         "TopTankLevel" : topTankLevel == null ? '' : topTankLevel.level,

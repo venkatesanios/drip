@@ -105,7 +105,7 @@ class ValveGroup {
         : [];
 
     return ValveGroup(
-      id: json['groupID'],
+      id: json['groupId'],
       name: json['groupName'],
       valve: valves,
     );
