@@ -49,6 +49,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
+  chat_bubbles:
+    dependency: "direct main"
+    description:
+      name: chat_bubbles
+      sha256: "902bc84e22f9ce6b993d015457067a37d37eb7478bd7b5b185712d5c5329b866"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.7.0"
   checked_yaml:
     dependency: transitive
     description:
@@ -701,6 +709,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.3"
+  timezone:
+    dependency: "direct main"
+    description:
+      name: timezone
+      sha256: ffc9d5f4d1193534ef051f9254063fa53d588609418c84299956c3db9383587d
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.10.0"
   typed_data:
     dependency: transitive
     description:

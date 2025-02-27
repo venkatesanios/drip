@@ -13,7 +13,6 @@ class Formatters {
   }
 
   static String formatDateTime(String? dateTimeString) {
-    print(dateTimeString);
     if (dateTimeString == null) {
       return "No feedback received";
     }

@@ -10,6 +10,7 @@ import '../../utils/formatters.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../../view_models/nav_rail_view_model.dart';
 import '../account_settings.dart';
+import 'controller_settings.dart';
 import 'customer_home.dart';
 import 'customer_product.dart';
 import 'node_list.dart';
@@ -154,7 +155,7 @@ class CustomerScreenController extends StatelessWidget {
                   ),
 
                   Text(
-                    'Last sync @ - ${Formatters.formatDateTime(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].live?.cD)}',
+                    'Last sync @ - ${Formatters.formatDateTime('${vm.mySiteList.data[vm.sIndex].master[vm.mIndex].live?.cD} ${vm.mySiteList.data[vm.sIndex].master[vm.mIndex].live?.cT}')}',
                     style: const TextStyle(fontSize: 15, color: Colors.white70),
                   ),
                 ],
@@ -326,7 +327,8 @@ class CustomerScreenController extends StatelessWidget {
                           borderRadius: const BorderRadius.only(topLeft: Radius.circular(5),topRight: Radius.circular(5)),
                         ),
                         child: mainScreen(navViewModel.selectedIndex, vm.mySiteList.data[vm.sIndex].groupId,
-                            vm.mySiteList.data[vm.sIndex].groupName, vm.mySiteList.data[vm.sIndex].master),
+                            vm.mySiteList.data[vm.sIndex].groupName, vm.mySiteList.data[vm.sIndex].master,
+                            vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId),
                       )
                   ),
                 ),
@@ -412,9 +414,8 @@ class CustomerScreenController extends StatelessWidget {
                                       borderRadius: BorderRadius.zero,
                                       child: StatefulBuilder(
                                         builder: (BuildContext context, StateSetter stateSetter) {
-                                          return NodeList(customerId: customerId, nodeList: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList,
+                                          return NodeList(customerId: customerId, nodes: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList,
                                             deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                                            lastSyncDate: '21-02-2025} - 00:10:00',
                                             deviceName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
                                             controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId, userId: userId,);
                                         },
@@ -542,12 +543,11 @@ class CustomerScreenController extends StatelessWidget {
                                     borderRadius: BorderRadius.zero,
                                     child: StatefulBuilder(
                                       builder: (BuildContext context, StateSetter stateSetter) {
-                                        return StandAlone(siteID: vm.mySiteList.data[vm.sIndex].groupId,
-                                          siteName: vm.mySiteList.data[vm.sIndex].groupName,
-                                          controllerID: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                                          customerID: customerId,
-                                          imeiNo: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                                          callbackFunction: callbackFunction, userId: userId,);
+                                        return StandAlone(siteId: vm.mySiteList.data[vm.sIndex].groupId,
+                                          controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                                          customerId: customerId,
+                                          deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                                          callbackFunction: callbackFunction, userId: userId, config: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config,);
                                       },
                                     ),
                                   ),
@@ -626,16 +626,16 @@ class CustomerScreenController extends StatelessWidget {
     return destinations;
   }
 
-  Widget mainScreen(int index, groupId, groupName, List<Master> masterData) {
+  Widget mainScreen(int index, groupId, groupName, List<Master> masterData, int controllerId) {
     switch (index) {
       case 0:
-        return const CustomerHome();
+        return CustomerHome(customerId: userId);
       case 1:
         return CustomerProduct(customerId: userId);
       case 2:
-        return SentAndReceived(customerId: userId);
+        return SentAndReceived(customerId: userId, controllerId: controllerId);
       case 3:
-        return const SizedBox();
+        return ControllerSettings(customerId: userId, controllerId: controllerId, adDrId: fromLogin?1:0,);
       /*case 4:
         return SiteConfig(
             userId: userId,

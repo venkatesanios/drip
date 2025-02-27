@@ -53,8 +53,9 @@ class Master {
   final List<Unit> units;
   final Config config;
   List<ConfigObject> configObjects;
-  final Live? live;
-  List<NodeDataList> nodeList;
+  late final LiveMessage? live;
+  List<NodeListModel> nodeList;
+  List<ProgramList> programList;
 
   Master({
     required this.controllerId,
@@ -69,6 +70,7 @@ class Master {
     required this.configObjects,
     required this.live,
     required this.nodeList,
+    required this.programList,
   });
 
   factory Master.fromJson(Map<String, dynamic> json) {
@@ -91,10 +93,15 @@ class Master {
           ? Config.fromJson(Map<String, dynamic>.from(AppConstants().payloadConversion(json["config"])))
           : Config(waterSource: [], pump: [], filterSite: [], fertilizerSite: [], moistureSensor: [], lineData: []),
       configObjects: configObjects,
-      live: json['liveMessage'] != null ? Live.fromJson(json['liveMessage']) : null,
+      live: json['liveMessage'] != null ? LiveMessage.fromJson(json['liveMessage']) : null,
       nodeList: json['nodeList'] != null
           ? (json['nodeList'] as List)
-          .map((item) => NodeDataList.fromJson(item, configObjects))
+          .map((item) => NodeListModel.fromJson(item, configObjects))
+          .toList()
+          : [],
+      programList: json['program'] != null
+          ? (json['program'] as List)
+          .map((prgList) => ProgramList.fromJson(prgList))
           .toList()
           : [],
     );
@@ -217,7 +224,7 @@ class ConfigObject {
 class Config {
   final List<WaterSource> waterSource;
   final List<Pump> pump;
-  final List<dynamic> filterSite;
+  final List<FilterSite> filterSite;
   final List<FertilizerSite> fertilizerSite;
   final List<dynamic> moistureSensor;
   final List<IrrigationLineData> lineData;
@@ -237,7 +244,9 @@ class Config {
           .map((e) => WaterSource.fromJson(e))
           .toList(),
       pump: (json['pump'] as List).map((e) => Pump.fromJson(e)).toList(),
-      filterSite: json['filterSite'] ?? [],
+      filterSite: (json['filterSite'] as List)
+          .map((e) => FilterSite.fromJson(e))
+          .toList(),
       fertilizerSite: (json['fertilizerSite'] as List)
           .map((e) => FertilizerSite.fromJson(e))
           .toList(),
@@ -309,6 +318,7 @@ class Pump {
   final int controllerId;
   final dynamic count;
   int status;
+  bool selected;
 
   Pump({
     required this.objectId,
@@ -320,6 +330,7 @@ class Pump {
     required this.controllerId,
     required this.count,
     this.status=0,
+    this.selected=false,
   });
 
   factory Pump.fromJson(Map<String, dynamic> json) {
@@ -336,27 +347,134 @@ class Pump {
   }
 }
 
+class FilterSite {
+  final int objectId;
+  final double sNo;
+  final String name;
+  final String? connectionNo;
+  final String objectName;
+  final String type;
+  final int? controllerId;
+  final int? count;
+  final int siteMode;
+  final List<Filters> filters;
+  final Map<String, dynamic>? pressureIn;
+  final Map<String, dynamic>? pressureOut;
+  final Map<String, dynamic>? backWashValve;
+
+  FilterSite({
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+    this.connectionNo,
+    required this.objectName,
+    required this.type,
+    this.controllerId,
+    this.count,
+    required this.siteMode,
+    required this.filters,
+    required this.pressureIn,
+    required this.pressureOut,
+    required this.backWashValve,
+  });
+
+  factory FilterSite.fromJson(Map<String, dynamic> json) {
+    print(json);
+
+    var filterList = json['filters'] as List;
+    List<Filters> filters = filterList.map((filter) => Filters.fromJson(filter)).toList();
+
+    return FilterSite(
+      objectId: json['objectId'],
+      sNo: (json['sNo'] as num).toDouble(),
+      name: json['name'],
+      connectionNo: json['connectionNo'],
+      objectName: json['objectName'],
+      type: json['type'],
+      controllerId: json['controllerId'],
+      count: json['count'],
+      siteMode: json['siteMode'],
+      filters: filters,
+      pressureIn: json['pressureIn'] != null
+          ? Map<String, dynamic>.from(json['pressureIn'])
+          : {},
+      pressureOut: json['pressureOut'] != null
+          ? Map<String, dynamic>.from(json['pressureOut'])
+          : {},
+      backWashValve: json['backWashValve'] != null
+          ? Map<String, dynamic>.from(json['backWashValve'])
+          : {},
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'connectionNo': connectionNo,
+      'objectName': objectName,
+      'type': type,
+      'controllerId': controllerId,
+      'count': count,
+      'siteMode': siteMode,
+      'filters': filters,
+      'pressureIn': pressureIn,
+      'pressureOut': pressureOut,
+      'backWashValve': backWashValve,
+    };
+  }
+}
+
+class Filters {
+  double sNo;
+  String name;
+  int status;
+  bool selected;
+
+  Filters({required this.sNo, required this.name, this.status = 0, this.selected=false});
+
+  factory Filters.fromJson(Map<String, dynamic> json) {
+    return Filters(
+      sNo: json['sNo'],
+      name: json['name'],
+    );
+  }
+}
+
 class FertilizerSite {
   final int objectId;
   final double sNo;
   final String name;
-  final int? connectionNo;
+  final String? connectionNo;
   final String objectName;
   final String type;
   final int? controllerId;
-  final dynamic count;
+  final int? count;
   final int siteMode;
+  final List<Channel> channel;
+  final List<BoosterPump> boosterPump;
+  final List<Agitator> agitator;
+  final List<dynamic> selector;
+  final List<dynamic> ec;
+  final List<dynamic> ph;
 
   FertilizerSite({
     required this.objectId,
     required this.sNo,
     required this.name,
-    required this.connectionNo,
+    this.connectionNo,
     required this.objectName,
     required this.type,
-    required this.controllerId,
-    required this.count,
+    this.controllerId,
+    this.count,
     required this.siteMode,
+    required this.channel,
+    required this.boosterPump,
+    required this.agitator,
+    required this.selector,
+    required this.ec,
+    required this.ph,
   });
 
   factory FertilizerSite.fromJson(Map<String, dynamic> json) {
@@ -370,6 +488,126 @@ class FertilizerSite {
       controllerId: json['controllerId'],
       count: json['count'],
       siteMode: json['siteMode'],
+      channel: (json['channel'] as List).map((e) => Channel.fromJson(e)).toList(),
+      boosterPump: (json['boosterPump'] as List).map((e) => BoosterPump.fromJson(e)).toList(),
+      agitator: (json['agitator'] as List).map((e) => Agitator.fromJson(e)).toList(),
+      selector: json['selector'] ?? [],
+      ec: json['ec'] ?? [],
+      ph: json['ph'] ?? [],
+    );
+  }
+}
+
+class Channel {
+  final int objectId;
+  final double sNo;
+  final String name;
+  final int connectionNo;
+  final String objectName;
+  final String type;
+  final int controllerId;
+  final int? count;
+  final int level;
+  bool selected;
+
+  Channel({
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+    required this.connectionNo,
+    required this.objectName,
+    required this.type,
+    required this.controllerId,
+    this.count,
+    required this.level,
+    this.selected=false,
+  });
+
+  factory Channel.fromJson(Map<String, dynamic> json) {
+    return Channel(
+      objectId: json['objectId'],
+      sNo: json['sNo'].toDouble(),
+      name: json['name'],
+      connectionNo: json['connectionNo'],
+      objectName: json['objectName'],
+      type: json['type'],
+      controllerId: json['controllerId'],
+      count: json['count'],
+      level: json['level'],
+    );
+  }
+}
+
+class BoosterPump {
+  final int objectId;
+  final double sNo;
+  final String name;
+  final int connectionNo;
+  final String objectName;
+  final String type;
+  final int controllerId;
+  final int? count;
+  bool selected;
+
+  BoosterPump({
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+    required this.connectionNo,
+    required this.objectName,
+    required this.type,
+    required this.controllerId,
+    this.count,
+    this.selected=false,
+  });
+
+  factory BoosterPump.fromJson(Map<String, dynamic> json) {
+    return BoosterPump(
+      objectId: json['objectId'],
+      sNo: json['sNo'].toDouble(),
+      name: json['name'],
+      connectionNo: json['connectionNo'],
+      objectName: json['objectName'],
+      type: json['type'],
+      controllerId: json['controllerId'],
+      count: json['count'],
+    );
+  }
+}
+
+class Agitator {
+  final int objectId;
+  final double sNo;
+  final String name;
+  final int connectionNo;
+  final String objectName;
+  final String type;
+  final int controllerId;
+  final int? count;
+  bool selected;
+
+  Agitator({
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+    required this.connectionNo,
+    required this.objectName,
+    required this.type,
+    required this.controllerId,
+    this.count,
+    this.selected=false,
+  });
+
+  factory Agitator.fromJson(Map<String, dynamic> json) {
+    return Agitator(
+      objectId: json['objectId'],
+      sNo: json['sNo'].toDouble(),
+      name: json['name'],
+      connectionNo: json['connectionNo'],
+      objectName: json['objectName'],
+      type: json['type'],
+      controllerId: json['controllerId'],
+      count: json['count'],
     );
   }
 }
@@ -428,6 +666,7 @@ class Valve {
   final int? controllerId;
   final int? count;
   int status;
+  bool isOn;
 
   Valve({
     required this.objectId,
@@ -438,11 +677,11 @@ class Valve {
     required this.type,
     required this.controllerId,
     this.count,
-    this.status = 0
+    this.status = 0,
+    this.isOn = false,
   });
 
   factory Valve.fromJson(Map<String, dynamic> json) {
-    print(json);
     return Valve(
       objectId: json['objectId'],
       sNo: (json['sNo'] as num).toDouble(),
@@ -519,31 +758,43 @@ class Item {
   };
 }
 
-class Live {
-  final String cC;
-  final String cD;
-  final String cT;
+class LiveMessage {
+  String cC;
+  Map<String, dynamic> cM;
+  String cD;
+  String cT;
+  String mC;
 
-  Live({required this.cC, required this.cD, required this.cT});
+  LiveMessage({
+    required this.cC,
+    required this.cM,
+    required this.cD,
+    required this.cT,
+    required this.mC,
+  });
 
-  factory Live.fromJson(Map<String, dynamic> json) {
-    return Live(
+  factory LiveMessage.fromJson(Map<String, dynamic> json) {
+    return LiveMessage(
       cC: json['cC'],
+      cM: Map<String, dynamic>.from(json['cM']),
       cD: json['cD'],
       cT: json['cT'],
+      mC: json['mC'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'cC': cC,
+      'cM': cM,
       'cD': cD,
       'cT': cT,
+      'mC': mC,
     };
   }
 }
 
-class NodeDataList{
+class NodeListModel{
   int controllerId;
   String deviceId;
   String deviceName;
@@ -563,7 +814,7 @@ class NodeDataList{
   double batVolt;
   List<RelayStatus> rlyStatus;
 
-  NodeDataList({
+  NodeListModel({
     required this.controllerId,
     required this.deviceId,
     required this.deviceName,
@@ -584,13 +835,13 @@ class NodeDataList{
     required this.rlyStatus,
   });
 
-  factory NodeDataList.fromJson(Map<String, dynamic> json, List<ConfigObject> configObjects) {
+  factory NodeListModel.fromJson(Map<String, dynamic> json, List<ConfigObject> configObjects) {
 
     List<ConfigObject> filteredConfigObjects =
     configObjects.where((config) => config.controllerId == json['controllerId']).toList();
     List<RelayStatus> rlyStatus = filteredConfigObjects.map((config) => RelayStatus.fromJson(config.toJson())).toList();
 
-    return NodeDataList(
+    return NodeListModel(
       controllerId: json['controllerId'],
       deviceId: json['deviceId'],
       deviceName: json['deviceName'],
@@ -621,6 +872,104 @@ class NodeDataList{
       'InterfaceType': interfaceTypeId,
       'interface': interface,
       'Status': status,
+    };
+  }
+}
+
+class ProgramList {
+  final int serialNumber;
+  final String programName;
+  final String defaultProgramName;
+  final String programType;
+  final List<Sequence> sequence;
+  final String selectedSchedule;
+
+  final String startDate;
+  final String endDate;
+  final String startTime;
+  final String prgOnOff;
+  final String prgCategory;
+  final int programStatusPercentage;
+  final int schedulingMethod;
+  final int startStopReason;
+  final int pauseResumeReason;
+  final String prgPauseResume;
+
+
+  ProgramList({
+    required this.serialNumber,
+    required this.programName,
+    required this.defaultProgramName,
+    required this.programType,
+    required this.sequence,
+    required this.selectedSchedule,
+
+    this.startDate ="-",
+    this.endDate ="-",
+    this.startTime ="-",
+    this.prgOnOff ="0",
+    this.prgCategory ="0",
+    this.programStatusPercentage = 0,
+    this.schedulingMethod = 0,
+    this.startStopReason = 0,
+    this.pauseResumeReason = 0,
+    this.prgPauseResume = '0',
+  });
+
+  // Factory method to create an instance from JSON
+  factory ProgramList.fromJson(Map<String, dynamic> json) {
+    return ProgramList(
+      serialNumber: json['serialNumber'],
+      programName: json['programName'] ?? '',
+      defaultProgramName: json['defaultProgramName'] ?? '',
+      programType: json['programType'] ?? '',
+      sequence: (json['sequence'] as List<dynamic>)
+          .map((e) => Sequence.fromJson(e))
+          .toList(),
+      selectedSchedule: json['selectedSchedule'] ?? '',
+    );
+  }
+
+  // Convert object to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'serialNumber': serialNumber,
+      'programName': programName,
+      'defaultProgramName': defaultProgramName,
+      'programType': programType,
+      'sequence': sequence.map((e) => e.toJson()).toList(),
+      'selectedSchedule': selectedSchedule,
+    };
+  }
+
+  DateTime getDateTime() {
+    if (startDate == "-" || startTime == "-") {
+      return DateTime(9999);
+    }
+    return DateTime.parse('$startDate $startTime');
+  }
+}
+
+class Sequence {
+  final String sNo;
+  final String name;
+
+  Sequence({
+    required this.sNo,
+    required this.name,
+  });
+
+  factory Sequence.fromJson(Map<String, dynamic> json) {
+    return Sequence(
+      sNo: json['sNo'] ?? '',
+      name: json['name'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'sNo': sNo,
+      'name': name,
     };
   }
 }
