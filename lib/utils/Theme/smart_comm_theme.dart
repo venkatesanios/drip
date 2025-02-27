@@ -166,7 +166,7 @@ class SmartCommTheme {
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
           if (states.contains(WidgetState.selected)) {
-            return lightTheme.primaryColor.withValues(alpha: 0.7);
+            return lightTheme.primaryColor.withAlpha(1);
           }
           return Colors.grey[300];
         },

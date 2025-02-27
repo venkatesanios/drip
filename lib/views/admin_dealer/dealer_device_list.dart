@@ -134,7 +134,7 @@ class DealerDeviceList extends StatelessWidget {
                     horizontalMargin: 12,
                     headingRowHeight: 30,
                     headingRowColor: WidgetStateProperty.all<
-                        Color>(Theme.of(context).primaryColorDark.withValues(alpha: 0.1)),
+                        Color>(Theme.of(context).primaryColorDark.withAlpha(1)),
                     dataRowHeight: 35,
                     minWidth: 580,
                     columns: const [

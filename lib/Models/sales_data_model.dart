@@ -54,6 +54,6 @@ class Category {
 
   static Color _parseColor(String hexString) {
     final color = int.parse(hexString, radix: 16);
-    return Color(color).withValues(alpha: 1.0);
+    return Color(color).withAlpha(1);
   }
 }

@@ -244,7 +244,7 @@ class AdminDashboard extends StatelessWidget {
                                         minWidth: 600,
                                         border: TableBorder.all(color: Colors.teal.shade100),
                                         headingRowColor: WidgetStateProperty.all<
-                                            Color>(Theme.of(context).primaryColorDark.withValues(alpha: 0.1)),
+                                            Color>(Theme.of(context).primaryColorDark.withAlpha(1)),
                                         headingRowHeight: 40,
                                         dataRowHeight: 40,
                                         columns: const [

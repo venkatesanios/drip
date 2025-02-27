@@ -82,7 +82,6 @@ class _LineConfigurationState extends State<LineConfiguration> {
                               child: SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
                                 child: Row(
-                                  spacing: 20,
                                   children: [
                                     IconButton(
                                         onPressed: (){
@@ -385,8 +384,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
           color: Theme.of(context).primaryColor.withOpacity(0.2),
         ),
         child: Row(
-          spacing: 20,
-          mainAxisSize: MainAxisSize.min,
+           mainAxisSize: MainAxisSize.min,
           children: [
             SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_$objectId.svg', color: themeMode ? Colors.black : Colors.white,),
             Text(objectName, style: AppProperties.listTileBlackBoldStyle,),

@@ -111,8 +111,7 @@ class _ConnectionState extends State<Connection> {
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Row(
-                            spacing: 20,
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               if((selectedDevice.noOfRelay == 0 ? selectedDevice.noOfLatch : selectedDevice.noOfRelay) != 0)
                                 getConnectionBox(
@@ -412,8 +411,7 @@ class _ConnectionState extends State<Connection> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Row(
-          spacing: 5,
-          mainAxisAlignment: MainAxisAlignment.start,
+           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             for(var categoryId in listOfCategory)

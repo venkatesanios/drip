@@ -21,7 +21,7 @@ class ProductInventory extends StatelessWidget {
       child: Consumer<InventoryViewModel>(
         builder: (context, viewModel, _) {
           return Scaffold(
-            backgroundColor: Theme.of(context).primaryColorDark.withValues(alpha: 0.05),
+            backgroundColor: Theme.of(context).primaryColorDark.withAlpha(1),
             appBar: AppBar(
               automaticallyImplyLeading: false,
               title: const Text('Product Inventory'),
@@ -220,7 +220,7 @@ class ProductInventory extends StatelessWidget {
                               minWidth: 1200,
                               dataRowHeight: 35.0,
                               headingRowHeight: 30,
-                              headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColorDark.withValues(alpha: 0.1)),
+                              headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColorDark.withAlpha(1)),
                               border: TableBorder.all(color: Colors.teal.shade100, width: 0.5),
                               columns: const [
                                 DataColumn2(
