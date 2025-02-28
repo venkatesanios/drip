@@ -146,7 +146,7 @@ class ScheduledProgram extends StatelessWidget {
                                           const TextSpan(
                                             text: 'Start Stop: ',
                                             style: TextStyle(
-                                              color: Colors.teal,
+                                              color: Colors.black54,
                                               fontSize: 12,
                                             ),
                                           ),
@@ -166,7 +166,7 @@ class ScheduledProgram extends StatelessWidget {
                                           const TextSpan(
                                             text: 'Pause Resume: ',
                                             style: TextStyle(
-                                              color: Colors.teal,
+                                              color: Colors.black54,
                                               fontSize: 12,
                                             ),
                                           ),

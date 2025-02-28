@@ -353,7 +353,7 @@ class AdminDashboard extends StatelessWidget {
                             trailing: IconButton(
                                 tooltip: 'Create Dealer account',
                                 icon: const Icon(Icons.person_add_outlined),
-                                color: Theme.of(context).primaryColor,
+                                color: primaryDark,
                                 onPressed: () async
                                 {
                                   showModalBottomSheet(

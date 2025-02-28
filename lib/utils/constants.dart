@@ -82,7 +82,7 @@ class AppConstants {
   static const String pngPath = "assets/png_images/";
   static const String gifPath = "assets/gif_images/";
 
-  static const String pumpOFF = "dp_pump.png";
+  static const String pumpOFF = "dp_irr_pump.png";
   static const String pumpON = "dp_irr_pump_g.gif";
   static const String pumpNotON = "dp_irr_pump_y.png";
   static const String pumpNotOFF = "dp_irr_pump_r.png";
@@ -92,10 +92,10 @@ class AppConstants {
   static const String filterNotON = "dp_filter_y.png";
   static const String filterNotOFF = "dp_filter_r.png";
 
-  static const String boosterPumpOFF = "dp_fert_booster_pump.png";
-  static const String boosterPumpON = "dp_fert_booster_pump_g.gif";
-  static const String boosterPumpNotON = "dp_fert_booster_pump_y.png";
-  static const String boosterPumpNotOFF = "dp_fert_booster_pump_r.png";
+  static const String boosterPumpOFF = "dp_frt_booster_pump.png";
+  static const String boosterPumpON = "dp_frt_booster_pump_g.gif";
+  static const String boosterPumpNotON = "dp_frt_booster_pump_y.png";
+  static const String boosterPumpNotOFF = "dp_frt_booster_pump_r.png";
 
   static const String soilMoistureSensor = "moisture_sensor.png";
   static const String pressureSensor = "pressure_sensor.png";

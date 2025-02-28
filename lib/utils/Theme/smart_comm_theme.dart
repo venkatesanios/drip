@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'oro_theme.dart';
 
-Color primaryDark = const Color(0xFF005C8F);
-// Color primary = const Color(0xFF1B8BCB);
+
+Color primaryDark = const Color(0xFF004265);
+Color primary = const Color(0xFF005C8F);
+Color primaryLight = const Color(0xFF94CEEE);
+
+Color lightThemeBackGroundColor = const Color(0xffF6F6F6);
+Color darkThemeBackGroundColor = Colors.black;
+Color blackColor = const Color(0xff000000);
+
 
 class SmartCommTheme {
   static ThemeData lightTheme = ThemeData.light().copyWith(
     primaryColorDark: primaryDark,
-    primaryColor: primaryDark,
-    primaryColorLight: primaryDark,
+    primaryColor: primary,
+    primaryColorLight: primaryLight,
     scaffoldBackgroundColor:  Colors.blueGrey[50],
     appBarTheme: AppBarTheme(
       backgroundColor: primaryDark,
@@ -41,18 +47,19 @@ class SmartCommTheme {
           borderRadius: BorderRadius.circular(0)
       ),
     ),
+
     navigationRailTheme: NavigationRailThemeData(
-      backgroundColor: primary,
-      elevation: 0,
-      labelType: NavigationRailLabelType.all,
-      indicatorColor: primaryDark,
-      unselectedIconTheme: IconThemeData(color: Colors.white54),
-    ),
+        backgroundColor: primaryDark,
+        elevation: 1,
+        labelType: NavigationRailLabelType.all,
+        indicatorColor: primary,
+        unselectedIconTheme: const IconThemeData(color: Colors.white54),
+      ),
     segmentedButtonTheme: SegmentedButtonThemeData(
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
           if (states.contains(WidgetState.selected)) {
-            return lightTheme.primaryColor.withAlpha(7);
+            return primary;
           }
           return Colors.grey[300];
         },
@@ -101,7 +108,7 @@ class SmartCommTheme {
         borderRadius: BorderRadius.circular(5.0),
       ),
     ),
-      colorScheme: ColorScheme.fromSeed(
+    colorScheme: ColorScheme.fromSeed(
         primary: primaryDark,
         secondary: primaryDark,
         surface: Colors.white,
@@ -124,7 +131,7 @@ class SmartCommTheme {
     appBarTheme: AppBarTheme(
       backgroundColor: primary,
       titleTextStyle: TextStyle(color: Colors.white, fontSize: 22),
-      iconTheme: IconThemeData(
+      iconTheme: const IconThemeData(
         color: Colors.white,
       ),
     ),

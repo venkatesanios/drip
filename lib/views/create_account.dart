@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'package:oro_drip_irrigation/utils/Theme/oro_theme.dart';
 import 'package:provider/provider.dart';
 
 import '../repository/repository.dart';
@@ -33,8 +34,8 @@ class CreateAccount extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 2,right: 2, top: 2),
                 child: ListTile(
-                  title: Text(AppConstants.getFormTitle(role), style:  TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorDark)),
-                  subtitle: const Text(AppConstants.pleaseFillDetails, style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal)),
+                  title: Text(AppConstants.getFormTitle(role), style:  const TextStyle(fontSize: 20)),
+                  subtitle: const Text(AppConstants.pleaseFillDetails, style: TextStyle(fontSize: 14)),
                 ),
               ),
               const Divider(height: 0),
@@ -57,7 +58,7 @@ class CreateAccount extends StatelessWidget {
                             keyboardType: TextInputType.name,
                             decoration: InputDecoration(
                               labelText: AppConstants.fullName,
-                              icon: Icon(Icons.text_fields, color: Theme.of(context).primaryColor),
+                              icon: Icon(Icons.text_fields, color: primaryDark),
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -84,7 +85,7 @@ class CreateAccount extends StatelessWidget {
                             },
                             inputDecoration: InputDecoration(
                               contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                              icon:  Icon(Icons.phone_outlined, color: Theme.of(context).primaryColor),
+                              icon:  Icon(Icons.phone_outlined, color: primaryDark),
                               labelText: AppConstants.mobileNumber,
                             ),
                             onInputChanged: (PhoneNumber number) {
@@ -111,7 +112,7 @@ class CreateAccount extends StatelessWidget {
                           TextFormField(
                             decoration: InputDecoration(
                               labelText: AppConstants.emailAddress,
-                              icon: Icon(Icons.email_outlined, color: Theme.of(context).primaryColor),
+                              icon: Icon(Icons.email_outlined, color: primaryDark),
                             ),
                             keyboardType: TextInputType.emailAddress,
                             validator: (value) {
@@ -129,7 +130,7 @@ class CreateAccount extends StatelessWidget {
                           DropdownButtonFormField<String>(
                             decoration: InputDecoration(
                               labelText: AppConstants.country,
-                              icon: Icon(CupertinoIcons.globe, color: Theme.of(context).primaryColor),
+                              icon: Icon(CupertinoIcons.globe, color: primaryDark),
                             ),
                             value: viewModel.country,
                             items: viewModel.countries.map((countryItem) {
@@ -157,7 +158,7 @@ class CreateAccount extends StatelessWidget {
                           DropdownButtonFormField<String>(
                             decoration: InputDecoration(
                               labelText: AppConstants.state,
-                              icon: Icon(CupertinoIcons.placemark, color: Theme.of(context).primaryColor),
+                              icon: Icon(CupertinoIcons.placemark, color: primaryDark),
                             ),
                             value: viewModel.state,
                             items: viewModel.states.map((stateItem) {
@@ -182,7 +183,7 @@ class CreateAccount extends StatelessWidget {
                           TextFormField(
                             decoration: InputDecoration(
                               labelText: AppConstants.city,
-                              icon: Icon(Icons.location_city, color: Theme.of(context).primaryColor),
+                              icon: Icon(Icons.location_city, color: primaryDark),
                             ),
                             keyboardType: TextInputType.name,
                             validator: (value) {
@@ -200,7 +201,7 @@ class CreateAccount extends StatelessWidget {
                           TextFormField(
                             decoration: InputDecoration(
                               labelText: AppConstants.address,
-                              icon: Icon(Icons.linear_scale, color: Theme.of(context).primaryColor,),
+                              icon: Icon(Icons.linear_scale, color: primaryDark,),
                             ),
                             keyboardType: TextInputType.streetAddress,
                             validator: (value) {
@@ -238,7 +239,7 @@ class CreateAccount extends StatelessWidget {
                           MaterialButton(
                             onPressed: () => viewModel.createAccount(userId, role, customerId),
                             textColor: Colors.white,
-                            color: Theme.of(context).primaryColor,
+                            color: primaryDark,
                             child: const Text('Create Account',style: TextStyle(color: Colors.white)),
                           ),
                         ],

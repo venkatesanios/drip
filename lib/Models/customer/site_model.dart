@@ -509,6 +509,15 @@ class Channel {
   final int? count;
   final int level;
   bool selected;
+  int status;
+  String qty;
+  String qtyLeft;
+  String fertMethod;
+  String duration;
+  String durationLeft;
+  String flowRate_LpH;
+
+
 
   Channel({
     required this.objectId,
@@ -520,7 +529,14 @@ class Channel {
     required this.controllerId,
     this.count,
     required this.level,
+    this.status=0,
     this.selected=false,
+    this.qty = '0',
+    this.qtyLeft = '0',
+    this.fertMethod = '0',
+    this.duration = '00:00:00',
+    this.durationLeft = '00:00:00',
+    this.flowRate_LpH = '-',
   });
 
   factory Channel.fromJson(Map<String, dynamic> json) {
@@ -548,6 +564,7 @@ class BoosterPump {
   final int controllerId;
   final int? count;
   bool selected;
+  int status;
 
   BoosterPump({
     required this.objectId,
@@ -559,6 +576,7 @@ class BoosterPump {
     required this.controllerId,
     this.count,
     this.selected=false,
+    this.status = 0,
   });
 
   factory BoosterPump.fromJson(Map<String, dynamic> json) {
@@ -585,6 +603,7 @@ class Agitator {
   final int controllerId;
   final int? count;
   bool selected;
+  int status;
 
   Agitator({
     required this.objectId,
@@ -596,6 +615,7 @@ class Agitator {
     required this.controllerId,
     this.count,
     this.selected=false,
+    this.status=0,
   });
 
   factory Agitator.fromJson(Map<String, dynamic> json) {

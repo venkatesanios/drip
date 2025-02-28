@@ -9,14 +9,11 @@ Color blackColor = const Color(0xff000000);
 Color outputColor = const Color(0xff078BFF);
 
 
-// Color primaryDark = const Color(0xFF005C8F);
-// Color primary = const Color(0xFF1B8BCB);
-
 class OroTheme {
   static ThemeData lightTheme = ThemeData.light().copyWith(
       primaryColorDark: primaryDark,
       primaryColor: primary,
-      primaryColorLight: const Color(0x6438D3E8),
+      primaryColorLight: primary,
       scaffoldBackgroundColor:  lightThemeBackGroundColor,
       appBarTheme: const AppBarTheme(
         backgroundColor: Color(0xFF036673),
@@ -47,18 +44,18 @@ class OroTheme {
             borderRadius: BorderRadius.circular(0)
         ),
       ),
-      navigationRailTheme: const NavigationRailThemeData(
-        backgroundColor: Color(0xFF036673),
+      navigationRailTheme: NavigationRailThemeData(
+        backgroundColor: primaryDark,
         elevation: 0,
         labelType: NavigationRailLabelType.all,
-        indicatorColor: Color(0x6438D3E8),
-        unselectedIconTheme: IconThemeData(color: Colors.white54),
+        indicatorColor: primary,
+        unselectedIconTheme: const IconThemeData(color: Colors.white54),
       ),
       segmentedButtonTheme: SegmentedButtonThemeData(
         style: ButtonStyle(
           backgroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
             if (states.contains(WidgetState.selected)) {
-              return lightTheme.primaryColor.withAlpha(7);
+              return primary;
             }
             return Colors.grey[300];
           },

@@ -2,6 +2,8 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:oro_drip_irrigation/Screens/NewIrrigationProgram/selection_screen.dart';
+import 'package:oro_drip_irrigation/utils/Theme/smart_comm_theme.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/admin&dealer/new_stock_model.dart';
@@ -43,7 +45,7 @@ class AddNewStock extends StatelessWidget {
                             borderSide: const BorderSide(color: Colors.grey, width: 1.0),
                           ),
                           filled: true,
-                          fillColor: Colors.teal.shade50,
+                          fillColor: primaryColorLight,
                         ),
                         items: viewModel.categoryList.map((category) {
                           return DropdownMenuItem<SimpleCategory>(
@@ -72,7 +74,7 @@ class AddNewStock extends StatelessWidget {
                         filled: true,
                         contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
                         border: const OutlineInputBorder(),
-                        fillColor: Colors.teal.shade50,
+                        fillColor: primaryColorLight,
                       ),
                       onSelected: (ProductModel? mdl) {
                         viewModel.selectedModelId = mdl!.modelId;
@@ -91,7 +93,7 @@ class AddNewStock extends StatelessWidget {
                           labelText: 'Device ID',
                           border: const OutlineInputBorder(),
                           filled: true,
-                          fillColor: Colors.teal.shade50,
+                          fillColor: primaryColorLight,
                           contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
                         ),
                         validator: (value) {
@@ -126,7 +128,7 @@ class AddNewStock extends StatelessWidget {
                         decoration: InputDecoration(
                           counterText: '',
                           filled: true,
-                          fillColor: Colors.teal.shade50,
+                          fillColor: primaryColorLight,
                           labelText: 'warranty months',
                           border: const OutlineInputBorder(),
                           contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
@@ -146,7 +148,7 @@ class AddNewStock extends StatelessWidget {
                         controller: viewModel.manufacturingDateController,
                         decoration: InputDecoration(
                           filled: true,
-                          fillColor: Colors.teal.shade50,
+                          fillColor: primaryColorLight,
                           labelText: 'Date',
                           border: const OutlineInputBorder(),
                           contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
@@ -169,7 +171,7 @@ class AddNewStock extends StatelessWidget {
                     SizedBox(
                       width: 100,
                       child: MaterialButton(
-                        color: Colors.teal,
+                        color: primaryDark,
                         textColor: Colors.white,
                         height: 55,
                         child: const Row(
@@ -248,7 +250,7 @@ class AddNewStock extends StatelessWidget {
                   minWidth: 600,
                   dataRowHeight: 35.0,
                   headingRowHeight: 25.0,
-                  headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withOpacity(0.1)),
+                  headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColorLight.withValues(alpha: 0.3)),
                   columns: const [
                     DataColumn2(
                         label: Center(child: Text('S.No')),
