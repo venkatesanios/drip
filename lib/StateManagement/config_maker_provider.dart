@@ -20,7 +20,7 @@ class ConfigMakerProvider extends ChangeNotifier{
   Map<String, dynamic> configMakerDataFromHttp = {};
   Map<String, dynamic> defaultDataFromHttp = {};
   Map<int, String> configurationTab = {
-    0 : 'Source Configuration',cls
+    0 : 'Source Configuration',
     1 : 'Pump Configuration',
     2 : 'Filtration Configuration',
     3 : 'Fertilization Configuration',
