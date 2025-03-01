@@ -3,17 +3,17 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'oro_theme.dart';
 
-Color primaryDark = const Color(0xFF004265);
-Color primaryColor = const Color(0xFF005C8E);
-Color primaryLight = const Color(0xFF008CD7);
+Color primary = const Color(0xFF004265);
+Color onPrimary = const Color(0xFF008CD7);
+Color primaryLight = const Color(0xFF9BD8F8);
 Color secondary = const Color(0xFF005C8E);
 Color onBackground = const Color(0xFFEFEFEF);
 
 
 class SmartCommTheme {
   static ThemeData lightTheme = ThemeData.light().copyWith(
-    primaryColorDark: primaryDark,
-    primaryColor: primaryColor,
+    primaryColorDark: primary,
+    primaryColor: primary,
     primaryColorLight: primaryLight,
     scaffoldBackgroundColor:  Colors.blueGrey[50],
     appBarTheme: AppBarTheme(
@@ -110,15 +110,15 @@ class SmartCommTheme {
     ),
     cardColor: Colors.white,
     colorScheme: ColorScheme.fromSeed(
-      primary: primaryLight, // siva
+      primary: primary, // siva
       secondary: secondary, // siva
       surface: Colors.white,
       background: Colors.white, // siva
       error: Colors.red,
-      onPrimary: primary, // siva
+      onPrimary: onPrimary, // siva
       onSecondary: Colors.white, // siva
       onSurface: Colors.black,
-      onBackground: primary.withOpacity(0.1), // siva
+      onBackground: onPrimary.withOpacity(0.1), // siva
       onError: Colors.white,
       seedColor: primaryDark,
     ),
