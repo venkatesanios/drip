@@ -20,8 +20,8 @@ class ColorLegend extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 20,
-            height: 20,
+            width: 10,
+            height: 10,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 color: color

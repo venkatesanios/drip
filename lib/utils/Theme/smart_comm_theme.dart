@@ -10,10 +10,9 @@ Color secondary = const Color(0xFF005C8E);
 Color onBackground = const Color(0xFFEFEFEF);
 
 
-
 class SmartCommTheme {
   static ThemeData lightTheme = ThemeData.light().copyWith(
-    primaryColorDark: primaryDark,
+    primaryColorDark: primary,
     primaryColor: primary,
     primaryColorLight: primaryLight,
     scaffoldBackgroundColor:  Colors.blueGrey[50],
@@ -103,6 +102,10 @@ class SmartCommTheme {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(5.0),
       ),
+    ),
+    checkboxTheme: CheckboxThemeData(
+      checkColor: WidgetStateProperty.all(Colors.white),
+      fillColor: WidgetStateProperty.all(primary)
     ),
     cardColor: Colors.white,
     colorScheme: ColorScheme.fromSeed(

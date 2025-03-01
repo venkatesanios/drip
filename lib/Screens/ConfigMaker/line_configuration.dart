@@ -382,7 +382,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          color: Theme.of(context).primaryColor.withOpacity(0.2),
+          color: Theme.of(context).colorScheme.onBackground,
         ),
         child: Row(
            mainAxisSize: MainAxisSize.min,

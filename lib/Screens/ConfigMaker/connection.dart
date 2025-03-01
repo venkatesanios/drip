@@ -477,6 +477,7 @@ class _ConnectionState extends State<Connection> {
                       decoration: BoxDecoration(
                       color: widget.configPvd.selectedModelControllerId == model.controllerId ? themeData.primaryColorDark.withOpacity(themeMode ? 1.0 : 0.5) : themeData.cardColor,
                         borderRadius: BorderRadius.circular(8),
+                        border: Border.all(width: 0.3)
                       ),
                       child: Column(
                         children: [

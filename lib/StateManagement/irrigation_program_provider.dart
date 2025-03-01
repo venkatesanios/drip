@@ -1405,74 +1405,43 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
           localFertOnOff += '${localFertOnOff.length != 0 ? '_' : ''}0';
         }
       }
-      // payload += {
-      //   'S_No' : sq['sNo'],
-      //   'ProgramS_No' : serialNumber,
-      //   'SequenceData' : sq['valve'].map((valve) => valve['sNo']).toList().join('_'),
-      //   'MainValve' : sq['mainValve'].map((mainValve) => mainValve['sNo']).toList().join('_'),
-      //   'Pump' : '',
-      //   'ValveFlowrate' : getNominalFlow(),
-      //   'IrrigationMethod' : sq['method'] == 'Time' ? 1 : 2,
-      //   'IrrigationDuration_Quantity' : sq['method'] == 'Time' ? sq['timeValue'] : sq['quantityValue'],
-      //   'CentralFertOnOff' : sq['applyFertilizerForCentral'] == false ? 0 : sq['selectedCentralSite'] == -1 ? 0 : 1,
-      //   'CentralFertilizerSite' : sq['selectedLocalSite'] == -1 ? 0 : sq['localDosing'].isEmpty ? 0 : sq['localDosing'][sq['selectedLocalSite']]['sNo'],
-      //   'LocalFertOnOff' : sq['applyFertilizerForLocal'] == false ? 0 : sq['selectedLocalSite'] == -1 ? 0 : 1,
-      //   'LocalFertilizerSite' : sq['selectedLocalSite'] == -1 ? 0 : sq['localDosing'].isEmpty ? 0 : sq['localDosing'][sq['selectedLocalSite']]['sNo'],
-      //   'PrePostMethod' : sq['prePostMethod'] == 'Time' ? 1 : 2,
-      //   'PreTime_PreQty' : sq['preValue'],
-      //   'PostTime_PostQty' : sq['postValue'],
-      //   'CentralFertMethod' : centralMethod,
-      //   'LocalFertMethod' : localMethod,
-      //   'CentralFertChannelSelection' : centralFertOnOff,
-      //   'LocalFertChannelSelection' : localFertOnOff,
-      //   'CentralFertDuration_Qty' : centralTimeAndQuantity,
-      // }.values.toList().join(',');
-      wf += '${wf.length != 0 ? ';' : ''}'
-          '${sq['sNo']},'
-          '$serialNumber,'
-          '${sq['seqName']},'
-          '$valId,'
-          '$mvId,'
-          ','
-          '${getNominalFlow()},'
-          '${sq['method'] == 'Time' ? 1 : 2},'
-          '${sq['method'] == 'Time' ? sq['timeValue'] : sq['quantityValue']},'
-          '${sq['applyFertilizerForCentral'] == false ? 0 : sq['selectedCentralSite'] == -1 ? 0 : 1},'
-          '${sq['selectedCentralSite'] == -1 ? 0 : sq['centralDosing'].isEmpty ? 0 : sq['centralDosing'][sq['selectedCentralSite']]['sNo']},'
-          '${sq['applyFertilizerForLocal'] == false ? 0 : sq['selectedLocalSite'] == -1 ? 0 : 1},'
-          '${sq['selectedLocalSite'] == -1 ? 0 : sq['localDosing'].isEmpty ? 0 : sq['localDosing'][sq['selectedLocalSite']]['sNo']},'
-          '${sq['prePostMethod'] == 'Time' ? 1 : 2},'
-          '${sq['preValue']},'
-          '${sq['postValue']},'
-          '$centralMethod,'
-          '$localMethod,'
-          '$centralFertOnOff,'
-          '$centralFertSno,'
-          '$localFertOnOff,'
-          '$localFertId,'
-          '$centralTimeAndQuantity,'
-          '$localTimeAndQuantity,'
-          '$centralEcActive,'
-          '${centralEcValue == '' ? 0.0 : double.parse(centralEcValue)},'
-          '$centralPhActive,'
-          '${centralPhValue == '' ? 0.0 : double.parse(centralPhValue)},'
-          '$localEcActive,'
-          '${localEcValue == '' ? 0.0 : double.parse(localEcValue)},'
-          '$localPhActive,'
-          '${localPhValue == '' ? 0.0 : double.parse(localPhValue)},'
-          '${sq['moistureSno']},'
-          '${sq['levelSno']}';
+      payload += wf.isNotEmpty ? ';' : '';
+      payload += {
+        'S_No' : sq['sNo'],
+        'ProgramS_No' : serialNumber,
+        'SequenceData' : sq['valve'].map((valve) => valve['sNo']).toList().join('_'),
+        'MainValve' : sq['mainValve'].map((mainValve) => mainValve['sNo']).toList().join('_'),
+        'Pump' : '',
+        'ValveFlowrate' : getNominalFlow(),
+        'IrrigationMethod' : sq['method'] == 'Time' ? 1 : 2,
+        'IrrigationDuration_Quantity' : sq['method'] == 'Time' ? sq['timeValue'] : sq['quantityValue'],
+        'CentralFertOnOff' : sq['applyFertilizerForCentral'] == false ? 0 : sq['selectedCentralSite'] == -1 ? 0 : 1,
+        'CentralFertilizerSite' : sq['selectedLocalSite'] == -1 ? 0 : sq['localDosing'].isEmpty ? 0 : sq['localDosing'][sq['selectedLocalSite']]['sNo'],
+        'LocalFertOnOff' : sq['applyFertilizerForLocal'] == false ? 0 : sq['selectedLocalSite'] == -1 ? 0 : 1,
+        'LocalFertilizerSite' : sq['selectedLocalSite'] == -1 ? 0 : sq['localDosing'].isEmpty ? 0 : sq['localDosing'][sq['selectedLocalSite']]['sNo'],
+        'PrePostMethod' : sq['prePostMethod'] == 'Time' ? 1 : 2,
+        'PreTime_PreQty' : sq['preValue'],
+        'PostTime_PostQty' : sq['postValue'],
+        'CentralFertMethod' : centralMethod,
+        'LocalFertMethod' : localMethod,
+        'CentralFertChannelSelection' : centralFertOnOff,
+        'LocalFertChannelSelection' : localFertOnOff,
+        'CentralFertDuration_Qty' : centralTimeAndQuantity,
+        'LocalFertDuration_Qty' : localTimeAndQuantity,
+        'CentralEcBasedOnOff' : centralEcActive,
+        'CentralEcSetValue' : centralEcValue == '' ? 0.0 : double.parse(centralEcValue),
+        'CentralPhBasedOnOff' : centralPhActive,
+        'CentralPhSetValue' : centralPhValue == '' ? 0.0 : double.parse(centralPhValue),
+        'LocalEcBasedOnOff' : localEcActive,
+        'LocalEcSetValue' : localEcValue == '' ? 0.0 : double.parse(localEcValue),
+        'LocalPhBasedOnOff' : localPhActive,
+        'LocalPhSetValue' : localPhValue == '' ? 0.0 : double.parse(localPhValue),
+        'ZoneCondition' : sq['moistureSno'],
+        'ImmediateStopByCondition' : sq['levelSno']
+      }.values.toList().join(',');
 
     }
-    // // print('water and fert : ${wf}');
-    return wf;
-    // for(var i in wf.split(';')){
-    //   for(var j = 0;j < i.split(',').length;j++){
-    // //     print('${wfPld(j)} =====  ${i.split(',')[j]}');
-    //   }
-    // //   // print('');
-    // //   // print('');
-    // }
+    return payload;
   }
 
   String wfPld(int index){
