@@ -11,7 +11,6 @@ import '../../StateManagement/config_maker_provider.dart';
 import '../../Widgets/legend.dart';
 import '../../Widgets/product_limit_grid_list_tile.dart';
 import '../../Widgets/sized_image.dart';
-import '../../utils/Theme/oro_theme.dart';
 
 class ProductLimit extends StatefulWidget {
   final ConfigMakerProvider configPvd;
@@ -61,7 +60,7 @@ class _ProductLimitState extends State<ProductLimit> {
     return ProductLimitGridListTile(
       listOfObjectModel: filteredList,
       title: 'Common Object',
-      leadingColor: const Color(0xff8589AE),
+      leadingColor: const Color(0xffDBDEFF),
       configPvd: widget.configPvd,
     );
   }
@@ -71,7 +70,7 @@ class _ProductLimitState extends State<ProductLimit> {
     return ProductLimitGridListTile(
       listOfObjectModel: filteredList,
       title: 'Output Object',
-      leadingColor: outputColor,
+      leadingColor: const Color(0xffD2EAFF),
       configPvd: widget.configPvd,
     );
   }
@@ -88,42 +87,39 @@ class _ProductLimitState extends State<ProductLimit> {
 
   List<Widget> colorLegendBox(double screenWidth,double screenHeight){
     return [
+      const Text('Enter The Count Of The Object',style: AppProperties.normalBlackBoldTextStyle),
       const SizedBox(height: 10,),
-      Text('Enter The Count Of The Object', style: Theme.of(context).textTheme.headlineLarge,),
-      const SizedBox(height: 20,),
       Container(
         width: screenWidth > 500 ? null : double.infinity,
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: Colors.white,
-          boxShadow: AppProperties.customBoxShadowLiteTheme
+          border: Border.all(width: 1),
         ),
         child: Wrap(
           runSpacing: 10,
           spacing: screenWidth > 500 ? 30 : 10,
           children: [
             ColorLegend(
-                color: const Color(0xffDBDEFF),
-                message: 'Common Object',
+              color: const Color(0xffDBDEFF),
+              message: 'Common Object',
               screenWidth: screenWidth,
             ),
             ColorLegend(
-                color: const Color(0xffD2EAFF),
-                message: 'Output : ${getRelayLatchCount(widget.listOfDevices) - balanceCountForRelayLatch(widget.configPvd)}/${getRelayLatchCount(widget.listOfDevices)}',
+              color: const Color(0xffD2EAFF),
+              message: 'Output : ${getRelayLatchCount(widget.listOfDevices) - balanceCountForRelayLatch(widget.configPvd)}/${getRelayLatchCount(widget.listOfDevices)}',
               screenWidth: screenWidth,
             ),
             for(var code in [3, 4, 5, 6, 7])
               if(getInputCount(code, widget.listOfDevices) != 0)
                 ColorLegend(
-                    color: getObjectTypeCodeToColor(code),
-                    message: '${getObjectTypeCodeToString(code)} : ${getInputCount(code, widget.listOfDevices) - balanceCountForInputType(code, widget.configPvd)}/${getInputCount(code, widget.listOfDevices)}',
+                  color: getObjectTypeCodeToColor(code),
+                  message: '${getObjectTypeCodeToString(code)} : ${getInputCount(code, widget.listOfDevices) - balanceCountForInputType(code, widget.configPvd)}/${getInputCount(code, widget.listOfDevices)}',
                   screenWidth: screenWidth,
                 ),
           ],
         ),
-      ),
-      const SizedBox(height: 10,)
+      )
     ];
   }
 }

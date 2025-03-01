@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/Screens/NewIrrigationProgram/schedule_screen.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 import '../../Constants/communication_codes.dart';
 import '../../Constants/properties.dart';
@@ -10,8 +9,6 @@ import '../../StateManagement/config_maker_provider.dart';
 import '../../Widgets/connection_grid_list_tile.dart';
 import '../../Widgets/connector_widget.dart';
 import '../../Widgets/sized_image.dart';
-import '../../utils/Theme/oro_theme.dart';
-import '../../utils/constants.dart';
 
 class Connection extends StatefulWidget {
   final ConfigMakerProvider configPvd;
@@ -26,21 +23,11 @@ class Connection extends StatefulWidget {
 
 class _ConnectionState extends State<Connection> {
   late Future<bool> updateValuesConnectionPageInitialize;
-  late ThemeData themeData;
-  late bool themeMode;
 
   @override
   void initState() {
     super.initState();
     updateValuesConnectionPageInitialize = updateConnection(); // Initialize Future
-  }
-
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    themeData = Theme.of(context);
-    themeMode = themeData.brightness == Brightness.light;
   }
 
   Future<bool> updateConnection() async {
@@ -111,13 +98,13 @@ class _ConnectionState extends State<Connection> {
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Row(
-                            spacing: 10,
-                             crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 20,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               if((selectedDevice.noOfRelay == 0 ? selectedDevice.noOfLatch : selectedDevice.noOfRelay) != 0)
                                 getConnectionBox(
                                     selectedDevice: selectedDevice,
-                                    color: outputColor,
+                                    color: const Color(0xffD2EAFF),
                                     from: 0,
                                     to: selectedDevice.noOfRelay == 0 ? selectedDevice.noOfLatch : selectedDevice.noOfRelay,
                                     type: '1,2',
@@ -226,10 +213,10 @@ class _ConnectionState extends State<Connection> {
                     generatedObject.controllerId = null;
                     generatedObject.connectionNo = 0;
                     for(var connectionObject in widget.configPvd.listOfObjectModelConnection){
-                     if(generatedObject.objectId == connectionObject.objectId){
-                       int integerValue = int.parse(connectionObject.count == '' ? '0' : connectionObject.count!);
-                       connectionObject.count = (integerValue - 1).toString();
-                     }
+                      if(generatedObject.objectId == connectionObject.objectId){
+                        int integerValue = int.parse(connectionObject.count == '' ? '0' : connectionObject.count!);
+                        connectionObject.count = (integerValue - 1).toString();
+                      }
                     }
                   }
                 }
@@ -252,12 +239,12 @@ class _ConnectionState extends State<Connection> {
               padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(5),
-                  color: isSelected ? themeData.primaryColor : Colors.grey.shade200
+                  color: isSelected ? Theme.of(context).primaryColor : Colors.grey.shade200
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  SizedImageSmall(imagePath: '${AppConstants.svgObjectPath}objectId_${object.objectId}.svg'),
+                  SizedImageSmall(imagePath: 'assets/Images/Png/objectId_${object.objectId}.png'),
                   Text('${object.name}', style: isSelected ? AppProperties.tableHeaderStyleWhite : AppProperties.tableHeaderStyle,),
                 ],
               ),
@@ -278,17 +265,16 @@ class _ConnectionState extends State<Connection> {
   }
 
   Widget getConnectionBox(
-  {
-    required DeviceModel selectedDevice,
-    required Color color,
-    required int from,
-    required int to,
-    required String type,
-    required String typeName,
-    required String keyWord,
-  }
+      {
+        required DeviceModel selectedDevice,
+        required Color color,
+        required int from,
+        required int to,
+        required String type,
+        required String typeName,
+        required String keyWord,
+      }
       ){
-
     int firstEight = 8;
     if(to < 8){
       firstEight = firstEight - (8 - to);
@@ -298,8 +284,9 @@ class _ConnectionState extends State<Connection> {
       height: 260,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: color.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(8),
+        color: color,
+        // boxShadow: AppProperties.customBoxShadow
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -327,28 +314,28 @@ class _ConnectionState extends State<Connection> {
                 const SizedBox(width: 10,),
               if(to > 8)
                 Expanded(
-                child: Column(
-                  children: [
-                    for(var count = firstEight;count < to;count++)
-                      ...[
-                        ConnectorWidget(
-                          connectionNo: count + 1,
-                          selectedDevice: selectedDevice,
-                          configPvd: widget.configPvd,
-                          type: type,
-                          keyWord: keyWord,
-                        ),
-                        const SizedBox(height: 5,)
-                      ],
-                  ],
+                  child: Column(
+                    children: [
+                      for(var count = firstEight;count < to;count++)
+                        ...[
+                          ConnectorWidget(
+                            connectionNo: count + 1,
+                            selectedDevice: selectedDevice,
+                            configPvd: widget.configPvd,
+                            type: type,
+                            keyWord: keyWord,
+                          ),
+                          const SizedBox(height: 5,)
+                        ],
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Text('$typeName ${from+1} to $typeName $to', style: TextStyle(color: color),),
+              Text('$typeName ${from+1} to $typeName $to', style: AppProperties.tableHeaderStyle,),
               IconButton(
                   onPressed: (){
                     setState(() {
@@ -378,7 +365,7 @@ class _ConnectionState extends State<Connection> {
     return ConnectionGridListTile(
       listOfObjectModel: filteredList,
       title: 'Output Object',
-      leadingColor: outputColor,
+      leadingColor: const Color(0xffD2EAFF),
       configPvd: widget.configPvd,
       selectedDevice: selectedDevice,
     );
@@ -400,7 +387,6 @@ class _ConnectionState extends State<Connection> {
   }
 
   Widget getAvailableDeviceCategory(){
-    Color borderColor = themeMode ? Colors.black : Colors.white;
     List<int> listOfCategory = [];
     for(var device in widget.configPvd.listOfDeviceModel){
       if(![1, 10].contains(device.categoryId) && device.masterId != null && !listOfCategory.contains(device.categoryId)){
@@ -412,9 +398,6 @@ class _ConnectionState extends State<Connection> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Row(
-          spacing: 10,
-           mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             for(var categoryId in listOfCategory)
               InkWell(
@@ -431,15 +414,12 @@ class _ConnectionState extends State<Connection> {
                   widget.configPvd.updateSelectedConnectionNoAndItsType(0, '');
                   widget.configPvd.updateConnectionListTile();
                 },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
-                  padding: EdgeInsets.symmetric(horizontal: 15,vertical: widget.configPvd.selectedCategory == categoryId ? 12 :10),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
                   decoration: BoxDecoration(
-                      border: Border(top: BorderSide(width: 0.5, color: borderColor), left: BorderSide(width: 0.5, color: borderColor), right: BorderSide(width: 0.5, color: borderColor),),
-                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5)),
-                      color: widget.configPvd.selectedCategory == categoryId ? themeData.primaryColorDark.withOpacity(themeMode ? 1.0 : 0.5) : themeData.cardColor
+                      color: widget.configPvd.selectedCategory == categoryId ? Theme.of(context).primaryColor : Colors.grey.shade300
                   ),
-                  child: Text(getDeviceCodeToString(categoryId), style: widget.configPvd.selectedCategory == categoryId ? const TextStyle(color: Colors.white70) : const TextStyle(color: Colors.grey),),
+                  child: Text(getDeviceCodeToString(categoryId), style: TextStyle(color: widget.configPvd.selectedCategory == categoryId ? Colors.white : Colors.black, fontSize: 13),),
                 ),
               )
           ],
@@ -447,7 +427,7 @@ class _ConnectionState extends State<Connection> {
         Container(
           width: double.infinity,
           height: 3,
-          color: themeData.primaryColorDark.withOpacity(themeMode ? 1.0 : 0.4),
+          color: Theme.of(context).primaryColor,
         )
       ],
     );
@@ -457,42 +437,40 @@ class _ConnectionState extends State<Connection> {
   Widget getModelBySelectedCategory(){
     List<DeviceModel> filteredDeviceModel = widget.configPvd.listOfDeviceModel.where((device) => (device.categoryId == widget.configPvd.selectedCategory && device.masterId != null)).toList();
     Widget child = SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          spacing: 10,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            for(var model in filteredDeviceModel)
-              ...[
-                InkWell(
-                  onTap: (){
-                    setState(() {
-                      widget.configPvd.selectedModelControllerId = model.controllerId;
-                    });
-                    widget.configPvd.updateConnectionListTile();
-                    widget.configPvd.updateSelectedConnectionNoAndItsType(0, '');
-                  },
-                  child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                      color: widget.configPvd.selectedModelControllerId == model.controllerId ? themeData.primaryColorDark.withOpacity(themeMode ? 1.0 : 0.5) : themeData.cardColor,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(width: 0.3)
-                      ),
-                      child: Column(
-                        children: [
-                          Text(model.deviceName, style: widget.configPvd.selectedModelControllerId == model.controllerId ? const TextStyle(color: Colors.white70) : const TextStyle(color: Colors.grey),),
-                          Text(model.deviceId,style: TextStyle(color: Colors.amberAccent.withOpacity(themeMode ? 1.0 : 0.7), fontSize: 10, fontWeight: FontWeight.bold),),
-                        ],
-                      )
-                  ),
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          for(var model in filteredDeviceModel)
+            ...[
+              InkWell(
+                onTap: (){
+                  setState(() {
+                    widget.configPvd.selectedModelControllerId = model.controllerId;
+                  });
+                  widget.configPvd.updateConnectionListTile();
+                  widget.configPvd.updateSelectedConnectionNoAndItsType(0, '');
+                },
+                child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                        color: widget.configPvd.selectedModelControllerId == model.controllerId ? Color(0xff1C863F) :Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(8)
+                    ),
+                    child: Column(
+                      children: [
+                        Text(model.deviceName,style: TextStyle(color: widget.configPvd.selectedModelControllerId == model.controllerId ? Colors.white : Colors.black, fontSize: 13),),
+                        Text(model.deviceId,style: TextStyle(color: widget.configPvd.selectedModelControllerId == model.controllerId ? Colors.amberAccent : Colors.black, fontSize: 10, fontWeight: FontWeight.bold),),
+                      ],
+                    )
                 ),
-                const SizedBox(width: 10,)
-              ]
+              ),
+              const SizedBox(width: 10,)
+            ]
 
-          ],
-        ),
-      );
+        ],
+      ),
+    );
     return child;
   }
 
