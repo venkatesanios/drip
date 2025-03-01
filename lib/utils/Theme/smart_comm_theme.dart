@@ -124,9 +124,9 @@ class SmartCommTheme {
   );
 
   static ThemeData darkTheme = ThemeData.dark().copyWith(
-    primaryColorDark: primaryDark,
-    primaryColor: primaryDark,
-    primaryColorLight: primaryDark,
+    primaryColorDark: primary,
+    primaryColor: primary,
+    primaryColorLight: primaryLight,
     scaffoldBackgroundColor:  darkThemeBackGroundColor,
     appBarTheme: AppBarTheme(
       backgroundColor: primary,
@@ -203,14 +203,19 @@ class SmartCommTheme {
       ),
     ),
     textTheme: TextTheme(
-      titleLarge: GoogleFonts.roboto(fontSize: 22, color: Colors.grey),
-      titleMedium: GoogleFonts.roboto(fontSize: 15, color: Colors.grey),
-      titleSmall: GoogleFonts.roboto(fontSize: 13, color: Colors.black, fontWeight: FontWeight.bold),
-      headlineLarge: GoogleFonts.roboto(fontSize: 20, color: Colors.grey),
+      titleLarge: GoogleFonts.roboto(fontSize: 22, color: Colors.black),
+      titleMedium: GoogleFonts.roboto(fontSize: 15, color: Colors.black),
+      titleSmall: GoogleFonts.roboto(fontSize: 12, color: Colors.black),
 
-      bodyLarge: GoogleFonts.roboto(fontSize: 13, color: Colors.white70, fontWeight: FontWeight.bold),
+      headlineLarge: GoogleFonts.roboto(fontSize: 15, color: Colors.white70, fontWeight: FontWeight.bold), // siva
+      headlineSmall: GoogleFonts.roboto(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.bold), // siva
+      labelLarge: GoogleFonts.roboto(fontSize: 15, color: Colors.white70, fontWeight: FontWeight.bold), // siva
+      labelSmall: GoogleFonts.roboto(fontSize: 13, color: Colors.grey), // siva
+
+
+      bodyLarge: GoogleFonts.roboto(fontSize: 15, color: Colors.black87),
       bodyMedium: GoogleFonts.roboto(fontSize: 13, color: Colors.black, fontWeight: FontWeight.bold),
-      bodySmall: GoogleFonts.roboto(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.bold),
+      bodySmall: GoogleFonts.roboto(fontSize: 12, color: Colors.black, fontWeight: FontWeight.bold),
     ),
     cardTheme: CardTheme(
       color: Colors.white24,
@@ -222,18 +227,17 @@ class SmartCommTheme {
       ),
     ),
     colorScheme: ColorScheme.fromSeed(
-      seedColor: primary,
-      primary: primary,
-      secondary: primaryDark,
-      surface: Colors.grey[100]!,
-      background: Colors.grey[100]!,
+      primary: primary, // siva
+      secondary: secondary, // siva
+      surface: Colors.white,
+      background: Colors.white, // siva
       error: Colors.red,
-      onPrimary: Colors.black,
-      onSecondary: Colors.black,
+      onPrimary: onPrimary, // siva
+      onSecondary: Colors.white, // siva
       onSurface: Colors.black,
-      onBackground: Colors.black,
+      onBackground: onPrimary.withOpacity(0.1), // siva
       onError: Colors.white,
-      brightness: Brightness.dark,
-    )
+      seedColor: primaryDark,
+    ),
   );
 }
