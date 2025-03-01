@@ -21,6 +21,7 @@ final dateFormat = DateFormat('dd-MM-yyyy');
 
 class PreviewScreen extends StatefulWidget {
   final int userId;
+  final int customerId;
   final int controllerId;
   final String deviceId;
   final int serialNumber;
@@ -28,7 +29,7 @@ class PreviewScreen extends StatefulWidget {
   final String? programType;
   final bool? conditionsLibraryIsNotEmpty;
   final bool fromDealer;
-  const PreviewScreen({super.key, required this.userId, required this.controllerId, required this.deviceId, required this.serialNumber, required this.toDashboard, this.programType, this.conditionsLibraryIsNotEmpty, required this.fromDealer});
+  const PreviewScreen({super.key, required this.userId, required this.controllerId, required this.deviceId, required this.serialNumber, required this.toDashboard, this.programType, this.conditionsLibraryIsNotEmpty, required this.fromDealer, required this.customerId});
 
   @override
   State<PreviewScreen> createState() => _PreviewScreenState();
@@ -446,7 +447,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
     Map<String, dynamic> dataToMqtt = mainProvider.dataToMqtt(widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber, widget.programType);
     var userData = {
       "defaultProgramName": mainProvider.defaultProgramName,
-      "userId": widget.userId,
+      "userId": widget.customerId,
       "controllerId": widget.controllerId,
       "createUser": widget.userId,
       "serialNumber": widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber,

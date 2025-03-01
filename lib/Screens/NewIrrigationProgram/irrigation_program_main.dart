@@ -19,6 +19,7 @@ import 'done_screen.dart';
 
 class IrrigationProgram extends StatefulWidget {
   final int userId;
+  final int customerId;
   final int controllerId;
   final String deviceId;
   final int serialNumber;
@@ -34,7 +35,7 @@ class IrrigationProgram extends StatefulWidget {
     this.conditionsLibraryIsNotEmpty,
     required this.deviceId,
     required this.fromDealer,
-    this.toDashboard = false
+    this.toDashboard = false, required this.customerId
   }) :super(key: irrigationProgramKey);
 
   @override
@@ -63,13 +64,13 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
     if (mounted) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         irrigationProvider.updateTabIndex(0);
-        irrigationProvider.getUserProgramSequence(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, controllerId: widget.controllerId, serialNumber: widget.serialNumber);
-        irrigationProvider.getWaterAndFertData(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, controllerId: widget.controllerId, serialNumber: widget.serialNumber);
-        irrigationProvider.scheduleData(overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, widget.controllerId, widget.serialNumber);
-        irrigationProvider.getUserProgramCondition(overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, widget.controllerId, widget.serialNumber);
-        irrigationProvider.getUserProgramSelection(overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, widget.controllerId, widget.serialNumber);
-        irrigationProvider.getUserProgramAlarm(overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, widget.controllerId, widget.serialNumber);
-        irrigationProvider.doneData(overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, widget.controllerId, widget.serialNumber);
+        irrigationProvider.getUserProgramSequence(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber);
+        irrigationProvider.getWaterAndFertData(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber);
+        irrigationProvider.scheduleData(widget.customerId, widget.controllerId, widget.serialNumber);
+        irrigationProvider.getUserProgramCondition(widget.customerId, widget.controllerId, widget.serialNumber);
+        irrigationProvider.getUserProgramSelection(widget.customerId, widget.controllerId, widget.serialNumber);
+        irrigationProvider.getUserProgramAlarm(widget.customerId, widget.controllerId, widget.serialNumber);
+        irrigationProvider.doneData(widget.customerId, widget.controllerId, widget.serialNumber);
       });
       _tabController = TabController(
         length: labels.length,
@@ -133,7 +134,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
                 centerTitle: true,
                 leading: IconButton(
                   onPressed: () {
-                    mainProvider.programLibraryData(overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, widget.controllerId);
+                    mainProvider.programLibraryData(widget.userId, widget.controllerId);
                     Navigator.pop(context);
                   },
                   icon: Icon(Icons.arrow_back, color: Colors.white,),
@@ -507,9 +508,9 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
     dataToMqtt = mainProvider.dataToMqtt(widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber, widget.programType);
     var userData = {
       "defaultProgramName": mainProvider.defaultProgramName,
-      "userId": overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId,
+      "userId": widget.userId,
       "controllerId": widget.controllerId,
-      "createUser": overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId,
+      "createUser": widget.userId,
       "serialNumber": widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber,
     };
     if(mainProvider.irrigationLine!.sequence.isNotEmpty) {
@@ -698,40 +699,40 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
   Widget _buildTabContent({required int index, required bool isIrrigationProgram, required bool conditionsLibraryIsNotEmpty}) {
     switch (index) {
       case 0:
-        return SequenceScreen(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, controllerId: widget.controllerId, serialNumber: widget.serialNumber);
+        return SequenceScreen(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber);
       case 1:
         return ScheduleScreen(serialNumber: widget.serialNumber,);
       case 2:
         return isIrrigationProgram
             ? conditionsLibraryIsNotEmpty
-            ? ConditionsScreen(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, deviceId: widget.deviceId,)
+            ? ConditionsScreen(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, deviceId: widget.deviceId,)
             : const SelectionScreen()
-            : WaterAndFertilizerScreen(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram,);
+            : WaterAndFertilizerScreen(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram,);
       case 3:
         return isIrrigationProgram
             ? conditionsLibraryIsNotEmpty
             ? const SelectionScreen()
-            : WaterAndFertilizerScreen(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram,)
+            : WaterAndFertilizerScreen(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram,)
             : const AlarmScreen();
       case 4:
         return isIrrigationProgram
             ? conditionsLibraryIsNotEmpty
-            ? WaterAndFertilizerScreen(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram,)
+            ? WaterAndFertilizerScreen(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram,)
             : const AlarmScreen()
-            : AdditionalDataScreen(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, isIrrigationProgram: isIrrigationProgram,);
+            : AdditionalDataScreen(userId: widget.customerId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, isIrrigationProgram: isIrrigationProgram, customerId: widget.customerId);
       case 5:
         return isIrrigationProgram
             ? conditionsLibraryIsNotEmpty
             ? const AlarmScreen()
-            : AdditionalDataScreen(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, isIrrigationProgram: isIrrigationProgram,)
-            : PreviewScreen(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,);
+            : AdditionalDataScreen(userId: widget.customerId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, isIrrigationProgram: isIrrigationProgram, customerId: widget.customerId,)
+            : PreviewScreen(userId: widget.customerId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,customerId: widget.customerId);
       case 6:
         return conditionsLibraryIsNotEmpty
-            ? AdditionalDataScreen(userId: overAllPvd.userId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, isIrrigationProgram: isIrrigationProgram,)
-            : PreviewScreen(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,);
+            ? AdditionalDataScreen(userId: widget.customerId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, isIrrigationProgram: isIrrigationProgram,customerId: widget.customerId)
+            : PreviewScreen(userId: widget.customerId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, customerId: widget.customerId,);
       case 7:
         return conditionsLibraryIsNotEmpty
-            ? PreviewScreen(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,)
+            ? PreviewScreen(userId: widget.customerId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,customerId: widget.customerId)
             : Container();
       default:
         return Container();

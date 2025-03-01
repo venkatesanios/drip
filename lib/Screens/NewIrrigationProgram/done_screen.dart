@@ -19,13 +19,14 @@ class AdditionalDataScreen extends StatefulWidget {
   final int serialNumber;
   final bool isIrrigationProgram;
   final int userId;
+  final int customerId;
   final int controllerId;
   final String deviceId;
   final bool toDashboard;
   final String? programType;
   final bool? conditionsLibraryIsNotEmpty;
   final bool fromDealer;
-  const AdditionalDataScreen({super.key, required this.serialNumber, required this.isIrrigationProgram, required this.userId, required this.controllerId, required this.deviceId, required this.toDashboard, this.programType, this.conditionsLibraryIsNotEmpty, required this.fromDealer});
+  const AdditionalDataScreen({super.key, required this.serialNumber, required this.isIrrigationProgram, required this.userId, required this.controllerId, required this.deviceId, required this.toDashboard, this.programType, this.conditionsLibraryIsNotEmpty, required this.fromDealer, required this.customerId});
 
   @override
   State<AdditionalDataScreen> createState() => _AdditionalDataScreenState();
@@ -184,7 +185,7 @@ class _AdditionalDataScreenState extends State<AdditionalDataScreen> {
               if(!(widget.isIrrigationProgram))
                 SlidingSendButton(
                   onSend: (){
-                    doneProvider.programLibraryData(overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, widget.controllerId);
+                    // doneProvider.programLibraryData(widget.userId, widget.controllerId);
                     sendFunction();
                   },
                 ),
@@ -198,11 +199,10 @@ class _AdditionalDataScreenState extends State<AdditionalDataScreen> {
 
   void sendFunction() async{
     final mainProvider = Provider.of<IrrigationProgramMainProvider>(context, listen: false);
-    Map<String, dynamic> dataToMqtt = {};
-    dataToMqtt = mainProvider.dataToMqtt(widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber, widget.programType);
+    Map<String, dynamic> dataToMqtt = mainProvider.dataToMqtt(widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber, widget.programType);
     var userData = {
       "defaultProgramName": mainProvider.defaultProgramName,
-      "userId": widget.userId,
+      "userId": widget.customerId,
       "controllerId": widget.controllerId,
       "createUser": widget.userId,
       "serialNumber": widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber,

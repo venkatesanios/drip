@@ -47,7 +47,7 @@ class _SystemDefinitionState extends State<SystemDefinition> {
     overAllPvd = Provider.of<OverAllUse>(context, listen: false);
     if(mounted){
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        systemDefinitionProvider.getUserPlanningSystemDefinition(overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, overAllPvd.controllerId);
+        systemDefinitionProvider.getUserPlanningSystemDefinition(widget.userId, widget.controllerId);
       });
     }
   }
@@ -59,7 +59,7 @@ class _SystemDefinitionState extends State<SystemDefinition> {
     overAllPvd = Provider.of<OverAllUse>(context, listen: true);
     final screenSize = MediaQuery.of(context).size.width;
     return systemDefinitionProvider.irrigationLineSystemData != null ? RefreshIndicator(
-      onRefresh: () => systemDefinitionProvider.getUserPlanningSystemDefinition(overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, overAllPvd.controllerId),
+      onRefresh: () => systemDefinitionProvider.getUserPlanningSystemDefinition(widget.userId, widget.controllerId),
       child: Scaffold(
         appBar: screenSize <= 600
             ? AppBar(
@@ -472,15 +472,15 @@ class _SystemDefinitionState extends State<SystemDefinition> {
                   "2201": systemDefinitionProvider.irrigationLineSystemData!.map((e) => e.toMqtt()).toList().join(";"),
                 },
                 {
-                  "2202": "${overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId}"
+                  "2202": "${widget.userId}"
                 }
               ]
             };
 
             Map<String, dynamic> userData = {
-              "userId": overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId,
-              "controllerId": overAllPvd.controllerId,
-              "createUser": overAllPvd.userId ,
+              "userId": widget.userId,
+              "controllerId": widget.controllerId,
+              "createUser": widget.userId ,
               "systemDefinition" : {
                 "systemDefinition" : systemDefinitionProvider.irrigationLineSystemData!.map((e) => e.toJson()).toList(),
                 "controllerReadStatus" : "1"

@@ -80,7 +80,7 @@ class _ViewSettingsState extends State<ViewSettings> with TickerProviderStateMix
       //   "sentSms": "viewconfig"
       // }), "AppToFirmware/${overAllPvd.imeiNo}");
     }).then((value) {
-      preferenceProvider.getUserPreference(userId: overAllPvd.userId, controllerId: overAllPvd.controllerId);
+      preferenceProvider.getUserPreference(userId: widget.userId, controllerId: widget.controllerId);
     });
 
     timer = Timer(const Duration(seconds: 20), () {

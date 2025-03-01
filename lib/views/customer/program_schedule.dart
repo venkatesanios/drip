@@ -5,13 +5,13 @@ import 'package:oro_drip_irrigation/Screens/NewIrrigationProgram/program_library
 
 class ProgramSchedule extends StatefulWidget {
   const ProgramSchedule({
-    Key? key,
+    super.key,
     required this.customerID,
     required this.controllerID,
     required this.siteName,
     required this.imeiNumber,
     required this.userId,
-  }) : super(key: key);
+  });
 
   final int userId, customerID, controllerID;
   final String siteName, imeiNumber;
@@ -89,7 +89,7 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
     // return Container();
     switch (id) {
       case 1:
-        return ProgramLibraryScreenNew(userId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber, fromDealer: false,);
+        return ProgramLibraryScreenNew(userId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber, fromDealer: false, customerId: widget.customerID,);
       // case 66:
       //   return watersourceUI(userId: widget.customerID, controllerId: widget.controllerID, deviceID: widget.imeiNumber,);
       // case 67:

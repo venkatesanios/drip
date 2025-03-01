@@ -45,7 +45,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
     mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
     overAllPvd = Provider.of<OverAllUse>(context, listen: false);
     // preferenceProvider.getUserPreference(userId: 22, controllerId: 36);
-    preferenceProvider.getUserPreference(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, controllerId: overAllPvd.controllerId);
+    preferenceProvider.getUserPreference(userId: widget.customerId, controllerId: widget.controllerId);
     _tabController = TabController(
       // length: preferenceProvider.label.length,
         length: 1,
@@ -103,7 +103,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                         controller: _tabController,
                         physics: const NeverScrollableScrollPhysics(),
                         children: [
-                          SettingsScreen(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, viewSettings: false,)
+                          SettingsScreen(userId: widget.customerId, viewSettings: false,)
                         ],
                       ),
                     ),
@@ -373,9 +373,9 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
     // mqttPayloadProvider.preferencePayload = {};
     breakLoop = false;
     Map<String, dynamic> userData = {
-      "userId": overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId,
-      "controllerId": overAllPvd.controllerId,
-     "createUser": overAllPvd.userId
+      "userId": widget.customerId,
+      "controllerId": widget.controllerId,
+      "createUser": widget.userId
     };
 
     Map<String, dynamic> payloadForSlave = {
@@ -385,10 +385,11 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
         {"403": onDelayTimer()},
         {"404": ""},
         {"405": ""},
-        {"406": "${overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId}"}
+        {"406": "${widget.userId}"}
       ]
     };
-    print("payloadForSlave ==> ${payloadForSlave['400'][2]}");
+
+    // print("payloadForSlave ==> ${payloadForSlave['400'][2]}");
     final isToGem = [1,2].contains(preferenceProvider.generalData!.categoryId);
 
     final payload = shouldSendFailedPayloads ? getFailedPayload(isToGem: isToGem, sendAll: false) : getPayload(isToGem: isToGem, sendAll: false);
@@ -944,7 +945,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
         gemPayload = {
           "5900": [
             {"5901": payload},
-            {"5902": "${overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId}"},
+            {"5902": "${widget.userId}"},
           ]
         };
       }
