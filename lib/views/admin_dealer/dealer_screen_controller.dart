@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/views/admin_dealer/product_inventory.dart';
 import 'package:provider/provider.dart';
+import '../../flavors.dart';
 import '../../utils/constants.dart';
 import '../../view_models/nav_rail_view_model.dart';
 import '../account_settings.dart';
@@ -29,10 +30,14 @@ class DealerScreenController extends StatelessWidget {
                   elevation: 5,
                   leading: Column(
                     children: [
-                      fromLogin ? const Image(
-                        image: AssetImage("assets/png_images/oro_logo_white.png"),
+
+                      fromLogin ? Image(
+                        image: F.appFlavor!.name.contains('oro')
+                            ? const AssetImage("assets/png_images/oro_logo_white.png")
+                            : const AssetImage("assets/png_images/company_logo.png"),
                         height: 40,
-                        width: 60,
+                        width: 65,
+                        fit: BoxFit.fitWidth,
                       ):
                       IconButton(onPressed: (){
                         Navigator.pop(context);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/views/admin_dealer/product_entry.dart';
 import 'package:oro_drip_irrigation/views/admin_dealer/product_inventory.dart';
 import 'package:provider/provider.dart';
+import '../../flavors.dart';
 import '../../utils/constants.dart';
 import '../../view_models/nav_rail_view_model.dart';
 import '../account_settings.dart';
@@ -27,14 +28,15 @@ class AdminScreenController extends StatelessWidget {
                   selectedIndex: viewModel.selectedIndex,
                   labelType: NavigationRailLabelType.all,
                   elevation: 5,
-                  leading: const Column(
+                  leading: Column(
                     children: [
                       Image(
-                        image: AssetImage("assets/png_images/oro_logo_white.png"),
+                        image: F.appFlavor!.name.contains('oro')?const AssetImage("assets/png_images/oro_logo_white.png"):
+                        const AssetImage("assets/png_images/company_logo.png"),
                         height: 40,
                         width: 60,
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                     ],
                   ),
                   trailing: Expanded(
