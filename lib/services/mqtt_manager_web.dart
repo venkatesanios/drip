@@ -31,7 +31,6 @@ class MqttManager {
     if (_client == null) {
       _client = MqttBrowserClient(baseURL, uniqueId);
       _client!.clientIdentifier = 'uniqueId';
-      _client.
       _client!.port = port;
       _client!.keepAlivePeriod = 60;
       _client!.onDisconnected = onDisconnected;
