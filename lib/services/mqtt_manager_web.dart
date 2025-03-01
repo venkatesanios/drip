@@ -30,6 +30,8 @@ class MqttManager {
 
     if (_client == null) {
       _client = MqttBrowserClient(baseURL, uniqueId);
+      _client!.clientIdentifier = 'uniqueId';
+      _client.
       _client!.port = port;
       _client!.keepAlivePeriod = 60;
       _client!.onDisconnected = onDisconnected;
@@ -39,6 +41,7 @@ class MqttManager {
       _client!.websocketProtocols = MqttClientConstants.protocolsSingleDefault;
 
       final MqttConnectMessage connMess = MqttConnectMessage()
+      // .authenticateAs('imsmqtt', '2L9((WonMr')
           .withClientIdentifier(uniqueId)
           .withWillTopic('will-topic')
           .withWillMessage('My Will message')
@@ -53,6 +56,8 @@ class MqttManager {
 
   void connect() async {
     print('inside connect function');
+    print('Environment.mqttWebUrl : ${Environment.mqttWebUrl}');
+    print('Environment.mqttPort : ${Environment.mqttPort}');
     // assert(_client != null);
     if (!isConnected) {
       try {

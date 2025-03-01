@@ -116,10 +116,10 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         }
         Future.delayed(Duration.zero,() {
           _irrigationLine = SequenceModel.fromJson(sequenceJson);
-          for (var element in _irrigationLine!.sequence) {
-            element['valve'].removeWhere((e) => configObjects.any((config) => config['sNo'] == e['sNo']));
-            element['mainValve'].removeWhere((e) => configObjects.any((config) => config['sNo'] == e['sNo']));
-          }
+          // for (var element in _irrigationLine!.sequence) {
+          //   element['valve'].removeWhere((e) => configObjects.any((config) => config['sNo'] == e['sNo']));
+          //   element['mainValve'].removeWhere((e) => configObjects.any((config) => config['sNo'] == e['sNo']));
+          // }
           updateGroup(valveGroup: _irrigationLine!.defaultData.group);
         }).then((value) {
           if(irrigationLine!.sequence.isEmpty) {
@@ -2866,186 +2866,179 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         : DateTime.parse(endDate);
     print("programType in the dataToMqtt ==> $programType");
     return {
-      "2500": [
-        {
-          // "2501": ""
-          "2501": "${hwPayloadForWF(serialNumber)};"
-        },
-        {
-          "2502": "${
-              [
-                {
-                  "S_No": '$serialNumber',/*S_No*/
-                  "ProgramType": '${programType == "Irrigation Program" ? 1 : 2}',/*ProgramType*/
-                  "ProgramCategory": '${programType == "Irrigation Program"
-                      ? selectedObjects.any((element) => element.objectId == 5)
-                      ? sampleIrrigationLine!.where((line) => selectedObjects
-                      .any((element) => line.irrigationPump != null && line.irrigationPump!.any((pump) => element.sNo == pump.sNo)))
-                      .map((line) => line.irrigationLine)
-                      .toList().map((e) => e.sNo).join("_")
-                      : sampleIrrigationLine!.where((headUnit) {
-                        return irrigationLine!.sequence.any((sequenceItem) {
-                          return sequenceItem['valve'].any((valve) {
-                            return headUnit.valve!.any((valveItem) {
-                              return valveItem.sNo == valve['sNo'];
-                            });
-                          });
-                        });
-                      }).map((e) => e.irrigationLine).toList().map((e) => e.sNo).toList().join("_")
-                      : _irrigationLine?.sequence.map((e) {
-                        List valveSerialNumbers = e['valve'].map((valve) => valve['sNo']).toList();
-                        return valveSerialNumbers.join('_');
-                      }).toList().join("+")}',/*ProgramCategory*/
-                  "Sequence": '${_irrigationLine?.sequence.map((e) {
-                    List valveSerialNumbers = e['valve'].map((valve) => valve['sNo']).toList();
-                    return valveSerialNumbers.join('_');
-                  }).toList().join("+")}',/*Sequence*/
-                  "PumpStationMode": '${isPumpStationMode ? 1 : 0}',/*PumpStationMode*/
-                  "Pump": selectedObjects.where((pump) => pump.objectId == 5).map((e) => e.sNo).toList().join('_'),/*Pump*/
-                  "MainValve": selectedObjects.where((pump) => pump.objectId == 14).map((e) => e.sNo).toList().join('_'),/*MainValve*/
-                  "Priority": '${priority == priorityList[0] ? 1 : 2}',/*Priority*/
-                  "DelayBetweenZones": delayBetweenZones.length == 5 ? "$delayBetweenZones:00" : delayBetweenZones,/*DelayBetweenZones*/
-                  "ScaleFactor": adjustPercentage != "0" ? adjustPercentage : "100",/*ScaleFactor*/
-                  "SchedulingMethod": '${selectedScheduleType == scheduleTypes[0]/*SchedulingMethod*/
-                      ? 1 : selectedScheduleType == scheduleTypes[1] ? 2 : selectedScheduleType == scheduleTypes[2] ? 3 : 4}',
-                  "ScheduleStartDate": formatter.format(DateTime.parse(startDate(serialNumber: serialNumber))),/*ScheduleStartDate*/
-                  "ScheduleDayCount": selectedScheduleType == scheduleTypes[1] ? noOfDays : "${int.parse(runDays) + int.parse(skipDays)}",/*ScheduleDayCount*/
-                  "ScheduleDaySelection": '${selectedScheduleType == scheduleTypes[3]/*ScheduleDaySelection*/
-                      ? _sampleScheduleModel!.dayCountSchedule.schedule["shouldLimitCycles"] == true ? "1" : "0"
-                      : selectedScheduleType == scheduleTypes[1]
-                      ? getDaySelectionMode()
-                      : [runDays, skipDays].join("_")}',
-                  "ScheduleEndDate": isForceToEndDate ? (endDate.runtimeType == String ? formatter.format(DateTime.parse(endDate)) : formatter.format(DateTime.parse(endDate.toString()))) : "0001-01-01",/*ScheduleEndDate*/
-                  "RtcOnTime": (selectedScheduleType == scheduleTypes[3]/*RtcOnTime*/
-                      ? _sampleScheduleModel!.dayCountSchedule.schedule["onTime"]
-                      : rtcOnTime),
-                  "ProgramStopMethod": _sampleScheduleModel!.defaultModel.allowStopMethod
-                      ? rtcStopMethod
-                      : (_sampleScheduleModel!.defaultModel.rtcMaxTime
-                      ? getProgramStopMethod(3)
-                      : _sampleScheduleModel!.defaultModel.rtcOffTime
-                      ? getProgramStopMethod(2)
-                      : getProgramStopMethod(1)),/*ProgramStopMethod*/
-                  "RtcOff_MaxTime": (_sampleScheduleModel!.defaultModel.rtcMaxTime
-                      ? rtcMaxTime
-                      : _sampleScheduleModel!.defaultModel.rtcOffTime
-                      ? rtcOffTime
-                      : _sampleScheduleModel!.defaultModel.allowStopMethod
-                      ? generateRtcTimeStringByUser() : rtcOnTime),/*RtcOff_MaxTime*/
-                  "CycleCount": selectedScheduleType == scheduleTypes[3] ? _sampleScheduleModel!.dayCountSchedule.schedule["noOfCycles"] : rtcNoOfCycles,/*CycleCount*/
-                  "IntervalBetweenCycles": selectedScheduleType == scheduleTypes[3] ? _sampleScheduleModel!.dayCountSchedule.schedule["interval"] : rtcInterval,/*IntervalBetweenCycles*/
-                  "CentralFertilizerSite": centralFertilizerSite.toList().isNotEmpty
-                      ? sampleIrrigationLine!
-                      .map((e) => e.centralFertilization != null ? [e.centralFertilization!] : [])
-                      .expand((list) => list)
-                      .whereType<DeviceObjectModel>()
-                      .where((device) => selectedObjects.any((obj) => obj.sNo == device.sNo))
-                      .toList().map((e) => e.sNo).join('_')
-                      : "",/*CentralFertilizerSite*/
-                  "LocalFertilizerSite": localFertilizerSite.toList().isNotEmpty
-                      ? sampleIrrigationLine!
-                      .map((e) => e.localFertilization != null ? [e.localFertilization!] : [])
-                      .expand((list) => list)
-                      .whereType<DeviceObjectModel>()
-                      .where((device) => selectedObjects.any((obj) => obj.sNo == device.sNo))
-                      .toList().map((e) => e.sNo).join('_')
-                      : "",/*LocalFertilizerSite*/
-                  "CentralFertilizerTankSelection": centralFertilizerSite.map((e) => e.selector != null ? List<DeviceObjectModel>.from(e.selector!) : [])
-                      .expand((list) => list)
-                      .whereType<DeviceObjectModel>()
-                      .toList().isNotEmpty
-                      ? centralFertilizerSite.map((e) => e.selector != null ? List<DeviceObjectModel>.from(e.selector!) : [])
-                      .expand((list) => list)
-                      .whereType<DeviceObjectModel>()
-                      .toList().map((e) => e.sNo).join('_')
-                      : "",/*CentralFertilizerTankSelection*/
-                  "LocalFertilizerTankSelection": localFertilizerSite.map((e) => e.selector != null ? List<DeviceObjectModel>.from(e.selector!) : [])
-                      .expand((list) => list)
-                      .whereType<DeviceObjectModel>()
-                      .toList().isNotEmpty
-                      ? localFertilizerSite.map((e) => e.selector != null ? List<DeviceObjectModel>.from(e.selector!) : [])
-                      .expand((list) => list)
-                      .whereType<DeviceObjectModel>()
-                      .toList().map((e) => e.sNo).join('_')
-                      : "",/*LocalFertilizerTankSelection*/
-                  "CentralFilterSite": centralFilterSite.toList().isNotEmpty
-                      ? sampleIrrigationLine!.map((e) => e.centralFiltration
-                      != null ? [e.centralFiltration!] : [])
-                      .expand((list) => list)
-                      .whereType<DeviceObjectModel>()
-                      .where((device) => selectedObjects.any((obj) => obj.sNo == device.sNo))
-                      .toList().map((e) => e.sNo).join('_')
-                      : "",/*CentralFilterSite*/
-                  "LocalFilterSite": localFilterSite.toList().isNotEmpty
-                      ? sampleIrrigationLine!.map((e) => e.localFiltration
-                      != null ? [e.localFiltration!] : [])
-                      .expand((list) => list)
-                      .whereType<DeviceObjectModel>()
-                      .where((device) => selectedObjects.any((obj) => obj.sNo == device.sNo))
-                      .toList().map((e) => e.sNo).join('_')
-                      : "",/*LocalFilterSite*/
-                  "CentralFilterSiteOperationMode": '${selectedCentralFiltrationMode == "TIME"
-                      ? 1 : selectedCentralFiltrationMode == "DP"
-                      ? 2
-                      : 3}',/*CentralFilterSiteOperationMode*/
-                  "LocalFilterSiteOperationMode": '${selectedLocalFiltrationMode == "TIME"
-                      ? 1
-                      : selectedLocalFiltrationMode == "DP"
-                      ? 2
-                      : 3}',/*LocalFilterSiteOperationMode*/
-                  "CentralFilterSelection": centralFilterSite.toList().isNotEmpty
-                      ? centralFilterSite.where((element) => selectedObjects.any((ele) => ele.sNo == element.filterSite!.sNo)).map((e) => e.filters != null ? List<DeviceObjectModel>.from(e.filters!) : [])
-                      .expand((list) => list)
-                      .whereType<DeviceObjectModel>()
-                      .toList().map((e) => e.sNo).join('_') : '',/*CentralFilterSelection*/
-                  "LocalFilterSelection": localFilterSite.toList().isNotEmpty
-                      ? localFilterSite.where((element) => selectedObjects.any((ele) => ele.sNo == element.filterSite!.sNo)).map((e) => e.filters != null ? List<DeviceObjectModel>.from(e.filters!) : [])
-                      .expand((list) => list)
-                      .whereType<DeviceObjectModel>()
-                      .toList().map((e) => e.sNo).join('_') : '',/*LocalFilterSelection*/
-                  "CentralFilterBeginningOnly": '${centralFiltBegin ? 1 : 0}',/*CentralFilterBeginningOnly*/
-                  "LocalFilterBeginningOnly": '${localFiltBegin ? 1 : 0}',/*LocalFilterBeginningOnly*/
-                  "ConditionBasedProgram": '${_sampleConditions?.condition != null
-                      ? _sampleConditions!.condition.any((element) => element.selected == true)
-                      ? 1
-                      : 0
-                      : 0}',/*ConditionBasedProgram*/
-                  "Conditions": conditionList.map((value) => value ?? '0').toList().join("_"),/*Conditions*/
-                  "AlarmOnOff": newAlarmList!.alarmList.map((e) => e.value == true ? 1 : 0).toList().join('_'),/*AlarmOnOff*/
-                  "PumpChangeOverFlag": '${isChangeOverMode ? 1 : 0}',/*PumpChangeOverFlag*/
-                  "HeadUnit": '${programType == "Irrigation Program"
-                      ? sampleIrrigationLine!.where((line) => selectedObjects
-                      .any((element) => line.irrigationLine.sNo == element.sNo))
-                      .map((line) => line.irrigationLine)
-                      .toList().map((e) => e.sNo).join("_")
-                      : _irrigationLine?.sequence.map((e) {
-                        List valveSerialNumbers = e['valve'].map((valve) => valve['sNo']).toList();
-                        return valveSerialNumbers.join('_');
-                      }).toList().join("+")}',/*HeadUnit*/
-                  "HeadUnitToPause": '${programType == "Irrigation Program"
-                      ? selectedObjects.any((element) => element.objectId == 5)
-                      ? sampleIrrigationLine!.where((line) => selectedObjects
-                      .any((element) => line.irrigationPump != null && line.irrigationPump!.any((pump) => element.sNo == pump.sNo) && line.irrigationLine.sNo != element.sNo))
-                      .map((line) => line.irrigationLine)
-                      .toList().map((e) => e.sNo).join("_")
-                      : sampleIrrigationLine!.where((headUnit) {
-                        return irrigationLine!.sequence.any((sequenceItem) {
-                          return sequenceItem['valve'].any((valve) {
-                            return headUnit.valve!.any((valveItem) {
-                              return valveItem.sNo == valve['sNo'];
-                            });
-                          });
-                        });
-                      }).map((e) => e.irrigationLine).toList().map((e) => e.sNo).toList().join("_")
-                      : _irrigationLine?.sequence.map((e) {
-                        List valveSerialNumbers = e['valve'].map((valve) => valve['sNo']).toList();
-                        return valveSerialNumbers.join('_');
-                      }).toList().join("+")}',/*HeadUnitToPause*/
-                }.entries.map((e) => e.value).join(","),
-              ]
-          };",
-        },
-      ]
+      "2500" : {
+        "2501" : "${hwPayloadForWF(serialNumber)};",
+        "2502": "${
+            {
+              "S_No": '$serialNumber',/*S_No*/
+              "ProgramType": '${programType == "Irrigation Program" ? 1 : 2}',/*ProgramType*/
+              "ProgramCategory": '${programType == "Irrigation Program"
+                  ? selectedObjects.any((element) => element.objectId == 5)
+                  ? sampleIrrigationLine!.where((line) => selectedObjects
+                  .any((element) => line.irrigationPump != null && line.irrigationPump!.any((pump) => element.sNo == pump.sNo)))
+                  .map((line) => line.irrigationLine)
+                  .toList().map((e) => e.sNo).join("_")
+                  : sampleIrrigationLine!.where((headUnit) {
+                return irrigationLine!.sequence.any((sequenceItem) {
+                  return sequenceItem['valve'].any((valve) {
+                    return headUnit.valve!.any((valveItem) {
+                      return valveItem.sNo == valve['sNo'];
+                    });
+                  });
+                });
+              }).map((e) => e.irrigationLine).toList().map((e) => e.sNo).toList().join("_")
+                  : _irrigationLine?.sequence.map((e) {
+                List valveSerialNumbers = e['valve'].map((valve) => valve['sNo']).toList();
+                return valveSerialNumbers.join('_');
+              }).toList().join("+")}',/*ProgramCategory*/
+              "Sequence": '${_irrigationLine?.sequence.map((e) {
+                List valveSerialNumbers = e['valve'].map((valve) => valve['sNo']).toList();
+                return valveSerialNumbers.join('_');
+              }).toList().join("+")}',/*Sequence*/
+              "PumpStationMode": '${isPumpStationMode ? 1 : 0}',/*PumpStationMode*/
+              "Pump": selectedObjects.where((pump) => pump.objectId == 5).map((e) => e.sNo).toList().join('_'),/*Pump*/
+              "MainValve": selectedObjects.where((pump) => pump.objectId == 14).map((e) => e.sNo).toList().join('_'),/*MainValve*/
+              "Priority": '${priority == priorityList[0] ? 1 : 2}',/*Priority*/
+              "DelayBetweenZones": delayBetweenZones.length == 5 ? "$delayBetweenZones:00" : delayBetweenZones,/*DelayBetweenZones*/
+              "ScaleFactor": adjustPercentage != "0" ? adjustPercentage : "100",/*ScaleFactor*/
+              "SchedulingMethod": '${selectedScheduleType == scheduleTypes[0]/*SchedulingMethod*/
+                  ? 1 : selectedScheduleType == scheduleTypes[1] ? 2 : selectedScheduleType == scheduleTypes[2] ? 3 : 4}',
+              "ScheduleStartDate": formatter.format(DateTime.parse(startDate(serialNumber: serialNumber))),/*ScheduleStartDate*/
+              "ScheduleDayCount": selectedScheduleType == scheduleTypes[1] ? noOfDays : "${int.parse(runDays) + int.parse(skipDays)}",/*ScheduleDayCount*/
+              "ScheduleDaySelection": '${selectedScheduleType == scheduleTypes[3]/*ScheduleDaySelection*/
+                  ? _sampleScheduleModel!.dayCountSchedule.schedule["shouldLimitCycles"] == true ? "1" : "0"
+                  : selectedScheduleType == scheduleTypes[1]
+                  ? getDaySelectionMode()
+                  : [runDays, skipDays].join("_")}',
+              "ScheduleEndDate": isForceToEndDate ? (endDate.runtimeType == String ? formatter.format(DateTime.parse(endDate)) : formatter.format(DateTime.parse(endDate.toString()))) : "0001-01-01",/*ScheduleEndDate*/
+              "RtcOnTime": (selectedScheduleType == scheduleTypes[3]/*RtcOnTime*/
+                  ? _sampleScheduleModel!.dayCountSchedule.schedule["onTime"]
+                  : rtcOnTime),
+              "ProgramStopMethod": _sampleScheduleModel!.defaultModel.allowStopMethod
+                  ? rtcStopMethod
+                  : (_sampleScheduleModel!.defaultModel.rtcMaxTime
+                  ? getProgramStopMethod(3)
+                  : _sampleScheduleModel!.defaultModel.rtcOffTime
+                  ? getProgramStopMethod(2)
+                  : getProgramStopMethod(1)),/*ProgramStopMethod*/
+              "RtcOff_MaxTime": (_sampleScheduleModel!.defaultModel.rtcMaxTime
+                  ? rtcMaxTime
+                  : _sampleScheduleModel!.defaultModel.rtcOffTime
+                  ? rtcOffTime
+                  : _sampleScheduleModel!.defaultModel.allowStopMethod
+                  ? generateRtcTimeStringByUser() : rtcOnTime),/*RtcOff_MaxTime*/
+              "CycleCount": selectedScheduleType == scheduleTypes[3] ? _sampleScheduleModel!.dayCountSchedule.schedule["noOfCycles"] : rtcNoOfCycles,/*CycleCount*/
+              "IntervalBetweenCycles": selectedScheduleType == scheduleTypes[3] ? _sampleScheduleModel!.dayCountSchedule.schedule["interval"] : rtcInterval,/*IntervalBetweenCycles*/
+              "CentralFertilizerSite": centralFertilizerSite.toList().isNotEmpty
+                  ? sampleIrrigationLine!
+                  .map((e) => e.centralFertilization != null ? [e.centralFertilization!] : [])
+                  .expand((list) => list)
+                  .whereType<DeviceObjectModel>()
+                  .where((device) => selectedObjects.any((obj) => obj.sNo == device.sNo))
+                  .toList().map((e) => e.sNo).join('_')
+                  : "",/*CentralFertilizerSite*/
+              "LocalFertilizerSite": localFertilizerSite.toList().isNotEmpty
+                  ? sampleIrrigationLine!
+                  .map((e) => e.localFertilization != null ? [e.localFertilization!] : [])
+                  .expand((list) => list)
+                  .whereType<DeviceObjectModel>()
+                  .where((device) => selectedObjects.any((obj) => obj.sNo == device.sNo))
+                  .toList().map((e) => e.sNo).join('_')
+                  : "",/*LocalFertilizerSite*/
+              "CentralFertilizerTankSelection": centralFertilizerSite.map((e) => e.selector != null ? List<DeviceObjectModel>.from(e.selector!) : [])
+                  .expand((list) => list)
+                  .whereType<DeviceObjectModel>()
+                  .toList().isNotEmpty
+                  ? centralFertilizerSite.map((e) => e.selector != null ? List<DeviceObjectModel>.from(e.selector!) : [])
+                  .expand((list) => list)
+                  .whereType<DeviceObjectModel>()
+                  .toList().map((e) => e.sNo).join('_')
+                  : "",/*CentralFertilizerTankSelection*/
+              "LocalFertilizerTankSelection": localFertilizerSite.map((e) => e.selector != null ? List<DeviceObjectModel>.from(e.selector!) : [])
+                  .expand((list) => list)
+                  .whereType<DeviceObjectModel>()
+                  .toList().isNotEmpty
+                  ? localFertilizerSite.map((e) => e.selector != null ? List<DeviceObjectModel>.from(e.selector!) : [])
+                  .expand((list) => list)
+                  .whereType<DeviceObjectModel>()
+                  .toList().map((e) => e.sNo).join('_')
+                  : "",/*LocalFertilizerTankSelection*/
+              "CentralFilterSite": centralFilterSite.toList().isNotEmpty
+                  ? sampleIrrigationLine!.map((e) => e.centralFiltration
+                  != null ? [e.centralFiltration!] : [])
+                  .expand((list) => list)
+                  .whereType<DeviceObjectModel>()
+                  .where((device) => selectedObjects.any((obj) => obj.sNo == device.sNo))
+                  .toList().map((e) => e.sNo).join('_')
+                  : "",/*CentralFilterSite*/
+              "LocalFilterSite": localFilterSite.toList().isNotEmpty
+                  ? sampleIrrigationLine!.map((e) => e.localFiltration
+                  != null ? [e.localFiltration!] : [])
+                  .expand((list) => list)
+                  .whereType<DeviceObjectModel>()
+                  .where((device) => selectedObjects.any((obj) => obj.sNo == device.sNo))
+                  .toList().map((e) => e.sNo).join('_')
+                  : "",/*LocalFilterSite*/
+              "CentralFilterSiteOperationMode": '${selectedCentralFiltrationMode == "TIME"
+                  ? 1 : selectedCentralFiltrationMode == "DP"
+                  ? 2
+                  : 3}',/*CentralFilterSiteOperationMode*/
+              "LocalFilterSiteOperationMode": '${selectedLocalFiltrationMode == "TIME"
+                  ? 1
+                  : selectedLocalFiltrationMode == "DP"
+                  ? 2
+                  : 3}',/*LocalFilterSiteOperationMode*/
+              "CentralFilterSelection": centralFilterSite.toList().isNotEmpty
+                  ? centralFilterSite.where((element) => selectedObjects.any((ele) => ele.sNo == element.filterSite!.sNo)).map((e) => e.filters != null ? List<DeviceObjectModel>.from(e.filters!) : [])
+                  .expand((list) => list)
+                  .whereType<DeviceObjectModel>()
+                  .toList().map((e) => e.sNo).join('_') : '',/*CentralFilterSelection*/
+              "LocalFilterSelection": localFilterSite.toList().isNotEmpty
+                  ? localFilterSite.where((element) => selectedObjects.any((ele) => ele.sNo == element.filterSite!.sNo)).map((e) => e.filters != null ? List<DeviceObjectModel>.from(e.filters!) : [])
+                  .expand((list) => list)
+                  .whereType<DeviceObjectModel>()
+                  .toList().map((e) => e.sNo).join('_') : '',/*LocalFilterSelection*/
+              "CentralFilterBeginningOnly": '${centralFiltBegin ? 1 : 0}',/*CentralFilterBeginningOnly*/
+              "LocalFilterBeginningOnly": '${localFiltBegin ? 1 : 0}',/*LocalFilterBeginningOnly*/
+              "ConditionBasedProgram": '${_sampleConditions?.condition != null
+                  ? _sampleConditions!.condition.any((element) => element.selected == true)
+                  ? 1
+                  : 0
+                  : 0}',/*ConditionBasedProgram*/
+              "Conditions": conditionList.map((value) => value ?? '0').toList().join("_"),/*Conditions*/
+              "AlarmOnOff": newAlarmList!.alarmList.map((e) => e.value == true ? 1 : 0).toList().join('_'),/*AlarmOnOff*/
+              "PumpChangeOverFlag": '${isChangeOverMode ? 1 : 0}',/*PumpChangeOverFlag*/
+              "HeadUnit": '${programType == "Irrigation Program"
+                  ? sampleIrrigationLine!.where((line) => selectedObjects
+                  .any((element) => line.irrigationLine.sNo == element.sNo))
+                  .map((line) => line.irrigationLine)
+                  .toList().map((e) => e.sNo).join("_")
+                  : _irrigationLine?.sequence.map((e) {
+                List valveSerialNumbers = e['valve'].map((valve) => valve['sNo']).toList();
+                return valveSerialNumbers.join('_');
+              }).toList().join("+")}',/*HeadUnit*/
+              "HeadUnitToPause": '${programType == "Irrigation Program"
+                  ? selectedObjects.any((element) => element.objectId == 5)
+                  ? sampleIrrigationLine!.where((line) => selectedObjects
+                  .any((element) => line.irrigationPump != null && line.irrigationPump!.any((pump) => element.sNo == pump.sNo) && line.irrigationLine.sNo != element.sNo))
+                  .map((line) => line.irrigationLine)
+                  .toList().map((e) => e.sNo).join("_")
+                  : sampleIrrigationLine!.where((headUnit) {
+                return irrigationLine!.sequence.any((sequenceItem) {
+                  return sequenceItem['valve'].any((valve) {
+                    return headUnit.valve!.any((valveItem) {
+                      return valveItem.sNo == valve['sNo'];
+                    });
+                  });
+                });
+              }).map((e) => e.irrigationLine).toList().map((e) => e.sNo).toList().join("_")
+                  : _irrigationLine?.sequence.map((e) {
+                List valveSerialNumbers = e['valve'].map((valve) => valve['sNo']).toList();
+                return valveSerialNumbers.join('_');
+              }).toList().join("+")}',/*HeadUnitToPause*/
+            }.entries.map((e) => e.value).join(",")
+        };",
+      }
     };
   }
 }

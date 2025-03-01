@@ -71,7 +71,7 @@ class _DeviceListState extends State<DeviceList> {
                 child: DataTable2(
                   minWidth: 900,
                   headingRowColor: WidgetStatePropertyAll(themeData.colorScheme.onBackground),
-                  dataRowColor: WidgetStatePropertyAll(themeData.colorScheme.onBackground),
+                  dataRowColor: const WidgetStatePropertyAll(Colors.white),
                     fixedLeftColumns: 2,
                     columns: [
                       DataColumn2(

@@ -15,7 +15,10 @@ import '../../Widgets/SCustomWidgets/custom_data_table.dart';
 import '../../Widgets/SCustomWidgets/custom_snack_bar.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
+import '../../utils/environment.dart';
 import 'program_library.dart';
+import 'package:oro_drip_irrigation/services/mqtt_manager_mobile.dart' if (dart.library.html) 'package:oro_drip_irrigation/services/mqtt_manager_web.dart';
+
 
 final dateFormat = DateFormat('dd-MM-yyyy');
 
@@ -480,7 +483,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
       // print(dataToMqtt['2500'][1]['2502'].split(',').join('\n'));
       // print(dataToMqtt['2500'][1]['2502'].split(',').length);
       try {
-        // MQTTManager().publish(jsonEncode(dataToMqtt), "AppToFirmware/${widget.deviceId}");
+        MqttManager().topicToPublishAndItsMessage('${Environment.mqttWebPublishTopic}/${widget.deviceId}', jsonEncode(dataToMqtt));
         /*await validatePayloadSent(
             dialogContext: context,
             context: context,

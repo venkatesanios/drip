@@ -114,7 +114,7 @@ class SmartCommTheme {
       primary: primary, // siva
       secondary: primaryLight, // siva
       surface: Colors.white,
-      background: Colors.white, // siva
+      background: primaryBackground, // siva
       error: Colors.red,
       onPrimary: primary, // siva
       onSecondary: Colors.white, // siva

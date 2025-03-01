@@ -47,10 +47,10 @@ class MyApp extends StatelessWidget {
 Widget navigateToInitialScreen(String route) {
   switch (route) {
     case Routes.login:
-      return ProgramLibraryScreenNew(userId: 8, controllerId: 13, deviceId: '', fromDealer: false, customerId: 8,);
+      // return ProgramLibraryScreenNew(userId: 8, controllerId: 13, deviceId: '2CCF674C0F8A', fromDealer: false, customerId: 8,);
       return const LoginScreen();
     case Routes.dashboard:
-      return ProgramLibraryScreenNew(userId: 8, controllerId: 13, deviceId: '', fromDealer: false, customerId: 8,);
+      // return ProgramLibraryScreenNew(userId: 8, controllerId: 13, deviceId: '2CCF674C0F8A', fromDealer: false, customerId: 8,);
       return const ScreenController();
     default:
       return const SplashScreen();

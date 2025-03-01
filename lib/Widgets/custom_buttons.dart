@@ -8,8 +8,8 @@ class CustomMaterialButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialButton(
-      hoverColor: Theme.of(context).colorScheme.onPrimary,
-      color: Theme.of(context).colorScheme.secondary,
+      hoverColor: Theme.of(context).primaryColorLight,
+      color: Theme.of(context).colorScheme.primary,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15)
       ),
