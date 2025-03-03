@@ -9,9 +9,6 @@ import '../mobile_dashboard_common_files.dart';
 import 'package:provider/provider.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
 
-
-import '../waves.dart';
-
 class inletPumpDashBoardTrue extends StatefulWidget {
   final int active;
   final int selectedLine;
@@ -66,7 +63,11 @@ class _inletPumpDashBoardTrueState extends State<inletPumpDashBoardTrue> with Ti
   }
   @override
   Widget build(BuildContext context) {
+    print("widget.selectedLine: ${widget.selectedLine}");
+    print("widget.active: ${widget.active}");
+
     MqttPayloadProvider payloadProvider = Provider.of<MqttPayloadProvider>(context,listen: true);
+    // return Container(child: Text("Select inlet pump"),);
     return Padding(
       padding: const EdgeInsets.only(left: 8,right: 8),
       child: Row(
@@ -103,7 +104,7 @@ class _inletPumpDashBoardTrueState extends State<inletPumpDashBoardTrue> with Ti
                       child:  Transform.rotate(
                         angle: 4.71,
                         child: SvgPicture.asset(
-                            'assets/images/L_joint.svg',
+                            'assets/mob_dashboard/L_joint.svg_joint.svg',
                             semanticsLabel: 'Acme Logo'
                         ),
                       ),
@@ -129,12 +130,11 @@ class _inletPumpDashBoardTrueState extends State<inletPumpDashBoardTrue> with Ti
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
-                        for(var i = 0;i < payloadProvider.sourcePump.length;i++)
-                          Column(
+                        for(var i = 0;i < 1;i++)
+                           Column(
                             children: [
                               if(widget.active == 1)
-                                if(payloadProvider.selectedLine != 0 && '${payloadProvider.sourcePump[i]['Location']}'.contains(payloadProvider.lineData[payloadProvider.selectedLine]['id']) || payloadProvider.selectedLine == 0)
-                                  GetPumpAlertBox(index: i, controller: _controller, on: true, imeiNo: widget.imeiNo, controllerValue: _animation.value, pumpMode: payloadProvider.sourcePump[i]['Status'], delay: payloadProvider.sourcePump[i]['OnDelayLeft'],)
+                                   GetPumpAlertBox(index: i, controller: _controller, on: true, imeiNo: widget.imeiNo, controllerValue: _animation.value, pumpMode: payloadProvider.sourcePump[i]['Status'], delay: payloadProvider.sourcePump[i]['OnDelayLeft'],)
                                 else
                                   if(payloadProvider.sourcePump[i]['Program'] != '')
                                     if(payloadProvider.selectedLine != 0 && '${payloadProvider.sourcePump[i]['Location']}'.contains(payloadProvider.lineData[payloadProvider.selectedLine]['id']) || payloadProvider.selectedLine == 0)

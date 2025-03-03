@@ -52,8 +52,8 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   List<FilterSite>? get filterSite => _filterSite;
   List<FertilizerSite>? _fertilizerSite;
   List<FertilizerSite>? get fertilizerSite => _fertilizerSite;
-  List<WaterSource>? _waterSource;
-  List<WaterSource>? get waterSource => _waterSource;
+  List<WaterSource1>? _waterSource;
+  List<WaterSource1>? get waterSource => _waterSource;
   List<Pump>? _pump;
   List<Pump>? get pump => _pump;
   List<MoistureSensor>? _moistureSensor;
@@ -93,7 +93,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         _sampleIrrigationLine = (sampleData['irrigationLine'] as List).map((e) => IrrigationLine.fromJson(e as Map<String, dynamic>)).toList();
         _filterSite = (sampleData['filterSite'] as List).map((element) => FilterSite.fromJson(element as Map<String, dynamic>)).toList();
         _fertilizerSite = (sampleData['fertilizerSite'] as List).map((element) => FertilizerSite.fromJson(element as Map<String, dynamic>)).toList();
-        _waterSource = (sampleData['waterSource'] as List).map((element) => WaterSource.fromJson(element as Map<String, dynamic>)).toList();
+        _waterSource = (sampleData['waterSource'] as List).map((element) => WaterSource1.fromJson(element as Map<String, dynamic>)).toList();
         _pump = (sampleData['pump'] as List).map((element) => Pump.fromJson(element as Map<String, dynamic>)).toList();
         _moistureSensor = (sampleData['moistureSensor'] as List).map((element) => MoistureSensor.fromJson(element as Map<String, dynamic>)).toList();
         _line = (sampleData['irrigationLine'] as List).map((element) => IrrigationLine.fromJson(element as Map<String, dynamic>)).toList();

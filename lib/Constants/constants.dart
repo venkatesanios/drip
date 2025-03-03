@@ -14,6 +14,7 @@ class Constants {
   static const String waterMeter = 'waterMeter';
 
   static dynamic payloadConversion(data) {
+    // List<dynamic> configObject = List<dynamic>.from(data["configObject"]);
     List<dynamic> configObject = List<dynamic>.from(data["configObject"]);
 
     dynamic dataFormation = {};

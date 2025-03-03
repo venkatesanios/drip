@@ -43,7 +43,7 @@ Widget horizontalPipeRightFlow({required int count,required int mode,required An
                     width: 100,
                     height: 10,
                     child:  SvgPicture.asset(
-                        'assets/images/horizontal_water_pipe.svg',
+                        'assets/mob_dashboard/horizontal_water_pipe.svg',
                         semanticsLabel: 'Acme Logo'
                     ),
                   )
@@ -57,7 +57,7 @@ Widget horizontalPipeRightFlow({required int count,required int mode,required An
                     width: 100,
                     height: 10,
                     child:  SvgPicture.asset(
-                        'assets/images/horizontal_water_fert_pipe.svg',
+                        'assets/mob_dashboard/horizontal_water_fert_pipe.svg',
                         semanticsLabel: 'Acme Logo'
                     ),
                   )
@@ -71,7 +71,7 @@ Widget horizontalPipeRightFlow({required int count,required int mode,required An
                     width: 100,
                     height: 10,
                     child:  SvgPicture.asset(
-                        'assets/images/horizontal_water_pipe_g.svg',
+                        'assets/mob_dashboard/horizontal_water_pipe_g.svg',
                         semanticsLabel: 'Acme Logo'
                     ),
                   )
@@ -98,7 +98,7 @@ Widget horizontalFertPipeRightFlow({required int count,required int mode,require
                     width: 100,
                     height: 10,
                     child:  SvgPicture.asset(
-                        'assets/images/horizontal_water_fert_pipe.svg',
+                        'assets/mob_dashboard/horizontal_water_fert_pipe.svg',
                         semanticsLabel: 'Acme Logo'
                     ),
                   )
@@ -112,7 +112,7 @@ Widget horizontalFertPipeRightFlow({required int count,required int mode,require
                     width: 100,
                     height: 10,
                     child:  SvgPicture.asset(
-                        'assets/images/horizontal_water_pipe_g.svg',
+                        'assets/mob_dashboard/horizontal_water_pipe_g.svg',
                         semanticsLabel: 'Acme Logo'
                     ),
                   )
@@ -139,7 +139,7 @@ Widget horizontalPipeLeftFlow({required int count,required int mode,required Ani
                     width: 100,
                     height: 10,
                     child:  SvgPicture.asset(
-                        'assets/images/horizontal_water_pipe.svg',
+                        'assets/mob_dashboard/horizontal_water_pipe.svg',
                         semanticsLabel: 'Acme Logo'
                     ),
                   )
@@ -153,7 +153,7 @@ Widget horizontalPipeLeftFlow({required int count,required int mode,required Ani
                     width: 100,
                     height: 10,
                     child:  SvgPicture.asset(
-                        'assets/images/horizontal_water_fert_pipe.svg',
+                        'assets/mob_dashboard/horizontal_water_fert_pipe.svg',
                         semanticsLabel: 'Acme Logo'
                     ),
                   )
@@ -167,7 +167,7 @@ Widget horizontalPipeLeftFlow({required int count,required int mode,required Ani
                     width: 100,
                     height: 10,
                     child:  SvgPicture.asset(
-                        'assets/images/horizontal_water_pipe_g.svg',
+                        'assets/mob_dashboard/horizontal_water_pipe_g.svg',
                         semanticsLabel: 'Acme Logo'
                     ),
                   )
@@ -193,7 +193,7 @@ Widget horizontalAirPipeLeftFlow({required int count,required int mode,required 
                     width: 100,
                     height: 10,
                     child:  SvgPicture.asset(
-                        'assets/images/horizontal_air_pipe.svg',
+                        'assets/mob_dashboard/horizontal_air_pipe.svg',
                         semanticsLabel: 'Acme Logo'
                     ),
                   )
@@ -207,7 +207,7 @@ Widget horizontalAirPipeLeftFlow({required int count,required int mode,required 
                     width: 100,
                     height: 10,
                     child:  SvgPicture.asset(
-                        'assets/images/horizontal_water_pipe_g.svg',
+                        'assets/mob_dashboard/horizontal_water_pipe_g.svg',
                         semanticsLabel: 'Acme Logo'
                     ),
                   )
@@ -233,7 +233,7 @@ Widget verticalPipeTopFlow({required int count,required int mode,required Animat
                       width: 10,
                       height: 100,
                       child:  SvgPicture.asset(
-                          'assets/images/vertical_water_pipe${mode == 1 ? '' : '_b'}.svg',
+                          'assets/mob_dashboard/vertical_water_pipe${mode == 1 ? '' : '_b'}.svg',
                           semanticsLabel: 'Acme Logo'
                       ),
                     )
@@ -246,12 +246,11 @@ Widget verticalPipeTopFlow({required int count,required int mode,required Animat
                       width: 10,
                       height: 100,
                       child:  SvgPicture.asset(
-                          'assets/images/vertical_water_pipe_g.svg',
+                            'assets/mob_dashboard/vertical_water_pipe_g.svg',
                           semanticsLabel: 'Acme Logo'
                       ),
                     )
                 )
-
           ],
         ),
       );
@@ -274,7 +273,7 @@ Widget verticalPipeBottomFlow({required int count,required int mode,required Ani
                       width: 10,
                       height: 100,
                       child:  SvgPicture.asset(
-                          'assets/images/vertical_water_pipe${mode == 1 ? '' : '_b'}.svg',
+                          'assets/mob_dashboard/vertical_water_pipe${mode == 1 ? '' : '_b'}.svg',
                           semanticsLabel: 'Acme Logo'
                       ),
                     )
@@ -286,7 +285,7 @@ Widget verticalPipeBottomFlow({required int count,required int mode,required Ani
                     width: 10,
                     height: 100,
                     child:  SvgPicture.asset(
-                        'assets/images/vertical_water_pipe_g.svg',
+                        'assets/mob_dashboard/vertical_water_pipe_g.svg',
                         semanticsLabel: 'Acme Logo'
                     ),
                   )
@@ -986,7 +985,7 @@ class _GetPumpAlertBoxState extends State<GetPumpAlertBox> {
                                               width: 25,
                                               height: 25,
                                               child: Image.asset(
-                                                  'assets/images/on_off.png'),
+                                                  'assets/mob_dashboard/on_off.png'),
                                             ),
                                             SizedBox(width: 5,),
                                             payloadProvider.sourcePump[widget
@@ -1112,7 +1111,7 @@ class _GetPumpAlertBoxState extends State<GetPumpAlertBox> {
           SizedBox(
               width: 40,
               height: 40,
-              child: Image.asset('assets/images/$image.png')
+              child: Image.asset('assets/mob_dashboard/$image.png')
           ),
           Text(name),
           Text(value),
@@ -1758,7 +1757,7 @@ Widget getLineWidget({required BuildContext context,required AnimationController
                       width: 25 - (joint == 'L_joint' ? 5 : 0),
                       height: 25 - (joint == 'L_joint' ? 5 : 0),
                       child: SvgPicture.asset(
-                        'assets/images/${joint}.svg',
+                        'assets/mob_dashboard/${joint}.svg',
                       ),
                     ),
                   ),
@@ -1810,7 +1809,7 @@ Widget getLineWidget({required BuildContext context,required AnimationController
                               if(payloadProvider.lineData[currentLine]['pressureSwitch'].isNotEmpty)
                                 getLineSensorWidget(
                                     context: context,
-                                    image: 'assets/images/pressure_switch.png',
+                                    image: 'assets/mob_dashboard/pressure_switch.png',
                                     name: '${payloadProvider.lineData[currentLine]['pressureSwitch'][0]['name']}',
                                     value: '${payloadProvider.lineData[currentLine]['pressureSwitch'][0]['value']}',
                                     unit: '${payloadProvider.lineData[currentLine]['pressureSwitch'][0]['value'] == 0 ? 'High' : ''}'
@@ -1818,7 +1817,7 @@ Widget getLineWidget({required BuildContext context,required AnimationController
                               if(payloadProvider.lineData[currentLine]['waterMeter'].isNotEmpty)
                                 getLineSensorWidget(
                                     context: context,
-                                    image: 'assets/images/water_meter.png',
+                                    image: 'assets/mob_dashboard/water_meter.png',
                                     name: '${payloadProvider.lineData[currentLine]['waterMeter'][0]['name']}',
                                     // value: '${payloadProvider.lineData[currentLine]['waterMeter'][0]['value']}',
                                     value: '${getWaterMeterValue(payloadProvider.units[0]['value'].toString(), payloadProvider.lineData[currentLine]['waterMeter'][0]['value'].toString())}',
@@ -1827,7 +1826,7 @@ Widget getLineWidget({required BuildContext context,required AnimationController
                               for(var ps in payloadProvider.lineData[currentLine]['pressureSensor'])
                                 getLineSensorWidget(
                                     context: context,
-                                    image: 'assets/images/pressure_sensor.png',
+                                    image: 'assets/mob_dashboard/pressure_sensor.png',
                                     name: '${ps['name']}',
                                     value: '${getPressureValue(payloadProvider.units[1]['value'].toString(), ps['value'].toString())}',
                                     unit: '${payloadProvider.units[1]['value']}'
@@ -1844,7 +1843,7 @@ Widget getLineWidget({required BuildContext context,required AnimationController
                               SizedBox(
                                 width: 23,
                                 height: 23,
-                                child: Image.asset('assets/images/main_valve_${getImage(payloadProvider.lineData[currentLine]['mainValve'][i]['status'])}.png'),
+                                child: Image.asset('assets/mob_dashboard/main_valve_${getImage(payloadProvider.lineData[currentLine]['mainValve'][i]['status'])}.png'),
                               ),
                               Text('${payloadProvider.lineData[currentLine]['mainValve'][i]['name']}',style: TextStyle(fontSize: 12,overflow: TextOverflow.ellipsis),)
                             ],
@@ -1860,7 +1859,7 @@ Widget getLineWidget({required BuildContext context,required AnimationController
                                 width: 23,
                                 height: 23,
                                 child: SvgPicture.asset(
-                                    'assets/images/agitator_${getImage(payloadProvider.lineData[currentLine]['agitator'][i]['status'])}.svg',
+                                    'assets/mob_dashboard/agitator_${getImage(payloadProvider.lineData[currentLine]['agitator'][i]['status'])}.svg',
                                     semanticsLabel: 'Acme Logo'
                                 ),
                               ),
@@ -1913,7 +1912,7 @@ Widget getLineWidget({required BuildContext context,required AnimationController
                                                 child: SizedBox(
                                                     width: 15,
                                                     height: 15,
-                                                    child: Image.asset('assets/images/moisture_sensor.png')
+                                                    child: Image.asset('assets/mob_dashboard/moisture_sensor.png')
                                                 ),
                                               )
                                           ),
@@ -1923,7 +1922,7 @@ Widget getLineWidget({required BuildContext context,required AnimationController
                                         child: SizedBox(
                                           width: 23,
                                           height: 20,
-                                          child: Image.asset('assets/images/valve_${getImage(payloadProvider.lineData[currentLine]['valve'][i]['status'])}.png'),
+                                          child: Image.asset('assets/mob_dashboard/valve_${getImage(payloadProvider.lineData[currentLine]['valve'][i]['status'])}.png'),
                                         ),
                                       ),
                                     ],
@@ -2224,7 +2223,7 @@ Widget getFloatWidget({
         SizedBox(
             width: 40,
             height: 40,
-            child: Image.asset('assets/images/$image.png')
+            child: Image.asset('assets/mob_dashboard/$image.png')
         ),
         Text(name),
         Text(value),

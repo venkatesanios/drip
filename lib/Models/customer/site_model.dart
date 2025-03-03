@@ -271,7 +271,8 @@ class WaterSource {
   final int? controllerId;
   final dynamic count;
   final Level? level;
-  final List<Pump> outletPump;
+  final List<Pump>? outletPump;
+  final List<Pump>? inletPump;
   final List<dynamic> valves;
 
   WaterSource({
@@ -285,6 +286,7 @@ class WaterSource {
     required this.count,
     required this.level,
     required this.outletPump,
+    required this.inletPump,
     required this.valves,
   });
 
@@ -304,6 +306,9 @@ class WaterSource {
       outletPump: (json['outletPump'] as List)
           .map((e) => Pump.fromJson(e))
           .toList(),
+      inletPump: (json['inletPump'] as List)
+          .map((e) => Pump.fromJson(e))
+          .toList(),
       valves: json['valves'] ?? [],
     );
   }
@@ -315,7 +320,7 @@ class Pump {
   final String name;
   final int connectionNo;
   final String objectName;
-  final String type;
+  final int? type;
   final int controllerId;
   final dynamic count;
   int status;
@@ -341,10 +346,23 @@ class Pump {
       name: json['name'],
       connectionNo: json['connectionNo'],
       objectName: json['objectName'],
-      type: json['type'],
+      type: json['pumpType'],
       controllerId: json['controllerId'],
       count: json['count'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "objectId" : objectId,
+      "sNo" : sNo,
+      "name" : name,
+      "connectionNo" : connectionNo,
+      "objectName" : objectName,
+      "pumpType" : type,
+      "controllerId" : controllerId,
+      "count" : count,
+    };
   }
 }
 

@@ -102,7 +102,7 @@ class _inletPumpDashBoardFalseState extends State<inletPumpDashBoardFalse> with 
                       child:  Transform.rotate(
                         angle: 4.71,
                         child: SvgPicture.asset(
-                            'assets/images/L_joint.svg',
+                            'assets/mob_dashboard/L_joint.svg',
                             semanticsLabel: 'Acme Logo'
                         ),
                       ),

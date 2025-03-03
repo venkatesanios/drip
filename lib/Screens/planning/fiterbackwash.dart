@@ -8,31 +8,27 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
-import 'package:provider/provider.dart';
+ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Models/back_wash_model.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../StateManagement/overall_use.dart';
 import '../../Widgets/HoursMinutesSeconds.dart';
+import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../services/mqtt_manager_mobile.dart';
 import '../../utils/snack_bar.dart';
 import '../NewIrrigationProgram/program_library.dart';
 import '../NewIrrigationProgram/water_and_fertilizer_screen.dart';
-class FilterBackwashUI1 extends StatefulWidget {
-  const FilterBackwashUI1(
-      {Key? key,
-        required this.userId,
-        required this.controllerId,
-        required this.menuId,
-        this.deviceID});
-  final userId, controllerId, deviceID, menuId;
+class FilterBackwashUI extends StatefulWidget {
+  const FilterBackwashUI(
+      {Key? key,});
 
   @override
-  State<FilterBackwashUI1> createState() => _FilterBackwashUI1State();
+  State<FilterBackwashUI> createState() => _FilterBackwashUIState();
 }
 
-class _FilterBackwashUI1State extends State<FilterBackwashUI1>
+class _FilterBackwashUIState extends State<FilterBackwashUI>
     with SingleTickerProviderStateMixin {
   late MqttPayloadProvider mqttPayloadProvider;
 
@@ -48,31 +44,40 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
 
     super.initState();
     //MqttWebClient().init();
-    fetchData();
+     fetchData();
   }
 
   Future<void> fetchData() async {
     var overAllPvd = Provider.of<OverAllUse>(context,listen: false);
-
-    Map<String, Object> body = {
-      "userId": overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId,
-      "controllerId": overAllPvd.controllerId
-    };
-    print(body);
-    print(overAllPvd.imeiNo);
-
-    final response = await HttpService()
-        .postRequest("getUserPlanningFilterBackwashing", body);
-    print(body);
-    if (response.statusCode == 200) {
-      setState(() {
-        var jsondata1 = jsonDecode(response.body);
-        _filterbackwash = Filterbackwash.fromJson(jsondata1);
-        MqttManager().connect();
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId') ?? '';
+    final controllerId = prefs.getString('controllerId') ?? '';
+    final sharedUserId = prefs.getString('sharedUserId') ?? '';
+     try{
+      final Repository repository = Repository(HttpService());
+      var getUserDetails = await repository.getUserFilterBackwasing({
+        "userId": overAllPvd.takeSharedUserId ? sharedUserId : userId,
+        "controllerId": controllerId
       });
-    } else {
-      //_showSnackBar(response.body);
+      print("getUserDetails.body ${getUserDetails.body}");
+      // final jsonData = jsonDecode(getUserDetails.body);
+        if (getUserDetails.statusCode == 200) {
+        setState(() {
+          var jsonData = jsonDecode(getUserDetails.body);
+          _filterbackwash = Filterbackwash.fromJson(jsonData);
+          MqttManager().connect();
+        });
+      } else {
+        //_showSnackBar(response.body);
+      }
     }
+    catch (e, stackTrace) {
+      mqttPayloadProvider.httpError = true;
+      print(' Error overAll getData => ${e.toString()}');
+      print(' trace overAll getData  => ${stackTrace}');
+    }
+
+
   }
 
   @override
@@ -82,6 +87,8 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
 
   @override
   Widget build(BuildContext context) {
+    print("_filterbackwash.code ${_filterbackwash.code}");
+    // print("_filterbackwash.data!.filterBackwashing!.isEmpty ${_filterbackwash.data!.filterBackwashing!.isEmpty}");
     mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: true);
     if (_filterbackwash.code != 200) {
       return Center(
@@ -89,7 +96,7 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
           Text(_filterbackwash.message ?? 'Currently No Filter Available'));
     } else if (_filterbackwash.data == null) {
       return const Center(child: CircularProgressIndicator());
-    } else if (_filterbackwash.data!.isEmpty) {
+    } else if (_filterbackwash.data!.filterBackwashing!.isEmpty) {
       return const Center(child: Text('Currently No Filter Available'));
     } else {
       return LayoutBuilder(builder: (context, constaint) {
@@ -98,7 +105,7 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
           height: constaint.maxHeight,
           child: DefaultTabController(
             animationDuration: const Duration(milliseconds: 888),
-            length: _filterbackwash.data!.length ?? 0,
+            length: _filterbackwash.data!.filterBackwashing!.length ?? 0,
             child: Scaffold(
               backgroundColor: const Color(0xffE6EDF5),
               appBar: AppBar(title: Text('Filter BackWash', style: TextStyle(color: Theme.of(context).primaryColor,fontWeight: FontWeight.bold)),automaticallyImplyLeading: false,),
@@ -127,9 +134,9 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                         labelStyle:
                         const TextStyle(fontWeight: FontWeight.bold),
                         tabs: [
-                          for (var i = 0; i < _filterbackwash.data!.length; i++)
+                          for (var i = 0; i < _filterbackwash.data!.filterBackwashing!.length; i++)
                             Tab(
-                              text: '${_filterbackwash.data![i].name}',
+                              text: '${_filterbackwash.data!.filterBackwashing?[i].name}',
                             ),
                           // ),
                         ],
@@ -144,20 +151,20 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                     Expanded(
                       flex: 1,
                       child: TabBarView(children: [
-                        for (var i = 0; i < _filterbackwash.data!.length; i++)
+                        for (var i = 0; i < _filterbackwash.data!.filterBackwashing!.length; i++)
                           MediaQuery.sizeOf(context).width > 600
                               ? buildTab(
-                              _filterbackwash.data![i].filter,
+                              _filterbackwash.data!.filterBackwashing?[i].filter,
                               i,
-                              _filterbackwash.data![i].name,
-                              _filterbackwash.data![i].sNo ?? 0,
+                              _filterbackwash.data!.filterBackwashing?[i].name,
+                              _filterbackwash.data!.filterBackwashing?[i].sNo ?? 0,
                               constaint.maxWidth,
                               constaint.maxHeight)
                               : buildTabMob(
-                            _filterbackwash.data![i].filter,
+                            _filterbackwash.data!.filterBackwashing?[i].filter,
                             i,
-                            _filterbackwash.data![i].name,
-                            _filterbackwash.data![i].sNo ?? 0,
+                            _filterbackwash.data!.filterBackwashing?[i].name,
+                            _filterbackwash.data!.filterBackwashing?[i].sNo ?? 0,
                           )
                       ]),
                     ),
@@ -190,7 +197,7 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
 
   changeval(int Selectindexrow) {}
 
-  Widget buildTab(List<Filter>? Listofvalue, int i, String? name, int srno,
+  Widget buildTab(List<Filter>? Listofvalue, int i, String? name, double? srno,
       double width, double height) {
     var overAllPvd = Provider.of<OverAllUse>(context, listen: true);
     final RegExp _regex = RegExp(r'^([0-9]|[1-9][0-9])(\.[0-9])?$');
@@ -451,14 +458,9 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
         ),
       );
     } else if (Listofvalue?[index].widgetTypeId == 3) {
-      final dropdownlist = [
-        'Stop Irrigation',
-        'Continue Irrigation',
-        'No Fertilization',
-        'Open Valves',
-      ];
+      final dropdownlist = _filterbackwash.data!.whileBackwash;
       String dropdownval = Listofvalue?[index].value;
-      dropdownlist.contains(dropdownval) == true
+      dropdownlist?.contains(dropdownval) == true
           ? dropdownval
           : dropdownval = 'Stop Irrigation';
       return SizedBox(
@@ -487,7 +489,7 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                 child: DropdownButton(
                     iconEnabledColor: Colors.white,
                     dropdownColor: Theme.of(context).primaryColorDark,
-                    items: dropdownlist.map((String items) {
+                    items: dropdownlist?.map((String items) {
                       return DropdownMenuItem(
                         value: items,
                         child: Container(
@@ -504,7 +506,7 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                       });
                     },
                     value: Listofvalue?[index].value == ''
-                        ? dropdownlist[0]
+                        ? dropdownlist![0]
                         : Listofvalue?[index].value),
               ),
             ),
@@ -574,7 +576,7 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
       List<Filter>? listOfValue,
       int i,
       String? name,
-      int srNo,
+      double srNo,
       ) {
     var overAllPvd = Provider.of<OverAllUse>(context, listen: true);
     final RegExp regex = RegExp(r'^([0-9]|[1-9][0-9])(\.[0-9])?$');
@@ -774,7 +776,7 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
                                     foregroundColor: Colors.white, backgroundColor: Colors.green, // White text color
                                   ),
                                   onPressed: () {
-                                    manualonoff(srNo);
+                                    manualonoff(srNo as int);
                                   },
                                   child: const Text('ON/OFF'),
                                 )
@@ -1003,28 +1005,32 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
 
   updateRadiationSet() async {
     var overAllPvd = Provider.of<OverAllUse>(context,listen: false);
+     // List<Map<String, dynamic>> filterBackWash =
+    // _filterbackwash.data!.filterBackwashing.map((condition) => condition.toJson()).toList();
+    Map<String, dynamic> filterBackWash =
+    _filterbackwash.toJson();
+    Map<String, dynamic> filterBackWashserverSenddata = {
+      "filterBackwashing" : filterBackWash["data"]['filterBackwashing'],
+      "controllerReadStatus" : "0",
+    };
 
-    List<Map<String, dynamic>> filterBackWash =
-    _filterbackwash.data!.map((condition) => condition.toJson()).toList();
     String mqttSendData = toMqttFormat(_filterbackwash.data);
-
     Map<String, dynamic> payLoadFinal = {
       "900": [
         {"901": mqttSendData},
       ]
     };
+    final Repository repository = Repository(HttpService());
+
     Map<String, dynamic> body = {
       "userId": overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId,
       "controllerId": overAllPvd.controllerId,
-      "filterBackwash": {"filterBackwashing": filterBackWash,"controllerReadStatus": "0",},
+      "filterBackwash": filterBackWashserverSenddata,
       "hardware":payLoadFinal,
       "createUser": overAllPvd.userId
     };
-    print('overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId');
-    print(overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId);
-    print('takeSharedUserId ${overAllPvd.takeSharedUserId}' );
-    print('overAllPvd.sharedUserId ${overAllPvd.sharedUserId}' );
-    print('overAllPvd.userId ${overAllPvd.userId}' );
+     var getUserDetails = await repository.UpdateFilterBackwasing(body);
+      var jsonDataResponse = jsonDecode(getUserDetails.body);
 
     if (MqttManager().isConnected == true) {
       await validatePayloadSent(
@@ -1033,7 +1039,7 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
           mqttPayloadProvider: mqttPayloadProvider,
           acknowledgedFunction: () async{
             setState(() {
-              body["filterBackwash"]["controllerReadStatus"] = "1";
+              body["controllerReadStatus"] = "1";
             });
           },
           payload: payLoadFinal,
@@ -1044,10 +1050,12 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
       // Map<String, dynamic>
       GlobalSnackBar.show(context, 'MQTT is Disconnected', 201);
     }
-    final response = await HttpService().postRequest("createUserPlanningFilterBackwashing", body);
-    final jsonDataResponse = json.decode(response.body);
+
+
+
+
     // MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.deviceID}');
-    GlobalSnackBar.show(context, jsonDataResponse['message'], response.statusCode);
+    GlobalSnackBar.show(context, jsonDataResponse['message'], jsonDataResponse.statusCode);
     // showNavigationDialog(context: context, menuId: widget.menuId, ack: body["filterBackwash"]["controllerReadStatus"] == "1");
     // if (MQTTManager().isConnected == true) {
     //   MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.deviceID}');
@@ -1059,13 +1067,14 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
   }
 
   manualonoff(int index) async {
+    var overAllPvd = Provider.of<OverAllUse>(context,listen: false);
     String payLoadFinal = jsonEncode({
       "4000": [
         {"4001": index},
       ]
     });
     if (MqttManager().isConnected == true) {
-       MqttManager().topicToPublishAndItsMessage('AppsToFirmware/${widget.deviceID}', payLoadFinal);
+       MqttManager().topicToPublishAndItsMessage('AppToFirmware/${overAllPvd.imeiNo}', payLoadFinal);
       GlobalSnackBar.show(context, 'Manual ON/OFF Send', 200);
     } else {
       GlobalSnackBar.show(context, 'MQTT is Disconnected', 201);
@@ -1073,46 +1082,46 @@ class _FilterBackwashUI1State extends State<FilterBackwashUI1>
   }
 
   String toMqttFormat(
-      List<Datum>? data,
+      Data? data,
       ) {
     String mqttData = '';
-    for (var i = 0; i < data!.length; i++) {
-      int sno = data[i].sNo!;
-      String id = data[i].id!;
+    for (var i = 0; i < data!.filterBackwashing!.length; i++) {
+      double sno = data!.filterBackwashing![i].sNo!;
+      int id = data!.filterBackwashing![i].objectId!;
       List<String> time = [];
-      for (var j = 0; j < data[i].filter![0].value.length; j++) {
-        time.add('${data[i].filter![0].value[j]['value']}');
+      for (var j = 0; j < data!.filterBackwashing![i].filter![0].value.length; j++) {
+        time.add('${data!.filterBackwashing![i].filter![0].value[j]['value']}');
       }
       String flushingTime = time.join('_');
-      String filterInterval = data[i].filter![1].value!.isEmpty
+      String filterInterval = data!.filterBackwashing![i].filter![1].value!.isEmpty
           ? '00:00:00'
-          : '${data[i].filter![1].value!}';
-      String flushingInterval = data[i].filter![2].value!.isEmpty
+          : '${data!.filterBackwashing![i].filter![1].value!}';
+      String flushingInterval = data!.filterBackwashing![i].filter![2].value!.isEmpty
           ? '00:00:00'
-          : '${data[i].filter![2].value!}';
+          : '${data!.filterBackwashing![i].filter![2].value!}';
       String whileFlushing = '2';
-      if (data[i].filter![3].value! == 'Continue Irrigation') {
+      if (data!.filterBackwashing![i].filter![3].value! == 'Continue Irrigation') {
         whileFlushing = '1';
-      } else if (data[i].filter![3].value! == 'Stop Irrigation') {
+      } else if (data!.filterBackwashing![i].filter![3].value! == 'Stop Irrigation') {
         whileFlushing = '2';
-      } else if (data[i].filter![3].value! == 'No Fertilization') {
+      } else if (data!.filterBackwashing![i].filter![3].value! == 'No Fertilization') {
         whileFlushing = '3';
-      } else if (data[i].filter![3].value! == 'Open Valves') {
+      } else if (data!.filterBackwashing![i].filter![3].value! == 'Open Valves') {
         whileFlushing = '4';
       }
       String cycles =
-      data[i].filter![4].value!.isEmpty ? '0' : data[i].filter![4].value!;
+      data!.filterBackwashing![i].filter![4].value!.isEmpty ? '0' : data!.filterBackwashing![i].filter![4].value!;
       String pressureValues =
-      data[i].filter![5].value!.isEmpty ? '0' : data[i].filter![5].value!;
-      String deltaPressureDelay = data[i].filter![6].value!.isEmpty
+      data!.filterBackwashing![i].filter![5].value!.isEmpty ? '0' : data!.filterBackwashing![i].filter![5].value!;
+      String deltaPressureDelay = data!.filterBackwashing![i].filter![6].value!.isEmpty
           ? '00:00:00'
-          : '${data[i].filter![6].value!}';
-      String dwellTimeMainFilter = data[i].filter![8].value!.isEmpty
+          : '${data!.filterBackwashing![i].filter![6].value!}';
+      String dwellTimeMainFilter = data!.filterBackwashing![i].filter![8].value!.isEmpty
           ? '00:00:00'
-          : '${data[i].filter![8].value!}';
-      String afterDeltaPressureDelay = data[i].filter![7].value!.isEmpty
+          : '${data!.filterBackwashing![i].filter![8].value!}';
+      String afterDeltaPressureDelay = data!.filterBackwashing![i].filter![7].value!.isEmpty
           ? '00:00:00'
-          : '${data[i].filter![7].value!}';
+          : '${data!.filterBackwashing![i].filter![7].value!}';
       mqttData +=
       '$sno,$id,$flushingTime,$filterInterval,$flushingInterval,$whileFlushing,$cycles,$pressureValues,$deltaPressureDelay,$dwellTimeMainFilter,$afterDeltaPressureDelay;';
     }

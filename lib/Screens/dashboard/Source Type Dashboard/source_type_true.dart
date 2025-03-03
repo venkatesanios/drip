@@ -1,15 +1,14 @@
 import 'dart:math';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter/material.dart';
 import '../../../services/mqtt_manager_mobile.dart';
 import '../../NewIrrigationProgram/preview_screen.dart';
+import '../Inlet Pump Dashboard/inlet_pump_true.dart';
 import '../mobile_dashboard_common_files.dart';
 import 'package:provider/provider.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
-import '../waves.dart';
 
+import '../waves.dart';
 
 class SourceTypeDashBoardTrue extends StatefulWidget {
   final int active;
@@ -25,7 +24,6 @@ class _SourceTypeDashBoardTrueState extends State<SourceTypeDashBoardTrue> with 
   late AnimationController _controller;
   late AnimationController _controllerReverse;
   MqttManager manager = MqttManager();
-  // late Timer _timer;
   late Animation<double> _animation;
   @override
   void initState() {
@@ -51,6 +49,7 @@ class _SourceTypeDashBoardTrueState extends State<SourceTypeDashBoardTrue> with 
       vsync: this,
     );
     _controllerReverse.repeat(reverse: true);
+
     // TODO: implement initState
     super.initState();
   }
@@ -59,13 +58,15 @@ class _SourceTypeDashBoardTrueState extends State<SourceTypeDashBoardTrue> with 
   void dispose() {
     _controller.dispose();
     _controllerReverse.dispose();
-    // print('source pump true disposing...');
+    // print('source pump false disposing...');
     // TODO: implement dispose
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     MqttPayloadProvider payloadProvider = Provider.of<MqttPayloadProvider>(context,listen: true);
+    // print('payloadProvider.sourcePump.length ::: ${payloadProvider.sourcePump.length}');
     return Padding(
       padding: const EdgeInsets.only(left: 8,right: 8),
       child: Row(
@@ -80,7 +81,7 @@ class _SourceTypeDashBoardTrueState extends State<SourceTypeDashBoardTrue> with 
               height: payloadProvider.sourcePump.isEmpty ? 70 : 110,
               child: Stack(
                 children: [
-                   Positioned(
+                  Positioned(
                       bottom: 0,
                       child: SizedBox(
                           width: 40,
@@ -88,7 +89,7 @@ class _SourceTypeDashBoardTrueState extends State<SourceTypeDashBoardTrue> with 
                           child: verticalPipeTopFlow(count: 4,mode: getWaterPipeStatus(context,selectedLine: widget.selectedLine), controller: _controller,)
                       )
                   ),
-                   Positioned(
+                  Positioned(
                       top: payloadProvider.sourcePump.isEmpty ? 30 :  73,
                       child: SizedBox(
                           width: 50,
@@ -105,7 +106,7 @@ class _SourceTypeDashBoardTrueState extends State<SourceTypeDashBoardTrue> with 
                         child:  Transform.rotate(
                           angle: 4.71,
                           child: SvgPicture.asset(
-                              'assets/images/L_joint.svg',
+                              'assets/mob_dashboard/L_joint.svg',
                               semanticsLabel: 'Acme Logo'
                           ),
                         ),
@@ -115,61 +116,60 @@ class _SourceTypeDashBoardTrueState extends State<SourceTypeDashBoardTrue> with 
               ),
             ),
           ),
-           Expanded(
+          Expanded(
             child: Column(
               children: [
-                 Container(
+                Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(5),
-                    boxShadow: customBoxShadow
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(5),
+                      boxShadow: customBoxShadow
                   ),
-                   child: SingleChildScrollView(
+                  child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
                         for(var i = 0;i < payloadProvider.sourcePump.length;i++)
                           Column(
                             children: [
-                               Padding(
-                                 padding: const EdgeInsets.only(left: 0,right: 10),
-                                 child:  Container(
-                                   // color: Colors.green,
-                                   width: 100,
-                                   height: payloadProvider.sourcePump.isEmpty ? 70 : 110,
-                                   child: Stack(
-                                     children: [
-                                       Positioned(
-                                         bottom: 15,
-                                         right: 4,
-                                         left: 14,
-                                         child: SizedBox(
-                                           width: 70,
-                                           height: 80,
-                                           child: CustomPaint(
-                                             painter: WavePainter(_controllerReverse.value),
-                                             size: Size(70,80),
-                                           ),
-                                         ),
-                                       ),
-                                       Positioned(
-                                         right: 4,
-                                         bottom: 0,
-                                         child: SizedBox(
-                                           width: 85,
-                                           height: 80,
-                                           child: SvgPicture.asset(
-                                             'assets/images/sump.svg',
-                                           ),
-                                         ),
-                                       ),
-                                      ],
-                                   ),
-                                 ),
-
-                               ),
-                          ],
+                              Padding(
+                                padding: const EdgeInsets.only(left: 0,right: 10),
+                                child:  Container(
+                                  // color: Colors.green,
+                                  width: 100,
+                                  height: payloadProvider.sourcePump.isEmpty ? 70 : 110,
+                                  child: Stack(
+                                    children: [
+                                      Positioned(
+                                        bottom: 15,
+                                        right: 4,
+                                        left: 14,
+                                        child: SizedBox(
+                                          width: 70,
+                                          height: 80,
+                                          child: CustomPaint(
+                                            painter: WavePainter(_controllerReverse.value),
+                                            size: Size(70,80),
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        right: 4,
+                                        bottom: 0,
+                                        child: SizedBox(
+                                          width: 85,
+                                          height: 80,
+                                          child: SvgPicture.asset(
+                                            'assets/mob_dashboard/sump.svg',
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
                           )
                       ],
                     ),
@@ -178,73 +178,8 @@ class _SourceTypeDashBoardTrueState extends State<SourceTypeDashBoardTrue> with 
               ],
             ),
           ),
-         ],
+        ],
       ),
     );
   }
-}
-
-List<Widget> getLevelSensor({required int lineIndex,required MqttPayloadProvider payloadProvider}){
-  List<Widget> listOfWidget = [];
-  for(var line = 1;line < payloadProvider.lineData.length;line++){
-    if(lineIndex == 0 || lineIndex == line){
-      for(var ls in payloadProvider.lineData[line]['levelSensor']){
-        listOfWidget.add(
-            ListTile(
-              // contentPadding: EdgeInsets.zero,
-              leading: SizedBox(
-                width: 35,
-                height: 35,
-                child: SvgPicture.asset(
-                    'assets/images/level_condition.svg',
-                    semanticsLabel: 'Acme Logo'
-                ),
-              ),
-              title: Text('${ls['name']}'),
-              trailing: IntrinsicWidth(child: Text(
-                '${convertValue(double.parse(ls['value']), payloadProvider.units[3]['value']).toStringAsFixed(2)} ${payloadProvider.units[3]['value']}',
-                style: TextStyle(fontSize: 14, color: Colors.blue),
-              )),
-              subtitle: Text('Percentage: ${ls['percentage']} %'),
-            )
-        );
-      }
-    }
-  }
-  return listOfWidget;
-}
-
-double convertValue(double value, String unit) {
-  print(unit);
-  switch (unit) {
-    case 'inch':
-      return value * 39.3701; // 1 meter = 39.3701 inches
-    case 'feet':
-      return value * 3.28084; // 1 meter = 3.28084 feet
-    case 'meter':
-    default:
-      return value; // Already in meters, no conversion needed
-  }
-}
-
-void getLevelSensorAlertBox(context,payloadProvider){
-  showDialog(
-      context: context,
-      builder: (context){
-        return AlertDialog(
-          title: Text('List of level Sensor'),
-          content: SizedBox(
-            width: MediaQuery.of(context).size.width,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ...getLevelSensor(lineIndex: payloadProvider.selectedLine,payloadProvider: payloadProvider)
-                ],
-              ),
-            ),
-          ),
-        );
-      }
-  );
 }

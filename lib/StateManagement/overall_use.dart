@@ -79,6 +79,7 @@ class OverAllUse extends ChangeNotifier{
   }
 
   void editControllerType(int value){
+    print("editControllerType --->$value");
     controllerType = value;
     notifyListeners();
   }

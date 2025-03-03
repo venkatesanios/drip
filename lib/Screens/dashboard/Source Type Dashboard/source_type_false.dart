@@ -105,7 +105,7 @@ class _SourceTypeDashBoardFalseState extends State<SourceTypeDashBoardFalse> wit
                         child:  Transform.rotate(
                           angle: 4.71,
                           child: SvgPicture.asset(
-                              'assets/images/L_joint.svg',
+                              'assets/mob_dashboard/L_joint.svg',
                               semanticsLabel: 'Acme Logo'
                           ),
                         ),
@@ -160,7 +160,7 @@ class _SourceTypeDashBoardFalseState extends State<SourceTypeDashBoardFalse> wit
                                           width: 85,
                                           height: 80,
                                           child: SvgPicture.asset(
-                                            'assets/images/sump.svg',
+                                            'assets/mob_dashboard/sump.svg',
                                           ),
                                         ),
                                       ),

@@ -58,8 +58,7 @@ class _IrrigationPumpDashBoardFalseState extends State<IrrigationPumpDashBoardFa
     if(payloadProvider.irrigationPump.isEmpty) {
       return Container();
     }
-    if(payloadProvider.irrigationPump.any((element) => ('${element['Location']}'.contains(payloadProvider.lineData[widget.selectedLine]['id']) && element['Status'] == 1)) || (widget.selectedLine == 0 || widget.active == 1)){
-      return Container(
+       return Container(
         height: (145 * getTextScaleFactor(context)).toDouble(),
         padding: const EdgeInsets.only(left: 8,right: 8),
         child: Row(
@@ -126,23 +125,23 @@ class _IrrigationPumpDashBoardFalseState extends State<IrrigationPumpDashBoardFa
                     padding: EdgeInsets.symmetric(horizontal: 10),
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          for(var i in payloadProvider.irrigationPump)
-                            pumpFiltering(
-                              resetButton: ['7','8','9','10'].contains(i['OnOffReason']) ? MaterialButton(
-                                color: Colors.red,
-                                onPressed: ()async{
-                                  MqttManager().topicToPublishAndItsMessage("AppToFirmware/${widget.imeiNo}", jsonEncode({"6300" : [{"6301" : '${i['S_No']},${1}'}]}));
-                                  setState(() {
-                                    i['reset'] = true;
-                                  });
-                                },
-                                child: Text('Reset',style: TextStyle(color: Colors.white),),
-                              ) : Container(),
-                                active: widget.active, selectedLine: widget.selectedLine, pumpData: i, lineId: payloadProvider.lineData[widget.selectedLine]['id'], context: context, controller: _controller, animationValue: _animation.value)
-                        ],
-                      ),
+                      // child: Row(
+                      //   children: [
+                      //     for(var i in payloadProvider.irrigationPump)
+                      //       pumpFiltering(
+                      //         resetButton: ['7','8','9','10'].contains(i['OnOffReason']) ? MaterialButton(
+                      //           color: Colors.red,
+                      //           onPressed: ()async{
+                      //             MqttManager().topicToPublishAndItsMessage("AppToFirmware/${widget.imeiNo}", jsonEncode({"6300" : [{"6301" : '${i['S_No']},${1}'}]}));
+                      //             setState(() {
+                      //               i['reset'] = true;
+                      //             });
+                      //           },
+                      //           child: Text('Reset',style: TextStyle(color: Colors.white),),
+                      //         ) : Container(),
+                      //           active: widget.active, selectedLine: widget.selectedLine, pumpData: i, lineId: payloadProvider.lineData[widget.selectedLine]['id'], context: context, controller: _controller, animationValue: _animation.value)
+                      //   ],
+                      // ),
                     ),
                   ),
                 ],
@@ -151,9 +150,9 @@ class _IrrigationPumpDashBoardFalseState extends State<IrrigationPumpDashBoardFa
           ],
         ),
       );
-    }else{
-      return Container();
-    }
+    // }else{
+    //   return Container();
+    // }
 
 
   }

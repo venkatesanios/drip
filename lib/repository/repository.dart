@@ -141,6 +141,12 @@ class Repository{
   Future<http.Response> fetchAllMySite(body) async {
     return await apiService.postRequest('/user/dashboard', body);
   }
+  Future<http.Response> getUserFilterBackwasing(body) async {
+    return await apiService.postRequest('/user/planning/filterBackwashing/get', body);
+  }
+  Future<http.Response> UpdateFilterBackwasing(body) async {
+    return await apiService.postRequest('/user/planning/filterBackwashing/create', body);
+  }
 
   Future<http.Response> getUserProgramSequence(body) async {
     return await apiService.postRequest('/user/program/sequence/get', body);
