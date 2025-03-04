@@ -69,7 +69,7 @@ class _DeviceListState extends State<DeviceList> {
               const SizedBox(height: 20,),
               Expanded(
                 child: DataTable2(
-                  minWidth: 900,
+                  minWidth: 950,
                   headingRowColor: WidgetStatePropertyAll(themeData.colorScheme.onBackground),
                   dataRowColor: const WidgetStatePropertyAll(Colors.white),
                     fixedLeftColumns: 2,
@@ -87,8 +87,8 @@ class _DeviceListState extends State<DeviceList> {
                         label: Text('DEVICE ID', style: themeData.textTheme.headlineLarge,),
                       ),
                       DataColumn2(
-                        fixedWidth: 150,
-                        label: Text('INTERFACE', style: themeData.textTheme.headlineLarge,),
+                        fixedWidth: 200,
+                        label: Text('Extend', style: themeData.textTheme.headlineLarge,),
                       ),
                       DataColumn2(
                         fixedWidth: 150,
@@ -120,26 +120,21 @@ class _DeviceListState extends State<DeviceList> {
                               Text(device.deviceId, style: TextStyle(color: themeData.primaryColorDark),),
                             ),
                             DataCell(
-                                CustomDropDownButton(
-                                    value: getInterfaceValue(device),
+                                (![44, 45, 46, 47,].contains(device.modelId) && configPvd.listOfDeviceModel.any((device) => device.categoryId == 10 && device.masterId != null)) ? CustomDropDownButton(
+                                    value: getInitialExtendValue(device.extendControllerId),
                                     list: [
-                                      'RS485', 'LoRa', 'MQTT',
-                                      for(var extend in configPvd.listOfDeviceModel)
-                                        if(extend.categoryId == 10 && extend.masterId != null)
-                                          'Extend\n${extend.deviceId}'
+                                      '-',
+                                      ...configPvd.listOfDeviceModel
+                                          .where((device) => (device.masterId != null && device.categoryId == 10))
+                                          .map((device) => '${device.deviceName}\n${device.deviceId}')
                                     ],
                                     onChanged: (String? newValue) {
                                       List<String> interface = newValue!.split('\n');
                                       setState(() {
-                                        device.interfaceTypeId = getInterfaceStringToCode(interface[0]);
-                                        if(interface.length > 1){
-                                          device.extendControllerId = configPvd.listOfDeviceModel.firstWhere((device) => device.deviceId == interface[1]).controllerId;
-                                        }else{
-                                          device.extendControllerId = null;
-                                        }
+                                        device.extendControllerId = getExtendControllerId(newValue);
                                       });
                                     }
-                                )
+                                ) : Text('N/A', style: themeData.textTheme.headlineSmall,)
                             ),
                             DataCell(
                               CustomDropDownButton(
@@ -162,6 +157,13 @@ class _DeviceListState extends State<DeviceList> {
                                   }else{
                                     setState(() {
                                       device.masterId = null;
+                                      if(device.categoryId == 10){
+                                        for(var d in configPvd.listOfDeviceModel){
+                                          if(d.extendControllerId!= null && d.extendControllerId == device.masterId){
+                                            d.extendControllerId = null;
+                                          }
+                                        }
+                                      }
                                     });
                                   }
                                 },
@@ -178,6 +180,28 @@ class _DeviceListState extends State<DeviceList> {
       ),
     );
   }
+
+  String getInitialExtendValue(int? extendControllerId){
+    String value;
+    if(extendControllerId != null){
+      DeviceModel deviceModel = configPvd.listOfDeviceModel.firstWhere((device) => device.controllerId == extendControllerId);
+      value = '${deviceModel.deviceName}\n${deviceModel.deviceId}';
+    }else{
+      value = '-';
+    }
+    print('getInitialExtendValue : $value');
+    return value;
+  }
+
+  int? getExtendControllerId(String value){
+    if(value == '-'){
+      return null;
+    }else{
+      DeviceModel deviceModel = configPvd.listOfDeviceModel.firstWhere((device) => device.deviceId == value.split('\n')[1]);
+      return deviceModel.controllerId;
+    }
+  }
+
 
   Widget masterBox(
       {
@@ -327,13 +351,6 @@ class _DeviceListState extends State<DeviceList> {
   //   // print("getOroPumpPayload ==> ${widget.configPvd.getOroPumpPayload()}");
   // }
 
-  String getInterfaceValue(DeviceModel device){
-    String interface = getInterfaceCodeToString(device.interfaceTypeId);
-    String interfaceWithDeviceId = device.interfaceTypeId == 5
-        ? '$interface\n${configPvd.listOfDeviceModel.firstWhere((deviceObject) => deviceObject.controllerId == device.extendControllerId).deviceId}'
-        : interface;
-    return interfaceWithDeviceId;
-  }
 
   String getTabName(ConfigMakerTabs configMakerTabs) {
     switch (configMakerTabs) {

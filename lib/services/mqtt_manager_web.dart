@@ -40,7 +40,7 @@ class MqttManager {
       _client!.websocketProtocols = MqttClientConstants.protocolsSingleDefault;
 
       final MqttConnectMessage connMess = MqttConnectMessage()
-      // .authenticateAs('imsmqtt', '2L9((WonMr')
+      .authenticateAs('imsmqtt', '2L9((WonMr')
           .withClientIdentifier(uniqueId)
           .withWillTopic('will-topic')
           .withWillMessage('My Will message')
@@ -64,7 +64,7 @@ class MqttManager {
           print('Mosquitto start client connecting....');
         }
         await Future.delayed(Duration.zero);
-        await _client!.connect();
+        await _client!.connect('imsmqtt', '2L9((WonMr');
         _client?.updates!.listen(_onMessageReceived);
       } on Exception catch (e, stackTrace) {
         if (kDebugMode) {

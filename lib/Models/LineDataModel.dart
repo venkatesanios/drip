@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import 'Configuration/device_object_model.dart';
 
-class FilterSite {
+class ProgramFilterSite {
   final DeviceObjectModel? filterSite;
   final int? siteMode;
   final List<DeviceObjectModel>? filters;
@@ -10,7 +10,7 @@ class FilterSite {
   final DeviceObjectModel? pressureOut;
   final DeviceObjectModel? backWashValve;
 
-  FilterSite({
+  ProgramFilterSite({
     required this.filterSite,
     required this.siteMode,
     required this.filters,
@@ -19,8 +19,8 @@ class FilterSite {
     required this.backWashValve,
   });
 
-  factory FilterSite.fromJson(Map<String, dynamic> json) {
-    return FilterSite(
+  factory ProgramFilterSite.fromJson(Map<String, dynamic> json) {
+    return ProgramFilterSite(
       filterSite: (json.isNotEmpty) ? DeviceObjectModel.fromJson(Map<String, dynamic>.from(json)) : null,
       siteMode: json['siteMode'] as int?,
       filters: (json['filters'] as List?)?.where((e) => (e != null && e.isNotEmpty)).map((e) => DeviceObjectModel.fromJson(Map<String, dynamic>.from(e))).toList(),
@@ -31,7 +31,7 @@ class FilterSite {
   }
 }
 
-class FertilizerSite {
+class ProgramFertilizerSite {
   final DeviceObjectModel? fertilizerSite;
   final int? siteMode;
   final List<DeviceObjectModel>? channel;
@@ -41,7 +41,7 @@ class FertilizerSite {
   final List<DeviceObjectModel>? ec;
   final List<DeviceObjectModel>? ph;
 
-  FertilizerSite({
+  ProgramFertilizerSite({
     required this.fertilizerSite,
     required this.siteMode,
     required this.channel,
@@ -52,9 +52,9 @@ class FertilizerSite {
     required this.ph,
   });
 
-  factory FertilizerSite.fromJson(Map<String, dynamic> json) {
+  factory ProgramFertilizerSite.fromJson(Map<String, dynamic> json) {
     print('FertilizerSite.fromJson: $json');
-    return FertilizerSite(
+    return ProgramFertilizerSite(
       fertilizerSite: DeviceObjectModel.fromJson(json),
       siteMode: json['siteMode'],
       channel: (json['channel'] as List?)?.where((e) => (e != null && e.isNotEmpty)).map((e) => DeviceObjectModel.fromJson(Map<String, dynamic>.from(e))).toList(),
@@ -115,7 +115,7 @@ class ProgramWaterSource {
   }
 }
 
-class Pump {
+class ProgramPump {
   final DeviceObjectModel? waterSource;
   final DeviceObjectModel? level;
   final DeviceObjectModel? pressureIn;
@@ -123,7 +123,7 @@ class Pump {
   final DeviceObjectModel? waterMeter;
   final int? pumpType;
 
-  Pump({
+  ProgramPump({
     required this.waterSource,
     required this.level,
     required this.pressureIn,
@@ -132,8 +132,8 @@ class Pump {
     required this.pumpType,
   });
 
-  factory Pump.fromJson(Map<String, dynamic> json) {
-    return Pump(
+  factory ProgramPump.fromJson(Map<String, dynamic> json) {
+    return ProgramPump(
       waterSource: DeviceObjectModel.fromJson(json),
       level: json['level'].isNotEmpty ? DeviceObjectModel.fromJson(json['level']) : null,
       pressureIn: json['pressureIn'].isNotEmpty ? DeviceObjectModel.fromJson(json['pressureIn']) : null,
@@ -144,24 +144,24 @@ class Pump {
   }
 }
 
-class MoistureSensor {
+class ProgramMoistureSensor {
   final DeviceObjectModel waterSource;
   final List<DeviceObjectModel> valves;
 
-  MoistureSensor({
+  ProgramMoistureSensor({
     required this.waterSource,
     required this.valves,
   });
 
-  factory MoistureSensor.fromJson(Map<String, dynamic> json) {
-    return MoistureSensor(
+  factory ProgramMoistureSensor.fromJson(Map<String, dynamic> json) {
+    return ProgramMoistureSensor(
       waterSource: DeviceObjectModel.fromJson(json),
       valves: (json['valves'] as List).map((e) => DeviceObjectModel.fromJson(Map<String, dynamic>.from(e))).toList(),
     );
   }
 }
 
-class IrrigationLine with DiagnosticableTreeMixin {
+class ProgramIrrigationLine with DiagnosticableTreeMixin {
   final DeviceObjectModel irrigationLine;
   final List<DeviceObjectModel>? source;
   final List<DeviceObjectModel>? sourcePump;
@@ -189,7 +189,7 @@ class IrrigationLine with DiagnosticableTreeMixin {
   final List<DeviceObjectModel>? humidity;
   final List<DeviceObjectModel>? co2;
 
-  IrrigationLine({
+  ProgramIrrigationLine({
     required this.irrigationLine,
     this.source,
     this.sourcePump,
@@ -249,8 +249,8 @@ class IrrigationLine with DiagnosticableTreeMixin {
     properties.add(IterableProperty<DeviceObjectModel>('co2', co2));
   }
 
-  factory IrrigationLine.fromJson(Map<String, dynamic> json) {
-    return IrrigationLine(
+  factory ProgramIrrigationLine.fromJson(Map<String, dynamic> json) {
+    return ProgramIrrigationLine(
       irrigationLine: DeviceObjectModel.fromJson(json),
       source: _parseList(json['source']),
       sourcePump: _parseList(json['sourcePump']),

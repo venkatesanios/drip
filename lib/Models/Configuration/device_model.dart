@@ -8,7 +8,6 @@ class DeviceModel {
   final int modelId;
   final String modelName;
   int? interfaceTypeId;
-  String interfaceId;
   int? interfaceInterval;
   int? serialNumber;
   int? masterId;
@@ -33,7 +32,6 @@ class DeviceModel {
     required this.modelId,
     required this.modelName,
     required this.interfaceTypeId,
-    required this.interfaceId,
     required this.interfaceInterval,
     required this.serialNumber,
     required this.masterId,
@@ -60,7 +58,6 @@ class DeviceModel {
       modelId: data['modelId'],
       modelName: data['modelName'],
       interfaceTypeId: data['interfaceTypeId'],
-      interfaceId: data['interfaceId'],
       interfaceInterval: data['interfaceInterval'],
       serialNumber: data['serialNumber'],
       masterId: data['masterId'],
@@ -88,7 +85,6 @@ class DeviceModel {
       'modelId': modelId,
       'modelName': modelName,
       'interfaceTypeId': interfaceTypeId,
-      'interfaceId': interfaceId,
       'interfaceInterval': interfaceInterval,
       'serialNumber': serialNumber,
       'masterId': masterId,

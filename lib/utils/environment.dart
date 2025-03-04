@@ -11,7 +11,7 @@ class Environment {
       'mqttMobileUrl': '192.168.68.141',
       'publishTopic': 'AppToFirmware',
       'subscribeTopic': 'FirmwareToApp',
-      'mqttPort': 9001,
+      'mqttPort': 1883,
     },
     'smartComm' : {
       'apiUrl': 'http://52.172.214.208:5000/api/v1',
@@ -20,7 +20,6 @@ class Environment {
       'mqttMobileUrl': '52.172.214.208',
       'publishTopic': 'AppToFirmware',
       'subscribeTopic': 'FirmwareToApp',
-      //'mqttPort': 1883,
       'mqttPort': 9001,
     },
     'oroProduction': {
@@ -30,7 +29,7 @@ class Environment {
       'mqttMobileUrl': '192.168.68.141',
       'publishTopic': 'AppToFirmware',
       'subscribeTopic': 'FirmwareToApp',
-      'mqttPort': 9001,
+      'mqttPort': 1883,
     },
   };
 

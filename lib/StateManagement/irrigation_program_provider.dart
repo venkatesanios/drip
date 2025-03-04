@@ -45,19 +45,19 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   SequenceModel? _irrigationLine;
   SequenceModel? get irrigationLine => _irrigationLine;
 
-  List<IrrigationLine>? _sampleIrrigationLine;
-  List<IrrigationLine>? get sampleIrrigationLine => _sampleIrrigationLine;
+  List<ProgramIrrigationLine>? _sampleIrrigationLine;
+  List<ProgramIrrigationLine>? get sampleIrrigationLine => _sampleIrrigationLine;
 
-  List<FilterSite>? _filterSite;
-  List<FilterSite>? get filterSite => _filterSite;
-  List<FertilizerSite>? _fertilizerSite;
-  List<FertilizerSite>? get fertilizerSite => _fertilizerSite;
+  List<ProgramFilterSite>? _filterSite;
+  List<ProgramFilterSite>? get filterSite => _filterSite;
+  List<ProgramFertilizerSite>? _fertilizerSite;
+  List<ProgramFertilizerSite>? get fertilizerSite => _fertilizerSite;
   List<ProgramWaterSource>? _waterSource;
   List<ProgramWaterSource>? get waterSource => _waterSource;
-  List<Pump>? _pump;
-  List<Pump>? get pump => _pump;
-  List<MoistureSensor>? _moistureSensor;
-  List<MoistureSensor>? get moistureSensor => _moistureSensor;
+  List<ProgramPump>? _pump;
+  List<ProgramPump>? get pump => _pump;
+  List<ProgramMoistureSensor>? _moistureSensor;
+  List<ProgramMoistureSensor>? get moistureSensor => _moistureSensor;
   List<DeviceObjectModel>? _agitators;
   List<DeviceObjectModel>? get agitators => _agitators;
 
@@ -102,12 +102,12 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         configObjects = configMakerJson['data']['configObject'];
         final processedData = Constants.payloadConversion(configMakerJson['data']);
         apiData = processedData;
-        _sampleIrrigationLine = (processedData['irrigationLine'] as List).map((e) => IrrigationLine.fromJson(e as Map<String, dynamic>)).toList();
-        _filterSite = (processedData['filterSite'] as List).map((element) => FilterSite.fromJson(element as Map<String, dynamic>)).toList();
-        _fertilizerSite = (processedData['fertilizerSite'] as List).map((element) => FertilizerSite.fromJson(element as Map<String, dynamic>)).toList();
+        _sampleIrrigationLine = (processedData['irrigationLine'] as List).map((e) => ProgramIrrigationLine.fromJson(e as Map<String, dynamic>)).toList();
+        _filterSite = (processedData['filterSite'] as List).map((element) => ProgramFilterSite.fromJson(element as Map<String, dynamic>)).toList();
+        _fertilizerSite = (processedData['fertilizerSite'] as List).map((element) => ProgramFertilizerSite.fromJson(element as Map<String, dynamic>)).toList();
         _waterSource = (processedData['waterSource'] as List).map((element) => ProgramWaterSource.fromJson(element as Map<String, dynamic>)).toList();
-        _pump = (processedData['pump'] as List).map((element) => Pump.fromJson(element as Map<String, dynamic>)).toList();
-        _moistureSensor = (processedData['moistureSensor'] as List).map((element) => MoistureSensor.fromJson(element as Map<String, dynamic>)).toList();
+        _pump = (processedData['pump'] as List).map((element) => ProgramPump.fromJson(element as Map<String, dynamic>)).toList();
+        _moistureSensor = (processedData['moistureSensor'] as List).map((element) => ProgramMoistureSensor.fromJson(element as Map<String, dynamic>)).toList();
         if(_fertilizerSite != null) {
           _agitators = fertilizerSite!.map((e) => e.agitator != null ? List<DeviceObjectModel>.from(e.agitator!) : [])
             .expand((list) => list)
