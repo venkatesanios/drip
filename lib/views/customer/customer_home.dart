@@ -988,19 +988,19 @@ class DisplayPumpStation extends StatelessWidget {
                                 const VerticalDivider(width: 0,color: Colors.black12),
                                 const SizedBox(width: 5.0,),
 
-                                fertilizerSite[fIndex].ec.isNotEmpty || fertilizerSite[fIndex].ph.isNotEmpty?
+                                fertilizerSite[fIndex].ec!.isNotEmpty || fertilizerSite[fIndex].ph!.isNotEmpty?
                                 SizedBox(
-                                  width: fertilizerSite[fIndex].ec.length > 1 ? 130 : 70,
+                                  width: fertilizerSite[fIndex].ec!.length > 1 ? 130 : 70,
                                   height: 30,
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      fertilizerSite[fIndex].ec.isNotEmpty?
+                                      fertilizerSite[fIndex].ec!.isNotEmpty?
                                       SizedBox(
                                         height: 15,
                                         child: ListView.builder(
                                           scrollDirection: Axis.horizontal,
-                                          itemCount: fertilizerSite[fIndex].ec.length,
+                                          itemCount: fertilizerSite[fIndex].ec!.length,
                                           itemBuilder: (BuildContext context, int index) {
                                             return Row(
                                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1009,14 +1009,14 @@ class DisplayPumpStation extends StatelessWidget {
                                                     child: Text(
                                                       'Ec : ',
                                                       style: TextStyle(
-                                                          fontSize: 11, fontWeight: FontWeight.normal),
+                                                          fontSize: 10, fontWeight: FontWeight.normal),
                                                     )),
                                                 Center(
                                                   child: Text(
                                                     double.parse(
-                                                        '${fertilizerSite[fIndex].ec[index]['Status']}')
+                                                        fertilizerSite[fIndex].ec![index].value)
                                                         .toStringAsFixed(2),
-                                                    style: const TextStyle(fontSize: 11),
+                                                    style: const TextStyle(fontSize: 10),
                                                   ),
                                                 ),
                                                 const SizedBox(
@@ -1029,12 +1029,12 @@ class DisplayPumpStation extends StatelessWidget {
                                       ):
                                       const SizedBox(),
 
-                                      fertilizerSite[fIndex].ph.isNotEmpty?
+                                      fertilizerSite[fIndex].ph!.isNotEmpty?
                                       SizedBox(
                                         height: 15,
                                         child: ListView.builder(
                                           scrollDirection: Axis.horizontal,
-                                          itemCount: fertilizerSite[fIndex].ph.length,
+                                          itemCount: fertilizerSite[fIndex].ph!.length,
                                           itemBuilder: (BuildContext context, int index) {
                                             return Row(
                                               children: [
@@ -1047,7 +1047,7 @@ class DisplayPumpStation extends StatelessWidget {
                                                 Center(
                                                   child: Text(
                                                     double.parse(
-                                                        '${fertilizerSite[fIndex].ph[index]['Status']}')
+                                                        fertilizerSite[fIndex].ph![index].value)
                                                         .toStringAsFixed(2),
                                                     style: const TextStyle(fontSize: 11),
                                                   ),
@@ -1071,8 +1071,8 @@ class DisplayPumpStation extends StatelessWidget {
                                     color: Colors.green.shade50,
                                     borderRadius: BorderRadius.circular(3),
                                   ),
-                                  width: (fertilizerSite[fIndex].channel.length * 67) - (fertilizerSite[fIndex].ec.isNotEmpty ?
-                                  fertilizerSite[fIndex].ec.length * 70 : fertilizerSite[fIndex].ph.length * 70),
+                                  width: (fertilizerSite[fIndex].channel.length * 67) - (fertilizerSite[fIndex].ec!.isNotEmpty ?
+                                  fertilizerSite[fIndex].ec!.length * 70 : fertilizerSite[fIndex].ph!.length * 70),
                                   child: Center(
                                     child: Text(fertilizerSite[fIndex].name, style: TextStyle(color: primaryDark, fontSize: 11),),
                                   ),

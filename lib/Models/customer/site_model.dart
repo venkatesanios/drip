@@ -475,8 +475,9 @@ class FertilizerSite {
   final List<BoosterPump> boosterPump;
   final List<Agitator> agitator;
   final List<dynamic> selector;
-  final List<dynamic> ec;
-  final List<dynamic> ph;
+
+  List<Ec>? ec;
+  List<Ph>? ph;
 
   FertilizerSite({
     required this.objectId,
@@ -511,8 +512,12 @@ class FertilizerSite {
       boosterPump: (json['boosterPump'] as List).map((e) => BoosterPump.fromJson(e)).toList(),
       agitator: (json['agitator'] as List).map((e) => Agitator.fromJson(e)).toList(),
       selector: json['selector'] ?? [],
-      ec: json['ec'] ?? [],
-      ph: json['ph'] ?? [],
+      ec: (json['ec'] != null && json['ec'] is List && json['ec'].isNotEmpty)
+          ? (json['ec'] as List).map((e) => Ec.fromJson(e)).toList()
+          : [],
+      ph: (json['ph'] != null && json['ph'] is List && json['ph'].isNotEmpty)
+          ? (json['ph'] as List).map((e) => Ph.fromJson(e)).toList()
+          : [],
     );
   }
 }
@@ -524,7 +529,7 @@ class Channel {
   final int connectionNo;
   final String objectName;
   final String type;
-  final int controllerId;
+  final int? controllerId;
   final int? count;
   final int level;
   bool selected;
@@ -571,6 +576,84 @@ class Channel {
       level: json['level'],
     );
   }
+}
+
+class Ec {
+  final int objectId;
+  final double sNo;
+  final String name;
+  final int connectionNo;
+  final String objectName;
+  final String type;
+  final int? controllerId;
+  final int? count;
+  String value;
+
+  Ec({
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+    required this.connectionNo,
+    required this.objectName,
+    required this.type,
+    required this.controllerId,
+    this.count,
+    this.value = '0',
+  });
+
+  factory Ec.fromJson(Map<String, dynamic> json) {
+    return Ec(
+      objectId: json['objectId'],
+      sNo: json['sNo'].toDouble(),
+      name: json['name'],
+      connectionNo: json['connectionNo'],
+      objectName: json['objectName'],
+      type: json['type'],
+      controllerId: json['controllerId'],
+      count: json['count'],
+    );
+  }
+
+
+}
+
+class Ph {
+  final int objectId;
+  final double sNo;
+  final String name;
+  final int connectionNo;
+  final String objectName;
+  final String type;
+  final int? controllerId;
+  final int? count;
+  String value;
+
+  Ph({
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+    required this.connectionNo,
+    required this.objectName,
+    required this.type,
+    required this.controllerId,
+    this.count,
+    this.value = '0',
+  });
+
+  factory Ph.fromJson(Map<String, dynamic> json) {
+    return Ph(
+      objectId: json['objectId'],
+      sNo: json['sNo'].toDouble(),
+      name: json['name'],
+      connectionNo: json['connectionNo'],
+      objectName: json['objectName'],
+      type: json['type'],
+      controllerId: json['controllerId'],
+      count: json['count'],
+    );
+  }
+
+
 }
 
 class BoosterPump {

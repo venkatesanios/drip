@@ -5,6 +5,7 @@ import 'package:oro_drip_irrigation/views/customer/site_config.dart';
 import 'package:oro_drip_irrigation/views/customer/stand_alone.dart';
 import '../../Models/customer/site_model.dart';
 import 'package:provider/provider.dart';
+import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../flavors.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
@@ -35,11 +36,17 @@ class CustomerScreenController extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    var nodeLiveMessage = Provider.of<MqttPayloadProvider>(context).nodeLiveMessage;
+    if(nodeLiveMessage.isNotEmpty){
+      print('nodeLiveMessage:$nodeLiveMessage');
+    }
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => NavRailViewModel()),
         ChangeNotifierProvider(
-          create: (_) => CustomerScreenControllerViewModel(Repository(HttpService()))..getAllMySites(customerId),
+          create: (_) => CustomerScreenControllerViewModel(Repository(HttpService()), context)..getAllMySites(customerId),
         ),
       ],
       child: Consumer2<NavRailViewModel, CustomerScreenControllerViewModel>(

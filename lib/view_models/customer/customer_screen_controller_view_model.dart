@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import '../../Models/customer/site_model.dart';
+import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../repository/repository.dart';
 import '../../services/mqtt_service.dart';
 import '../../utils/constants.dart';
@@ -22,13 +24,28 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   String myCurrentIrrLine= 'No Line Available';
   int controllerId = 0;
 
-  //final mqttService = MqttService();
+  final mqttService = MqttService();
+  late MqttPayloadProvider payloadProvider;
 
-  CustomerScreenControllerViewModel(this.repository){
-    /*mqttService.initializeMQTTClient(state: this);
-    mqttService.connect();
+  CustomerScreenControllerViewModel(this.repository, context){
 
-    mqttService.liveMessageStream.listen((liveMsg) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
+      mqttConfigureAndConnect(context);
+      mqttService.mqttConnectionStream.listen((state) {
+        onSubscribeTopic();
+      });
+    });
+
+    var nodeLiveMessage = Provider.of<MqttPayloadProvider>(context).nodeLiveMessage;
+    if(nodeLiveMessage.isNotEmpty){
+      print('nodeLiveMessage:$nodeLiveMessage');
+    }
+
+   // mqttService.initializeMQTTClient(state: this);
+    //mqttService.connect();
+
+    /*mqttService.liveMessageStream.listen((liveMsg) {
 
       Map<String, dynamic> liveMessage = jsonDecode(liveMsg);
       mySiteList.data[sIndex].master[mIndex].live?.cD = liveMessage['cD'];
@@ -41,11 +58,11 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
 
   }
 
-  void changeMQTTConnectionState(MQTTConnectionState state) {
-    if (state == MQTTConnectionState.connected) {
-      onSubscribeTopic();
-    }
+  void mqttConfigureAndConnect(BuildContext context) {
+    mqttService.initializeMQTTClient(state: payloadProvider);
+    mqttService.connect();
   }
+
 
   void onSubscribeTopic(){
     Future.delayed(const Duration(milliseconds: 2000), () {

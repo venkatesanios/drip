@@ -15,7 +15,7 @@ class NodeListViewModel extends ChangeNotifier {
   }
 
   void onLivePayloadReceived(){
-    mqttService.liveMessageStream.listen((liveMsg) {
+    /*mqttService.liveMessageStream.listen((liveMsg) {
       Map<String, dynamic> liveMessage = jsonDecode(liveMsg);
       List<String> groups = liveMessage['cM']['2401'].split(";");
       for (String group in groups) {
@@ -32,7 +32,7 @@ class NodeListViewModel extends ChangeNotifier {
         }
       }
       notifyListeners();
-    });
+    });*/
   }
 
 
