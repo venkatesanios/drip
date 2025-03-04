@@ -19,6 +19,7 @@ class CustomDropDownButton extends StatelessWidget {
   Widget build(BuildContext context) {
     print('value :: $value');
     return DropdownButton<String>(
+      isExpanded: true,
       underline: Container(),
       value: value,
       style: Theme.of(context).textTheme.headlineSmall,

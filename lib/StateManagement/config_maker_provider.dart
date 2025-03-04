@@ -51,107 +51,6 @@ class ConfigMakerProvider extends ChangeNotifier{
     "userId": 0, "customerId": 0, "controllerId": 1, "deviceId": "EDEFEADE0001", "deviceName": "Oro Gem 1", "categoryId": 1, "categoryName": "Oro Gem", "modelId": 1, "modelName": "Gem", "groupId" : 1, "groupName" : "Carrot"
   };
 
-  List<dynamic>sampleData = [
-    // {
-    //   "connectingObjectId" : [1, 2, 3, 4], "controllerId": 1, "deviceId": "EDEFEADE0001", "deviceName": "Oro Gem 1", "categoryId": 1, "categoryName": "Oro Gem", "modelId": 1, "modelName": "Gem", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 1, "masterId": "EDEFEADE0001", "noOfRelay": 0, "noOfLatch": 0, "noOfAnalogInput": 0, "noOfDigitalInput": 0, "noOfPulseInput": 0, "noOfMoistureInput": 0, "noOfI2CInput": 0
-    // },
-    {
-      "connectingObjectId" : [5], "controllerId": 2, "deviceId": "EDEFEADE0002", "deviceName": "Oro Pump 1", "categoryId": 2, "categoryName": "Oro Pump", "modelId": 1, "modelName": "Oro Pump m1", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 1, "masterId": 1, "noOfRelay": 3, "noOfLatch": 0, "noOfAnalogInput": 0, "noOfDigitalInput": 0, "noOfPulseInput": 0, "noOfMoistureInput": 0, "noOfI2CInput": 0
-    },
-    {
-      "connectingObjectId" : [5, 22, 24, 26, 39], "controllerId": 3, "deviceId": "EDEFEADE0003", "deviceName": "Oro Pump Plus 1", "categoryId": 2, "categoryName": "Oro Pump Plus", "modelId": 2, "modelName": "Oro Pump m2", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 1, "masterId": 1, "noOfRelay": 3, "noOfLatch": 0, "noOfAnalogInput": 5, "noOfDigitalInput": 6, "noOfPulseInput": 1, "noOfMoistureInput": 0, "noOfI2CInput": 0
-    },
-    {
-      "connectingObjectId" : [24, 26, 39], "controllerId": 4, "deviceId": "EDEFEADE0004", "deviceName": "Oro Level 1", "categoryId": 3, "categoryName": "Oro Level", "modelId": 1, "modelName": "Oro Level m1", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 1, "masterId": 1, "noOfRelay": 0, "noOfLatch": 0, "noOfAnalogInput": 4, "noOfDigitalInput": 4, "noOfPulseInput": 0, "noOfMoistureInput": 0, "noOfI2CInput": 0
-    },
-    {
-      "connectingObjectId" : [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 26, 39], "controllerId": 5, "deviceId": "EDEFEADE0005", "deviceName": "Oro Level 2", "categoryId": 3, "categoryName": "Oro Level", "modelId": 2, "modelName": "Oro Level m2", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 1, "masterId": 1, "noOfRelay": 0, "noOfLatch": 4, "noOfAnalogInput": 4, "noOfDigitalInput": 4, "noOfPulseInput": 1, "noOfMoistureInput": 0, "noOfI2CInput": 0
-    },
-    {
-      "connectingObjectId" : [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 24, 26, 27, 28, 31, 35, 37], "controllerId": 6, "deviceId": "EDEFEADE0006", "deviceName": "Oro Smart 1", "categoryId": 5, "categoryName": "Oro Smart", "modelId": 4, "modelName": "Oro Smart m4", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 1, "masterId": 1, "noOfRelay": 8, "noOfLatch": 0, "noOfAnalogInput": 4, "noOfDigitalInput": 0, "noOfPulseInput": 0, "noOfMoistureInput": 0, "noOfI2CInput": 0
-    },
-    {
-      "connectingObjectId" : [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 26, 27, 28, 30, 31, 32, 35, 37, 38, 39, 40], "controllerId": 7, "deviceId": "EDEFEADE0007", "deviceName": "Oro Smart Plus 1", "categoryId": 6, "categoryName": "Oro Smart Plus", "modelId": 3, "modelName": "Oro Smart Plus m3", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 1, "masterId": 1, "noOfRelay": 16, "noOfLatch": 0, "noOfAnalogInput": 8, "noOfDigitalInput": 5, "noOfPulseInput": 1, "noOfMoistureInput": 0, "noOfI2CInput": 0
-    },
-    {
-      "connectingObjectId" : [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 26, 27, 28, 30, 31, 32, 35, 37, 38, 39, 40], "controllerId": 100, "deviceId": "EDEFEADE0100", "deviceName": "Oro Smart Plus 2", "categoryId": 6, "categoryName": "Oro Smart Plus", "modelId": 3, "modelName": "Oro Smart Plus m3", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 1, "masterId": 1, "noOfRelay": 16, "noOfLatch": 0, "noOfAnalogInput": 8, "noOfDigitalInput": 5, "noOfPulseInput": 1, "noOfMoistureInput": 0, "noOfI2CInput": 0
-    },
-    {
-      "connectingObjectId" : [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 26, 27, 28, 30, 31, 32, 35, 37, 38, 39, 40], "controllerId": 99, "deviceId": "EDEFEADE0101", "deviceName": "Oro Smart Plus 3", "categoryId": 6, "categoryName": "Oro Smart Plus", "modelId": 3, "modelName": "Oro Smart Plus m3", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 1, "masterId": 1, "noOfRelay": 16, "noOfLatch": 0, "noOfAnalogInput": 8, "noOfDigitalInput": 5, "noOfPulseInput": 1, "noOfMoistureInput": 0, "noOfI2CInput": 0
-    },
-    {
-      "connectingObjectId" : [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 24, 26, 27, 28, 31, 35, 37], "controllerId": 8, "deviceId": "EDEFEADE0008", "deviceName": "Oro Rtu 1", "categoryId": 7, "categoryName": "Oro Rtu", "modelId": 5, "modelName": "Oro Rtu m5", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 0, "masterId": null, "noOfRelay": 0, "noOfLatch": 8, "noOfAnalogInput": 4, "noOfDigitalInput": 0, "noOfPulseInput": 1, "noOfMoistureInput": 0, "noOfI2CInput": 0
-    },
-    {
-      "connectingObjectId" : [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25, 24, 26, 27, 28, 30, 31, 32, 35, 37, 38, 39, 40], "controllerId": 9, "deviceId": "EDEFEADE0009", "deviceName": "Oro Rtu Plus 1", "categoryId": 8, "categoryName": "Oro Rtu Plus", "modelId": 2, "modelName": "Oro Rtu Plus m2", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 0, "masterId": null, "noOfRelay": 0, "noOfLatch": 8, "noOfAnalogInput": 4, "noOfDigitalInput": 1, "noOfPulseInput": 0, "noOfMoistureInput": 4, "noOfI2CInput": 0
-    },
-    {
-      "connectingObjectId" : [ 23, 25, 30, 32, 38, 39, 40], "controllerId": 10, "deviceId": "EDEFEADE0010", "deviceName": "Oro Sense 1", "categoryId": 9, "categoryName": "Oro Sense", "modelId": 1, "modelName": "Oro Sense m1", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 0, "masterId": null, "noOfRelay": 0, "noOfLatch": 0, "noOfAnalogInput": 0, "noOfDigitalInput": 1, "noOfPulseInput": 0, "noOfMoistureInput": 4, "noOfI2CInput": 0
-    },
-    {
-      "connectingObjectId" : [29, 33, 34], "controllerId": 11, "deviceId": "EDEFEADE0011", "deviceName": "Oro Sense 2", "categoryId": 9, "categoryName": "Oro Sense", "modelId": 2, "modelName": "Oro Sense m2", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 0, "masterId": null, "noOfRelay": 0, "noOfLatch": 0, "noOfAnalogInput": 0, "noOfDigitalInput": 0, "noOfPulseInput": 0, "noOfMoistureInput": 0, "noOfI2CInput": 2
-    },
-    {
-      "connectingObjectId" : [0], "controllerId": 12, "deviceId": "EDEFEADE0012", "deviceName": "Oro Extend 1", "categoryId": 10, "categoryName": "Oro Extend", "modelId": 3, "modelName": "Oro Extend m3", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 0, "masterId": null, "noOfRelay": 0, "noOfLatch": 0, "noOfAnalogInput": 0, "noOfDigitalInput": 0, "noOfPulseInput": 0, "noOfMoistureInput": 0, "noOfI2CInput": 2
-    },
-    {
-      "connectingObjectId" : [0], "controllerId": 13, "deviceId": "EDEFEADE0013", "deviceName": "Oro Extend 2", "categoryId": 10, "categoryName": "Oro Extend", "modelId": 3, "modelName": "Oro Extend m3", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 0, "masterId": null, "noOfRelay": 0, "noOfLatch": 0, "noOfAnalogInput": 0, "noOfDigitalInput": 0, "noOfPulseInput": 0, "noOfMoistureInput": 0, "noOfI2CInput": 0
-    },
-    {
-      "connectingObjectId" : [25, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39], "controllerId": 14, "deviceId": "EDEFEADE0014", "deviceName": "Oro Weather 1", "categoryId": 4, "categoryName": "Oro Weather", "modelId": 1, "modelName": "Oro Weather m1", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 0, "masterId": null, "noOfRelay": 0, "noOfLatch": 0, "noOfAnalogInput": 3, "noOfDigitalInput": 4, "noOfPulseInput": 0, "noOfMoistureInput": 4, "noOfI2CInput": 4
-    }
-  ];
-  // Map<String, dynamic> masterData = {
-  //   "controllerId": 1, "deviceId": "EDEFEADE0001", "deviceName": "Oro Pump 1", "categoryId": 2, "categoryName": "Oro Pump", "modelId": 4, "modelName": "Gem", "groupId" : 1, "groupName" : "Carrot"
-  // };
-  // List<dynamic>sampleData = [
-  //     {
-  //       "connectingObjectId" : [5], "controllerId": 2, "deviceId": "EDEFEADE0002", "deviceName": "Oro Pump 1", "categoryId": 2, "categoryName": "Oro Pump", "modelId": 1, "modelName": "Oro Pump m1", "interfaceTypeId": 1, "interfaceInterval": 5, "serialNumber": 0, "isUsedInConfig": 1, "masterId": 1, "noOfRelay": 3, "noOfLatch": 0, "noOfAnalogInput": 0, "noOfDigitalInput": 0, "noOfPulseInput": 0, "noOfMoistureInput": 0, "noOfI2CInput": 0
-  //     },
-  // ];
-
-  List<dynamic> sampleObject = [
-    {"objectId" : 1, "type" : "-", "objectName" : "Source"},
-    {"objectId" : 2, "type" : "-", "objectName" : "Irrigation Line"},
-    {"objectId" : 3, "type" : "-", "objectName" : "Dosing Site"},
-    {"objectId" : 4, "type" : "-", "objectName" : "Filtration Site"},
-    {"objectId" : 5, "type" : "1,2","objectName" : "Pump"},
-    {"objectId" : 7, "type" : "1,2","objectName" : "Booster Pump"},
-    {"objectId" : 8, "type" : "1,2","objectName" : "Selector"},
-    {"objectId" : 9, "type" : "1,2","objectName" : "Agitator"},
-    {"objectId" : 10, "type" : "1,2","objectName" : "Injector"},
-    {"objectId" : 11, "type" : "1,2","objectName" : "Filter"},
-    {"objectId" : 12, "type" : "1,2","objectName" : "DownStream Valve"},
-    {"objectId" : 13, "type" : "1,2","objectName" : "Valve"},
-    {"objectId" : 14, "type" : "1,2","objectName" : "Main Valve"},
-    {"objectId" : 15, "type" : "1,2","objectName" : "Fan"},
-    {"objectId" : 16, "type" : "1,2","objectName" : "Fogger"},
-    {"objectId" : 17, "type" : "1,2","objectName" : "Heater"},
-    {"objectId" : 18, "type" : "1,2","objectName" : "Pesticides"},
-    {"objectId" : 19, "type" : "1,2","objectName" : "Light"},
-    {"objectId" : 20, "type" : "1,2","objectName" : "Vent"},
-    {"objectId" : 21, "type" : "1,2","objectName" : "Screen"},
-    {"objectId" : 22, "type" : "6", "objectName" : "Water Meter"},
-    {"objectId" : 23, "type" : "4", "objectName" : "Pressure Switch"},
-    {"objectId" : 24, "type" : "3", "objectName" : "Pressure Sensor"},
-    {"objectId" : 25, "type" : "5", "objectName" : "Moisture Sensor"},
-    {"objectId" : 26, "type" : "3", "objectName" : "Level Sensor"},
-    {"objectId" : 27, "type" : "3", "objectName" : "EC Sensor"},
-    {"objectId" : 28, "type" : "3", "objectName" : "PH Sensor"},
-    {"objectId" : 29, "type" : "7", "objectName" : "Temperature Sensor"},
-    {"objectId" : 30, "type" : "4", "objectName" : "Soil Temperature Sensor"},
-    {"objectId" : 31, "type" : "3", "objectName" : "Wind Direction Sensor"},
-    {"objectId" : 32, "type" : "4", "objectName" : "Wind Speed Sensor"},
-    {"objectId" : 33, "type" : "7", "objectName" : "Co2 Sensor"},
-    {"objectId" : 34, "type" : "7", "objectName" : "LUX Sensor"},
-    {"objectId" : 35, "type" : "3", "objectName" : "LDR Sensor"},
-    {"objectId" : 36, "type" : "7", "objectName" : "Humidity Sensor"},
-    {"objectId" : 37, "type" : "3", "objectName" : "Leaf Wetness Sensor"},
-    {"objectId" : 38, "type" : "4", "objectName" : "Rain Fall Sensor"},
-    {"objectId" : 39, "type" : "4", "objectName" : "Atm. Pressure"},
-    {"objectId" : 40, "type" : "4", "objectName" : "Float"},
-    {"objectId" : 41, "type" : "4", "objectName" : "Manual Button"},
-  ];
   List<DeviceObjectModel> listOfSampleObjectModel = [];
   List<DeviceObjectModel> listOfObjectModelConnection = [];
   List<DeviceObjectModel> listOfGeneratedObject = [];
@@ -220,8 +119,7 @@ class ConfigMakerProvider extends ChangeNotifier{
           categoryName: devices['categoryName'],
           modelId: devices['modelId'],
           modelName: devices['modelName'],
-          interfaceTypeId: devices['interfaceTypeId'] ?? 1,
-          interfaceId: deviceProperty['interfaceId'],
+          interfaceTypeId: devices['interfaceTypeId'],
           interfaceInterval: 5,
           serialNumber: devices['serialNumber'],
           masterId: devices['masterId'],
@@ -412,15 +310,15 @@ class ConfigMakerProvider extends ChangeNotifier{
       // ------------- validate ec, ph and pressure switch for category 6----------------------------
       if(selectedDevice.categoryId == 6){
         int ph = 28;
-        if(selectedConnectionObject.objectId == ph && selectedDevice.categoryId == 6){
+        if(selectedConnectionObject.objectId == ph && selectedDevice.modelId == 33){
           selectedModelDefaultConnectionList = selectedModelDefaultConnectionList.where((connectionNo) => [5,6].contains(connectionNo)).toList();
         }
         int ec = 27;
-        if(selectedConnectionObject.objectId == ec && selectedDevice.categoryId == 6){
+        if(selectedConnectionObject.objectId == ec && selectedDevice.modelId == 33){
           selectedModelDefaultConnectionList = selectedModelDefaultConnectionList.where((connectionNo) => [7,8].contains(connectionNo)).toList();
         }
         int pressureSwitch = 23;
-        if(selectedConnectionObject.objectId == pressureSwitch && selectedDevice.categoryId == 6){
+        if(selectedConnectionObject.objectId == pressureSwitch && selectedDevice.modelId == 33){
           selectedModelDefaultConnectionList = selectedModelDefaultConnectionList.where((connectionNo) => [5].contains(connectionNo)).toList();
         }
       }
