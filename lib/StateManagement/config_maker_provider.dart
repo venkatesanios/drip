@@ -684,6 +684,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         "PressureIn": serialNoOrEmpty(filterSite.pressureIn),
         "PressureOut": serialNoOrEmpty(filterSite.pressureOut),
         "IrrigationLine": line.where((irrigationLine) => [irrigationLine.centralFiltration, irrigationLine.localFiltration].contains(filterSite.commonDetails.sNo)).map((filteredLine) => filteredLine.commonDetails.sNo).toList().join('_'),
+        "SiteType" : filterSite.siteMode
       }.entries.map((e) => e.value).join(","));
     }
     return filterPayload.join(";");
@@ -701,6 +702,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         "IrrigationLine": line.where((irrigationLine) => [irrigationLine.centralFertilization, irrigationLine.localFertilization].contains(fertilizer.commonDetails.sNo)).map((filteredLine) => filteredLine.commonDetails.sNo).toList().join('_'),
         "Agitator": fertilizer.agitator.join('_'),
         "TankSelector": fertilizer.selector.join('_'),
+        "SiteType" : fertilizer.siteMode
       }.entries.map((e) => e.value).join(","));
     }
 

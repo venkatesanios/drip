@@ -1408,8 +1408,11 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
           localFertOnOff += '${localFertOnOff.length != 0 ? '_' : ''}0';
         }
       }
-      payload += wf.isNotEmpty ? ';' : '';
-      payload += {
+      payload += payload.isNotEmpty ? ';' : '';
+      print('sq :: ${sq}');
+      print('sq moisture :: ${sq['moistureSno']}');
+      print('sq level :: ${sq['levelSno']}');
+      Map<String, dynamic> jsonPayload = {
         'S_No' : sq['sNo'],
         'ProgramS_No' : serialNumber,
         'SequenceData' : sq['valve'].map((valve) => valve['sNo']).toList().join('_'),
@@ -1441,8 +1444,9 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         'LocalPhSetValue' : localPhValue == '' ? 0.0 : double.parse(localPhValue),
         'ZoneCondition' : sq['moistureSno'],
         'ImmediateStopByCondition' : sq['levelSno']
-      }.values.toList().join(',');
-
+      };
+      print('jsonPayload :: $jsonPayload');
+      payload += jsonPayload.values.toList().join(',');
     }
     return payload;
   }

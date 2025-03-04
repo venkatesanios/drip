@@ -128,8 +128,9 @@ class MqttManager {
       final MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
       builder.addString(message);
       _client!.publishMessage(topic, MqttQos.exactlyOnce, builder.payload!);
-    }catch (e){
+    }catch (e, stackTrace){
       print('web mqtt error while publish : ${e}');
+      print('web mqtt stackTrace while publish : ${stackTrace}');
     }
 
   }
