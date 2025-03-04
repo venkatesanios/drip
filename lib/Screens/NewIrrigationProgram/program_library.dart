@@ -13,6 +13,8 @@ import '../../StateManagement/overall_use.dart';
 import '../../Widgets/SCustomWidgets/custom_alert_dialog.dart';
 import '../../Widgets/SCustomWidgets/custom_list_tile.dart';
 import '../../Widgets/SCustomWidgets/custom_snack_bar.dart';
+import 'package:oro_drip_irrigation/services/mqtt_manager_mobile.dart' if (dart.library.html) 'package:oro_drip_irrigation/services/mqtt_manager_web.dart';
+import '../../utils/environment.dart';
 import 'irrigation_program_main.dart';
 
 class ProgramLibraryScreenNew extends StatefulWidget {
@@ -406,7 +408,9 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                         onTap: () async{
                           if(programItem.active == "1") {
                             Map<String, dynamic> dataToMqtt = programItem.hardwareData;
+
                             try {
+                              MqttManager().topicToPublishAndItsMessage('${Environment.mqttWebPublishTopic}/${widget.deviceId}', jsonEncode(dataToMqtt));
                              /* await validatePayloadSent(
                                   dialogContext: context,
                                   context: context,
@@ -427,7 +431,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                                   });
                                 }
                               });*/
-                              await saveProgramDetails(programItem, dataToMqtt);
+                              // await saveProgramDetails(programItem, dataToMqtt);
                              /* await Future.delayed(const Duration(seconds: 1), () async{
                                 await irrigationProgramMainProvider.programLibraryData(overAllUse.takeSharedUserId ? overAllUse.sharedUserId : overAllUse.userId, overAllUse.controllerId,);
                               });*/

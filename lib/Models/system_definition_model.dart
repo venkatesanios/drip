@@ -30,8 +30,8 @@ class IrrigationLineSystemData {
   }
 
   String toMqtt() {
-    return '';
-    // return "$sNo,$hid,${systemDefinition.toMqtt()},${systemDefinition.irrigationLineOn ? 1 : 0}";
+    // return '';
+    return "$sNo,${systemDefinition.toMqtt()},${systemDefinition.irrigationLineOn ? 1 : 0}";
   }
 }
 

@@ -12,8 +12,10 @@ import '../../Widgets/SCustomWidgets/custom_native_time_picker.dart';
 import '../../Widgets/SCustomWidgets/custom_snack_bar.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
+import '../../utils/environment.dart';
 import '../NewIrrigationProgram/irrigation_program_main.dart';
 import '../NewIrrigationProgram/schedule_screen.dart';
+import 'package:oro_drip_irrigation/services/mqtt_manager_mobile.dart' if (dart.library.html) 'package:oro_drip_irrigation/services/mqtt_manager_web.dart';
 
 class SystemDefinition extends StatefulWidget {
   final int userId;
@@ -467,14 +469,9 @@ class _SystemDefinitionState extends State<SystemDefinition> {
           onPressed: () async{
             // print(systemDefinitionProvider.irrigationLineSystemData!.map((e) => e.toMqtt()).toList().join("\n"));
             Map<String, dynamic> dataToMqtt = {
-              "2200": [
-                {
-                  "2201": systemDefinitionProvider.irrigationLineSystemData!.map((e) => e.toMqtt()).toList().join(";"),
-                },
-                {
-                  "2202": "${widget.userId}"
-                }
-              ]
+              "2200": {
+                "2201": systemDefinitionProvider.irrigationLineSystemData!.map((e) => e.toMqtt()).toList().join(";"),
+              }
             };
 
             Map<String, dynamic> userData = {
@@ -516,6 +513,7 @@ class _SystemDefinitionState extends State<SystemDefinition> {
                   ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: response['message']));
                 }
               });
+              MqttManager().topicToPublishAndItsMessage('${Environment.mqttWebPublishTopic}/${widget.deviceId}', jsonEncode(dataToMqtt));
               // showNavigationDialog(context: context, menuId: widget.menuId, ack: systemDefinitionProvider.controllerReadStatus == "1");
             } catch (error) {
               ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: 'Failed to update because of $error'));

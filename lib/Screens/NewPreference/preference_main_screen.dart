@@ -11,6 +11,9 @@ import '../../StateManagement/overall_use.dart';
 import '../../StateManagement/preference_provider.dart';
 import '../../Widgets/SCustomWidgets/custom_snack_bar.dart';
 import '../../repository/repository.dart';
+import 'package:oro_drip_irrigation/services/mqtt_manager_mobile.dart' if (dart.library.html) 'package:oro_drip_irrigation/services/mqtt_manager_web.dart';
+
+import '../../utils/environment.dart';
 
 const payloadTopic = "AppToFirmware";
 
@@ -183,17 +186,17 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                                                     child: Center(
                                                       child: Text(
                                                         '${i + 1}',
-                                                        style: TextStyle(color: Colors.white),
+                                                        style: const TextStyle(color: Colors.white),
                                                       ),
                                                     ),
                                                   ),
                                                   title: Text(
                                                     '${preferenceProvider.commonPumpSettings![oroPumpIndex].deviceName}',
-                                                    style: TextStyle(fontWeight: FontWeight.w400),
+                                                    style: const TextStyle(fontWeight: FontWeight.w400),
                                                   ),
                                                   subtitle: Text(
                                                     '${statusMessages[key]!}',
-                                                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                                                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                                                   ),
                                                 ) : Container();
                                               },
@@ -214,13 +217,13 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                                             Navigator.pop(context);
                                             await sendFunction();
                                           } : null,
-                                          child: Text("Resend")
+                                          child: const Text("Resend")
                                       ),
                                       FilledButton(
                                           onPressed: (){
                                             Navigator.pop(context);
                                           },
-                                          child: Text("Cancel")
+                                          child: const Text("Cancel")
                                       )
                                     ],
                                   );
@@ -229,9 +232,9 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                           },
                         );
                       },
-                      child: Text("Failed", style: TextStyle(color: Colors.black),),
+                      child: const Text("Failed", style: TextStyle(color: Colors.black),),
                     ),
-                  SizedBox(width: 20,),
+                  const SizedBox(width: 20,),
                   MaterialButton(
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20)
@@ -273,7 +276,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                         }
                       }
                       },
-                    child: Text("${preferenceProvider.passwordValidationCode == 200 ? "Send calibration": "Send preference"}", style: TextStyle(color: Colors.white),),
+                    child: Text("${preferenceProvider.passwordValidationCode == 200 ? "Send calibration": "Send preference"}", style: const TextStyle(color: Colors.white),),
                   ),
                 ],
               ),
@@ -298,7 +301,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
           return StatefulBuilder(
               builder: (BuildContext context, StateSetter stateSetter) {
                 return AlertDialog(
-                  title: Text("Select the pump"),
+                  title: const Text("Select the pump"),
                   content: Container(
                     height: 200,
                     child: Scrollbar(
@@ -334,14 +337,14 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                       onPressed: (){
                         Navigator.of(context).pop();
                       },
-                      child: Text("CANCEL", style: TextStyle(color: Colors.red),),
+                      child: const Text("CANCEL", style: TextStyle(color: Colors.red),),
                     ),
                     TextButton(
                       onPressed: selectedOroPumpList.isNotEmpty ? () async{
                         Navigator.of(context).pop();
                         await sendFunction();
                       } : null,
-                      child: Text("SEND"),
+                      child: const Text("SEND"),
                     ),
                   ],
                 );
@@ -379,14 +382,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
     };
 
     Map<String, dynamic> payloadForSlave = {
-      "400": [
-        {"401": ""},
-        {"402": ""},
-        {"403": onDelayTimer()},
-        {"404": ""},
-        {"405": ""},
-        {"406": "${widget.userId}"}
-      ]
+      "400": {"401": onDelayTimer()}
     };
 
     // print("payloadForSlave ==> ${payloadForSlave['400'][2]}");
@@ -406,6 +402,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
     // print("payloadForGem ==> $payloadForGem");
 
     try {
+      MqttManager().topicToPublishAndItsMessage('${Environment.mqttWebPublishTopic}/${widget.deviceId}', jsonEncode(payloadForSlave));
      /* if(preferenceProvider.passwordValidationCode != 200 && isToGem) {
         MQTTManager().publish(jsonEncode(payloadForSlave), "AppToFirmware/${preferenceProvider.generalData!.deviceId}");
       }*/
@@ -479,7 +476,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
           );*/
           if(getFailedPayload(sendAll: false, isToGem: [1, 2].contains(preferenceProvider.generalData!.categoryId)).split(';').where((part) => part.isNotEmpty).toList().isEmpty) {
             preferenceProvider.generalData!.controllerReadStatus = "1";
-            await Future.delayed(Duration(milliseconds: 300));
+            await Future.delayed(const Duration(milliseconds: 300));
           } else {
             preferenceProvider.generalData!.controllerReadStatus = "0";
           }
@@ -857,14 +854,14 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                         child: Center(
                           child: Text(
                             '${index + 1}',
-                            style: TextStyle(color: Colors.white),
+                            style: const TextStyle(color: Colors.white),
                           ),
                         ),
                       ),
                       title: Text("Sending $message ($referenceNumber)"),
                     ),
-                    SizedBox(height: 5),
-                    Row(
+                    const SizedBox(height: 5),
+                    const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         CircularProgressIndicator(),
@@ -872,7 +869,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                         Expanded(child: Text("Please wait for controller response...")),
                       ],
                     ),
-                    SizedBox(height: 5),
+                    const SizedBox(height: 5),
                     Row(
                       children: [
                         Expanded(
@@ -880,7 +877,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                             value: (index) / total,
                           ),
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         Text('${index}/$total'),
                         // Text('${((index + 1) / total * 100).toStringAsFixed(0)}%'),
                       ],
@@ -896,7 +893,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                           });
                         });
                       },
-                      child: Text("Cancel")
+                      child: const Text("Cancel")
                   )
                 ],
               );
@@ -911,11 +908,11 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Alert'),
-          content: Text(message, style: TextStyle(color: Colors.red, fontSize: 16),),
+          title: const Text('Alert'),
+          content: Text(message, style: const TextStyle(color: Colors.red, fontSize: 16),),
           actions: [
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
