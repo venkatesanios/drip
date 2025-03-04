@@ -80,6 +80,9 @@ class MqttPayloadProvider with ChangeNotifier {
   List<dynamic> userPermission = [];
   List<dynamic> units = [];
 
+  //kamaraj
+  List<String> nodeLiveMessage = [];
+
 
   void editSensorLogData(data){
     sensorLogData = data;
@@ -459,6 +462,12 @@ class MqttPayloadProvider with ChangeNotifier {
     try {
       // Todo : Dashboard payload start
       Map<String, dynamic> data = jsonDecode(payload);
+
+      if(data['mC']=='2400'){
+        print(data['cM']);
+        nodeLiveMessage = data['cM']['2401'].split(";");
+      }
+
       if(data['liveSyncDate'] != null){
         String dateStr = data['liveSyncDate'];
         String timeStr = data['liveSyncTime'];
@@ -474,7 +483,8 @@ class MqttPayloadProvider with ChangeNotifier {
         int minute = int.parse(timeParts[1]);
         int second = int.parse(timeParts[2]);
         lastUpdate = DateTime(year, month, day, hour, minute, second);
-      }else if(data.containsKey('2400') && data['2400'].isNotEmpty){
+      }
+      else if(data.containsKey('2400') && data['2400'].isNotEmpty){
         if(data['2400'][0].containsKey('SentTime') && data['2400'][0]['SentTime'].isNotEmpty){
           lastUpdate = DateTime.parse(data['2400'][0]['SentTime']);
         }
@@ -795,7 +805,7 @@ class MqttPayloadProvider with ChangeNotifier {
     unitList = units;
   }
 
-  void setAppConnectionState(MQTTConnectionState state) {
+  void updateMQTTConnectionState(MQTTConnectionState state) {
     _appConnectionState = state;
     notifyListeners();
   }
