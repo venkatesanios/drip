@@ -29,7 +29,7 @@ class Environment {
       'mqttMobileUrl': '192.168.68.141',
       'publishTopic': 'AppToFirmware',
       'subscribeTopic': 'FirmwareToApp',
-      'mqttPort': 9001,
+      'mqttPort': 1883,
     },
   };
 
