@@ -404,10 +404,10 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                             0xffd2f3df) : const Color(0xffFFDEDC) : const Color(0xffFFDEDC),
                         toolTip: programItem.active == "1" ? "Send" : "Delete",
                         onTap: () async{
-                         /* if(programItem.active == "1") {
+                          if(programItem.active == "1") {
                             Map<String, dynamic> dataToMqtt = programItem.hardwareData;
                             try {
-                              await validatePayloadSent(
+                             /* await validatePayloadSent(
                                   dialogContext: context,
                                   context: context,
                                   mqttPayloadProvider: mqttPayloadProvider,
@@ -426,19 +426,19 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                                     controllerReadStatus = "0";
                                   });
                                 }
-                              });
+                              });*/
                               await saveProgramDetails(programItem, dataToMqtt);
-                              await Future.delayed(const Duration(seconds: 1), () async{
+                             /* await Future.delayed(const Duration(seconds: 1), () async{
                                 await irrigationProgramMainProvider.programLibraryData(overAllUse.takeSharedUserId ? overAllUse.sharedUserId : overAllUse.userId, overAllUse.controllerId,);
-                              });
+                              });*/
                             } catch (error) {
                               showSnackBar(message: 'Failed to update because of $error', context: context);
                               print("Error: $error");
                             }
                           } else {
                             showConfirmationDialog(programItem, "delete");
-                          }*/
-                          showConfirmationDialog(programItem, "delete");
+                          }
+                          // showConfirmationDialog(programItem, "delete");
                         },
                       ),
                       // const SizedBox(width: 10,),
@@ -745,7 +745,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                 ),
                 TextButton(
                   onPressed: () async{
-                    deleteProgram(program, toMove);
+                    // deleteProgram(program, toMove);
 
                     if(toMove == "active" || toMove == "inactive") {
                       Map<String, dynamic> dataToMqtt = program.hardwareData;
