@@ -137,6 +137,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                             verticalPadding: 8,
                             radius: 15,
                             name: '${programPvd.sequenceData[seq]['seqName']}',
+                            context: context,
                             onTap: (){
                               _scrollController.animateTo((seq * (programPvd.selectedGroup > seq ? (programPvd.sequenceData[seq]['seqName'].length * 3) : (programPvd.sequenceData[seq]['seqName'].length * 7))).toDouble(), duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
                               programPvd.editGroupSiteInjector('selectedGroup', seq);
@@ -186,7 +187,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                               AnimatedContainer(
                                   width: returnWidth(programPvd,'pre',screenSizeForGraph),
                                   decoration: BoxDecoration(
-                                      color: const Color(0xff5CB2D1),
+                                      color: Theme.of(context).primaryColorDark,
                                       borderRadius: BorderRadius.circular(10)
                                   ),
                                   height: 40,
@@ -206,20 +207,20 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                           height: 30/programPvd.sequenceData[programPvd.selectedGroup][programPvd.segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['fertilizer'].length,
                                           decoration: BoxDecoration(
                                               borderRadius: BorderRadius.circular(10),
-                                              gradient: const LinearGradient(
+                                              gradient: LinearGradient(
                                                   colors: [
                                                     Color(0xffFF857D),
-                                                    Color(0xff5CB2D1),
+                                                    Theme.of(context).primaryColorDark,
                                                     Color(0xffFF857D),
-                                                    Color(0xff5CB2D1),
+                                                    Theme.of(context).primaryColorDark,
                                                     Color(0xffFF857D),
-                                                    Color(0xff5CB2D1),
+                                                    Theme.of(context).primaryColorDark,
                                                     Color(0xffFF857D),
-                                                    Color(0xff5CB2D1),
+                                                    Theme.of(context).primaryColorDark,
                                                     Color(0xffFF857D),
-                                                    Color(0xff5CB2D1),
+                                                    Theme.of(context).primaryColorDark,
                                                     Color(0xffFF857D),
-                                                    Color(0xff5CB2D1),
+                                                    Theme.of(context).primaryColorDark,
 
                                                   ],
                                                   begin: Alignment.centerLeft,
@@ -1101,16 +1102,9 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                 child: Column(
                                   children: [
                                     Container(
-                                      decoration: const BoxDecoration(
+                                      decoration: BoxDecoration(
                                         borderRadius: BorderRadius.only(topLeft: Radius.circular(10),topRight: Radius.circular(10)),
-                                        gradient: LinearGradient(
-                                            begin: Alignment.topCenter,
-                                            end: Alignment.bottomCenter,
-                                            colors: [
-                                              Color(0xff1C7B89),
-                                              Color(0xff074B55)
-                                            ]
-                                        ),
+                                        color: Theme.of(context).primaryColorDark
 
                                       ),
                                       child: const Row(
@@ -2193,14 +2187,14 @@ Widget customizeGridView({required double maxWith,required double maxHeight,requ
 
 
 TextStyle wf = const TextStyle(fontSize: 12);
-Widget mySeqButtons({required String name,required void Function() onTap,double? radius,double? verticalPadding,int? index,required IrrigationProgramMainProvider programPvd}){
+Widget mySeqButtons({required String name,required void Function() onTap,double? radius,double? verticalPadding,int? index,required IrrigationProgramMainProvider programPvd,required context}){
   return InkWell(
     onTap: onTap,
     child: Container(
       padding: EdgeInsets.symmetric(vertical: verticalPadding ?? 10,horizontal: 10),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(radius ?? 5),
-          color: index != null ? (index == programPvd.selectedGroup ? const Color(0xff1A7886) : null) : const Color(0xff1A7886)
+          color: index != null ? (index == programPvd.selectedGroup ? Theme.of(context).primaryColorDark : null) : Theme.of(context).primaryColorDark,
       ),
       child: Center(child: Text(name,style: TextStyle(color: index != null ? (index == programPvd.selectedGroup ? Colors.white : Colors.black87) : Colors.white,fontSize: 14,fontWeight: FontWeight.w200),)),
     ),

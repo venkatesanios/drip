@@ -148,7 +148,7 @@ int getTankStringToCode(String type){
   }
 }
 
-// Todo: tankType
+// Todo: pumpType
 String getPumpTypeCodeToString(int code){
   switch(code){
     case 1 :

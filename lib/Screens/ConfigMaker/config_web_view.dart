@@ -184,7 +184,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
   }
 
   void sendToMqtt(){
-
+    configPvd.getOroPumpPayload();
     final Map<String, dynamic> configMakerPayload = {
       '100' : {
         '101' : configPvd.getDeviceListPayload(),
