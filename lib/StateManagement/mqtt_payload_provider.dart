@@ -25,7 +25,7 @@ class MqttPayloadProvider with ChangeNotifier {
 
   //Todo : Dashboard start
   int tryingToGetPayload = 0;
-  dynamic wifiStrength = '';
+
   String version = '';
   int powerSupply = 0;
   dynamic listOfSite = [];
@@ -78,6 +78,8 @@ class MqttPayloadProvider with ChangeNotifier {
   List<dynamic> units = [];
 
   //kamaraj
+  int wifiStrength = 0;
+  String liveDataAndTime = '';
   List<String> nodeLiveMessage = [];
 
 
@@ -456,9 +458,12 @@ class MqttPayloadProvider with ChangeNotifier {
       // Todo : Dashboard payload start
       Map<String, dynamic> data = jsonDecode(payload);
 
+      //live payload
       if(data['mC']=='2400'){
-        print(data['cM']);
-        nodeLiveMessage = data['cM']['2401'].split(";");
+        liveDataAndTime = '${data['cD']} ${data['cT']}';
+        wifiStrength = data['cM']['WifiStrength'];
+        updateNodeLiveMessage(data['cM']['2401'].split(";"));
+        notifyListeners();
       }
 
       if(data['liveSyncDate'] != null){
@@ -621,9 +626,7 @@ class MqttPayloadProvider with ChangeNotifier {
           alarmList = data['2400'][0]['2409'];
           // // print('alarmList ==> $alarmList');
         }
-        if (data['2400'][0].containsKey('WifiStrength')) {
-          wifiStrength = data['2400'][0]['WifiStrength'];
-        }
+
         if (data['2400'][0].containsKey('Version')) {
           version = data['2400'][0]['Version'];
         }
@@ -782,6 +785,10 @@ class MqttPayloadProvider with ChangeNotifier {
       //   _timerForPumpController!.cancel();
       // }
     });
+  }
+
+  void updateNodeLiveMessage(List<String> message) {
+    nodeLiveMessage = message;
   }
 
   void saveUnits(List<dynamic> units) {

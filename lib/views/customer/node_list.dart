@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:oro_drip_irrigation/Models/customer/site_model.dart';
 import 'package:provider/provider.dart';
+import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../utils/snack_bar.dart';
 import '../../view_models/customer/node_list_view_model.dart';
 
@@ -14,8 +15,12 @@ class NodeList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var nodeLiveMessage = Provider.of<MqttPayloadProvider>(context).nodeLiveMessage;
+    if(nodeLiveMessage.isNotEmpty){
+      print('nodeLiveMessage:$nodeLiveMessage');
+    }
     return ChangeNotifierProvider(
-      create: (_) => NodeListViewModel(nodes),
+      create: (_) => NodeListViewModel(nodes, nodeLiveMessage),
       child: Consumer<NodeListViewModel>(
         builder: (context, vm, _) {
           return Container(

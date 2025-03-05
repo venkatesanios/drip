@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../utils/constants.dart';
 
 class SiteModel {
@@ -270,6 +272,7 @@ class WaterSource {
   final int? controllerId;
   final dynamic count;
   final Level? level;
+  final List<Pump> inletPump;
   final List<Pump> outletPump;
   final List<dynamic> valves;
 
@@ -283,6 +286,7 @@ class WaterSource {
     required this.controllerId,
     required this.count,
     required this.level,
+    required this.inletPump,
     required this.outletPump,
     required this.valves,
   });
@@ -301,6 +305,9 @@ class WaterSource {
           ? Level.fromJson(json['level'])
           : null,
       outletPump: (json['outletPump'] as List)
+          .map((e) => Pump.fromJson(e))
+          .toList(),
+      inletPump: (json['inletPump'] as List)
           .map((e) => Pump.fromJson(e))
           .toList(),
       valves: json['valves'] ?? [],
@@ -379,7 +386,6 @@ class FilterSite {
   });
 
   factory FilterSite.fromJson(Map<String, dynamic> json) {
-    print(json);
 
     var filterList = json['filters'] as List;
     List<Filters> filters = filterList.map((filter) => Filters.fromJson(filter)).toList();
@@ -512,7 +518,7 @@ class Channel {
   final String type;
   final int? controllerId;
   final int? count;
-  final int level;
+  final double level;
   bool selected;
   int status;
   String qty;
@@ -563,7 +569,7 @@ class Ec {
   final int objectId;
   final double sNo;
   final String name;
-  final int connectionNo;
+  final int? connectionNo;
   final String objectName;
   final String type;
   final int? controllerId;
@@ -602,7 +608,7 @@ class Ph {
   final int objectId;
   final double sNo;
   final String name;
-  final int connectionNo;
+  final int? connectionNo;
   final String objectName;
   final String type;
   final int? controllerId;

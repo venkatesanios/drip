@@ -8,8 +8,6 @@ import '../../repository/repository.dart';
 import '../../services/mqtt_service.dart';
 import '../../utils/constants.dart';
 
-
-
 class CustomerScreenControllerViewModel extends ChangeNotifier {
 
   final Repository repository;
@@ -17,17 +15,18 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   String errorMsg = '';
 
   late SiteModel mySiteList = SiteModel(data: []);
-  int sIndex = 0, mIndex = 0, lIndex = 0, wifiStrength = 0;
+  int sIndex = 0, mIndex = 0, lIndex = 0;
   late String myCurrentSite;
   late String myCurrentMaster;
   String fromWhere = '';
   String myCurrentIrrLine= 'No Line Available';
   int controllerId = 0;
+  int wifiStrength = 0;
 
   final mqttService = MqttService();
   late MqttPayloadProvider payloadProvider;
 
-  CustomerScreenControllerViewModel(this.repository, context){
+  CustomerScreenControllerViewModel(context, this.repository){
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
@@ -37,25 +36,6 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
       });
     });
 
-    var nodeLiveMessage = Provider.of<MqttPayloadProvider>(context).nodeLiveMessage;
-    if(nodeLiveMessage.isNotEmpty){
-      print('nodeLiveMessage:$nodeLiveMessage');
-    }
-
-   // mqttService.initializeMQTTClient(state: this);
-    //mqttService.connect();
-
-    /*mqttService.liveMessageStream.listen((liveMsg) {
-
-      Map<String, dynamic> liveMessage = jsonDecode(liveMsg);
-      mySiteList.data[sIndex].master[mIndex].live?.cD = liveMessage['cD'];
-      mySiteList.data[sIndex].master[mIndex].live?.cT = liveMessage['cT'];
-      mySiteList.data[sIndex].master[mIndex].live?.cM = liveMessage['cM'];
-      wifiStrength = liveMessage['cM']['WifiStrength'];
-
-      notifyListeners();
-    });*/
-
   }
 
   void mqttConfigureAndConnect(BuildContext context) {
@@ -63,15 +43,12 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     mqttService.connect();
   }
 
-
   void onSubscribeTopic(){
     Future.delayed(const Duration(milliseconds: 2000), () {
       MqttService().topicToSubscribe('${AppConstants.subscribeTopic}/${mySiteList.data[sIndex].master[mIndex].deviceId}');
       onRefreshClicked();
     });
   }
-
-
 
   Future<void> getAllMySites(customerId) async {
     setLoading(true);
@@ -127,7 +104,6 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
       fromWhere='line';
       updateMasterLine(sIndex, mIndex, lInx);
     }
-
   }
 
   void updateSite(sIdx, mIdx, lIdx){
@@ -155,6 +131,21 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     //   myCurrentIrrLine = mySiteList.data[sIdx].master[mIdx].config.lineData[lIdx].name;
     //   notifyListeners();
     // }
+  }
+
+  void updateLivePayload(int ws, String liveDataAndTime){
+
+    payloadProvider.wifiStrength = 0;
+    payloadProvider.liveDataAndTime = '';
+
+    List<String> parts = liveDataAndTime.split(' ');
+    String date = parts[0];
+    String time = parts[1];
+    mySiteList.data[sIndex].master[mIndex].live?.cD = date;
+    mySiteList.data[sIndex].master[mIndex].live?.cT = time;
+    wifiStrength = ws;
+
+    notifyListeners();
   }
 
   void onRefreshClicked() {

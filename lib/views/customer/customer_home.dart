@@ -22,51 +22,17 @@ class CustomerHome extends StatelessWidget {
     final lineData = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.lineData;
     final scheduledProgram = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].programList;
 
-    if(viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.lineData[0].sNo==0 ||
-        viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.lineData.length==1)
-    {
-      return Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: Column(
-                children: [
-                  DisplayPumpStation(
-                    sourceName: waterSources[0].name,
-                    level: waterSources[0].level,
-                    outletPump:  waterSources[0].outletPump ?? [],
-                    irrLineData: lineData,
-                    filterSite: filterSite,
-                    fertilizerSite: fertilizerSite,
-                  ),
-                  scheduledProgram.isNotEmpty? ScheduledProgram(userId: customerId, scheduledPrograms: scheduledProgram, masterInx: viewModel.mIndex):
-                  const SizedBox(),
-                  const SizedBox(height: 8,),
-                ],
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        if (lineData.isNotEmpty)
-          DisplayPumpStation(
-            sourceName: waterSources[0].name,
-            level: waterSources[0].level,
-            outletPump:  waterSources[0].outletPump ?? [],
-            irrLineData: lineData,
-            filterSite: filterSite,
-            fertilizerSite: fertilizerSite,
-          )
-        else
-          const Center(child: Text('Site not configure')),
-
+        DisplayPumpStation(
+          waterSource: waterSources,
+          irrLineData: lineData,
+          filterSite: filterSite,
+          fertilizerSite: fertilizerSite,
+        ),
+        scheduledProgram.isNotEmpty? ScheduledProgram(userId: customerId, scheduledPrograms: scheduledProgram, masterInx: viewModel.mIndex):
+        const SizedBox(),
+        const SizedBox(height: 8,),
       ],
     );
   }
@@ -74,447 +40,662 @@ class CustomerHome extends StatelessWidget {
 
 class DisplayPumpStation extends StatelessWidget {
 
-  final String sourceName;
-  final Level? level;
-  final List<Pump> outletPump;
+  final List<WaterSource> waterSource;
   final List<FilterSite> filterSite;
   final List<FertilizerSite> fertilizerSite;
 
   final List<IrrigationLineData>? irrLineData;
 
-  const DisplayPumpStation({super.key, required this.level, required this.outletPump,
-    required this.irrLineData, required this.sourceName, required this.filterSite,
+  const DisplayPumpStation({super.key, required this.waterSource,
+    required this.irrLineData, required this.filterSite,
     required this.fertilizerSite});
 
   @override
   Widget build(BuildContext context) {
+
+    double screenWith = MediaQuery.sizeOf(context).width;
+
+    int totalWaterSources = waterSource.length;
+    int totalOutletPumps = waterSource.fold(0, (sum, source) => sum + source.outletPump.length);
+
+    int totalFilters = filterSite.fold(0, (sum, site) => sum + (site.filters.length ?? 0));
+    int totalPressureIn = filterSite.fold(0, (sum, site) => sum + (site.pressureIn!.isNotEmpty ? 1 : 0));
+    int totalPressureOut = filterSite.fold(0, (sum, site) => sum + (site.pressureOut!.isNotEmpty ? 1 : 0));
+
+    int totalBoosterPump = fertilizerSite.fold(0, (sum, site) => sum + (site.boosterPump.length ?? 0));
+    int totalChannels = fertilizerSite.fold(0, (sum, site) => sum + (site.channel.length ?? 0));
+    int totalAgitators = fertilizerSite.fold(0, (sum, site) => sum + (site.agitator.length ?? 0));
+
+    print("Total Water Sources: $totalWaterSources");
+    print("Total Outlet Pumps: $totalOutletPumps");
+    print("Total Filters: $totalFilters");
+    print("Total Pressure In: $totalPressureIn");
+    print("Total Pressure Out: $totalPressureOut");
+    print("Total Booster Pumps: $totalBoosterPump");
+    print("Total Channels: $totalChannels");
+    print("Total Agitators: $totalAgitators");
+
+    int grandTotal = totalWaterSources + totalOutletPumps +
+        totalFilters + totalPressureIn + totalPressureOut +
+        totalBoosterPump + totalChannels + totalAgitators;
+
+    print("Grand Total: $grandTotal");
+    print(screenWith);
+
+    List<WaterSource> sortedWaterSources = [...waterSource]
+      ..sort((a, b) {
+        bool aHasOutlet = a.outletPump.isNotEmpty;
+        bool bHasOutlet = b.outletPump.isNotEmpty;
+
+        bool aHasInlet = a.inletPump.isNotEmpty;
+        bool bHasInlet = b.inletPump.isNotEmpty;
+
+        if (aHasOutlet && !aHasInlet && (!bHasOutlet || bHasInlet)) return -1;
+        if (bHasOutlet && !bHasInlet && (!aHasOutlet || aHasInlet)) return 1;
+
+        return 0;
+      });
+
     return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: ((fertilizerSite.isEmpty && (outletPump.length + filterSite.length) < 7) ||
-          (fertilizerSite.isEmpty && irrLineData![0].valves.length < 25)) ?
-      Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.only(top: fertilizerSite.isNotEmpty?38.4:0),
-            child: Stack(
-              children: [
-                SizedBox(
-                    width: 70,
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 33),
-                          child: Divider(thickness: 2, color: Colors.grey.shade300, height: 5.5),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 37),
-                          child: Divider(thickness: 2, color: Colors.grey.shade300, height: 4.5),
-                        ),
-                      ],
-                    )
-                ),
-                SizedBox(
-                  width: 70,
-                  height: 95,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 70,
-                        height: 15,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 3),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              VerticalDivider(thickness: 1, color: Colors.grey.shade400, width: 3),
-                              VerticalDivider(thickness: 1, color: Colors.grey.shade400, width: 5),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: 45,
-                        height: 45,
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade300,
-                          border: Border.all(
-                            color: Colors.grey,
-                            width: 1,
-                          ),
-                          borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(5), bottomRight: Radius.circular(5))
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        sourceName,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 10, color: Colors.black54),
-                      ),
-                    ],
-                  ),
-                ),
-                if (level != null) ...[
-                  Positioned(
-                    top: 25,
-                    left: 5,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.yellow,
-                        borderRadius: const BorderRadius.all(Radius.circular(2)),
-                        border: Border.all(color: Colors.grey, width: .50),
-                      ),
-                      width: 60,
-                      height: 18,
-                      child: Center(
-                        child: Text(
-                          '${level!.percentage!} feet',
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const Positioned(
-                    top: 50,
-                    left: 5,
-                    child: SizedBox(
-                      width: 60,
-                      child: Center(
-                        child: Text(
-                          '70%',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ]
-              ],
-            ),
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(
+            color: Colors.grey.shade400,
+            width: 0.5,
           ),
-          if (outletPump.isNotEmpty)
-            ...outletPump.map((pump) => Padding(
-              padding: EdgeInsets.only(top: fertilizerSite.isNotEmpty?38.4:0),
-              child: displayPump(pump),
-            )),
-          if (filterSite.isNotEmpty)
-            Padding(
-              padding: EdgeInsets.only(top: fertilizerSite.isNotEmpty?38.4:0),
-              child: displayFilterSite(context, filterSite),
-            ),
-          /*if (fertilizerSite.isNotEmpty)
-            displayFertilizerSite(context, fertilizerSite),*/
-          if (irrLineData!.isNotEmpty)
-            Expanded(
-              child: Column(
+          borderRadius: const BorderRadius.all(Radius.circular(5)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 5, bottom: 5),
+          child: Column(
+            children: [
+              Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 14,),
-                  Divider(height: 0, color: Colors.grey.shade300),
-                  Container(height: 5, color: Colors.white24),
-                  Divider(height: 0, color: Colors.grey.shade300),
-                  IrrigationLine(lineData: irrLineData, pumpStationWith: (outletPump.length * 70)+210),
-                ],
-              ),
-            ),
-        ],
-      ):
-      ((fertilizerSite.isNotEmpty && (outletPump.length + filterSite.length) < 7) ||
-          (fertilizerSite.isEmpty && irrLineData![0].valves.length < 15)) ?
-      Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.only(top: fertilizerSite.isNotEmpty?38.4:0),
-            child: Stack(
-              children: [
-                SizedBox(
-                    width: 70,
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 33),
-                          child: Divider(thickness: 2, color: Colors.grey.shade300, height: 5.5),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 37),
-                          child: Divider(thickness: 2, color: Colors.grey.shade300, height: 4.5),
-                        ),
-                      ],
-                    )
-                ),
-                SizedBox(
-                  width: 70,
-                  height: 95,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                children: sortedWaterSources.asMap().entries.map((entry) {
+                  int index = entry.key;
+                  var source = entry.value;
+                  bool isLastIndex = index == sortedWaterSources.length - 1;
+              
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(
-                        width: 70,
-                        height: 15,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 3),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              VerticalDivider(thickness: 1, color: Colors.grey.shade400, width: 3),
-                              VerticalDivider(thickness: 1, color: Colors.grey.shade400, width: 5),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: 45,
-                        height: 45,
-                        decoration: BoxDecoration(
-                            color: Colors.blue.shade300,
-                            border: Border.all(
-                              color: Colors.grey,
-                              width: 1,
+                      Padding(
+                        padding: EdgeInsets.only(top: fertilizerSite.isNotEmpty?38.4:0),
+                        child: Stack(
+                          children: [
+                            SizedBox(
+                                width: 70,
+                                child: Column(
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsets.only(left:index==0?33:0),
+                                      child: Divider(thickness: 2, color: Colors.grey.shade300, height: 5.5),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(left:index==0?37:0),
+                                      child: Divider(thickness: 2, color: Colors.grey.shade300, height: 4.5),
+                                    ),
+                                  ],
+                                )
                             ),
-                            borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(5), bottomRight: Radius.circular(5))
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        sourceName,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 10, color: Colors.black54),
-                      ),
-                    ],
-                  ),
-                ),
-                if (level != null) ...[
-                  Positioned(
-                    top: 25,
-                    left: 5,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.yellow,
-                        borderRadius: const BorderRadius.all(Radius.circular(2)),
-                        border: Border.all(color: Colors.grey, width: .50),
-                      ),
-                      width: 60,
-                      height: 18,
-                      child: Center(
-                        child: Text(
-                          '${level!.percentage!} feet',
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const Positioned(
-                    top: 50,
-                    left: 5,
-                    child: SizedBox(
-                      width: 60,
-                      child: Center(
-                        child: Text(
-                          '70%',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ]
-              ],
-            ),
-          ),
-
-          if (outletPump.isNotEmpty)
-            ...outletPump.map((pump) => Padding(
-              padding: EdgeInsets.only(top: fertilizerSite.isNotEmpty?38.4:0),
-              child: displayPump(pump),
-            )),
-
-          if (filterSite.isNotEmpty)
-            Padding(
-              padding: EdgeInsets.only(top: fertilizerSite.isNotEmpty?38.4:0),
-              child: displayFilterSite(context, filterSite),
-            ),
-
-          if (fertilizerSite.isNotEmpty)
-            displayFertilizerSite(context, fertilizerSite),
-
-          Container(height: 142, width: 1, color: Colors.black12),
-          const SizedBox(width: 2.0),
-          Container(height: 147, width: 1, color: Colors.black12),
-
-          IrrigationLine(lineData: irrLineData, pumpStationWith: 870,),
-
-        ],
-      ):
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          ScrollConfiguration(
-            behavior: const ScrollBehavior(),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 9, left: 5, right: 5),
-                child: outletPump.isNotEmpty? Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(top: fertilizerSite.isNotEmpty?38.4:0),
-                      child: Stack(
-                        children: [
-                          SizedBox(
+                            SizedBox(
                               width: 70,
+                              height: 95,
                               child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 33),
-                                    child: Divider(thickness: 2, color: Colors.grey.shade300, height: 5.5),
+                                  SizedBox(
+                                    width: 70,
+                                    height: 15,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 3),
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          VerticalDivider(thickness: 1, color: Colors.grey.shade400, width: 3),
+                                          VerticalDivider(thickness: 1, color: Colors.grey.shade400, width: 5),
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 37),
-                                    child: Divider(thickness: 2, color: Colors.grey.shade300, height: 4.5),
+                                  Container(
+                                    width: 45,
+                                    height: 45,
+                                    decoration: BoxDecoration(
+                                        color: Colors.blue.shade300,
+                                        border: Border.all(
+                                          color: Colors.grey,
+                                          width: 1,
+                                        ),
+                                        borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(5), bottomRight: Radius.circular(5))
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    source.name,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(fontSize: 10, color: Colors.black54),
                                   ),
                                 ],
-                              )
-                          ),
+                              ),
+                            ),
+                            if (source.level != null) ...[
+                              Positioned(
+                                top: 25,
+                                left: 5,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.yellow,
+                                    borderRadius: const BorderRadius.all(Radius.circular(2)),
+                                    border: Border.all(color: Colors.grey, width: .50),
+                                  ),
+                                  width: 60,
+                                  height: 18,
+                                  child: Center(
+                                    child: Text(
+                                      '${source.level!.percentage!} feet',
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                top: 50,
+                                left: 5,
+                                child: SizedBox(
+                                  width: 60,
+                                  child: Center(
+                                    child: Text(
+                                      '${source.valves} %',
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      Wrap(
+                        spacing: 0.0,
+                        children: source.outletPump.map((pump) {
+                          return Padding(
+                            padding: EdgeInsets.only(top: fertilizerSite.isNotEmpty?38.4:0),
+                            child: displayPump(pump),
+                          );
+                        }).toList(),
+                      ),
+                      if (isLastIndex && filterSite.isNotEmpty)
+                        Padding(
+                          padding: EdgeInsets.only(top: fertilizerSite.isNotEmpty?38.4:0),
+                          child: displayFilterSite(context, filterSite),
+                        ),
+                      if (isLastIndex && fertilizerSite.isNotEmpty)
+                        displayFertilizerSite(context, fertilizerSite),
+                    ],
+                  );
+                  
+                }).toList(),
+              ),
+              IrrigationLine(lineData: irrLineData, pumpStationWith: 0,),
+            ],
+          ),
+        ),
+      ),
+    );
+
+
+    /*return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(
+            color: Colors.grey.shade400,
+            width: 0.5,
+          ),
+          borderRadius: const BorderRadius.all(Radius.circular(5)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 5, bottom: 5),
+          child: ((fertilizerSite.isEmpty && (outletPump.length + filterSite.length) < 7) ||
+              (fertilizerSite.isEmpty && irrLineData![0].valves.length < 25)) ?
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(top: fertilizerSite.isNotEmpty?38.4:0),
+                child: Stack(
+                  children: [
+                    SizedBox(
+                        width: 70,
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 33),
+                              child: Divider(thickness: 2, color: Colors.grey.shade300, height: 5.5),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 37),
+                              child: Divider(thickness: 2, color: Colors.grey.shade300, height: 4.5),
+                            ),
+                          ],
+                        )
+                    ),
+                    SizedBox(
+                      width: 70,
+                      height: 95,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
                           SizedBox(
                             width: 70,
-                            height: 95,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  width: 70,
-                                  height: 15,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 3),
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        VerticalDivider(thickness: 1, color: Colors.grey.shade400, width: 3),
-                                        VerticalDivider(thickness: 1, color: Colors.grey.shade400, width: 5),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  width: 45,
-                                  height: 45,
-                                  decoration: BoxDecoration(
-                                      color: Colors.blue.shade300,
-                                      border: Border.all(
-                                        color: Colors.grey,
-                                        width: 1,
-                                      ),
-                                      borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(5), bottomRight: Radius.circular(5))
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  sourceName,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(fontSize: 10, color: Colors.black54),
-                                ),
-                              ],
+                            height: 15,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 3),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  VerticalDivider(thickness: 1, color: Colors.grey.shade400, width: 3),
+                                  VerticalDivider(thickness: 1, color: Colors.grey.shade400, width: 5),
+                                ],
+                              ),
                             ),
                           ),
-                          if (level != null) ...[
-                            Positioned(
-                              top: 25,
-                              left: 5,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.yellow,
-                                  borderRadius: const BorderRadius.all(Radius.circular(2)),
-                                  border: Border.all(color: Colors.grey, width: .50),
+                          Container(
+                            width: 45,
+                            height: 45,
+                            decoration: BoxDecoration(
+                                color: Colors.blue.shade300,
+                                border: Border.all(
+                                  color: Colors.grey,
+                                  width: 1,
                                 ),
-                                width: 60,
-                                height: 18,
-                                child: Center(
-                                  child: Text(
-                                    '${level!.percentage!} feet',
-                                    style: const TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
+                                borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(5), bottomRight: Radius.circular(5))
                             ),
-                            const Positioned(
-                              top: 50,
-                              left: 5,
-                              child: SizedBox(
-                                width: 60,
-                                child: Center(
-                                  child: Text(
-                                    '70%',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ]
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            sourceName,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontSize: 10, color: Colors.black54),
+                          ),
                         ],
                       ),
                     ),
-
-                    if (outletPump.isNotEmpty)
-                      ...outletPump.map((pump) => Padding(
-                        padding: EdgeInsets.only(top: fertilizerSite.isNotEmpty?38.4:0),
-                        child: displayPump(pump),
-                      )),
-
-                    if (filterSite.isNotEmpty)
-                      Padding(
-                        padding: EdgeInsets.only(top: fertilizerSite.isNotEmpty?38.4:0),
-                        child: displayFilterSite(context, filterSite),
+                    if (level != null) ...[
+                      Positioned(
+                        top: 25,
+                        left: 5,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.yellow,
+                            borderRadius: const BorderRadius.all(Radius.circular(2)),
+                            border: Border.all(color: Colors.grey, width: .50),
+                          ),
+                          width: 60,
+                          height: 18,
+                          child: Center(
+                            child: Text(
+                              '${level!.percentage!} feet',
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-
-                    if (fertilizerSite.isNotEmpty)
-                      displayFertilizerSite(context, fertilizerSite),
+                      const Positioned(
+                        top: 50,
+                        left: 5,
+                        child: SizedBox(
+                          width: 60,
+                          child: Center(
+                            child: Text(
+                              '70%',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ]
                   ],
-                ):
-                const SizedBox(height: 20),
+                ),
               ),
-            ),
+              if (outletPump.isNotEmpty)
+                ...outletPump.map((pump) => Padding(
+                  padding: EdgeInsets.only(top: fertilizerSite.isNotEmpty?38.4:0),
+                  child: displayPump(pump),
+                )),
+              if (filterSite.isNotEmpty)
+                Padding(
+                  padding: EdgeInsets.only(top: fertilizerSite.isNotEmpty?38.4:0),
+                  child: displayFilterSite(context, filterSite),
+                ),
+
+              if (irrLineData!.isNotEmpty)
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 14,),
+                      Divider(height: 0, color: Colors.grey.shade300),
+                      Container(height: 5, color: Colors.white24),
+                      Divider(height: 0, color: Colors.grey.shade300),
+                      IrrigationLine(lineData: irrLineData, pumpStationWith: (outletPump.length * 70)+210),
+                    ],
+                  ),
+                ),
+            ],
+          ):
+          ((fertilizerSite.isNotEmpty && (outletPump.length + filterSite.length) < 7) ||
+              (fertilizerSite.isEmpty && irrLineData![0].valves.length < 15)) ?
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(top: fertilizerSite.isNotEmpty?38.4:0),
+                child: Stack(
+                  children: [
+                    SizedBox(
+                        width: 70,
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 33),
+                              child: Divider(thickness: 2, color: Colors.grey.shade300, height: 5.5),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 37),
+                              child: Divider(thickness: 2, color: Colors.grey.shade300, height: 4.5),
+                            ),
+                          ],
+                        )
+                    ),
+                    SizedBox(
+                      width: 70,
+                      height: 95,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: 70,
+                            height: 15,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 3),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  VerticalDivider(thickness: 1, color: Colors.grey.shade400, width: 3),
+                                  VerticalDivider(thickness: 1, color: Colors.grey.shade400, width: 5),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Container(
+                            width: 45,
+                            height: 45,
+                            decoration: BoxDecoration(
+                                color: Colors.blue.shade300,
+                                border: Border.all(
+                                  color: Colors.grey,
+                                  width: 1,
+                                ),
+                                borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(5), bottomRight: Radius.circular(5))
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            sourceName,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontSize: 10, color: Colors.black54),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (level != null) ...[
+                      Positioned(
+                        top: 25,
+                        left: 5,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.yellow,
+                            borderRadius: const BorderRadius.all(Radius.circular(2)),
+                            border: Border.all(color: Colors.grey, width: .50),
+                          ),
+                          width: 60,
+                          height: 18,
+                          child: Center(
+                            child: Text(
+                              '${level!.percentage!} feet',
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const Positioned(
+                        top: 50,
+                        left: 5,
+                        child: SizedBox(
+                          width: 60,
+                          child: Center(
+                            child: Text(
+                              '70%',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ]
+                  ],
+                ),
+              ),
+
+              if (outletPump.isNotEmpty)
+                ...outletPump.map((pump) => Padding(
+                  padding: EdgeInsets.only(top: fertilizerSite.isNotEmpty?38.4:0),
+                  child: displayPump(pump),
+                )),
+
+              if (filterSite.isNotEmpty)
+                Padding(
+                  padding: EdgeInsets.only(top: fertilizerSite.isNotEmpty?38.4:0),
+                  child: displayFilterSite(context, filterSite),
+                ),
+
+              if (fertilizerSite.isNotEmpty)
+                displayFertilizerSite(context, fertilizerSite),
+
+              Container(height: 142, width: 1, color: Colors.black12),
+              const SizedBox(width: 2.0),
+              Container(height: 147, width: 1, color: Colors.black12),
+
+              IrrigationLine(lineData: irrLineData, pumpStationWith: 870,),
+
+            ],
+          ):
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              ScrollConfiguration(
+                behavior: const ScrollBehavior(),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 9, left: 5, right: 5),
+                    child: outletPump.isNotEmpty? Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(top: fertilizerSite.isNotEmpty?38.4:0),
+                          child: Stack(
+                            children: [
+                              SizedBox(
+                                  width: 70,
+                                  child: Column(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 33),
+                                        child: Divider(thickness: 2, color: Colors.grey.shade300, height: 5.5),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 37),
+                                        child: Divider(thickness: 2, color: Colors.grey.shade300, height: 4.5),
+                                      ),
+                                    ],
+                                  )
+                              ),
+                              SizedBox(
+                                width: 70,
+                                height: 95,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: 70,
+                                      height: 15,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(left: 3),
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            VerticalDivider(thickness: 1, color: Colors.grey.shade400, width: 3),
+                                            VerticalDivider(thickness: 1, color: Colors.grey.shade400, width: 5),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      width: 45,
+                                      height: 45,
+                                      decoration: BoxDecoration(
+                                          color: Colors.blue.shade300,
+                                          border: Border.all(
+                                            color: Colors.grey,
+                                            width: 1,
+                                          ),
+                                          borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(5), bottomRight: Radius.circular(5))
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      sourceName,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(fontSize: 10, color: Colors.black54),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (level != null) ...[
+                                Positioned(
+                                  top: 25,
+                                  left: 5,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.yellow,
+                                      borderRadius: const BorderRadius.all(Radius.circular(2)),
+                                      border: Border.all(color: Colors.grey, width: .50),
+                                    ),
+                                    width: 60,
+                                    height: 18,
+                                    child: Center(
+                                      child: Text(
+                                        '${level!.percentage!} feet',
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const Positioned(
+                                  top: 50,
+                                  left: 5,
+                                  child: SizedBox(
+                                    width: 60,
+                                    child: Center(
+                                      child: Text(
+                                        '70%',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ]
+                            ],
+                          ),
+                        ),
+
+                        if (outletPump.isNotEmpty)
+                          ...outletPump.map((pump) => Padding(
+                            padding: EdgeInsets.only(top: fertilizerSite.isNotEmpty?38.4:0),
+                            child: displayPump(pump),
+                          )),
+
+                        if (filterSite.isNotEmpty)
+                          Padding(
+                            padding: EdgeInsets.only(top: fertilizerSite.isNotEmpty?38.4:0),
+                            child: displayFilterSite(context, filterSite),
+                          ),
+
+                        if (fertilizerSite.isNotEmpty)
+                          displayFertilizerSite(context, fertilizerSite),
+                      ],
+                    ):
+                    const SizedBox(height: 20),
+                  ),
+                ),
+              ),
+              IrrigationLine(lineData: irrLineData, pumpStationWith: 0,)
+              Divider(height: 0, color: Colors.grey.shade300),
+              Container(height: 4, color: Colors.white24),
+              Divider(height: 0, color: Colors.grey.shade300),
+              IrrigationLine(lineData: irrLineData, pumpStationWith: 0,),
+            ],
           ),
-          IrrigationLine(lineData: irrLineData, pumpStationWith: 0,)
-          /*Divider(height: 0, color: Colors.grey.shade300),
-          Container(height: 4, color: Colors.white24),
-          Divider(height: 0, color: Colors.grey.shade300),
-          IrrigationLine(lineData: irrLineData, pumpStationWith: 0,),*/
-        ],
+        ),
       ),
-    );
+    );*/
   }
 
   Widget displayPump(Pump pump){
@@ -969,7 +1150,7 @@ class DisplayPumpStation extends StatelessWidget {
                   child: Column(
                     children: [
                       SizedBox(
-                        height: 24,
+                        height: 30,
                         child: Row(
                           children: [
                             if(fIndex!=0)
@@ -990,14 +1171,14 @@ class DisplayPumpStation extends StatelessWidget {
 
                                 fertilizerSite[fIndex].ec!.isNotEmpty || fertilizerSite[fIndex].ph!.isNotEmpty?
                                 SizedBox(
-                                  width: fertilizerSite[fIndex].ec!.length > 1 ? 130 : 70,
-                                  height: 30,
+                                  width: fertilizerSite[fIndex].ec!.length > 1 ? 110 : 60,
+                                  height: 24,
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       fertilizerSite[fIndex].ec!.isNotEmpty?
                                       SizedBox(
-                                        height: 15,
+                                        height: 12,
                                         child: ListView.builder(
                                           scrollDirection: Axis.horizontal,
                                           itemCount: fertilizerSite[fIndex].ec!.length,
@@ -1016,7 +1197,7 @@ class DisplayPumpStation extends StatelessWidget {
                                                     double.parse(
                                                         fertilizerSite[fIndex].ec![index].value)
                                                         .toStringAsFixed(2),
-                                                    style: const TextStyle(fontSize: 10),
+                                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.normal),
                                                   ),
                                                 ),
                                                 const SizedBox(
@@ -1031,7 +1212,7 @@ class DisplayPumpStation extends StatelessWidget {
 
                                       fertilizerSite[fIndex].ph!.isNotEmpty?
                                       SizedBox(
-                                        height: 15,
+                                        height: 12,
                                         child: ListView.builder(
                                           scrollDirection: Axis.horizontal,
                                           itemCount: fertilizerSite[fIndex].ph!.length,
@@ -1042,14 +1223,14 @@ class DisplayPumpStation extends StatelessWidget {
                                                     child: Text(
                                                       'pH : ',
                                                       style: TextStyle(
-                                                          fontSize: 11, fontWeight: FontWeight.normal),
+                                                          fontSize: 10, fontWeight: FontWeight.normal),
                                                     )),
                                                 Center(
                                                   child: Text(
                                                     double.parse(
                                                         fertilizerSite[fIndex].ph![index].value)
                                                         .toStringAsFixed(2),
-                                                    style: const TextStyle(fontSize: 11),
+                                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.normal),
                                                   ),
                                                 ),
                                                 const SizedBox(
@@ -1082,7 +1263,7 @@ class DisplayPumpStation extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const Column(
+                      /*const Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -1095,7 +1276,7 @@ class DisplayPumpStation extends StatelessWidget {
                             child: Divider(height: 6, color: Colors.black12),
                           ),
                         ],
-                      )
+                      )*/
                     ],
                   ),
                 ),

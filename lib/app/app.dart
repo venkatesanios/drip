@@ -27,7 +27,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(F.appFlavor!.name);
     bool isDarkMode = false;
     return FutureBuilder<String>(
       future: getInitialRoute(),

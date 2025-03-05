@@ -37,20 +37,25 @@ class CustomerScreenController extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    var nodeLiveMessage = Provider.of<MqttPayloadProvider>(context).nodeLiveMessage;
-    if(nodeLiveMessage.isNotEmpty){
-      print('nodeLiveMessage:$nodeLiveMessage');
-    }
-
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => NavRailViewModel()),
         ChangeNotifierProvider(
-          create: (_) => CustomerScreenControllerViewModel(Repository(HttpService()), context)..getAllMySites(customerId),
+          create: (_) => CustomerScreenControllerViewModel(context, Repository(HttpService()))..getAllMySites(customerId),
         ),
       ],
       child: Consumer2<NavRailViewModel, CustomerScreenControllerViewModel>(
         builder: (context, navViewModel, vm, _) {
+
+          int wifiStrength = Provider.of<MqttPayloadProvider>(context).wifiStrength;
+          String liveDataAndTime = Provider.of<MqttPayloadProvider>(context).liveDataAndTime;
+
+          if(liveDataAndTime.isNotEmpty){
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              vm.updateLivePayload(wifiStrength, liveDataAndTime);
+            });
+          }
+
           if(vm.isLoading){
             return const Scaffold(body: Center(child: Text('Site loading please waite....')));
           }

@@ -9,30 +9,31 @@ class NodeListViewModel extends ChangeNotifier {
 
   final mqttService = MqttService();
   final List<NodeListModel> nodeList;
+  final List<String> nodeLiveMeg;
 
-  NodeListViewModel(this.nodeList) {
+  NodeListViewModel(this.nodeList, this.nodeLiveMeg) {
     onLivePayloadReceived();
+    if(nodeLiveMeg.isNotEmpty){
+      onLivePayloadReceived();
+    }
+
   }
 
   void onLivePayloadReceived(){
-    /*mqttService.liveMessageStream.listen((liveMsg) {
-      Map<String, dynamic> liveMessage = jsonDecode(liveMsg);
-      List<String> groups = liveMessage['cM']['2401'].split(";");
-      for (String group in groups) {
-        List<String> values = group.split(",");
-        int sNo = int.parse(values[0]);
-        for (var node in nodeList) {
-          if (node.serialNumber == sNo) {
-            node.sVolt = double.parse(values[1]);
-            node.batVolt = double.parse(values[2]);
-            node.status = int.parse(values[3]);
-            node.lastFeedbackReceivedTime = values[4];
-            break;
-          }
+    for (String group in nodeLiveMeg) {
+      List<String> values = group.split(",");
+      int sNo = int.parse(values[0]);
+      for (var node in nodeList) {
+        if (node.serialNumber == sNo) {
+          node.sVolt = double.parse(values[1]);
+          node.batVolt = double.parse(values[2]);
+          node.status = int.parse(values[3]);
+          node.lastFeedbackReceivedTime = values[4];
+          break;
         }
       }
-      notifyListeners();
-    });*/
+    }
+    notifyListeners();
   }
 
 

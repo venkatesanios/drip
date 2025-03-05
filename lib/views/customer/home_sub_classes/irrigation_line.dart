@@ -125,7 +125,7 @@ class ValveWidget extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     VerticalDivider(width: 0),
-                    SizedBox(width: 4),
+                    SizedBox(width: 3),
                     VerticalDivider(width: 0),
                   ],
                 ),
