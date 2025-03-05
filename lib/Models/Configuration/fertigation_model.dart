@@ -1,4 +1,5 @@
 import 'device_object_model.dart';
+import 'irrigationLine_model.dart';
 
 class FertilizationModel{
   DeviceObjectModel commonDetails;
@@ -62,7 +63,7 @@ class Injector{
   factory Injector.fromJson(data){
     return Injector(
         sNo: data['sNo'],
-      level: (data['level'] as int).toDouble()
+      level: intOrDoubleValidate(data['level'])
     );
   }
 

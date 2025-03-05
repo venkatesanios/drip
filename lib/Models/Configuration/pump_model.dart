@@ -1,3 +1,5 @@
+import 'package:oro_drip_irrigation/Models/Configuration/irrigationLine_model.dart';
+
 import 'device_object_model.dart';
 
 class PumpModel{
@@ -21,10 +23,10 @@ class PumpModel{
     DeviceObjectModel deviceObjectModel = DeviceObjectModel.fromJson(data);
     return PumpModel(
         commonDetails: deviceObjectModel,
-        level: (data['level'] as int).toDouble(),
-        pressureIn: (data['pressureIn'] as int).toDouble(),
-        pressureOut: (data['pressureOut'] as int).toDouble(),
-        waterMeter: (data['waterMeter'] as int).toDouble(),
+        level: intOrDoubleValidate(data['level']),
+        pressureIn: intOrDoubleValidate(data['pressureIn']),
+        pressureOut: intOrDoubleValidate(data['pressureOut']),
+        waterMeter: intOrDoubleValidate(data['waterMeter']),
         pumpType: data['pumpType']
     );
   }

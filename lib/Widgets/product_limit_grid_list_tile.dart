@@ -166,6 +166,7 @@ class _ProductLimitGridListTileState extends State<ProductLimitGridListTile> wit
         visible = false;
       }
     }
+    print('objectId ($objectId) - $visible');
 
     return visible;
   }
@@ -173,4 +174,4 @@ class _ProductLimitGridListTileState extends State<ProductLimitGridListTile> wit
 
 List<int> objectIdDependsOnDosing = [7, 8, 10, 27, 28];
 List<int> objectIdDependsOnFiltration = [11, 12];
-List<int> objectIdDependsOnTank = [5, 26, 39];
+List<int> objectIdDependsOnTank = [5, 26, 40];

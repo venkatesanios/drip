@@ -89,7 +89,7 @@ class _ConnectionGridListTileState extends State<ConnectionGridListTile> with Si
   Widget myWidget = ListTile(
       contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
     title: Text(object.objectName, style: Theme.of(context).textTheme.labelLarge,),
-      subtitle: Text('Not Configured : ${widget.configPvd.listOfGeneratedObject.where((element) => (element.objectId == object.objectId)).length}', style: Theme.of(context).textTheme.labelSmall,),
+      subtitle: Text('Not Configured : ${getNotConfiguredObjectByObjectId(object.objectId, widget.configPvd)}', style: Theme.of(context).textTheme.labelSmall,),
     leading: CircleAvatar(
       radius: 30,
       backgroundColor: Theme.of(context).colorScheme.primary,

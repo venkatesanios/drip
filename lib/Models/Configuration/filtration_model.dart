@@ -1,4 +1,5 @@
 import 'device_object_model.dart';
+import 'irrigationLine_model.dart';
 
 class FiltrationModel {
   DeviceObjectModel commonDetails;
@@ -23,9 +24,9 @@ class FiltrationModel {
         commonDetails: deviceObjectModel,
         siteMode: data['siteMode'],
         filters: (data['filters'] as List<dynamic>).map((sNo) => sNo as double).toList(),
-        pressureIn: (data['pressureIn'] as int).toDouble(),
-        pressureOut: (data['pressureOut'] as int).toDouble() ,
-        backWashValve: (data['backWashValve'] as int).toDouble(),
+        pressureIn: intOrDoubleValidate(data['pressureIn']),
+        pressureOut: intOrDoubleValidate(data['pressureOut']) ,
+        backWashValve: intOrDoubleValidate(data['backWashValve']),
     );
   }
 
