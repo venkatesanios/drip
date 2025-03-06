@@ -57,9 +57,14 @@ class DisplayPumpStation extends StatelessWidget {
     var outputOnOffLiveMessage = Provider.of<MqttPayloadProvider>(context).outputOnOffLiveMessage;
     print('outputOnOffLiveMessage:$outputOnOffLiveMessage');
 
-    List<String> filteredPumpList = outputOnOffLiveMessage
+    List<String> filteredPumpStatus = outputOnOffLiveMessage
         .where((item) => item.startsWith('5.')).toList();
-    updatePumpStatus(waterSource, filteredPumpList);
+    updatePumpStatus(waterSource, filteredPumpStatus);
+
+    List<String> filteredValveStatus = outputOnOffLiveMessage
+        .where((item) => item.startsWith('13.')).toList();
+    updateValveStatus(irrLineData!, filteredValveStatus);
+
 
     double screenWith = MediaQuery.sizeOf(context).width;
 
@@ -74,14 +79,14 @@ class DisplayPumpStation extends StatelessWidget {
     int totalChannels = fertilizerSite.fold(0, (sum, site) => sum + (site.channel.length ?? 0));
     int totalAgitators = fertilizerSite.fold(0, (sum, site) => sum + (site.agitator.length ?? 0));
 
-    print("Total Water Sources: $totalWaterSources");
+    /*print("Total Water Sources: $totalWaterSources");
     print("Total Outlet Pumps: $totalOutletPumps");
     print("Total Filters: $totalFilters");
     print("Total Pressure In: $totalPressureIn");
     print("Total Pressure Out: $totalPressureOut");
     print("Total Booster Pumps: $totalBoosterPump");
     print("Total Channels: $totalChannels");
-    print("Total Agitators: $totalAgitators");
+    print("Total Agitators: $totalAgitators");*/
 
     int grandTotal = totalWaterSources + totalOutletPumps +
         totalFilters + totalPressureIn + totalPressureOut +
@@ -1340,10 +1345,10 @@ class DisplayPumpStation extends StatelessWidget {
 
   }
 
-  void updatePumpStatus(List<WaterSource> waterSource, List<dynamic> outputOnOffLiveMessage) {
+  void updatePumpStatus(List<WaterSource> waterSource, List<dynamic> filteredPumpStatus) {
     for (var source in waterSource) {
       for (var pump in source.outletPump) {
-        int? status = getStatus(outputOnOffLiveMessage, pump.sNo);
+        int? status = getStatus(filteredPumpStatus, pump.sNo);
         if (status != null) {
           pump.status = status;
         } else {
@@ -1351,14 +1356,27 @@ class DisplayPumpStation extends StatelessWidget {
         }
       }
     }
+  }
 
+  void updateValveStatus(List<IrrigationLineData> lineData, List<dynamic> filteredValveStatus) {
+
+    for (var line in lineData) {
+      for (var vl in line.valves) {
+        int? status = getStatus(filteredValveStatus, vl.sNo);
+        if (status != null) {
+          vl.status = status;
+        } else {
+          print("Serial Number ${vl.sNo} not found");
+        }
+      }
+    }
   }
 
   int? getStatus(List<dynamic> outputOnOffLiveMessage, double serialNumber) {
 
     for (int i = 0; i < outputOnOffLiveMessage.length; i++) {
       List<String> parts = outputOnOffLiveMessage[i].split(',');
-      double? serial = double.tryParse(parts[0]); // Ensure conversion
+      double? serial = double.tryParse(parts[0]);
 
       if (serial != null && serial == serialNumber) {
         return int.parse(parts[1]);

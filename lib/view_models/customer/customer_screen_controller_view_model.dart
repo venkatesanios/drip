@@ -61,6 +61,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
         if (jsonData["code"] == 200) {
           mySiteList = SiteModel.fromJson(jsonData);
           wifiStrength = mySiteList.data[sIndex].master[mIndex].live?.cM['WifiStrength'];
+          updateMaster(sIndex, mIndex, 0);
         }
       }
     } catch (error) {
