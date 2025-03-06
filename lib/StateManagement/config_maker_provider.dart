@@ -94,6 +94,7 @@ class ConfigMakerProvider extends ChangeNotifier{
       var body = {
         "userId" : masterDataFromSiteConfigure['customerId'],
         "controllerId" : masterDataFromSiteConfigure['controllerId'],
+        "modelId" : masterDataFromSiteConfigure['modelId'],
         "groupId": masterDataFromSiteConfigure['groupId'],
         "categoryId" : masterDataFromSiteConfigure['categoryId']
       };
@@ -106,6 +107,9 @@ class ConfigMakerProvider extends ChangeNotifier{
       configMakerDataFromHttp = jsonData['data']['configMaker'];
       defaultDataFromHttp = jsonData['data']['default'];
       masterData = masterDataFromSiteConfigure;
+      if(masterData['categoryId'] == 2){
+        selectedTab = ConfigMakerTabs.productLimit;
+      }
       listOfDeviceModel = (defaultData['deviceList'] as List<dynamic>).map((devices) {
         Map<String, dynamic> deviceProperty = defaultData['productModel'].firstWhere((product) => devices['modelId'] == product['modelId']);
         var inputObjectId = deviceProperty['inputObjectId'] == '-' ? [] : deviceProperty['inputObjectId'].split(',').map((e) => int.parse(e.toString())).toList();
