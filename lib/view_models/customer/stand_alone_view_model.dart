@@ -394,9 +394,8 @@ class StandAloneViewModel extends ChangeNotifier {
 
   void stopAllManualOperation() {
     if(ddCurrentPosition==0){
-      String payload = '0,0,0,0';
       String payLoadFinal = jsonEncode({
-        "800": {"801": payload}
+        "800": {"801": '0,0,0,0,0'}
       });
       MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
 
@@ -445,7 +444,6 @@ class StandAloneViewModel extends ChangeNotifier {
           0, strSldValveOrLineSrlNo.length - 1) : '';
 
       allRelaySrlNo = [
-        strSldPumpSrlNo,
         strSldMainValveSrlNo,
         strSldCtrlFilterSrlNo,
         strSldValveOrLineSrlNo,

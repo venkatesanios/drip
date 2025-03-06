@@ -56,7 +56,10 @@ class DisplayPumpStation extends StatelessWidget {
 
     var outputOnOffLiveMessage = Provider.of<MqttPayloadProvider>(context).outputOnOffLiveMessage;
     print('outputOnOffLiveMessage:$outputOnOffLiveMessage');
-    updatePumpStatus(waterSource, outputOnOffLiveMessage);
+
+    List<String> filteredPumpList = outputOnOffLiveMessage
+        .where((item) => item.startsWith('5.')).toList();
+    updatePumpStatus(waterSource, filteredPumpList);
 
     double screenWith = MediaQuery.sizeOf(context).width;
 

@@ -76,6 +76,44 @@ class Master {
   });
 
   factory Master.fromJson(Map<String, dynamic> json) {
+    List<ConfigObject> configObjects = json["config"] != null &&
+        json["config"] is Map<String, dynamic> &&
+        json["config"]['configObject'] != null
+        ? (json["config"]['configObject'] as List)
+        .map((item) => ConfigObject.fromJson(item))
+        .toList()
+        : [];
+
+    return Master(
+      controllerId: json['controllerId'] ?? 0,
+      deviceId: json['deviceId'] ?? '',
+      deviceName: json['deviceName'] ?? '',
+      categoryId: json['categoryId'] ?? 0,
+      categoryName: json['categoryName'] ?? '',
+      modelId: json['modelId'] ?? 0,
+      modelName: json['modelName'] ?? '',
+      units: json['units'] != null
+          ? List<Unit>.from(json['units'].map((x) => Unit.fromJson(x)))
+          : [],
+      config: (json["config"] != null && json["config"] is Map<String, dynamic> && json["config"].isNotEmpty)
+          ? Config.fromJson(Map<String, dynamic>.from(AppConstants.payloadConversion(json["config"])))
+          : Config(waterSource: [], pump: [], filterSite: [], fertilizerSite: [], moistureSensor: [], lineData: []),
+      configObjects: configObjects,
+      live: json['liveMessage'] != null ? LiveMessage.fromJson(json['liveMessage']) : null,
+      nodeList: json['nodeList'] != null
+          ? (json['nodeList'] as List)
+          .map((item) => NodeListModel.fromJson(item, configObjects))
+          .toList()
+          : [],
+      programList: json['program'] != null
+          ? (json['program'] as List)
+          .map((prgList) => ProgramList.fromJson(prgList))
+          .toList()
+          : [],
+    );
+  }
+
+  /*factory Master.fromJson(Map<String, dynamic> json) {
     List<ConfigObject> configObjects = json["config"]['configObject'] != null
         ? (json["config"]['configObject'] as List)
         .map((item) => ConfigObject.fromJson(item))
@@ -107,7 +145,7 @@ class Master {
           .toList()
           : [],
     );
-  }
+  }*/
 
   Map<String, dynamic> toJson() {
     return {
