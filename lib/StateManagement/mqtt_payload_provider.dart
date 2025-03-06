@@ -50,6 +50,7 @@ class MqttPayloadProvider with ChangeNotifier {
   List<dynamic> sourcePump = [];
   List<dynamic> sourcetype = [];
   List<dynamic> fertilizerCentral = [];
+  List<FertilizerSite> fertilizersdashboard = [];
   List<dynamic> fertilizerLocal = [];
   List<dynamic> flowMeter = [];
   List<dynamic> alarmList = [];
@@ -749,13 +750,19 @@ class MqttPayloadProvider with ChangeNotifier {
      _dashboardLiveInstance = SiteModel.fromJson(payload);
      sourcePump = _dashboardLiveInstance!.data[0].master[0].config.pump.where((e) => e.type == 1).toList().map((element) => element.toJson()).toList();
      irrigationPump = _dashboardLiveInstance!.data[0].master[0].config.pump.where((e) => e.type == 2).toList().map((element) => element.toJson()).toList();
-     sourcetype = _dashboardLiveInstance!.data[0].master[0].config.waterSource.map((element) => element).toList();
-     fertilizerCentral = _dashboardLiveInstance!.data[0].master[0].config.fertilizerSite.where((e) => e.siteMode == 1).toList().map((element) => element).toList();
-     fertilizerLocal = _dashboardLiveInstance!.data[0].master[0].config.fertilizerSite.where((e) => e.siteMode == 2).toList().map((element) => element).toList();
-     filtersCentral = _dashboardLiveInstance!.data[0].master[0].config.filterSite.where((e) => e.siteMode == 1).toList().map((element) => element).toList();
-     filtersLocal = _dashboardLiveInstance!.data[0].master[0].config.filterSite.where((e) => e.siteMode == 2).toList().map((element) => element).toList();
-     // lineData = _dashboardLiveInstance!.data[0].master[0].config.lineData.map((element) => element).toList();
-      print("sourcePump :::: $sourcePump");
+     sourcetype = _dashboardLiveInstance!.data[0].master[0].config.waterSource.map((element) => element.toJson()).toList();
+     fertilizerCentral = _dashboardLiveInstance!.data[0].master[0].config.fertilizerSite.where((e) => e.siteMode == 1).toList().map((element) => element.toJson()).toList();
+     fertilizerLocal = _dashboardLiveInstance!.data[0].master[0].config.fertilizerSite.where((e) => e.siteMode == 2).toList().map((element) => element.toJson()).toList();
+     fertilizersdashboard = _dashboardLiveInstance!.data[0].master[0].config.fertilizerSite;
+     // filtersCentral = _dashboardLiveInstance!.data[0].master[0].config.filterSite.where((e) => e.siteMode == 1).toList().map((element) => element.filters.map((ele) => ele.toJson())).toList();
+     filtersCentral = _dashboardLiveInstance!.data[0].master[0].config.filterSite.where((e) => e.siteMode == 1).toList().expand((element) => element.filters.map((ele) => ele.toJson())).toList();
+     filtersLocal = _dashboardLiveInstance!.data[0].master[0].config.filterSite.where((e) => e.siteMode == 2).toList().expand((element) => element.filters.map((ele) => ele.toJson())).toList();
+
+      // lineData = _dashboardLiveInstance!.data[0].master[0].config.lineData.map((element) => element).toList();
+      print("filtersCentral :::: $filtersCentral");
+     filtersCentral.forEach((element) {
+       print(element);
+     });
      notifyListeners();
   }
 

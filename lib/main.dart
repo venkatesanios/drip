@@ -16,8 +16,7 @@ FutureOr<void> main() async {
   MqttManager mqttManager = MqttManager();
   mqttManager.initializeMQTTClient();
   mqttManager.connect();
-
-  runApp(
+   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ConfigMakerProvider()),

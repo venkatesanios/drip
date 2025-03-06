@@ -5,9 +5,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:loading_indicator/loading_indicator.dart';
-import 'package:oro_drip_irrigation/Screens/dashboard/Source%20Type%20Dashboard/WaterSourceCustomerdashboard.dart';
-
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../Models/admin&dealer/product_list_with_node.dart';
@@ -19,15 +18,10 @@ import '../../Widgets/SCustomWidgets/custom_native_time_picker.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../services/mqtt_manager_web.dart';
- import '../../utils/snack_bar.dart';
+import '../../utils/snack_bar.dart';
 import '../NewIrrigationProgram/preview_screen.dart';
 import '../NewIrrigationProgram/schedule_screen.dart';
- import 'Irrigation Pump Dashboard/irrigation_pump_false.dart';
-import 'Irrigation Pump Dashboard/irrigation_pump_true.dart';
-import 'Line Dashboard/irrigation_line_false.dart';
-import 'Line Dashboard/irrigation_line_true.dart';
-import 'Source Type Dashboard/source_type_false.dart';
-import 'Source Type Dashboard/source_type_true.dart';
+import 'fertilizerdashboard.dart';
 
 final double speed = 100.0;
 final double gap = 100;
@@ -55,6 +49,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final String _correctPassword = 'Oro@321';
   var liveData;
+   late AnimationController _controller;
+
   Map<String, dynamic> newlivedata = {
     "code": 200,
     "message": "User dashboard listed successfully",
@@ -435,7 +431,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                   "objectName": "Pump",
                   "type": "1,2",
                   "controllerId": 15,
-                  "count": null,
+                  "count": 0,
                   "connectedObject": null,
                   "siteMode": null,
                   "level": 0,
@@ -731,6 +727,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         });
       }
     });
+    _controller = AnimationController(
+      duration: Duration(seconds: 1),
+      vsync: this,
+    );
     getData();
     super.initState();
   }
@@ -904,7 +904,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     var selectedLine = liveData?[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].config.lineData[payloadProvider.selectedLine];
     var selectedfiltersite = liveData?[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].config.filterSite;
     var selectedfertilizer = liveData?[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].config.lineData[payloadProvider.selectedLine];
-    return ((liveData != null))
+     return ((liveData != null))
         ? Scaffold(
             body: SafeArea(
                 child: Center(
@@ -1583,40 +1583,22 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                                 height: 300,
                                                 decoration: const BoxDecoration(
                                                   color: Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.only(
-                                                    topLeft:
-                                                        Radius.circular(20),
-                                                    topRight:
-                                                        Radius.circular(20),
-                                                  ),
+                                                  borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20),),
                                                 ),
                                                 child: Column(
                                                   children: [
                                                     Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
+                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                       children: [
                                                         const Padding(
-                                                          padding: EdgeInsets
-                                                              .symmetric(
-                                                                  horizontal:
-                                                                      10),
-                                                          child: Text(
-                                                            'Alarms',
-                                                            style: TextStyle(
-                                                                fontSize: 20),
-                                                          ),
-                                                        ),
+                                                          padding: EdgeInsets.symmetric(horizontal: 10),
+                                                          child: Text('Alarms', style: TextStyle(fontSize: 20),),),
                                                         IconButton(
                                                           onPressed: () {
                                                             // Close the bottom sheet
-                                                            Navigator.pop(
-                                                                context);
+                                                            Navigator.pop(context);
                                                           },
-                                                          icon: const Icon(
-                                                              Icons.cancel),
+                                                          icon: const Icon(Icons.cancel),
                                                         ),
                                                       ],
                                                     ),
@@ -1633,24 +1615,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                                             'Location : ${payloadProvider.alarmList[alarm]['Location']}'),
                                                         trailing: (overAllPvd
                                                                     .takeSharedUserId
-                                                                ? (payloadProvider
-                                                                            .userPermission[0]
-                                                                        [
-                                                                        'status'] ||
-                                                                    payloadProvider
-                                                                            .userPermission[5]
-                                                                        [
-                                                                        'status'])
-                                                                : true)
-                                                            ? MaterialButton(
-                                                                color: payloadProvider.alarmList[alarm]
-                                                                            [
-                                                                            'Status'] ==
-                                                                        1
-                                                                    ? Colors
-                                                                        .orange
-                                                                    : Colors
-                                                                        .red,
+                                                                ? (payloadProvider.userPermission[0]['status'] || payloadProvider.userPermission[5]['status']) : true)
+                                                            ? MaterialButton(color: payloadProvider.alarmList[alarm]['Status'] == 1 ? Colors.orange : Colors.red,
                                                                 onPressed:
                                                                     () {},
                                                                 // onPressed: DashboardPayloadHandler(manager: manager, payloadProvider: payloadProvider, overAllPvd: overAllPvd, setState: setState, context: context,index: alarm).alarmReset,
@@ -1664,9 +1630,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                                                 child:
                                                                     const Text(
                                                                   'Reset',
-                                                                  style: TextStyle(
-                                                                      color: Colors
-                                                                          .white),
+                                                                  style: TextStyle(color: Colors.white),
                                                                 ),
                                                               )
                                                             : null,
@@ -1683,25 +1647,13 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                       padding: const EdgeInsets.all(8.0),
                                       child: Stack(
                                         children: [
-                                          const Icon(
-                                            Icons.notifications,
-                                            color: Colors.black,
-                                            size: 30,
-                                          ),
-                                          if (payloadProvider
-                                              .alarmList.isNotEmpty)
+                                          const Icon(Icons.notifications, color: Colors.black, size: 30,),
+                                          if (payloadProvider.alarmList.isNotEmpty)
                                             const Positioned(
-                                              top: 0,
-                                              left: 10,
-                                              child: CircleAvatar(
+                                              top: 0, left: 10, child: CircleAvatar(
                                                 radius: 8,
                                                 backgroundColor: Colors.red,
-                                                child: Center(
-                                                    child: Text(
-                                                  '1',
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 12),
+                                                child: Center(child: Text('1', style: TextStyle(color: Colors.white,fontSize: 12),
                                                 )),
                                               ),
                                             )
@@ -1723,9 +1675,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                             child: Container(
                             width: MediaQuery.of(context).size.width,
                             decoration: const BoxDecoration(
-                              borderRadius: BorderRadius.only(
-                                  topRight: Radius.circular(30),
-                                  topLeft: Radius.circular(30)),
+                              borderRadius: BorderRadius.only(topRight: Radius.circular(30), topLeft: Radius.circular(30)),
                               color: Colors.white,
                             ),
                             child: Column(
@@ -1733,22 +1683,16 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                               children: [
                                 if (payloadProvider.tryingToGetPayload > 3)
                                   Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 5),
-                                    margin: const EdgeInsets.symmetric(
-                                        horizontal: 10),
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                    margin: const EdgeInsets.symmetric(horizontal: 10),
                                     decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), color: Colors.red),child: const Center(child: Text('Please Check Internet In Your Controller.....',style: TextStyle( color: Colors.white, fontWeight: FontWeight.bold),),
                                     ),
                                   ),
                                 // if(payloadProvider.powerSupply == 0)
                                 Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 5),
-                                  margin: const EdgeInsets.symmetric(
-                                      horizontal: 10),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5),
-                                      color: Colors.deepOrange),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), color: Colors.deepOrange),
                                   child: Center(
                                     child: Text(
                                         'No Power To ${!overAllPvd.takeSharedUserId ? liveData[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].deviceName : liveData[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].deviceName}',
@@ -1769,15 +1713,9 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                       ? null
                                       : Text(
                                           '${getLinePauseResumeMessage(selectedLine!.sNo)}',
-                                          style: const TextStyle(
-                                              color: Colors.red,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                  title: Text(
-                                    '${selectedLine!.name}',
-                                    style: const TextStyle(
-                                        fontSize: 12, color: Colors.black),
+                                    style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
                                   ),
+                                  title: Text('${selectedLine!.name}', style: const TextStyle(fontSize: 12, color: Colors.black),),
                                   trailing: ([0, 1].contains(selectedLine) && (overAllPvd.takeSharedUserId ? (payloadProvider.userPermission[0]['status'] || payloadProvider.userPermission[4]['status']) : true))
                                       ? MaterialButton(
                                           color: selectedLine.sNo == 0
@@ -1805,32 +1743,223 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                   Container(color: Colors.red,child: Text("PumpControllerDashboard",style: TextStyle(color: Colors.white),),) //  PumpControllerDashboard(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : userId, deviceId: overAllPvd.imeiNo, controllerId: overAllPvd.controllerId, selectedSite: payloadProvider.selectedSite, selectedMaster: payloadProvider.selectedMaster,)
                                 else
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
+                                     children: [
+                                        Container(
+                                         width: double.infinity,
+                                        padding: EdgeInsets.all(8),
+                                        child: SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: Column(
+                                          children: [
+                                            payloadProvider.sourcePump.length > 0 ? SingleChildScrollView(
+                                              scrollDirection: Axis.horizontal,
+                                              child: Container(
+                                                padding: EdgeInsets.all(10),
+                                                decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius: BorderRadius.circular(5),
+                                                    boxShadow: customBoxShadow
+                                                ),
+                                                child: Row(
+                                                  children: [
+                                                    for(var pump in payloadProvider.sourcePump)
+                                                      Column(
+                                                        children: [
+                                                          SvgPicture.asset(
+                                                              'assets/Images/newDashboard/Pump.svg',
+                                                              semanticsLabel: 'Acme Logo'
+                                                          ),
+                                                          Text('${pump['name']}')
+                                                         ],
+                                                      ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ) : Container(),
+                                            SingleChildScrollView(
+                                              scrollDirection: Axis.horizontal,
+                                              child: Container(
+                                                padding: EdgeInsets.all(10),
+                                                decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius: BorderRadius.circular(5),
+                                                    boxShadow: customBoxShadow
+                                                ),
+                                                child: Row(
+                                                  children: [
+                                                    for(var pump in payloadProvider.sourcetype)
+                                                       Column(
+                                                        children: [
+                                                          pump['sourceType'] == 1 ? SvgPicture.asset(
+                                                              'assets/Images/newDashboard/Tank4.svg',
+                                                              semanticsLabel: 'Acme Logo'
+                                                          ) : pump['sourceType'] == 2 ? SvgPicture.asset(
+                                                              'assets/Images/newDashboard/Source1.svg',
+                                                              semanticsLabel: 'Acme Logo'
+                                                          ) : pump['sourceType'] == 3 ? SvgPicture.asset(
+                                                              'assets/Images/newDashboard/Sump3.svg',
+                                                              semanticsLabel: 'Acme Logo'
+                                                          ) : pump['sourceType'] == 4 ? SvgPicture.asset(
+                                                              'assets/Images/newDashboard/Source2.svg',
+                                                              semanticsLabel: 'Acme Logo'
+                                                          ) : SvgPicture.asset(
+                                                              'assets/Images/newDashboard/Tank4.svg',
+                                                              semanticsLabel: 'Acme Logo'
+                                                          ),
+                                                          Text("Source ${pump['name']}")
+                                                        ],
+                                                      ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            SingleChildScrollView(
+                                              scrollDirection: Axis.horizontal,
+                                              child: Container(
+                                                padding: EdgeInsets.all(10),
+                                                decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius: BorderRadius.circular(5),
+                                                    boxShadow: customBoxShadow
+                                                ),
+                                                child: Row(
+                                                  children: [
+                                                    for(var pump in payloadProvider.irrigationPump)
+                                                      Column(
+                                                        children: [
+                                                          SvgPicture.asset(
+                                                              'assets/Images/newDashboard/Pump.svg',
+                                                              semanticsLabel: 'Acme Logo'
+                                                          ),
+                                                          Text("${pump['name']}"),
+                                                        ],
+                                                      ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            payloadProvider.filtersCentral.length > 0 ?  SingleChildScrollView(
+                                              scrollDirection: Axis.horizontal,
+                                              child: Container(
+                                                padding: EdgeInsets.all(10),
+                                                decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius: BorderRadius.circular(5),
+                                                    boxShadow: customBoxShadow
+                                                ),
+                                                child: Column(
+                                                  children: [
+                                                    payloadProvider.filtersCentral.length > 0 ? Text("Central Filter") : Container(),
+                                                    Row(
+                                                      children: [
+                                                        for(var pump in payloadProvider.filtersCentral)
+                                                          Column(
+                                                            children: [
+                                                              SvgPicture.asset(
+                                                                  'assets/Images/newDashboard/Filter.svg',
+                                                                  semanticsLabel: 'Acme Logo'
+                                                              ),
+                                                              Text("${pump['name']}")
+                                                            ],
+                                                          ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ) : Container(),
+                                            payloadProvider.filtersLocal.length > 0 ? SingleChildScrollView(
+                                              scrollDirection: Axis.horizontal,
+                                              child: Container(
+                                                padding: EdgeInsets.all(10),
+                                                decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius: BorderRadius.circular(5),
+                                                    boxShadow: customBoxShadow
+                                                ),
+                                                child: Column(
+                                                  children: [
+                                                    payloadProvider.filtersLocal.length > 0 ? Text("Local Filter") : Container(),
+                                                    Row(
+                                                      children: [
+                                                        for(var pump in payloadProvider.filtersLocal)
+                                                          Column(
+                                                            children: [
+                                                              SvgPicture.asset(
+                                                                  'assets/Images/newDashboard/Filter.svg',
+                                                                  semanticsLabel: 'Acme Logo'
+                                                              ),
+                                                              Text("${pump['name']}")
+                                                            ],
+                                                          ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ) : Container(),
+                                            SingleChildScrollView(
+                                              scrollDirection: Axis.horizontal,
+                                              child: Container(
+                                                padding: EdgeInsets.all(10),
+                                                decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius: BorderRadius.circular(5),
+                                                    boxShadow: customBoxShadow
+                                                ),
+                                                child: Row(
+                                                  children: [
+                                                    for(var pump in [1,2,3])
+                                                      Column(
+                                                        children: [
+                                                          SizedBox(
+                                                             child: SvgPicture.asset(
+                                                                'assets/Images/newDashboard/Agitator.svg',
+                                                                semanticsLabel: 'Acme Logo'
+                                                            ),
+
+                                                          ),
+                                                          Text("AG $pump")
+                                                        ],
+                                                      ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            // FertilizationDashboard(fertPvd: payloadProvider.fertilizersdashboard,),
+                                          ],
+                                        ),
+                                                                                    ),
+                                      ),
                                       // WaterSourceDashBoard(waterSource: liveData[payloadProvider.selectedMaster].master[payloadProvider.selectedMaster].config.waterSource),
-                                   if (sourcePumpMode)
-                                        SourceTypeDashBoardTrue(active: payloadProvider.active, selectedLine: payloadProvider.selectedLine,imeiNo: overAllPvd.imeiNo,)
-                                      else
-                                        SourceTypeDashBoardFalse(active: payloadProvider.active, selectedLine:payloadProvider.selectedLine,imeiNo: overAllPvd.imeiNo,),
-                                    if (irrigationPumpMode)
-                                        IrrigationPumpDashBoardTrue(active: payloadProvider.active, selectedLine: payloadProvider.selectedLine,imeiNo: overAllPvd.imeiNo,)
-                                      else
-                                        IrrigationPumpDashBoardFalse(active: payloadProvider.active, selectedLine: payloadProvider.selectedLine, imeiNo: overAllPvd.imeiNo,  ),
-                                      for (var i = 0;i < payloadProvider.filtersCentral.length;i++)
-                                        filterFertilizerLineFiltering(active: payloadProvider.active,  siteIndex: i,  selectedLine:  payloadProvider.selectedLine, programName: 'program', siteData: payloadProvider.filtersCentral[i],centralOrLocal: 1,filter_Fertilizer_line: 1),
-                                      for (var i = 0;i < payloadProvider.filtersLocal.length;i++)
-                                        filterFertilizerLineFiltering(active: payloadProvider.active,siteIndex: i,selectedLine: payloadProvider.selectedLine,programName: 'Program',siteData:payloadProvider.filtersLocal[i],centralOrLocal: 2, filter_Fertilizer_line: 1),
-                                      for (var i = 0;i < payloadProvider.fertilizerCentral.length;i++)
-                                        filterFertilizerLineFiltering( active: payloadProvider.active,  siteIndex: i, selectedLine: payloadProvider.selectedLine, programName: 'Program', siteData: payloadProvider.fertilizerCentral[i],centralOrLocal: 1,filter_Fertilizer_line: 2),
-                                      for (var i = 0;i <payloadProvider.fertilizerLocal.length;i++)
-                                        filterFertilizerLineFiltering(active: payloadProvider.active, siteIndex: i, selectedLine: payloadProvider.selectedLine, programName: 'Program', siteData: payloadProvider .fertilizerLocal[i], centralOrLocal: 2, filter_Fertilizer_line: 2),
-                                      for (var line = 1;line < payloadProvider.lineData.length;line++)
-                                        if (payloadProvider.selectedLine == 0 || line ==  payloadProvider.selectedLine)
-                                          if (irrigationLineMode)
-                                           IrrigationLineTrue(active: payloadProvider.active, selectedLine: payloadProvider.selectedLine, currentLine: line, payloadProvider: payloadProvider)
-                                          else
-                                         IrrigationLineFalse(active: payloadProvider.active, selectedLine: payloadProvider.selectedLine, currentLine: line, payloadProvider: payloadProvider),
-                                      SizedBox(
+                                      // if (sourcePumpMode)
+                                      //   intl(active: payloadProvider.active, selectedLine: payloadProvider.selectedLine,imeiNo: overAllPvd.imeiNo,)
+                                      // else
+                                      //   SourceTypeDashBoardFalse(active: payloadProvider.active, selectedLine:payloadProvider.selectedLine,imeiNo: overAllPvd.imeiNo,),
+                                    //   if (sourcePumpMode)
+                                    //     SourceTypeDashBoardTrue(active: payloadProvider.active, selectedLine: payloadProvider.selectedLine,imeiNo: overAllPvd.imeiNo,)
+                                    //   else
+                                    //     SourceTypeDashBoardFalse(active: payloadProvider.active, selectedLine:payloadProvider.selectedLine,imeiNo: overAllPvd.imeiNo,),
+                                    // if (irrigationPumpMode)
+                                    //     IrrigationPumpDashBoardTrue(active: payloadProvider.active, selectedLine: payloadProvider.selectedLine,imeiNo: overAllPvd.imeiNo,)
+                                    //   else
+                                    //     IrrigationPumpDashBoardFalse(active: payloadProvider.active, selectedLine: payloadProvider.selectedLine, imeiNo: overAllPvd.imeiNo,  ),
+                                    //   for (var i = 0;i < payloadProvider.filtersCentral.length;i++)
+                                    //     filterFertilizerLineFiltering(active: payloadProvider.active,  siteIndex: i,  selectedLine:  payloadProvider.selectedLine, programName: 'program', siteData: payloadProvider.filtersCentral[i],centralOrLocal: 1,filter_Fertilizer_line: 1),
+                                    //   for (var i = 0;i < payloadProvider.filtersLocal.length;i++)
+                                    //     filterFertilizerLineFiltering(active: payloadProvider.active,siteIndex: i,selectedLine: payloadProvider.selectedLine,programName: 'Program',siteData:payloadProvider.filtersLocal[i],centralOrLocal: 2, filter_Fertilizer_line: 1),
+                                    //   for (var i = 0;i < payloadProvider.fertilizerCentral.length;i++)
+                                    //     filterFertilizerLineFiltering( active: payloadProvider.active,  siteIndex: i, selectedLine: payloadProvider.selectedLine, programName: 'Program', siteData: payloadProvider.fertilizerCentral[i],centralOrLocal: 1,filter_Fertilizer_line: 2),
+                                    //   for (var i = 0;i <payloadProvider.fertilizerLocal.length;i++)
+                                    //     filterFertilizerLineFiltering(active: payloadProvider.active, siteIndex: i, selectedLine: payloadProvider.selectedLine, programName: 'Program', siteData: payloadProvider .fertilizerLocal[i], centralOrLocal: 2, filter_Fertilizer_line: 2),
+                                    //   for (var line = 1;line < payloadProvider.lineData.length;line++)
+                                    //     if (payloadProvider.selectedLine == 0 || line ==  payloadProvider.selectedLine)
+                                    //       if (irrigationLineMode)
+                                    //        IrrigationLineTrue(active: payloadProvider.active, selectedLine: payloadProvider.selectedLine, currentLine: line, payloadProvider: payloadProvider)
+                                    //       else
+                                    //      IrrigationLineFalse(active: payloadProvider.active, selectedLine: payloadProvider.selectedLine, currentLine: line, payloadProvider: payloadProvider),
+                                    //
+                                SizedBox(
                                         height:
                                             MediaQuery.of(context).size.height *
                                                 0.3,

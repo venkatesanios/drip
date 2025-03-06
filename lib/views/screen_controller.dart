@@ -67,14 +67,6 @@ class ScreenController extends StatelessWidget {
           emailId: emailId,
         );
       default:
-        // return kIsWeb ? CustomerScreenController(
-        //   userId: userId,
-        //   customerName: userName,
-        //   mobileNo: mobileNo,
-        //   emailId: emailId,
-        //   customerId: userId,
-        //   fromLogin: true,
-        // ) : Dashboard();
         return kIsWeb ? CustomerScreenController(
           userId: userId,
           customerName: userName,
@@ -82,7 +74,8 @@ class ScreenController extends StatelessWidget {
           emailId: emailId,
           customerId: userId,
           fromLogin: true,
-        ) : FilterBackwashUI();
+        ) : Dashboard();
+
     }
   }
 }

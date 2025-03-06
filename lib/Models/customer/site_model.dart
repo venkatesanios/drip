@@ -268,6 +268,7 @@ class WaterSource {
   final int? connectionNo;
   final String objectName;
   final String type;
+  final int? sourceType;
   final int? controllerId;
   final dynamic count;
   final Level? level;
@@ -282,6 +283,7 @@ class WaterSource {
     required this.connectionNo,
     required this.objectName,
     required this.type,
+    required this.sourceType,
     required this.controllerId,
     required this.count,
     required this.level,
@@ -291,6 +293,8 @@ class WaterSource {
   });
 
   factory WaterSource.fromJson(Map<String, dynamic> json) {
+
+    print('json in the water source model ::: $json');
     return WaterSource(
       objectId: json['objectId'],
       sNo: json['sNo'].toDouble(),
@@ -298,6 +302,7 @@ class WaterSource {
       connectionNo: json['connectionNo'],
       objectName: json['objectName'],
       type: json['type'],
+      sourceType: json['sourceType'] ?? 0,
       controllerId: json['controllerId'] ?? 0,
       count: json['count'] ?? 0,
       level: json['level'] != null && json['level'].isNotEmpty
@@ -311,7 +316,26 @@ class WaterSource {
           .toList(),
       valves: json['valves'] ?? [],
     );
-  }
+    }
+
+    Map<String, dynamic> toJson() {
+      return {
+        "objectId": objectId,
+        "sNo": sNo,
+        "name": name,
+        "connectionNo": connectionNo,
+        "objectName": objectName,
+        "type": type,
+        "sourceType": sourceType,
+        "controllerId": controllerId,
+        "count": count,
+        "level": level,
+        "outletPump": outletPump,
+        "inletPump": inletPump,
+        "valves": valves,
+      };
+    }
+
 }
 
 class Pump {
@@ -377,9 +401,9 @@ class FilterSite {
   final int? count;
   final int siteMode;
   final List<Filters> filters;
-  final Map<String, dynamic>? pressureIn;
-  final Map<String, dynamic>? pressureOut;
-  final Map<String, dynamic>? backWashValve;
+  final Map<String, dynamic> pressureIn;
+  final Map<String, dynamic> pressureOut;
+  final Map<String, dynamic> backWashValve;
 
   FilterSite({
     required this.objectId,
@@ -437,13 +461,14 @@ class FilterSite {
       'controllerId': controllerId,
       'count': count,
       'siteMode': siteMode,
-      'filters': filters,
+      'filters': filters.map((e) => e.toJson()).toList(),
       'pressureIn': pressureIn,
       'pressureOut': pressureOut,
       'backWashValve': backWashValve,
     };
   }
 }
+
 
 class Filters {
   double sNo;
@@ -458,6 +483,12 @@ class Filters {
       sNo: json['sNo'],
       name: json['name'],
     );
+  }
+  Map<String, dynamic> toJson() {
+    return {
+      'sNo': sNo,
+      'name': name,
+     };
   }
 }
 
@@ -515,6 +546,27 @@ class FertilizerSite {
       ph: json['ph'] ?? [],
     );
   }
+
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'connectionNo': connectionNo,
+      'objectName': objectName,
+      'type': type,
+      'controllerId': controllerId,
+      'count': count,
+      'siteMode': siteMode,
+      'channel': channel.map((e) => e.toJson()).toList(),
+      'boosterPump': boosterPump.map((e) => e.toJson()).toList(),
+      'agitator': agitator.map((e) => e.toJson()).toList(),
+      'selector': selector,
+      'ec': ec,
+      'ph': ph,
+    };
+  }
 }
 
 class Channel {
@@ -539,7 +591,7 @@ class Channel {
     required this.controllerId,
     this.count,
     required this.level,
-    this.selected=false,
+    this.selected = false,
   });
 
   factory Channel.fromJson(Map<String, dynamic> json) {
@@ -553,7 +605,23 @@ class Channel {
       controllerId: json['controllerId'],
       count: json['count'],
       level: json['level'],
+      selected: json['selected'] ?? false, // Defaulting 'selected' to false if not present in JSON
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'connectionNo': connectionNo,
+      'objectName': objectName,
+      'type': type,
+      'controllerId': controllerId,
+      'count': count,
+      'level': level,
+      'selected': selected,
+    };
   }
 }
 
@@ -577,7 +645,7 @@ class BoosterPump {
     required this.type,
     required this.controllerId,
     this.count,
-    this.selected=false,
+    this.selected = false,
   });
 
   factory BoosterPump.fromJson(Map<String, dynamic> json) {
@@ -590,9 +658,25 @@ class BoosterPump {
       type: json['type'],
       controllerId: json['controllerId'],
       count: json['count'],
+      selected: json['selected'] ?? false, // Defaulting 'selected' to false if not present in JSON
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'connectionNo': connectionNo,
+      'objectName': objectName,
+      'type': type,
+      'controllerId': controllerId,
+      'count': count,
+      'selected': selected, // Added 'selected' field
+    };
+  }
 }
+
 
 class Agitator {
   final int objectId;
@@ -614,7 +698,7 @@ class Agitator {
     required this.type,
     required this.controllerId,
     this.count,
-    this.selected=false,
+    this.selected = false,
   });
 
   factory Agitator.fromJson(Map<String, dynamic> json) {
@@ -627,9 +711,25 @@ class Agitator {
       type: json['type'],
       controllerId: json['controllerId'],
       count: json['count'],
+      selected: json['selected'] ?? false, // Defaulting 'selected' to false if not present in JSON
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'connectionNo': connectionNo,
+      'objectName': objectName,
+      'type': type,
+      'controllerId': controllerId,
+      'count': count,
+      'selected': selected, // Added 'selected' field
+    };
+  }
 }
+
 
 class IrrigationLineData {
   final int objectId;
