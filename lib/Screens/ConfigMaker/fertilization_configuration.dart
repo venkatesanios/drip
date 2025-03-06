@@ -461,7 +461,7 @@ class _FertilizationDashboardFormationState extends State<FertilizationDashboard
                 child: Container(
                   width: 5,
                   height: 15 * configPvd.ratio,
-                  color: injector.level == 0.0 ? Colors.grey.shade400 : Colors.red,
+                  color: injector.level == 0.0 ? Colors.grey.shade400 : Theme.of(context).primaryColorLight,
                 ),
               ),
             )

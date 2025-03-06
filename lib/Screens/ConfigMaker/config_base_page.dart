@@ -59,7 +59,9 @@ class _ConfigBasePageState extends State<ConfigBasePage> {
       },
     );
   }
+
 }
+
 String getTabName(ConfigMakerTabs configMakerTabs) {
   switch (configMakerTabs) {
     case ConfigMakerTabs.deviceList:

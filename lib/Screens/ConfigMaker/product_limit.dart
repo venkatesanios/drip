@@ -76,7 +76,9 @@ class _ProductLimitState extends State<ProductLimit> {
   }
 
   Widget analogObject(){
+    print('listOfObjectId : ${widget.configPvd.listOfSampleObjectModel.map((e) => e.objectId)}');
     List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => (widget.configPvd.masterData['categoryId'] != 2 ? !['-', '1,2'].contains(object.type) : [22, 24, 26, 40].contains(object.objectId))).toList();
+    print('filteredList : ${filteredList.map((e) => e.objectId)}');
     filteredList.sort((a, b) => a.type.compareTo(b.type));
     return ProductLimitGridListTile(
       listOfObjectModel: filteredList,
@@ -164,6 +166,7 @@ int getInputCount(int code, List<DeviceModel> listOfDevices){
       }
     }
   }
+  print('code (${getObjectTypeCodeToString(code)}) - $count');
   return count;
 }
 

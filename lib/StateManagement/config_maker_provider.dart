@@ -158,40 +158,6 @@ class ConfigMakerProvider extends ChangeNotifier{
       moisture = (configMakerData['moistureSensor'] as List<dynamic>).map((moistureObject) => MoistureModel.fromJson(moistureObject)).toList();
       line = (configMakerData['irrigationLine'] as List<dynamic>).map((lineObject) => IrrigationLineModel.fromJson(lineObject)).toList();
 
-      // String? dataFromSession = readFromSessionStorage('configData');
-      // if(dataFromSession != null){
-      //   Map<String, dynamic> jsonData = jsonDecode(dataFromSession);
-      //
-      // }else{
-      //   listOfDeviceModel = sampleData.map((devices) {
-      //     return DeviceModel(
-      //       controllerId: devices['controllerId'],
-      //       deviceId: devices['deviceId'],
-      //       deviceName: devices['deviceName'],
-      //       categoryId: devices['categoryId'],
-      //       categoryName: devices['categoryName'],
-      //       modelId: devices['modelId'],
-      //       modelName: devices['modelName'],
-      //       interfaceTypeId: devices['interfaceTypeId'],
-      //       interfaceInterval: 5,
-      //       serialNumber: devices['serialNo'],
-      //       masterId: devices['masterId'],
-      //       extendControllerId: devices['extendId'],
-      //       noOfRelay: devices['noOfRelay'],
-      //       noOfLatch: devices['noOfLatch'],
-      //       noOfAnalogInput: devices['noOfAnalogInput'],
-      //       noOfDigitalInput: devices['noOfDigitalInput'],
-      //       noOfPulseInput: devices['noOfPulseInput'],
-      //       noOfMoistureInput: devices['noOfMoistureInput'],
-      //       noOfI2CInput: devices['noOfI2CInput'],
-      //       select: false,
-      //       connectingObjectId: devices['connectingObjectId'],
-      //     );
-      //   }).toList();
-      //   listOfSampleObjectModel = sampleObject.map(mapToDeviceObject).toList();
-      //   listOfObjectModelConnection = sampleObject.map(mapToDeviceObject).toList();
-      // }
-
     }catch (e, stackTrace){
       print('Error on converting to device model :: $e');
       print('stackTrace on converting to device model :: $stackTrace');
@@ -858,20 +824,89 @@ class ConfigMakerProvider extends ChangeNotifier{
     }
   }
 
-  String getOroPumpPayload() {
-    List<dynamic> oroPumpPayload = [];
-
-    final oroPumpControllersList = listOfDeviceModel.where((e) => e.categoryId == 2 && e.modelId == 1).toList();
-    for(var i = 0; i < pump.length; i++) {
-      var pumpModelObject = pump[i];
-      var actualPump = listOfGeneratedObject.firstWhere((object) => object.sNo == pumpModelObject.commonDetails.sNo);
-      var controller = listOfDeviceModel.firstWhere((e) => e.controllerId == actualPump.controllerId);
-      var relatedSources = source.where((e) => e.inletPump.contains(pumpModelObject.commonDetails.sNo) || e.outletPump.contains(pumpModelObject.commonDetails.sNo)).toList();
-      var sump = source.where((e) => ![1, 4].contains(e.sourceType));
-      var tank = source.where((e) => e.sourceType == 1);
+  void getOroPumpPayload() {
+    List<int> modelIdForPump1000 = [5, 6, 7];
+    List<int> modelIdForPump2000 = [8, 9, 10];
+    List<DeviceModel> listOfPump1000 = listOfDeviceModel.where((device) => modelIdForPump1000.contains(device.modelId)).toList();
+    List<DeviceModel> listOfPump2000 = listOfDeviceModel.where((device) => modelIdForPump2000.contains(device.modelId)).toList();
+    List<String> pump1000Payload = [];
+    List<String> pump2000Payload = [];
+    for(var p1000 in listOfPump1000){
+      int pumpCount = listOfGeneratedObject.where((object) => (object.controllerId == p1000.controllerId && object.objectId == 5)).length;
+      var pumpPayload = {"sentSms":"pumpconfig,$pumpCount,"};
+      pump1000Payload.add(jsonEncode(pumpPayload));
     }
-    print(oroPumpControllersList.map((e) => e.toJson()));
-    return '';
+    for(var p2000 in listOfPump2000){
+      int pumpCount = listOfGeneratedObject.where((object) => (object.controllerId == p2000.controllerId && object.objectId == 5)).length;
+      var pumpPayload = {"sentSms":"pumpconfig,$pumpCount,"};
+      pump2000Payload.add(jsonEncode(pumpPayload));
+
+      List<DeviceObjectModel> listOfFloat = listOfGeneratedObject.where((object) => (object.controllerId == p2000.controllerId && object.objectId == 40)).toList();
+      List<DeviceObjectModel> listOfPump = listOfGeneratedObject.where((object) => (object.controllerId == p2000.controllerId && object.objectId == 5)).toList();
+      List<DeviceObjectModel> listOfLevel = listOfGeneratedObject.where((object) => (object.controllerId == p2000.controllerId && object.objectId == 26)).toList();
+      List<DeviceObjectModel> listOfPressure = listOfGeneratedObject.where((object) => (object.controllerId == p2000.controllerId && object.objectId == 24)).toList();
+      List<DeviceObjectModel> listOfWaterMeter = listOfGeneratedObject.where((object) => (object.controllerId == p2000.controllerId && object.objectId == 22)).toList();
+      var listOfTankPayload = [];
+      for(var p in listOfPump){
+        PumpModel pumpModel = pump.firstWhere((pump) => pump.commonDetails.sNo == p.sNo);
+        int tankPinCount = 0;
+        int tankHighConnectionNo = 0;
+        int tankLowConnectionNo = 0;
+        int sumpPinCount = 0;
+        int sumpHighConnectionNo = 0;
+        int sumpLowConnectionNo = 0;
+        int levelConnectionNo = 0;
+        int availableOfWaterMeter = pumpModel.waterMeter != 0.0 ? 1 : 0;
+        int availableOfPressure = pumpModel.pressureIn != 0.0 ? 1 : 0;
+        for(var src in source){
+          if([...src.inletPump, ...src.outletPump].contains(p.sNo)){
+            if(src.sourceType == 1){
+              if(src.topFloat != 0.0 && listOfFloat.any((floatObject) => floatObject.sNo == src.topFloat)){
+                DeviceObjectModel float = listOfFloat.firstWhere((floatObject) => floatObject.sNo == src.topFloat);
+                tankPinCount += 1;
+                tankHighConnectionNo = float.connectionNo!;
+              }
+              if(src.bottomFloat != 0.0 && listOfFloat.any((floatObject) => floatObject.sNo == src.bottomFloat)){
+                DeviceObjectModel float = listOfFloat.firstWhere((floatObject) => floatObject.sNo == src.bottomFloat);
+                tankPinCount += 1;
+                tankLowConnectionNo = float.connectionNo!;
+              }
+              if(src.level != 0.0 && listOfLevel.any((levelObject) => levelObject.sNo == src.level)){
+                DeviceObjectModel level = listOfLevel.firstWhere((levelObject) => levelObject.sNo == src.level);
+                levelConnectionNo = level.connectionNo!;
+              }
+            }
+            if(src.sourceType == 2){
+              if(src.topFloat != 0.0 && listOfFloat.any((floatObject) => floatObject.sNo == src.topFloat)){
+                DeviceObjectModel float = listOfFloat.firstWhere((floatObject) => floatObject.sNo == src.topFloat);
+                sumpPinCount += 1;
+                sumpHighConnectionNo = float.connectionNo!;
+              }
+              if(src.bottomFloat != 0.0 && listOfFloat.any((floatObject) => floatObject.sNo == src.bottomFloat)){
+                DeviceObjectModel float = listOfFloat.firstWhere((floatObject) => floatObject.sNo == src.bottomFloat);
+                sumpPinCount += 1;
+                sumpLowConnectionNo = float.connectionNo!;
+              }
+            }
+          }
+        }
+        listOfTankPayload.add({
+          "No.of sump pins" : sumpPinCount,
+          "Sump low pin float" : sumpLowConnectionNo,
+          "Sump high pin float" : sumpHighConnectionNo,
+          "No.of tank pins" : tankPinCount,
+          "Tank low pin float" : tankLowConnectionNo,
+          "Tank high pin float" : tankHighConnectionNo,
+          "level sensor" : levelConnectionNo,
+          "waterMeter" : availableOfWaterMeter,
+          "pressure" : availableOfPressure
+        }.entries.map((e) => e.value).join(','));
+      }
+      var tankPayload = {"sentSms":"tankconfig,${listOfTankPayload.join(',')},"};
+      pump2000Payload.add(jsonEncode(tankPayload));
+    }
+    print('pump1000Payload :: $pump1000Payload');
+    print('pump2000Payload :: $pump2000Payload');
   }
 
 }
