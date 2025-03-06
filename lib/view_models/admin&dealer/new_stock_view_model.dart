@@ -183,7 +183,10 @@ class NewStockViewModel extends ChangeNotifier {
       "modelId": selectedModelId.toString(),
       "deviceId": imeiController.text.trim(),
       "productDescription": '',
-      "dateOfManufacturing": manufacturingDateController.text,
+      "dateOfManufacturing": manufacturingDateController.text.isNotEmpty
+          ? DateFormat('yyyy-MM-dd').format(
+          DateTime.tryParse(manufacturingDateController.text) ?? DateTime.now())
+          : "",
       "warrantyMonths": warrantyMonthsController.text,
     });
     notifyListeners();

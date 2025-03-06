@@ -48,7 +48,7 @@ class CustomerScreenController extends StatelessWidget {
         builder: (context, navViewModel, vm, _) {
 
           int wifiStrength = Provider.of<MqttPayloadProvider>(context).wifiStrength;
-          String liveDataAndTime = Provider.of<MqttPayloadProvider>(context).liveDataAndTime;
+          String liveDataAndTime = Provider.of<MqttPayloadProvider>(context).liveDateAndTime;
 
           if(liveDataAndTime.isNotEmpty){
             WidgetsBinding.instance.addPostFrameCallback((_) {

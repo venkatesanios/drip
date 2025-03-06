@@ -3,6 +3,7 @@ import 'package:oro_drip_irrigation/Models/customer/stand_alone_model.dart';
 import 'package:oro_drip_irrigation/utils/Theme/oro_theme.dart';
 import 'package:provider/provider.dart';
 import '../../Models/customer/site_model.dart';
+import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../utils/constants.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
 import 'home_sub_classes/irrigation_line.dart';
@@ -53,14 +54,18 @@ class DisplayPumpStation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
+    var outputOnOffLiveMessage = Provider.of<MqttPayloadProvider>(context).outputOnOffLiveMessage;
+    print('outputOnOffLiveMessage:$outputOnOffLiveMessage');
+    updatePumpStatus(waterSource, outputOnOffLiveMessage);
+
     double screenWith = MediaQuery.sizeOf(context).width;
 
     int totalWaterSources = waterSource.length;
     int totalOutletPumps = waterSource.fold(0, (sum, source) => sum + source.outletPump.length);
 
     int totalFilters = filterSite.fold(0, (sum, site) => sum + (site.filters.length ?? 0));
-    int totalPressureIn = filterSite.fold(0, (sum, site) => sum + (site.pressureIn!.isNotEmpty ? 1 : 0));
-    int totalPressureOut = filterSite.fold(0, (sum, site) => sum + (site.pressureOut!.isNotEmpty ? 1 : 0));
+    int totalPressureIn = filterSite.fold(0, (sum, site) => sum + (site.pressureIn!=null ? 1 : 0));
+    int totalPressureOut = filterSite.fold(0, (sum, site) => sum + (site.pressureOut!=null ? 1 : 0));
 
     int totalBoosterPump = fertilizerSite.fold(0, (sum, site) => sum + (site.boosterPump.length ?? 0));
     int totalChannels = fertilizerSite.fold(0, (sum, site) => sum + (site.channel.length ?? 0));
@@ -770,13 +775,13 @@ class DisplayPumpStation extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      filterSite[i].pressureIn!.isNotEmpty?
+                      filterSite[i].pressureIn != null?
                       SizedBox(
                         width: 70,
                         height: 70,
                         child : Stack(
                           children: [
-                            Image.asset('assets/images/dp_prs_sensor.png',),
+                            Image.asset('assets/png_images/dp_prs_sensor.png',),
                             Positioned(
                               top: 42,
                               left: 5,
@@ -789,7 +794,7 @@ class DisplayPumpStation extends StatelessWidget {
                                   border: Border.all(color: Colors.grey, width: .50,),
                                 ),
                                 child: Center(
-                                  child: Text('${filterSite[i].pressureIn?['val'].toStringAsFixed(2)} bar', style: const TextStyle(
+                                  child: Text('${filterSite[i].pressureIn?.value} bar', style: const TextStyle(
                                     color: Colors.black,
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,
@@ -878,13 +883,13 @@ class DisplayPumpStation extends StatelessWidget {
                           },
                         ),
                       ),
-                      filterSite[i].pressureOut!.isNotEmpty?
+                      filterSite[i].pressureOut != null?
                       SizedBox(
                         width: 70,
                         height: 70,
                         child : Stack(
                           children: [
-                            Image.asset('assets/images/dp_prs_sensor.png',),
+                            Image.asset('assets/png_images/dp_prs_sensor.png',),
                             Positioned(
                               top: 42,
                               left: 5,
@@ -897,7 +902,7 @@ class DisplayPumpStation extends StatelessWidget {
                                   border: Border.all(color: Colors.grey, width: .50,),
                                 ),
                                 child: Center(
-                                  child: Text('${filterSite[i].pressureOut?['val'].toStringAsFixed(2)} bar', style: const TextStyle(
+                                  child: Text('${filterSite[i].pressureOut?.value} bar', style: const TextStyle(
                                     color: Colors.black,
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,
@@ -917,7 +922,8 @@ class DisplayPumpStation extends StatelessWidget {
                       color: Colors.green.shade50,
                       borderRadius: BorderRadius.circular(3),
                     ),
-                    width: filterSite[i].pressureIn!.isNotEmpty? filterSite[i].filters.length * 70+70:
+
+                    width: filterSite[i].pressureIn != null? filterSite[i].filters.length * 70+70:
                     filterSite[i].filters.length * 70,
                     height: 20,
                     child: Center(
@@ -1329,6 +1335,33 @@ class DisplayPumpStation extends StatelessWidget {
 
     return Image.asset('assets/png_images/$imageName');
 
+  }
+
+  void updatePumpStatus(List<WaterSource> waterSource, List<dynamic> outputOnOffLiveMessage) {
+    for (var source in waterSource) {
+      for (var pump in source.outletPump) {
+        int? status = getStatus(outputOnOffLiveMessage, pump.sNo);
+        if (status != null) {
+          pump.status = status;
+        } else {
+          print("Serial Number ${pump.sNo} not found");
+        }
+      }
+    }
+
+  }
+
+  int? getStatus(List<dynamic> outputOnOffLiveMessage, double serialNumber) {
+
+    for (int i = 0; i < outputOnOffLiveMessage.length; i++) {
+      List<String> parts = outputOnOffLiveMessage[i].split(',');
+      double? serial = double.tryParse(parts[0]); // Ensure conversion
+
+      if (serial != null && serial == serialNumber) {
+        return int.parse(parts[1]);
+      }
+    }
+    return null;
   }
 
 }

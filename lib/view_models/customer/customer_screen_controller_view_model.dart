@@ -136,7 +136,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   void updateLivePayload(int ws, String liveDataAndTime){
 
     payloadProvider.wifiStrength = 0;
-    payloadProvider.liveDataAndTime = '';
+    payloadProvider.liveDateAndTime = '';
 
     List<String> parts = liveDataAndTime.split(' ');
     String date = parts[0];
