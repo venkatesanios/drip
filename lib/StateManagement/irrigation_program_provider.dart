@@ -59,7 +59,9 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   List<ProgramMoistureSensor>? _moistureSensor;
   List<ProgramMoistureSensor>? get moistureSensor => _moistureSensor;
   List<DeviceObjectModel>? _agitators;
+  List<DeviceObjectModel>? _mainValves;
   List<DeviceObjectModel>? get agitators => _agitators;
+  List<DeviceObjectModel>? get mainValves => _mainValves;
 
   List<DeviceObjectModel> selectedObjects = [];
   int selectedPumpLocation = 0;
@@ -93,6 +95,8 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       _pump = null;
       _moistureSensor = null;
       _irrigationLine = null;
+      _agitators = null;
+      _mainValves = null;
       configObjects.clear();
       if(getUserConfigMaker.statusCode == 200) {
         final responseJson = getUserProgramSequence.body;
@@ -114,6 +118,10 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
             .whereType<DeviceObjectModel>()
             .toList();
         }
+        _mainValves = _sampleIrrigationLine!.map((e) => e.mainValve != null ? List<DeviceObjectModel>.from(e.mainValve!) : [])
+            .expand((list) => list)
+            .whereType<DeviceObjectModel>()
+            .toList();
         Future.delayed(Duration.zero,() {
           _irrigationLine = SequenceModel.fromJson(sequenceJson);
           // for (var element in _irrigationLine!.sequence) {
