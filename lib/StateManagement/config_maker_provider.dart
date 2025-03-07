@@ -94,18 +94,21 @@ class ConfigMakerProvider extends ChangeNotifier{
       var body = {
         "userId" : masterDataFromSiteConfigure['customerId'],
         "controllerId" : masterDataFromSiteConfigure['controllerId'],
+        "modelId" : masterDataFromSiteConfigure['modelId'],
         "groupId": masterDataFromSiteConfigure['groupId'],
         "categoryId" : masterDataFromSiteConfigure['categoryId']
       };
       var response = await HttpService().postRequest('/user/configMaker/get', body);
-
       Map<String, dynamic> jsonData = jsonDecode(response.body);
-      print('jsonData : ${jsonData}');
+      print('jsonData : $jsonData');
       Map<String, dynamic> defaultData = jsonData['data']['default'];
       Map<String, dynamic> configMakerData = jsonData['data']['configMaker'];
       configMakerDataFromHttp = jsonData['data']['configMaker'];
       defaultDataFromHttp = jsonData['data']['default'];
       masterData = masterDataFromSiteConfigure;
+      if(masterData['categoryId'] == 2){
+        selectedTab = ConfigMakerTabs.productLimit;
+      }
       listOfDeviceModel = (defaultData['deviceList'] as List<dynamic>).map((devices) {
         Map<String, dynamic> deviceProperty = defaultData['productModel'].firstWhere((product) => devices['modelId'] == product['modelId']);
         var inputObjectId = deviceProperty['inputObjectId'] == '-' ? [] : deviceProperty['inputObjectId'].split(',').map((e) => int.parse(e.toString())).toList();

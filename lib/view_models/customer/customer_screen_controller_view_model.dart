@@ -61,6 +61,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
         if (jsonData["code"] == 200) {
           mySiteList = SiteModel.fromJson(jsonData);
           wifiStrength = mySiteList.data[sIndex].master[mIndex].live?.cM['WifiStrength'];
+          updateMaster(sIndex, mIndex, 0);
         }
       }
     } catch (error) {
@@ -136,7 +137,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   void updateLivePayload(int ws, String liveDataAndTime){
 
     payloadProvider.wifiStrength = 0;
-    payloadProvider.liveDataAndTime = '';
+    payloadProvider.liveDateAndTime = '';
 
     List<String> parts = liveDataAndTime.split(' ');
     String date = parts[0];

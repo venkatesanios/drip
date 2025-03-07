@@ -36,6 +36,7 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
   late TabController tabController;
   late CustomerDeviceListViewModel viewModel;
   List<Object> tabList = [];
+  int currentSiteInx = 0;
 
   @override
   void initState() {
@@ -342,8 +343,8 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
                                   Tab(text: viewModel.customerSiteList[i].groupName,),
                               ],
                               onTap: (index) {
-                                /*currentSiteInx = index;
-                                getNodeStockList(customerSiteList[currentSiteInx].master[0].categoryId);*/
+                                currentSiteInx = index;
+                                //getNodeStockList(customerSiteList[currentSiteInx].master[0].categoryId);
                               },
                             ),
                           ),
@@ -412,26 +413,7 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
                                               color: Colors.teal,
                                               textColor: Colors.white,
                                               child: const Text('ADD'),
-                                              onPressed: () async {
-                                                Navigator.pop(context);
-                                                /*Map<String, dynamic> body = {
-                                                  "userId": widget.customerID,
-                                                  "productId": myMasterControllerList[selectedRadioTile].productId,
-                                                  "createUser": widget.userID,
-                                                  "groupId": customerSiteList[currentSiteInx].userGroupId,
-                                                };
-                                                final response = await HttpService().postRequest("createUserDeviceListWithGroup", body);
-                                                if (response.statusCode == 200) {
-                                                  var data = jsonDecode(response.body);
-                                                  if (data["code"] == 200) {
-                                                    getCustomerSite();
-                                                    getMasterProduct();
-                                                    GlobalSnackBar.show(context, data["message"], data["code"]);
-                                                  } else {
-                                                    GlobalSnackBar.show(context, data["message"], data["code"]);
-                                                  }
-                                                }*/
-                                              },
+                                              onPressed: () => viewModel.createNewMaster(context, currentSiteInx),
                                             ),
                                           ],
                                         ),

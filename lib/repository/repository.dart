@@ -138,8 +138,12 @@ class Repository{
     return await apiService.postRequest('/user/deviceList/createAndGroup', body);
   }
 
+  Future<http.Response> createNewMaster(body) async {
+    return await apiService.postRequest('/user/deviceList/createWithGroup', body);
+  }
+
   Future<http.Response> fetchAllMySite(body) async {
-    return await apiService.postRequest('/user/dashboard', body);
+     return await apiService.postRequest('/user/dashboard', body);
   }
   Future<http.Response> getUserFilterBackwasing(body) async {
     return await apiService.postRequest('/user/planning/filterBackwashing/get', body);

@@ -93,7 +93,7 @@ class DealerDeviceList extends StatelessWidget {
                                 color: Colors.green,
                                 textColor: Colors.white,
                                 child: const Text('ADD'),
-                                onPressed: () => viewModel.addProductToCustomer(context, productStockList, onDeviceListAdded),
+                                onPressed: () => viewModel.addProductToDealer(context, productStockList, onDeviceListAdded),
                               ),
                             ],
                           ),

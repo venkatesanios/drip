@@ -4,6 +4,7 @@ import '../../models/admin&dealer/product_list_with_node.dart';
 import '../../models/admin&dealer/stock_model.dart';
 import '../../models/device_list_model.dart';
 import '../../repository/repository.dart';
+import '../../utils/snack_bar.dart';
 import '../../views/admin_dealer/customer_device_list.dart';
 
 class CustomerDeviceListViewModel extends ChangeNotifier {
@@ -293,6 +294,37 @@ class CustomerDeviceListViewModel extends ChangeNotifier {
         ],
       );
     });
+  }
+
+  Future<void> createNewMaster(BuildContext context, int currentSiteInx) async
+  {
+    Navigator.pop(context);
+
+    Map<String, dynamic> body = {
+      "userId": customerId,
+      "productId": myMasterControllerList[selectedRadioTile].productId,
+      "createUser": userId,
+      "groupId": customerSiteList[currentSiteInx].userGroupId,
+    };
+
+    try {
+      var response = await repository.createNewMaster(body);
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        if (data["code"] == 200) {
+          getCustomerSite();
+          getMasterProduct();
+          GlobalSnackBar.show(context, data["message"], data["code"]);
+        } else {
+          GlobalSnackBar.show(context, data["message"], data["code"]);
+        }
+      }
+    } catch (error, stackTrace) {
+      debugPrint('Error fetching Product stock: $error');
+      debugPrint(stackTrace.toString());
+    } finally {
+      notifyListeners();
+    }
   }
 
   @override
