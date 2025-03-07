@@ -275,7 +275,8 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
     required List<Program> programLibraryData,
     required cardSize,
     required int index,
-    required BoxConstraints constraints,}) {
+    required BoxConstraints constraints,})
+  {
     final scheduleByDays = programItem.schedule['selected'] == irrigationProgramMainProvider.scheduleTypes[1];
     final scheduleAsRunList = programItem.schedule['selected'] == irrigationProgramMainProvider.scheduleTypes[2];
     final ScrollController scrollController = ScrollController();
