@@ -31,176 +31,177 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => StandAloneViewModel(Repository(HttpService()), widget.config, widget.userId, widget.customerId, widget.controllerId, widget.deviceId)
-        ..getProgramList(),
-      child: Consumer<StandAloneViewModel>(
-        builder: (context, viewModel, _) {
-          print('ddCurrentPosition:${viewModel.ddCurrentPosition}');
-
-          return Container(
-            width: 400,
-            height: MediaQuery.sizeOf(context).height,
-            color: Colors.white,
-            child: Column(
-              children: [
-                SizedBox(
-                  width: 400,
-                  height: viewModel.programList.length > 1? 90:50,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 10),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        viewModel.programList.length > 1? Row(
-                          children: [
-                            const Text(
-                              'Select by:',
-                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(width: 10),
-                            SizedBox(
-                              width: 200,
-                              child: DropdownButtonFormField(
-                                value: viewModel.programList.isNotEmpty
-                                    ? viewModel.programList[viewModel.ddCurrentPosition]
-                                    : null,
-                                decoration: const InputDecoration(
-                                  border: InputBorder.none,
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                  contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-                                ),
-                                items: viewModel.programList.map((item) {
-                                  return DropdownMenuItem(
-                                    value: item,
-                                    child: Text(item.programName),
-                                  );
-                                }).toList(),
-                                onChanged: (value) => viewModel.fetchStandAloneSelection(value!.serialNumber, value),
+    return   ChangeNotifierProvider(
+        create: (_) => StandAloneViewModel(Repository(HttpService()), widget.config, widget.userId, widget.customerId, widget.controllerId, widget.deviceId)
+          ..getProgramList(),
+        child: Consumer<StandAloneViewModel>(
+          builder: (context, viewModel, _) {
+            return Container(
+              width: 400,
+              height: MediaQuery.sizeOf(context).height,
+              color: Colors.white,
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: 400,
+                    height: viewModel.programList.length > 1? 90:60,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          viewModel.programList.length > 1? Row(
+                            children: [
+                              const Text(
+                                'Select by:',
+                                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                               ),
-                            ),
-                          ],
-                        ) :
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 290,
-                              child: viewModel.ddCurrentPosition!=0? SegmentedButton<SegmentWithFlow>(
-                                segments: const <ButtonSegment<SegmentWithFlow>>[
-                                  ButtonSegment<SegmentWithFlow>(
-                                      value: SegmentWithFlow.manual,
-                                      label: Text('Timeless'),
-                                      icon: Icon(Icons.pan_tool_alt_outlined)),
-                                  ButtonSegment<SegmentWithFlow>(
-                                      value: SegmentWithFlow.duration,
-                                      label: Text('Duration'),
-                                      icon: Icon(Icons.timer_outlined)),
-                                  ButtonSegment<SegmentWithFlow>(
-                                      value: SegmentWithFlow.flow,
-                                      label: Text('Flow-Liters'),
-                                      icon: Icon(Icons.water_drop_outlined)),
-                                ],
-                                selected: <SegmentWithFlow>{viewModel.segmentWithFlow},
-                                onSelectionChanged: (Set<SegmentWithFlow> newSelection) {
-                                  viewModel.segmentWithFlow = newSelection.first;
-                                  viewModel.segmentSelectionCallbackFunction(viewModel.segmentWithFlow.index, viewModel.durationValue, viewModel.selectedIrLine);
-                                },
+                              const SizedBox(width: 10),
+                              SizedBox(
+                                width: 200,
+                                child: DropdownButtonFormField(
+                                  value: viewModel.programList.isNotEmpty
+                                      ? viewModel.programList[viewModel.ddCurrentPosition]
+                                      : null,
+                                  decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                    enabledBorder: InputBorder.none,
+                                    focusedBorder: InputBorder.none,
+                                    contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+                                  ),
+                                  items: viewModel.programList.map((item) {
+                                    return DropdownMenuItem(
+                                      value: item,
+                                      child: Text(item.programName),
+                                    );
+                                  }).toList(),
+                                  onChanged: (value) {
+                                    // Your callback method here
+                                  },
+                                ),
+                              ),
+                            ],
+                          ) :
+                          const SizedBox(height: 8),
+                           Row(
+                            children: [
+                              SizedBox(
+                                width: 250,
+                                child: viewModel.ddCurrentPosition!=0? SegmentedButton<SegmentWithFlow>(
+                                  segments: const <ButtonSegment<SegmentWithFlow>>[
+                                    ButtonSegment<SegmentWithFlow>(
+                                        value: SegmentWithFlow.manual,
+                                        label: Text('Timeless'),
+                                        icon: Icon(Icons.pan_tool_alt_outlined)),
+                                    ButtonSegment<SegmentWithFlow>(
+                                        value: SegmentWithFlow.duration,
+                                        label: Text('Duration'),
+                                        icon: Icon(Icons.timer_outlined)),
+                                    ButtonSegment<SegmentWithFlow>(
+                                        value: SegmentWithFlow.flow,
+                                        label: Text('Flow-Liters'),
+                                        icon: Icon(Icons.water_drop_outlined)),
+                                  ],
+                                  selected: <SegmentWithFlow>{viewModel.segmentWithFlow},
+                                  onSelectionChanged: (Set<SegmentWithFlow> newSelection) {
+                                    viewModel.segmentWithFlow = newSelection.first;
+                                    viewModel.segmentSelectionCallbackFunction(viewModel.segmentWithFlow.index, viewModel.durationValue, viewModel.selectedIrLine);
+                                  },
+                                ) :
+                                SegmentedButton<SegmentWithFlow>(
+                                  segments: const <ButtonSegment<SegmentWithFlow>>[
+                                    ButtonSegment<SegmentWithFlow>(
+                                        value: SegmentWithFlow.manual,
+                                        label: Text('Timeless'),
+                                        icon: Icon(Icons.pan_tool_alt_outlined)),
+                                    ButtonSegment<SegmentWithFlow>(
+                                        value: SegmentWithFlow.duration,
+                                        label: Text('Duration'),
+                                        icon: Icon(Icons.timer_outlined)),
+                                  ],
+                                  selected: <SegmentWithFlow>{viewModel.segmentWithFlow},
+                                  onSelectionChanged: (Set<SegmentWithFlow> newSelection) {
+                                    viewModel.segmentWithFlow = newSelection.first;
+                                    viewModel.segmentSelectionCallbackFunction(viewModel.segmentWithFlow.index, viewModel.durationValue, viewModel.selectedIrLine);
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 5,),
+                              viewModel.segmentWithFlow.index == 1 ? SizedBox(
+                                width: 85,
+                                child: TextButton(
+                                  onPressed: () => viewModel.showDurationInputDialog(context),
+                                  style: ButtonStyle(
+                                    padding: WidgetStateProperty.all(
+                                      const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                                    ),
+                                    backgroundColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withOpacity(0.3)),
+                                    shape: WidgetStateProperty.all<OutlinedBorder>(
+                                      RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                                    ),
+                                  ),
+                                  child: Text(viewModel.durationValue, style: const TextStyle(color: Colors.black, fontSize: 17)),
+                                ),
                               ) :
-                              SegmentedButton<SegmentWithFlow>(
-                                segments: const <ButtonSegment<SegmentWithFlow>>[
-                                  ButtonSegment<SegmentWithFlow>(
-                                      value: SegmentWithFlow.manual,
-                                      label: Text('Timeless'),
-                                      icon: Icon(Icons.pan_tool_alt_outlined)),
-                                  ButtonSegment<SegmentWithFlow>(
-                                      value: SegmentWithFlow.duration,
-                                      label: Text('Duration'),
-                                      icon: Icon(Icons.timer_outlined)),
-                                ],
-                                selected: <SegmentWithFlow>{viewModel.segmentWithFlow},
-                                onSelectionChanged: (Set<SegmentWithFlow> newSelection) {
-                                  viewModel.segmentWithFlow = newSelection.first;
-                                  viewModel.segmentSelectionCallbackFunction(viewModel.segmentWithFlow.index, viewModel.durationValue, viewModel.selectedIrLine);
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 5,),
-                            viewModel.segmentWithFlow.index == 1 ? SizedBox(
-                              width: 85,
-                              child: TextButton(
-                                onPressed: () => viewModel.showDurationInputDialog(context),
-                                style: ButtonStyle(
-                                  padding: WidgetStateProperty.all(
-                                    const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                                  ),
-                                  backgroundColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withOpacity(0.3)),
-                                  shape: WidgetStateProperty.all<OutlinedBorder>(
-                                    RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                              Container(),
+                              viewModel.segmentWithFlow.index == 2 ? SizedBox(
+                                width: 85,
+                                child: TextField(
+                                  maxLength: 7,
+                                  controller: viewModel.flowLiter,
+                                  onChanged: (value) => viewModel.segmentSelectionCallbackFunction(viewModel.segmentWithFlow.index, value, viewModel.selectedIrLine),
+                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                                  ],
+                                  decoration: const InputDecoration(
+                                    labelText: 'Liters',
+                                    counterText: '',
                                   ),
                                 ),
-                                child: Text(viewModel.durationValue, style: const TextStyle(color: Colors.black, fontSize: 17)),
-                              ),
-                            ) :
-                            Container(),
-                            viewModel.segmentWithFlow.index == 2 ? SizedBox(
-                              width: 85,
-                              child: TextField(
-                                maxLength: 7,
-                                controller: viewModel.flowLiter,
-                                onChanged: (value) => viewModel.segmentSelectionCallbackFunction(viewModel.segmentWithFlow.index, value, viewModel.selectedIrLine),
-                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                inputFormatters: <TextInputFormatter>[
-                                  FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                                ],
-                                decoration: const InputDecoration(
-                                  labelText: 'Liters',
-                                  counterText: '',
-                                ),
-                              ),
-                            ):
-                            Container(),
-                          ],
-                        )
+                              ):
+                              Container(),
+                            ],
+                          )
+
+                        ],
+                      ),
+                    ),
+                  ),
+                  const Divider(height: 0),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: displayStandAloneDefault(widget.config, viewModel),
+                    ),
+                  ),
+                  ListTile(
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(width: 10),
+                        MaterialButton(
+                          color: Colors.redAccent,
+                          textColor: Colors.white,
+                          onPressed:() => viewModel.stopAllManualOperation(),
+                          child: const Text('Stop Manually'),
+                        ),
+                        const SizedBox(width: 16),
+                        MaterialButton(
+                          color: Colors.green,
+                          textColor: Colors.white,
+                          onPressed:() => viewModel.startManualOperation(context),
+                          child: const Text('Start Manually'),
+                        ),
+                        const SizedBox(width: 15),
                       ],
                     ),
                   ),
-                ),
-                const Divider(height: 0),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: displayStandAloneDefault(widget.config, viewModel),
-                  ),
-                ),
-                ListTile(
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(width: 10),
-                      MaterialButton(
-                        color: Colors.redAccent,
-                        textColor: Colors.white,
-                        onPressed:() => viewModel.stopAllManualOperation(),
-                        child: const Text('Stop Manually'),
-                      ),
-                      const SizedBox(width: 16),
-                      MaterialButton(
-                        color: Colors.green,
-                        textColor: Colors.white,
-                        onPressed:() => viewModel.startManualOperation(context),
-                        child: const Text('Start Manually'),
-                      ),
-                      const SizedBox(width: 15),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+                ],
+              ),
+            );
+          },
+        ),
     );
   }
 
@@ -619,7 +620,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
           ),
         ):
         Container(),
-        vm.ddCurrentPosition==0?SizedBox(
+        SizedBox(
           height: getTotalHeight(),
           child: ListView.builder(
             itemCount: widget.config.lineData.length,
@@ -734,8 +735,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
               );
             },
           ),
-        ):
-        SizedBox(child: Text('data'),),
+        ),
       ],
     );
   }
