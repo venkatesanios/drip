@@ -148,9 +148,7 @@ class Repository{
   Future<http.Response> getUserFilterBackwasing(body) async {
     return await apiService.postRequest('/user/planning/filterBackwashing/get', body);
   }
-  Future<http.Response> getPlanningHiddenMenu(body) async {
-    return await apiService.postRequest('/user/dealerDefinition/mainMenu/get', body);
-  }
+
   Future<http.Response> UpdateFilterBackwasing(body) async {
     return await apiService.postRequest('/user/planning/filterBackwashing/create', body);
   }
