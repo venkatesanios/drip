@@ -36,6 +36,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
         ..getProgramList(),
       child: Consumer<StandAloneViewModel>(
         builder: (context, viewModel, _) {
+          print('ddCurrentPosition:${viewModel.ddCurrentPosition}');
 
           return Container(
             width: 400,
@@ -77,9 +78,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                                     child: Text(item.programName),
                                   );
                                 }).toList(),
-                                onChanged: (value) {
-                                  // Your callback method here
-                                },
+                                onChanged: (value) => viewModel.fetchStandAloneSelection(value!.serialNumber, value),
                               ),
                             ),
                           ],
@@ -88,7 +87,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                         Row(
                           children: [
                             SizedBox(
-                              width: 250,
+                              width: 290,
                               child: viewModel.ddCurrentPosition!=0? SegmentedButton<SegmentWithFlow>(
                                 segments: const <ButtonSegment<SegmentWithFlow>>[
                                   ButtonSegment<SegmentWithFlow>(
@@ -620,7 +619,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
           ),
         ):
         Container(),
-        SizedBox(
+        vm.ddCurrentPosition==0?SizedBox(
           height: getTotalHeight(),
           child: ListView.builder(
             itemCount: widget.config.lineData.length,
@@ -735,7 +734,8 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
               );
             },
           ),
-        ),
+        ):
+        SizedBox(child: Text('data'),),
       ],
     );
   }

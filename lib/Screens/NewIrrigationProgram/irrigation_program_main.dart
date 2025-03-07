@@ -155,7 +155,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
                             if(_tabController.index == 0 && mainProvider.irrigationLine!.sequence.every((element) => element['valve'].isEmpty)) {
                               validatorFunction(context, mainProvider);
                             } else {
-                              validateSelection(index: i);
+                              validateSelection(index: i, mainProvider: mainProvider);
                             }
                           },
                           child: CustomTab(
@@ -222,17 +222,11 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
                                   leading: Icon(icons[i], color: Colors.white,),
                                   selected: _tabController.index == i,
                                   onTap: () {
-                                    // _navigateToTab(i);
                                     if(_tabController.index == 0 && mainProvider.irrigationLine!.sequence.every((element) => element['valve'].isEmpty)) {
                                       validatorFunction(context, mainProvider);
                                     } else {
-                                      validateSelection(index: i);
+                                      validateSelection(index: i, mainProvider: mainProvider);
                                     }
-                                    // if(_tabController.index == 0 && (irrigationProvider.programName.isEmpty || widget.serialNumber == 0) ){
-                                    //   validatorFunction(context, mainProvider);
-                                    // } else {
-                                    //   _navigateToTab(i);
-                                    // }
                                   },
                                 /*  selectedTileColor: _tabController.index == i ? const Color(0xff2999A9) : null,
                                   hoverColor: _tabController.index == i ? const Color(0xff2999A9) : null*/
@@ -320,18 +314,23 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
     }
   }
 
-  void validateSelection({required int index}) {
-    final mainProvider = Provider.of<IrrigationProgramMainProvider>(context, listen: false);
-
+  void validateSelection({required int index, required IrrigationProgramMainProvider mainProvider}) {
     if(widget.programType == "Irrigation Program") {
-      if(labels.length == 7 ? _tabController.index == 2 : _tabController.index == 3){
-        if(!mainProvider.selectedObjects.any((element) => element.objectId == 2)) {
+      if(labels.length == 7 ? index > 2 : index > 3){
+        if(!mainProvider.selectedObjects!.any((element) => element.objectId == 2)) {
           showValidationAlert(content: "Please select at least one head unit!");
-        } else if(!(mainProvider.isPumpStationMode) && mainProvider.pump!.isNotEmpty && !mainProvider.selectedObjects.any((element) => element.objectId == 5)){
-          showValidationAlert(
-              content: "Are you sure to proceed without pump selection?",
-              ignoreValidation: mainProvider.pump!.length > 1
-          );
+        } else if(!(mainProvider.isPumpStationMode) && mainProvider.pump!.isNotEmpty && !mainProvider.selectedObjects!.any((element) => element.objectId == 5)){
+
+          if(!mainProvider.ignoreValidation) {
+            showValidationAlert(
+                content: "Are you sure to proceed without pump selection?",
+                ignoreValidation: mainProvider.pump!.length > 1,
+              index: index
+            );
+          } else {
+            _navigateToTab(index);
+          }
+
         } else if(mainProvider.isPumpStationMode) {
           mainProvider.calculateTotalFlowRate();
           if(mainProvider.pumpStationValveFlowRate < mainProvider.totalValveFlowRate) {
@@ -398,13 +397,17 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
     final mainProvider = Provider.of<IrrigationProgramMainProvider>(context, listen: false);
     if(widget.programType == "Irrigation Program") {
       if(labels.length == 7 ? _tabController.index == 2 : _tabController.index == 3){
-        if(!mainProvider.selectedObjects.any((element) => element.objectId == 2)) {
+        if(!mainProvider.selectedObjects!.any((element) => element.objectId == 2)) {
           showValidationAlert(content: "Please select at least one head unit!");
-        } else if(!(mainProvider.isPumpStationMode) && mainProvider.pump!.isNotEmpty && !mainProvider.selectedObjects.any((element) => element.objectId == 5)){
-          showValidationAlert(
-              content: "Are you sure to proceed without pump selection?",
-              ignoreValidation: mainProvider.pump!.length > 1
-          );
+        } else if(!(mainProvider.isPumpStationMode) && mainProvider.pump!.isNotEmpty && !mainProvider.selectedObjects!.any((element) => element.objectId == 5)){
+          if(!mainProvider.ignoreValidation) {
+            showValidationAlert(
+                content: "Are you sure to proceed without pump selection?",
+                ignoreValidation: mainProvider.pump!.length > 1
+            );
+          } else {
+            _navigateToNextTab();
+          }
         } else if(mainProvider.isPumpStationMode) {
           mainProvider.calculateTotalFlowRate();
           if(mainProvider.pumpStationValveFlowRate <= mainProvider.totalValveFlowRate) {
@@ -468,7 +471,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
     }
   }
 
-  void showValidationAlert({required String content, bool ignoreValidation = false}) {
+  void showValidationAlert({required String content, bool ignoreValidation = false, int? index}) {
     showAdaptiveDialog(
         context: context,
         builder: (BuildContext context) {
@@ -481,7 +484,10 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
                       if(!ignoreValidation) {
                         Navigator.of(context).pop();
                       } else {
-                        _navigateToNextTab();
+                        setState(() {
+                          context.read<IrrigationProgramMainProvider>().ignoreValidation = true;
+                        });
+                        _navigateToTab(index!);
                         Navigator.of(context).pop();
                       }
                     },
@@ -518,7 +524,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
         "waterAndFert": mainProvider.sequenceData,
         "selection": {
           ...mainProvider.additionalData!.toJson(),
-          "selected": mainProvider.selectedObjects.map((e) => e.toJson()).toList(),
+          "selected": mainProvider.selectedObjects!.map((e) => e.toJson()).toList(),
         },
         "alarm": mainProvider.newAlarmList!.toJson(),
         "programName": mainProvider.programName,
@@ -658,40 +664,6 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
     // }
   }
 
-  void _showAdaptiveDialog(BuildContext context, IrrigationProgramMainProvider programProvider,) {
-    showAdaptiveDialog(
-      context: context,
-      builder: (BuildContext dialogContext) =>
-          Consumer<IrrigationProgramMainProvider>(
-            builder: (context, programProvider, child) {
-              return AlertDialog(
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: programProvider.scheduleTypes.map((e) {
-                    return RadioListTile(
-                        title: Text(e),
-                        value: e,
-                        groupValue: programProvider.selectedScheduleType,
-                        onChanged: (newValue) => programProvider.updateSelectedScheduleType(newValue));
-                  }).toList(),
-                ),
-                actions: [
-                  TextButton(
-                      onPressed: () => Navigator.pop(dialogContext),
-                      child: const Text('Cancel')),
-                  TextButton(
-                      onPressed: () {
-                        _navigateToNextTab();
-                        Navigator.pop(dialogContext);
-                      },
-                      child: const Text('OK')),
-                ],
-              );
-            },
-          ),
-    );
-  }
-
   Widget _buildTabContent({required int index, required bool isIrrigationProgram, required bool conditionsLibraryIsNotEmpty}) {
     switch (index) {
       case 0:
@@ -720,15 +692,15 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
         return isIrrigationProgram
             ? conditionsLibraryIsNotEmpty
             ? const AlarmScreen()
-            : AdditionalDataScreen(userId: widget.customerId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, isIrrigationProgram: isIrrigationProgram, customerId: widget.customerId,)
-            : PreviewScreen(userId: widget.customerId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,customerId: widget.customerId);
+            : AdditionalDataScreen(userId: widget.userId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, isIrrigationProgram: isIrrigationProgram, customerId: widget.customerId,)
+            : PreviewScreen(userId: widget.userId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,customerId: widget.customerId);
       case 6:
         return conditionsLibraryIsNotEmpty
-            ? AdditionalDataScreen(userId: widget.customerId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, isIrrigationProgram: isIrrigationProgram,customerId: widget.customerId)
-            : PreviewScreen(userId: widget.customerId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, customerId: widget.customerId,);
+            ? AdditionalDataScreen(userId: widget.userId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, isIrrigationProgram: isIrrigationProgram,customerId: widget.customerId)
+            : PreviewScreen(userId: widget.userId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, customerId: widget.customerId,);
       case 7:
         return conditionsLibraryIsNotEmpty
-            ? PreviewScreen(userId: widget.customerId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,customerId: widget.customerId)
+            ? PreviewScreen(userId: widget.userId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,customerId: widget.customerId)
             : Container();
       default:
         return Container();

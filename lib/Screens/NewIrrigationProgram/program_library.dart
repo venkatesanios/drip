@@ -34,7 +34,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
   final TextEditingController _textEditingController = TextEditingController();
   final FocusNode _programNameFocusNode = FocusNode();
   late IrrigationProgramMainProvider irrigationProgramMainProvider;
-  // late MqttPayloadProvider mqttPayloadProvider;
+  late MqttPayloadProvider mqttPayloadProvider;
   final PageController pageController = PageController();
   int currentIndex = 0;
   TextEditingController copyController = TextEditingController();
@@ -45,8 +45,9 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
   void initState() {
     // overAllUse = Provider.of<OverAllUse>(context, listen: false);
     irrigationProgramMainProvider = Provider.of<IrrigationProgramMainProvider>(context, listen: false);
-    // mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
-    irrigationProgramMainProvider.programLibraryData(widget.userId, widget.controllerId);
+    mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
+    MqttManager().topicToSubscribe('FirmwareToApp/2CCF674C0F8A');
+    irrigationProgramMainProvider.programLibraryData(widget.customerId, widget.controllerId);
     // print("init state called");
     super.initState();
   }
@@ -62,7 +63,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
   Widget build(BuildContext context) {
     // overAllUse = Provider.of<OverAllUse>(context, listen: true);
     irrigationProgramMainProvider = Provider.of<IrrigationProgramMainProvider>(context, listen: true);
-    // mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
+    mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
     // SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     //   statusBarColor: Colors.transparent,
     //   statusBarIconBrightness: Brightness.dark,
@@ -113,8 +114,8 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                               selected: irrigationProgramMainProvider.selectedFilterType == i,
                               onTap: (index) {
                                 irrigationProgramMainProvider.updateSelectedFilterType(index);
-                                // scheduleViewProvider.updateSelectedProgramCategory(index);
-                              }, constraints: constraints,
+                              },
+                              constraints: constraints,
                             ),
                         ],
                       ),
@@ -274,7 +275,8 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
     required List<Program> programLibraryData,
     required cardSize,
     required int index,
-    required BoxConstraints constraints,}) {
+    required BoxConstraints constraints,})
+  {
     final scheduleByDays = programItem.schedule['selected'] == irrigationProgramMainProvider.scheduleTypes[1];
     final scheduleAsRunList = programItem.schedule['selected'] == irrigationProgramMainProvider.scheduleTypes[2];
     final ScrollController scrollController = ScrollController();
@@ -410,8 +412,8 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                             Map<String, dynamic> dataToMqtt = programItem.hardwareData;
 
                             try {
-                              MqttManager().topicToPublishAndItsMessage('${Environment.mqttWebPublishTopic}/${widget.deviceId}', jsonEncode(dataToMqtt));
-                             /* await validatePayloadSent(
+                              // MqttManager().topicToPublishAndItsMessage('${Environment.mqttWebPublishTopic}/${widget.deviceId}', jsonEncode(dataToMqtt));
+                              await validatePayloadSent(
                                   dialogContext: context,
                                   context: context,
                                   mqttPayloadProvider: mqttPayloadProvider,
@@ -425,16 +427,16 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                                   payloadCode: "2500",
                                   deviceId: widget.deviceId
                               ).whenComplete(() async {
-                                if(mqttPayloadProvider.messageFromHw['Code'] != "200") {
+                                if(jsonDecode(MqttManager().payload!)['cM']['4201']['Code'] != "200") {
                                   setState(() {
                                     controllerReadStatus = "0";
                                   });
                                 }
-                              });*/
+                              });
                               // await saveProgramDetails(programItem, dataToMqtt);
-                             /* await Future.delayed(const Duration(seconds: 1), () async{
-                                await irrigationProgramMainProvider.programLibraryData(overAllUse.takeSharedUserId ? overAllUse.sharedUserId : overAllUse.userId, overAllUse.controllerId,);
-                              });*/
+                              await Future.delayed(const Duration(seconds: 1), () async{
+                                await irrigationProgramMainProvider.programLibraryData(widget.customerId, widget.controllerId);
+                              });
                             } catch (error) {
                               showSnackBar(message: 'Failed to update because of $error', context: context);
                               print("Error: $error");
@@ -749,18 +751,17 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                 ),
                 TextButton(
                   onPressed: () async{
-                    // deleteProgram(program, toMove);
 
                     if(toMove == "active" || toMove == "inactive") {
                       Map<String, dynamic> dataToMqtt = program.hardwareData;
                       Map<String, dynamic> deleteProgramToHardware = {
-                        "3800": [{
+                        "3800": {
                           "3801": "${program.serialNumber};"
-                        }]
+                        }
                       };
                       try {
                         Navigator.of(dialogContext).pop();
-                        /*await validatePayloadSent(
+                        await validatePayloadSent(
                             dialogContext: context,
                             context: context,
                             mqttPayloadProvider: mqttPayloadProvider,
@@ -775,12 +776,12 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                             payloadCode: toMove == "active" ? "2500" : "3800",
                             deviceId: widget.deviceId
                         ).whenComplete(() async {
-                          if(mqttPayloadProvider.messageFromHw['Code'] != "200") {
+                          if(jsonDecode(MqttManager().payload!)['cM']['4201']['Code'] != "200") {
                             setState(() {
                               controllerReadStatus = "0";
                             });
                           }
-                        });*/
+                        });
                         // await saveProgramDetails(program, dataToMqtt);
                         await Future.delayed(const Duration(seconds: 1), () async{
                           await irrigationProgramMainProvider.programLibraryData(widget.userId, widget.controllerId,);
@@ -895,16 +896,11 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                     ),
                     TextButton(
                       onPressed: () async{
-                        /*if (_formKey.currentState!.validate()) {
+                        if (_formKey.currentState!.validate()) {
                           Map<String, dynamic> dataToMqtt = {
-                            "2800": [
-                              {
-                                "2801" : "${program.serialNumber},${program.priority == irrigationProgramMainProvider.priorityList[0] ? 1 : 0}"
-                              },
-                              {
-                                "2802" : overAllUse.takeSharedUserId ? overAllUse.sharedUserId : overAllUse.userId
-                              }
-                            ]
+                            "2800": {
+                              "2801" : "${program.serialNumber},${program.priority == irrigationProgramMainProvider.priorityList[0] ? 1 : 0}"
+                            },
                           };
 
                           try {
@@ -922,7 +918,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                                 payloadCode: "2800",
                                 deviceId: widget.deviceId
                             ).whenComplete(() {
-                              if(mqttPayloadProvider.messageFromHw['Code'] != "200") {
+                              if(jsonDecode(MqttManager().payload!)['cM']['4201']['Code'] != "200") {
                                 setState(() {
                                   controllerReadStatus = "0";
                                 });
@@ -930,14 +926,14 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                             });
                             await saveProgramDetails(program, dataToMqtt);
                             await Future.delayed(const Duration(seconds: 2), () async{
-                              await irrigationProgramMainProvider.programLibraryData(overAllUse.takeSharedUserId ? overAllUse.sharedUserId : overAllUse.userId, overAllUse.controllerId);
+                              await irrigationProgramMainProvider.programLibraryData(widget.customerId, widget.controllerId);
                             });
                           } catch (error) {
                             showSnackBar(message: 'Failed to update because of $error', context: dialogContext);
                             print("Error: $error");
                           }
                           Navigator.pop(dialogContext);
-                        }*/
+                        }
                       },
                       child: const Text('Save'),
                     ),
@@ -1093,14 +1089,18 @@ Future<void> validatePayloadSent({
   required void Function() acknowledgedFunction,
   required Map<String, dynamic> payload,
   required String payloadCode,
-  required String deviceId
+  required String deviceId,
 }) async {
   try {
-    // await MQTTManager().publish(jsonEncode(payload), "AppToFirmware/$deviceId");
+    // Reset payload to ensure we get the latest acknowledgment
+    MqttManager().payload = null;
+
+    await MqttManager().topicToPublishAndItsMessage(
+      '${Environment.mqttWebPublishTopic}/$deviceId',
+      jsonEncode(payload),
+    );
 
     bool isAcknowledged = false;
-    int maxWaitTime = 10;
-    int elapsedTime = 0;
 
     showDialog(
       context: context,
@@ -1122,32 +1122,36 @@ Future<void> validatePayloadSent({
       },
     );
 
-    while (elapsedTime < maxWaitTime) {
-      await Future.delayed(const Duration(seconds: 1));
-      elapsedTime++;
-
-     /* if (mqttPayloadProvider.messageFromHw != null && mqttPayloadProvider.messageFromHw['PayloadCode'] == payloadCode) {
+    await for (final message in MqttManager().payloadStream.timeout(
+      const Duration(seconds: 30),
+      onTimeout: (sink) => sink.close(),
+    )) {
+      if (message != null && jsonDecode(message)['cM']['4201']['PayloadCode'] == payloadCode) {
         isAcknowledged = true;
         break;
-      }*/
+      }
     }
 
     Navigator.of(context).pop();
 
     if (isAcknowledged) {
-   /*   if (mqttPayloadProvider.messageFromHw['Code'] == "200") {
+      final decodedPayload = jsonDecode(MqttManager().payload!);
+      if (decodedPayload['cM']['4201']['Code'] == "200") {
         acknowledgedFunction();
       } else {
-        showSnackBar(message: "${mqttPayloadProvider.messageFromHw['Name']}", context: context);
-      }*/
+        showSnackBar(message: "${decodedPayload['cM']['4201']['Name']}", context: context,);
+      }
     } else {
-      showAlertDialog(message: "Controller is not responding", context: context);
-      await Future.delayed(Duration(seconds: 1));
+      showAlertDialog(
+        message: "Controller is not responding",
+        context: context,
+      );
+      await Future.delayed(const Duration(seconds: 1));
       Navigator.of(context).pop();
     }
   } catch (error, stackTrace) {
-    // Navigator.of(context).pop();
-    print(stackTrace);
+    print("stackTrace ::: $stackTrace");
+    print("error ::: $error");
     showAlertDialog(message: error.toString(), context: context);
   }
 }
@@ -1173,5 +1177,5 @@ void showAlertDialog({required String message, Widget? child, required BuildCont
 }
 
 void showSnackBar({required String message, required BuildContext context}) {
-  ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: message));
+  ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: message, color: Colors.red,));
 }

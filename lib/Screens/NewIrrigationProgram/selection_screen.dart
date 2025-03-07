@@ -35,28 +35,30 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
     ctrlValue.addListener(() {setState(() {});});
     ctrlValue.repeat();
     irrigationProgramProvider = Provider.of<IrrigationProgramMainProvider>(context, listen: false);
-    if(irrigationProgramProvider.sampleIrrigationLine?.map((e) => e.irrigationLine).toList().length == 1 && !(irrigationProgramProvider.selectedObjects.any((element) => element.objectId == 2))) {
-      irrigationProgramProvider.selectedObjects.add(
-          irrigationProgramProvider.sampleIrrigationLine!.map((e) => e.irrigationLine).toList()[0]
-      );
-    }
-    if(!irrigationProgramProvider.isPumpStationMode) {
-      if(irrigationProgramProvider.selectedObjects.where((element) => element.objectId == 2).length > 1) {
-        for(var i = 0; i < irrigationProgramProvider.sampleIrrigationLine!.map((e) => e.irrigationLine).toList().length; i++) {
-          if(i != 0) {
-            irrigationProgramProvider.selectedObjects.removeWhere((element) => element.objectId == 2);
-          } else {
-            irrigationProgramProvider.selectedObjects.add(
-                irrigationProgramProvider.sampleIrrigationLine!.where((headUnit) {
-                  return irrigationProgramProvider.irrigationLine!.sequence.any((sequenceItem) {
-                    return sequenceItem['valve'].any((valve) {
-                      return headUnit.valve!.any((valveItem) {
-                        return valveItem.sNo == valve['sNo'];
+    if(irrigationProgramProvider.selectedObjects != null) {
+      if(irrigationProgramProvider.sampleIrrigationLine?.map((e) => e.irrigationLine).toList().length == 1 && !(irrigationProgramProvider.selectedObjects!.any((element) => element.objectId == 2))) {
+        irrigationProgramProvider.selectedObjects!.add(
+            irrigationProgramProvider.sampleIrrigationLine!.map((e) => e.irrigationLine).toList()[0]
+        );
+      }
+      if(!irrigationProgramProvider.isPumpStationMode) {
+        if(irrigationProgramProvider.selectedObjects!.where((element) => element.objectId == 2).length > 1) {
+          for(var i = 0; i < irrigationProgramProvider.sampleIrrigationLine!.map((e) => e.irrigationLine).toList().length; i++) {
+            if(i != 0) {
+              irrigationProgramProvider.selectedObjects!.removeWhere((element) => element.objectId == 2);
+            } else {
+              irrigationProgramProvider.selectedObjects!.add(
+                  irrigationProgramProvider.sampleIrrigationLine!.where((headUnit) {
+                    return irrigationProgramProvider.irrigationLine!.sequence.any((sequenceItem) {
+                      return sequenceItem['valve'].any((valve) {
+                        return headUnit.valve!.any((valveItem) {
+                          return valveItem.sNo == valve['sNo'];
+                        });
                       });
                     });
-                  });
-                }).map((e) => e.irrigationLine).toList()[0]
-            );
+                  }).map((e) => e.irrigationLine).toList()[0]
+              );
+            }
           }
         }
       }
@@ -78,16 +80,16 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
     final irrigationLine = irrigationProgramProvider.sampleIrrigationLine;
     final primaryColorDark = Theme.of(context).primaryColor.withOpacity(0.35);
     final centralFertilizerSite = irrigationProgramProvider.fertilizerSite!.where((site) {
-      for (var i = 0; i < irrigationProgramProvider.selectedObjects.length; i++) {
-        if (site.siteMode == 1 && irrigationProgramProvider.selectedObjects[i].objectId == 3 && irrigationProgramProvider.selectedObjects[i].sNo == site.fertilizerSite?.sNo) {
+      for (var i = 0; i < irrigationProgramProvider.selectedObjects!.length; i++) {
+        if (site.siteMode == 1 && irrigationProgramProvider.selectedObjects![i].objectId == 3 && irrigationProgramProvider.selectedObjects![i].sNo == site.fertilizerSite?.sNo) {
           return true;
         }
       }
       return false;
     });
     final localFertilizerSite = irrigationProgramProvider.fertilizerSite!.where((site) {
-      for (var i = 0; i < irrigationProgramProvider.selectedObjects.length; i++) {
-        if (site.siteMode == 2 && irrigationProgramProvider.selectedObjects[i].objectId == 3 && irrigationProgramProvider.selectedObjects[i].sNo == site.fertilizerSite?.sNo) {
+      for (var i = 0; i < irrigationProgramProvider.selectedObjects!.length; i++) {
+        if (site.siteMode == 2 && irrigationProgramProvider.selectedObjects![i].objectId == 3 && irrigationProgramProvider.selectedObjects![i].sNo == site.fertilizerSite?.sNo) {
           return true;
         }
       }
@@ -95,16 +97,16 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
     });
     final centralFilterSite = irrigationProgramProvider.filterSite!.where((site) {
       // print("Central filter site ==> ${site.filterSite?.sNo}");
-      for (var i = 0; i < irrigationProgramProvider.selectedObjects.length; i++) {
-        if (site.siteMode == 1 && irrigationProgramProvider.selectedObjects[i].objectId == 4 && irrigationProgramProvider.selectedObjects[i].sNo == site.filterSite?.sNo) {
+      for (var i = 0; i < irrigationProgramProvider.selectedObjects!.length; i++) {
+        if (site.siteMode == 1 && irrigationProgramProvider.selectedObjects![i].objectId == 4 && irrigationProgramProvider.selectedObjects![i].sNo == site.filterSite?.sNo) {
           return true;
         }
       }
       return false;
     });
     final localFilterSite = irrigationProgramProvider.filterSite!.where((site) {
-      for (var i = 0; i < irrigationProgramProvider.selectedObjects.length; i++) {
-        if (site.siteMode == 2 && irrigationProgramProvider.selectedObjects[i].objectId == 4 && irrigationProgramProvider.selectedObjects[i].sNo == site.filterSite?.sNo) {
+      for (var i = 0; i < irrigationProgramProvider.selectedObjects!.length; i++) {
+        if (site.siteMode == 2 && irrigationProgramProvider.selectedObjects![i].objectId == 4 && irrigationProgramProvider.selectedObjects![i].sNo == site.filterSite?.sNo) {
           return true;
         }
       }
@@ -176,8 +178,8 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                 buildSection(
                   title: "Head Units",
                   dataList: !irrigationProgramProvider.isPumpStationMode
-                      ? irrigationProgramProvider.selectedObjects.any((element) => element.objectId == 5)
-                      ? irrigationLine.where((line) => irrigationProgramProvider.selectedObjects
+                      ? irrigationProgramProvider.selectedObjects!.any((element) => element.objectId == 5)
+                      ? irrigationLine.where((line) => irrigationProgramProvider.selectedObjects!
                       .any((element) => line.irrigationPump != null && line.irrigationPump!.any((pump) => element.sNo == pump.sNo)))
                       .map((line) => line.irrigationLine)
                       .toList()
@@ -573,24 +575,24 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
   }
 
   void toggleSelection(int objectId, int siteMode, int index, dataList) {
-    bool isAlreadySelected = irrigationProgramProvider.selectedObjects.any((element) => element.sNo == dataList[index].sNo);
+    bool isAlreadySelected = irrigationProgramProvider.selectedObjects!.any((element) => element.sNo == dataList[index].sNo);
 
     if (isAlreadySelected) {
-      irrigationProgramProvider.selectedObjects.removeWhere((element) => element.sNo == dataList[index].sNo);
+      irrigationProgramProvider.selectedObjects!.removeWhere((element) => element.sNo == dataList[index].sNo);
     } else {
       if (objectId == 4 && siteMode == 1) {
-        irrigationProgramProvider.selectedObjects.removeWhere((element) => element.objectId == objectId && irrigationProgramProvider.filterSite!.any((site) => site.siteMode == 1 && site.filterSite!.sNo == element.sNo));
+        irrigationProgramProvider.selectedObjects!.removeWhere((element) => element.objectId == objectId && irrigationProgramProvider.filterSite!.any((site) => site.siteMode == 1 && site.filterSite!.sNo == element.sNo));
       }
       if (objectId == 5 && siteMode == 1) {
-        irrigationProgramProvider.selectedObjects.removeWhere((element) => element.objectId == objectId && irrigationProgramProvider.fertilizerSite!.any((site) => site.siteMode == 1 && site.fertilizerSite!.sNo == element.sNo));
+        irrigationProgramProvider.selectedObjects!.removeWhere((element) => element.objectId == objectId && irrigationProgramProvider.fertilizerSite!.any((site) => site.siteMode == 1 && site.fertilizerSite!.sNo == element.sNo));
       }
       if (objectId == 4 && siteMode == 2) {
-        irrigationProgramProvider.selectedObjects.removeWhere((element) => element.objectId == objectId && irrigationProgramProvider.filterSite!.any((site) => site.siteMode == 2 && site.filterSite!.sNo == element.sNo));
+        irrigationProgramProvider.selectedObjects!.removeWhere((element) => element.objectId == objectId && irrigationProgramProvider.filterSite!.any((site) => site.siteMode == 2 && site.filterSite!.sNo == element.sNo));
       }
       if (objectId == 5 && siteMode == 2) {
-        irrigationProgramProvider.selectedObjects.removeWhere((element) => element.objectId == objectId && irrigationProgramProvider.fertilizerSite!.any((site) => site.siteMode == 2 && site.fertilizerSite!.sNo == element.sNo));
+        irrigationProgramProvider.selectedObjects!.removeWhere((element) => element.objectId == objectId && irrigationProgramProvider.fertilizerSite!.any((site) => site.siteMode == 2 && site.fertilizerSite!.sNo == element.sNo));
       }
-      irrigationProgramProvider.selectedObjects.add(dataList[index]);
+      irrigationProgramProvider.selectedObjects!.add(dataList[index]);
     }
   }
 
@@ -630,16 +632,16 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                     if ((data[index].objectId == 4 && siteMode == 1) || (data[index].objectId == 4 && siteMode == 2) || (data[index].objectId == 5 && siteMode == 1) || (data[index].objectId == 5 && siteMode == 2)) {
                       toggleSelection(data[index].objectId, siteMode!, index, data);
                     } else {
-                      if (irrigationProgramProvider.selectedObjects.any((element) => element.sNo == data[index].sNo)) {
-                        irrigationProgramProvider.selectedObjects.removeWhere((element) => element.sNo == data[index].sNo);
+                      if (irrigationProgramProvider.selectedObjects!.any((element) => element.sNo == data[index].sNo)) {
+                        irrigationProgramProvider.selectedObjects!.removeWhere((element) => element.sNo == data[index].sNo);
                       } else {
-                        irrigationProgramProvider.selectedObjects.add(data[index]);
+                        irrigationProgramProvider.selectedObjects!.add(data[index]);
                       }
                     }
                   },
                   itemName: data[index].name ?? "No name",
                   // containerColor: lightColor,
-                  containerColor: irrigationProgramProvider.selectedObjects.any((element) => element.sNo == data[index].sNo) ? darkColor : lightColor,
+                  containerColor: irrigationProgramProvider.selectedObjects!.any((element) => element.sNo == data[index].sNo) ? darkColor : lightColor,
                 )
             ],
           ),

@@ -10,6 +10,7 @@ import '../../models/admin&dealer/new_stock_model.dart';
 import '../../models/admin&dealer/simple_category.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
+import '../../utils/snack_bar.dart';
 import '../../view_models/admin&dealer/new_stock_view_model.dart';
 
 class AddNewStock extends StatelessWidget {
@@ -23,6 +24,7 @@ class AddNewStock extends StatelessWidget {
       create: (_) => NewStockViewModel(Repository(HttpService()), onStockCreatedCallbackFunction:(result) {
         onStockCreated(result);
         Navigator.pop(context);
+        GlobalSnackBar.show(context, 'Stock Added successfully', 200);
       })..fetchCategoryList(),
       child: Consumer<NewStockViewModel>(
         builder: (context, viewModel, _) {
@@ -154,16 +156,17 @@ class AddNewStock extends StatelessWidget {
                           contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
                         ),
                         onTap: ()
-                        async
-                        {
-                          DateTime? date = DateTime(1900);
-                          FocusScope.of(context).requestFocus(FocusNode());
-                          date = await showDatePicker(
-                              context: context,
-                              initialDate:DateTime.now(),
-                              firstDate:DateTime(1900),
-                              lastDate: DateTime(2100));
-                          viewModel.manufacturingDateController.text =  DateFormat('dd-MM-yyyy').format(date!);
+                        async {
+                          DateTime? date = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(1900),
+                            lastDate: DateTime(2100),
+                          );
+
+                          if (date != null) {
+                            viewModel.manufacturingDateController.text = DateFormat('dd-MM-yyyy').format(date);
+                          }
                         },
                       ),
                     ),
@@ -216,12 +219,6 @@ class AddNewStock extends StatelessWidget {
                                     ),
                                     TextButton(
                                       onPressed: () => viewModel.addProductStock(userId, context),
-                                      /*onPressed: () async {
-                                        Navigator.pop(context);
-                                        Navigator.pop(context);
-                                        Map<String, dynamic> result = await viewModel.createProduct(userId);
-                                        onStockCreated(result);
-                                      },*/
                                       child: const Text('Save'),
                                     ),
                                   ],

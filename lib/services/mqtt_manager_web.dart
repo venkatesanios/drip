@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:mqtt_client/mqtt_browser_client.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:uuid/uuid.dart';
+import '../StateManagement/mqtt_payload_provider.dart';
 import '../utils/environment.dart';
 
 enum MQTTConnectionState {connected, disconnected, connecting}
@@ -11,7 +12,16 @@ class MqttManager {
   static MqttManager? _instance;
   MqttBrowserClient? _client;
   String? currentTopic;
+  final StreamController<String?> _payloadController = StreamController.broadcast();
 
+  String? _payload;
+  String? get payload => _payload;
+  Stream<String?> get payloadStream => _payloadController.stream;
+
+  set payload(String? newPayload) {
+    _payload = newPayload;
+    _payloadController.add(_payload);
+  }
   factory MqttManager() {
     _instance ??= MqttManager._internal();
     return _instance!;
@@ -56,7 +66,7 @@ class MqttManager {
     }
   }
 
-  void connect() async {
+  Future<void> connect() async {
     print('inside connect function');
     print('Environment.mqttWebUrl : ${Environment.mqttWebUrl}');
     print('Environment.mqttPort : ${Environment.mqttPort}');
@@ -88,7 +98,9 @@ class MqttManager {
   void _onMessageReceived(List<MqttReceivedMessage<MqttMessage?>>? c) async {
     final MqttPublishMessage recMess = c![0].payload as MqttPublishMessage;
     final String pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-    // print('Received message: $pt');
+    payload = pt;
+    print('Received message: $pt');
+    print('payload updated: $payload');
     // providerState?.updateReceivedPayload(pt,false);
   }
 

@@ -100,9 +100,8 @@ class ConfigMakerProvider extends ChangeNotifier{
         "categoryId" : masterDataFromSiteConfigure['categoryId']
       };
       var response = await HttpService().postRequest('/user/configMaker/get', body);
-
       Map<String, dynamic> jsonData = jsonDecode(response.body);
-      print('jsonData : ${jsonData}');
+      print('jsonData : $jsonData');
       Map<String, dynamic> defaultData = jsonData['data']['default'];
       Map<String, dynamic> configMakerData = jsonData['data']['configMaker'];
       if(![1, 2, 4].contains(masterDataFromSiteConfigure['modelId'])){

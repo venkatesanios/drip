@@ -15,9 +15,7 @@ import '../../Widgets/SCustomWidgets/custom_data_table.dart';
 import '../../Widgets/SCustomWidgets/custom_snack_bar.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
-import '../../utils/environment.dart';
 import 'program_library.dart';
-import 'package:oro_drip_irrigation/services/mqtt_manager_mobile.dart' if (dart.library.html) 'package:oro_drip_irrigation/services/mqtt_manager_web.dart';
 
 
 final dateFormat = DateFormat('dd-MM-yyyy');
@@ -84,8 +82,8 @@ class _PreviewScreenState extends State<PreviewScreen> {
     final allowStopMethodCondition = irrigationProvider.sampleScheduleModel!.defaultModel.allowStopMethod;
     final defaultOffTime = irrigationProvider.sampleScheduleModel!.defaultModel.rtcOffTime;
     final centralFertilizerSite = irrigationProvider.fertilizerSite!.where((site) {
-      for (var i = 0; i < irrigationProvider.selectedObjects.length; i++) {
-        if (site.siteMode == 1 && irrigationProvider.selectedObjects[i].objectId == 3 && irrigationProvider.selectedObjects[i].sNo == site.fertilizerSite?.sNo) {
+      for (var i = 0; i < irrigationProvider.selectedObjects!.length; i++) {
+        if (site.siteMode == 1 && irrigationProvider.selectedObjects![i].objectId == 3 && irrigationProvider.selectedObjects![i].sNo == site.fertilizerSite?.sNo) {
           return true;
         }
       }
@@ -95,16 +93,16 @@ class _PreviewScreenState extends State<PreviewScreen> {
         .whereType<DeviceObjectModel>()
         .toList().isNotEmpty;
     final localFilterSite = irrigationProvider.filterSite!.where((site) {
-      for (var i = 0; i < irrigationProvider.selectedObjects.length; i++) {
-        if (site.siteMode == 2 && irrigationProvider.selectedObjects[i].objectId == 4 && irrigationProvider.selectedObjects[i].sNo == site.filterSite?.sNo) {
+      for (var i = 0; i < irrigationProvider.selectedObjects!.length; i++) {
+        if (site.siteMode == 2 && irrigationProvider.selectedObjects![i].objectId == 4 && irrigationProvider.selectedObjects![i].sNo == site.filterSite?.sNo) {
           return true;
         }
       }
       return false;
     });
     final localFilterCondition = localFilterSite.isNotEmpty;
-    final filterCategoryCondition = irrigationProvider.selectedObjects.any((e) => e.objectId == 4);
-    final fertilizerCategoryCondition = irrigationProvider.selectedObjects.any((e) => e.objectId == 3);
+    final filterCategoryCondition = irrigationProvider.selectedObjects!.any((e) => e.objectId == 4);
+    final fertilizerCategoryCondition = irrigationProvider.selectedObjects!.any((e) => e.objectId == 3);
     final defaultMaxTime = irrigationProvider.sampleScheduleModel!.defaultModel.rtcMaxTime;
     // final List<ChartData> chartData2 = <ChartData>[
     //   ChartData(irrigationProvider.sequenceData, valves, preValue, postValue, waterValue)
@@ -415,7 +413,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
                   SlidingSendButton(
                     onSend: (){
                       // print(irrigationProvider.dataToMqtt(widget.serialNumber == 0 ? irrigationProvider.serialNumberCreation : widget.serialNumber, widget.programType));
-                      // irrigationProvider.programLibraryData(widget.userId, widget.controllerId);
+                      irrigationProvider.programLibraryData(widget.userId, widget.controllerId);
                       sendFunction();
                     },
                   ),
@@ -463,11 +461,10 @@ class _PreviewScreenState extends State<PreviewScreen> {
         "schedule": mainProvider.sampleScheduleModel!.toJson(),
         "conditions": {},
         // "conditions": mainProvider.sampleConditions!.toJson(),
-        // "waterAndFert": [],
         "waterAndFert": mainProvider.sequenceData,
         "selection": {
           ...mainProvider.additionalData!.toJson(),
-          "selected": mainProvider.selectedObjects.map((e) => e.toJson()).toList(),
+          "selected": mainProvider.selectedObjects!.map((e) => e.toJson()).toList(),
         },
         "alarm": mainProvider.newAlarmList!.toJson(),
         "programName": mainProvider.programName,
@@ -483,8 +480,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
       // print(dataToMqtt['2500'][1]['2502'].split(',').join('\n'));
       // print(dataToMqtt['2500'][1]['2502'].split(',').length);
       try {
-        MqttManager().topicToPublishAndItsMessage('${Environment.mqttWebPublishTopic}/${widget.deviceId}', jsonEncode(dataToMqtt));
-        /*await validatePayloadSent(
+        await validatePayloadSent(
             dialogContext: context,
             context: context,
             mqttPayloadProvider: mqttPayloadProvider,
@@ -508,7 +504,6 @@ class _PreviewScreenState extends State<PreviewScreen> {
               if(widget.toDashboard) {
                 irrigationProvider.updateBottomNavigation(0);
                 Navigator.of(context).pop();
-                print(irrigationProvider.selectedIndex);
                 // Navigator.push(
                 //   context,
                 //   // MaterialPageRoute(builder: (context) => HomeScreen(userId: widget.userId, fromDealer: widget.fromDealer,)),
@@ -523,7 +518,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
               }
             }
           });
-        });*/
+        });
         Future.delayed(const Duration(milliseconds: 300), () async {
           final Repository repository = Repository(HttpService());
           final createUserProgram = await repository.createUserProgram(userData);
@@ -793,13 +788,13 @@ class _PreviewScreenState extends State<PreviewScreen> {
     return buildCategory(
       categoryTitle: "General details",
       title1: "Irrigation pump",
-      itemList1: irrigationProvider.isPumpStationMode ? "Auto pump selection is enabled" : irrigationProvider.selectedObjects.where((e) => e.objectId == 5).toList(),
+      itemList1: irrigationProvider.isPumpStationMode ? "Auto pump selection is enabled" : irrigationProvider.selectedObjects!.where((e) => e.objectId == 5).toList(),
       title2: "Head units",
-      itemList2: irrigationProvider.selectedObjects.where((e) => e.objectId == 2).toList(),
+      itemList2: irrigationProvider.selectedObjects!.where((e) => e.objectId == 2).toList(),
       showRow: true,
       show4thWidget: false,
       title3: "Main valve",
-      itemList3: irrigationProvider.selectedObjects.where((e) => e.objectId == 14).toList(),
+      itemList3: irrigationProvider.selectedObjects!.where((e) => e.objectId == 14).toList(),
       title4: "",
       itemList4: [],
     );
@@ -809,13 +804,13 @@ class _PreviewScreenState extends State<PreviewScreen> {
     return buildCategory(
         categoryTitle: "General details",
         title1: "Irrigation pump",
-        itemList1: irrigationProvider.isPumpStationMode ? "Auto pump selection is enabled" : irrigationProvider.selectedObjects.where((e) => e.objectId == 5).toList(),
+        itemList1: irrigationProvider.isPumpStationMode ? "Auto pump selection is enabled" : irrigationProvider.selectedObjects!.where((e) => e.objectId == 5).toList(),
         title2: "Head units",
-        itemList2: irrigationProvider.selectedObjects.where((e) => e.objectId == 2).toList(),
+        itemList2: irrigationProvider.selectedObjects!.where((e) => e.objectId == 2).toList(),
         showRow: true,
         show4thWidget: true,
         title3: "Main valve",
-        itemList3: irrigationProvider.selectedObjects.where((e) => e.objectId == 14).toList(),
+        itemList3: irrigationProvider.selectedObjects!.where((e) => e.objectId == 14).toList(),
         title4: "Schedule type",
         itemList4: irrigationProvider.sampleScheduleModel!.selected,
         showWidget2: irrigationProvider.sampleScheduleModel!.selected == irrigationProvider.scheduleTypes[3],
@@ -836,12 +831,12 @@ class _PreviewScreenState extends State<PreviewScreen> {
         categoryTitle: "Fertigation details",
         title1: MediaQuery.of(context).size.width > 800 ? "Central fertilizer site" : "Cent. fert site",
         title2: centralSelectorCondition ? "Cent. fert selector" : "Local fert Site",
-        itemList1: irrigationProvider.sampleIrrigationLine!.map((e) => centralSelectorCondition ? (e.centralFertilization != null ? [e.centralFertilization!] : []) : (e.localFertilization != null ? [e.localFertilization!] : [])).expand((list) => list).whereType<DeviceObjectModel>().toList().where((e) => irrigationProvider.selectedObjects.any((ele) => ele.sNo == e.sNo)).toList(),
+        itemList1: irrigationProvider.sampleIrrigationLine!.map((e) => centralSelectorCondition ? (e.centralFertilization != null ? [e.centralFertilization!] : []) : (e.localFertilization != null ? [e.localFertilization!] : [])).expand((list) => list).whereType<DeviceObjectModel>().toList().where((e) => irrigationProvider.selectedObjects!.any((ele) => ele.sNo == e.sNo)).toList(),
         itemList2: centralSelectorCondition
             ? irrigationProvider.fertilizerSite!.where((site) {
           // print("Central filter site ==> ${site.filterSite?.sNo}");
-          for (var i = 0; i < irrigationProvider.selectedObjects.length; i++) {
-            if (site.siteMode == 1 && irrigationProvider.selectedObjects[i].objectId == 4 && irrigationProvider.selectedObjects[i].sNo == site.fertilizerSite?.sNo) {
+          for (var i = 0; i < irrigationProvider.selectedObjects!.length; i++) {
+            if (site.siteMode == 1 && irrigationProvider.selectedObjects![i].objectId == 4 && irrigationProvider.selectedObjects![i].sNo == site.fertilizerSite?.sNo) {
               return true;
             }
           }
@@ -850,18 +845,18 @@ class _PreviewScreenState extends State<PreviewScreen> {
             .map((e) => e.selector != null ? List<DeviceObjectModel>.from(e.selector!) : [])
             .expand((list) => list)
             .whereType<DeviceObjectModel>()
-            .toList().where((e) => irrigationProvider.selectedObjects.any((ele) => ele.sNo == e.sNo)).toList()
-            : irrigationProvider.sampleIrrigationLine!.map((e) => e.localFertilization != null ? [e.localFertilization!] : []).expand((list) => list).whereType<DeviceObjectModel>().toList().where((e) => irrigationProvider.selectedObjects.any((ele) => ele.sNo == e.sNo)).toList(),
+            .toList().where((e) => irrigationProvider.selectedObjects!.any((ele) => ele.sNo == e.sNo)).toList()
+            : irrigationProvider.sampleIrrigationLine!.map((e) => e.localFertilization != null ? [e.localFertilization!] : []).expand((list) => list).whereType<DeviceObjectModel>().toList().where((e) => irrigationProvider.selectedObjects!.any((ele) => ele.sNo == e.sNo)).toList(),
         showRow: centralSelectorCondition,
         show4thWidget: true,
-        show2ndWidget: irrigationProvider.sampleIrrigationLine!.map((e) => e.localFertilization != null ? [e.localFertilization!] : []).expand((list) => list).whereType<DeviceObjectModel>().toList().where((e) => irrigationProvider.selectedObjects.any((ele) => ele.sNo == e.sNo)).toList().isNotEmpty,
+        show2ndWidget: irrigationProvider.sampleIrrigationLine!.map((e) => e.localFertilization != null ? [e.localFertilization!] : []).expand((list) => list).whereType<DeviceObjectModel>().toList().where((e) => irrigationProvider.selectedObjects!.any((ele) => ele.sNo == e.sNo)).toList().isNotEmpty,
         title3: "Local fertilizer site",
         title4: "Local fertilizer selector",
-        itemList3: irrigationProvider.sampleIrrigationLine!.map((e) => e.localFertilization != null ? [e.localFertilization!] : []).expand((list) => list).whereType<DeviceObjectModel>().toList().where((e) => irrigationProvider.selectedObjects.any((ele) => ele.sNo == e.sNo)).toList(),
+        itemList3: irrigationProvider.sampleIrrigationLine!.map((e) => e.localFertilization != null ? [e.localFertilization!] : []).expand((list) => list).whereType<DeviceObjectModel>().toList().where((e) => irrigationProvider.selectedObjects!.any((ele) => ele.sNo == e.sNo)).toList(),
         itemList4: irrigationProvider.fertilizerSite!.where((site) {
           // print("Central filter site ==> ${site.filterSite?.sNo}");
-          for (var i = 0; i < irrigationProvider.selectedObjects.length; i++) {
-            if (site.siteMode == 2 && irrigationProvider.selectedObjects[i].objectId == 4 && irrigationProvider.selectedObjects[i].sNo == site.fertilizerSite?.sNo) {
+          for (var i = 0; i < irrigationProvider.selectedObjects!.length; i++) {
+            if (site.siteMode == 2 && irrigationProvider.selectedObjects![i].objectId == 4 && irrigationProvider.selectedObjects![i].sNo == site.fertilizerSite?.sNo) {
               return true;
             }
           }
@@ -870,7 +865,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
             .map((e) => e.selector != null ? List<DeviceObjectModel>.from(e.selector!) : [])
             .expand((list) => list)
             .whereType<DeviceObjectModel>()
-            .toList().where((e) => irrigationProvider.selectedObjects.any((ele) => ele.sNo == e.sNo)).toList(),
+            .toList().where((e) => irrigationProvider.selectedObjects!.any((ele) => ele.sNo == e.sNo)).toList(),
     );
   }
 
@@ -879,11 +874,11 @@ class _PreviewScreenState extends State<PreviewScreen> {
         categoryTitle: "Filter details",
         title1: "Central filter site",
         title2: "Central filters",
-        itemList1: irrigationProvider.sampleIrrigationLine!.map((e) => e.centralFiltration != null ? [e.centralFiltration!] : []).expand((list) => list).whereType<DeviceObjectModel>().toList().where((e) => irrigationProvider.selectedObjects.any((ele) => ele.sNo == e.sNo)).toList(),
+        itemList1: irrigationProvider.sampleIrrigationLine!.map((e) => e.centralFiltration != null ? [e.centralFiltration!] : []).expand((list) => list).whereType<DeviceObjectModel>().toList().where((e) => irrigationProvider.selectedObjects!.any((ele) => ele.sNo == e.sNo)).toList(),
         itemList2: irrigationProvider.filterSite!.where((site) {
           // print("Central filter site ==> ${site.filterSite?.sNo}");
-          for (var i = 0; i < irrigationProvider.selectedObjects.length; i++) {
-            if (site.siteMode == 1 && irrigationProvider.selectedObjects[i].objectId == 4 && irrigationProvider.selectedObjects[i].sNo == site.filterSite?.sNo) {
+          for (var i = 0; i < irrigationProvider.selectedObjects!.length; i++) {
+            if (site.siteMode == 1 && irrigationProvider.selectedObjects![i].objectId == 4 && irrigationProvider.selectedObjects![i].sNo == site.filterSite?.sNo) {
               return true;
             }
           }
@@ -892,17 +887,17 @@ class _PreviewScreenState extends State<PreviewScreen> {
             .map((e) => e.filters != null ? List<DeviceObjectModel>.from(e.filters!) : [])
             .expand((list) => list)
             .whereType<DeviceObjectModel>()
-            .toList().where((e) => irrigationProvider.selectedObjects.any((ele) => ele.sNo == e.sNo)).toList(),
+            .toList().where((e) => irrigationProvider.selectedObjects!.any((ele) => ele.sNo == e.sNo)).toList(),
         showRow: localFilterCondition,
         show4thWidget: true,
         show2ndWidget: true,
         title3: "Local filter site",
         title4: "Local filters",
-        itemList3: irrigationProvider.sampleIrrigationLine!.map((e) => e.localFiltration != null ? [e.localFiltration!] : []).expand((list) => list).whereType<DeviceObjectModel>().toList().where((e) => irrigationProvider.selectedObjects.any((ele) => ele.sNo == e.sNo)).toList(),
+        itemList3: irrigationProvider.sampleIrrigationLine!.map((e) => e.localFiltration != null ? [e.localFiltration!] : []).expand((list) => list).whereType<DeviceObjectModel>().toList().where((e) => irrigationProvider.selectedObjects!.any((ele) => ele.sNo == e.sNo)).toList(),
         itemList4: irrigationProvider.filterSite!.where((site) {
           // print("Central filter site ==> ${site.filterSite?.sNo}");
-          for (var i = 0; i < irrigationProvider.selectedObjects.length; i++) {
-            if (site.siteMode == 2 && irrigationProvider.selectedObjects[i].objectId == 4 && irrigationProvider.selectedObjects[i].sNo == site.filterSite?.sNo) {
+          for (var i = 0; i < irrigationProvider.selectedObjects!.length; i++) {
+            if (site.siteMode == 2 && irrigationProvider.selectedObjects![i].objectId == 4 && irrigationProvider.selectedObjects![i].sNo == site.filterSite?.sNo) {
               return true;
             }
           }
@@ -911,7 +906,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
             .map((e) => e.filters != null ? List<DeviceObjectModel>.from(e.filters!) : [])
             .expand((list) => list)
             .whereType<DeviceObjectModel>()
-            .toList().where((e) => irrigationProvider.selectedObjects.any((ele) => ele.sNo == e.sNo)).toList()
+            .toList().where((e) => irrigationProvider.selectedObjects!.any((ele) => ele.sNo == e.sNo)).toList()
     );
   }
 
@@ -1093,8 +1088,8 @@ class _PreviewScreenState extends State<PreviewScreen> {
 
   Widget buildIndividualRow(item) {
     ScrollController scrollController = ScrollController();
-    if(item.runtimeType != String && item.isNotEmpty) {
-      if(item.runtimeType == List<DeviceObjectModel>) {
+    if(item is! String && item.isNotEmpty) {
+      if(item is List<DeviceObjectModel>) {
         return SizedBox(
           height: 20,
           child: Scrollbar(
@@ -1295,19 +1290,19 @@ class _SlidingSendButtonState extends State<SlidingSendButton> {
             isSent = true;
             icon = Icons.done; // Change icon to 'done'
           });
-          Future.delayed(const Duration(seconds: 1), () {
+         /* Future.delayed(const Duration(seconds: 1), () {
             setState(() {
               // Reset after a delay
               // isSent = false;
               // _dragPosition = 0.0;
               // icon = Icons.send;
             });
-          });
+          });*/
         } else {
-          // Reset position if not fully dragged
+         /* // Reset position if not fully dragged
           setState(() {
             // _dragPosition = 0.0;
-          });
+          });*/
         }
       },
       child: Stack(

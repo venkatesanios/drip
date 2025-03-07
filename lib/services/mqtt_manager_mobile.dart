@@ -9,6 +9,16 @@ import '../utils/environment.dart';
 class MqttManager {
   static MqttManager? _instance;
   MqttServerClient? _client;
+  final StreamController<String?> _payloadController = StreamController.broadcast();
+
+  String? _payload;
+  String? get payload => _payload;
+  Stream<String?> get payloadStream => _payloadController.stream;
+
+  set payload(String? newPayload) {
+    _payload = newPayload;
+    _payloadController.add(_payload);
+  }
 
   factory MqttManager() {
     _instance ??= MqttManager._internal();
@@ -49,7 +59,7 @@ class MqttManager {
     }
   }
 
-  void connect() async {
+  Future<void> connect() async {
     print('connect function called.....');
     assert(_client != null);
     if (!isConnected) {
@@ -85,7 +95,8 @@ class MqttManager {
   void _onMessageReceived(List<MqttReceivedMessage<MqttMessage?>>? c) async {
     final MqttPublishMessage recMess = c![0].payload as MqttPublishMessage;
     final String pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-    // print('Received message: $pt');
+    payload = pt;
+    print('Received message: $pt');
     // providerState?.updateReceivedPayload(pt,false);
   }
 

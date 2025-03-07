@@ -76,6 +76,44 @@ class Master {
   });
 
   factory Master.fromJson(Map<String, dynamic> json) {
+    List<ConfigObject> configObjects = json["config"] != null &&
+        json["config"] is Map<String, dynamic> &&
+        json["config"]['configObject'] != null
+        ? (json["config"]['configObject'] as List)
+        .map((item) => ConfigObject.fromJson(item))
+        .toList()
+        : [];
+
+    return Master(
+      controllerId: json['controllerId'] ?? 0,
+      deviceId: json['deviceId'] ?? '',
+      deviceName: json['deviceName'] ?? '',
+      categoryId: json['categoryId'] ?? 0,
+      categoryName: json['categoryName'] ?? '',
+      modelId: json['modelId'] ?? 0,
+      modelName: json['modelName'] ?? '',
+      units: json['units'] != null
+          ? List<Unit>.from(json['units'].map((x) => Unit.fromJson(x)))
+          : [],
+      config: (json["config"] != null && json["config"] is Map<String, dynamic> && json["config"].isNotEmpty)
+          ? Config.fromJson(Map<String, dynamic>.from(AppConstants.payloadConversion(json["config"])))
+          : Config(waterSource: [], pump: [], filterSite: [], fertilizerSite: [], moistureSensor: [], lineData: []),
+      configObjects: configObjects,
+      live: json['liveMessage'] != null ? LiveMessage.fromJson(json['liveMessage']) : null,
+      nodeList: json['nodeList'] != null
+          ? (json['nodeList'] as List)
+          .map((item) => NodeListModel.fromJson(item, configObjects))
+          .toList()
+          : [],
+      programList: json['program'] != null
+          ? (json['program'] as List)
+          .map((prgList) => ProgramList.fromJson(prgList))
+          .toList()
+          : [],
+    );
+  }
+
+  /*factory Master.fromJson(Map<String, dynamic> json) {
     List<ConfigObject> configObjects = json["config"]['configObject'] != null
         ? (json["config"]['configObject'] as List)
         .map((item) => ConfigObject.fromJson(item))
@@ -107,7 +145,7 @@ class Master {
           .toList()
           : [],
     );
-  }
+  }*/
 
   Map<String, dynamic> toJson() {
     return {
@@ -365,8 +403,8 @@ class FilterSite {
   final int? count;
   final int siteMode;
   final List<Filters> filters;
-  final Map<String, dynamic>? pressureIn;
-  final Map<String, dynamic>? pressureOut;
+  final PressureSensor? pressureIn;
+  final PressureSensor? pressureOut;
   final Map<String, dynamic>? backWashValve;
 
   FilterSite({
@@ -386,6 +424,7 @@ class FilterSite {
   });
 
   factory FilterSite.fromJson(Map<String, dynamic> json) {
+    print(json);
 
     var filterList = json['filters'] as List;
     List<Filters> filters = filterList.map((filter) => Filters.fromJson(filter)).toList();
@@ -402,11 +441,11 @@ class FilterSite {
       siteMode: json['siteMode'],
       filters: filters,
       pressureIn: json['pressureIn'] != null
-          ? Map<String, dynamic>.from(json['pressureIn'])
-          : {},
+          ? PressureSensor.fromJson(Map<String, dynamic>.from(json['pressureIn']))
+          : null,
       pressureOut: json['pressureOut'] != null
-          ? Map<String, dynamic>.from(json['pressureOut'])
-          : {},
+          ? PressureSensor.fromJson(Map<String, dynamic>.from(json['pressureOut']))
+          : null,
       backWashValve: json['backWashValve'] != null
           ? Map<String, dynamic>.from(json['backWashValve'])
           : {},
@@ -430,6 +469,50 @@ class FilterSite {
       'backWashValve': backWashValve,
     };
   }
+}
+
+class PressureSensor {
+  final int objectId;
+  final double sNo;
+  final String name;
+  final int? connectionNo;
+  final String? objectName;
+  final String? type;
+  final int? controllerId;
+  String value;
+
+  PressureSensor({
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+    required this.connectionNo,
+    required this.objectName,
+    required this.type,
+    required this.controllerId,
+    this.value='0',
+  });
+
+  factory PressureSensor.fromJson(Map<String, dynamic> json) {
+    return PressureSensor(
+      objectId: json['objectId'] ?? 0,
+      sNo: (json['sNo'] as num?)?.toDouble() ?? 0.0,
+      name: json['name'] ?? '',
+      connectionNo: json['connectionNo'] ?? 0,
+      objectName: json['objectName'] ?? '',
+      type: json['type']?.toString() ?? '', // Handle multiple types
+      controllerId: json['controllerId'] ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    "objectId": objectId,
+    "sNo": sNo,
+    "name": name,
+    "connectionNo": connectionNo,
+    "objectName": objectName,
+    "type": type,
+    "controllerId": controllerId,
+  };
 }
 
 class Filters {
@@ -560,7 +643,7 @@ class Channel {
       type: json['type'],
       controllerId: json['controllerId'],
       count: json['count'],
-      level: json['level'],
+      level: json['level'].toDouble(),
     );
   }
 }

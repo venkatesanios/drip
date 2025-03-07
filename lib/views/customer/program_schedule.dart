@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Screens/NewIrrigationProgram/program_library.dart';
+import 'package:oro_drip_irrigation/Screens/planning/fiterbackwash.dart';
 
 import '../../Constants/properties.dart';
 
@@ -92,8 +93,8 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
     switch (id) {
       case 1:
         return ProgramLibraryScreenNew(userId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber, fromDealer: false, customerId: widget.customerID,);
-      // case 66:
-      //   return watersourceUI(userId: widget.customerID, controllerId: widget.controllerID, deviceID: widget.imeiNumber,);
+      case 66:
+        return FilterBackwashUI(userId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber, customerId: widget.customerID,fromDealer: false,);
       // case 67:
       //   return VirtualMeterScreen(userId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber);
       // case 68:

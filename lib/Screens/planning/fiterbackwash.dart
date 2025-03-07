@@ -21,8 +21,13 @@ import '../../utils/snack_bar.dart';
 import '../NewIrrigationProgram/program_library.dart';
 import '../NewIrrigationProgram/water_and_fertilizer_screen.dart';
 class FilterBackwashUI extends StatefulWidget {
+  final int userId;
+  final int controllerId;
+  final int customerId;
+  final String deviceId;
+  final bool fromDealer;
   const FilterBackwashUI(
-      {Key? key,});
+      {Key? key, required this.userId, required this.controllerId, required this.customerId, required this.deviceId, required this.fromDealer,});
 
   @override
   State<FilterBackwashUI> createState() => _FilterBackwashUIState();
@@ -48,16 +53,14 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
   }
 
   Future<void> fetchData() async {
+    print("widget userId${widget.userId},customer${widget.customerId},controlle${widget.controllerId},device${widget.deviceId},");
     var overAllPvd = Provider.of<OverAllUse>(context,listen: false);
     final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getString('userId') ?? '';
-    final controllerId = prefs.getString('controllerId') ?? '';
-    final sharedUserId = prefs.getString('sharedUserId') ?? '';
-     try{
+       try{
       final Repository repository = Repository(HttpService());
       var getUserDetails = await repository.getUserFilterBackwasing({
-        "userId": overAllPvd.takeSharedUserId ? sharedUserId : userId,
-        "controllerId": controllerId
+        "userId": widget.fromDealer ? widget.customerId : widget.userId,
+        "controllerId": widget.controllerId
       });
       print("getUserDetails.body ${getUserDetails.body}");
       // final jsonData = jsonDecode(getUserDetails.body);

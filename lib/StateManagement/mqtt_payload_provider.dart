@@ -39,7 +39,7 @@ class MqttPayloadProvider with ChangeNotifier {
   int selectedLine = 0;
   List<dynamic> nodeDetails = [];
   dynamic messageFromHw;
-  List<dynamic> currentSchedule = [];
+  //List<dynamic> currentSchedule = [];
   List<dynamic> PrsIn = [];
   List<dynamic> PrsOut = [];
   List<dynamic> nextSchedule = [];
@@ -82,8 +82,15 @@ class MqttPayloadProvider with ChangeNotifier {
 
   //kamaraj
   int wifiStrength = 0;
-  String liveDataAndTime = '';
+  String liveDateAndTime = '';
   List<String> nodeLiveMessage = [];
+  List<String> outputOnOffLiveMessage = [];
+  List<String> currentSchedule = [];
+
+  List<WaterSource> waterSourceMobDash = [];
+  List<FilterSite> filterSiteMobDash = [];
+  List<FertilizerSite> fertilizerSiteMobDash = [];
+  List<IrrigationLineData>? irrLineDataMobDash = [];
 
 
   void editSensorLogData(data){
@@ -465,15 +472,19 @@ class MqttPayloadProvider with ChangeNotifier {
       // Todo : Dashboard payload start
       Map<String, dynamic> data = jsonDecode(payload);
 
+      print("data from controller ::: $data");
       //live payload
       if(data['mC']=='2400'){
-        liveDataAndTime = '${data['cD']} ${data['cT']}';
+        liveDateAndTime = '${data['cD']} ${data['cT']}';
         wifiStrength = data['cM']['WifiStrength'];
         updateNodeLiveMessage(data['cM']['2401'].split(";"));
+        updateOutputONOffLiveMessage(data['cM']['2402'].split(";"));
+        updateCurrentProgram(data['cM']['2408'].split(";"));
+
         notifyListeners();
       }
 
-     /* if(data['liveSyncDate'] != null){
+      /* if(data['liveSyncDate'] != null){
         String dateStr = data['liveSyncDate'];
         String timeStr = data['liveSyncTime'];
         // Parse date string
@@ -548,7 +559,7 @@ class MqttPayloadProvider with ChangeNotifier {
           }
         }
         if(dataFromHttp == false){
-          if (data['2400'][0].containsKey('2402')) {
+          /*if (data['2400'][0].containsKey('2402')) {
             currentSchedule = data['2400'][0]['2402'];
             if(currentSchedule.length == 0){
               active = 1;
@@ -558,7 +569,7 @@ class MqttPayloadProvider with ChangeNotifier {
               PrsIn = currentSchedule[0]['PrsIn'];
               PrsOut = currentSchedule[0]['PrsOut'];
             }
-          }
+          }*/
           if (data['2400'][0].containsKey('2403')) {
             nextSchedule = data['2400'][0]['2403'];
             selectedNextSchedule = 0;
@@ -706,7 +717,7 @@ class MqttPayloadProvider with ChangeNotifier {
     tryingToGetPayload = 0;
     notifyListeners();
 
-    for(var i in currentSchedule){
+    /*for(var i in currentSchedule){
       for(var centralFilteration in filtersCentral){
         if(i['CentralFilterSite'] == centralFilteration['FilterSite']){
           centralFilteration['Program'] = i['ProgName'];
@@ -732,7 +743,7 @@ class MqttPayloadProvider with ChangeNotifier {
           line['Program'] = i['ProgName'];
         }
       }
-    }
+    }*/
     updateSourcePump();
     updateIrrigationPump();
     updateLocalFertigationSite();
@@ -759,17 +770,19 @@ class MqttPayloadProvider with ChangeNotifier {
   //assets/mob_dashboard/sump.svg
 
   Future<void> updateDashboardPayload(Map<String, dynamic> payload) async{
-     _dashboardLiveInstance = SiteModel.fromJson(payload);
-     // sourcePump = _dashboardLiveInstance!.data[0].master[0].config.pump.where((e) => e.type == 1).toList().map((element) => element.toJson()).toList();
-     // irrigationPump = _dashboardLiveInstance!.data[0].master[0].config.pump.where((e) => e.type == 2).toList().map((element) => element.toJson()).toList();
-     sourcetype = _dashboardLiveInstance!.data[0].master[0].config.waterSource.map((element) => element).toList();
-     fertilizerCentral = _dashboardLiveInstance!.data[0].master[0].config.fertilizerSite.where((e) => e.siteMode == 1).toList().map((element) => element).toList();
-     fertilizerLocal = _dashboardLiveInstance!.data[0].master[0].config.fertilizerSite.where((e) => e.siteMode == 2).toList().map((element) => element).toList();
-     filtersCentral = _dashboardLiveInstance!.data[0].master[0].config.filterSite.where((e) => e.siteMode == 1).toList().map((element) => element).toList();
-     filtersLocal = _dashboardLiveInstance!.data[0].master[0].config.filterSite.where((e) => e.siteMode == 2).toList().map((element) => element).toList();
-     // lineData = _dashboardLiveInstance!.data[0].master[0].config.lineData.map((element) => element).toList();
-      print("sourcePump :::: $sourcePump");
-     notifyListeners();
+    _dashboardLiveInstance = SiteModel.fromJson(payload);
+    waterSourceMobDash = _dashboardLiveInstance!.data[0].master[0].config.waterSource;
+    filterSiteMobDash = _dashboardLiveInstance!.data[0].master[0].config.filterSite;
+    fertilizerSiteMobDash = _dashboardLiveInstance!.data[0].master[0].config.fertilizerSite;
+    irrLineDataMobDash = _dashboardLiveInstance!.data[0].master[0].config.lineData;
+
+      sourcetype = _dashboardLiveInstance!.data[0].master[0].config.waterSource.map((element) => element).toList();
+    fertilizerCentral = _dashboardLiveInstance!.data[0].master[0].config.fertilizerSite.where((e) => e.siteMode == 1).toList().map((element) => element).toList();
+    fertilizerLocal = _dashboardLiveInstance!.data[0].master[0].config.fertilizerSite.where((e) => e.siteMode == 2).toList().map((element) => element).toList();
+    filtersCentral = _dashboardLiveInstance!.data[0].master[0].config.filterSite.where((e) => e.siteMode == 1).toList().map((element) => element).toList();
+    filtersLocal = _dashboardLiveInstance!.data[0].master[0].config.filterSite.where((e) => e.siteMode == 2).toList().map((element) => element).toList();
+     print("sourcePump :::: $sourcePump");
+    notifyListeners();
   }
 
   Timer? _timerForPumpController;
@@ -807,6 +820,16 @@ class MqttPayloadProvider with ChangeNotifier {
   void updateNodeLiveMessage(List<String> message) {
     nodeLiveMessage = message;
   }
+
+  void updateOutputONOffLiveMessage(List<String> message) {
+    outputOnOffLiveMessage = message;
+  }
+
+  void updateCurrentProgram(List<String> program) {
+    currentSchedule = program;
+  }
+
+
 
   void saveUnits(List<dynamic> units) {
     unitList = units;

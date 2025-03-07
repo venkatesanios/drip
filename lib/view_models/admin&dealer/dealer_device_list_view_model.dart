@@ -95,15 +95,22 @@ class DealerDeviceListViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> addProductToCustomer(BuildContext context, List<StockModel> productStockList, Function(Map<String, dynamic>) onDeviceListAdded) async {
+  Future<void> addProductToDealer(BuildContext context, List<StockModel> productStockList, Function(Map<String, dynamic>) onDeviceListAdded) async {
+    for (var item in productStockList) {
+      print("Product ID: ${item.productId}, Category: ${item.categoryName}, IMEI: ${item.imeiNo}, Model: ${item.model}, Date: ${item.dtOfMnf}");
+    }
     List<Map<String, dynamic>> selectedProductList = [];
     List<DeviceListModel> newDevices = [];
+
     for (int i = 0; i < stockLength; i++) {
       if (selectedProducts[i]) {
+        print("Index: $i, Product ID: ${productStockList[i].productId}, Category Name: ${productStockList[i].categoryName}");
+
         selectedProductList.add({
           "productId": productStockList[i].productId,
           "categoryName": productStockList[i].categoryName,
         });
+
         newDevices.add(DeviceListModel(
           categoryName: productStockList[i].categoryName,
           deviceId: productStockList[i].imeiNo,

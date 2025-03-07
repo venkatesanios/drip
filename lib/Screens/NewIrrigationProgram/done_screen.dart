@@ -219,7 +219,7 @@ class _AdditionalDataScreenState extends State<AdditionalDataScreen> {
         "waterAndFert": mainProvider.sequenceData,
         "selection": {
           ...mainProvider.additionalData!.toJson(),
-          "selected": mainProvider.selectedObjects.map((e) => e.toJson()).toList(),
+          "selected": mainProvider.selectedObjects!.map((e) => e.toJson()).toList(),
         },
         "alarm": mainProvider.newAlarmList!.toJson(),
         "programName": mainProvider.programName,

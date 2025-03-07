@@ -57,7 +57,7 @@ class ScreenController extends StatelessWidget {
           emailId: emailId,
           customerId: userId,
           fromLogin: true,
-        ) : const Dashboard();
+        ) : const MobDashboard();
     }
   }
 }

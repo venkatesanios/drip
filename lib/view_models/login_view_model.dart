@@ -65,7 +65,7 @@ class LoginViewModel extends ChangeNotifier {
 
         final customerData = data["data"];
         final user = customerData["user"];
-
+        print("login user $user");
         String countryCodeFinal = countryCode.replaceAll('+', '');
 
         await PreferenceHelper.saveUserDetails(

@@ -191,11 +191,11 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                                                     ),
                                                   ),
                                                   title: Text(
-                                                    '${preferenceProvider.commonPumpSettings![oroPumpIndex].deviceName}',
+                                                    preferenceProvider.commonPumpSettings![oroPumpIndex].deviceName,
                                                     style: const TextStyle(fontWeight: FontWeight.w400),
                                                   ),
                                                   subtitle: Text(
-                                                    '${statusMessages[key]!}',
+                                                    statusMessages[key]!,
                                                     style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                                                   ),
                                                 ) : Container();
@@ -276,7 +276,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                         }
                       }
                       },
-                    child: Text("${preferenceProvider.passwordValidationCode == 200 ? "Send calibration": "Send preference"}", style: const TextStyle(color: Colors.white),),
+                    child: Text(preferenceProvider.passwordValidationCode == 200 ? "Send calibration": "Send preference", style: const TextStyle(color: Colors.white),),
                   ),
                 ],
               ),
@@ -467,13 +467,13 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
               }
             });
           }
-         /* await processPayloads(
+          await processPayloads(
               context: context,
               mqttPayloadProvider: mqttPayloadProvider,
               payload: preferenceProvider.passwordValidationCode == 200 ? getCalibrationPayload(isToGem: isToGem).split(';') : payloadForGem,
               preferenceProvider: preferenceProvider,
               isToGem: isToGem
-          );*/
+          );
           if(getFailedPayload(sendAll: false, isToGem: [1, 2].contains(preferenceProvider.generalData!.categoryId)).split(';').where((part) => part.isNotEmpty).toList().isEmpty) {
             preferenceProvider.generalData!.controllerReadStatus = "1";
             await Future.delayed(const Duration(milliseconds: 300));
@@ -562,13 +562,13 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
             }
             for (var individualPumpSetting in individualPump.settingList) {
               switch (individualPumpSetting.pumpType) {
-                case 23:
+                case 203:
                   if (!sendAll ? individualPumpSetting.changed : true) {
                     final payload = jsonEncode({"400-$pumpIndex": jsonEncode({"sentSms": 'currentconfig,$pumpIndex,${getSettingValue(individualPumpSetting)}'})});
                     currentConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+${categoryId}": payload);
                   }
                   break;
-                case 22:
+                case 202:
                   if (!sendAll ? individualPumpSetting.changed : true) {
                     final payload = jsonEncode({"300-$pumpIndex": jsonEncode({"sentSms": 'delayconfig,$pumpIndex,${getSettingValue(individualPumpSetting)}'})});
                     delayConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+${categoryId}": payload);
@@ -576,7 +576,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                     rtcConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload2+${categoryId}": payload2);
                   }
                   break;
-                case 25:
+                case 205:
                   if (!sendAll ? individualPumpSetting.changed : true) {
                     int index = preferenceProvider.individualPumpSetting!.indexWhere((e) => e.deviceId == commonSetting.deviceId);
                     final payload = jsonEncode({"600-$pumpIndex": jsonEncode({"sentSms": 'scheduleconfig,$pumpIndex,${getSettingValue(individualPumpSetting, controlToOroGem: preferenceProvider.individualPumpSetting![index].controlGem)}'})});
@@ -635,13 +635,13 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
             }
             for (var individualPumpSetting in individualPump.settingList) {
               switch (individualPumpSetting.pumpType) {
-                case 23:
+                case 203:
                   if (!sendAll ? (individualPumpSetting.controllerReadStatus == "0") : true) {
                     final payload = jsonEncode({"400-$pumpIndex": jsonEncode({"sentSms": 'currentconfig,$pumpIndex,${getSettingValue(individualPumpSetting)}'})});
                     currentConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+${categoryId}": payload);
                   }
                   break;
-                case 22:
+                case 202:
                   if (!sendAll ? (individualPumpSetting.controllerReadStatus == "0") : true) {
                     final payload = jsonEncode({"300-$pumpIndex": jsonEncode({"sentSms": 'delayconfig,$pumpIndex,${getSettingValue(individualPumpSetting)}'})});
                     delayConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+${categoryId}": payload);
@@ -649,7 +649,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                     rtcConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload2+${categoryId}": payload2);
                   }
                   break;
-                case 25:
+                case 205:
                   if (!sendAll ? (individualPumpSetting.controllerReadStatus == "0") : true) {
                     int index = preferenceProvider.individualPumpSetting!.indexWhere((e) => e.deviceId == commonSetting.deviceId);
                     final payload = jsonEncode({"600-$pumpIndex": jsonEncode({"sentSms": 'scheduleconfig,$pumpIndex,${getSettingValue(individualPumpSetting, controlToOroGem: preferenceProvider.individualPumpSetting![index].controlGem)}'})});
@@ -878,7 +878,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                           ),
                         ),
                         const SizedBox(width: 10),
-                        Text('${index}/$total'),
+                        Text('$index/$total'),
                         // Text('${((index + 1) / total * 100).toStringAsFixed(0)}%'),
                       ],
                     ),
@@ -1007,7 +1007,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
           mqttPayloadProvider: mqttPayloadProvider,
           payload: payload[i],
           index: i,
-          deviceId: "${preferenceProvider.generalData!.deviceId}",
+          deviceId: preferenceProvider.generalData!.deviceId,
           key: key,
           isToGem: isToGem,
           total: payload.length

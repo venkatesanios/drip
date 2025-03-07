@@ -273,7 +273,7 @@ class _SequenceScreenState extends State<SequenceScreen> {
                         if(irrigationProgramProvider.sampleIrrigationLine!.expand((element) => element.mainValve!).toList().isNotEmpty && irrigationProgram)
                           buildIrrigationLinesList(
                               context: context,
-                              dataList: irrigationProgramProvider.sampleIrrigationLine!,
+                              dataList: irrigationProgramProvider.mainValves,
                               isGroup: false,
                               isMainValve: true
                           ),
@@ -483,92 +483,97 @@ class _SequenceScreenState extends State<SequenceScreen> {
       scrollDirection: Axis.vertical,
       itemCount: (!isGroup && !isMainValve && !isAgitator) ? dataList.length : 1,
       itemBuilder: (BuildContext context, int lineIndex) {
-        return Column(
-          children: [
-            buildLineAndValveContainerUpdated(
-                context: context,
-                title: isGroup
-                    ? "Valve Groups"
-                    : isMainValve
-                    ? "Main valves"
-                    : isAgitator
-                    ? "Agitators"
-                    : dataList[lineIndex].irrigationLine.name!,
-                trailing: isGroup
-                    ? TextButton(
-                    onPressed: (){
-                      // Navigator.push(context, MaterialPageRoute(builder: (context) => MyGroupScreen(userId: widget.userId, controllerId: widget.controllerId, menuId: 584, deviceID: '')));
-                    },
-                    child: const Text("Create")
-                )
-                    : null,
-                leading: isMainValve ? Container(
-                  padding: const EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                      color: cardColor,
-                      shape: BoxShape.circle
-                  ),
-                  child: Image.asset(
-                    'assets/Images/m_valve.png',
-                  ),
-                ) : null,
-                children: [
-                  if(isMainValve && !isAgitator)
-                    ...dataList.expand((e) {
-                      return e.mainValve!.map((mainValve) {
+        try {
+          return Column(
+            children: [
+              buildLineAndValveContainerUpdated(
+                  context: context,
+                  title: isGroup
+                      ? "Valve Groups"
+                      : isMainValve
+                      ? "Main valves"
+                      : isAgitator
+                      ? "Agitators"
+                      : dataList[lineIndex].irrigationLine.name!,
+                  trailing: isGroup
+                      ? TextButton(
+                      onPressed: (){
+                        // Navigator.push(context, MaterialPageRoute(builder: (context) => MyGroupScreen(userId: widget.userId, controllerId: widget.controllerId, menuId: 584, deviceID: '')));
+                      },
+                      child: const Text("Create")
+                  )
+                      : null,
+                  leading: isMainValve ? Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                        color: cardColor,
+                        shape: BoxShape.circle
+                    ),
+                    child: Image.asset(
+                      'assets/Images/m_valve.png',
+                    ),
+                  ) : null,
+                  children: [
+                    if(isMainValve && !isAgitator)
+                      ...dataList.map((mainValve) {
                         return buildValveContainer(
-                          context: context,
-                          item: mainValve,
-                          isMainValve: true,
-                          isGroup: false,
-                          dataList: dataList,
-                          lineIndex: lineIndex,
+                            context: context,
+                            item: mainValve,
+                            isMainValve: false,
+                            isGroup: false,
+                            dataList: mainValve,
+                            lineIndex: lineIndex
                         );
-                      });
-                    }),
-                  if(isGroup && !isMainValve && !isAgitator)
-                    ...dataList.map((groupElement) {
-                      return buildValveContainer(
-                          context: context,
-                          item: groupElement,
-                          isGroup: true,
-                          isMainValve: false,
-                          dataList: groupElement.valve,
-                          lineIndex: lineIndex);
-                    }),
-                  if(!isGroup && !isMainValve && !isAgitator)
-                    ...(dataList[lineIndex].valve ?? []).map((valveItem) {
-                      return buildValveContainer(
-                          context: context,
-                          item: valveItem,
-                          isGroup: false,
-                          isMainValve: false,
-                          dataList: dataList,
-                          lineIndex: lineIndex);
-                    }),
-                  if(isAgitator)
-                    ...dataList.map((agitator) {
-                      return buildValveContainer(
-                          context: context,
-                          item: agitator,
-                          isMainValve: false,
-                          isGroup: false,
-                          dataList: agitator,
-                          lineIndex: lineIndex
-                      );
-                    }),
-                ]
-            ),
-            const SizedBox(height: 20,),
-            // if(lineIndex == dataList.length - 1)
-            // const SizedBox(height: 50,)
-          ],
-        );
+                      }),
+                    if(isGroup && !isMainValve && !isAgitator)
+                      ...dataList.map((groupElement) {
+                        return buildValveContainer(
+                            context: context,
+                            item: groupElement,
+                            isGroup: true,
+                            isMainValve: false,
+                            dataList: groupElement.valve,
+                            lineIndex: lineIndex);
+                      }),
+                    if(!isGroup && !isMainValve && !isAgitator)
+                      ...(dataList[lineIndex].valve ?? []).map((valveItem) {
+                        return buildValveContainer(
+                            context: context,
+                            item: valveItem,
+                            isGroup: false,
+                            isMainValve: false,
+                            dataList: dataList,
+                            lineIndex: lineIndex);
+                      }),
+                    if(isAgitator)
+                      ...dataList.map((agitator) {
+                        return buildValveContainer(
+                            context: context,
+                            item: agitator,
+                            isMainValve: false,
+                            isGroup: false,
+                            dataList: agitator,
+                            lineIndex: lineIndex
+                        );
+                      }),
+                  ]
+              ),
+              const SizedBox(height: 20,),
+              // if(lineIndex == dataList.length - 1)
+              // const SizedBox(height: 50,)
+            ],
+          );
+        } catch(error, stackTrace) {
+          print("Error: $error");
+          print("Stack Trace: $stackTrace");
+          return const SizedBox();
+        }
       },
     );
   }
 
   Widget buildValveContainer({context, item, isGroup, dataList, lineIndex, bool isMainValve = false}) {
+    // print("dataList :: $dataList");
     final sequence = irrigationProgramProvider.irrigationLine!.sequence;
     final indexToShow = irrigationProgramProvider.addNew
         ? irrigationProgramProvider.irrigationLine!.sequence.length-1

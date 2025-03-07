@@ -4,10 +4,12 @@ class CustomSnackBar extends SnackBar {
   CustomSnackBar({
     Key? key,
     required String message,
+    Color? color,
   }) : super(
     key: key,
     content: Text(message, style: const TextStyle(fontSize: 16),),
     behavior: SnackBarBehavior.floating,
+    backgroundColor: color,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(10),
     ),

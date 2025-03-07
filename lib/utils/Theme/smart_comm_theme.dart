@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'oro_theme.dart';
 
 Color primaryDark = const Color(0xFF004265);
-Color primary = const Color(0xFF005C8E);
+Color primary = const Color(0xFF004265);
 Color primaryLight = const Color(0xFF008CD7);
 Color primaryBackground = const Color(0xFFEFEFEF);
 Color primaryTextColor = const Color(0xFF3C3C3C);
@@ -79,6 +79,9 @@ class SmartCommTheme {
             borderRadius: BorderRadius.circular(5),
           ),
         ),
+        textStyle: WidgetStateProperty.all(const TextStyle(
+          fontSize: 13,
+        )),
       ),
     ),
     textTheme: TextTheme(

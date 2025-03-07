@@ -17,6 +17,7 @@ import '../services/http_service.dart';
 class IrrigationProgramMainProvider extends ChangeNotifier {
   int _selectedTabIndex = 0;
   int get selectedTabIndex => _selectedTabIndex;
+  bool ignoreValidation = false;
 
   void updateTabIndex(int newIndex) {
     _selectedTabIndex = newIndex;
@@ -59,9 +60,12 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   List<ProgramMoistureSensor>? _moistureSensor;
   List<ProgramMoistureSensor>? get moistureSensor => _moistureSensor;
   List<DeviceObjectModel>? _agitators;
+  List<DeviceObjectModel>? _mainValves;
   List<DeviceObjectModel>? get agitators => _agitators;
+  List<DeviceObjectModel>? get mainValves => _mainValves;
 
-  List<DeviceObjectModel> selectedObjects = [];
+  List<DeviceObjectModel>? _selectedObjects;
+  List<DeviceObjectModel>? get selectedObjects=> _selectedObjects;
   int selectedPumpLocation = 0;
 
   List<dynamic> configObjects = [];
@@ -86,6 +90,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       // var getUserProgramSequence = await httpService.postRequest('getUserProgramSequence', userData);
       // print("getUserConfigMaker ::: ${jsonDecode(getUserConfigMaker.body)['data']}");
       apiData = null;
+      ignoreValidation = false;
       _sampleIrrigationLine = null;
       _filterSite = null;
       _fertilizerSite = null;
@@ -93,6 +98,8 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       _pump = null;
       _moistureSensor = null;
       _irrigationLine = null;
+      _agitators = null;
+      _mainValves = null;
       configObjects.clear();
       if(getUserConfigMaker.statusCode == 200) {
         final responseJson = getUserProgramSequence.body;
@@ -114,6 +121,10 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
             .whereType<DeviceObjectModel>()
             .toList();
         }
+        _mainValves = _sampleIrrigationLine!.map((e) => e.mainValve != null ? List<DeviceObjectModel>.from(e.mainValve!) : [])
+            .expand((list) => list)
+            .whereType<DeviceObjectModel>()
+            .toList();
         Future.delayed(Duration.zero,() {
           _irrigationLine = SequenceModel.fromJson(sequenceJson);
           // for (var element in _irrigationLine!.sequence) {
@@ -934,9 +945,9 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     var myLocal = [];
 
     // this process is to find the central site for the sequence
-    bool centralSelectedOrNot = selectedObjects.any((object) => object.objectId == 3 && object.siteMode == 1);
+    bool centralSelectedOrNot = selectedObjects!.any((object) => object.objectId == 3 && object.siteMode == 1);
     if(centralSelectedOrNot){
-      double centralSiteSnoThatSelectedInSelection = selectedObjects.where((object)=> object.objectId == 3 && object.siteMode == 1).toList()[0].sNo!;
+      double centralSiteSnoThatSelectedInSelection = selectedObjects!.where((object)=> object.objectId == 3 && object.siteMode == 1).toList()[0].sNo!;
       for(var cd in centralDuplicate){
         if(cd['sNo'] == centralSiteSnoThatSelectedInSelection){
           int recipe = -1;
@@ -1019,9 +1030,9 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     // process end for central
 
     // this process is to find the local site for the sequence
-    bool localSelectedOrNot = selectedObjects.any((object) => object.objectId == 3 && object.siteMode == 2);
+    bool localSelectedOrNot = selectedObjects!.any((object) => object.objectId == 3 && object.siteMode == 2);
     if(localSelectedOrNot){
-      double localSiteSnoThatSelectedInSelection = selectedObjects.where((object)=> object.objectId == 3 && object.siteMode == 2).toList()[0].sNo!;
+      double localSiteSnoThatSelectedInSelection = selectedObjects!.where((object)=> object.objectId == 3 && object.siteMode == 2).toList()[0].sNo!;
       for(var ld in localDuplicate){
         if(ld['sNo'] == localSiteSnoThatSelectedInSelection){
           int recipe = -1;
@@ -2356,13 +2367,15 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       final response = await repository.getUserProgramSelection(userData);
       final jsonData = json.decode(response.body);
       _additionalData = null;
-      selectedObjects.clear();
+      _selectedObjects = null;
       if(jsonData['data']['selection']['selected'] != null) {
-        selectedObjects = (jsonData['data']['selection']['selected'] as List).map((e) => DeviceObjectModel.fromJson(e as Map<String, dynamic>)).toList();
-        selectedObjects.removeWhere((element) => configObjects.any((element2) => element2['sNo'] != element.sNo));
+        _selectedObjects = (jsonData['data']['selection']['selected'] as List).map((e) => DeviceObjectModel.fromJson(e as Map<String, dynamic>)).toList();
+        _selectedObjects!.removeWhere((element) => configObjects.any((element2) => element2['sNo'] != element.sNo));
+      } else {
+        _selectedObjects = [];
       }
       _additionalData = AdditionalData.fromJson(jsonData['data']);
-      print(_additionalData?.toJson());
+      // print(_additionalData?.toJson());
     } catch (e) {
       log('Error: $e');
     }
@@ -2818,8 +2831,8 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         : sampleScheduleModel!.scheduleByDays.schedule;
 
     final centralFertilizerSite = fertilizerSite!.where((site) {
-      for (var i = 0; i < selectedObjects.length; i++) {
-        if (site.siteMode == 1 && selectedObjects[i].objectId == 3 && selectedObjects[i].sNo == site.fertilizerSite?.sNo) {
+      for (var i = 0; i < selectedObjects!.length; i++) {
+        if (site.siteMode == 1 && selectedObjects![i].objectId == 3 && selectedObjects![i].sNo == site.fertilizerSite?.sNo) {
           return true;
         }
       }
@@ -2827,8 +2840,8 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     });
 
     final localFertilizerSite = fertilizerSite!.where((site) {
-      for (var i = 0; i < selectedObjects.length; i++) {
-        if (site.siteMode == 2 && selectedObjects[i].objectId == 3 && selectedObjects[i].sNo == site.fertilizerSite?.sNo) {
+      for (var i = 0; i < selectedObjects!.length; i++) {
+        if (site.siteMode == 2 && selectedObjects![i].objectId == 3 && selectedObjects![i].sNo == site.fertilizerSite?.sNo) {
           return true;
         }
       }
@@ -2837,8 +2850,8 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
 
     final centralFilterSite = filterSite!.where((site) {
       // print("Central filter site ==> ${site.filterSite?.sNo}");
-      for (var i = 0; i < selectedObjects.length; i++) {
-        if (site.siteMode == 1 && selectedObjects[i].objectId == 4 && selectedObjects[i].sNo == site.filterSite?.sNo) {
+      for (var i = 0; i < selectedObjects!.length; i++) {
+        if (site.siteMode == 1 && selectedObjects![i].objectId == 4 && selectedObjects![i].sNo == site.filterSite?.sNo) {
           return true;
         }
       }
@@ -2846,8 +2859,8 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     });
 
     final localFilterSite = filterSite!.where((site) {
-      for (var i = 0; i < selectedObjects.length; i++) {
-        if (site.siteMode == 2 && selectedObjects[i].objectId == 4 && selectedObjects[i].sNo == site.filterSite?.sNo) {
+      for (var i = 0; i < selectedObjects!.length; i++) {
+        if (site.siteMode == 2 && selectedObjects![i].objectId == 4 && selectedObjects![i].sNo == site.filterSite?.sNo) {
           return true;
         }
       }
@@ -2877,8 +2890,8 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
               "S_No": '$serialNumber',/*S_No*/
               "ProgramType": '${programType == "Irrigation Program" ? 1 : 2}',/*ProgramType*/
               "ProgramCategory": '${programType == "Irrigation Program"
-                  ? selectedObjects.any((element) => element.objectId == 5)
-                  ? sampleIrrigationLine!.where((line) => selectedObjects
+                  ? selectedObjects!.any((element) => element.objectId == 5)
+                  ? sampleIrrigationLine!.where((line) => selectedObjects!
                   .any((element) => line.irrigationPump != null && line.irrigationPump!.any((pump) => element.sNo == pump.sNo)))
                   .map((line) => line.irrigationLine)
                   .toList().map((e) => e.sNo).join("_")
@@ -2900,8 +2913,8 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
                 return valveSerialNumbers.join('_');
               }).toList().join("+")}',/*Sequence*/
               "PumpStationMode": '${isPumpStationMode ? 1 : 0}',/*PumpStationMode*/
-              "Pump": selectedObjects.where((pump) => pump.objectId == 5).map((e) => e.sNo).toList().join('_'),/*Pump*/
-              "MainValve": selectedObjects.where((pump) => pump.objectId == 14).map((e) => e.sNo).toList().join('_'),/*MainValve*/
+              "Pump": selectedObjects!.where((pump) => pump.objectId == 5).map((e) => e.sNo).toList().join('_'),/*Pump*/
+              "MainValve": selectedObjects!.where((pump) => pump.objectId == 14).map((e) => e.sNo).toList().join('_'),/*MainValve*/
               "Priority": '${priority == priorityList[0] ? 1 : 2}',/*Priority*/
               "DelayBetweenZones": delayBetweenZones.length == 5 ? "$delayBetweenZones:00" : delayBetweenZones,/*DelayBetweenZones*/
               "ScaleFactor": adjustPercentage != "0" ? adjustPercentage : "100",/*ScaleFactor*/
@@ -2938,7 +2951,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
                   .map((e) => e.centralFertilization != null ? [e.centralFertilization!] : [])
                   .expand((list) => list)
                   .whereType<DeviceObjectModel>()
-                  .where((device) => selectedObjects.any((obj) => obj.sNo == device.sNo))
+                  .where((device) => selectedObjects!.any((obj) => obj.sNo == device.sNo))
                   .toList().map((e) => e.sNo).join('_')
                   : "",/*CentralFertilizerSite*/
               "LocalFertilizerSite": localFertilizerSite.toList().isNotEmpty
@@ -2946,7 +2959,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
                   .map((e) => e.localFertilization != null ? [e.localFertilization!] : [])
                   .expand((list) => list)
                   .whereType<DeviceObjectModel>()
-                  .where((device) => selectedObjects.any((obj) => obj.sNo == device.sNo))
+                  .where((device) => selectedObjects!.any((obj) => obj.sNo == device.sNo))
                   .toList().map((e) => e.sNo).join('_')
                   : "",/*LocalFertilizerSite*/
               "CentralFertilizerTankSelection": centralFertilizerSite.map((e) => e.selector != null ? List<DeviceObjectModel>.from(e.selector!) : [])
@@ -2972,7 +2985,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
                   != null ? [e.centralFiltration!] : [])
                   .expand((list) => list)
                   .whereType<DeviceObjectModel>()
-                  .where((device) => selectedObjects.any((obj) => obj.sNo == device.sNo))
+                  .where((device) => selectedObjects!.any((obj) => obj.sNo == device.sNo))
                   .toList().map((e) => e.sNo).join('_')
                   : "",/*CentralFilterSite*/
               "LocalFilterSite": localFilterSite.toList().isNotEmpty
@@ -2980,7 +2993,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
                   != null ? [e.localFiltration!] : [])
                   .expand((list) => list)
                   .whereType<DeviceObjectModel>()
-                  .where((device) => selectedObjects.any((obj) => obj.sNo == device.sNo))
+                  .where((device) => selectedObjects!.any((obj) => obj.sNo == device.sNo))
                   .toList().map((e) => e.sNo).join('_')
                   : "",/*LocalFilterSite*/
               "CentralFilterSiteOperationMode": '${selectedCentralFiltrationMode == "TIME"
@@ -2993,12 +3006,12 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
                   ? 2
                   : 3}',/*LocalFilterSiteOperationMode*/
               "CentralFilterSelection": centralFilterSite.toList().isNotEmpty
-                  ? centralFilterSite.where((element) => selectedObjects.any((ele) => ele.sNo == element.filterSite!.sNo)).map((e) => e.filters != null ? List<DeviceObjectModel>.from(e.filters!) : [])
+                  ? centralFilterSite.where((element) => selectedObjects!.any((ele) => ele.sNo == element.filterSite!.sNo)).map((e) => e.filters != null ? List<DeviceObjectModel>.from(e.filters!) : [])
                   .expand((list) => list)
                   .whereType<DeviceObjectModel>()
                   .toList().map((e) => e.sNo).join('_') : '',/*CentralFilterSelection*/
               "LocalFilterSelection": localFilterSite.toList().isNotEmpty
-                  ? localFilterSite.where((element) => selectedObjects.any((ele) => ele.sNo == element.filterSite!.sNo)).map((e) => e.filters != null ? List<DeviceObjectModel>.from(e.filters!) : [])
+                  ? localFilterSite.where((element) => selectedObjects!.any((ele) => ele.sNo == element.filterSite!.sNo)).map((e) => e.filters != null ? List<DeviceObjectModel>.from(e.filters!) : [])
                   .expand((list) => list)
                   .whereType<DeviceObjectModel>()
                   .toList().map((e) => e.sNo).join('_') : '',/*LocalFilterSelection*/
@@ -3013,7 +3026,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
               "AlarmOnOff": newAlarmList!.alarmList.map((e) => e.value == true ? 1 : 0).toList().join('_'),/*AlarmOnOff*/
               "PumpChangeOverFlag": '${isChangeOverMode ? 1 : 0}',/*PumpChangeOverFlag*/
               "HeadUnit": '${programType == "Irrigation Program"
-                  ? sampleIrrigationLine!.where((line) => selectedObjects
+                  ? sampleIrrigationLine!.where((line) => selectedObjects!
                   .any((element) => line.irrigationLine.sNo == element.sNo))
                   .map((line) => line.irrigationLine)
                   .toList().map((e) => e.sNo).join("_")
@@ -3022,8 +3035,8 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
                 return valveSerialNumbers.join('_');
               }).toList().join("+")}',/*HeadUnit*/
               "HeadUnitToPause": '${programType == "Irrigation Program"
-                  ? selectedObjects.any((element) => element.objectId == 5)
-                  ? sampleIrrigationLine!.where((line) => selectedObjects
+                  ? selectedObjects!.any((element) => element.objectId == 5)
+                  ? sampleIrrigationLine!.where((line) => selectedObjects!
                   .any((element) => line.irrigationPump != null && line.irrigationPump!.any((pump) => element.sNo == pump.sNo) && line.irrigationLine.sNo != element.sNo))
                   .map((line) => line.irrigationLine)
                   .toList().map((e) => e.sNo).join("_")
