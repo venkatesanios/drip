@@ -10,7 +10,7 @@ class CustomMaterialButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialButton(
       hoverColor: Theme.of(context).primaryColorLight,
-      color: Theme.of(context).colorScheme.primary.withOpacity(outlined != null ? 0.5 : 1),
+      color: outlined != null ? Colors.white70 : Theme.of(context).primaryColor,
       shape: RoundedRectangleBorder(
         side: outlined != null ? BorderSide(color: Theme.of(context).colorScheme.primary) : BorderSide.none,
         borderRadius: BorderRadius.circular(15),
@@ -21,7 +21,7 @@ class CustomMaterialButton extends StatelessWidget {
       },
       child: Text(
         title ?? "OK",
-        style: const TextStyle(color: Colors.white),
+        style: TextStyle(color: outlined != null ? Theme.of(context).colorScheme.primary : Colors.white),
       ),
     );
   }

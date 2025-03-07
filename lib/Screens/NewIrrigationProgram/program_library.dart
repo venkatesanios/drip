@@ -427,7 +427,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                                   payloadCode: "2500",
                                   deviceId: widget.deviceId
                               ).whenComplete(() async {
-                                if(jsonDecode(MqttManager().payload!)['cM']['4201']['Code'] != "200") {
+                                if(MqttManager().payload!['cM']['4201']['Code'] != "200") {
                                   setState(() {
                                     controllerReadStatus = "0";
                                   });
@@ -776,7 +776,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                             payloadCode: toMove == "active" ? "2500" : "3800",
                             deviceId: widget.deviceId
                         ).whenComplete(() async {
-                          if(jsonDecode(MqttManager().payload!)['cM']['4201']['Code'] != "200") {
+                          if(MqttManager().payload!['cM']['4201']['Code'] != "200") {
                             setState(() {
                               controllerReadStatus = "0";
                             });
@@ -918,7 +918,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                                 payloadCode: "2800",
                                 deviceId: widget.deviceId
                             ).whenComplete(() {
-                              if(jsonDecode(MqttManager().payload!)['cM']['4201']['Code'] != "200") {
+                              if(MqttManager().payload!['cM']['4201']['Code'] != "200") {
                                 setState(() {
                                   controllerReadStatus = "0";
                                 });
@@ -1096,7 +1096,7 @@ Future<void> validatePayloadSent({
     MqttManager().payload = null;
 
     await MqttManager().topicToPublishAndItsMessage(
-      '${Environment.mqttWebPublishTopic}/$deviceId',
+      '${Environment.mqttPublishTopic}/$deviceId',
       jsonEncode(payload),
     );
 
@@ -1126,7 +1126,7 @@ Future<void> validatePayloadSent({
       const Duration(seconds: 30),
       onTimeout: (sink) => sink.close(),
     )) {
-      if (message != null && jsonDecode(message)['cM']['4201']['PayloadCode'] == payloadCode) {
+      if (message != null && message['cM']['4201']['PayloadCode'] == payloadCode) {
         isAcknowledged = true;
         break;
       }
@@ -1135,7 +1135,7 @@ Future<void> validatePayloadSent({
     Navigator.of(context).pop();
 
     if (isAcknowledged) {
-      final decodedPayload = jsonDecode(MqttManager().payload!);
+      final decodedPayload = MqttManager().payload!;
       if (decodedPayload['cM']['4201']['Code'] == "200") {
         acknowledgedFunction();
       } else {

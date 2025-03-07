@@ -882,7 +882,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         'deviceId' : p1000.deviceId,
         'deviceIdToSend' : deviceIdToSend,
         'payload' : jsonEncode(payloadToSend),
-        'acknowledgementState' : HardwareAcknowledgementSate.notSend,
+        'acknowledgementState' : HardwareAcknowledgementSate.notSent,
         'selected' : true,
       });
     }
@@ -911,7 +911,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         'deviceId' : p2000.deviceId,
         'deviceIdToSend' : deviceIdToSend,
         'payload' : jsonEncode(pumpPayload),
-        'acknowledgementState' : HardwareAcknowledgementSate.notSend,
+        'acknowledgementState' : HardwareAcknowledgementSate.notSent,
         'selected' : true,
         'checkingCode' : '$pumpConfigCode'
       });
@@ -996,7 +996,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         'deviceIdToSend' : p2000.deviceId,
         'deviceId' : deviceIdToSend,
         'payload' : jsonEncode(payloadToSendForTankConfig),
-        'acknowledgementState' : HardwareAcknowledgementSate.notSend,
+        'acknowledgementState' : HardwareAcknowledgementSate.notSent,
         'selected' : true,
         'checkingCode' : '$tankConfigCode'
       });

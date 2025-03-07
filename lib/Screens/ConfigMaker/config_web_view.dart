@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:mqtt_client/mqtt_client.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/product_limit.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/site_configure.dart';
 import 'package:oro_drip_irrigation/Widgets/sized_image.dart';
@@ -53,6 +54,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
   bool sendOnHover = false;
   List<Map<String, dynamic>> listOfPayload = [];
   PayloadSendState payloadSendState = PayloadSendState.idle;
+  MqttManager mqttManager = MqttManager();
 
   @override
   void initState() {
@@ -109,7 +111,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                       spacing: 10,
                       children: [
                         CircleAvatar(
-                          backgroundColor: clearOnHover ? themeData.colorScheme.onPrimary : themeData.colorScheme.secondary,
+                          backgroundColor: clearOnHover ? themeData.primaryColorLight : themeData.primaryColorLight.withOpacity(0.5),
                           radius: 20,
                           child: SizedImageSmall(imagePath: '${AppConstants.svgObjectPath}clear.svg',color:  Colors.white,),
                         ),
@@ -131,7 +133,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                         spacing: 10,
                         children: [
                           CircleAvatar(
-                            backgroundColor: sendOnHover ? themeData.colorScheme.onPrimary : themeData.colorScheme.secondary,
+                            backgroundColor: sendOnHover ? themeData.primaryColorLight : themeData.primaryColorLight.withOpacity(0.5),
                             radius: 20,
                             child: SizedImageSmall(imagePath: '${AppConstants.svgObjectPath}send.svg',color:  Colors.white,),
                           ),
@@ -193,12 +195,12 @@ class _ConfigWebViewState extends State<ConfigWebView> {
         }
       };
       setState(() {
-        listOfPayload.add({
+        listOfPayload.insert(0,{
           'title' : '${configPvd.masterData['deviceId']}(gem config)',
           'deviceId' : configPvd.masterData['deviceId'],
           'deviceIdToSend' : configPvd.masterData['deviceId'],
           'payload' : jsonEncode(configMakerPayload),
-          'acknowledgementState' : HardwareAcknowledgementSate.notSend,
+          'acknowledgementState' : HardwareAcknowledgementSate.notSent,
           'selected' : true,
           'checkingCode' : '200'
         });
@@ -223,6 +225,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                       children: [
                         for(var payload in listOfPayload)
                           CheckboxListTile(
+                            enabled: payloadSendState == PayloadSendState.idle,
                             title: Text('${payload['title']}'),
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -257,34 +260,61 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                           });
                         },
                       ),
-                    CustomMaterialButton(
-                      onPressed: ()async{
-                        for(var payload in listOfPayload){
-                          for(var sec = 0;sec < 5;sec++){
-                            if(sec == 0){
-                              stateSetter((){
-                                setState(() {
-                                  payloadSendState = PayloadSendState.start;
-                                  payload['acknowledgementState'] = HardwareAcknowledgementSate.sending;
-                                });
-                              });
-                            }else if(sec == 4){
-                              stateSetter((){
-                                setState(() {
-                                  payload['acknowledgementState'] = HardwareAcknowledgementSate.failed;
-                                });
-                              });
+                    if(payloadSendState == PayloadSendState.idle)
+                      CustomMaterialButton(
+                        onPressed: ()async{
+                          for(var payload in listOfPayload){
+                            if(!payload['selected']){
+                              continue;
                             }
-                            await Future.delayed(const Duration(seconds: 1));
-                            if(payloadSendState == PayloadSendState.idle){
-                              break;
-                            }
+                            bool mqttAttempt = true;
+                            for(var sec = 0;sec < 5;sec++){
+                              if(mqttManager.connectionState == MqttConnectionState.connected && mqttAttempt == true){
+                                mqttManager.topicToPublishAndItsMessage('${Environment.mqttPublishTopic}/${configPvd.masterData['deviceId']}', payload['payload']);
+                                mqttAttempt = false;
+                                print('payload sending ${sec+1}');
+                              }
+                              if(mqttManager.payload != null && mqttManager.payload!['cC'] == payload['deviceId'] && mqttManager.payload!['PayloadCode'] == payload['checkingCode'] && mqttManager.payload!['Code'] == '200'){
+                                stateSetter((){
+                                  setState(() {
+                                    payload['acknowledgementState'] = HardwareAcknowledgementSate.success;
 
+                                  });
+                                });
+                              }
+                              if(sec == 0){
+                                stateSetter((){
+                                  setState(() {
+                                    payloadSendState = PayloadSendState.start;
+                                    payload['acknowledgementState'] = HardwareAcknowledgementSate.sending;
+                                  });
+                                });
+                              }else if(sec == 4){
+                                stateSetter((){
+                                  setState(() {
+                                    payload['acknowledgementState'] = HardwareAcknowledgementSate.failed;
+                                  });
+                                });
+                              }
+                              await Future.delayed(const Duration(seconds: 1));
+                              if(payloadSendState == PayloadSendState.idle){
+                                break;
+                              }
+
+                            }
                           }
-                        }
-                      },
-                    ),
+                          stateSetter((){
+                            setState(() {
+                              payloadSendState = PayloadSendState.stop;
+                              mqttManager.payload = null;
+                            });
+                          });
 
+                        },
+                        title: 'Send',
+                      ),
+                    if(payloadSendState == PayloadSendState.stop)
+                      CustomMaterialButton(),
                   ],
                 );
               }
@@ -295,9 +325,9 @@ class _ConfigWebViewState extends State<ConfigWebView> {
 
   Widget payloadAcknowledgementWidget(HardwareAcknowledgementSate state){
     late Color color;
-    if(state == HardwareAcknowledgementSate.notSend){
+    if(state == HardwareAcknowledgementSate.notSent){
       color = Colors.grey;
-      return statusBox(color, Text('not send', style: TextStyle(color: color, fontSize: 12),));
+      return statusBox(color, Text('not sent', style: TextStyle(color: color, fontSize: 12),));
     }else if(state == HardwareAcknowledgementSate.failed){
       color = Colors.red;
       return statusBox(color, Text('failed...', style: TextStyle(color: color, fontSize: 12),));
@@ -306,9 +336,9 @@ class _ConfigWebViewState extends State<ConfigWebView> {
       return Text('success...', style: TextStyle(color: color, fontSize: 12),);
     }else{
       return const SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator()
+          width: double.infinity,
+          height: 5,
+          child: LinearProgressIndicator()
       );
     }
   }
@@ -442,5 +472,5 @@ class _ConfigWebViewState extends State<ConfigWebView> {
   }
 }
 
-enum HardwareAcknowledgementSate{notSend, sending, failed, success, errorOnPayload, mqttNotConnected}
+enum HardwareAcknowledgementSate{notSent, sending, failed, success, errorOnPayload, mqttNotConnected}
 enum PayloadSendState{idle, start, stop}

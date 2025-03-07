@@ -11,7 +11,8 @@ class Environment {
       'mqttMobileUrl': '192.168.68.141',
       'publishTopic': 'AppToFirmware',
       'subscribeTopic': 'FirmwareToApp',
-      'mqttPort': 1883,
+      'mqttWebPort': 1883,
+      'mqttMobilePort': 1883,
     },
     'smartComm' : {
       'apiUrl': 'http://52.172.214.208:5000/api/v1',
@@ -20,7 +21,8 @@ class Environment {
       'mqttMobileUrl': '52.172.214.208',
       'publishTopic': 'AppToFirmware',
       'subscribeTopic': 'FirmwareToApp',
-      'mqttPort': 9001,
+      'mqttWebPort': 9001,
+      'mqttMobilePort': 1883,
     },
     'oroProduction': {
       'apiUrl': 'http://192.168.68.141:5000/api/v1',
@@ -29,7 +31,8 @@ class Environment {
       'mqttMobileUrl': '192.168.68.141',
       'publishTopic': 'AppToFirmware',
       'subscribeTopic': 'FirmwareToApp',
-      'mqttPort': 1883,
+      'mqttWebPort': 1883,
+      'mqttMobilePort': 1883,
     },
   };
 
@@ -37,7 +40,8 @@ class Environment {
   static String get apiKey => config[currentEnvironment]?['apiKey'] ?? '';
 
   static String get mqttWebUrl => config[F.name]?['mqttWebUrl'] ?? '';
-  static String get mqttWebPublishTopic => config[F.name]?['publishTopic'] ?? '';
+  static String get mqttPublishTopic => config[F.name]?['publishTopic'] ?? '';
   static String get mqttMobileUrl => config[F.name]?['mqttMobileUrl'] ?? '';
-  static int get mqttPort => config[F.name]?['mqttPort'] ?? 0;
+  static int get mqttWebPort => config[F.name]?['mqttWebPort'] ?? 0;
+  static int get mqttMobilePort => config[F.name]?['mqttMobilePort'] ?? 0;
 }

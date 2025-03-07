@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'dart:async';
@@ -9,13 +11,13 @@ import '../utils/environment.dart';
 class MqttManager {
   static MqttManager? _instance;
   MqttServerClient? _client;
-  final StreamController<String?> _payloadController = StreamController.broadcast();
+  final StreamController<Map<String, dynamic>?> _payloadController = StreamController.broadcast();
 
-  String? _payload;
-  String? get payload => _payload;
-  Stream<String?> get payloadStream => _payloadController.stream;
+  Map<String, dynamic>? _payload;
+  Map<String, dynamic>? get payload => _payload;
+  Stream<Map<String, dynamic>?> get payloadStream => _payloadController.stream;
 
-  set payload(String? newPayload) {
+  set payload(Map<String, dynamic>? newPayload) {
     _payload = newPayload;
     _payloadController.add(_payload);
   }
@@ -28,6 +30,8 @@ class MqttManager {
   MqttManager._internal();
 
   bool get isConnected => _client?.connectionStatus?.state == MqttConnectionState.connected;
+  MqttConnectionState get connectionState => _client!.connectionStatus!.state;
+
   String? currentSubscribedTopic;
 
   void initializeMQTTClient() {
@@ -35,7 +39,7 @@ class MqttManager {
 
     String uniqueId = const Uuid().v4();
 
-    int port = Environment.mqttPort;
+    int port = Environment.mqttMobilePort;
     String baseURL = Environment.mqttMobileUrl;
 
     if (_client == null) {
@@ -95,7 +99,7 @@ class MqttManager {
   void _onMessageReceived(List<MqttReceivedMessage<MqttMessage?>>? c) async {
     final MqttPublishMessage recMess = c![0].payload as MqttPublishMessage;
     final String pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-    payload = pt;
+    payload = jsonDecode(pt);
     print('Received message: $pt');
     // providerState?.updateReceivedPayload(pt,false);
   }

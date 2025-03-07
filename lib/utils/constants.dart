@@ -58,7 +58,7 @@ class AppConstants {
   static const int timeoutDuration = 30;
 
   static String mqttUrl = Environment.mqttWebUrl;
-  static int mqttPort = Environment.mqttPort;
+  static int mqttWebPort = Environment.mqttWebPort;
 
   static const String publishTopic = 'AppToFirmware';
   static const String subscribeTopic = 'FirmwareToApp';

@@ -32,7 +32,7 @@ class MqttService {
     if (_client == null) {
       providerState = state;
       _client = MqttBrowserClient(AppConstants.mqttUrl, uniqueId);
-      _client!.port = AppConstants.mqttPort;
+      _client!.port = AppConstants.mqttWebPort;
       _client!.keepAlivePeriod = 30;
       _client!.onDisconnected = onDisconnected;
       _client!.logging(on: false);

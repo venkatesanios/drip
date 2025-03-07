@@ -513,7 +513,7 @@ class _SystemDefinitionState extends State<SystemDefinition> {
                   ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: response['message']));
                 }
               });
-              MqttManager().topicToPublishAndItsMessage('${Environment.mqttWebPublishTopic}/${widget.deviceId}', jsonEncode(dataToMqtt));
+              MqttManager().topicToPublishAndItsMessage('${Environment.mqttPublishTopic}/${widget.deviceId}', jsonEncode(dataToMqtt));
               // showNavigationDialog(context: context, menuId: widget.menuId, ack: systemDefinitionProvider.controllerReadStatus == "1");
             } catch (error) {
               ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: 'Failed to update because of $error'));

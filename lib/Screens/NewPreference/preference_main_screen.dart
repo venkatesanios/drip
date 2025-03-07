@@ -402,7 +402,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
     // print("payloadForGem ==> $payloadForGem");
 
     try {
-      MqttManager().topicToPublishAndItsMessage('${Environment.mqttWebPublishTopic}/${widget.deviceId}', jsonEncode(payloadForSlave));
+      MqttManager().topicToPublishAndItsMessage('${Environment.mqttPublishTopic}/${widget.deviceId}', jsonEncode(payloadForSlave));
      /* if(preferenceProvider.passwordValidationCode != 200 && isToGem) {
         MQTTManager().publish(jsonEncode(payloadForSlave), "AppToFirmware/${preferenceProvider.generalData!.deviceId}");
       }*/

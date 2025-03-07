@@ -108,10 +108,10 @@ class SmartCommTheme {
         borderRadius: BorderRadius.circular(5.0),
       ),
     ),
-    checkboxTheme: CheckboxThemeData(
-      checkColor: WidgetStateProperty.all(Colors.white),
-      fillColor: WidgetStateProperty.all(primary)
-    ),
+    // checkboxTheme: CheckboxThemeData(
+    //   checkColor: WidgetStateProperty.all(Colors.white),
+    //   fillColor: WidgetStateProperty.all(primary)
+    // ),
     cardColor: Colors.white,
     colorScheme: ColorScheme.fromSeed(
       primary: primary, // siva
@@ -119,12 +119,12 @@ class SmartCommTheme {
       surface: Colors.white,
       background: primaryBackground, // siva
       error: Colors.red,
-      onPrimary: primary, // siva
+      // onPrimary: primary, // siva
       onSecondary: Colors.white, // siva
       onSurface: Colors.black,
       onBackground: primary.withOpacity(0.1), // siva
       onError: Colors.white,
-      seedColor: primaryDark,
+      seedColor: primary,
     ),
   );
 
