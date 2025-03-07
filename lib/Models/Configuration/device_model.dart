@@ -7,7 +7,7 @@ class DeviceModel {
   final String categoryName;
   final int modelId;
   final String modelName;
-  int? interfaceTypeId;
+  int interfaceTypeId;
   int? interfaceInterval;
   int? serialNumber;
   int? masterId;

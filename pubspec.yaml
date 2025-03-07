@@ -67,6 +67,8 @@ flutter:
      - assets/Images/Fertilization/
      - assets/Images/Filtration/
      - assets/Images/Png/
+     - assets/Images/Png/Oro/
+     - assets/Images/Png/SmartComm/
      - assets/Images/Source/
      - assets/png_images/
      - assets/svg_images/
@@ -119,7 +121,7 @@ flavorizr:
       app:
         name: "SMART COMM"
       android:
-        applicationId: "com.example.smartComm"
+        applicationId: "com.example.SmartComm"
 #      ios:
 #        bundleId: "com.example.banana"
 #      macos:

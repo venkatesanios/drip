@@ -89,6 +89,7 @@ class ConfigMakerProvider extends ChangeNotifier{
   }
 
   Future<List<DeviceModel>> fetchData(masterDataFromSiteConfigure)async {
+
     await Future.delayed(const Duration(seconds: 0));
     try{
       var body = {
@@ -104,15 +105,37 @@ class ConfigMakerProvider extends ChangeNotifier{
       print('jsonData : ${jsonData}');
       Map<String, dynamic> defaultData = jsonData['data']['default'];
       Map<String, dynamic> configMakerData = jsonData['data']['configMaker'];
-      configMakerDataFromHttp = jsonData['data']['configMaker'];
-      defaultDataFromHttp = jsonData['data']['default'];
-      masterData = masterDataFromSiteConfigure;
-      if(masterData['categoryId'] == 2){
+      if(![1, 2, 4].contains(masterDataFromSiteConfigure['modelId'])){
         selectedTab = ConfigMakerTabs.productLimit;
+        defaultData['deviceList'].add(
+            {
+              "controllerId": masterDataFromSiteConfigure['controllerId'],
+              "productId": 0,
+              "deviceId": masterDataFromSiteConfigure['deviceId'],
+              "deviceName": masterDataFromSiteConfigure['deviceName'],
+              "groupId": masterDataFromSiteConfigure['groupId'],
+              "groupName": masterDataFromSiteConfigure['groupName'],
+              "masterId": masterDataFromSiteConfigure['controllerId'],
+              "categoryId": masterDataFromSiteConfigure['categoryId'],
+              "categoryName": masterDataFromSiteConfigure['categoryName'],
+              "modelId": masterDataFromSiteConfigure['modelId'],
+              "modelName": masterDataFromSiteConfigure['modelName'],
+              "referenceNumber": 1,
+              "serialNumber": 1,
+              "interfaceTypeId": 2,
+              "interfaceType": "MQTT",
+              "interfaceInterval": "5",
+              "extendControllerId": null
+            }
+        );
       }
+      configMakerDataFromHttp = configMakerData;
+      defaultDataFromHttp = defaultData;
+      masterData = masterDataFromSiteConfigure;
+
       listOfDeviceModel = (defaultData['deviceList'] as List<dynamic>).map((devices) {
         Map<String, dynamic> deviceProperty = defaultData['productModel'].firstWhere((product) => devices['modelId'] == product['modelId']);
-        var inputObjectId = deviceProperty['inputObjectId'] == '-' ? [] : deviceProperty['inputObjectId'].split(',').map((e) => int.parse(e.toString())).toList();
+          var inputObjectId = deviceProperty['inputObjectId'] == '-' ? [] : deviceProperty['inputObjectId'].split(',').map((e) => int.parse(e.toString())).toList();
         var outputObjectId = deviceProperty['outputObjectId'] == '-' ? [] : deviceProperty['outputObjectId'].split(',').map((e) => int.parse(e.toString())).toList();
         return DeviceModel(
           productId: devices['productId'],
@@ -626,6 +649,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     return referenceNo == 0 ? null : referenceNo;
   }
 
+  //Todo : getDeviceListPayload
   String getDeviceListPayload() {
     List<dynamic> devicePayload = [];
     for (var i = 0; i < listOfDeviceModel.length; i++) {
@@ -828,23 +852,70 @@ class ConfigMakerProvider extends ChangeNotifier{
     }
   }
 
-  void getOroPumpPayload() {
+
+  //Todo : getOroPumpPayload
+  List<Map<String, dynamic>> getOroPumpPayload() {
+    List<Map<String, dynamic>> listOfPumpPayload = [];
     List<int> modelIdForPump1000 = [5, 6, 7];
     List<int> modelIdForPump2000 = [8, 9, 10];
     List<DeviceModel> listOfPump1000 = listOfDeviceModel.where((device) => modelIdForPump1000.contains(device.modelId)).toList();
     List<DeviceModel> listOfPump2000 = listOfDeviceModel.where((device) => modelIdForPump2000.contains(device.modelId)).toList();
-    List<String> pump1000Payload = [];
-    List<String> pump2000Payload = [];
     for(var p1000 in listOfPump1000){
       int pumpCount = listOfGeneratedObject.where((object) => (object.controllerId == p1000.controllerId && object.objectId == 5)).length;
       var pumpPayload = {"sentSms":"pumpconfig,$pumpCount,"};
-      pump1000Payload.add(jsonEncode(pumpPayload));
+      var gemPayload = {
+        '5900' : {
+          '5901' : {
+            'SerialNumber' : p1000.serialNumber,
+            'ReferenceNumber' : findOutReferenceNumber(p1000),
+            'DeviceId' : p1000.deviceId,
+            'InterfaceTypeId' : p1000.interfaceTypeId,
+            'Payload' : jsonEncode({'700' : pumpPayload}),
+            'SomeThing' : '4'
+          }.entries.map((e) => e.value).join('+')
+        }
+      };
+      String deviceIdToSend = p1000.interfaceTypeId == 2 ? masterData['deviceId'] : p1000.deviceId;
+      Map<String, dynamic> payloadToSend = p1000.interfaceTypeId == 2 ? gemPayload : pumpPayload;
+
+      listOfPumpPayload.add({
+        'title' : '${p1000.deviceName}(pumpconfig)',
+        'deviceId' : p1000.deviceId,
+        'deviceIdToSend' : deviceIdToSend,
+        'payload' : jsonEncode(payloadToSend),
+        'acknowledgementState' : HardwareAcknowledgementSate.notSend,
+        'selected' : true,
+      });
     }
+
+
     for(var p2000 in listOfPump2000){
+      String deviceIdToSend = p2000.interfaceTypeId == 2 ? masterData['deviceId'] : p2000.deviceId;
       int pumpCount = listOfGeneratedObject.where((object) => (object.controllerId == p2000.controllerId && object.objectId == 5)).length;
       var pumpPayload = {"sentSms":"pumpconfig,$pumpCount,"};
-      pump2000Payload.add(jsonEncode(pumpPayload));
-
+      int pumpConfigCode = 700;
+      var gemPayload = {
+        '5900' : {
+          '5901' : {
+            'SerialNumber' : p2000.serialNumber,
+            'ReferenceNumber' : findOutReferenceNumber(p2000),
+            'DeviceId' : p2000.deviceId,
+            'InterfaceTypeId' : p2000.interfaceTypeId,
+            'Payload' : jsonEncode({'$pumpConfigCode' : pumpPayload}),
+            'SomeThing' : '4'
+          }.entries.map((e) => e.value).join('+')
+        }
+      };
+      Map<String, dynamic> payloadToSend = p2000.interfaceTypeId == 2 ? gemPayload : pumpPayload;
+      listOfPumpPayload.add({
+        'title' : '${p2000.deviceName}(pumpconfig)',
+        'deviceId' : p2000.deviceId,
+        'deviceIdToSend' : deviceIdToSend,
+        'payload' : jsonEncode(pumpPayload),
+        'acknowledgementState' : HardwareAcknowledgementSate.notSend,
+        'selected' : true,
+        'checkingCode' : '$pumpConfigCode'
+      });
       List<DeviceObjectModel> listOfFloat = listOfGeneratedObject.where((object) => (object.controllerId == p2000.controllerId && object.objectId == 40)).toList();
       List<DeviceObjectModel> listOfPump = listOfGeneratedObject.where((object) => (object.controllerId == p2000.controllerId && object.objectId == 5)).toList();
       List<DeviceObjectModel> listOfLevel = listOfGeneratedObject.where((object) => (object.controllerId == p2000.controllerId && object.objectId == 26)).toList();
@@ -907,10 +978,34 @@ class ConfigMakerProvider extends ChangeNotifier{
         }.entries.map((e) => e.value).join(','));
       }
       var tankPayload = {"sentSms":"tankconfig,${listOfTankPayload.join(',')},"};
-      pump2000Payload.add(jsonEncode(tankPayload));
+      int tankConfigCode = 800;
+      var gemPayloadForTankConfig = {
+        '5900' : {
+          '5901' : {
+            'SerialNumber' : p2000.serialNumber,
+            'ReferenceNumber' : findOutReferenceNumber(p2000),
+            'DeviceId' : p2000.deviceId,
+            'InterfaceTypeId' : p2000.interfaceTypeId,
+            'Payload' : jsonEncode({'$tankConfigCode' : tankPayload}),
+            'SomeThing' : '4'
+          }.entries.map((e) => e.value).join('+')
+        }
+      };
+      Map<String, dynamic> payloadToSendForTankConfig = p2000.interfaceTypeId == 2 ? gemPayloadForTankConfig : tankPayload;
+      listOfPumpPayload.add({
+        'title' : '${p2000.deviceName}(tankconfig)',
+        'deviceIdToSend' : p2000.deviceId,
+        'deviceId' : deviceIdToSend,
+        'payload' : jsonEncode(payloadToSendForTankConfig),
+        'acknowledgementState' : HardwareAcknowledgementSate.notSend,
+        'selected' : true,
+        'checkingCode' : '$tankConfigCode'
+      });
     }
-    print('pump1000Payload :: $pump1000Payload');
-    print('pump2000Payload :: $pump2000Payload');
+
+
+    print('listOfPumpPayload :: $listOfPumpPayload');
+    return listOfPumpPayload;
   }
 
 }

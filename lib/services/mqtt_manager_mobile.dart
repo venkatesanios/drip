@@ -21,6 +21,7 @@ class MqttManager {
   String? currentSubscribedTopic;
 
   void initializeMQTTClient() {
+    print('mobile mqtt manager is initialized');
 
     String uniqueId = const Uuid().v4();
 

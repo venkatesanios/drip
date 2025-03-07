@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/product_limit.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/site_configure.dart';
@@ -30,19 +31,6 @@ import 'device_list.dart';
 import 'package:oro_drip_irrigation/services/mqtt_manager_mobile.dart' if (dart.library.html) 'package:oro_drip_irrigation/services/mqtt_manager_web.dart';
 
 
-
-void saveToSessionStorage(String key, String value) {
-  // window.sessionStorage[key] = value;
-}
-
-String? readFromSessionStorage(String key) {
-  // return window.sessionStorage[key];
-}
-
-void deleteFromSessionStorage(String key) {
-  // window.sessionStorage.remove(key);
-}
-
 class ConfigWebView extends StatefulWidget {
   List<DeviceModel> listOfDevices;
   ConfigWebView({super.key, required this.listOfDevices});
@@ -63,6 +51,8 @@ class _ConfigWebViewState extends State<ConfigWebView> {
   late bool themeMode;
   bool clearOnHover = false;
   bool sendOnHover = false;
+  List<Map<String, dynamic>> listOfPayload = [];
+  PayloadSendState payloadSendState = PayloadSendState.idle;
 
   @override
   void initState() {
@@ -135,7 +125,8 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                       },
                       onTap: (){
                         sendToMqtt();
-                        sendToHttp();                  },
+                        sendToHttp();
+                        },
                       child:  Row(
                         spacing: 10,
                         children: [
@@ -184,21 +175,155 @@ class _ConfigWebViewState extends State<ConfigWebView> {
   }
 
   void sendToMqtt(){
-    configPvd.getOroPumpPayload();
-    final Map<String, dynamic> configMakerPayload = {
-      '100' : {
-        '101' : configPvd.getDeviceListPayload(),
-        '102' : configPvd.getObjectPayload(),
-        '103' : configPvd.getPumpPayload(),
-        '104' : configPvd.getFilterPayload(),
-        '105' : configPvd.getFertilizerPayload(),
-        '106' : configPvd.getFertilizerInjectorPayload(),
-        '107' : configPvd.getIrrigationLinePayload(),
-      }
-    };
-    MqttManager().topicToPublishAndItsMessage('${Environment.mqttWebPublishTopic}/${configPvd.masterData['deviceId']}', jsonEncode(configMakerPayload));
-    print("configMakerPayload ==> ${jsonEncode(configMakerPayload)}");
-    // print("getOroPumpPayload ==> ${widget.configPvd.getOroPumpPayload()}");
+    setState(() {
+      listOfPayload.clear();
+      listOfPayload.addAll(configPvd.getOroPumpPayload());
+    });
+
+    if([1, 2, 4].contains(configPvd.masterData['modelId'])){
+      final Map<String, dynamic> configMakerPayload = {
+        '100' : {
+          '101' : configPvd.getDeviceListPayload(),
+          '102' : configPvd.getObjectPayload(),
+          '103' : configPvd.getPumpPayload(),
+          '104' : configPvd.getFilterPayload(),
+          '105' : configPvd.getFertilizerPayload(),
+          '106' : configPvd.getFertilizerInjectorPayload(),
+          '107' : configPvd.getIrrigationLinePayload(),
+        }
+      };
+      setState(() {
+        listOfPayload.add({
+          'title' : '${configPvd.masterData['deviceId']}(gem config)',
+          'deviceId' : configPvd.masterData['deviceId'],
+          'deviceIdToSend' : configPvd.masterData['deviceId'],
+          'payload' : jsonEncode(configMakerPayload),
+          'acknowledgementState' : HardwareAcknowledgementSate.notSend,
+          'selected' : true,
+          'checkingCode' : '200'
+        });
+      });
+    }
+    // MqttManager().topicToPublishAndItsMessage('${Environment.mqttWebPublishTopic}/${configPvd.masterData['deviceId']}', jsonEncode(configMakerPayload));
+    print("listOfPayload ==> $listOfPayload");
+    payloadAlertBox();
+  }
+
+  void payloadAlertBox(){
+    showDialog(
+      barrierDismissible: false,
+        context: context,
+        builder: (context){
+          return StatefulBuilder(
+              builder: (context, stateSetter){
+                return AlertDialog(
+                  title: const Text('Configuration Payload'),
+                  content: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        for(var payload in listOfPayload)
+                          CheckboxListTile(
+                            title: Text('${payload['title']}'),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(payload['deviceId']),
+                                payloadAcknowledgementWidget(payload['acknowledgementState'] as HardwareAcknowledgementSate),
+                              ],
+                            ),
+                            value: payload['selected'],
+                            onChanged: (value){
+                              stateSetter((){
+                                setState(() {
+                                  payload['selected'] = value;
+                                });
+                              });
+                            },
+                          )
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    if(payloadSendState == PayloadSendState.start)
+                      CustomMaterialButton(
+                        outlined: true,
+                        title: 'Cancel',
+                        onPressed: (){
+                          stateSetter((){
+                            setState(() {
+                              payloadSendState = PayloadSendState.idle;
+                            });
+                            Navigator.pop(context);
+                          });
+                        },
+                      ),
+                    CustomMaterialButton(
+                      onPressed: ()async{
+                        for(var payload in listOfPayload){
+                          for(var sec = 0;sec < 5;sec++){
+                            if(sec == 0){
+                              stateSetter((){
+                                setState(() {
+                                  payloadSendState = PayloadSendState.start;
+                                  payload['acknowledgementState'] = HardwareAcknowledgementSate.sending;
+                                });
+                              });
+                            }else if(sec == 4){
+                              stateSetter((){
+                                setState(() {
+                                  payload['acknowledgementState'] = HardwareAcknowledgementSate.failed;
+                                });
+                              });
+                            }
+                            await Future.delayed(const Duration(seconds: 1));
+                            if(payloadSendState == PayloadSendState.idle){
+                              break;
+                            }
+
+                          }
+                        }
+                      },
+                    ),
+
+                  ],
+                );
+              }
+          );
+        }
+    );
+  }
+
+  Widget payloadAcknowledgementWidget(HardwareAcknowledgementSate state){
+    late Color color;
+    if(state == HardwareAcknowledgementSate.notSend){
+      color = Colors.grey;
+      return statusBox(color, Text('not send', style: TextStyle(color: color, fontSize: 12),));
+    }else if(state == HardwareAcknowledgementSate.failed){
+      color = Colors.red;
+      return statusBox(color, Text('failed...', style: TextStyle(color: color, fontSize: 12),));
+    }else if(state == HardwareAcknowledgementSate.success){
+      color = Colors.green;
+      return Text('success...', style: TextStyle(color: color, fontSize: 12),);
+    }else{
+      return const SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator()
+      );
+    }
+  }
+
+  Widget statusBox(Color color, Widget child){
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        border: Border.all(color: color),
+        borderRadius: BorderRadius.circular(5)
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10 , vertical: 5),
+      child: child,
+    );
   }
 
   void sendToHttp()async{
@@ -244,7 +369,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
       "fertilizerSite" : fertilization,
       "moistureSensor" : moisture,
       "irrigationLine" : line,
-      "deviceList" : configPvd.listOfDeviceModel.map((device) {
+      "deviceList" : ![1, 2, 4].contains(configPvd.masterData['modelId']) ? [] : configPvd.listOfDeviceModel.map((device) {
         return {
           'productId' : device.productId,
           'controllerId' : device.controllerId,
@@ -283,7 +408,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
   List<Widget> getSideNavigationTab(screenWidth){
     return [
       for(var i in ConfigMakerTabs.values)
-        if(configPvd.masterData['categoryId'] != 2 || (![ConfigMakerTabs.deviceList, ConfigMakerTabs.connection].contains(i)))
+        if(configPvd.masterData['categoryId'] != 2 || (![ConfigMakerTabs.deviceList].contains(i)))
           CustomSideTab(
           width: screenWidth  > webBreakPoint ? sideNavigationTabWidth : sideNavigationTabBreakPointWidth,
           imagePath: '${AppConstants.svgObjectPath}${getTabImage(i)}.svg',
@@ -316,3 +441,6 @@ class _ConfigWebViewState extends State<ConfigWebView> {
     }
   }
 }
+
+enum HardwareAcknowledgementSate{notSend, sending, failed, success, errorOnPayload, mqttNotConnected}
+enum PayloadSendState{idle, start, stop}

@@ -17,6 +17,7 @@ import '../../Widgets/custom_side_tab.dart';
 import '../../Widgets/custom_table.dart';
 import '../../Widgets/sized_image.dart';
 import '../../Widgets/title_with_back_button.dart';
+import '../../flavors.dart';
 import '../../utils/environment.dart';
 import 'config_base_page.dart';
 
@@ -219,7 +220,7 @@ class _DeviceListState extends State<DeviceList> {
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.all(0),
-        leading: const SizedImageMedium(imagePath: 'assets/Images/Png/category_1_model_1.png'),
+        leading: SizedImageMedium(imagePath: 'assets/Images/Png/${F.name.contains('oro') ? 'Oro' : 'SmartComm'}/category_${configPvd.masterData['categoryId']}.png'),
         title: Text('${configPvd.masterData['deviceName']}', style: themeData.textTheme.bodyLarge,),
         subtitle: Text('${configPvd.masterData['deviceId']}', style: themeData.textTheme.bodySmall,),
         trailing: IntrinsicWidth(

@@ -22,11 +22,14 @@ class MqttManager {
   bool get isConnected => _client?.connectionStatus?.state == MqttConnectionState.connected;
 
   void initializeMQTTClient() {
+    print('web mqtt manager is initialized');
 
     String uniqueId = const Uuid().v4();
 
     String baseURL = Environment.mqttWebUrl;
     int port = Environment.mqttPort;
+    print('baseURL : $baseURL');
+    print('port : $port');
 
     if (_client == null) {
       _client = MqttBrowserClient(baseURL, uniqueId);
