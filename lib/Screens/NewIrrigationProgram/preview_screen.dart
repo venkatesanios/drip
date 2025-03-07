@@ -15,9 +15,7 @@ import '../../Widgets/SCustomWidgets/custom_data_table.dart';
 import '../../Widgets/SCustomWidgets/custom_snack_bar.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
-import '../../utils/environment.dart';
 import 'program_library.dart';
-import 'package:oro_drip_irrigation/services/mqtt_manager_mobile.dart' if (dart.library.html) 'package:oro_drip_irrigation/services/mqtt_manager_web.dart';
 
 
 final dateFormat = DateFormat('dd-MM-yyyy');
@@ -1090,8 +1088,8 @@ class _PreviewScreenState extends State<PreviewScreen> {
 
   Widget buildIndividualRow(item) {
     ScrollController scrollController = ScrollController();
-    if(item.runtimeType != String && item.isNotEmpty) {
-      if(item.runtimeType == List<DeviceObjectModel>) {
+    if(item is! String && item.isNotEmpty) {
+      if(item is List<DeviceObjectModel>) {
         return SizedBox(
           height: 20,
           child: Scrollbar(
