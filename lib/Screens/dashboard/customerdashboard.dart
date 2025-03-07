@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:oro_drip_irrigation/Screens/dashboard/sidedrawer.dart';
+import 'package:oro_drip_irrigation/views/customer/node_list.dart';
 import 'package:oro_drip_irrigation/views/customer/stand_alone.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -767,7 +768,7 @@ class _DashboardState extends State<MobDashboard>
                                       child: Container(
                                         width:
                                             MediaQuery.of(context).size.width,
-                                        // child: StandAlone(customerId: overAllPvd.customerId, siteId: overAllPvd.userGroupId, controllerId: overAllPvd.controllerId, userId: userId, deviceId: overAllPvd.deviceId, callbackFunction: "callbackFunction", config: liveData?[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].config)
+                                        child: Scaffold( appBar: AppBar(title: Text("StandAlone")),body: StandAlone(customerId: overAllPvd.customerId, siteId: overAllPvd.userGroupId, controllerId: overAllPvd.controllerId, userId: userId, deviceId: overAllPvd.deviceId, callbackFunction: callbackFunction, config: liveData?[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].config))
                                       ),
                                     );
                                   },
@@ -782,9 +783,38 @@ class _DashboardState extends State<MobDashboard>
                                     );
                                   },
                                 );
-                              } else if (newValue == "Node details") {
-                                // showNodeDetailsBottomSheet(context: context);
-                              } else if (newValue == "Sent and Received") {
+                              }
+                              else if(newValue == "Node status") {
+                                showGeneralDialog(
+                                  barrierLabel: "Side sheet",
+                                  barrierDismissible: true,
+                                  barrierColor: const Color(0xff66000000),
+                                  transitionDuration: const Duration(milliseconds: 300),
+                                  context: context,
+                                  pageBuilder: (context, animation1, animation2) {
+                                    return Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Material(
+                                        elevation: 15,
+                                        color: Colors.transparent,
+                                        borderRadius: BorderRadius.zero,
+                                        child: Consumer<MqttPayloadProvider>(
+                                            builder: (context, mqttPayloadProvider, _) {
+                                              return NodeList(customerId: overAllPvd.customerId, userId: userId, controllerId: overAllPvd.controllerId, deviceId: overAllPvd.deviceId, deviceName: liveData[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].deviceName, nodes: liveData[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].nodeList);
+                                            }
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  transitionBuilder: (context, animation1, animation2, child) {
+                                    return SlideTransition(
+                                      position: Tween(begin: const Offset(1, 0), end: const Offset(0, 0)).animate(animation1),
+                                      child: child,
+                                    );
+                                  },
+                                );
+                              }
+                              else if (newValue == "Sent and Received") {
                                 // Navigator.push(context, MaterialPageRoute(builder: (context) => SentAndReceived()));
                               } else if (newValue == "Controller Info") {
                                 showPasswordDialog(context, _correctPassword);
@@ -2705,7 +2735,13 @@ void showErrorDialog(BuildContext context) {
     },
   );
 }
-
+void callbackFunction(message)
+{
+  /*Navigator.pop(context);
+    Future.delayed(const Duration(milliseconds: 500), () {
+      _showSnackBar(message);
+    });*/
+}
 void stayAlert(
     {required BuildContext context,
     required MqttPayloadProvider payloadProvider,
