@@ -1,9 +1,12 @@
+import 'package:oro_drip_irrigation/Models/customer/site_model.dart';
+
 class StandAloneModel
 {
   bool startTogether;
   String time, flow;
   int method;
   final List<Selection> selection;
+  final List<Sequence> sequence;
 
   StandAloneModel({
     required this.startTogether,
@@ -11,6 +14,7 @@ class StandAloneModel
     required this.flow,
     required this.method,
     required this.selection,
+    required this.sequence,
   });
 
   factory StandAloneModel.fromJson(Map<String, dynamic> json) {
@@ -22,23 +26,64 @@ class StandAloneModel
       selection: (json['selection'] as List<dynamic>?)
           ?.map((e) => Selection.fromJson(e as Map<String, dynamic>))
           .toList() ?? [],
+      sequence: (json['sequence'] as List<dynamic>?)
+          ?.map((e) => Sequence.fromMap(e as Map<String, dynamic>))
+          .toList() ?? [],
     );
   }
 }
 
 class Selection {
   final double sNo;
-  final bool selected;
+  bool selected;
 
   Selection({
     required this.sNo,
-    required this.selected,
+    this.selected=true,
   });
 
   factory Selection.fromJson(Map<String, dynamic> json) {
     return Selection(
       sNo: json['sNo'].toDouble(),
-      selected: json['selected'],
+      //selected: json['selected'],
     );
   }
+}
+
+class Sequence {
+  String sNo;
+  String id;
+  String name;
+  bool selected;
+  List<dynamic> selectedGroup;
+  bool modified;
+  String location;
+  List<Valve> valve;
+  List<dynamic> mainValve;
+
+  Sequence({
+    required this.sNo,
+    required this.id,
+    required this.name,
+    required this.selected,
+    required this.selectedGroup,
+    required this.modified,
+    required this.location,
+    required this.valve,
+    required this.mainValve,
+  });
+
+  factory Sequence.fromMap(Map<String, dynamic> json) => Sequence(
+    sNo: json["sNo"],
+    id: json["id"],
+    name: json["name"],
+    selected: json["selected"],
+    selectedGroup: List<dynamic>.from(json["selectedGroup"]),
+    modified: json["modified"],
+    location: json["location"],
+    valve: (json['valve'] as List).map((v) => Valve.fromJson(v))
+        .toList(),
+    mainValve: List<dynamic>.from(json["mainValve"]),
+  );
+
 }

@@ -41,8 +41,6 @@ class StandAloneViewModel extends ChangeNotifier {
 
   Config configData;
 
-
-
   StandAloneViewModel(this.repository, this.configData, this.userId, this.customerId, this.controllerId, this.deviceId);
 
   Future<void> getProgramList() async {
@@ -161,9 +159,12 @@ class StandAloneViewModel extends ChangeNotifier {
   }
 
 
-  Future<void> fetchStandAloneSelection(int sNo, selection) async {
+  Future<void> fetchStandAloneSelection(int sNo, value) async {
 
-    ddCurrentPosition = selection;
+    int newIndex = programList.indexOf(value!);
+    if (newIndex != -1) {
+      ddCurrentPosition = newIndex;
+    }
 
     Map<String, Object> body = {
       "userId": customerId,
@@ -175,9 +176,11 @@ class StandAloneViewModel extends ChangeNotifier {
       var response = await repository.fetchStandAloneData(body);
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
+        print(response.body);
         if (jsonResponse['data'] != null) {
           dynamic data = jsonResponse['data'];
           StandAloneModel dashBoardData = StandAloneModel.fromJson(data);
+
           if(ddCurrentPosition==0){
             for (var item in dashBoardData.selection) {
               int serialNo = item.sNo.toInt();
@@ -228,7 +231,10 @@ class StandAloneViewModel extends ChangeNotifier {
                 }
               }
             }
-            notifyListeners();
+          }
+          else{
+            //program
+            //fetchStandAloneSelection
           }
         } else {
           debugPrint('Invalid response format: "data" is null');
@@ -257,6 +263,7 @@ class StandAloneViewModel extends ChangeNotifier {
     }
     notifyListeners();
   }
+
 
   int findPositionByName(int sNo, List<ProgramModel> programList) {
     for (int i = 0; i < programList.length; i++) {

@@ -79,6 +79,9 @@ class SmartCommTheme {
             borderRadius: BorderRadius.circular(5),
           ),
         ),
+        textStyle: WidgetStateProperty.all(const TextStyle(
+          fontSize: 13,
+        )),
       ),
     ),
     textTheme: TextTheme(
