@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:oro_drip_irrigation/views/customer/stand_alone.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../Models/customer/site_model.dart';
@@ -15,6 +16,7 @@ import '../../services/http_service.dart';
 import '../../services/mqtt_manager_web.dart';
 import '../../utils/Theme/oro_theme.dart';
 import '../../utils/constants.dart';
+import '../../utils/shared_preferences_helper.dart';
 import '../../utils/snack_bar.dart';
 import '../../views/customer/home_sub_classes/irrigation_line.dart';
 import '../NewIrrigationProgram/preview_screen.dart';
@@ -48,7 +50,7 @@ class _DashboardState extends State<MobDashboard> with TickerProviderStateMixin 
   var liveData;
   late AnimationController _controller;
 
-   @override
+  @override
   void initState() {
     payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
     overAllPvd = Provider.of<OverAllUse>(context, listen: false);
@@ -71,8 +73,12 @@ class _DashboardState extends State<MobDashboard> with TickerProviderStateMixin 
     getData();
     super.initState();
   }
-
+  Future<void> fetchUserPreferences() async {
+    // userRole = await PreferenceHelper.getUserRole();
+    userId = (await PreferenceHelper.getUserId())!;
+  }
   void getData() async {
+    await fetchUserPreferences();
     print("getData");
     // print('//////////////////////////////////////////get function called//////////////////////////');
     if (payloadProvider.timerForIrrigationPump != null) {
@@ -87,36 +93,28 @@ class _DashboardState extends State<MobDashboard> with TickerProviderStateMixin 
       });
     }
     // payloadProvider.clearData();
-    final prefs = await SharedPreferences.getInstance();
-    final userIdFromPref = prefs.getString('userId') ?? '';
+
+    print("userId:$userId");
+
+    // final usernameFromPref = prefs.getString('user_role');
+// print("userIdFromPref:$userIdFromPref usernameFromPref:usernameFromPref");
     // payloadProvider.editLoading(true);
     try
     {
       final Repository repository = Repository(HttpService());
       var getUserDetails = await repository.fetchAllMySite({
-           "userId": 4,
-          "controllerId": 1
-       });
+        "userId": userId ?? 4,
+      });
 
       final jsonData = jsonDecode(getUserDetails.body);
       print("jason data---: $jsonData");
-       if (jsonData['code'] == 200) {
+      if (jsonData['code'] == 200) {
         await payloadProvider.updateDashboardPayload(jsonData);
         setState(() {
           liveData = payloadProvider.dashboardLiveInstance!.data;
-          overAllPvd.editControllerType(
-              (!overAllPvd.takeSharedUserId
-                  ? liveData[payloadProvider
-                  .selectedSite]
-                  .master[payloadProvider
-                  .selectedMaster]
-                  .categoryId
-                  : payloadProvider
-                  .listOfSharedUser[
-              'devices'][
-              payloadProvider
-                  .selectedMaster]
-              ['categoryId']));
+          overAllPvd.editControllerType((!overAllPvd.takeSharedUserId ? liveData[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].categoryId : payloadProvider.listOfSharedUser['devices'][payloadProvider.selectedMaster]['categoryId']));
+          overAllPvd.edituserGroupId(payloadProvider.dashboardLiveInstance!.data[payloadProvider.selectedSite].groupId);
+          overAllPvd.editDeviceId(payloadProvider.dashboardLiveInstance!.data[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].deviceId);
         });
       }
       payloadProvider.httpError = false;
@@ -609,7 +607,7 @@ class _DashboardState extends State<MobDashboard> with TickerProviderStateMixin 
                                         child: Container(
                                           width:
                                           MediaQuery.of(context).size.width,
-                                          // child: ManualOperationScreen(userId: overAllPvd.userId, controllerId: overAllPvd.controllerId, customerId: overAllPvd.customerId, deviceId: overAllPvd.imeiNo,)
+                                          // child: StandAlone(customerId: overAllPvd.customerId, siteId: overAllPvd.userGroupId, controllerId: overAllPvd.controllerId, userId: userId, deviceId: overAllPvd.deviceId, callbackFunction: "callbackFunction", config: liveData?[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].config)
                                         ),
                                       );
                                     },
@@ -625,7 +623,7 @@ class _DashboardState extends State<MobDashboard> with TickerProviderStateMixin 
                                     },
                                   );
                                 }
-                                 else if (newValue == "Node details") {
+                                else if (newValue == "Node details") {
                                   // showNodeDetailsBottomSheet(context: context);
                                 } else if (newValue == "Sent and Received") {
                                   // Navigator.push(context, MaterialPageRoute(builder: (context) => SentAndReceived()));
@@ -1123,7 +1121,7 @@ class _DashboardState extends State<MobDashboard> with TickerProviderStateMixin 
                   int index = entry.key;
                   var source = entry.value;
                   bool isLastIndex = index == sortedWaterSources.length - 1;
-                   return Column(
+                  return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
@@ -1134,7 +1132,7 @@ class _DashboardState extends State<MobDashboard> with TickerProviderStateMixin 
                                 width: 70,
                                 child:  Row(
                                   children: [
-                                     Padding(
+                                    Padding(
                                       padding: EdgeInsets.only(left:index==0?33:0),
                                       child: Divider(thickness: 2, color: Colors.grey.shade300, height: 5.5),
                                     ),
@@ -1151,6 +1149,7 @@ class _DashboardState extends State<MobDashboard> with TickerProviderStateMixin 
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
+/*
                                   SizedBox(
                                     width: 70,
                                     height: 15,
@@ -1160,12 +1159,13 @@ class _DashboardState extends State<MobDashboard> with TickerProviderStateMixin 
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         mainAxisAlignment: MainAxisAlignment.start,
                                         children: [
-                                          Divider(thickness: 1, color: Colors.grey.shade400),
-                                          Divider(thickness: 1, color: Colors.grey.shade400),
+                                          Divider(thickness: 1, color: Colors.black, height: 3),
+                                          Divider(thickness: 1, color: Colors.black, height: 5),
                                         ],
                                       ),
                                     ),
                                   ),
+*/
                                   SizedBox(
                                     width: 70,
                                     height: 15,
@@ -1256,7 +1256,7 @@ class _DashboardState extends State<MobDashboard> with TickerProviderStateMixin 
 
                     ],
                   );
-                 }).toList(),
+                }).toList(),
               ),
               if (filterSite.isNotEmpty)
                 Padding(
@@ -1266,7 +1266,7 @@ class _DashboardState extends State<MobDashboard> with TickerProviderStateMixin 
               if (fertilizerSite.isNotEmpty)
                 displayFertilizerSite(context, fertilizerSite),
               IrrigationLine(lineData: irrLineData, pumpStationWith: 0,),
-             ],
+            ],
           ),
         ),
       ),
@@ -1855,7 +1855,6 @@ class _DashboardState extends State<MobDashboard> with TickerProviderStateMixin 
 
   }
 
-
   Widget getActiveObjects(
       {required BuildContext context,
         required bool active,
@@ -1896,7 +1895,6 @@ class _DashboardState extends State<MobDashboard> with TickerProviderStateMixin 
       ),
     );
   }
-
 
   void autoRefresh() async
   {
