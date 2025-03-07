@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Models/customer/stand_alone_model.dart';
 import 'package:oro_drip_irrigation/utils/Theme/oro_theme.dart';
+import 'package:oro_drip_irrigation/views/customer/home_sub_classes/current_program.dart';
 import 'package:provider/provider.dart';
 import '../../Models/customer/site_model.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
@@ -31,9 +32,10 @@ class CustomerHome extends StatelessWidget {
           filterSite: filterSite,
           fertilizerSite: fertilizerSite,
         ),
+        CurrentProgram(scheduledPrograms: scheduledProgram),
         scheduledProgram.isNotEmpty? ScheduledProgram(userId: customerId, scheduledPrograms: scheduledProgram, masterInx: viewModel.mIndex):
         const SizedBox(),
-        const SizedBox(height: 8,),
+        const SizedBox(height: 8),
       ],
     );
   }

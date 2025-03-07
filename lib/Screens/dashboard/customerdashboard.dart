@@ -21,7 +21,6 @@ import '../../utils/constants.dart';
 import '../../utils/snack_bar.dart';
 import '../NewIrrigationProgram/preview_screen.dart';
 import '../NewIrrigationProgram/schedule_screen.dart';
-import 'Inlet Pump Dashboard/inlet_pump_true.dart';
 
 
 final double speed = 100.0;
@@ -436,7 +435,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin{
                     ),
                   ),
                   if(payloadProvider.currentSchedule.isNotEmpty)
-                    if(payloadProvider.currentSchedule.any((element) => !element['ProgName'].contains('StandAlone')))
+                    /*if(payloadProvider.currentSchedule.any((element) => !element['ProgName'].contains('StandAlone')))
                       Row(
                         children: [
                           getActiveObjects(
@@ -463,7 +462,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin{
                           ),
 
                         ],
-                      ),
+                      ),*/
 
                   // Modified by saravanan
                   buildPopUpMenuButton(
@@ -839,10 +838,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin{
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               if(sourcePumpMode)
-  inletPumpDashBoardTrue(active: 1, selectedLine: payloadProvider.selectedLine, imeiNo: overAllPvd.imeiNo,)
+/*  //inletPumpDashBoardTrue(active: 1, selectedLine: payloadProvider.selectedLine, imeiNo: overAllPvd.imeiNo,)
                               else
                                 Container(child: Text("true irrigationPumpMode"),),// inletPumpDashBoardFalse(active: payloadProvider.active, selectedLine: payloadProvider.selectedLine, imeiNo: overAllPvd.imeiNo,),
-                              if(sourcePumpMode)
+                              if(sourcePumpMode)*/
   Container(child: Text("true irrigationPumpMode"),) //SourceTypeDashBoardTrue(active: 1, selectedLine: payloadProvider.selectedLine, imeiNo: overAllPvd.imeiNo,)
                               else
                                 Container(child: Text("true irrigationPumpMode"),) ,//SourceTypeDashBoardFalse(active: payloadProvider.active, selectedLine: payloadProvider.selectedLine, imeiNo: overAllPvd.imeiNo,),

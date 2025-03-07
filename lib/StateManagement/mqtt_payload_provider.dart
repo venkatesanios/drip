@@ -37,7 +37,7 @@ class MqttPayloadProvider with ChangeNotifier {
   int selectedLine = 0;
   List<dynamic> nodeDetails = [];
   dynamic messageFromHw;
-  List<dynamic> currentSchedule = [];
+  //List<dynamic> currentSchedule = [];
   List<dynamic> PrsIn = [];
   List<dynamic> PrsOut = [];
   List<dynamic> nextSchedule = [];
@@ -82,6 +82,7 @@ class MqttPayloadProvider with ChangeNotifier {
   String liveDateAndTime = '';
   List<String> nodeLiveMessage = [];
   List<String> outputOnOffLiveMessage = [];
+  List<String> currentSchedule = [];
 
 
   void editSensorLogData(data){
@@ -465,6 +466,8 @@ class MqttPayloadProvider with ChangeNotifier {
         wifiStrength = data['cM']['WifiStrength'];
         updateNodeLiveMessage(data['cM']['2401'].split(";"));
         updateOutputONOffLiveMessage(data['cM']['2402'].split(";"));
+        updateCurrentProgram(data['cM']['2408'].split(";"));
+
         notifyListeners();
       }
 
@@ -543,7 +546,7 @@ class MqttPayloadProvider with ChangeNotifier {
           }
         }
         if(dataFromHttp == false){
-          if (data['2400'][0].containsKey('2402')) {
+          /*if (data['2400'][0].containsKey('2402')) {
             currentSchedule = data['2400'][0]['2402'];
             if(currentSchedule.length == 0){
               active = 1;
@@ -553,7 +556,7 @@ class MqttPayloadProvider with ChangeNotifier {
               PrsIn = currentSchedule[0]['PrsIn'];
               PrsOut = currentSchedule[0]['PrsOut'];
             }
-          }
+          }*/
           if (data['2400'][0].containsKey('2403')) {
             nextSchedule = data['2400'][0]['2403'];
             selectedNextSchedule = 0;
@@ -701,7 +704,7 @@ class MqttPayloadProvider with ChangeNotifier {
     tryingToGetPayload = 0;
     notifyListeners();
 
-    for(var i in currentSchedule){
+    /*for(var i in currentSchedule){
       for(var centralFilteration in filtersCentral){
         if(i['CentralFilterSite'] == centralFilteration['FilterSite']){
           centralFilteration['Program'] = i['ProgName'];
@@ -727,7 +730,7 @@ class MqttPayloadProvider with ChangeNotifier {
           line['Program'] = i['ProgName'];
         }
       }
-    }
+    }*/
     updateSourcePump();
     updateIrrigationPump();
     updateLocalFertigationSite();
@@ -796,6 +799,12 @@ class MqttPayloadProvider with ChangeNotifier {
   void updateOutputONOffLiveMessage(List<String> message) {
     outputOnOffLiveMessage = message;
   }
+
+  void updateCurrentProgram(List<String> program) {
+    currentSchedule = program;
+  }
+
+
 
   void saveUnits(List<dynamic> units) {
     unitList = units;
