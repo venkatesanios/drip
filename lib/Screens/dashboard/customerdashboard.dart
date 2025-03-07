@@ -1419,6 +1419,18 @@ class _DashboardState extends State<MobDashboard>
     List<FertilizerSite> fertilizerSite = payloadProvider.fertilizerSiteMobDash;
     List<IrrigationLineData>? irrLineData = payloadProvider.irrLineDataMobDash;
 
+    var outputOnOffLiveMessage = Provider.of<MqttPayloadProvider>(context).outputOnOffLiveMessage;
+    print('outputOnOffLiveMessage:$outputOnOffLiveMessage');
+
+    List<String> filteredPumpStatus = outputOnOffLiveMessage
+        .where((item) => item.startsWith('5.')).toList();
+    updatePumpStatus(waterSource, filteredPumpStatus);
+
+    List<String> filteredValveStatus = outputOnOffLiveMessage
+        .where((item) => item.startsWith('13.')).toList();
+    updateValveStatus(irrLineData!, filteredValveStatus);
+
+
     double screenWith = MediaQuery.sizeOf(context).width - 50;
 
     int totalWaterSources = waterSource.length;
@@ -2438,7 +2450,8 @@ class _DashboardState extends State<MobDashboard>
   }
 
   Widget buildFertilizerImage(
-      int cIndex, int status, int cheLength, List agitatorList) {
+      int cIndex, int status, int cheLength, List agitatorList)
+  {
     String imageName;
     if (cIndex == cheLength - 1) {
       if (agitatorList.isNotEmpty) {
@@ -2479,6 +2492,46 @@ class _DashboardState extends State<MobDashboard>
     }
 
     return Image.asset('assets/png_images/$imageName');
+  }
+
+  void updatePumpStatus(List<WaterSource> waterSource, List<dynamic> filteredPumpStatus) {
+    for (var source in waterSource) {
+      for (var pump in source.outletPump) {
+        int? status = getStatus(filteredPumpStatus, pump.sNo);
+        if (status != null) {
+          pump.status = status;
+        } else {
+          print("Serial Number ${pump.sNo} not found");
+        }
+      }
+    }
+  }
+
+  void updateValveStatus(List<IrrigationLineData> lineData, List<dynamic> filteredValveStatus) {
+
+    for (var line in lineData) {
+      for (var vl in line.valves) {
+        int? status = getStatus(filteredValveStatus, vl.sNo);
+        if (status != null) {
+          vl.status = status;
+        } else {
+          print("Serial Number ${vl.sNo} not found");
+        }
+      }
+    }
+  }
+
+  int? getStatus(List<dynamic> outputOnOffLiveMessage, double serialNumber) {
+
+    for (int i = 0; i < outputOnOffLiveMessage.length; i++) {
+      List<String> parts = outputOnOffLiveMessage[i].split(',');
+      double? serial = double.tryParse(parts[0]);
+
+      if (serial != null && serial == serialNumber) {
+        return int.parse(parts[1]);
+      }
+    }
+    return null;
   }
 
   Widget getActiveObjects(

@@ -16,15 +16,9 @@ import 'package:oro_drip_irrigation/services/mqtt_manager_mobile.dart' if (dart.
 
 FutureOr<void> main() async {
 
-  if (kIsWeb) {
-    MqttManager mqttManager = MqttManager();
-    mqttManager.initializeMQTTClient();
-    mqttManager.connect();
-  }else{
-    MqttManager mqttManager = MqttManager();
-    mqttManager.initializeMQTTClient();
-    mqttManager.connect();
-  }
+  MqttManager mqttManager = MqttManager();
+  mqttManager.initializeMQTTClient();
+  mqttManager.connect();
 
   runApp(
     MultiProvider(
