@@ -33,7 +33,7 @@ class _NextScheduleForMobileState extends State<NextScheduleForMobile> {
           itemCount: payloadProvider.nextSchedule.length,
           itemBuilder: (BuildContext context, int index) {
             var program = payloadProvider.nextSchedule[index];
-            if(['All',program['ProgCategory']].contains(payloadProvider.lineData[payloadProvider.selectedLine]['id'])) {
+            if(['All',program[0]].contains(payloadProvider.lineData[payloadProvider.selectedLine]['id'])) {
               return Container(
                 padding: EdgeInsets.all(8),
                 margin: EdgeInsets.only(bottom: payloadProvider.nextSchedule.length - 1 == index ? 150 : 0,top: index != 0 ? 50 : 0),
@@ -45,150 +45,150 @@ class _NextScheduleForMobileState extends State<NextScheduleForMobile> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Container(
-                      height: MediaQuery.of(context).size.height/2.5,
-                      child: Stack(
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                                color: Color(0xff036673)
-                            ),
-                            padding: EdgeInsets.symmetric(horizontal: 15),
-                            height: MediaQuery.of(context).size.height/4,
-                            child: Column(
-                              children: [
-                                ListTile(
-                                  contentPadding: EdgeInsets.all(0),
-                                  title: Text("Next Schedule",style: TextStyle(fontWeight: FontWeight.bold,overflow: TextOverflow.ellipsis, color: Colors.white),),
-                                ),
-                                ListTile(
-                                  contentPadding: EdgeInsets.all(0),
-                                  title: Text(
-                                    program['ProgName'],
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        overflow: TextOverflow.ellipsis,
-                                        fontSize: 18,
-                                        color: Colors.white
-                                    ),
-                                  ),
-                                  subtitle: Text(
-                                    '${programSchedule[program['SchedulingMethod']]}',
-                                    style: TextStyle(color: Colors.white,overflow: TextOverflow.ellipsis,),),
-                                  trailing: Text('${program['ZoneName']}',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 14,overflow: TextOverflow.ellipsis),),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 0,
-                            child: Container(
-                              margin: EdgeInsets.symmetric(horizontal: 15),
-                              child: Stack(
-                                fit: StackFit.loose,
-                                children: [
-                                  DiagonalSplitWidget(),
-                                  // Align(
-                                  //   alignment: Alignment.center,
-                                  //   child: Image.asset(
-                                  //     "assets/SVGPicture/next_schedule_image.png",
-                                  //   ),
-                                  // ),
-                                  Align(
-                                    alignment: Alignment.center,
-                                    child: Column(
-                                        children: [
-                                          for(var i in ['Zone/CurrentZone','RTC/CurrentRtc','Cycle/CurrentCycle'])
-                                            Container(
-                                              width: MediaQuery.of(context).size.width - 80,
-                                              child: ListTile(
-                                                  leading: Icon(Icons.repeat, color: Colors.white,),
-                                                  title: Text('${i.split('/')[0]}',style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),),
-                                                  trailing: Text('${program[i.split('/')[1]]}',style: TextStyle(color: Colors.white, fontSize: 16),)
-                                              ),
-                                            )
-                                        ]
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            child: Column(
-                              children: [
-                                buildScheduleItem(
-                                    context: context,
-                                    title: 'Start Date',
-                                    iconColor: Colors.white,
-                                    backGroundColor: Color(0xff0FA5D8),
-                                    showIcon: true,
-                                    showSubTitle: true,
-                                    additionalInfo: "",
-                                    subTitle: "at",
-                                    icon: Icons.calendar_month,
-                                    child: Text("${program['StartDate']}", style: TextStyle(color: Colors.white),),
-                                    color: Color(0xff0FA5D8)
-                                ),
-                                buildScheduleItem(
-                                    context: context,
-                                    title: 'Start Time',
-                                    iconColor: Colors.white,
-                                    backGroundColor: Color(0xffF3B62A),
-                                    // showIcon: true,
-                                    // showSubTitle: true,
-                                    // additionalInfo: "",
-                                    // subTitle: "at",
-                                    icon: Icons.timer,
-                                    child: Text("${program['StartTime']}", style: TextStyle(color: Colors.white)),
-                                    color: Color(0xffF3B62A)
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(
-                            child: Column(
-                              children: [
-                                buildScheduleItem(
-                                    context: context,
-                                    title: 'Location',
-                                    iconColor: Colors.white,
-                                    backGroundColor: Color(0xffF4745B),
-                                    // showIcon: true,
-                                    // showSubTitle: true,
-                                    // additionalInfo: "",
-                                    // subTitle: "at",
-                                    icon: Icons.location_on,
-                                    child: Text("${program['ProgCategory']}", style: TextStyle(color: Colors.white)),
-                                    color: Color(0xffF4745B)
-                                ),
-                                buildScheduleItem(
-                                    context: context,
-                                    title: '${program['IrrigationMethod'] == 1 ? 'Duration' : 'Quantity'}',
-                                    iconColor: Colors.white,
-                                    backGroundColor: Color(0xff07594B),
-                                    showIcon: true,
-                                    showSubTitle: true,
-                                    additionalInfo: "",
-                                    subTitle: "at",
-                                    icon: Icons.calculate_sharp,
-                                    child: Text("${program['IrrigationDuration_Quantity']}", style: TextStyle(color: Colors.white)),
-                                    color: Color(0xff07594B)
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
+                    // Container(
+                    //   height: MediaQuery.of(context).size.height/2.5,
+                    //   child: Stack(
+                    //     children: [
+                    //       Container(
+                    //         decoration: BoxDecoration(
+                    //             color: Color(0xff036673)
+                    //         ),
+                    //         padding: EdgeInsets.symmetric(horizontal: 15),
+                    //         height: MediaQuery.of(context).size.height/4,
+                    //         child: Column(
+                    //           children: [
+                    //             ListTile(
+                    //               contentPadding: EdgeInsets.all(0),
+                    //               title: Text("Next Schedule",style: TextStyle(fontWeight: FontWeight.bold,overflow: TextOverflow.ellipsis, color: Colors.white),),
+                    //             ),
+                    //             ListTile(
+                    //               contentPadding: EdgeInsets.all(0),
+                    //               title: Text(
+                    //                 program['ProgName'],
+                    //                 style: TextStyle(
+                    //                     fontWeight: FontWeight.bold,
+                    //                     overflow: TextOverflow.ellipsis,
+                    //                     fontSize: 18,
+                    //                     color: Colors.white
+                    //                 ),
+                    //               ),
+                    //               subtitle: Text(
+                    //                 '${programSchedule[program['SchedulingMethod']]}',
+                    //                 style: TextStyle(color: Colors.white,overflow: TextOverflow.ellipsis,),),
+                    //               trailing: Text('${program['ZoneName']}',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 14,overflow: TextOverflow.ellipsis),),
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //       Positioned(
+                    //         bottom: 0,
+                    //         child: Container(
+                    //           margin: EdgeInsets.symmetric(horizontal: 15),
+                    //           child: Stack(
+                    //             fit: StackFit.loose,
+                    //             children: [
+                    //               DiagonalSplitWidget(),
+                    //               // Align(
+                    //               //   alignment: Alignment.center,
+                    //               //   child: Image.asset(
+                    //               //     "assets/SVGPicture/next_schedule_image.png",
+                    //               //   ),
+                    //               // ),
+                    //               Align(
+                    //                 alignment: Alignment.center,
+                    //                 child: Column(
+                    //                     children: [
+                    //                       for(var i in ['Zone/CurrentZone','RTC/CurrentRtc','Cycle/CurrentCycle'])
+                    //                         Container(
+                    //                           width: MediaQuery.of(context).size.width - 80,
+                    //                           child: ListTile(
+                    //                               leading: Icon(Icons.repeat, color: Colors.white,),
+                    //                               title: Text('${i.split('/')[0]}',style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),),
+                    //                               trailing: Text('${program[i.split('/')[1]]}',style: TextStyle(color: Colors.white, fontSize: 16),)
+                    //                           ),
+                    //                         )
+                    //                     ]
+                    //                 ),
+                    //               )
+                    //             ],
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
+                    // Row(
+                    //   children: [
+                    //     Expanded(
+                    //       child: Container(
+                    //         child: Column(
+                    //           children: [
+                    //             buildScheduleItem(
+                    //                 context: context,
+                    //                 title: 'Start Date',
+                    //                 iconColor: Colors.white,
+                    //                 backGroundColor: Color(0xff0FA5D8),
+                    //                 showIcon: true,
+                    //                 showSubTitle: true,
+                    //                 additionalInfo: "",
+                    //                 subTitle: "at",
+                    //                 icon: Icons.calendar_month,
+                    //                 child: Text("${program['StartDate']}", style: TextStyle(color: Colors.white),),
+                    //                 color: Color(0xff0FA5D8)
+                    //             ),
+                    //             buildScheduleItem(
+                    //                 context: context,
+                    //                 title: 'Start Time',
+                    //                 iconColor: Colors.white,
+                    //                 backGroundColor: Color(0xffF3B62A),
+                    //                 // showIcon: true,
+                    //                 // showSubTitle: true,
+                    //                 // additionalInfo: "",
+                    //                 // subTitle: "at",
+                    //                 icon: Icons.timer,
+                    //                 child: Text("${program['StartTime']}", style: TextStyle(color: Colors.white)),
+                    //                 color: Color(0xffF3B62A)
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //     ),
+                    //     Expanded(
+                    //       child: Container(
+                    //         child: Column(
+                    //           children: [
+                    //             buildScheduleItem(
+                    //                 context: context,
+                    //                 title: 'Location',
+                    //                 iconColor: Colors.white,
+                    //                 backGroundColor: Color(0xffF4745B),
+                    //                 // showIcon: true,
+                    //                 // showSubTitle: true,
+                    //                 // additionalInfo: "",
+                    //                 // subTitle: "at",
+                    //                 icon: Icons.location_on,
+                    //                 child: Text("${program['ProgCategory']}", style: TextStyle(color: Colors.white)),
+                    //                 color: Color(0xffF4745B)
+                    //             ),
+                    //             buildScheduleItem(
+                    //                 context: context,
+                    //                 title: '${program['IrrigationMethod'] == 1 ? 'Duration' : 'Quantity'}',
+                    //                 iconColor: Colors.white,
+                    //                 backGroundColor: Color(0xff07594B),
+                    //                 showIcon: true,
+                    //                 showSubTitle: true,
+                    //                 additionalInfo: "",
+                    //                 subTitle: "at",
+                    //                 icon: Icons.calculate_sharp,
+                    //                 child: Text("${program['IrrigationDuration_Quantity']}", style: TextStyle(color: Colors.white)),
+                    //                 color: Color(0xff07594B)
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ],
+                    // )
                   ],
                 ),
               );
