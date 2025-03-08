@@ -334,7 +334,7 @@ class _DashboardState extends State<MobDashboard>
                   ),
                 ),
             if(payloadProvider.nextSchedule.isNotEmpty)
-              if(payloadProvider.selectedLine == 0 || payloadProvider.nextSchedule.map((ns) => ns['ProgCategory']).join('').contains(payloadProvider.lineData[payloadProvider.selectedLine]['id']) )
+              if(payloadProvider.selectedLine == 0 || payloadProvider.nextSchedule.map((ns) => 0).join('').contains(payloadProvider.lineData[payloadProvider.selectedLine]['id']) )
                 InkWell(
                   onTap: (){
                     setState(() {
