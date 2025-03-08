@@ -132,7 +132,7 @@ class CurrentProgram extends StatelessWidget {
                         textColor: Colors.white,
                         onPressed: values[19]=='1'? (){
                           String payLoadFinal = jsonEncode({
-                            "800": {"801": '0,0,0,0'}
+                            "800": {"801": '0,0,0,0,0'}
                           });
                           MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
                           /*sendToServer(0, currentSchedule[index].programName, widget.currentSchedule[index].zoneName,
@@ -147,13 +147,14 @@ class CurrentProgram extends StatelessWidget {
                         textColor: Colors.white,
                         onPressed: () async {
 
-                         /* String payLoadFinal = jsonEncode({
-                            "3900": [{"3901": '0,${widget.currentSchedule[index].programCategory},${widget.currentSchedule[index].programSno},'
-                                '${widget.currentSchedule[index].zoneSNo},,,,,,,,,0,'}]
+                          /*String payLoadFinal = jsonEncode({
+                            "3900": {"3901": '0,${widget.currentSchedule[index].programCategory},${widget.currentSchedule[index].programSno},'
+                                '${widget.currentSchedule[index].zoneSNo},,,,,,,,,0,'}
                           });
 
-                          MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.siteData.master[0].deviceId}');
-                          sendToServer(widget.currentSchedule[index].programSno,widget.currentSchedule[index].programName,
+                          MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');*/
+
+                          /*sendToServer(widget.currentSchedule[index].programSno,widget.currentSchedule[index].programName,
                               widget.currentSchedule[index].zoneName,
                               widget.currentSchedule[index].duration_Qty=='00:00:00'? 3:
                               widget.currentSchedule[index].duration_Qty.contains(':')?1: 2, payLoadFinal);*/
@@ -203,7 +204,7 @@ class CurrentProgram extends StatelessWidget {
     try {
       return scheduledPrograms.firstWhere((program) => program.serialNumber == id).programName;
     } catch (e) {
-      return "StandAlone";
+      return "StandAlone - Manual";
     }
   }
 

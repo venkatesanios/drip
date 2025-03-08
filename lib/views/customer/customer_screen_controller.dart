@@ -18,6 +18,7 @@ import '../account_settings.dart';
 import 'controller_settings.dart';
 import 'customer_home.dart';
 import 'customer_product.dart';
+import 'input_output_connection_details.dart';
 import 'node_list.dart';
 
 class CustomerScreenController extends StatelessWidget {
@@ -465,11 +466,11 @@ class CustomerScreenController extends StatelessWidget {
                         child: IconButton(
                           tooltip: 'Input/Output Connection details',
                           onPressed: () {
-                           /* Navigator.push(context,
+                            Navigator.push(context,
                               MaterialPageRoute(
-                                builder: (context) => AllNodeListAndDetails(userID: widget.userId, customerID: mySiteList[siteIndex].customerId, masterInx: masterIndex, siteData: mySiteList[siteIndex],),
+                                builder: (context) => InputOutputConnectionDetails(masterInx: vm.mIndex, nodes: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList),
                               ),
-                            );*/
+                            );
                           },
                           icon: const Icon(Icons.settings_input_component_outlined),
                           color: Colors.white,
