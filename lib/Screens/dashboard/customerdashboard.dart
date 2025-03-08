@@ -2655,9 +2655,9 @@ class _DashboardState extends State<MobDashboard>
                             if(selectedTab == 1)
                               // Container(),
                               NextScheduleForMobile(),
-                            if(selectedTab == 2)
-                              // Container(),
-                              ScheduleProgramForMobile(manager: manager, deviceId: '${overAllPvd.imeiNo}', selectedLine: payloadProvider.selectedLine, userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, controllerId: overAllPvd.controllerId,),
+                            // if(selectedTab == 2)
+                            //   // Container(),
+                            //   ScheduleProgramForMobile(manager: manager, deviceId: '${overAllPvd.imeiNo}', selectedLine: payloadProvider.selectedLine, userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, controllerId: overAllPvd.controllerId,),
                           ],
                         ),
                       ),

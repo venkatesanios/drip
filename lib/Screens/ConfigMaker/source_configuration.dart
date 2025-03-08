@@ -261,9 +261,9 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
 
 }
 
-List<Widget> getWaterMeterAndPressure(double pressureSno, double waterMeterSno, ConfigMakerProvider configPvd){
+List<Widget> getWaterMeterAndPressure(double pressureInSno, double waterMeterSno, ConfigMakerProvider configPvd){
   return [
-    if(pressureSno != 0.0)
+    if(pressureInSno != 0.0)
       Positioned(
         right: 0,
         top: 15 * configPvd.ratio,
@@ -271,6 +271,7 @@ List<Widget> getWaterMeterAndPressure(double pressureSno, double waterMeterSno, 
           '${AppConstants.svgObjectPath}objectId_24.svg',
           width: 30,
           height: 30 * configPvd.ratio,
+          color: Colors.red,
         ),
       ),
     if(waterMeterSno != 0.0)
@@ -281,6 +282,7 @@ List<Widget> getWaterMeterAndPressure(double pressureSno, double waterMeterSno, 
         '${AppConstants.svgObjectPath}objectId_22.svg',
         width: 25,
         height: 25 * configPvd.ratio,
+        color: Colors.blue,
       ),
     ),
   ];
