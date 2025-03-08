@@ -40,7 +40,7 @@ class MqttPayloadProvider with ChangeNotifier {
   //List<dynamic> currentSchedule = [];
   List<dynamic> PrsIn = [];
   List<dynamic> PrsOut = [];
-  List<dynamic> nextSchedule = [];
+  List<dynamic> nextScheduleA = [];
   List<dynamic> upcomingProgram = [];
   List<dynamic> filtersCentral = [];
   List<dynamic> filtersLocal = [];
@@ -83,6 +83,8 @@ class MqttPayloadProvider with ChangeNotifier {
   List<String> nodeLiveMessage = [];
   List<String> outputOnOffLiveMessage = [];
   List<String> currentSchedule = [];
+  List<String> nextSchedule = [];
+  List<String> scheduledProgram = [];
 
 
   void editSensorLogData(data){
@@ -467,6 +469,8 @@ class MqttPayloadProvider with ChangeNotifier {
         updateNodeLiveMessage(data['cM']['2401'].split(";"));
         updateOutputONOffLiveMessage(data['cM']['2402'].split(";"));
         updateCurrentProgram(data['cM']['2408'].split(";"));
+        updateNextProgram(data['cM']['2409'].split(";"));
+        updateScheduledProgram(data['cM']['2410'].split(";"));
 
         notifyListeners();
       }
@@ -803,6 +807,18 @@ class MqttPayloadProvider with ChangeNotifier {
   void updateCurrentProgram(List<String> program) {
     currentSchedule = program;
   }
+
+  void updateNextProgram(List<String> program) {
+    nextSchedule = program;
+  }
+
+
+
+  void updateScheduledProgram(List<String> program) {
+    scheduledProgram = program;
+  }
+
+
 
 
 

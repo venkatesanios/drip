@@ -8,6 +8,7 @@ import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../utils/constants.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
 import 'home_sub_classes/irrigation_line.dart';
+import 'home_sub_classes/next_schedule.dart';
 import 'home_sub_classes/scheduled_program.dart';
 
 class CustomerHome extends StatelessWidget {
@@ -24,19 +25,24 @@ class CustomerHome extends StatelessWidget {
     final lineData = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.lineData;
     final scheduledProgram = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].programList;
 
-    return Column(
-      children: [
-        DisplayPumpStation(
-          waterSource: waterSources,
-          irrLineData: lineData,
-          filterSite: filterSite,
-          fertilizerSite: fertilizerSite,
-        ),
-        CurrentProgram(scheduledPrograms: scheduledProgram),
-        scheduledProgram.isNotEmpty? ScheduledProgram(userId: customerId, scheduledPrograms: scheduledProgram, masterInx: viewModel.mIndex):
-        const SizedBox(),
-        const SizedBox(height: 8),
-      ],
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: Column(
+        children: [
+          DisplayPumpStation(
+            waterSource: waterSources,
+            irrLineData: lineData,
+            filterSite: filterSite,
+            fertilizerSite: fertilizerSite,
+          ),
+          CurrentProgram(scheduledPrograms: scheduledProgram),
+          NextSchedule(scheduledPrograms: scheduledProgram),
+          scheduledProgram.isNotEmpty? ScheduledProgram(userId: customerId, scheduledPrograms: scheduledProgram,
+            masterInx: viewModel.mIndex, deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,):
+          const SizedBox(),
+          const SizedBox(height: 8),
+        ],
+      ),
     );
   }
 }

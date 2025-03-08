@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -5,36 +7,55 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../Models/customer/site_model.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
+import '../../../services/mqtt_service.dart';
 import '../../../utils/constants.dart';
 import '../../../utils/snack_bar.dart';
 
 class ScheduledProgram extends StatelessWidget {
-  const ScheduledProgram({super.key, required this.userId, required this.scheduledPrograms, required this.masterInx});
+  const ScheduledProgram({super.key, required this.userId, required this.scheduledPrograms, required this.masterInx, required this.deviceId});
   final int userId, masterInx;
+  final String deviceId;
   final List<ProgramList> scheduledPrograms;
 
   @override
   Widget build(BuildContext context) {
 
-    final spaPayload = Provider.of<MqttPayloadProvider>(context).spa;
+    final spLive = Provider.of<MqttPayloadProvider>(context).scheduledProgram;
+    if(spLive.isNotEmpty){
+      for(var sp in spLive){
+        List<String> values = sp.split(",");
+        int index = scheduledPrograms.indexWhere((program) => program.serialNumber == int.parse(values[0]));
+        scheduledPrograms[index].startDate = values[3];
+        scheduledPrograms[index].startTime = values[4];
+        scheduledPrograms[index].endDate = values[5];
+        scheduledPrograms[index].programStatusPercentage = int.parse(values[6]);
+        scheduledPrograms[index].startStopReason = int.parse(values[7]);
+        scheduledPrograms[index].pauseResumeReason = int.parse(values[8]);
+        scheduledPrograms[index].prgOnOff = values[10];
+        scheduledPrograms[index].prgPauseResume = values[11];
+      }
+    }
 
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      if(spaPayload.toString().isNotEmpty){
+    //print('scheduledProgram:$scheduledProgram');
+
+    /*SchedulerBinding.instance.addPostFrameCallback((_) {
+      if(scheduledProgram.toString().isNotEmpty){
         //MyFunction().clearAg(context);
-        String message = spaPayload['Message'];
-        String code = spaPayload['Code'];
+        String message = scheduledProgram['Message'];
+        String code = scheduledProgram['Code'];
         GlobalSnackBar.show(context, message, int.parse(code));
       }
-    });
+    });*/
 
 
-    scheduledPrograms.sort((a, b) {
+    /*scheduledPrograms.sort((a, b) {
       DateTime dateTimeA = a.getDateTime();
       DateTime dateTimeB = b.getDateTime();
       return dateTimeA.compareTo(dateTimeB);
     });
 
-    var screenWidth = MediaQuery.of(context).size.width;
+    var screenWidth = MediaQuery.of(context).size.width;*/
+
     return Padding(
       padding: const EdgeInsets.only(left: 8, right: 8, top: 3, bottom: 3),
       child: Column(
@@ -210,15 +231,13 @@ class ScheduledProgram extends StatelessWidget {
                                   textColor: Colors.white,
                                   onPressed: () {
 
-                                   /* if(getPermissionStatusBySNo(context, 3)){
+                                    if(getPermissionStatusBySNo(context, 3)){
                                       if (int.parse(scheduledPrograms[index].prgOnOff) >= 0) {
-                                        String payload = '${scheduledPrograms[index].sNo},${scheduledPrograms[index].prgOnOff}';
+                                        String payload = '${scheduledPrograms[index].serialNumber},${scheduledPrograms[index].prgOnOff}';
                                         String payLoadFinal = jsonEncode({
-                                          "2900": [
-                                            {"2901": payload}
-                                          ]
+                                          "2900": {"2901": payload}
                                         });
-                                        MQTTManager().publish(payLoadFinal, 'AppToFirmware/${siteData.master[masterInx].deviceId}');
+                                        MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
                                         sentUserOperationToServer(
                                           '${scheduledPrograms[index].programName} ${getDescription(int.parse(scheduledPrograms[index].prgOnOff))}',
                                           payLoadFinal,
@@ -226,7 +245,7 @@ class ScheduledProgram extends StatelessWidget {
                                       }
                                     }else{
                                       GlobalSnackBar.show(context, 'Permission denied', 400);
-                                    }*/
+                                    }
                                   },
                                   child: Text(
                                     buttonName,
@@ -239,21 +258,19 @@ class ScheduledProgram extends StatelessWidget {
                                 color: getButtonName(int.parse(scheduledPrograms[index].prgPauseResume)) == 'Pause' ? Colors.orange : Colors.yellow,
                                 textColor: getButtonName(int.parse(scheduledPrograms[index].prgPauseResume)) == 'Pause' ? Colors.white : Colors.black,
                                 onPressed: () {
-                                  /*if(getPermissionStatusBySNo(context, 3)){
-                                    String payload = '${scheduledPrograms[index].sNo},${scheduledPrograms[index].prgPauseResume}';
+                                  if(getPermissionStatusBySNo(context, 3)){
+                                    String payload = '${scheduledPrograms[index].serialNumber},${scheduledPrograms[index].prgPauseResume}';
                                     String payLoadFinal = jsonEncode({
-                                      "2900": [
-                                        {"2901": payload}
-                                      ]
+                                      "2900": {"2901": payload}
                                     });
-                                    MQTTManager().publish(payLoadFinal, 'AppToFirmware/${siteData.master[masterInx].deviceId}');
+                                    MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
                                     sentUserOperationToServer(
                                       '${scheduledPrograms[index].programName} ${getDescription(int.parse(scheduledPrograms[index].prgPauseResume))}',
                                       payLoadFinal,
                                     );
                                   }else{
                                     GlobalSnackBar.show(context, 'Permission denied', 400);
-                                  }*/
+                                  }
 
                                 },
                                 child: Text(getButtonName(int.parse(scheduledPrograms[index].prgPauseResume))),
@@ -345,6 +362,15 @@ class ScheduledProgram extends StatelessWidget {
       ),
     );
 
+  }
+
+  void updateProgramById(int id, ProgramList updatedProgram) {
+    int index = scheduledPrograms.indexWhere((program) => program.serialNumber == id);
+    if (index != -1) {
+      scheduledPrograms[index] = updatedProgram;
+    } else {
+      print("Program with ID $id not found");
+    }
   }
 
   String changeDateFormat(String dateString) {
@@ -439,6 +465,15 @@ class ScheduledProgram extends StatelessWidget {
     } else {
       throw Exception('Failed to load data');
     }*/
+  }
+
+  bool getPermissionStatusBySNo(BuildContext context, int sNo) {
+    MqttPayloadProvider payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
+    final permission = payloadProvider.userPermission.firstWhere(
+          (element) => element['sNo'] == sNo,
+      orElse: () => null,
+    );
+    return permission?['status'] as bool? ?? true;
   }
 
 }

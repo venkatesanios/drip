@@ -1076,16 +1076,16 @@ class ProgramList {
   final List<Sequence> sequence;
   final String selectedSchedule;
 
-  final String startDate;
-  final String endDate;
-  final String startTime;
-  final String prgOnOff;
+  String startDate;
+  String endDate;
+  String startTime;
+  String prgOnOff;
   final String prgCategory;
-  final int programStatusPercentage;
+  int programStatusPercentage;
   final int schedulingMethod;
-  final int startStopReason;
-  final int pauseResumeReason;
-  final String prgPauseResume;
+  int startStopReason;
+  int pauseResumeReason;
+  String prgPauseResume;
 
 
   ProgramList({
