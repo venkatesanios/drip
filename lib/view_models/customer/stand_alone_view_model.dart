@@ -608,7 +608,7 @@ class StandAloneViewModel extends ChangeNotifier {
         ),
       );
     }else{
-      payload = '${finalResult==''?0:1},${pumpRelay==''?0:pumpRelay},${finalResult==''?0:finalResult},$standAloneMethod,${standAloneMethod==3?'0':standAloneMethod==1?strDuration:strFlow}';
+      payload = '${finalResult==''?0:1},$pumpRelay,${finalResult==''?0:finalResult},$standAloneMethod,${standAloneMethod==3?'0':standAloneMethod==1?strDuration:strFlow}';
       payLoadFinal = jsonEncode({
         "800": {"801": payload}
       });

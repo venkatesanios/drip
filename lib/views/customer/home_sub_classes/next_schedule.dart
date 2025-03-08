@@ -1,6 +1,7 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../Models/customer/site_model.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
@@ -80,13 +81,13 @@ class NextSchedule extends StatelessWidget {
                         List<String> values = nextSchedule[index].split(",");
 
                         return DataRow(cells: [
-                          DataCell(Text(getProgramNameById(2))),
-                          DataCell(Text(getProgramNameById(2))),
-                          DataCell(Text(getProgramNameById(2))),
-                          DataCell(Text(getProgramNameById(2))),
-                          DataCell(Text(getProgramNameById(2))),
-                          DataCell(Text(getProgramNameById(2))),
-                          DataCell(Text(getProgramNameById(2))),
+                          DataCell(Text(getProgramNameById(int.parse(values[0])))),
+                          DataCell(Text(getSchedulingMethodName(scheduledPrograms[index].schedulingMethod))),
+                          const DataCell(Text('--')),
+                          DataCell(Center(child: Text(values[7]))),
+                          DataCell(Center(child: Center(child: Text(getSequenceName(int.parse(values[0]), values[1]) ?? '--')))),
+                          DataCell(Center(child: Text(convert24HourTo12Hour(values[6])))),
+                          DataCell(Center(child: Text(values[3]))),
                           /*DataCell(Text(widget.programQueue[index].schMethod==1?'No Schedule':widget.programQueue[index].schMethod==2?'Schedule by days':
                           widget.programQueue[index].schMethod==3?'Schedule as run list':'Day count schedule')),
                           DataCell(Text(widget.programQueue[index].programCategory)),
@@ -129,4 +130,51 @@ class NextSchedule extends StatelessWidget {
       return "Stand Alone";
     }
   }
+
+  String getSchedulingMethodName(int code) {
+    switch (code) {
+      case 1:
+        return 'No Schedule';
+      case 2:
+        return 'Schedule by days';
+      case 3:
+        return 'Schedule as run list';
+      default:
+        return 'Day count schedule';
+    }
+  }
+
+  String? getSequenceName(int programId, String sequenceId) {
+    ProgramList? program = getProgramById(programId);
+    if (program != null) {
+      return getSequenceNameById(program, sequenceId);
+    }
+    return null;
+  }
+
+  ProgramList? getProgramById(int id) {
+    try {
+      return scheduledPrograms.firstWhere((program) => program.serialNumber == id);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  String? getSequenceNameById(ProgramList program, String sequenceId) {
+    try {
+      return program.sequence.firstWhere((seq) => seq.sNo == sequenceId).name;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  String convert24HourTo12Hour(String timeString) {
+    if(timeString=='-'){
+      return '-';
+    }
+    final parsedTime = DateFormat('HH:mm:ss').parse(timeString);
+    final formattedTime = DateFormat('hh:mm a').format(parsedTime);
+    return formattedTime;
+  }
+
 }

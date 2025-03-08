@@ -35,7 +35,7 @@ class CustomerHome extends StatelessWidget {
             filterSite: filterSite,
             fertilizerSite: fertilizerSite,
           ),
-          CurrentProgram(scheduledPrograms: scheduledProgram),
+          CurrentProgram(scheduledPrograms: scheduledProgram, deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,),
           NextSchedule(scheduledPrograms: scheduledProgram),
           scheduledProgram.isNotEmpty? ScheduledProgram(userId: customerId, scheduledPrograms: scheduledProgram,
             masterInx: viewModel.mIndex, deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,):

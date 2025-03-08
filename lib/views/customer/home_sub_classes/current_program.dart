@@ -1,4 +1,6 @@
 
+import 'dart:convert';
+
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -6,10 +8,13 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../Models/customer/site_model.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
+import '../../../services/mqtt_service.dart';
+import '../../../utils/constants.dart';
 
 class CurrentProgram extends StatelessWidget {
-  const CurrentProgram({super.key, required this.scheduledPrograms});
+  const CurrentProgram({super.key, required this.scheduledPrograms, required this.deviceId});
   final List<ProgramList> scheduledPrograms;
+  final String deviceId;
 
   @override
   Widget build(BuildContext context) {
@@ -120,21 +125,19 @@ class CurrentProgram extends StatelessWidget {
                     DataCell(Center(child: Text(getProgramNameById(int.parse(values[0]))=='StandAlone - Manual' &&
                         (values[3]=='00:00:00'||values[3]=='0')? '----': values[4],
                         style:  const TextStyle(fontSize: 20)))),
-                    const DataCell(Center(child: Text('${'0'}/hr'))),
-                    /*DataCell(Center(
+                    DataCell(Center(
                       child: getProgramNameById(int.parse(values[0]))=='StandAlone - Manual'?
                       MaterialButton(
                         color: Colors.redAccent,
                         textColor: Colors.white,
-                        onPressed: widget.currentSchedule[index].message=='Running.'? (){
-                          *//*String payload = '0,0,0,0';
+                        onPressed: values[19]=='1'? (){
                           String payLoadFinal = jsonEncode({
-                            "800": [{"801": payload}]
+                            "800": {"801": '0,0,0,0'}
                           });
-                          MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.siteData.master[0].deviceId}');
-                          sendToServer(0,widget.currentSchedule[index].programName, widget.currentSchedule[index].zoneName,
+                          MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
+                          /*sendToServer(0, currentSchedule[index].programName, widget.currentSchedule[index].zoneName,
                               widget.currentSchedule[index].duration_Qty=='00:00:00'? 3:
-                              widget.currentSchedule[index].duration_Qty.contains(':')? 1: 2, payLoadFinal);*//*
+                              widget.currentSchedule[index].duration_Qty.contains(':')? 1: 2, payLoadFinal);*/
                         }: null,
                         child: const Text('Stop'),
                       ):
@@ -144,7 +147,7 @@ class CurrentProgram extends StatelessWidget {
                         textColor: Colors.white,
                         onPressed: () async {
 
-                         *//* String payLoadFinal = jsonEncode({
+                         /* String payLoadFinal = jsonEncode({
                             "3900": [{"3901": '0,${widget.currentSchedule[index].programCategory},${widget.currentSchedule[index].programSno},'
                                 '${widget.currentSchedule[index].zoneSNo},,,,,,,,,0,'}]
                           });
@@ -153,86 +156,24 @@ class CurrentProgram extends StatelessWidget {
                           sendToServer(widget.currentSchedule[index].programSno,widget.currentSchedule[index].programName,
                               widget.currentSchedule[index].zoneName,
                               widget.currentSchedule[index].duration_Qty=='00:00:00'? 3:
-                              widget.currentSchedule[index].duration_Qty.contains(':')?1: 2, payLoadFinal);*//*
+                              widget.currentSchedule[index].duration_Qty.contains(':')?1: 2, payLoadFinal);*/
                         },
                         child: const Text('Stop'),
                       ):
                       MaterialButton(
                         color: Colors.orange,
                         textColor: Colors.white,
-                        onPressed: widget.currentSchedule[index].message=='Running.'? (){
-                          *//*String payload = '${widget.currentSchedule[index].srlNo},0';
+                        onPressed: values[19]=='1' ? (){
+                          String payload = '${values[0]},0';
                           String payLoadFinal = jsonEncode({
-                            "3700": [{"3701": payload}]
+                            "3700": {"3701": payload}
                           });
-                          MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.siteData.master[0].deviceId}');
-                          sendSkipOperationToServer('${widget.currentSchedule[index].programName} - ${widget.currentSchedule[index].zoneName} skipped manually', payLoadFinal);*//*
+                          MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
+                          /*sendSkipOperationToServer('${widget.currentSchedule[index].programName} - ${widget.currentSchedule[index].zoneName} skipped manually', payLoadFinal);*/
                         } : null,
                         child: const Text('Skip'),
                       ),
-                    )),*/
-                    /*DataCell(Text('${widget.currentSchedule[index].currentZone}/${widget.currentSchedule[index].totalZone}')),
-            DataCell(Text(widget.currentSchedule[index].programName=='StandAlone - Manual'? '--':widget.currentSchedule[index].zoneName)),
-            DataCell(Center(child: Text(formatRtcValues(widget.currentSchedule[index].currentRtc, widget.currentSchedule[index].totalRtc)))),
-            DataCell(Center(child: Text(formatRtcValues(widget.currentSchedule[index].currentCycle,widget.currentSchedule[index].totalCycle)))),
-            DataCell(Center(child: Text(convert24HourTo12Hour(widget.currentSchedule[index].startTime)))),
-            DataCell(Center(child: Text(widget.currentSchedule[index].programName=='StandAlone - Manual' &&
-                (widget.currentSchedule[index].duration_Qty=='00:00:00'||widget.currentSchedule[index].duration_Qty=='0')?
-            'Timeless': widget.currentSchedule[index].duration_Qty))),
-            DataCell(Center(child: Text('${widget.currentSchedule[index].actualFlowRate}/hr'))),
-            DataCell(Center(child: Text(widget.currentSchedule[index].programName=='StandAlone - Manual' &&
-                (widget.currentSchedule[index].duration_Qty=='00:00:00'||widget.currentSchedule[index].duration_Qty=='0')? '----': widget.currentSchedule[index].duration_QtyLeft,
-                style:  const TextStyle(fontSize: 20)))),
-            DataCell(Center(
-              child: widget.currentSchedule[index].programName=='StandAlone - Manual'?
-              MaterialButton(
-                color: Colors.redAccent,
-                textColor: Colors.white,
-                onPressed: widget.currentSchedule[index].message=='Running.'? (){
-                  String payload = '0,0,0,0';
-                  String payLoadFinal = jsonEncode({
-                    "800": [{"801": payload}]
-                  });
-                  MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.siteData.master[0].deviceId}');
-                  sendToServer(0,widget.currentSchedule[index].programName, widget.currentSchedule[index].zoneName,
-                      widget.currentSchedule[index].duration_Qty=='00:00:00'? 3:
-                      widget.currentSchedule[index].duration_Qty.contains(':')? 1: 2, payLoadFinal);
-                }: null,
-                child: const Text('Stop'),
-              ):
-              widget.currentSchedule[index].programName.contains('StandAlone')?
-              MaterialButton(
-                color: Colors.redAccent,
-                textColor: Colors.white,
-                onPressed: () async {
-
-                  String payLoadFinal = jsonEncode({
-                    "3900": [{"3901": '0,${widget.currentSchedule[index].programCategory},${widget.currentSchedule[index].programSno},'
-                        '${widget.currentSchedule[index].zoneSNo},,,,,,,,,0,'}]
-                  });
-
-                  MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.siteData.master[0].deviceId}');
-                  sendToServer(widget.currentSchedule[index].programSno,widget.currentSchedule[index].programName,
-                      widget.currentSchedule[index].zoneName,
-                      widget.currentSchedule[index].duration_Qty=='00:00:00'? 3:
-                      widget.currentSchedule[index].duration_Qty.contains(':')?1: 2, payLoadFinal);
-                },
-                child: const Text('Stop'),
-              ):
-              MaterialButton(
-                color: Colors.orange,
-                textColor: Colors.white,
-                onPressed: widget.currentSchedule[index].message=='Running.'? (){
-                  String payload = '${widget.currentSchedule[index].srlNo},0';
-                  String payLoadFinal = jsonEncode({
-                    "3700": [{"3701": payload}]
-                  });
-                  MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.siteData.master[0].deviceId}');
-                  sendSkipOperationToServer('${widget.currentSchedule[index].programName} - ${widget.currentSchedule[index].zoneName} skipped manually', payLoadFinal);
-                } : null,
-                child: const Text('Skip'),
-              ),
-            )),*/
+                    )),
                   ]);
                 }),
               ),
@@ -262,7 +203,7 @@ class CurrentProgram extends StatelessWidget {
     try {
       return scheduledPrograms.firstWhere((program) => program.serialNumber == id).programName;
     } catch (e) {
-      return "Stand Alone";
+      return "StandAlone";
     }
   }
 
@@ -307,6 +248,11 @@ class CurrentProgram extends StatelessWidget {
     final parsedTime = DateFormat('HH:mm:ss').parse(timeString);
     final formattedTime = DateFormat('hh:mm a').format(parsedTime);
     return formattedTime;
+  }
+
+  String formatTime(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    return "${twoDigits(duration.inHours)}:${twoDigits(duration.inMinutes.remainder(60))}:${twoDigits(duration.inSeconds.remainder(60))}";
   }
 
 }
