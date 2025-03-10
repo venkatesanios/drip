@@ -854,6 +854,7 @@ class ConfigMakerProvider extends ChangeNotifier{
 
   //Todo : getOroPumpPayload
   List<Map<String, dynamic>> getOroPumpPayload() {
+    HardwareType hardwareType = ![1, 2, 4].contains(masterData['modelId']) ? HardwareType.master : HardwareType.pump;
     List<Map<String, dynamic>> listOfPumpPayload = [];
     List<int> modelIdForPump1000 = [5, 6, 7];
     List<int> modelIdForPump2000 = [8, 9, 10];
@@ -884,7 +885,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         'payload' : jsonEncode(payloadToSend),
         'acknowledgementState' : HardwareAcknowledgementSate.notSent,
         'selected' : true,
-        'hardwareType' : HardwareType.pump
+        'hardwareType' : hardwareType
       });
     }
 
@@ -911,11 +912,11 @@ class ConfigMakerProvider extends ChangeNotifier{
         'title' : '${p2000.deviceName}(pumpconfig)',
         'deviceId' : p2000.deviceId,
         'deviceIdToSend' : deviceIdToSend,
-        'payload' : jsonEncode(pumpPayload),
+        'payload' : jsonEncode(payloadToSend),
         'acknowledgementState' : HardwareAcknowledgementSate.notSent,
         'selected' : true,
         'checkingCode' : '$pumpConfigCode',
-        'hardwareType' : HardwareType.pump
+        'hardwareType' : hardwareType
       });
       List<DeviceObjectModel> listOfFloat = listOfGeneratedObject.where((object) => (object.controllerId == p2000.controllerId && object.objectId == 40)).toList();
       List<DeviceObjectModel> listOfPump = listOfGeneratedObject.where((object) => (object.controllerId == p2000.controllerId && object.objectId == 5)).toList();
@@ -1001,7 +1002,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         'acknowledgementState' : HardwareAcknowledgementSate.notSent,
         'selected' : true,
         'checkingCode' : '$tankConfigCode',
-        'hardwareType' : HardwareType.pump
+        'hardwareType' : hardwareType
       });
     }
 

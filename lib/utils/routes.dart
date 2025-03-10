@@ -24,7 +24,6 @@ class Routes {
           builder: (_) => const LoginScreen(),
           settings: settings,
         );
-
       case dashboard:
         return MaterialPageRoute(
           // builder: (_) => const ConfigBasePage(masterData: {}),

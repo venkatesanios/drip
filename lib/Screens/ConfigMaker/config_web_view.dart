@@ -36,6 +36,7 @@ class ConfigWebView extends StatefulWidget {
   List<DeviceModel> listOfDevices;
   ConfigWebView({super.key, required this.listOfDevices});
 
+
   @override
   State<ConfigWebView> createState() => _ConfigWebViewState();
 }
@@ -61,6 +62,10 @@ class _ConfigWebViewState extends State<ConfigWebView> {
     // TODO: implement initState
     super.initState();
     configPvd = Provider.of<ConfigMakerProvider>(context, listen: false);
+    if(mqttManager.connectionState == MqttConnectionState.connected){
+      mqttManager.topicToSubscribe('${Environment.mqttSubscribeTopic}/${configPvd.masterData['deviceId']}');
+      print('subscribe successfully...........');
+    }
   }
 
   @override
@@ -98,6 +103,24 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                 Row(
                   spacing:20,
                   children: [
+                    StreamBuilder(
+                        stream: mqttManager.connectionStatusController.stream,
+                        initialData: mqttManager.connectionState,
+                        builder: (context, snapShot){
+                          return Row(
+                            spacing: 10,
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: mqttManager.connectionState == MqttConnectionState.connected ? Colors.greenAccent : Colors.red,
+                                radius: 20,
+                                child: const Icon(Icons.computer, color: Colors.white,),
+                              ),
+                              Text('MQTT ${mqttManager.connectionState.name}', style: const TextStyle(color: Colors.white),)
+
+                            ],
+                          );
+                        }
+                    ),
                     InkWell(
                     onHover: (value){
                       setState(() {
@@ -126,6 +149,9 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                         });
                       },
                       onTap: (){
+                        setState(() {
+                          payloadSendState = PayloadSendState.idle;
+                        });
                         sendToMqtt();
                         sendToHttp();
                         },
@@ -248,19 +274,22 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                     ),
                   ),
                   actions: [
-                    CustomMaterialButton(
-                      outlined: true,
-                      title: 'Cancel',
-                      onPressed: (){
-                        stateSetter((){
-                          setState(() {
-                            payloadSendState = PayloadSendState.idle;
+                    if(payloadSendState == PayloadSendState.idle && payloadSendState == PayloadSendState.start)
+                      CustomMaterialButton( // only show cancel button when payloadState on idle and start
+                        outlined: true,
+                        title: 'Cancel',
+                        onPressed: (){
+                          stateSetter((){
+                            setState(() {
+                              payloadSendState = PayloadSendState.stop;
+                            });
+                            Navigator.pop(context);
                           });
-                          Navigator.pop(context);
-                        });
-                      },
-                    ),
-                    if(payloadSendState == PayloadSendState.idle)
+                        },
+                      ),
+
+
+                    if(payloadSendState == PayloadSendState.idle) // only show send button when payloadState on idle
                       CustomMaterialButton(
                         onPressed: ()async{
                           payloadLoop : for(var payload in listOfPayload){
@@ -268,61 +297,72 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                               continue payloadLoop;
                             }
                             bool mqttAttempt = true;
-                            delayLoop : for(var sec = 0;sec < 20;sec++){
+                            int delayDuration = 10;
+                            delayLoop : for(var sec = 0;sec < delayDuration;sec++){
+                              print("sec ${sec + 1}   -- ${payload['deviceId']}");
                               bool breakLoop = false;
                               if(mqttManager.connectionState == MqttConnectionState.connected && mqttAttempt == true){
-                                mqttManager.topicToSubscribe('${Environment.mqttSubscribeTopic}/${configPvd.masterData['deviceId']}');
                                 mqttManager.topicToPublishAndItsMessage('${Environment.mqttPublishTopic}/${configPvd.masterData['deviceId']}', payload['payload']);
                                 mqttAttempt = false;
                                 print('payload sent successfully...........');
                               }
-                              // if(mqttManager.payload != null){
-                              //   print(""
-                              //       "mqttManager.payload!['cC'] : ${mqttManager.payload!['cC']} = ${payload['deviceId']} \n"
-                              //       "mqttManager.payload!['PayloadCode'] : ${mqttManager.payload!['cM']['4201']['PayloadCode']} = ${payload['checkingCode']}");
-                              // }
                               stateSetter((){
                                 setState(() {
-                                  if(payload['hardwareType'] as HardwareType == HardwareType.master){
-                                    if(mqttManager.payload != null && mqttManager.payload!['cC'] == payload['deviceId'] && mqttManager.payload!['cM']['4201']['PayloadCode'] == payload['checkingCode'] && mqttManager.payload!['cM']['4201']['Code'] == '200'){
-                                      payload['acknowledgementState'] = HardwareAcknowledgementSate.success;
-                                      breakLoop = true;
+                                  if(payload['hardwareType'] as HardwareType == HardwareType.master){  // listening acknowledgement from gem
+                                    if(mqttManager.payload != null){
+                                      print('before  validate :::: ${mqttManager.payload!}');
+                                      if(validatePayloadFromHardware(mqttManager.payload!, ['cC'], payload['deviceId']) && validatePayloadFromHardware(mqttManager.payload!, ['cM', '4201', 'PayloadCode'], payload['checkingCode'])){
+                                        if(mqttManager.payload!['cM']['4201']['Code'] == '200'){
+                                          payload['acknowledgementState'] = HardwareAcknowledgementSate.success;
+                                        }else if(mqttManager.payload!['cM']['4201']['Code'] == '90'){
+                                          payload['acknowledgementState'] = HardwareAcknowledgementSate.programRunning;
+                                        }else if(mqttManager.payload!['cM']['4201']['Code'] == '1'){
+                                          payload['acknowledgementState'] = HardwareAcknowledgementSate.hardwareUnknownError;
+                                        }else{
+                                          payload['acknowledgementState'] = HardwareAcknowledgementSate.errorOnPayload;
+                                        }
+                                        breakLoop = true;
+                                      }
+
                                     }
-                                  }else if(payload['hardwareType'] as HardwareType == HardwareType.pump){
+                                  }
+                                  else if(payload['hardwareType'] as HardwareType == HardwareType.pump){  // listening acknowledgement from pump
                                     // if(mqttManager.payload != null && mqttManager.payload!['cC'] == payload['deviceId'] && mqttManager.payload!['cM']['4201']['PayloadCode'] == payload['checkingCode'] && mqttManager.payload!['cM']['4201']['Code'] == '200'){
                                     //   payload['acknowledgementState'] = HardwareAcknowledgementSate.success;
                                     //   breakLoop = true;
                                     // }
                                   }
 
+
                                   if(sec == 0){
                                     payloadSendState = PayloadSendState.start;
                                     payload['acknowledgementState'] = HardwareAcknowledgementSate.sending;
                                   }
+                                  if(sec == delayDuration - 1){
+                                    payload['acknowledgementState'] = HardwareAcknowledgementSate.failed;
+                                  }
                                 });
                               });
-
-                              await Future.delayed(const Duration(seconds: 1));
-                              // Todo : break the delayLoop
-                              if(payloadSendState == PayloadSendState.idle){
-                                break delayLoop;
-                              }
                               if(breakLoop){
                                 break delayLoop;
                               }
-
+                              await Future.delayed(const Duration(seconds: 1));
                             }
                           }
-                          stateSetter((){
-                            setState(() {
-                              payloadSendState = PayloadSendState.stop;
-                              mqttManager.payload = null;
-                            });
-                          });
 
+
+                          if(payloadSendState == PayloadSendState.start){  // only stop if all payload completed
+                            stateSetter((){
+                              setState(() {
+                                payloadSendState = PayloadSendState.stop;
+                                mqttManager.payload = null;
+                              });
+                            });
+                          }
                         },
                         title: 'Send',
                       ),
+
                     if(payloadSendState == PayloadSendState.stop)
                       CustomMaterialButton(),
                   ],
@@ -333,7 +373,9 @@ class _ConfigWebViewState extends State<ConfigWebView> {
     );
   }
 
+
   Widget payloadAcknowledgementWidget(HardwareAcknowledgementSate state){
+    print('state : ${state.name}');
     late Color color;
     if(state == HardwareAcknowledgementSate.notSent){
       color = Colors.grey;
@@ -344,6 +386,15 @@ class _ConfigWebViewState extends State<ConfigWebView> {
     }else if(state == HardwareAcknowledgementSate.success){
       color = Colors.green;
       return statusBox(color, Text('success...', style: TextStyle(color: color, fontSize: 12),));
+    }else if(state == HardwareAcknowledgementSate.programRunning){
+      color = Colors.red;
+      return statusBox(color, Text('Failed - Program Running...', style: TextStyle(color: color, fontSize: 12),));
+    }else if(state == HardwareAcknowledgementSate.errorOnPayload){
+      color = Colors.red;
+      return statusBox(color, Text('Error on payload...', style: TextStyle(color: color, fontSize: 12),));
+    }else if(state == HardwareAcknowledgementSate.hardwareUnknownError){
+      color = Colors.red;
+      return statusBox(color, Text('Unknown error...', style: TextStyle(color: color, fontSize: 12),));
     }else{
       return const SizedBox(
           width: double.infinity,
@@ -482,6 +533,28 @@ class _ConfigWebViewState extends State<ConfigWebView> {
   }
 }
 
-enum HardwareAcknowledgementSate{notSent, sending, failed, success, errorOnPayload, mqttNotConnected}
+bool validatePayloadFromHardware(Map<String, dynamic>? payload, List<String> keys, String checkingValue){
+  bool condition = false;
+  dynamic checkingNestedData = payload;
+  if(payload!.containsKey('cC')){
+    for(var key in keys){
+      if(checkingNestedData != null && checkingNestedData.containsKey(key)){
+        checkingNestedData = checkingNestedData[key];
+      }else{
+        condition = false;
+        break;
+      }
+    }
+  }
+  if(checkingNestedData == checkingValue){
+    condition = true;
+  }
+  if(kDebugMode){
+    print("checkingNestedData : $checkingNestedData \n checkingValue : $checkingValue \n condition : $condition");
+  }
+  return condition;
+}
+
+enum HardwareAcknowledgementSate{notSent, sending, failed, success, errorOnPayload, hardwareUnknownError, programRunning}
 enum PayloadSendState{idle, start, stop}
 enum HardwareType{master, pump, economic}
