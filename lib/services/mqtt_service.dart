@@ -1,21 +1,21 @@
 import 'dart:async';
 import 'dart:convert';
-
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mqtt_client/mqtt_browser_client.dart';
 import 'package:mqtt_client/mqtt_client.dart';
+import 'package:mqtt_client/mqtt_server_client.dart';
+import 'package:uuid/uuid.dart';
 import '../StateManagement/mqtt_payload_provider.dart';
 import '../utils/constants.dart';
 
 class MqttService {
   static MqttService? _instance;
   MqttPayloadProvider? providerState;
-  MqttBrowserClient? _client;
+  MqttClient? _client;
   String? currentTopic;
 
   final StreamController<String> mqttConnectionStreamController = StreamController.broadcast();
   Stream<String> get mqttConnectionStream => mqttConnectionStreamController.stream;
-
 
   factory MqttService() {
     _instance ??= MqttService._internal();
@@ -23,22 +23,30 @@ class MqttService {
   }
 
   MqttService._internal();
+
   bool get isConnected => _client?.connectionStatus?.state == MqttConnectionState.connected;
 
   void initializeMQTTClient({MqttPayloadProvider? state}) {
-
-    String uniqueId = 'uniqueId1234567890';
-
+    providerState = state;
+    String uniqueId = const Uuid().v4();
     if (_client == null) {
       providerState = state;
-      _client = MqttBrowserClient(AppConstants.mqttUrl, uniqueId);
-      _client!.port = AppConstants.mqttWebPort;
+      if (kIsWeb) {
+        debugPrint("Initializing MQTT for Web...");
+        _client = MqttBrowserClient(AppConstants.mqttUrlWeb, uniqueId);
+        (_client as MqttBrowserClient).websocketProtocols = MqttClientConstants.protocolsSingleDefault;
+        _client!.port = AppConstants.mqttPortWeb;
+      } else {
+        debugPrint("Initializing MQTT for Mobile...");
+        _client = MqttServerClient(AppConstants.mqttUrlMobile, uniqueId);
+        _client!.port = AppConstants.mqttPortMobile;
+      }
+
       _client!.keepAlivePeriod = 30;
       _client!.onDisconnected = onDisconnected;
       _client!.logging(on: false);
       _client!.onConnected = onConnected;
       _client!.onSubscribed = onSubscribed;
-      _client!.websocketProtocols = MqttClientConstants.protocolsSingleDefault;
 
       final MqttConnectMessage connMess = MqttConnectMessage()
           .withClientIdentifier(uniqueId)
@@ -53,7 +61,6 @@ class MqttService {
   }
 
   void connect() async {
-    assert(_client != null);
     if (!isConnected) {
       try {
         debugPrint('Mosquitto start client connecting....');
@@ -67,7 +74,6 @@ class MqttService {
   }
 
   void topicToSubscribe(String topic) {
-
     if (currentTopic != null) {
       _client!.unsubscribe(currentTopic!);
     }
@@ -87,7 +93,7 @@ class MqttService {
   void onMqttPayloadReceived(String payload) {
     try {
       Map<String, dynamic> payloadMessage = jsonDecode(payload);
-      if (payloadMessage['mC']=='2400') {
+      if (payloadMessage['mC'] == '2400') {
         print(payload);
         providerState?.updateReceivedPayload(payload, false);
       }
@@ -96,7 +102,7 @@ class MqttService {
     }
   }
 
-  topicToPublishAndItsMessage(String message, String topic) {
+  void topicToPublishAndItsMessage(String message, String topic) {
     final MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
     builder.addString(message);
     _client!.publishMessage(topic, MqttQos.exactlyOnce, builder.payload!);
@@ -108,9 +114,6 @@ class MqttService {
 
   void onDisconnected() {
     debugPrint('OnDisconnected client callback - Client disconnection');
-    if (_client!.connectionStatus!.returnCode == MqttConnectReturnCode.noneSpecified) {
-      debugPrint('OnDisconnected callback is solicited, this is correct');
-    }
     providerState?.updateMQTTConnectionState(MQTTConnectionState.disconnected);
   }
 
@@ -120,6 +123,5 @@ class MqttService {
     providerState?.updateMQTTConnectionState(MQTTConnectionState.connected);
     debugPrint('Mosquitto client connected....');
   }
-
-
 }
+

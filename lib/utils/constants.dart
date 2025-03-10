@@ -53,12 +53,44 @@ enum GemProgramStartStopReasonCode {
   }
 }
 
+enum GemLineSSReasonCode {
+  lss1(1, 'The Line Paused Manually'),
+  lss2(2, 'Scheduled Program paused by Standalone program'),
+  lss3(3, 'The Line Paused By System Definition'),
+  lss4(4, 'The Line Paused By Low Flow Alarm'),
+  lss5(5, 'The Line Paused By High Flow Alarm'),
+  lss6(6, 'The Line Paused By No Flow Alarm'),
+  lss7(7, 'The Line Paused By Ec High'),
+  lss8(8, 'The Line Paused By Ph Low'),
+  lss9(9, 'The Line Paused By Ph High'),
+  lss10(10, 'The Line Paused By Pressure Low'),
+  lss11(11, 'The Line Paused By Pressure High'),
+  lss12(12, 'The Line Paused By No Power Supply'),
+  lss13(13, 'The Line Paused By No Communication'),
+  lss14(14, 'The Line Paused By Pump In Another Irrigation Line'),
+  unknown(0, 'Unknown content');
+
+  final int code;
+  final String content;
+
+  const GemLineSSReasonCode(this.code, this.content);
+
+  static GemLineSSReasonCode fromCode(int code) {
+    return GemLineSSReasonCode.values.firstWhere((e) => e.code == code,
+      orElse: () => GemLineSSReasonCode.unknown,
+    );
+  }
+}
+
 class AppConstants {
   static String apiUrl = Environment.apiUrl;
   static const int timeoutDuration = 30;
 
-  static String mqttUrl = Environment.mqttWebUrl;
-  static int mqttWebPort = Environment.mqttWebPort;
+  static String mqttUrlWeb = Environment.mqttWebUrl;
+  static int mqttPortWeb = Environment.mqttWebPort;
+
+  static String mqttUrlMobile = Environment.mqttMobileUrl;
+  static int mqttPortMobile = Environment.mqttMobilePort;
 
   static const String publishTopic = 'AppToFirmware';
   static const String subscribeTopic = 'FirmwareToApp';

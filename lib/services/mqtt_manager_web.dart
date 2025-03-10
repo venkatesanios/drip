@@ -43,7 +43,6 @@ class MqttManager {
     print('baseURL : $baseURL');
     print('port : $port');
 
-
     if (_client == null) {
       _client = MqttBrowserClient(baseURL, uniqueId);
       _client!.clientIdentifier = 'uniqueId';

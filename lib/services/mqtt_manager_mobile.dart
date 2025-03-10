@@ -38,7 +38,6 @@ class MqttManager {
 
   void initializeMQTTClient(MqttPayloadProvider? state) {
 
-
     String uniqueId = const Uuid().v4();
     providerState = state;
     int port = Environment.mqttMobilePort;
