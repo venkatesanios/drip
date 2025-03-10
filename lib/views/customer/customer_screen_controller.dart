@@ -137,7 +137,7 @@ class CustomerScreenController extends StatelessWidget {
                       vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 2?
                   const SizedBox(width: 5,): const SizedBox(),
 
-                  (vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1 ||
+                  /*(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1 ||
                       vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 2) &&
                       vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData.length>1?
                   DropdownButton(
@@ -160,7 +160,41 @@ class CustomerScreenController extends StatelessWidget {
                   Text(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData.isNotEmpty?
                   vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData[0].name:
                   'Line empty', style: const TextStyle(fontSize: 17),):
-                  const SizedBox(),
+                  const SizedBox(),*/
+
+                  (vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1 ||
+                      vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 2) &&
+                      vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData.isNotEmpty
+                      ? DropdownButton<String>(
+                    underline: Container(),
+                    items: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData
+                        .map((line) => DropdownMenuItem<String>(
+                      value: line.name,
+                      child: Text(
+                        line.name,
+                        style: const TextStyle(color: Colors.white, fontSize: 17),
+                      ),
+                    ))
+                        .toList(),
+                    onChanged: (lineName) => vm.lineOnChanged(lineName),
+                    value: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData
+                        .any((line) => line.name == vm.myCurrentIrrLine)
+                        ? vm.myCurrentIrrLine
+                        : null,
+                    dropdownColor: Colors.teal,
+                    iconEnabledColor: Colors.white,
+                    iconDisabledColor: Colors.white,
+                    focusColor: Colors.transparent,
+                  )
+                      : (vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1 ||
+                      vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 2)
+                      ? Text(
+                    vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData.isNotEmpty
+                        ? vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData[0].name
+                        : 'Line empty',
+                    style: const TextStyle(fontSize: 17),
+                  )
+                      : const SizedBox(),
 
                   const SizedBox(width: 15,),
                   Container(width: 1, height: 20, color: Colors.white54,),

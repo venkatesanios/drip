@@ -276,21 +276,21 @@ class ScheduledProgram extends StatelessWidget {
                                 child: Text(getButtonName(int.parse(scheduledPrograms[index].prgPauseResume))),
                               ),
                               const Spacer(),
-                             /* getPermissionStatusBySNo(context, 3) ?PopupMenuButton<String>(
+                              getPermissionStatusBySNo(context, 3) ?PopupMenuButton<String>(
                                 icon: const Icon(Icons.more_vert),
                                 onSelected: (String result) {
                                   if(result=='Edit program'){
                                     String prgType = '';
                                     bool conditionL = false;
-                                    if (scheduledPrograms[index].progCategory.contains('IL')) {
+                                    if (scheduledPrograms[index].prgCategory.contains('IL')) {
                                       prgType = 'Irrigation Program';
                                     } else {
                                       prgType = 'Agitator Program';
                                     }
-                                    if (siteData.master[masterInx].conditionLibraryCount > 0) {
+                                    /*if (siteData.master[masterInx].conditionLibraryCount > 0) {
                                       conditionL = true;
-                                    }
-                                    Navigator.push(
+                                    }*/
+                                   /* Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => IrrigationProgram(
@@ -302,7 +302,7 @@ class ScheduledProgram extends StatelessWidget {
                                           conditionsLibraryIsNotEmpty: conditionL,
                                         ),
                                       ),
-                                    );
+                                    );*/
                                   }
                                 },
                                 itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -314,15 +314,13 @@ class ScheduledProgram extends StatelessWidget {
                                     value: 'Change to',
                                     child: ClickableSubmenu(
                                       title: 'Change to',
-                                      submenuItems: scheduledPrograms[index].zoneList.split('_'),
+                                      submenuItems: scheduledPrograms[index].sequence,
                                       onItemSelected: (selectedItem, selectedIndex) {
-                                        String payload = '${scheduledPrograms[index].sNo},${selectedIndex+1}';
+                                        String payload = '${scheduledPrograms[index].serialNumber},${selectedIndex+1}';
                                         String payLoadFinal = jsonEncode({
-                                          "6700": [
-                                            {"6701": payload}
-                                          ]
+                                          "6700": {"6701": payload}
                                         });
-                                        MQTTManager().publish(payLoadFinal, 'AppToFirmware/${siteData.master[masterInx].deviceId}');
+                                        MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
                                         sentUserOperationToServer(
                                           '${scheduledPrograms[index].programName} ${'Changed to $selectedItem'}',
                                           payLoadFinal,
@@ -333,7 +331,7 @@ class ScheduledProgram extends StatelessWidget {
                                   ),
                                 ],
                               ):
-                              const IconButton(onPressed: null, icon: Icon(Icons.more_vert, color: Colors.grey,)),*/
+                              const IconButton(onPressed: null, icon: Icon(Icons.more_vert, color: Colors.grey,)),
                             ],
                           )),
                         ]);
@@ -476,4 +474,66 @@ class ScheduledProgram extends StatelessWidget {
     return permission?['status'] as bool? ?? true;
   }
 
+}
+
+class ClickableSubmenu extends StatelessWidget {
+  final String title;
+  final List<Sequence> submenuItems;
+  final Function(String selectedItem, int selectedIndex) onItemSelected;
+
+  const ClickableSubmenu({super.key,
+    required this.title,
+    required this.submenuItems,
+    required this.onItemSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        _showSubmenu(context);
+      },
+      child: Row(
+        children: [
+          Text(title),
+          const Icon(Icons.arrow_right),
+        ],
+      ),
+    );
+  }
+
+
+
+  void _showSubmenu(BuildContext context) {
+    final RenderBox button = context.findRenderObject() as RenderBox;
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+
+    final RelativeRect position = RelativeRect.fromRect(
+      Rect.fromPoints(
+        button.localToGlobal(Offset(button.size.width, 0), ancestor: overlay),
+        button.localToGlobal(Offset(button.size.width, button.size.height), ancestor: overlay),
+      ),
+      Offset.zero & overlay.size,
+    );
+
+    showMenu<String>(
+      context: context,
+      position: position,
+      items: submenuItems.map((Sequence item) {
+        return PopupMenuItem<String>(
+          value: item.name, // Ensure unique values
+          child: Text(item.name),
+        );
+      }).toList(),
+    ).then((String? selectedItem) {
+      if (selectedItem != null) {
+        int selectedIndex = submenuItems.indexWhere((item) => item.name == selectedItem);
+
+        // Ensure selectedItem exists before calling callback
+        if (selectedIndex != -1) {
+          onItemSelected(selectedItem, selectedIndex);
+        }
+      }
+    });
+  }
 }

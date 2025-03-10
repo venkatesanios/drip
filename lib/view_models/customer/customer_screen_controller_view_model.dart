@@ -128,10 +128,10 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   }
 
   void updateMasterLine(sIdx, mIdx, lIdx){
-    // if(mySiteList.data[sIdx].master[mIdx].config.lineData.isNotEmpty){
-    //   myCurrentIrrLine = mySiteList.data[sIdx].master[mIdx].config.lineData[lIdx].name;
-    //   notifyListeners();
-    // }
+    if(mySiteList.data[sIdx].master[mIdx].config.lineData.isNotEmpty){
+      myCurrentIrrLine = mySiteList.data[sIdx].master[mIdx].config.lineData[lIdx].name;
+      notifyListeners();
+    }
   }
 
   void updateLivePayload(int ws, String liveDataAndTime){
