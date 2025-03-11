@@ -1,18 +1,19 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:oro_drip_irrigation/Constants/sample_data.dart';
+import 'package:oro_drip_irrigation/config_maker/repository/config_maker_repository.dart';
 import 'package:oro_drip_irrigation/services/http_service.dart';
-import '../Models/Configuration/device_model.dart';
-import '../Models/Configuration/device_object_model.dart';
-import '../Models/Configuration/fertigation_model.dart';
-import '../Models/Configuration/filtration_model.dart';
-import '../Models/Configuration/irrigationLine_model.dart';
-import '../Models/Configuration/moisture_model.dart';
-import '../Models/Configuration/pump_model.dart';
-import '../Models/Configuration/source_model.dart';
-import '../Screens/ConfigMaker/config_base_page.dart';
-import '../Screens/ConfigMaker/config_web_view.dart';
-import '../Screens/ConfigMaker/connection.dart';
+import '../model/device_model.dart';
+import '../model/device_object_model.dart';
+import '../model/fertigation_model.dart';
+import '../model/filtration_model.dart';
+import '../model/irrigationLine_model.dart';
+import '../model/moisture_model.dart';
+import '../model/pump_model.dart';
+import '../model/source_model.dart';
+import '../view/config_base_page.dart';
+import '../view/config_web_view.dart';
+import '../view/connection.dart';
 
 class ConfigMakerProvider extends ChangeNotifier{
   double ratio = 1.0;
@@ -99,7 +100,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         "groupId": masterDataFromSiteConfigure['groupId'],
         "categoryId" : masterDataFromSiteConfigure['categoryId']
       };
-      var response = await HttpService().postRequest('/user/configMaker/get', body);
+      var response = await ConfigMakerRepository().getUserConfigMaker(body);
       Map<String, dynamic> jsonData = jsonDecode(response.body);
       print('jsonData : $jsonData');
       Map<String, dynamic> defaultData = jsonData['data']['default'];

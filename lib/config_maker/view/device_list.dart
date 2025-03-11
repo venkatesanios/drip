@@ -6,8 +6,8 @@ import 'package:provider/provider.dart';
 import '../../Constants/communication_codes.dart';
 import '../../Constants/dialog_boxes.dart';
 import '../../Constants/properties.dart';
-import '../../Models/Configuration/device_model.dart';
-import '../../StateManagement/config_maker_provider.dart';
+import '../model/device_model.dart';
+import '../state_management/config_maker_provider.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'package:oro_drip_irrigation/services/mqtt_manager_mobile.dart' if (dart.library.html) 'package:oro_drip_irrigation/services/mqtt_manager_web.dart';
 

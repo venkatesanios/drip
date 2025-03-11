@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../../../Models/IrrigationModel/sequence_model.dart';
-import '../../Models/Configuration/device_object_model.dart';
+import '../../config_maker/model/device_object_model.dart';
 import '../../StateManagement/irrigation_program_provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../Widgets/SCustomWidgets/custom_alert_dialog.dart';

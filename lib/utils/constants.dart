@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
-import '../Screens/ConfigMaker/config_web_view.dart';
+import '../config_maker/view/config_web_view.dart';
 import 'environment.dart';
 
 enum UserRole { admin, dealer, subUser }

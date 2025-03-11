@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/Models/Configuration/device_object_model.dart';
+import 'package:oro_drip_irrigation/config_maker/model/device_object_model.dart';
 import 'package:oro_drip_irrigation/Screens/NewIrrigationProgram/schedule_screen.dart';
 import 'package:oro_drip_irrigation/Screens/NewIrrigationProgram/sequence_screen.dart';
 import 'package:provider/provider.dart';

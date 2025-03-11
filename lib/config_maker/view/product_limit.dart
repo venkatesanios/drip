@@ -6,9 +6,9 @@ import 'package:responsive_grid_list/responsive_grid_list.dart';
 
 import '../../Constants/communication_codes.dart';
 import '../../Constants/properties.dart';
-import '../../Models/Configuration/device_model.dart';
-import '../../Models/Configuration/device_object_model.dart';
-import '../../StateManagement/config_maker_provider.dart';
+import '../model/device_model.dart';
+import '../model/device_object_model.dart';
+import '../state_management/config_maker_provider.dart';
 import '../../Widgets/legend.dart';
 import '../../Widgets/product_limit_grid_list_tile.dart';
 import '../../Widgets/sized_image.dart';

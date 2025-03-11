@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../Models/Configuration/device_model.dart';
-import '../../StateManagement/config_maker_provider.dart';
+import '../model/device_model.dart';
+import '../state_management/config_maker_provider.dart';
 import 'config_mobile_view.dart';
 import 'config_web_view.dart';
 

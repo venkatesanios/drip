@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../Models/Configuration/device_object_model.dart';
-import '../../StateManagement/config_maker_provider.dart';
+import '../model/device_object_model.dart';
+import '../state_management/config_maker_provider.dart';
 import '../../Widgets/sized_image.dart';
 import '../../utils/constants.dart';
 

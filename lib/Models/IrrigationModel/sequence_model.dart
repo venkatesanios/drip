@@ -1,4 +1,4 @@
-import 'package:oro_drip_irrigation/Models/Configuration/device_object_model.dart';
+import 'package:oro_drip_irrigation/config_maker/model/device_object_model.dart';
 
 class SequenceModel {
   List<dynamic> sequence;

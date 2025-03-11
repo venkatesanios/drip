@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/app/app.dart';
 import 'package:provider/provider.dart';
-import 'StateManagement/config_maker_provider.dart';
+import 'config_maker/state_management/config_maker_provider.dart';
 import 'StateManagement/irrigation_program_provider.dart';
 import 'StateManagement/preference_provider.dart';
 import 'StateManagement/system_definition_provider.dart';
