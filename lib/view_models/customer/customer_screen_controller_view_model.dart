@@ -45,7 +45,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
 
   void onSubscribeTopic(){
     Future.delayed(const Duration(milliseconds: 2000), () {
-      MqttService().topicToSubscribe('${AppConstants.subscribeTopic}/${mySiteList.data[sIndex].master[mIndex].deviceId}');
+      // MqttService().topicToSubscribe('${AppConstants.subscribeTopic}/${mySiteList.data[sIndex].master[mIndex].deviceId}');
       onRefreshClicked();
     });
   }

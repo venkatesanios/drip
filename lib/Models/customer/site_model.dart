@@ -596,7 +596,7 @@ class Channel {
   final int objectId;
   final double sNo;
   final String name;
-  final int connectionNo;
+  final int? connectionNo;
   final String objectName;
   final String type;
   final int? controllerId;
@@ -638,11 +638,11 @@ class Channel {
       objectId: json['objectId'],
       sNo: json['sNo'].toDouble(),
       name: json['name'],
-      connectionNo: json['connectionNo'],
+      connectionNo: json['connectionNo'] ?? 0,
       objectName: json['objectName'],
       type: json['type'],
-      controllerId: json['controllerId'],
-      count: json['count'],
+      controllerId: json['controllerId'] ?? 0,
+      count: json['count'] ?? 0,
       level: json['level'].toDouble(),
     );
   }
@@ -968,7 +968,9 @@ class LiveMessage {
   factory LiveMessage.fromJson(Map<String, dynamic> json) {
     return LiveMessage(
       cC: json['cC'],
-      cM: Map<String, dynamic>.from(json['cM']),
+      cM: json['cM'] is Map<String, dynamic>
+          ? Map<String, dynamic>.from(json['cM'])
+          : (json['cM'] is List ? <String, dynamic>{} : <String, dynamic>{}),
       cD: json['cD'],
       cT: json['cT'],
       mC: json['mC'],

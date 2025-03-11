@@ -835,15 +835,9 @@ class MqttPayloadProvider with ChangeNotifier {
     nextSchedule = program;
   }
 
-
-
   void updateScheduledProgram(List<String> program) {
     scheduledProgram = program;
   }
-
-
-
-
 
   void saveUnits(List<dynamic> units) {
     unitList = units;

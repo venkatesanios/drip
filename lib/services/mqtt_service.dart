@@ -47,6 +47,7 @@ class MqttService {
       _client!.logging(on: false);
       _client!.onConnected = onConnected;
       _client!.onSubscribed = onSubscribed;
+      _client!.websocketProtocols = MqttClientConstants.protocolsSingleDefault;
 
       final MqttConnectMessage connMess = MqttConnectMessage()
           .withClientIdentifier(uniqueId)
@@ -61,6 +62,7 @@ class MqttService {
   }
 
   void connect() async {
+    assert(_client != null);
     if (!isConnected) {
       try {
         debugPrint('Mosquitto start client connecting....');
@@ -74,6 +76,7 @@ class MqttService {
   }
 
   void topicToSubscribe(String topic) {
+
     if (currentTopic != null) {
       _client!.unsubscribe(currentTopic!);
     }
@@ -114,6 +117,9 @@ class MqttService {
 
   void onDisconnected() {
     debugPrint('OnDisconnected client callback - Client disconnection');
+    if (_client!.connectionStatus!.returnCode == MqttConnectReturnCode.noneSpecified) {
+      debugPrint('OnDisconnected callback is solicited, this is correct');
+    }
     providerState?.updateMQTTConnectionState(MQTTConnectionState.disconnected);
   }
 
@@ -123,5 +129,6 @@ class MqttService {
     providerState?.updateMQTTConnectionState(MQTTConnectionState.connected);
     debugPrint('Mosquitto client connected....');
   }
-}
 
+
+}

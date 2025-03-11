@@ -85,12 +85,11 @@ enum GemLineSSReasonCode {
 class AppConstants {
   static String apiUrl = Environment.apiUrl;
   static const int timeoutDuration = 30;
-
-  static String mqttUrlWeb = Environment.mqttWebUrl;
-  static int mqttPortWeb = Environment.mqttWebPort;
-
   static String mqttUrlMobile = Environment.mqttMobileUrl;
-  static int mqttPortMobile = Environment.mqttMobilePort;
+
+  static String mqttUrl = Environment.mqttWebUrl;
+  static int mqttWebPort = Environment.mqttWebPort;
+  static int mqttMobilePort = Environment.mqttMobilePort;
 
   static const String publishTopic = 'AppToFirmware';
   static const String subscribeTopic = 'FirmwareToApp';

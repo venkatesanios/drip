@@ -6,6 +6,7 @@ import 'package:oro_drip_irrigation/Screens/planning/fiterbackwash.dart';
 import '../../Constants/properties.dart';
 import '../../Screens/NewPreference/preference_main_screen.dart';
 import '../../Screens/SystemDefinitionScreen/system_definition_screen.dart';
+import '../../Screens/planning/planningwatersource.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 
@@ -96,8 +97,8 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
     switch (id) {
       case 1:
         return ProgramLibraryScreenNew(customerId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber, userId: widget.userId, fromDealer: false,);
-      // case 66:
-      //   return watersourceUI(userId: widget.customerID, controllerId: widget.controllerID, deviceID: widget.imeiNumber,);
+      case 66:
+        return watersourceUI(userId: 4, controllerId: 1, deviceID: widget.imeiNumber, menuId: 66,);
       // case 67:
       //   return VirtualMeterScreen(userId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber);
       // case 68:

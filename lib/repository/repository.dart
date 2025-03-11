@@ -152,6 +152,24 @@ class Repository{
   Future<http.Response> UpdateFilterBackwasing(body) async {
     return await apiService.postRequest('/user/planning/filterBackwashing/create', body);
   }
+  Future<http.Response> getUserwaterSource(body) async {
+    return await apiService.postRequest('/user/planning/waterSource/get', body);
+  }
+  Future<http.Response> UpdatewaterSource(body) async {
+    return await apiService.postRequest('/user/planning/waterSource/create', body);
+  }
+  Future<http.Response> getUservirtualwatermeter(body) async {
+    return await apiService.postRequest('/user/planning/virtualwatermeter/get', body);
+  }
+  Future<http.Response> Updatevirtualwatermeter(body) async {
+    return await apiService.postRequest('/user/planning/virtualwatermeter/create', body);
+  }
+  Future<http.Response> getUserfrostProtection(body) async {
+    return await apiService.postRequest('/user/planning/frostProtectionAndRainDelay/get', body);
+  }
+  Future<http.Response> UpdatefrostProtection(body) async {
+    return await apiService.postRequest('/user/planning/frostProtectionAndRainDelay/create', body);
+  }
 
 
   ///Todo: Program urls
