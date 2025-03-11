@@ -27,6 +27,7 @@ class PumpConfiguration extends StatefulWidget {
 }
 
 class _PumpConfigurationState extends State<PumpConfiguration> {
+  List<int> pumpModelList = [5, 6, 7, 8, 9, 10];
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -63,7 +64,7 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
                               child: ListTile(
                                 leading: SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_5.svg', color: Colors.black,),
                                 title: Text(pump.commonDetails.name!),
-                                trailing: IntrinsicWidth(
+                                trailing: !pumpModelList.contains(widget.configPvd.masterData['modelId']) ? IntrinsicWidth(
                                   child: CustomDropDownButton(
                                       value: getPumpTypeCodeToString(pump.pumpType),
                                       list: const ['source', 'irrigation'],
@@ -86,7 +87,7 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
                                         });
                                       }
                                   ),
-                                ),
+                                ) : null,
                               ),
                             ),
                             Container(

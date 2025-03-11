@@ -299,57 +299,55 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                             bool mqttAttempt = true;
                             int delayDuration = 10;
                             delayLoop : for(var sec = 0;sec < delayDuration;sec++){
+                              if(sec == 0){
+                                payloadSendState = PayloadSendState.start;
+                                payload['acknowledgementState'] = HardwareAcknowledgementSate.sending;
+                              }
+                              if(sec == delayDuration - 1){
+                                payload['acknowledgementState'] = HardwareAcknowledgementSate.failed;
+                              }
+                              await Future.delayed(const Duration(seconds: 1));
                               print("sec ${sec + 1}   -- ${payload['deviceId']}");
-                              bool breakLoop = false;
                               if(mqttManager.connectionState == MqttConnectionState.connected && mqttAttempt == true){
                                 mqttManager.topicToPublishAndItsMessage('${Environment.mqttPublishTopic}/${configPvd.masterData['deviceId']}', payload['payload']);
                                 mqttAttempt = false;
-                                print('payload sent successfully...........');
                               }
                               stateSetter((){
                                 setState(() {
                                   if(payload['hardwareType'] as HardwareType == HardwareType.master){  // listening acknowledgement from gem
                                     if(mqttManager.payload != null){
-                                      print('before  validate :::: ${mqttManager.payload!}');
-                                      if(validatePayloadFromHardware(mqttManager.payload!, ['cC'], payload['deviceId']) && validatePayloadFromHardware(mqttManager.payload!, ['cM', '4201', 'PayloadCode'], payload['checkingCode'])){
+                                      if(validatePayloadFromHardware(mqttManager.payload!, ['cC'], payload['deviceIdToSend']) && validatePayloadFromHardware(mqttManager.payload!, ['cM', '4201', 'PayloadCode'], payload['checkingCode'])){
                                         if(mqttManager.payload!['cM']['4201']['Code'] == '200'){
                                           payload['acknowledgementState'] = HardwareAcknowledgementSate.success;
                                         }else if(mqttManager.payload!['cM']['4201']['Code'] == '90'){
                                           payload['acknowledgementState'] = HardwareAcknowledgementSate.programRunning;
                                         }else if(mqttManager.payload!['cM']['4201']['Code'] == '1'){
                                           payload['acknowledgementState'] = HardwareAcknowledgementSate.hardwareUnknownError;
+                                          print('successfully!! update status for ${payload['title']}  and its code : ${mqttManager.payload!['cM']['4201']['Code']} -- ${payload['acknowledgementState']}');
                                         }else{
                                           payload['acknowledgementState'] = HardwareAcknowledgementSate.errorOnPayload;
                                         }
-                                        breakLoop = true;
+                                        mqttManager.payload == null;
                                       }
-
                                     }
                                   }
-                                  else if(payload['hardwareType'] as HardwareType == HardwareType.pump){  // listening acknowledgement from pump
-                                    // if(mqttManager.payload != null && mqttManager.payload!['cC'] == payload['deviceId'] && mqttManager.payload!['cM']['4201']['PayloadCode'] == payload['checkingCode'] && mqttManager.payload!['cM']['4201']['Code'] == '200'){
-                                    //   payload['acknowledgementState'] = HardwareAcknowledgementSate.success;
-                                    //   breakLoop = true;
-                                    // }
+                                  else if(payload['hardwareType'] as HardwareType == HardwareType.pump){
+                                    if(mqttManager.payload != null){
+                                      if(validatePayloadFromHardware(mqttManager.payload!, ['cC'], payload['deviceIdToSend']) && validatePayloadFromHardware(mqttManager.payload!, ['cM'], payload['checkingCode'])){
+                                        payload['acknowledgementState'] = HardwareAcknowledgementSate.success;
+                                        mqttManager.payload == null;
+                                      }
+                                    }
                                   }
 
 
-                                  if(sec == 0){
-                                    payloadSendState = PayloadSendState.start;
-                                    payload['acknowledgementState'] = HardwareAcknowledgementSate.sending;
-                                  }
-                                  if(sec == delayDuration - 1){
-                                    payload['acknowledgementState'] = HardwareAcknowledgementSate.failed;
-                                  }
                                 });
                               });
-                              if(breakLoop){
+                              if((payload['acknowledgementState'] as HardwareAcknowledgementSate) != HardwareAcknowledgementSate.sending){
                                 break delayLoop;
                               }
-                              await Future.delayed(const Duration(seconds: 1));
                             }
                           }
-
 
                           if(payloadSendState == PayloadSendState.start){  // only stop if all payload completed
                             stateSetter((){
@@ -546,9 +544,14 @@ bool validatePayloadFromHardware(Map<String, dynamic>? payload, List<String> key
       }
     }
   }
-  if(checkingNestedData == checkingValue){
-    condition = true;
+  if(checkingNestedData is String){
+    if(checkingNestedData.contains(checkingValue)){
+      condition = true;
+    }else if(checkingNestedData == checkingValue){
+      condition = true;
+    }
   }
+
   if(kDebugMode){
     print("checkingNestedData : $checkingNestedData \n checkingValue : $checkingValue \n condition : $condition");
   }

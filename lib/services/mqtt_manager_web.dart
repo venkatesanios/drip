@@ -11,7 +11,7 @@ import '../utils/environment.dart';
 class MqttManager {
   static MqttManager? _instance;
   MqttBrowserClient? _client;
-  String? currentTopic;
+  String currentSubscribeTopic = '';
   final StreamController<Map<String, dynamic>?> _payloadController = StreamController.broadcast();
   final StreamController<String> connectionStatusController = StreamController.broadcast();
   MqttPayloadProvider? providerState;
@@ -118,6 +118,7 @@ class MqttManager {
   }
 
   void topicToUnSubscribe(String topic){
+    currentSubscribeTopic = topic;
     if(isConnected){
       _client!.unsubscribe(topic);
       if (kDebugMode) {
@@ -181,6 +182,7 @@ class MqttManager {
 
   void onConnected() async{
     connectionStatusController.sink.add(connectionState.name);
+    topicToSubscribe(currentSubscribeTopic);
     assert(isConnected);
     await Future.delayed(Duration.zero);
     if (kDebugMode) {

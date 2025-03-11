@@ -16,7 +16,7 @@ class MqttManager {
   final StreamController<String> connectionStatusController = StreamController.broadcast();
 
   MqttPayloadProvider? providerState;
-
+  String currentSubscribeTopic = '';
   Map<String, dynamic>? _payload;
   Map<String, dynamic>? get payload => _payload;
   Stream<Map<String, dynamic>?> get payloadStream => _payloadController.stream;
@@ -192,6 +192,8 @@ class MqttManager {
   }
 
   void onConnected() async{
+    connectionStatusController.sink.add(connectionState.name);
+    topicToSubscribe(currentSubscribeTopic);
     assert(isConnected);
     await Future.delayed(Duration.zero);
     if (kDebugMode) {
