@@ -25,6 +25,7 @@ class SensorCategoryModel {
     return {
       "objectTypeId" : objectTypeId,
       "object" : object,
+      "objectList" : calibrationObject.map((object) => object.toJson()).toList()
     };
   }
 }

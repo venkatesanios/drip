@@ -3,9 +3,9 @@ import 'package:oro_drip_irrigation/Widgets/sized_image.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 import '../Constants/communication_codes.dart';
 import '../Constants/properties.dart';
-import '../config_maker/model/device_model.dart';
-import '../config_maker/model/device_object_model.dart';
-import '../config_maker/state_management/config_maker_provider.dart';
+import '../modules/config_Maker/model/device_model.dart';
+import '../modules/config_Maker/model/device_object_model.dart';
+import '../modules/config_Maker/state_management/config_maker_provider.dart';
 import '../utils/constants.dart';
 
 class WeatherGridListTile extends StatefulWidget {

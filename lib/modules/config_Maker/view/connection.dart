@@ -1,14 +1,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
-import '../../Constants/communication_codes.dart';
-import '../../Constants/properties.dart';
+import '../../../Constants/communication_codes.dart';
+import '../../../Constants/properties.dart';
 import '../model/device_model.dart';
 import '../model/device_object_model.dart';
 import '../state_management/config_maker_provider.dart';
-import '../../Widgets/connection_grid_list_tile.dart';
-import '../../Widgets/connector_widget.dart';
-import '../../Widgets/sized_image.dart';
+import '../../../Widgets/connection_grid_list_tile.dart';
+import '../../../Widgets/connector_widget.dart';
+import '../../../Widgets/sized_image.dart';
 
 class Connection extends StatefulWidget {
   final ConfigMakerProvider configPvd;

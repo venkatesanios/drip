@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:oro_drip_irrigation/config_maker/view/pump_configuration.dart';
-import 'package:oro_drip_irrigation/config_maker/view/source_configuration.dart';
+import 'package:oro_drip_irrigation/modules/config_Maker/view/pump_configuration.dart';
+import 'package:oro_drip_irrigation/modules/config_Maker/view/source_configuration.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 
 import '../model/device_object_model.dart';

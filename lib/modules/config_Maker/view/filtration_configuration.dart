@@ -2,19 +2,19 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:oro_drip_irrigation/config_maker/view/site_configure.dart';
+import 'package:oro_drip_irrigation/modules/config_Maker/view/site_configure.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 
-import '../../Constants/communication_codes.dart';
-import '../../Constants/dialog_boxes.dart';
-import '../../Constants/properties.dart';
+import '../../../Constants/communication_codes.dart';
+import '../../../Constants/dialog_boxes.dart';
+import '../../../Constants/properties.dart';
 import '../model/device_object_model.dart';
 import '../model/filtration_model.dart';
 import '../state_management/config_maker_provider.dart';
-import '../../Widgets/custom_drop_down_button.dart';
-import '../../Widgets/sized_image.dart';
-import '../../utils/constants.dart';
+import '../../../Widgets/custom_drop_down_button.dart';
+import '../../../Widgets/sized_image.dart';
+import '../../../utils/constants.dart';
 import 'config_web_view.dart';
 
 class FiltrationConfiguration extends StatefulWidget {

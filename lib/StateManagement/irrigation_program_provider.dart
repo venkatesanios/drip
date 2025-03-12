@@ -4,7 +4,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Constants/constants.dart';
 import 'package:oro_drip_irrigation/Constants/sample_data.dart';
-import 'package:oro_drip_irrigation/config_maker/model/device_object_model.dart';
+import 'package:oro_drip_irrigation/modules/config_Maker/model/device_object_model.dart';
 import 'package:oro_drip_irrigation/Models/LineDataModel.dart';
 
 import '../Constants/dart_convertion.dart';

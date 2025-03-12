@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../config_maker/model/device_model.dart';
-import '../config_maker/model/device_object_model.dart';
-import '../config_maker/view/product_limit.dart';
-import '../config_maker/state_management/config_maker_provider.dart';
+import '../modules/config_Maker/model/device_model.dart';
+import '../modules/config_Maker/model/device_object_model.dart';
+import '../modules/config_Maker/view/product_limit.dart';
+import '../modules/config_Maker/state_management/config_maker_provider.dart';
 import 'connection_grid_list_tile.dart';
 
 class ToggleTextFormFieldForConnection extends StatefulWidget {

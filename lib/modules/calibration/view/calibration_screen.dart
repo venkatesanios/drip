@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:oro_drip_irrigation/Widgets/sized_image.dart';
-import 'package:oro_drip_irrigation/calibration/repository/calibration_repository.dart';
+import 'package:oro_drip_irrigation/modules/calibration/repository/calibration_repository.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
-import '../../Widgets/custom_buttons.dart';
-import '../../config_maker/view/config_web_view.dart';
-import '../../utils/constants.dart';
-import '../../utils/environment.dart';
+import '../../../Widgets/custom_buttons.dart';
+import '../../config_Maker/view/config_web_view.dart';
+import '../../../utils/constants.dart';
+import '../../../utils/environment.dart';
 import '../model/sensor_category_model.dart';
 import 'package:oro_drip_irrigation/services/mqtt_manager_mobile.dart' if (dart.library.html) 'package:oro_drip_irrigation/services/mqtt_manager_web.dart';
 
@@ -27,7 +27,6 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
   Set<int> selectedTab = {0};
   HardwareAcknowledgementSate payloadState = HardwareAcknowledgementSate.notSent;
   MqttManager mqttManager = MqttManager();
-
 
   @override
   void initState() {
@@ -114,57 +113,62 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
                 physics: const NeverScrollableScrollPhysics(),
               ),
               children: sensorCategory.calibrationObject.map((object){
-                return Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: Theme.of(context).cardColor,
-                      boxShadow: [
-                        BoxShadow(
-                            offset: const Offset(0,5),
-                            blurRadius: 10,
-                            color: Colors.black.withOpacity(0.06)
-                        ),
-                        BoxShadow(
-                            offset: const Offset(5,5),
-                            blurRadius: 5,
-                            color: Colors.black.withOpacity(0.06)
-                        ),
-                      ]
-                  ),
-                  width: 250,
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-                    title: Text('    ${object.objectName}', style: Theme.of(context).textTheme.labelLarge, overflow: TextOverflow.ellipsis,),
-                    trailing: Container(
-                      decoration: BoxDecoration(
+                return PhysicalModel(
+                  color: Theme.of(context).cardColor,
+                  elevation: 8,
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5),
-                        border: Border.all(width: 1, color: const Color(0xffd7d7d7)),
-                        color: Theme.of(context).primaryColorDark.withOpacity(0.04),
-                      ),
-                      width: 80,
-                      child: TextFormField(
-                        key: Key('${selectedTab.first}'),
-                        initialValue: selectedTab.first == 0 ? object.maximumValue : object.calibrationFactor,
-                        onChanged: (value){
-                          setState(() {
-                            if(selectedTab.first == 0){
-                              object.maximumValue = value;
-                            }else{
-                              object.calibrationFactor = value;
-                            }
-                          });
-
-                        },
-                        textAlign: TextAlign.center,
-                        keyboardType: TextInputType.number,
-                        cursorHeight: 20,
-                        decoration: const InputDecoration(
-                          contentPadding: EdgeInsets.only(bottom: 10),
-                          constraints: BoxConstraints(maxHeight: 35),
-                            counterText: '',
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide.none
-                            )
+                        // color: Theme.of(context).cardColor,
+                        // boxShadow: [
+                        //   BoxShadow(
+                        //       offset: const Offset(0,5),
+                        //       blurRadius: 10,
+                        //       color: Colors.black.withOpacity(0.06)
+                        //   ),
+                        //   BoxShadow(
+                        //       offset: const Offset(5,5),
+                        //       blurRadius: 5,
+                        //       color: Colors.black.withOpacity(0.06)
+                        //   ),
+                        // ]
+                    ),
+                    width: 250,
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                      title: Text('    ${object.objectName}', style: Theme.of(context).textTheme.labelLarge, overflow: TextOverflow.ellipsis,),
+                      trailing: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          border: Border.all(width: 1, color: const Color(0xffd7d7d7)),
+                          color: Theme.of(context).primaryColorDark.withOpacity(0.04),
+                        ),
+                        width: 80,
+                        child: TextFormField(
+                          key: Key('${selectedTab.first}'),
+                          initialValue: selectedTab.first == 0 ? object.maximumValue : object.calibrationFactor,
+                          onChanged: (value){
+                            setState(() {
+                              if(selectedTab.first == 0){
+                                object.maximumValue = value;
+                              }else{
+                                object.calibrationFactor = value;
+                              }
+                            });
+                  
+                          },
+                          textAlign: TextAlign.center,
+                          keyboardType: TextInputType.number,
+                          cursorHeight: 20,
+                          decoration: const InputDecoration(
+                            contentPadding: EdgeInsets.only(bottom: 10),
+                            constraints: BoxConstraints(maxHeight: 35),
+                              counterText: '',
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide.none
+                              )
+                          ),
                         ),
                       ),
                     ),
@@ -231,11 +235,12 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
     );
   }
 
-  Widget getFloatingActionButton(List<SensorCategoryModel> sensorCategory){
+  Widget getFloatingActionButton(List<SensorCategoryModel> sensorCategoryModel){
     return FloatingActionButton(
       onPressed: (){
         setState(() {
-          payloadState == HardwareAcknowledgementSate.notSent;
+          payloadState = HardwareAcknowledgementSate.notSent;
+          mqttManager.payload = null;
         });
         showDialog(
           barrierDismissible: false,
@@ -254,11 +259,12 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
                         if(payloadState == HardwareAcknowledgementSate.notSent)
                           CustomMaterialButton(
                             onPressed: ()async{
+                              sendToHttp(sensorCategoryModel);
                               if(mqttManager.connectionState == MqttConnectionState.connected){
                                 mqttManager.topicToSubscribe('${Environment.mqttSubscribeTopic}/${widget.userData['deviceId']}');
                                 print('subscribe successfully...........');
                               }
-                              var payload = jsonEncode(getCalibrationPayload(sensorCategory));
+                              var payload = jsonEncode(getCalibrationPayload(sensorCategoryModel));
                               int delayDuration = 5;
                               for(var delay = 0; delay < delayDuration; delay++){
                                 if(delay == 0){
@@ -312,6 +318,17 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
       },
       child: const Icon(Icons.send),
     );
+  }
+
+  void sendToHttp(List<SensorCategoryModel> sensorCategoryModel)async{
+    var body = {
+      "userId" : widget.userData['userId'],
+      "controllerId" : widget.userData['controllerId'],
+      'calibration' : sensorCategoryModel.map((sensorCategory) => sensorCategory.toJson()).toList(),
+      "createUser" : widget.userData['userId']
+    };
+    var response = await CalibrationRepository().createUserCalibration(body);
+    print('response calibration : ${response.body}');
   }
 
   Map<String, dynamic> getCalibrationPayload(List<SensorCategoryModel> sensorCategory){

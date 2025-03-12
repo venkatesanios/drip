@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Screens/NewIrrigationProgram/program_library.dart';
 import 'package:oro_drip_irrigation/Screens/planning/fiterbackwash.dart';
-import 'package:oro_drip_irrigation/calibration/view/calibration_screen.dart';
+import 'package:oro_drip_irrigation/modules/calibration/view/calibration_screen.dart';
 
 import '../../Constants/properties.dart';
 import '../../Screens/NewPreference/preference_main_screen.dart';

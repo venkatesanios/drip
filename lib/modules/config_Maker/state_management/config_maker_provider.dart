@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:oro_drip_irrigation/Constants/sample_data.dart';
-import 'package:oro_drip_irrigation/config_maker/repository/config_maker_repository.dart';
+import 'package:oro_drip_irrigation/modules/config_Maker/repository/config_maker_repository.dart';
 import 'package:oro_drip_irrigation/services/http_service.dart';
 import '../model/device_model.dart';
 import '../model/device_object_model.dart';
@@ -132,8 +132,8 @@ class ConfigMakerProvider extends ChangeNotifier{
       configMakerDataFromHttp = configMakerData;
       defaultDataFromHttp = defaultData;
       masterData = masterDataFromSiteConfigure;
-
-      listOfDeviceModel = (defaultData['deviceList'] as List<dynamic>).map((devices) {
+      List<int> senseNodeNotToAddInDeviceList = [44, 45];
+      listOfDeviceModel = (defaultData['deviceList'] as List<dynamic>).where((device) => !senseNodeNotToAddInDeviceList.contains(device['modelId'])).map((devices) {
         Map<String, dynamic> deviceProperty = defaultData['productModel'].firstWhere((product) => devices['modelId'] == product['modelId']);
           var inputObjectId = deviceProperty['inputObjectId'] == '-' ? [] : deviceProperty['inputObjectId'].split(',').map((e) => int.parse(e.toString())).toList();
         var outputObjectId = deviceProperty['outputObjectId'] == '-' ? [] : deviceProperty['outputObjectId'].split(',').map((e) => int.parse(e.toString())).toList();
