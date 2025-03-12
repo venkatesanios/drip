@@ -21,21 +21,18 @@ class CurrentProgram extends StatelessWidget {
   Widget build(BuildContext context) {
 
     return ChangeNotifierProvider(
-      create: (context) {
-        var cs = Provider.of<MqttPayloadProvider>(context, listen: false).currentSchedule;
-        return CurrentProgramViewModel(context);
-      },
+      create: (context) => CurrentProgramViewModel(context),
       child: Consumer<CurrentProgramViewModel>(
         builder: (context, vm, _) {
 
           print('vm current schedule: ${vm.currentSchedule}');
 
-          /*var currentSchedule = Provider.of<MqttPayloadProvider>(context).currentSchedule;
+          var currentSchedule = Provider.of<MqttPayloadProvider>(context).currentSchedule;
           if(currentSchedule.isNotEmpty){
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              vm.updateLivePayload(currentSchedule);
+              vm.updateSchedule(currentSchedule);
             });
-          }*/
+          }
 
           return vm.currentSchedule.isNotEmpty && vm.currentSchedule[0].isNotEmpty?
           Padding(
@@ -119,7 +116,7 @@ class CurrentProgram extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(getProgramNameById(int.parse(values[0]))),
-                                Text(getContentByCode(int.parse(values[17])), style: const TextStyle(fontSize: 10, color: Colors.black),),
+                                Text(getContentByCode(int.parse(values[17])), style: const TextStyle(fontSize: 10, color: Colors.black87),),
                               ],
                             ),
                           ),

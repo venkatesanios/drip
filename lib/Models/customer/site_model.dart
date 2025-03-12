@@ -968,7 +968,9 @@ class LiveMessage {
   factory LiveMessage.fromJson(Map<String, dynamic> json) {
     return LiveMessage(
       cC: json['cC'],
-      cM: Map<String, dynamic>.from(json['cM']),
+      cM: json['cM'] is Map<String, dynamic>
+          ? Map<String, dynamic>.from(json['cM'])
+          : (json['cM'] is List ? <String, dynamic>{} : <String, dynamic>{}),
       cD: json['cD'],
       cT: json['cT'],
       mC: json['mC'],
@@ -998,7 +1000,7 @@ class NodeListModel{
   int referenceNumber;
   int interfaceTypeId;
   String interface;
-  String? extendControllerId;
+  int? extendControllerId;
   int status;
   String communicationCount;
   String lastFeedbackReceivedTime;
@@ -1045,7 +1047,7 @@ class NodeListModel{
       referenceNumber: json['referenceNumber'],
       interfaceTypeId: json['interfaceTypeId'] ?? 0,
       interface: json['interface'] ?? '',
-      extendControllerId: json['extendControllerId'] ?? '',
+      extendControllerId: json['extendControllerId'] ?? 0,
       rlyStatus: rlyStatus,
     );
   }

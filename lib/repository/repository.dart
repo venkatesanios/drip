@@ -268,5 +268,9 @@ class Repository{
     return await apiService.postRequest('/user/manualOperation/create', body);
   }
 
+  Future<http.Response> fetchConditionLibrary(body) async {
+    return await apiService.postRequest('/user/planning/conditionLibrary/get', body);
+  }
+
 }
 
