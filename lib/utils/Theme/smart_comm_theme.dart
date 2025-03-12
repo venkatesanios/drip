@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'oro_theme.dart';
 
 Color primaryDark = const Color(0xFF004265);
-Color primary = const Color(0xFF004265);
+Color primary = const Color(0xFF005C8E);
 Color primaryLight = const Color(0xFF008CD7);
 Color primaryBackground = const Color(0xFFEFEFEF);
 Color primaryTextColor = const Color(0xFF3C3C3C);
@@ -54,7 +54,7 @@ class SmartCommTheme {
           if (states.contains(WidgetState.selected)) {
             return primary;
           }
-          return Colors.grey[300];
+          return primaryLight.withOpacity(0.1);
         },
         ),
         foregroundColor: WidgetStateProperty.resolveWith<Color?>(
@@ -70,8 +70,8 @@ class SmartCommTheme {
         ),
         side: WidgetStateProperty.resolveWith<BorderSide>(
               (states) => BorderSide(
-            color: states.contains(WidgetState.selected) ? Colors.blueGrey : Colors.grey,
-            width: 0.5,
+            color: primaryLight,
+            width: 1,
           ),
         ),
         shape: WidgetStateProperty.all<RoundedRectangleBorder>(

@@ -27,7 +27,7 @@ class Routes {
         );
       case dashboard:
         return MaterialPageRoute(
-          // builder: (_) => const CalibrationScreen(userId: 4, controllerId: 1),
+          // builder: (_) => const CalibrationScreen(userData: {"userId" : 4, "controllerId": 1, "deviceId":"2CCF674C0F8A" },),
           // builder: (_) => const ConfigBasePage(masterData: {}),
            builder: (_) => const ScreenController(),
           settings: settings,
