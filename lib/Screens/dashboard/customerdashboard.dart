@@ -286,8 +286,8 @@ class _DashboardState extends State<MobDashboard>
   Widget build(BuildContext context) {
 
     final viewModel = Provider.of<CustomerScreenControllerViewModel>(context);
-    var scheduledPrograms = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].programList;
-    // var scheduledPrograms = viewModel.mySiteList.data[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].programList;
+    // var scheduledPrograms = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].programList;
+    var scheduledPrograms = viewModel.mySiteList.data[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].programList;
 
 
     // print("sourcePumpMode$sourcePumpMode");
@@ -376,12 +376,12 @@ class _DashboardState extends State<MobDashboard>
                   },
                   child: Container(
                     decoration: BoxDecoration(
-                      // image: DecorationImage(
-                      //   fit: BoxFit.fill,
-                      //   image: AssetImage(
-                      //     'assets/images/schedule.png'
-                      //   )
-                      // ),
+                      image: DecorationImage(
+                        fit: BoxFit.fill,
+                        image: AssetImage(
+                          'assets/images/schedule.png'
+                        )
+                      ),
                         color: Color(0xff69BCFC),
                         borderRadius: BorderRadius.only(topLeft: Radius.circular(8),topRight: Radius.circular(30),bottomLeft: Radius.circular(8),bottomRight: Radius.circular(8))
                     ),

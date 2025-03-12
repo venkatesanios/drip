@@ -1000,7 +1000,7 @@ class NodeListModel{
   int referenceNumber;
   int interfaceTypeId;
   String interface;
-  String? extendControllerId;
+  int? extendControllerId;
   int status;
   String communicationCount;
   String lastFeedbackReceivedTime;
@@ -1047,7 +1047,7 @@ class NodeListModel{
       referenceNumber: json['referenceNumber'],
       interfaceTypeId: json['interfaceTypeId'] ?? 0,
       interface: json['interface'] ?? '',
-      extendControllerId: json['extendControllerId'] ?? '',
+      extendControllerId: json['extendControllerId'] ?? 0,
       rlyStatus: rlyStatus,
     );
   }

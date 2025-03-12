@@ -129,7 +129,7 @@ class _NextScheduleForMobileState extends State<NextScheduleForMobile>
                           ),
 
                         ],
-                      ) : Container(child: Center(child: Text("There are No Currently Scheduled Programs"),),);
+                      ) : Container(child: Center(child: Text("There are No Next Scheduled Programs"),),);
                     },
                   ),
                 ],
