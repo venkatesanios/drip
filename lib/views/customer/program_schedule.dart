@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Screens/NewIrrigationProgram/program_library.dart';
 import 'package:oro_drip_irrigation/Screens/planning/fiterbackwash.dart';
+import 'package:oro_drip_irrigation/calibration/view/calibration_screen.dart';
 
 import '../../Constants/properties.dart';
 import '../../Screens/NewPreference/preference_main_screen.dart';
@@ -129,8 +130,8 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
       //   return Names(userID: widget.customerID, customerID: widget.customerID, controllerId: widget.controllerID, imeiNo: widget.imeiNumber);
       // case 81:
       //   return CustomMarkerPage(userId: widget.customerID,deviceID: widget.imeiNumber,controllerId: widget.controllerID,);
-      // case 127:
-      //   return Calibration(controllerId: widget.controllerID, userId: widget.customerID, deviceId:  widget.imeiNumber);
+      case 127:
+        return CalibrationScreen(userData: {'userId' : widget.customerID, 'controllerId' : widget.controllerID, 'deviceId' : widget.imeiNumber});
 
       default:
         return const Center(child: Text('id'));
