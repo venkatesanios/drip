@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:oro_drip_irrigation/Screens/dashboard/mobileschedule_program.dart';
 import 'package:oro_drip_irrigation/Screens/dashboard/schedule_program.dart';
 import 'package:oro_drip_irrigation/Screens/dashboard/sidedrawer.dart';
 import 'package:oro_drip_irrigation/views/customer/node_list.dart';
@@ -2662,9 +2663,8 @@ class _DashboardState extends State<MobDashboard>
                               // Container(),
                               NextScheduleForMobile(scheduledPrograms: scheduledPrograms,),
                             if(selectedTab == 2)
-                              // Container(),
-                              ScheduleProgramForMobile(manager: manager, deviceId: '${overAllPvd.imeiNo}', selectedLine: payloadProvider.selectedLine, userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, controllerId: overAllPvd.controllerId,),
-                          ],
+                               ScheduledProgram(userId: userId, scheduledPrograms: scheduledPrograms, masterInx: payloadProvider.selectedMaster, deviceId: overAllPvd.imeiNo)
+                           ],
                         ),
                       ),
                     ),
