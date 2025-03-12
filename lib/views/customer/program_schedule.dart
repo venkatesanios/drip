@@ -6,7 +6,10 @@ import 'package:oro_drip_irrigation/Screens/planning/fiterbackwash.dart';
 import '../../Constants/properties.dart';
 import '../../Screens/NewPreference/preference_main_screen.dart';
 import '../../Screens/SystemDefinitionScreen/system_definition_screen.dart';
+import '../../Screens/planning/frost_productionScreen.dart';
 import '../../Screens/planning/planningwatersource.dart';
+import '../../Screens/planning/valve_group_screen.dart';
+import '../../Screens/planning/virtual_screen.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 
@@ -99,16 +102,16 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
         return ProgramLibraryScreenNew(customerId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber, userId: widget.userId, fromDealer: false,);
       case 66:
         return watersourceUI(userId: 4, controllerId: 1, deviceID: widget.imeiNumber, menuId: 66,);
-      // case 67:
-      //   return VirtualMeterScreen(userId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber);
+      case 67:
+        return VirtualMeterScreen(userId: widget.userId, controllerId: widget.controllerID, menuId: 67, deviceId: widget.imeiNumber);
       // case 68:
       //   return RadiationSetUI(userId: widget.customerID, controllerId: widget.controllerID, );
-      // case 69:
-      //   return MyGroupScreen(userId: widget.customerID, controllerId: widget.controllerID,  imeiNo: widget.imeiNumber);
-      // case 70:
+      case 69:
+        return GroupListScreen();
+      case 70:
       //   return ConditionScreen(customerId: widget.customerID, controllerId: widget.controllerID, imeiNo: widget.imeiNumber, isProgram: false, serialNumber: 0,);
-      // case 71:
-      //   return FrostMobUI(userId: widget.customerID, controllerId: widget.controllerID,deviceID: widget.imeiNumber,);
+      case 71:
+        return FrostMobUI(userId: widget.customerID, controllerId: widget.controllerID,deviceID: widget.imeiNumber, menuId: 71,);
       case 72:
         return FilterBackwashUI(userId: widget.userId, controllerId: widget.controllerID, deviceId: widget.imeiNumber, customerId: widget.customerID, fromDealer: false,);
       // case 73:
