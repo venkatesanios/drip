@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/config_base_page.dart';
 import 'package:oro_drip_irrigation/Screens/ConfigMaker/table_demo.dart';
 
+import '../Screens/ScheduleView/schedule_view_screen.dart';
 import '../views/screen_controller.dart';
 import '../views/login_screen.dart';
 import '../views/splash_screen.dart';
@@ -28,7 +29,8 @@ class Routes {
       case dashboard:
         return MaterialPageRoute(
           // builder: (_) => const ConfigBasePage(masterData: {}),
-           builder: (_) => const ScreenController(),
+          builder: (_) => ScheduleViewScreen(deviceId: "2CCF674C0F8A", userId: 4, controllerId: 1, customerId: 4, groupId: 1),
+           // builder: (_) => const ScreenController(),
           settings: settings,
         );
       default:

@@ -288,5 +288,18 @@ class Repository{
     return await apiService.postRequest('/user/dealerDefinition/mainMenu/get', body);
   }
 
+  Future<http.Response> getUserIrrigationLog(body) async {
+    return await apiService.postRequest('/user/log/gem/get', body);
+  }
+
+  ///Todo: Schedule view urls
+  Future<http.Response> updateUserSequencePriority(body) async {
+    return await apiService.postRequest('/user/sequencePriority/update', body);
+  }
+
+  Future<http.Response> createUserSentAndReceivedMessageManually(body) async {
+    return await apiService.postRequest('/user/sentAndReceivedMessage/createManually', body);
+  }
+
 }
 

@@ -17,10 +17,10 @@ class ProgramSchedule extends StatefulWidget {
     required this.controllerID,
     required this.siteName,
     required this.imeiNumber,
-    required this.userId,
+    required this.userId, required this.groupId, required this.categoryId,
   });
 
-  final int userId, customerID, controllerID;
+  final int userId, customerID, controllerID, groupId, categoryId;
   final String siteName, imeiNumber;
 
   @override
@@ -95,7 +95,7 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
   Widget getViewForParameter(int id) {
     switch (id) {
       case 1:
-        return ProgramLibraryScreenNew(customerId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber, userId: widget.userId, fromDealer: false,);
+        return ProgramLibraryScreenNew(customerId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber, userId: widget.userId, fromDealer: false, groupId: widget.groupId, categoryId: widget.categoryId,);
       // case 66:
       //   return watersourceUI(userId: widget.customerID, controllerId: widget.controllerID, deviceID: widget.imeiNumber,);
       // case 67:

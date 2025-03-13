@@ -21,6 +21,8 @@ import 'done_screen.dart';
 class IrrigationProgram extends StatefulWidget {
   final int userId;
   final int customerId;
+  final int groupId;
+  final int categoryId;
   final int controllerId;
   final String deviceId;
   final int serialNumber;
@@ -35,7 +37,8 @@ class IrrigationProgram extends StatefulWidget {
     this.programType,
     this.conditionsLibraryIsNotEmpty,
     required this.deviceId,
-    required this.fromDealer,
+    required this.fromDealer, required this.groupId,
+    required this.categoryId,
     this.toDashboard = false, required this.customerId
   }) :super(key: irrigationProgramKey);
 
@@ -65,7 +68,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
     if (mounted) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         irrigationProvider.updateTabIndex(0);
-        irrigationProvider.getUserProgramSequence(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber);
+        irrigationProvider.getUserProgramSequence(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, groupId: widget.groupId, categoryId: widget.categoryId);
         irrigationProvider.getWaterAndFertData(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber);
         irrigationProvider.scheduleData(widget.customerId, widget.controllerId, widget.serialNumber);
         irrigationProvider.getUserProgramCondition(widget.customerId, widget.controllerId, widget.serialNumber);

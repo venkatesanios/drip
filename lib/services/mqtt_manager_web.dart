@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:mqtt_client/mqtt_browser_client.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:uuid/uuid.dart';
+import '../Constants/constants.dart';
 import '../StateManagement/mqtt_payload_provider.dart';
 import '../utils/environment.dart';
 
@@ -13,16 +14,26 @@ class MqttManager {
   MqttBrowserClient? _client;
   String? currentTopic;
   final StreamController<Map<String, dynamic>?> _payloadController = StreamController.broadcast();
+  final StreamController<List<Map<String, dynamic>>?> _schedulePayloadController = StreamController.broadcast();
   MqttPayloadProvider? providerState;
 
   Map<String, dynamic>? _payload;
   Map<String, dynamic>? get payload => _payload;
+  List<Map<String, dynamic>>? _schedulePayload;
+  List<Map<String, dynamic>>? get schedulePayload => _schedulePayload;
   Stream<Map<String, dynamic>?> get payloadStream => _payloadController.stream;
+  Stream<List<Map<String, dynamic>>?> get schedulePayloadStream => _schedulePayloadController.stream;
 
   set payload(Map<String, dynamic>? newPayload) {
     _payload = newPayload;
     _payloadController.add(_payload);
   }
+
+  set schedulePayload(List<Map<String, dynamic>>? newPayload) {
+    _schedulePayload = newPayload;
+    _schedulePayloadController.add(_schedulePayload);
+  }
+
   factory MqttManager() {
     _instance ??= MqttManager._internal();
     return _instance!;
@@ -78,6 +89,7 @@ class MqttManager {
         }
         await Future.delayed(Duration.zero);
         await _client!.connect('imsmqtt', '2L9((WonMr');
+        print('client connected');
         _client?.updates!.listen(_onMessageReceived);
       } on Exception catch (e, stackTrace) {
         if (kDebugMode) {
@@ -99,6 +111,9 @@ class MqttManager {
     final MqttPublishMessage recMess = c![0].payload as MqttPublishMessage;
     final String pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
     payload = jsonDecode(pt);
+    if (payload != null && payload!['mC'] == '3600') {
+      schedulePayload = Constants.dataConversionForScheduleView(payload!['cM']['3601']);
+    }
     print('Received message: $pt');
     print('payload updated: $payload');
    }

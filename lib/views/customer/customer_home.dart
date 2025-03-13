@@ -63,7 +63,7 @@ class DisplayPumpStation extends StatelessWidget {
   Widget build(BuildContext context) {
 
     var outputOnOffLiveMessage = Provider.of<MqttPayloadProvider>(context).outputOnOffLiveMessage;
-    print('outputOnOffLiveMessage:$outputOnOffLiveMessage');
+    // print('outputOnOffLiveMessage:$outputOnOffLiveMessage');
 
     List<String> filteredPumpStatus = outputOnOffLiveMessage
         .where((item) => item.startsWith('5.')).toList();
@@ -100,8 +100,8 @@ class DisplayPumpStation extends StatelessWidget {
         totalFilters + totalPressureIn + totalPressureOut +
         totalBoosterPump + totalChannels + totalAgitators;
 
-    print("Grand Total: $grandTotal");
-    print(screenWith);
+    // print("Grand Total: $grandTotal");
+    // print(screenWith);
 
     List<WaterSource> sortedWaterSources = [...waterSource]
       ..sort((a, b) {

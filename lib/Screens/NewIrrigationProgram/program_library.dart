@@ -21,9 +21,11 @@ class ProgramLibraryScreenNew extends StatefulWidget {
   final int userId;
   final int controllerId;
   final int customerId;
+  final int groupId;
+  final int categoryId;
   final String deviceId;
   final bool fromDealer;
-  const ProgramLibraryScreenNew({super.key, required this.userId, required this.controllerId, required this.deviceId, required this.fromDealer, required this.customerId});
+  const ProgramLibraryScreenNew({super.key, required this.userId, required this.controllerId, required this.deviceId, required this.fromDealer, required this.customerId, required this.groupId, required this.categoryId});
 
   @override
   State<ProgramLibraryScreenNew> createState() => _ProgramLibraryScreenNewState();
@@ -230,6 +232,8 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                                   fromDealer: false,
                                   // fromDealer: overAllUse.fromDealer,
                                   customerId: widget.customerId,
+                                  groupId: widget.groupId,
+                                  categoryId: widget.categoryId,
                                 ),
                               ),
                             );
@@ -248,6 +252,8 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                                   fromDealer: false,
                                   // fromDealer: overAllUse.fromDealer,
                                   customerId: widget.customerId,
+                                  groupId: widget.groupId,
+                                  categoryId: widget.categoryId,
                                 ),
                               ),
                             );
@@ -972,6 +978,8 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
           fromDealer: false,
           // fromDealer: overAllUse.fromDealer,
           customerId: widget.customerId,
+          groupId: widget.groupId,
+          categoryId: widget.categoryId,
         ),
       ),
     );
@@ -1085,7 +1093,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
 Future<void> validatePayloadSent({
   required BuildContext dialogContext,
   required BuildContext context,
-  required MqttPayloadProvider mqttPayloadProvider,
+  MqttPayloadProvider? mqttPayloadProvider,
   required void Function() acknowledgedFunction,
   required Map<String, dynamic> payload,
   required String payloadCode,
@@ -1095,10 +1103,7 @@ Future<void> validatePayloadSent({
     // Reset payload to ensure we get the latest acknowledgment
     MqttManager().payload = null;
 
-    await MqttManager().topicToPublishAndItsMessage(
-      '${Environment.mqttPublishTopic}/$deviceId',
-      jsonEncode(payload),
-    );
+    await MqttManager().topicToPublishAndItsMessage('${Environment.mqttPublishTopic}/$deviceId', jsonEncode(payload),);
 
     bool isAcknowledged = false;
 
@@ -1136,6 +1141,7 @@ Future<void> validatePayloadSent({
 
     if (isAcknowledged) {
       final decodedPayload = MqttManager().payload!;
+      print("decodedPayload :: $decodedPayload");
       if (decodedPayload['cM']['4201']['Code'] == "200") {
         acknowledgedFunction();
       } else {

@@ -6,22 +6,33 @@ import 'dart:async';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:uuid/uuid.dart';
 
+import '../Constants/constants.dart';
 import '../StateManagement/mqtt_payload_provider.dart';
 import '../utils/environment.dart';
 
 class MqttManager {
   static MqttManager? _instance;
   MqttServerClient? _client;
-  final StreamController<Map<String, dynamic>?> _payloadController = StreamController.broadcast();
   MqttPayloadProvider? providerState;
 
+  final StreamController<Map<String, dynamic>?> _payloadController = StreamController.broadcast();
+  Stream<Map<String, dynamic>?> get payloadStream => _payloadController.stream;
   Map<String, dynamic>? _payload;
   Map<String, dynamic>? get payload => _payload;
-  Stream<Map<String, dynamic>?> get payloadStream => _payloadController.stream;
+
+  final StreamController<List<Map<String, dynamic>>?> _schedulePayloadController = StreamController.broadcast();
+  Stream<List<Map<String, dynamic>>?> get schedulePayloadStream => _schedulePayloadController.stream;
+  List<Map<String, dynamic>>? _schedulePayload;
+  List<Map<String, dynamic>>? get schedulePayload => _schedulePayload;
 
   set payload(Map<String, dynamic>? newPayload) {
     _payload = newPayload;
     _payloadController.add(_payload);
+  }
+
+  set schedulePayload(List<Map<String, dynamic>>? newPayload) {
+    _schedulePayload = newPayload;
+    _schedulePayloadController.add(_schedulePayload);
   }
 
   factory MqttManager() {
@@ -108,6 +119,9 @@ class MqttManager {
     final MqttPublishMessage recMess = c![0].payload as MqttPublishMessage;
     final String pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
     payload = jsonDecode(pt);
+    if (payload != null && payload!['mC'] == '3600') {
+      schedulePayload = Constants.dataConversionForScheduleView(payload!['cM']['3601']);
+    }
     onMqttPayloadReceived(pt);
     print('Received message: $pt');
     // providerState?.updateReceivedPayload(pt,false);

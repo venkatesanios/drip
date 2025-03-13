@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/StateManagement/schedule_view_provider.dart';
 
 import '../Constants/data_convertion.dart';
 import '../Models/customer/site_model.dart';
@@ -24,7 +25,7 @@ class MqttPayloadProvider with ChangeNotifier {
   // bool isWaiting = false;
   int dataFetchingStatus = 2;
   List<dynamic> unitList = [];
-
+  late ScheduleViewProvider mySchedule;
   //Todo : Dashboard start
   int tryingToGetPayload = 0;
 
@@ -462,7 +463,7 @@ class MqttPayloadProvider with ChangeNotifier {
  
 
   void updateReceivedPayload(String payload,bool dataFromHttp) async{
-    print("updateReceivedPayload ====$payload");
+    // print("updateReceivedPayload ====$payload");
     if(!dataFromHttp) {
       dataFetchingStatus = 1;
     } else {
@@ -472,7 +473,7 @@ class MqttPayloadProvider with ChangeNotifier {
       // Todo : Dashboard payload start
       Map<String, dynamic> data = jsonDecode(payload);
 
-      print("data from controller ::: $data");
+      // print("data from controller ::: $data");
       //live payload
       if(data['mC']=='2400'){
         liveDateAndTime = '${data['cD']} ${data['cT']}';
@@ -485,7 +486,10 @@ class MqttPayloadProvider with ChangeNotifier {
 
         notifyListeners();
       }
-
+      else if(data.containsKey('3600') && data['3600'] != null && data['3600'].isNotEmpty){
+        // mySchedule.dataFromMqttConversion(payload);
+        schedulePayload = payload;
+      }
       /* if(data['liveSyncDate'] != null){
         String dateStr = data['liveSyncDate'];
         String timeStr = data['liveSyncTime'];
@@ -758,18 +762,10 @@ class MqttPayloadProvider with ChangeNotifier {
 
   //Todo : Dashboard stop
 
-  // void editMySchedule(ScheduleViewProvider instance){
-  //   mySchedule = instance;
-  //   notifyListeners();
-  // }
-  //
-  //
-  // void updatehttpweather(Map<String, dynamic> payload) {
-  //   weatherModelinstance = WeatherModel.fromJson(payload);
-  //   notifyListeners();
-  // }
-
-  //assets/mob_dashboard/sump.svg
+  void editMySchedule(ScheduleViewProvider instance){
+    mySchedule = instance;
+    notifyListeners();
+  }
 
   Future<void> updateDashboardPayload(Map<String, dynamic> payload) async{
     _dashboardLiveInstance = SiteModel.fromJson(payload);

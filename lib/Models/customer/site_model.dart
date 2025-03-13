@@ -968,7 +968,9 @@ class LiveMessage {
   factory LiveMessage.fromJson(Map<String, dynamic> json) {
     return LiveMessage(
       cC: json['cC'],
-      cM: Map<String, dynamic>.from(json['cM']),
+      cM: json['cM'] is Map<String, dynamic>
+          ? Map<String, dynamic>.from(json['cM'])
+          : (json['cM'] is List ? <String, dynamic>{} : <String, dynamic>{}),
       cD: json['cD'],
       cT: json['cT'],
       mC: json['mC'],

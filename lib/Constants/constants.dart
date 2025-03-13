@@ -50,4 +50,24 @@ class Constants {
     // print('-------------------------------------------');
     return dataFormation;
   }
+
+  static List<Map<String, dynamic>> dataConversionForScheduleView(Map<String, dynamic> payload) {
+    List<Map<String, dynamic>> convertedListInside = [];
+
+    print('payload in the data conversion :: $payload');
+    if(payload.isNotEmpty) {
+      for (int i = 0; i < payload["S_No"].length; i++) {
+        Map<String, dynamic> resultDict = {};
+
+        payload.forEach((key, value) {
+          resultDict[key] = value[i];
+        });
+
+        convertedListInside.add(resultDict);
+      }
+    }
+
+    print("in the conversion :: $convertedListInside");
+    return convertedListInside;
+  }
 }

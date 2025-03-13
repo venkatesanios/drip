@@ -7,6 +7,7 @@ import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../repository/repository.dart';
 import '../../services/mqtt_service.dart';
 import '../../utils/constants.dart';
+import 'package:oro_drip_irrigation/services/mqtt_manager_mobile.dart' if (dart.library.html) 'package:oro_drip_irrigation/services/mqtt_manager_web.dart';
 
 class CustomerScreenControllerViewModel extends ChangeNotifier {
 
@@ -45,7 +46,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
 
   void onSubscribeTopic(){
     Future.delayed(const Duration(milliseconds: 2000), () {
-      MqttService().topicToSubscribe('${AppConstants.subscribeTopic}/${mySiteList.data[sIndex].master[mIndex].deviceId}');
+      MqttManager().topicToSubscribe('${AppConstants.subscribeTopic}/${mySiteList.data[sIndex].master[mIndex].deviceId}');
       onRefreshClicked();
     });
   }

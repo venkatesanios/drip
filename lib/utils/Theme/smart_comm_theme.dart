@@ -126,6 +126,14 @@ class SmartCommTheme {
       onError: Colors.white,
       seedColor: primary,
     ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        backgroundColor: primaryLight,
+        foregroundColor: Colors.white,
+        iconColor: Colors.white,
+        side: BorderSide.none,
+      ),
+    ),
   );
 
   static ThemeData darkTheme = ThemeData.dark().copyWith(
@@ -161,6 +169,13 @@ class SmartCommTheme {
       focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.blue)),
       labelStyle: const TextStyle(color: Colors.blue),
     ),*/
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        backgroundColor: Colors.transparent,
+        foregroundColor: primary,
+        side: const BorderSide(color: Colors.white),
+      ),
+    ),
     dialogBackgroundColor: Colors.white,
     dialogTheme: DialogTheme(
       shape: RoundedRectangleBorder(

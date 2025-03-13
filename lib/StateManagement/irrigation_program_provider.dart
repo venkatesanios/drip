@@ -3,7 +3,6 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Constants/constants.dart';
-import 'package:oro_drip_irrigation/Constants/sample_data.dart';
 import 'package:oro_drip_irrigation/Models/Configuration/device_object_model.dart';
 import 'package:oro_drip_irrigation/Models/LineDataModel.dart';
 
@@ -70,7 +69,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
 
   List<dynamic> configObjects = [];
 
-  Future<void> getUserProgramSequence({required int userId, required int controllerId, required int serialNumber}) async {
+  Future<void> getUserProgramSequence({required int userId, required int controllerId, required int serialNumber, required int groupId, required int categoryId}) async {
     try {
       var userData = {
         "userId": userId,
@@ -82,8 +81,8 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         "userId": userId,
         "controllerId": controllerId,
         "serialNumber": serialNumber,
-        "groupId": 3,
-        "categoryId": 1
+        "groupId": groupId,
+        "categoryId": categoryId
       };
       var getUserConfigMaker = await repository.getUserConfigMaker(userBody);
       var getUserProgramSequence = await repository.getUserProgramSequence(userData);

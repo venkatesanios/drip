@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Screens/NewIrrigationProgram/program_library.dart';
+import 'package:oro_drip_irrigation/Screens/ScheduleView/schedule_view_screen.dart';
 import '../flavors.dart';
 import '../utils/Theme/smart_comm_theme.dart';
 import '../utils/routes.dart';
@@ -48,9 +49,11 @@ class MyApp extends StatelessWidget {
 Widget navigateToInitialScreen(String route) {
   switch (route) {
     case Routes.login:
+      return ScheduleViewScreen(deviceId: "2CCF674C0F8A", userId: 4, controllerId: 1, customerId: 4, groupId: 1);
       // return ProgramLibraryScreenNew(userId: 4, controllerId: 1, deviceId: '2CCF674C0F8A', fromDealer: false, customerId: 4,);
       return const LoginScreen();
     case Routes.dashboard:
+      return ScheduleViewScreen(deviceId: "2CCF674C0F8A", userId: 4, controllerId: 1, customerId: 4, groupId: 1);
       // return ProgramLibraryScreenNew(userId: 4, controllerId: 1, deviceId: '2CCF674C0F8A', fromDealer: false, customerId: 4,);
       return const ScreenController();
     default:

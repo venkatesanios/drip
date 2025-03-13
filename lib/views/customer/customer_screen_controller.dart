@@ -5,6 +5,7 @@ import 'package:oro_drip_irrigation/views/customer/site_config.dart';
 import 'package:oro_drip_irrigation/views/customer/stand_alone.dart';
 import '../../Models/customer/site_model.dart';
 import 'package:provider/provider.dart';
+import '../../Screens/ScheduleView/schedule_view_screen.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../flavors.dart';
 import '../../repository/repository.dart';
@@ -532,6 +533,8 @@ class CustomerScreenController extends StatelessWidget {
                                   siteName: vm.mySiteList.data[vm.sIndex].groupName,
                                   imeiNumber: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
                                   userId: userId,
+                                  groupId: vm.mySiteList.data[vm.sIndex].groupId,
+                                  categoryId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
                                 ),
                               ),
                             );
@@ -552,15 +555,13 @@ class CustomerScreenController extends StatelessWidget {
                         height: 45,
                         child: IconButton(
                           tooltip: 'Scheduled Program details',
-                          onPressed: (){},
-                          /*onPressed: getPermissionStatusBySNo(context, 3) ? () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ScheduleViewScreen(deviceId: mySiteList[siteIndex].master[masterIndex].deviceId, userId: widget.userId, controllerId: mySiteList[siteIndex].master[masterIndex].controllerId, customerId: widget.customerId),
-                              ),
-                            );
-                          }:null,*/
+                          // onPressed: (){},
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ScheduleViewScreen(deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId, userId: userId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId, customerId: customerId, groupId: vm.mySiteList.data[vm.sIndex].groupId),
+                            ),
+                          ),
                           icon: const Icon(Icons.view_list_outlined),
                           color: Colors.white,
                           iconSize: 24.0,

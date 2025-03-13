@@ -63,6 +63,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       controllerId: 0,
       deviceId: 'B48C9D810C51',
       fromDealer: false, customerId: 0,
+      groupId: 0,
+      categoryId: 0,
     ),
     // ScheduleViewScreen(
     //   deviceId: 'B48C9D810C51',
