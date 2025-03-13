@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../Constants/properties.dart';
-import '../Screens/ConfigMaker/device_list.dart';
+import '../config_maker/view/device_list.dart';
 
 
 class CustomDropDownButton extends StatelessWidget {

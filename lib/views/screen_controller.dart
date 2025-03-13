@@ -1,9 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/Screens/dashboard/dashboard_outerscreen.dart';
 import 'package:provider/provider.dart';
-import '../Screens/dashboard/customerdashboard.dart';
-import '../Screens/planning/fiterbackwash.dart';
 import '../view_models/screen_controller_view_model.dart';
 import 'admin_dealer/admin_screen_controller.dart';
 import 'admin_dealer/dealer_screen_controller.dart';
@@ -52,14 +49,13 @@ class ScreenController extends StatelessWidget {
           emailId: emailId,
         );
       default:
-        return kIsWeb ? CustomerScreenController(
-          userId: userId,
+        return CustomerScreenController(userId: userId,
           customerName: userName,
           mobileNo: mobileNo,
           emailId: emailId,
           customerId: userId,
           fromLogin: true,
-        ) :   HomeScreen(userId: 4,fromDealer: false,);
+        ) ;
     }
   }
 }

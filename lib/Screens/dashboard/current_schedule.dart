@@ -3,6 +3,7 @@
 // import 'package:flutter/widgets.dart';
 // import 'package:oro_drip_irrigation/Screens/dashboard/schedule_program.dart';
 //  import 'package:oro_drip_irrigation/services/mqtt_manager_web.dart';
+// import 'package:percent_indicator/circular_percent_indicator.dart';
 //  import 'package:provider/provider.dart';
 //  import 'package:flutter_svg/svg.dart';
 //
@@ -71,7 +72,7 @@
 //                                 borderRadius: BorderRadius.circular(15),
 //                                 color: i == payloadProvider.selectedCurrentSchedule ? Color(0xff1A7886) : null
 //                             ),
-//                             child: Center(child: Text('${payloadProvider.currentSchedule[i]}',style: TextStyle(color: i == payloadProvider.selectedCurrentSchedule ? Colors.white : Colors.black87,fontSize: 13,fontWeight: FontWeight.w200),)),
+//                             child: Center(child: Text('${payloadProvider.currentSchedule[i]['ProgName']}',style: TextStyle(color: i == payloadProvider.selectedCurrentSchedule ? Colors.white : Colors.black87,fontSize: 13,fontWeight: FontWeight.w200),)),
 //                           ),
 //                         ),
 //                         SizedBox(width: 20,)
@@ -88,7 +89,7 @@
 //               child: Column(
 //                 children: [
 //                   ListTile(
-//                       subtitle: Text('${payloadProvider.currentSchedule[payloadProvider.selectedCurrentSchedule]}',style: TextStyle(
+//                       subtitle: Text('${payloadProvider.currentSchedule[payloadProvider.selectedCurrentSchedule]['StartTime']}',style: TextStyle(
 //                           fontSize: 15.0,
 //                           fontWeight: FontWeight.bold,
 //                           color: Colors.black
@@ -435,13 +436,13 @@
 //     if(total != '0'){
 //       percentValue = ((int.parse(completed!)/int.parse(total!))*100).toInt();
 //     }
-//     // return CircularPercentIndicator(
-//     //   radius: 30.0,
-//     //   lineWidth: 5.0,
-//     //   percent: (percentValue.toDouble()/100),
-//     //   center: new Text('${completed}/${total}'),
-//     //   progressColor: Colors.green,
-//     // );
+//     return CircularPercentIndicator(
+//       radius: 30.0,
+//       lineWidth: 5.0,
+//       percent: (percentValue.toDouble()/100),
+//       center: new Text('${completed}/${total}'),
+//       progressColor: Colors.green,
+//     );
 //     // return  Container(
 //     //   width: MediaQuery.of(context).size.width / 2.3,
 //     //   height: 120,

@@ -47,14 +47,14 @@ class _AddEditValveGroupState extends State<AddEditValveGroup> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Select Irrigation Line
-            Text(
+            const Text(
               'Group Name:',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             TextFormField(
               controller: _controller,
 
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Enter text',
                 // border: OutlineInputBorder(),
               ),

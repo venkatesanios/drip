@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:oro_drip_irrigation/view_models/customer/controller_settings_view_model.dart';
+import 'package:oro_drip_irrigation/views/customer/condition_library.dart';
 import 'package:provider/provider.dart';
 
 import '../../repository/repository.dart';
@@ -26,17 +27,17 @@ class ControllerSettings extends StatelessWidget {
               : Scaffold(
             backgroundColor: Colors.white,
             body: DefaultTabController(
-              length: 5,
+              length: 6,
               child: Column(
                 children: [
                   TabBar(
                     indicatorColor: Colors.teal,
                     labelColor: Colors.black,
                     unselectedLabelColor: Colors.grey,
-                    dividerColor: Colors.teal.shade100,
                     tabs: const [
                       Tab(text: 'General'),
                       Tab(text: 'Preference'),
+                      Tab(text: 'Condition Library'),
                       Tab(text: 'Notification'),
                       Tab(text: 'Names'),
                       Tab(text: 'View Settings'),
@@ -391,8 +392,9 @@ class ControllerSettings extends StatelessWidget {
                           ),
                         ),
                         const Center(child: Text('Tab 2 Content')),
-                        const Center(child: Text('Tab 3 Content')),
+                        Center(child: ConditionLibrary(customerId, controllerId)),
                         const Center(child: Text('Tab 4 Content')),
+                        const Center(child: Text('Tab 5 Content')),
                         /*Column(
                           children: [
                             Expanded(
@@ -445,7 +447,7 @@ class ControllerSettings extends StatelessWidget {
                               customerID: widget.customerID,
                               controllerId: widget.siteData.master[0].controllerId,
                               imeiNo: widget.siteData.master[0].deviceId,)),*/
-                        const Center(child: Text('Tab 5 Content')),
+                        const Center(child: Text('Tab 6 Content')),
                       ],
                     ),
                   ),

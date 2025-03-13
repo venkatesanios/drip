@@ -2,7 +2,6 @@ import 'package:http/http.dart' as http;
 import '../services/http_service.dart';
 
 class Repository{
-
   final HttpService apiService;
   Repository(this.apiService);
 
@@ -152,6 +151,24 @@ class Repository{
   Future<http.Response> UpdateFilterBackwasing(body) async {
     return await apiService.postRequest('/user/planning/filterBackwashing/create', body);
   }
+  Future<http.Response> getUserwaterSource(body) async {
+    return await apiService.postRequest('/user/planning/waterSource/get', body);
+  }
+  Future<http.Response> UpdatewaterSource(body) async {
+    return await apiService.postRequest('/user/planning/waterSource/create', body);
+  }
+  Future<http.Response> getUservirtualwatermeter(body) async {
+    return await apiService.postRequest('/user/planning/virtualwatermeter/get', body);
+  }
+  Future<http.Response> Updatevirtualwatermeter(body) async {
+    return await apiService.postRequest('/user/planning/virtualwatermeter/create', body);
+  }
+  Future<http.Response> getUserfrostProtection(body) async {
+    return await apiService.postRequest('/user/planning/frostProtectionAndRainDelay/get', body);
+  }
+  Future<http.Response> UpdatefrostProtection(body) async {
+    return await apiService.postRequest('/user/planning/frostProtectionAndRainDelay/create', body);
+  }
 
 
   ///Todo: Program urls
@@ -283,6 +300,10 @@ class Repository{
     return await apiService.postRequest('/user/manualOperation/create', body);
   }
 
+  Future<http.Response> fetchConditionLibrary(body) async {
+    return await apiService.postRequest('/user/planning/conditionLibrary/get', body);
+  }
+
   ///Todo: Other urls
   Future<http.Response> getPlanningHiddenMenu(body) async {
     return await apiService.postRequest('/user/dealerDefinition/mainMenu/get', body);
@@ -300,6 +321,8 @@ class Repository{
   Future<http.Response> createUserSentAndReceivedMessageManually(body) async {
     return await apiService.postRequest('/user/sentAndReceivedMessage/createManually', body);
   }
+
+
 
 }
 

@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:oro_drip_irrigation/services/mqtt_manager_mobile.dart';
 
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,6 +14,7 @@ import '../../StateManagement/overall_use.dart';
 import '../../StateManagement/preference_provider.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
+import '../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../NewIrrigationProgram/preview_screen.dart';
 import '../NewIrrigationProgram/program_library.dart';
 import '../NewIrrigationProgram/schedule_screen.dart';
@@ -50,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   int selectedSite = 0;
   int selectedMaster = 0;
   bool httperroronhs = false;
-  MqttManager manager = MqttManager();
+  // MqttManager manager = MqttManager();
   late AnimationController _controller;
   late Animation<double> _animation;
   bool _isMenuOpen = false;
@@ -91,13 +91,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   ];
   DateTime? _lastPressedAt;
 
-  @override
+/*  @override
   void initState() {
     // TODO: implement initState
     irrigationProgramProvider =
         Provider.of<IrrigationProgramMainProvider>(context, listen: false);
     overAllPvd = Provider.of<OverAllUse>(context, listen: false);
-    payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
+    //payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
     // fetchData();
     if (payloadProvider.selectedSiteString == '' || widget.fromDealer) {
       if (mounted) {
@@ -122,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       }
     }
     super.initState();
-  }
+  }*/
 
   void _toggleMenu() {
     if (_isMenuOpen) {
@@ -158,12 +158,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     }
   }
 
-  Future<void> mqttConfigureAndConnect() async {
-    MqttPayloadProvider payloadProvider =
-    Provider.of<MqttPayloadProvider>(context, listen: false);
-    manager.initializeMQTTClient(payloadProvider);
-    manager.connect();
-  }
+  // Future<void> mqttConfigureAndConnect() async {
+  //   MqttPayloadProvider payloadProvider =
+  //   Provider.of<MqttPayloadProvider>(context, listen: false);
+  //   // manager.initializeMQTTClient(payloadProvider);
+  //   // manager.connect();
+  // }
 
   Future<void> initializeSharedPreference() async {
     // print("getUserData function");
@@ -308,6 +308,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,

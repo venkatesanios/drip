@@ -12,9 +12,10 @@ import '../utils/environment.dart';
 class MqttManager {
   static MqttManager? _instance;
   MqttBrowserClient? _client;
-  String? currentTopic;
+  String currentSubscribeTopic = '';
   final StreamController<Map<String, dynamic>?> _payloadController = StreamController.broadcast();
   final StreamController<List<Map<String, dynamic>>?> _schedulePayloadController = StreamController.broadcast();
+  final StreamController<String> connectionStatusController = StreamController.broadcast();
   MqttPayloadProvider? providerState;
 
   Map<String, dynamic>? _payload;
@@ -53,7 +54,6 @@ class MqttManager {
     int port = Environment.mqttWebPort;
     print('baseURL : $baseURL');
     print('port : $port');
-
 
     if (_client == null) {
       _client = MqttBrowserClient(baseURL, uniqueId);
@@ -132,6 +132,7 @@ class MqttManager {
   }
 
   void topicToUnSubscribe(String topic){
+    currentSubscribeTopic = topic;
     if(isConnected){
       _client!.unsubscribe(topic);
       if (kDebugMode) {
@@ -173,7 +174,8 @@ class MqttManager {
 
   /// The unsolicited disconnect callback
   void onDisconnected() async{
-    await Future.delayed(const Duration(seconds: 5,));
+    connectionStatusController.sink.add(connectionState.name);
+    await Future.delayed(const Duration(seconds: 2,));
     try{
       if (kDebugMode) {
         print('OnDisconnected client callback - Client disconnection');
@@ -193,6 +195,8 @@ class MqttManager {
   }
 
   void onConnected() async{
+    connectionStatusController.sink.add(connectionState.name);
+    topicToSubscribe(currentSubscribeTopic);
     assert(isConnected);
     await Future.delayed(Duration.zero);
     if (kDebugMode) {

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:oro_drip_irrigation/utils/constants.dart';
 import '../Constants/communication_codes.dart';
 import '../Constants/dialog_boxes.dart';
-import '../Models/Configuration/device_object_model.dart';
-import '../Screens/ConfigMaker/product_limit.dart';
-import '../StateManagement/config_maker_provider.dart';
+import '../config_maker/model/device_object_model.dart';
+import '../config_maker/view/product_limit.dart';
+import '../config_maker/state_management/config_maker_provider.dart';
 
 class ToggleTextFormFieldForProductLimit extends StatefulWidget {
   final ConfigMakerProvider configPvd;
@@ -42,10 +43,27 @@ class _ToggleTextFormFieldForProductLimitState extends State<ToggleTextFormField
               availableCount += widget.initialValue == '' ? 0 : int.parse(widget.initialValue);
               if(integerValue > availableCount){
                 simpleDialogBox(context: context, title: 'Alert', message: 'The maximum allowable value is $availableCount. Please enter a value less than or equal to $availableCount.');
-
                 widget.configPvd.updateObjectCount(widget.object.objectId, availableCount.toString());
               }else{
-                widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
+                if(AppConstants.pumpModelList.contains(widget.configPvd.masterData['modelId'])){
+                  if([AppConstants.levelObjectId, AppConstants.waterMeterObjectId, AppConstants.pressureSensorObjectId].contains(widget.object.objectId)){
+                    if(integerValue > 1){ // level, pressure, water meter -- oro pump
+                      simpleDialogBox(context: context, title: 'Alert', message: 'Only one ${widget.object.objectName} should be connect with ${widget.configPvd.masterData['deviceName']}.');
+                      widget.configPvd.updateObjectCount(widget.object.objectId, '1');
+                    }else{
+                      widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
+                    }
+                  }else{ // float -- oro pump
+                    if(integerValue > availableCount){
+                      simpleDialogBox(context: context, title: 'Alert', message: 'The maximum allowable value is $availableCount. Please enter a value less than or equal to $availableCount.');
+                      widget.configPvd.updateObjectCount(widget.object.objectId, availableCount.toString());
+                    }else{
+                      widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
+                    }
+                  }
+                }else{
+                  widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
+                }
               }
             }
             else{

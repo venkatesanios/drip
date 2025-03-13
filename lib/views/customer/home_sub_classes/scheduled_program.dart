@@ -35,27 +35,6 @@ class ScheduledProgram extends StatelessWidget {
         scheduledPrograms[index].prgPauseResume = values[11];
       }
     }
-
-    //print('scheduledProgram:$scheduledProgram');
-
-    /*SchedulerBinding.instance.addPostFrameCallback((_) {
-      if(scheduledProgram.toString().isNotEmpty){
-        //MyFunction().clearAg(context);
-        String message = scheduledProgram['Message'];
-        String code = scheduledProgram['Code'];
-        GlobalSnackBar.show(context, message, int.parse(code));
-      }
-    });*/
-
-
-    /*scheduledPrograms.sort((a, b) {
-      DateTime dateTimeA = a.getDateTime();
-      DateTime dateTimeB = b.getDateTime();
-      return dateTimeA.compareTo(dateTimeB);
-    });
-
-    var screenWidth = MediaQuery.of(context).size.width;*/
-
     return Padding(
       padding: const EdgeInsets.only(left: 8, right: 8, top: 3, bottom: 3),
       child: Column(
@@ -359,7 +338,6 @@ class ScheduledProgram extends StatelessWidget {
         ],
       ),
     );
-
   }
 
   void updateProgramById(int id, ProgramList updatedProgram) {

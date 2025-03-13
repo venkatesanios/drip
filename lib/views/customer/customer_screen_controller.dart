@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/views/customer/program_schedule.dart';
 import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
@@ -6,6 +7,7 @@ import 'package:oro_drip_irrigation/views/customer/stand_alone.dart';
 import '../../Models/customer/site_model.dart';
 import 'package:provider/provider.dart';
 import '../../Screens/ScheduleView/schedule_view_screen.dart';
+import '../../Screens/dashboard/dashboard_outerscreen.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../flavors.dart';
 import '../../repository/repository.dart';
@@ -61,7 +63,7 @@ class CustomerScreenController extends StatelessWidget {
           if(vm.isLoading){
             return const Scaffold(body: Center(child: Text('Site loading please waite....')));
           }
-          return Scaffold(
+          return kIsWeb ? Scaffold(
             appBar: AppBar(
               title:  Row(
                 children: [
@@ -623,7 +625,7 @@ class CustomerScreenController extends StatelessWidget {
                 ),
               ],
             ),
-          );
+          ) : HomeScreen(userId: 4,fromDealer: false,);
         },
       ),
     );

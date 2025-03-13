@@ -13,7 +13,10 @@ import '../utils/environment.dart';
 class MqttManager {
   static MqttManager? _instance;
   MqttServerClient? _client;
+  final StreamController<String> connectionStatusController = StreamController.broadcast();
+
   MqttPayloadProvider? providerState;
+  String currentSubscribeTopic = '';
 
   final StreamController<Map<String, dynamic>?> _payloadController = StreamController.broadcast();
   Stream<Map<String, dynamic>?> get payloadStream => _payloadController.stream;
@@ -48,7 +51,6 @@ class MqttManager {
   String? currentSubscribedTopic;
 
   void initializeMQTTClient(MqttPayloadProvider? state) {
-
 
     String uniqueId = const Uuid().v4();
     providerState = state;
@@ -183,7 +185,8 @@ class MqttManager {
   }
   /// The unsolicited disconnect callback
   void onDisconnected() async{
-    await Future.delayed(const Duration(seconds: 5,));
+    connectionStatusController.sink.add(connectionState.name);
+    await Future.delayed(const Duration(seconds: 2,));
     try{
       if (kDebugMode) {
         print('OnDisconnected client callback - Client disconnection');
@@ -203,6 +206,8 @@ class MqttManager {
   }
 
   void onConnected() async{
+    connectionStatusController.sink.add(connectionState.name);
+    topicToSubscribe(currentSubscribeTopic);
     assert(isConnected);
     await Future.delayed(Duration.zero);
     if (kDebugMode) {

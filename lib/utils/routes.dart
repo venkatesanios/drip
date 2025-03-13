@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/Screens/ConfigMaker/config_base_page.dart';
-import 'package:oro_drip_irrigation/Screens/ConfigMaker/table_demo.dart';
+import 'package:oro_drip_irrigation/calibration/view/calibration_screen.dart';
+import 'package:oro_drip_irrigation/config_maker/view/config_base_page.dart';
+import 'package:oro_drip_irrigation/config_maker/view/table_demo.dart';
 
 import '../Screens/ScheduleView/schedule_view_screen.dart';
 import '../views/screen_controller.dart';
@@ -25,12 +26,12 @@ class Routes {
           builder: (_) => const LoginScreen(),
           settings: settings,
         );
-
       case dashboard:
         return MaterialPageRoute(
+          // builder: (_) => const CalibrationScreen(userData: {"userId" : 4, "controllerId": 1, "deviceId":"2CCF674C0F8A" },),
           // builder: (_) => const ConfigBasePage(masterData: {}),
-          builder: (_) => ScheduleViewScreen(deviceId: "2CCF674C0F8A", userId: 4, controllerId: 1, customerId: 4, groupId: 1),
-           // builder: (_) => const ScreenController(),
+          // builder: (_) => ScheduleViewScreen(deviceId: "2CCF674C0F8A", userId: 4, controllerId: 1, customerId: 4, groupId: 1),
+           builder: (_) => const ScreenController(),
           settings: settings,
         );
       default:

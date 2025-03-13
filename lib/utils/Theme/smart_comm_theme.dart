@@ -54,7 +54,7 @@ class SmartCommTheme {
           if (states.contains(WidgetState.selected)) {
             return primary;
           }
-          return Colors.grey[300];
+          return primaryLight.withOpacity(0.1);
         },
         ),
         foregroundColor: WidgetStateProperty.resolveWith<Color?>(
@@ -70,8 +70,8 @@ class SmartCommTheme {
         ),
         side: WidgetStateProperty.resolveWith<BorderSide>(
               (states) => BorderSide(
-            color: states.contains(WidgetState.selected) ? Colors.blueGrey : Colors.grey,
-            width: 0.5,
+            color: primaryLight,
+            width: 1,
           ),
         ),
         shape: WidgetStateProperty.all<RoundedRectangleBorder>(

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import 'Configuration/device_object_model.dart';
+import '../config_maker/model/device_object_model.dart';
 
 class ProgramFilterSite {
   final DeviceObjectModel? filterSite;

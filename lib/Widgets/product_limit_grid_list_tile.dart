@@ -4,9 +4,9 @@ import 'package:oro_drip_irrigation/Widgets/toggle_text_form_field_product_limit
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 import '../Constants/communication_codes.dart';
 import '../Constants/properties.dart';
-import '../Models/Configuration/device_object_model.dart';
-import '../Screens/ConfigMaker/product_limit.dart';
-import '../StateManagement/config_maker_provider.dart';
+import '../config_maker/model/device_object_model.dart';
+import '../config_maker/view/product_limit.dart';
+import '../config_maker/state_management/config_maker_provider.dart';
 import '../utils/constants.dart';
 import 'blinking_container.dart';
 
