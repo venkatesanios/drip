@@ -1,4 +1,6 @@
 
+import 'dart:convert';
+
 class ConstantDataModel {
   final Constant constant;
   final Default fetchUserDataDefault;
@@ -109,8 +111,6 @@ class Constant {
   };
 }
 
-
-
 class Default {
   List<Alarm> alarm;
   List<ConstantMenu> constantMenu;
@@ -164,7 +164,7 @@ class Alarm {
       scanTime: map['scanTime'] ?? '00:00:00',
       resetAfterIrrigation: map['resetAfterIrrigation'] ?? 'No',
       autoResetDuration: map['autoResetDuration'] ?? '00:00:00',
-      threshold: map['threshold']?? '100',
+      threshold: map['Threshold']?.toString() ?? '100',
       type: map['type'] ?? '',
     );
   }
@@ -246,7 +246,7 @@ class AlarmNew {
       alarmOnStatus: map['AlarmOnStatus'],
       resetAfterIrrigation: map['Reset After irrigation'],
       autoResetDuration: map['Auto Reset Duration'],
-      threshold: map['Threshold'],
+      threshold: map['Threshold']?.toString() ?? '100',
       type: map['type'],
     );
   }
@@ -272,8 +272,9 @@ class ConfigMaker {
   List<Pump> pump;
   List<FilterSite> filterSite;
   List<FertilizerSite> fertilizerSite;
-  List<dynamic> moistureSensor;
+  List<MoistureSensor> moistureSensor;
   List<IrrigationLine> irrigationLine;
+
   ConfigMaker({
     required this.waterSource,
     required this.pump,
@@ -285,26 +286,25 @@ class ConfigMaker {
 
   factory ConfigMaker.fromJson(Map<String, dynamic> json) {
     return ConfigMaker(
-      waterSource: (json["waterSource"] as List<dynamic>?)?.map((x) => WaterSource.fromJson(Map<String, dynamic>.from(x))).toList() ?? [],
-      pump: (json["pump"] as List<dynamic>?)?.map((x) => Pump.fromJson(Map<String, dynamic>.from(x))).toList() ?? [],
-      filterSite: (json["filterSite"] as List<dynamic>?)?.map((x) => FilterSite.fromJson(Map<String, dynamic>.from(x))).toList() ?? [],
-      fertilizerSite: (json["fertilizerSite"] as List<dynamic>?)?.map((x) => FertilizerSite.fromJson(Map<String, dynamic>.from(x))).toList() ?? [],
-      moistureSensor: json["moistureSensor"] ?? [],
-      irrigationLine: (json["irrigationLine"] as List<dynamic>?)?.map((x) => IrrigationLine.fromJson(Map<String, dynamic>.from(x))).toList() ?? [],
+      waterSource: (json["waterSource"] as List?)?.cast<Map<String, dynamic>>().map((x) => WaterSource.fromJson(x)).toList() ?? [],
+      pump: (json["pump"] as List?)?.cast<Map<String, dynamic>>().map((x) => Pump.fromJson(x)).toList() ?? [],
+      filterSite: (json["filterSite"] as List?)?.cast<Map<String, dynamic>>().map((x) => FilterSite.fromJson(x)).toList() ?? [],
+      fertilizerSite: (json["fertilizerSite"] as List?)?.cast<Map<String, dynamic>>().map((x) => FertilizerSite.fromJson(x)).toList() ?? [],
+      moistureSensor: (json["moistureSensor"] as List?)?.cast<Map<String, dynamic>>().map((x) => MoistureSensor.fromJson(x)).toList() ?? [],
+      irrigationLine: (json["irrigationLine"] as List?)?.cast<Map<String, dynamic>>().map((x) => IrrigationLine.fromJson(x)).toList() ?? [],
     );
   }
 
-
-
   Map<String, dynamic> toJson() => {
-    "waterSource": List<dynamic>.from(waterSource.map((x) => x.toJson())),
-    "pump": List<dynamic>.from(pump.map((x) => x.toJson())),
-    "filterSite": List<dynamic>.from(filterSite.map((x) => x.toJson())),
-    "fertilizerSite": List<dynamic>.from(fertilizerSite.map((x) => x.toJson())),
-    "moistureSensor": List<dynamic>.from(moistureSensor.map((x) => x)),
-    "irrigationLine": List<dynamic>.from(irrigationLine.map((x) => x.toJson())),
+    "waterSource": waterSource.map((x) => x.toJson()).toList(),
+    "pump": pump.map((x) => x.toJson()).toList(),
+    "filterSite": filterSite.map((x) => x.toJson()).toList(),
+    "fertilizerSite": fertilizerSite.map((x) => x.toJson()).toList(),
+    "moistureSensor": moistureSensor.map((x) => x.toJson()).toList(), // Fix missing `.toJson()`
+    "irrigationLine": irrigationLine.map((x) => x.toJson()).toList(),
   };
 }
+
 
 class ConfigObject {
   int objectId;
@@ -967,7 +967,7 @@ class IrrigationLine {
       waterMeter: json['waterMeter'].isNotEmpty ? WaterMeter.fromJson(json['waterMeter']) : null,
       pressureIn: (json["pressureIn"] is num) ? json["pressureIn"] : 0,
       pressureOut: (json["pressureOut"] is num) ? json["pressureOut"] : 0,
-      moisture: (json["moisture"] is List) ? List<int>.from(json["moisture"]) : [],
+      moisture: (json["moisture"] is List) ? json["moisture"].map<int>((e) => (e is int) ? e : 0).toList() : [],
       temperature: (json["temperature"] is List) ? List<int>.from(json["temperature"]) : [],
       soilTemperature: (json["soilTemperature"] is List) ? List<int>.from(json["soilTemperature"]) : [],
       humidity: (json["humidity"] is List) ? List<int>.from(json["humidity"]) : [],
@@ -1024,14 +1024,28 @@ class IrrigationLine {
 }
 
 class WaterMeter {
-  final int id;
-  final String name;
-  final String type;
-  final double value;
-  final double ratio;
-  final String objectName;
+  int objectId;
+  double sNo;
+  int connectionNo;
+  int controllerId;
+  int? count;
+  dynamic connectedObject;
+  dynamic siteMode;
+  int id;
+  String name;
+  String type;
+  double value;
+  double ratio;
+  String objectName;
 
   WaterMeter({
+    required this.objectId,
+    required this.sNo,
+    required this.connectionNo,
+    required this.controllerId,
+    this.count, // Nullable, so removed `required`
+    this.connectedObject,
+    this.siteMode,
     required this.id,
     required this.name,
     required this.type,
@@ -1043,18 +1057,32 @@ class WaterMeter {
   // Convert JSON to WaterMeter object
   factory WaterMeter.fromJson(Map<String, dynamic> json) {
     return WaterMeter(
+      objectId: json['objectId'],
+      sNo: (json['sNo'] as num).toDouble(),
+      connectionNo: json['connectionNo'],
+      controllerId: json['controllerId'],
+      count: json['count'],
+      connectedObject: json['connectedObject'],
+      siteMode: json['siteMode'],
       id: json['id'] ?? 0,
-      name: json['name'] ?? '',
-      type: json['type'] ?? '',
+      name: json['name'],
+      type: json['type'],
       value: (json['value'] ?? 0).toDouble(),
       ratio: (json['ratio'] ?? 0).toDouble(),
-      objectName: json['objectName'] ?? '',
+      objectName: json['objectName'],
     );
   }
 
   // Convert WaterMeter object to JSON
   Map<String, dynamic> toJson() {
     return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'connectionNo': connectionNo,
+      'controllerId': controllerId,
+      'count': count,
+      'connectedObject': connectedObject,
+      'siteMode': siteMode,
       'id': id,
       'name': name,
       'type': type,
@@ -1065,77 +1093,119 @@ class WaterMeter {
   }
 }
 
+
+
 class WaterSource {
-  int objectId;
-  double sNo;
-  String name;
-  int? connectionNo;
-  String objectName;
-  String type;
-  int? controllerId;
-  int? count;
-  int sourceType;
-  int level;
-  List<int> topFloat;
-  List<int> bottomFloat;
-  List<int> inletPump;
-  List<int> outletPump;
-  List<int> valves;
+  final int objectId;
+  final double sNo;
+  final String name;
+  final LevelSensor? level;
 
   WaterSource({
     required this.objectId,
     required this.sNo,
     required this.name,
-    this.connectionNo, // Nullable
-    required this.objectName,
-    required this.type,
-    this.controllerId, // Nullable
-    this.count, // Nullable
-    required this.sourceType,
-    required this.level,
-    required this.topFloat,
-    required this.bottomFloat,
-    required this.inletPump,
-    required this.outletPump,
-    required this.valves,
+    this.level,
   });
 
-  factory WaterSource.fromJson(Map<String, dynamic> json) => WaterSource(
-    objectId: json["objectId"] is int ? json["objectId"] : int.tryParse(json["objectId"].toString()) ?? 0,
-    sNo: (json["sNo"] is num) ? (json["sNo"] as num).toDouble() : 0.0,
-    name: json["name"] ?? '',
-    connectionNo: json["connectionNo"] is int ? json["connectionNo"] : int.tryParse(json["connectionNo"].toString()), // Nullable handling
-    objectName: json["objectName"] ?? '',
-    type: json["type"]?.toString() ?? "Unknown", // Ensure it's a String
-    controllerId: json["controllerId"] is int ? json["controllerId"] : int.tryParse(json["controllerId"].toString()),
-    count: json["count"] is int ? json["count"] : int.tryParse(json["count"].toString()),
-    sourceType: json["sourceType"] is int ? json["sourceType"] : int.tryParse(json["sourceType"].toString()) ?? 0,
-    level: json["level"] is int ? json["level"] : int.tryParse(json["level"].toString()) ?? 0,
-    topFloat: (json["topFloat"] is List) ? (json["topFloat"] as List).whereType<num>().map((x) => x.toInt()).toList() : [],
-    bottomFloat: (json["bottomFloat"] is List) ? (json["bottomFloat"] as List).whereType<num>().map((x) => x.toInt()).toList() : [],
-    inletPump: (json["inletPump"] is List) ? (json["inletPump"] as List).whereType<num>().map((x) => x.toInt()).toList() : [],
-    outletPump: (json["outletPump"] is List) ? (json["outletPump"] as List).whereType<num>().map((x) => x.toInt()).toList() : [],
-    valves: (json["valves"] is List) ? (json["valves"] as List).whereType<num>().map((x) => x.toInt()).toList() : [],
-  );
+  factory WaterSource.fromJson(Map<String, dynamic> json) {
+    return WaterSource(
+      objectId: json['objectId'] ?? 0,
+      sNo: (json['sNo'] ?? 0).toDouble(),
+      name: json['name'] ?? '',
+      level: json['level'] != null && json['level'].isNotEmpty
+          ? LevelSensor.fromJson(json['level'])
+          : null,
+    );
+  }
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'level': level?.toJson(),
+    };
+  }
+}
+class LevelSensor {
+  int objectId;
+  int sensorId;
+  double sNo;
+  String name;
+  int connectionNo;
+  String objectName;
+  String type;
+  int controllerId;
+  int? count;
+  final dynamic connectedObject;
+  final dynamic siteMode;
+
+  LevelSensor({
+    required this.objectId,
+    required this.sensorId,
+    required this.sNo,
+    required this.name,
+    required this.connectionNo,
+    required this.objectName,
+    required this.type,
+    required this.controllerId,
+    this.count,
+    this.connectedObject,
+    this.siteMode,
+  });
+
+  factory LevelSensor.fromJson(Map<String, dynamic> json) {
+    return LevelSensor(
+      objectId: json['objectId'] is int ? json['objectId'] : int.tryParse(json['objectId'].toString()) ?? 0,
+      sensorId: json["sensorId"] is int ? json["sensorId"] : int.tryParse(json["sensorId"].toString()) ?? 0,
+      sNo: (json['sNo'] is num) ? (json['sNo'] as num).toDouble() : 0.0,
+      name: json['name']?.toString() ?? '',
+      connectionNo: json['connectionNo'] is int ? json['connectionNo'] : int.tryParse(json['connectionNo'].toString()) ?? 0,
+      objectName: json['objectName']?.toString() ?? '',
+      type: json['type']?.toString() ?? '',
+      controllerId: json['controllerId'] is int ? json['controllerId'] : int.tryParse(json['controllerId'].toString()) ?? 0,
+      count: json['count'] is int ? json['count'] : int.tryParse(json['count'].toString()),
+      connectedObject: json['connectedObject'],
+      siteMode: json['siteMode'],
+    );
+  }
+
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sensorId': sensorId,
+      'sNo': sNo,
+      'name': name,
+      'connectionNo': connectionNo,
+      'objectName': objectName,
+      'type': type,
+      'controllerId': controllerId,
+      'count': count,
+      'connectedObject': connectedObject,
+      'siteMode': siteMode,
+    };
+  }
+}
+
+
+/*class Level {
+  LevelSensor? levelSensor;
+
+  Level({this.levelSensor});
+
+  factory Level.fromJson(Map<String, dynamic> json) {
+    return Level(
+      levelSensor: json["levelSensor"] != null ? LevelSensor.fromJson(json["levelSensor"]) : null,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
-    "objectId": objectId,
-    "sNo": sNo,
-    "name": name,
-    "connectionNo": connectionNo, // No need to force it
-    "objectName": objectName,
-    "type": type, // Ensures it's a String
-    "controllerId": controllerId,
-    "count": count,
-    "sourceType": sourceType,
-    "level": level,
-    "topFloat": topFloat,
-    "bottomFloat": bottomFloat,
-    "inletPump": inletPump,
-    "outletPump": outletPump,
-    "valves": valves,
+    "levelSensor": levelSensor?.toJson(),
   };
-}
+}*/
+
+
 
 class ConstantMenu {
   int dealerDefinitionId;
@@ -1397,6 +1467,72 @@ class GeneralData {
       widgetTypeId: map["widgetTypeId"],
       value: map["value"],
     );
+  }
+}
+class MoistureSensor {
+   int objectId;
+   int objectIds;
+   double sNo;
+  final String name;
+  final int connectionNo;
+  final String objectName;
+  final String type;
+  final int controllerId;
+  final int? count;
+  final Map<String, dynamic> connectedObject;
+  final dynamic siteMode;
+  final List<dynamic> valves;
+
+  MoistureSensor({
+    required this.objectId,
+    required this.objectIds,
+    required this.sNo,
+    required this.name,
+    required this.connectionNo,
+    required this.objectName,
+    required this.type,
+    required this.controllerId,
+    this.count,
+    required this.connectedObject,
+    this.siteMode,
+    required this.valves,
+  });
+
+  factory MoistureSensor.fromJson(Map<String, dynamic> json) {
+    return MoistureSensor(
+      objectId: json['objectId'],
+      objectIds: json['objectIds']??0,
+      sNo: (json['sNo'] as num).toDouble(),
+      name: json['name'],
+      connectionNo: json['connectionNo'],
+      objectName: json['objectName'],
+      type: json['type'].toString(),
+      controllerId: json['controllerId'],
+      count: json['count'],
+      connectedObject: json['connectedObject'] is Map<String, dynamic>
+          ? json['connectedObject'] as Map<String, dynamic>
+          : {}, // Ensure it's always a Map<String, dynamic>
+      siteMode: json['siteMode'],
+      valves: json['valves'] is List ? List.from(json['valves']) : [],
+    );
+  }
+
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'objectIds': objectIds,
+      'sNo': sNo,
+      'name': name,
+      'connectionNo': connectionNo,
+      'objectName': objectName,
+      'type': type,
+      'controllerId': controllerId,
+      'count': count,
+      'connectedObject': connectedObject,
+      'siteMode': siteMode,
+      'valves': valves,
+    };
   }
 }
 

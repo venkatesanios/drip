@@ -274,7 +274,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                                 mqttManager.topicToSubscribe('${Environment.mqttSubscribeTopic}/${configPvd.masterData['deviceId']}');
                                 mqttManager.topicToPublishAndItsMessage('${Environment.mqttPublishTopic}/${configPvd.masterData['deviceId']}', payload['payload']);
                                 mqttAttempt = false;
-                                print('payload sent successfully...........');
+                               // print('payload sent successfully...........');
                               }
                               // if(mqttManager.payload != null){
                               //   print(""

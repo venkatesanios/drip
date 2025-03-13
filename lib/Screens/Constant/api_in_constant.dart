@@ -1,11 +1,13 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../Models/PreferenceModel/preference_data_model.dart';
+import '../../services/http_service.dart';
 import 'ConstantPageProvider/changeNotifier_constantProvider.dart';
 import 'home_page_constant.dart';
 import 'modal_in_constant.dart';
 
+/*
 class ApiService {
   final String baseURL = "http://52.172.214.208:5000/api/v1/user/constant/get";
 
@@ -62,33 +64,62 @@ class ApiService {
       throw Exception("Error in fetchData: $e");
     }
   }
-
-
-
 }
+*/
 
 
+class ConstantInConfig extends StatefulWidget {
+  final int userId, controllerId, customerId;
+  final String deviceId;
 
-class ApiInConstant extends StatefulWidget {
-  const ApiInConstant({super.key});
+  const ConstantInConfig({super.key, required this.userId, required this.controllerId, required this.customerId, required this.deviceId});
   @override
-  _ApiInConstantState createState() => _ApiInConstantState();
+  _ConstantInConfigState createState() => _ConstantInConfigState();
 }
 
-class _ApiInConstantState extends State<ApiInConstant> {
-  late ApiService apiService;
-  Future<Map<String, dynamic>> ?futureData;
+class _ConstantInConfigState extends State<ConstantInConfig> {
+  late HttpService httpService;
+  Future<Map<String, dynamic>>? futureData;
 
   @override
   void initState() {
     super.initState();
-    apiService = ApiService();
-
-    futureData = Future(() => apiService.fetchData(context));
+    httpService = HttpService();
+    futureData = fetchData();
   }
 
+  Future<Map<String, dynamic>> fetchData() async {
+    try {
+      final response = await httpService.postRequest("/user/constant/get", {
+        "userId": widget.userId,
+        "controllerId": widget.controllerId,
+      });
 
+      if (response.statusCode == 200) {
+        final dynamic decodedJson = json.decode(response.body);
+        if (decodedJson is Map<String, dynamic>) {
+          if (decodedJson.containsKey('data') && decodedJson['data'] is Map<String, dynamic>) {
+            var constantData = decodedJson['data']['constant'];
 
+            if (constantData != null && constantData['general'] != null) {
+              List<Map<String, dynamic>> generalData =
+              List<Map<String, dynamic>>.from(constantData['general']);
+
+             // print("✅ Extracted General Data: $generalData"); // Debugging log
+
+            }
+          }
+          return decodedJson;
+        } else {
+          throw Exception("Invalid response format: Expected a Map<String, dynamic>");
+        }
+      } else {
+        throw Exception("Failed to load data. Status code: ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Error in fetchData: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,39 +135,36 @@ class _ApiInConstantState extends State<ApiInConstant> {
             final jsonData = snapshot.data!;
             if (jsonData['data'] != null) {
               final constantJsonData = ConstantDataModel.fromJson(jsonData['data']);
-
               return ConstantHomePage(
+               // levelSensor: levelSensors,
+                levelSensor: constantJsonData.fetchUserDataDefault.configMaker.waterSource
+                    .map((waterSource) => waterSource.level)
+                    .whereType<LevelSensor>() // Ensure non-null values
+                    .toList(),
+                waterSource: constantJsonData.fetchUserDataDefault.configMaker.waterSource,
+                moistureSensors: constantJsonData.fetchUserDataDefault.configMaker.moistureSensor,
+
+                controllerId: widget.controllerId,
+                userId: widget.userId,
                 alarmData: jsonData['data']['default']['alarm'],
-                normalAlarm: constantJsonData.fetchUserDataDefault.alarm.toList() ,
-                criticalAlarm: constantJsonData.fetchUserDataDefault.alarm.toList() ,
+                normalAlarm: constantJsonData.fetchUserDataDefault.alarm.toList(),
+                criticalAlarm: constantJsonData.fetchUserDataDefault.alarm.toList(),
                 alarm: constantJsonData.fetchUserDataDefault.alarm,
                 constantMenu: constantJsonData.fetchUserDataDefault.constantMenu,
                 irrigationLines: constantJsonData.fetchUserDataDefault.configMaker.irrigationLine,
                 pump: constantJsonData.fetchUserDataDefault.configMaker.pump,
                 mainValves: constantJsonData.fetchUserDataDefault.configMaker.irrigationLine.expand((line) => line.mainValve).toList(),
-                valves: constantJsonData.fetchUserDataDefault.configMaker.irrigationLine
-                    .expand((line) => line.valves)
-                    .toList(),
+                valves: constantJsonData.fetchUserDataDefault.configMaker.irrigationLine.expand((line) => line.valves).toList(),
                 fertilizerSite: constantJsonData.fetchUserDataDefault.configMaker.fertilizerSite,
-                channels: constantJsonData.fetchUserDataDefault.configMaker.fertilizerSite
-                    .expand((site) => site.channel)
-                    .toList(),
-                ec: constantJsonData.fetchUserDataDefault.configMaker.fertilizerSite
-                    .expand((site) => site.ec)
-                    .toList(),
-                ph: constantJsonData.fetchUserDataDefault.configMaker.fertilizerSite
-                    .expand((site) => site.ph)
-                    .toList(),
+                channels: constantJsonData.fetchUserDataDefault.configMaker.fertilizerSite.expand((site) => site.channel).toList(),
+                ec: constantJsonData.fetchUserDataDefault.configMaker.fertilizerSite.expand((site) => site.ec).toList(),
+                ph: constantJsonData.fetchUserDataDefault.configMaker.fertilizerSite.expand((site) => site.ph).toList(),
                 waterMeter: [
-                  ...constantJsonData.fetchUserDataDefault.configMaker.irrigationLine
-                      .map((line) => line.waterMeter)
-                      .whereType<WaterMeter>(),
-                  ...constantJsonData.fetchUserDataDefault.configMaker.pump
-                      .map((pump) => pump.waterMeter)
-                      .whereType<WaterMeter>()
+                  ...constantJsonData.fetchUserDataDefault.configMaker.irrigationLine.map((line) => line.waterMeter).whereType<WaterMeter>(),
+                  ...constantJsonData.fetchUserDataDefault.configMaker.pump.map((pump) => pump.waterMeter).whereType<WaterMeter>()
                 ],
                 controlSensors: List<String>.from(jsonData['controlSensors'] ?? []),
-                generalUpdated:[
+                generalUpdated:  [
                   {"sNo": 1, "title": "Number of Programs", "widgetTypeId": 1, "value": "0"},
                   {"sNo": 2, "title": "Number of Valve Groups", "widgetTypeId": 1, "value": "0"},
                   {"sNo": 3, "title": "Number of Conditions", "widgetTypeId": 1, "value": "0"},
@@ -163,3 +191,4 @@ class _ApiInConstantState extends State<ApiInConstant> {
     );
   }
 }
+

@@ -11,6 +11,14 @@ class GlobalAlarmInConstant extends StatefulWidget {
 }
 
 class _GlobalAlarmInConstantState extends State<GlobalAlarmInConstant> {
+  late List<bool> switchStates;
+
+  @override
+  void initState() {
+    super.initState();
+    switchStates = List.generate(widget.alarm.length, (index) => false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -28,7 +36,7 @@ class _GlobalAlarmInConstantState extends State<GlobalAlarmInConstant> {
                   alignment: WrapAlignment.center,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    for (var alarm in widget.alarm)
+                    for (var i = 0; i < widget.alarm.length; i++)
                       SizedBox(
                         width: 300,
                         child: Container(
@@ -39,7 +47,15 @@ class _GlobalAlarmInConstantState extends State<GlobalAlarmInConstant> {
                           ),
                           padding: const EdgeInsets.all(10),
                           child: ListTile(
-                            title: Text(alarm.name),
+                            title: Text(widget.alarm[i].name),
+                            trailing: Switch(
+                              value: switchStates[i],
+                              onChanged: (value) {
+                                setState(() {
+                                  switchStates[i] = value;
+                                });
+                              },
+                            ),
                           ),
                         ),
                       ),

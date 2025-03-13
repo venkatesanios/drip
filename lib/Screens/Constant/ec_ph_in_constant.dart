@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:data_table_2/data_table_2.dart';
+import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'constant_tableChart/customTimepicker_in_const.dart';
 import 'modal_in_constant.dart';
 
@@ -23,70 +23,72 @@ class EcPhInConstant extends StatefulWidget {
 }
 
 class _EcPhInConstantState extends State<EcPhInConstant> {
-  late List<TextEditingController> controlCycleControllers;
-  late List<TextEditingController> integControllers;
-  late List<TextEditingController> deltaControllers;
-  late List<TextEditingController> fineTuningControllers;
-  late List<TextEditingController> coarseTuningControllers;
-  late List<TextEditingController> deadBandControllers;
-  late List<TextEditingController> avgFiltSpeedControllers;
-  late List<TextEditingController> percentageControllers;
+  late LinkedScrollControllerGroup _scrollControllerGroup;
+  late ScrollController _headerScrollController;
+  late ScrollController _dataScrollController;
 
   List<dynamic> combinedList = [];
-  late List<String> selectedSensors;
 
   @override
   void initState() {
     super.initState();
 
+    _scrollControllerGroup = LinkedScrollControllerGroup();
+    _headerScrollController = _scrollControllerGroup.addAndGet();
+    _dataScrollController = _scrollControllerGroup.addAndGet();
+
     combinedList = [
       ...widget.ec.map((e) => {'type': 'EC', 'data': e}),
       ...widget.ph.map((p) => {'type': 'PH', 'data': p})
     ];
-
-    controlCycleControllers = _initTimeControllers();
-    integControllers = _initTimeControllers();
-    deltaControllers = _initNumberControllers();
-    fineTuningControllers = _initNumberControllers();
-    coarseTuningControllers = _initNumberControllers();
-    deadBandControllers = _initNumberControllers();
-    avgFiltSpeedControllers = _initNumberControllers();
-    percentageControllers = _initNumberControllers();
   }
-
-  List<TextEditingController> _initTimeControllers() =>
-      List.generate(combinedList.length, (index) => TextEditingController(text: "00:00"));
-
-  List<TextEditingController> _initNumberControllers() =>
-      List.generate(combinedList.length, (index) => TextEditingController(text: "0.0"));
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: combinedList.isEmpty
-            ? const Center(
-          child: Text(
-            "No EC/Ph Available",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-        )
-            : DataTable2(
-            columnSpacing: 12,
-            horizontalMargin: 12,
-            minWidth: 800,
-            headingRowHeight: 40,
-            headingRowColor: WidgetStateProperty.all(Colors.teal.shade300),
-            border: TableBorder.all(),
-            columns: _buildHeaderColumns(),
-            rows: _generateRows(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              controller: _headerScrollController,
+              child: Row(
+                children: _buildHeaderColumns()
+                    .map((title) => _headerCell(title))
+                    .toList(),
+              ),
             ),
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                controller: _dataScrollController,
+                child: Column(
+                  children: _generateRows(),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  List<DataColumn2> _buildHeaderColumns() => [
+  Widget _headerCell(String title) => Container(
+    margin: const EdgeInsets.only(left: 1, right: 1, bottom: 1),
+    width: 120,
+    height: 50,
+    alignment: Alignment.center,
+    color: Colors.teal.shade300,
+    child: Text(
+      title,
+      style:
+      const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+    ),
+  );
+
+  List<String> _buildHeaderColumns() => [
     "Site",
     "Selected",
     "Control Cycle",
@@ -98,61 +100,95 @@ class _EcPhInConstantState extends State<EcPhInConstant> {
     "Control Sensor",
     "Avg Filt Speed",
     "Percentage"
-  ].map((title) => DataColumn2(label: Text(title))).toList();
+  ];
 
-  List<DataRow> _generateRows() => List.generate(combinedList.length, (index) {
+  List<Widget> _generateRows() => List.generate(combinedList.length, (index) {
     var data = combinedList[index]['data'];
-
-    return DataRow(cells: [
-      DataCell(Text(data.name)),
-      DataCell(Checkbox(
-        value: data.selected,
-        onChanged: (value) {
-          setState(() {
-            data.selected = value ?? false;
-          });
-        },
-      )),
-      DataCell(getTimePicker(index, controlCycleControllers[index])),
-      DataCell(editableTableCell(deltaControllers[index])),
-      DataCell(editableTableCell(fineTuningControllers[index])),
-      DataCell(editableTableCell(coarseTuningControllers[index])),
-      DataCell(editableTableCell(deadBandControllers[index])),
-      DataCell(getTimePicker(index, integControllers[index])),
-      DataCell(getDropdown(index)),
-      DataCell(editableTableCell(avgFiltSpeedControllers[index])),
-      DataCell(editableTableCell(percentageControllers[index])),
-    ]);
+    return Row(
+      children: [
+        _dataCell(Text(data.name)),
+        _dataCell(Checkbox(
+          value: data.selected,
+          onChanged: (value) {
+            setState(() {
+              data.selected = value ?? false;
+            });
+          },
+        )),
+        _dataCell(_getTimePicker(index, "controlCycle", data.controlCycle)),
+        _dataCell(_editableTableCell(data.delta)),
+        _dataCell(_editableTableCell(data.fineTuning)),
+        _dataCell(_editableTableCell(data.coarseTuning)),
+        _dataCell(_editableTableCell(data.deadBand)),
+        _dataCell(_getTimePicker(index, "integ", data.integ)),
+        _dataCell(getDropdown(index)),
+        _dataCell(_editableTableCell(data.avgFiltSpeed)),
+        _dataCell(_editableTableCell(data.percentage)),
+      ],
+    );
   });
 
-  Widget getTimePicker(int index, TextEditingController controller) => CustomTimePicker(
-    index: index,
-    initialMinutes: 0,
-    onTimeSelected: (int hours, int minutes, int seconds) {
-      setState(() {
-        controller.text = "${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}";
-      });
-    },
+  Widget _dataCell(Widget child) => Container(
+    margin: const EdgeInsets.only(left: 1, right: 1, bottom: 1),
+    color: Colors.white,
+    width: 120,
+    height: 50,
+    alignment: Alignment.center,
+    child: child,
   );
+
+  Widget _getTimePicker(int index, String key, String initialTime) => Container(
+    margin: const EdgeInsets.only(left: 1, right: 1, bottom: 1),
+    color: Colors.white,
+    width: 120,
+    height: 50,
+    child: CustomTimePicker(
+      index: index,
+      initialMinutes: _parseTime(initialTime).toDouble(),
+      onTimeSelected: (int hours, int minutes, int seconds) {
+        setState(() {
+          combinedList[index]['data'][key] =
+          "\${hours.toString().padLeft(2, '0')}:"
+              "\${minutes.toString().padLeft(2, '0')}";
+        });
+      },
+    ),
+  );
+
+  Widget _editableTableCell(String value) => TextField(
+    controller: TextEditingController(text: value),
+    keyboardType: TextInputType.number,
+    textAlign: TextAlign.center,
+    decoration: const InputDecoration(border: InputBorder.none),
+    inputFormatters: [
+      FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*'))
+    ],
+  );
+
+  int _parseTime(String time) {
+    List<String> parts = time.split(':');
+    return int.parse(parts[0]) * 60 + int.parse(parts[1]);
+  }
 
   Widget getDropdown(int index) {
     var data = combinedList[index]['data'];
     List<String> dropdownOptions = ["Average"];
 
-    for (int i = 0; i < widget.ec.length; i++) {
-      dropdownOptions.add("EC.1.${i + 1}");
-    }
-    for (int i = 0; i < widget.ph.length; i++) {
-      dropdownOptions.add("PH.1.${i + 1}");
-    }
-
-    if (!dropdownOptions.contains(data.controlSensor)) {
-      data.controlSensor = dropdownOptions.first;
+    if (combinedList[index]['type'] == 'EC') {
+      for (int i = 0; i < widget.ec.length; i++) {
+        dropdownOptions.add("EC.1.${i + 1}");
+      }
+    } else if (combinedList[index]['type'] == 'PH') {
+      for (int i = 0; i < widget.ph.length; i++) {
+        dropdownOptions.add("PH.1.${i + 1}");
+      }
     }
 
     return DropdownButton<String>(
       value: data.controlSensor,
-      items: dropdownOptions.map((sensor) => DropdownMenuItem(value: sensor, child: Text(sensor))).toList(),
+      items: dropdownOptions
+          .map((sensor) => DropdownMenuItem(value: sensor, child: Text(sensor)))
+          .toList(),
       onChanged: (value) {
         setState(() {
           data.controlSensor = value!;
@@ -160,17 +196,4 @@ class _EcPhInConstantState extends State<EcPhInConstant> {
       },
     );
   }
-
-  Widget editableTableCell(TextEditingController controller) => Container(
-    width: 100,
-    height: 50,
-    alignment: Alignment.center,
-    child: TextField(
-      controller: controller,
-      keyboardType: TextInputType.number,
-      textAlign: TextAlign.center,
-      decoration: const InputDecoration(border: InputBorder.none),
-      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*'))],
-    ),
-  );
 }

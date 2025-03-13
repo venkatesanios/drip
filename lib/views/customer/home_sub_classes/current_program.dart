@@ -20,7 +20,7 @@ class CurrentProgram extends StatelessWidget {
   Widget build(BuildContext context) {
 
     var currentSchedule = Provider.of<MqttPayloadProvider>(context).currentSchedule;
-    print('currentProgram:$currentSchedule');
+    //print('currentProgram:$currentSchedule');
 
     return currentSchedule.isNotEmpty && currentSchedule[0].isNotEmpty?
     Padding(

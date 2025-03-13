@@ -24,9 +24,8 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
   void initState() {
     super.initState();
 
-    int totalSeconds = widget.initialMinutes.toInt();
-    totalSeconds =
-        totalSeconds.clamp(0, 86399); // Ensure it's within 0 - 23:59:59
+    int totalSeconds = (widget.initialMinutes * 60).toInt();
+    totalSeconds = totalSeconds.clamp(0, 86399); // Ensure valid range (0-23:59:59)
 
     selectedDuration = Duration(seconds: totalSeconds);
   }
@@ -41,9 +40,9 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
       builder: (context) {
         return Container(
           width: 350,
-          constraints: BoxConstraints(maxHeight: 350),
+          constraints: const BoxConstraints(maxHeight: 350),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Color(0xFF003F62), // Dark blue background color
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(30),
@@ -53,21 +52,22 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
           child: Column(
             children: [
               SizedBox(
-                  height: 200,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,  // Background color of the container
-                      borderRadius: BorderRadius.circular(200),  // Set radius for all corners
-                    ),
-                    child: CupertinoTimerPicker(
-                      backgroundColor: Colors.transparent,  // Make the background transparent so the container background shows
-                      mode: CupertinoTimerPickerMode.hms,
-                      initialTimerDuration: tempDuration,
-                      onTimerDurationChanged: (Duration newDuration) {
-                        tempDuration = newDuration;
-                      },
+                height: 200,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(200),
+                  ),
+                  child: CupertinoTimerPicker(
+                    backgroundColor: Colors.transparent,
+                    mode: CupertinoTimerPickerMode.hms,
+                    initialTimerDuration: tempDuration,
+                    onTimerDurationChanged: (Duration newDuration) {
+                      tempDuration = newDuration;
+                    },
+                  ),
                 ),
-              )),
+              ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
@@ -75,6 +75,7 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                     setState(() {
                       selectedDuration = tempDuration; // Confirm selection
                     });
+
                     widget.onTimeSelected(
                       selectedDuration.inHours,
                       selectedDuration.inMinutes % 60,
@@ -113,10 +114,6 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
       onTap: _showTimePicker,
       child: Container(
         padding: const EdgeInsets.all(8.0),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(10),
-        ),
         child: Text(
           "${selectedDuration.inHours.toString().padLeft(2, '0')}:"
               "${(selectedDuration.inMinutes % 60).toString().padLeft(2, '0')}:"

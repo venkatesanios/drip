@@ -90,7 +90,6 @@ class _GeneralPageState extends State<GeneralPage> {
   }
 
   Widget getWidgetGeneral(BuildContext context, Map<String, dynamic> item, int index) {
-    var provider = Provider.of<ConstantProvider>(context, listen: true);
 
     int type = item['widgetTypeId'] ?? 0;
     String name = item['title'] ?? "Unknown";
@@ -110,12 +109,10 @@ class _GeneralPageState extends State<GeneralPage> {
                 setState(() {
                   widget.generalUpdated[index]['value'] = value.isNotEmpty ? value : '0';
                 });
-                provider.updateGeneralValue(index, value.isNotEmpty ? value : '0');
               },
             ),
           ),
         );
-
       case 2: // Switch Boolean Input
         return ListTile(
           title: Text(name),
@@ -125,10 +122,11 @@ class _GeneralPageState extends State<GeneralPage> {
               setState(() {
                 widget.generalUpdated[index]['value'] = newValue;
               });
-              provider.updateGeneralValue(index, newValue as String);
             },
           ),
         );
+
+
 
       case 3: // Time Picker
         return ListTile(
@@ -145,8 +143,6 @@ class _GeneralPageState extends State<GeneralPage> {
   }
 
   Widget getTimePicker(int index) {
-    var provider = Provider.of<ConstantProvider>(context, listen: true);
-
     return CustomTimePicker(
       index: index,
       initialMinutes: _parseTime(widget.generalUpdated[index]['value']).toDouble(),
@@ -154,7 +150,6 @@ class _GeneralPageState extends State<GeneralPage> {
         setState(() {
           String timeString = "${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:00";
           widget.generalUpdated[index]['value'] = timeString;
-          provider.updateGeneralValue(index, timeString);
         });
       },
     );

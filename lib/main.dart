@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/Screens/Constant/ConstantPageProvider/changeNotifier_constantProvider.dart';
 import 'package:oro_drip_irrigation/app/app.dart';
 import 'package:provider/provider.dart';
 import 'StateManagement/config_maker_provider.dart';
@@ -30,7 +31,9 @@ FutureOr<void> main() async {
         ChangeNotifierProvider(create: (_) => OverAllUse()),
         ChangeNotifierProvider(create: (_) => PreferenceProvider()),
         ChangeNotifierProvider(create: (_) => SystemDefinitionProvider()),
+        ChangeNotifierProvider(create: (_) => ConstantProvider()),
       ],
       child: MyApp(),
+      
     ),
   );}

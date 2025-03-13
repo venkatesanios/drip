@@ -16,6 +16,8 @@ class FinishInConstant extends StatefulWidget {
   final List<MainValve> mainValves;
   final List<dynamic> generalUpdated;
   final List<Alarm> alarm;
+  final int controllerId;
+  final int userId;
 
   const FinishInConstant({
     super.key,
@@ -29,6 +31,8 @@ class FinishInConstant extends StatefulWidget {
     required this.mainValves,
     required this.generalUpdated,
     required this.alarm,
+    required this.controllerId,
+    required this.userId,
   });
 
   @override
@@ -93,8 +97,8 @@ class _FinishInConstantState extends State<FinishInConstant> {
 
 
     var body = jsonEncode({
-      "userId": 4,
-      "controllerId": 1,
+      "userId":widget.userId,
+      "controllerId": widget.controllerId,
       "general": widget.generalUpdated,
       "pump": widget.pumps
           .map((pump) => {
@@ -207,7 +211,7 @@ class _FinishInConstantState extends State<FinishInConstant> {
               })
           .toList(),
       "controllerReadStatus": '0',
-      "createUser": 4,
+      "createUser": widget.controllerId,
     });
 
     try {
@@ -242,11 +246,49 @@ class _FinishInConstantState extends State<FinishInConstant> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Finish & Send Data")),
+      backgroundColor: Colors.blueGrey[50], // Soft background color
       body: Center(
-        child: ElevatedButton(
-          onPressed: sendPumpData,
-          child: const Text("Send Data"),
+        child: Container(
+          padding: const EdgeInsets.all(24.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.blue.withOpacity(0.3),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+            gradient: const LinearGradient(
+              colors: [Color(0xff003f62), Color(0xff0078AA)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: ElevatedButton(
+            onPressed: () {
+              // Your function logic here
+              sendPumpData();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: const Color(0xff003f62),
+              elevation: 5,
+              shadowColor: Colors.black45,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 40),
+            ),
+            child: const Text(
+              "🚀 Send Data",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.2,
+              ),
+            ),
+          ),
         ),
       ),
     );

@@ -10,8 +10,10 @@ import 'finish_in_constant.dart';
 import 'general_in_constant.dart';
 import 'globalAlarm_in_constant.dart';
 import 'irrigationLine_in_constant.dart';
+import 'levelSensor_in_constant.dart';
 import 'main_valve_in_constant.dart';
 import 'modal_in_constant.dart';
+import 'moistureSensor_constant.dart';
 
 class ConstantHomePage extends StatefulWidget {
   final List<ConstantMenu> constantMenu;
@@ -31,7 +33,12 @@ class ConstantHomePage extends StatefulWidget {
   final List<Alarm> normalAlarm;
   final List<Alarm> criticalAlarm;
   List<dynamic> alarmData;
-   ConstantHomePage({
+  final int controllerId;
+   int userId;
+  List<MoistureSensor> moistureSensors;
+  List<LevelSensor>levelSensor;
+   List<WaterSource> waterSource;
+  ConstantHomePage({
     super.key,
     required this.constantMenu,
     required this.pump,
@@ -50,6 +57,11 @@ class ConstantHomePage extends StatefulWidget {
     required this.normalAlarm,
     required this.criticalAlarm,
     required this.alarmData,
+     required this.controllerId,
+     required this.userId,
+     required this.moistureSensors,
+     required this.levelSensor,
+     required this.waterSource,
 
   });
 
@@ -65,7 +77,12 @@ class _ConstantHomePageState extends State<ConstantHomePage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: widget.constantMenu.length + 1, vsync: this);
+    final filteredMenuLength = widget.constantMenu
+        .where((item) => item.parameter != "Normal Alarm")
+        .length;
+
+    _tabController = TabController(length: filteredMenuLength + 1, vsync: this);
+
     _tabController.addListener(() {
       setState(() {
         _currentIndex = _tabController.index;
@@ -80,82 +97,104 @@ class _ConstantHomePageState extends State<ConstantHomePage>
   Widget build(BuildContext context) {
    // var constantPvd = Provider.of<ConstantProvider>(context, listen: true);
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xff003f62),
-        bottom: TabBar(
-          controller: _tabController,
-          isScrollable: true,
-          labelColor: Colors.white,
-          indicatorColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
-          tabs: [
-            ...widget.constantMenu.map((item) => Tab(text: item.parameter)),
-            const Tab(text: 'Finish'),
-          ],
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        physics: const NeverScrollableScrollPhysics(),
+      body: Column(
         children: [
-          ...widget.constantMenu.map((item) {
-            switch (item.parameter) {
-              case "General":
-                return GeneralPage(generalUpdated: List<Map<String, dynamic>>.from(widget.generalUpdated));
-              case "Pump":
-                return PumpPage(pump: widget.pump);
-              case "Irrigation Line":
-                return IrrigationLineInConstant(irrigationLines: widget.irrigationLines);
-              case "Main Valve":
-                return MainValveInConstant(
-                  mainValves: widget.mainValves,
-                  irrigationLines: widget.irrigationLines,
-                );
-              case "Valve":
-                return ValveInConstant(
-                    valves: widget.valves,
-                    irrigationLines: widget.irrigationLines);
-              case "Water Meter":
-                return WatermeterInConstant(
-                  waterMeter: widget.waterMeter,
-                  irrigationLines: widget.irrigationLines,
-                  pump: widget.pump,
-                );
-              case "Fertilizer":
-                return FertilizerInConstant(
-                  fertilizerSite: widget.fertilizerSite,
-                  channels: widget.channels,
-                );
-              case "EC/PH":
-                return EcPhInConstant(
+          Container(
+            color: const Color(0xff003f62), // Tab bar background color
+            child: TabBar(
+              controller: _tabController,
+              isScrollable: true,
+              labelColor: Colors.white,
+              indicatorColor: Colors.white,
+              unselectedLabelColor: Colors.white70,
+              tabs: [
+                ...widget.constantMenu
+                    .where((item) => item.parameter != "Normal Alarm")
+                    .map((item) => Tab(text: item.parameter)),
+                const Tab(text: 'Finish'),
+              ],
+            ),
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              physics: const NeverScrollableScrollPhysics(),
+              children: [
+                ...widget.constantMenu
+                    .where((item) => item.parameter != "Normal Alarm")
+                    .map((item) {
+                  switch (item.parameter) {
+                    case "General":
+                      return GeneralPage(generalUpdated: List<Map<String, dynamic>>.from(widget.generalUpdated));
+                    case "Pump":
+                      return PumpPage(pump: widget.pump);
+                    case "Irrigation Line":
+                      return IrrigationLineInConstant(irrigationLines: widget.irrigationLines);
+                    case "Main Valve":
+                      return MainValveInConstant(
+                        mainValves: widget.mainValves,
+                        irrigationLines: widget.irrigationLines,
+                      );
+                    case "Valve":
+                      return ValveInConstant(
+                          valves: widget.valves,
+                          irrigationLines: widget.irrigationLines);
+                    case "Water Meter":
+                      return WatermeterInConstant(
+                        waterMeter: widget.waterMeter,
+                        irrigationLines: widget.irrigationLines,
+                        pump: widget.pump,
+                      );
+                    case "Fertilizer":
+                      return FertilizerInConstant(
+                        fertilizerSite: widget.fertilizerSite,
+                        channels: widget.channels,
+                      );
+                    case "EC/PH":
+                      return EcPhInConstant(
+                        ec: widget.ec,
+                        ph: widget.ph,
+                        fertilizerSite: widget.fertilizerSite,
+                        controlSensors: widget.controlSensors,
+                      );
+                    case "Critical Alarm":
+                      return CriticalAlarmInConstant(
+                        alarm: widget.alarm,
+                      );
+                    case "Global Alarm":
+                      return GlobalAlarmInConstant(
+                        alarm: widget.alarm,
+                      );
+                    case "Moisture Sensor":
+                      return MoistureSensorConstant(
+                        moistureSensors: widget.moistureSensors,
+                      );
+                    case "Level Sensor":
+                      return LevelSensorInConstant(
+                        levelSensor: widget.levelSensor,
+                        waterSource: widget.waterSource,
+
+                      );
+                    default:
+                      return Center(child: Text(item.parameter));
+                  }
+                }),
+                FinishInConstant(
+                  pumps: widget.pump,
+                  valves: widget.valves,
                   ec: widget.ec,
                   ph: widget.ph,
                   fertilizerSite: widget.fertilizerSite,
                   controlSensors: widget.controlSensors,
-                );
-                case "Critical Alarm":
-                return CriticalAlarmInConstant(
-                  alarm:widget.alarm,
-                );
-              case "Global Alarm":
-                return GlobalAlarmInConstant(
+                  irrigationLines: widget.irrigationLines,
+                  mainValves: widget.mainValves,
+                  generalUpdated: widget.generalUpdated,
                   alarm: widget.alarm,
-                );
-              default:
-                return Center(child: Text(item.parameter));
-            }
-          }),
-          FinishInConstant(
-            pumps: widget.pump,
-            valves: widget.valves,
-            ec: widget.ec,
-            ph: widget.ph,
-            fertilizerSite: widget.fertilizerSite,
-            controlSensors: widget.controlSensors,
-            irrigationLines: widget.irrigationLines,
-            mainValves: widget.mainValves,
-            generalUpdated: widget.generalUpdated,
-            alarm: widget.alarm,
+                  controllerId: widget.controllerId,
+                  userId: widget.userId,
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -178,7 +217,9 @@ class _ConstantHomePageState extends State<ConstantHomePage>
             FloatingActionButton.small(
               heroTag: 'btn_next',
               tooltip: 'Next',
-              backgroundColor: _currentIndex == _tabController.length - 1 ? Colors.white54 : Colors.white,
+              backgroundColor: _currentIndex == _tabController.length - 1
+                  ? Colors.white54
+                  : Colors.white,
               onPressed: _currentIndex == _tabController.length - 1
                   ? null
                   : () {
@@ -190,6 +231,7 @@ class _ConstantHomePageState extends State<ConstantHomePage>
         ),
       ),
     );
+
   }
 
   @override

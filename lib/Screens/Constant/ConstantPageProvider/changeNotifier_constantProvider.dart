@@ -13,21 +13,24 @@ class ConstantProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void updateGeneralValue(int index, String newValue) {
+  void updateGeneralValue(int index, dynamic newValue) {
+    if (index < 0 || index >= generalUpdated.length) return;
+
+    // Create a mutable copy of the entry
+    generalUpdated[index] = Map.from(generalUpdated[index]);
     generalUpdated[index]['value'] = newValue;
+
     notifyListeners();
   }
-
-  void updateTime(int index, String field, String value) {
-    if (index >= 0 && index < overAllAlarm.length) {
-      AlarmNew updatedAlarm = overAllAlarm[index].copyWith(
-        scanTime: field == "scanTime" ? value : overAllAlarm[index].scanTime,
-        autoResetDuration: field == "autoResetDuration" ? value : overAllAlarm[index].autoResetDuration,
-      );
-
-      overAllAlarm[index] = updatedAlarm;
-      notifyListeners();
+  void updateTime(int index, String field, String newValue) {
+    if (field == "scanTime") {
+      overAllAlarm[index] = overAllAlarm[index].copyWith(scanTime: newValue);
+    } else if (field == "autoResetDuration") {
+      overAllAlarm[index] = overAllAlarm[index].copyWith(autoResetDuration: newValue);
     }
+
+    print("✅ Updated $field to: ${overAllAlarm[index].scanTime}"); // Debugging output
+    notifyListeners(); // Ensure UI updates correctly
   }
 
 
