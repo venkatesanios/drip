@@ -1,18 +1,21 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/modules/irrigation_report/repository/irrigation_repository.dart';
 import 'package:provider/provider.dart';
-import '../../../../../FertilizerSet.dart';
-import '../../../../../ListOfFertilizerInSet.dart';
-import '../../../../../Models/Customer/log/irrigation_parameter_model.dart';
-import '../../../../../constants/http_service.dart';
-import '../../../../../constants/theme.dart';
-import '../../../../../state_management/overall_use.dart';
+
+import '../../../Screens/NewIrrigationProgram/water_and_fertilizer_screen.dart';
+import '../../../StateManagement/overall_use.dart';
+import '../model/data_parsing_and_sorting_model.dart';
+import '../model/general_parameter_model.dart';
 import 'log_home.dart';
 
+
 class ListOfLogConfig extends StatefulWidget {
-  const ListOfLogConfig({super.key,});
+  final Map<String, dynamic> userData;
+  const ListOfLogConfig({super.key, required this.userData,});
 
   @override
   State<ListOfLogConfig> createState() => _ListOfLogConfigState();
@@ -27,7 +30,6 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
       'SequenceData' : ['Valve',true],
       // 'ZoneName' : ['Sequence',true],
       'Date' : ['Date',true],
-      'ProgramCategoryName' : ['Line',true],
       'ScheduledStartTime' : ['Start Time',true],
       'overAll' : ['over all',true]
     },
@@ -93,10 +95,10 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
 
   };
   dynamic serverData;
-  IrrigationLog irrigationParameterArray = IrrigationLog();
-  IrrigationLog irrigationParameterArrayDuplicate = IrrigationLog();
+  IrrigationLogModel irrigationParameterArray = IrrigationLogModel();
+  IrrigationLogModel irrigationParameterArrayDuplicate = IrrigationLogModel();
 
-  IrrigationLog selectedIrrigationParameterArray = IrrigationLog();
+  IrrigationLogModel selectedIrrigationParameterArray = IrrigationLogModel();
   String errorMessage = '';
   String logName = '';
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -111,22 +113,17 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
 
   void createUserLogConfig({required String name,required dynamic configDetails})async{
     print('createUserLogConfig called...............');
-    var overAllPvd = Provider.of<OverAllUse>(context,listen: false);
     try{
-      HttpService service = HttpService();
-      var response = await service.postRequest(
-          'createUserLogConfig',
-          {
-            'userId' : overAllPvd.userId,
-            'controllerId' : overAllPvd.controllerId,
-            'logName': logName,
-            'irrigationLog': configDetails,
-            'createUser': overAllPvd.userId,
-          });
-      var jsonData = response.body;
-      var myData = jsonDecode(jsonData);
-      print('myData => ${myData}');
-      if(myData['code'] == 200){
+      var body = {
+        'userId' : widget.userData['userId'],
+        'controllerId' : widget.userData['controllerId'],
+        'logName': logName,
+        'irrigationLog': configDetails,
+        'createUser': widget.userData['userId'],
+      };
+      var response = await IrrigationRepository().createUserLogConfig(body);
+      Map<String, dynamic> jsonData = jsonDecode(response.body);
+      if(jsonData['code'] == 200){
         getUserLogConfig();
       }
 
@@ -137,23 +134,18 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
 
   void updateUserLogConfig({required int id,required dynamic configDetails})async{
     print('updateUserLogConfig called...............');
-    var overAllPvd = Provider.of<OverAllUse>(context,listen: false);
     try{
-      HttpService service = HttpService();
-      var response = await service.putRequest(
-          'updateUserLogConfig',
-          {
-            'userId' : overAllPvd.userId,
-            'controllerId' : overAllPvd.controllerId,
-            'logName': logName,
-            'irrigationLog': configDetails,
-            'modifyUser': overAllPvd.userId,
-            'logConfigId' : id,
-          });
-      var jsonData = response.body;
-      var myData = jsonDecode(jsonData);
-      print('myData => ${myData}');
-      if(myData['code'] == 200){
+      var body = {
+        'userId' : widget.userData['userId'],
+        'controllerId' : widget.userData['controllerId'],
+        'logName': logName,
+        'irrigationLog': configDetails,
+        'modifyUser': widget.userData['userId'],
+        'logConfigId' : id,
+      };
+      var response = await IrrigationRepository().updateUserLogConfig(body);
+      Map<String, dynamic> jsonData = jsonDecode(response.body);
+      if(jsonData['code'] == 200){
         getUserLogConfig();
       }
     }catch(e){
@@ -162,25 +154,26 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
   }
 
   void getUserLogConfig()async{
-    print('getUserLogConfig called...............');
-    var overAllPvd = Provider.of<OverAllUse>(context,listen: false);
+    if (kDebugMode) {
+      print('getUserLogConfig called...............');
+    }
     try{
-      print('getUserLogConfig => ${overAllPvd.userId}  ${overAllPvd.controllerId}');
-      HttpService service = HttpService();
-      var response = await service.postRequest(
-          'getUserLogConfig',
-          {
-            'userId' : overAllPvd.userId,
-            'controllerId' : overAllPvd.controllerId,
-          });
-      var jsonData = response.body;
-      var myData = jsonDecode(jsonData);
-      print('getUserLogConfig myData => ${myData}');
-      if(myData['code'] == 200){
+      var body = {
+        'userId' : widget.userData['userId'],
+        'controllerId' : widget.userData['controllerId'],
+      };
+      var response = await IrrigationRepository().getUserLogConfig(body);
+      Map<String, dynamic> jsonData = jsonDecode(response.body);
+      if (kDebugMode) {
+        print('getUserLogConfig jsonData => $jsonData');
+      }
+      if(jsonData['code'] == 200){
         setState(() {
-          serverData = myData['data'];
+          serverData = jsonData['data'];
         });
-        print('serverData => $serverData');
+        if (kDebugMode) {
+          print('serverData => $serverData');
+        }
         setState(() {
           irrigationLogParameterFromServer = serverData['default'];
         });
@@ -193,22 +186,19 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
   }
 
   void deleteUserLogConfig({required id})async{
-    print('deleteUserLogConfig called...............');
-
-    var overAllPvd = Provider.of<OverAllUse>(context,listen: false);
+    if (kDebugMode) {
+      print('deleteUserLogConfig called...............');
+    }
     try{
-      HttpService service = HttpService();
-      var response = await service.deleteRequest(
-          'deleteUserLogConfig',
-          {
-            'userId' : overAllPvd.userId,
-            'controllerId' : overAllPvd.controllerId,
-            'logConfigId' : id,
-          });
-      var jsonData = response.body;
-      var myData = jsonDecode(jsonData);
-      print('delete response =>${myData}');
-      if(myData['code'] == 200){
+      var body = {
+        'userId' : widget.userData['userId'],
+        'controllerId' : widget.userData['controllerId'],
+        'logConfigId' : id,
+      };
+      var response = await IrrigationRepository().deleteUserLogConfig(body);
+      Map<String, dynamic> jsonData = jsonDecode(response.body);
+      print('delete response =>${jsonData}');
+      if(jsonData['code'] == 200){
         getUserLogConfig();
       }
     }catch(e){
@@ -218,65 +208,163 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
 
   @override
   Widget build(BuildContext context) {
-    var overAllPvd = Provider.of<OverAllUse>(context,listen: true);
-
-    return LayoutBuilder(builder: (context,constraint){
-      return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Container(
-                padding: EdgeInsets.all(8),
-                width: double.infinity,
-                child: ListTile(
-                  title: Text('List Of Irrigation Log',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
-                  trailing: MaterialButton(
-                    onPressed: (){
-                      setState(() {
-                        errorMessage = '';
-                        logName = '';
-                      });
-                      sideSheet(constraints: constraint, mode: 1);
-                    },
-                    color: Colors.green,
-                    child: Text('Add',style: TextStyle(color: Colors.white),),
+    return Material(
+      child: LayoutBuilder(builder: (context,constraint){
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(8),
+                  width: double.infinity,
+                  child: ListTile(
+                    title: Text('List Of Irrigation Log',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
+                    trailing: MaterialButton(
+                      onPressed: (){
+                        setState(() {
+                          errorMessage = '';
+                          logName = '';
+                        });
+                        sideSheet(constraints: constraint, mode: 1);
+                      },
+                      color: Colors.green,
+                      child: Text('Add',style: TextStyle(color: Colors.white),),
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(height: 20,),
-              if(constraint.maxWidth > 300)
-                customizeGridView(
-                    maxWith: 300,
-                    maxheight: 200,
-                    screenWidth: constraint.maxWidth,
-                    listOfWidget: [
-                      if(serverData != null)
-                        if(serverData['logConfig'].isNotEmpty)
-                          for(var i = 0;i < serverData['logConfig'].length;i++)
-                            Container(
-                              margin: EdgeInsets.only(bottom: 20),
-                              padding: EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                  color:  Colors.white,
-                                  boxShadow: customBoxShadow,
-                                  borderRadius: BorderRadius.circular(10)
-                              ),
-                              child: Column(
-                                children: [
-                                  ListTile(
-                                    leading: CircleAvatar(
-                                      backgroundColor: Color(0xff2B565B),
-                                      radius: 20,
-                                      child: Center(
-                                        child: Text('${i+1}',style: TextStyle(color: Colors.white),),
+                SizedBox(height: 20,),
+                if(constraint.maxWidth > 300)
+                  customizeGridView(
+                      maxWith: 300,
+                      maxHeight: 200,
+                      screenWidth: constraint.maxWidth,
+                      listOfWidget: [
+                        if(serverData != null)
+                          if(serverData['logConfig'].isNotEmpty)
+                            for(var i = 0;i < serverData['logConfig'].length;i++)
+                              Container(
+                                margin: EdgeInsets.only(bottom: 20),
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                    color:  Colors.white,
+                                    boxShadow: customBoxShadow,
+                                    borderRadius: BorderRadius.circular(10)
+                                ),
+                                child: Column(
+                                  children: [
+                                    ListTile(
+                                      leading: CircleAvatar(
+                                        backgroundColor: Color(0xff2B565B),
+                                        radius: 20,
+                                        child: Center(
+                                          child: Text('${i+1}',style: TextStyle(color: Colors.white),),
+                                        ),
                                       ),
+                                      title: Text('${serverData['logConfig'][i]['logName']}'),
                                     ),
-                                    title: Text('${serverData['logConfig'][i]['logName']}'),
+                                    SizedBox(height: 20,),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                      children: [
+                                        IconButton(
+                                            style: ButtonStyle(
+                                                backgroundColor: MaterialStateProperty.all(Color(0xffFFF0E5))
+                                            ),
+                                            onPressed: ()async{
+                                              setState(() {
+                                                selectedIrrigationParameterArray.editParameter(serverData['logConfig'][i]['irrigationLog']);
+                                                setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.generalParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.generalParameterList);
+                                                setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.waterParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.waterParameterList);
+                                                setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.prePostParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.prePostParameterList);
+                                                setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.centralEcPhParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.centralEcPhParameterList);
+                                                setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.centralChannel1ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.centralChannel1ParameterList);
+                                                setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.centralChannel2ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.centralChannel2ParameterList);
+                                                setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.centralChannel3ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.centralChannel3ParameterList);
+                                                setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.centralChannel4ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.centralChannel4ParameterList);
+                                                setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.centralChannel5ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.centralChannel5ParameterList);
+                                                setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.centralChannel6ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.centralChannel6ParameterList);
+                                                setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.centralChannel7ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.centralChannel7ParameterList);
+                                                setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.centralChannel8ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.centralChannel8ParameterList);
+                                                setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.localEcPhParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.localEcPhParameterList);
+                                                setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.localChannel1ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.localChannel1ParameterList);
+                                                setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.localChannel2ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.localChannel2ParameterList);
+                                                setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.localChannel3ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.localChannel3ParameterList);
+                                                setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.localChannel4ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.localChannel4ParameterList);
+                                                setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.localChannel5ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.localChannel5ParameterList);
+                                                setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.localChannel6ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.localChannel6ParameterList);
+                                                setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.localChannel7ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.localChannel7ParameterList);
+                                                setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.localChannel8ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.localChannel8ParameterList);
+                                                errorMessage = '';
+                                                logName = serverData['logConfig'][i]['logName'];
+                                              });
+                                              sideSheet(constraints: constraint, mode: 2,configId: serverData['logConfig'][i]['logConfigId']);
+            
+                                            },
+                                            icon: Icon(Icons.edit_note,color: Colors.orange,)
+                                        ),
+                                        IconButton(
+                                            style: ButtonStyle(
+                                                backgroundColor: MaterialStateProperty.all(Color(0xffFFDEDC))
+                                            ),
+                                            onPressed: (){
+                                              deleteUserLogConfig(id: serverData['logConfig'][i]['logConfigId']);
+                                            },
+                                            icon: Icon(Icons.delete,color: Colors.red,)
+                                        ),
+                                        IconButton(
+                                            style: ButtonStyle(
+                                                backgroundColor: MaterialStateProperty.all(Color(0xffEFFFFB))
+                                            ),
+                                            onPressed: () {
+                                              Navigator.push(context, MaterialPageRoute(builder: (context){
+                                                return LogHome(serverData: serverData['logConfig'][i], userData: widget.userData,);
+                                              }));
+                                            },
+                                            icon: Icon(Icons.visibility,color: Colors.green,)
+                                        ),
+                                        // MaterialButton(
+                                        //   color: Colors.green,
+                                        //   onPressed: () {
+                                        //     Navigator.push(context, MaterialPageRoute(builder: (context){
+                                        //       return LogHome(serverData: serverData['logConfig'][i]);
+                                        //       // return HomePage();
+                                        //     }));
+                                        //   },
+                                        //   child: Text('View Report',style: TextStyle(color: Colors.white),),
+                                        // ),
+                                      ],
+                                    )
+                                  ],
+                                ),
+                              )
+                      ]
+                  )
+                else
+                  if(serverData != null)
+                    if(serverData['logConfig'].isNotEmpty)
+                      for(var i = 0;i < serverData['logConfig'].length;i++)
+                        Container(
+                          margin: EdgeInsets.only(bottom: 20),
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                              color:  Colors.white,
+                              boxShadow: customBoxShadow,
+                              borderRadius: BorderRadius.circular(10)
+                          ),
+                          child: Column(
+                            children: [
+                              ListTile(
+                                leading: CircleAvatar(
+                                  backgroundColor: Color(0xff2B565B),
+                                  radius: 20,
+                                  child: Center(
+                                    child: Text('${i+1}',style: TextStyle(color: Colors.white),),
                                   ),
-                                  SizedBox(height: 20,),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                ),
+                                title: Text('${serverData['logConfig'][i]['logName']}'),
+                                trailing: IntrinsicWidth(
+                                  child: Row(
                                     children: [
                                       IconButton(
                                           style: ButtonStyle(
@@ -310,7 +398,6 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                               logName = serverData['logConfig'][i]['logName'];
                                             });
                                             sideSheet(constraints: constraint, mode: 2,configId: serverData['logConfig'][i]['logConfigId']);
-          
                                           },
                                           icon: Icon(Icons.edit_note,color: Colors.orange,)
                                       ),
@@ -329,7 +416,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                           ),
                                           onPressed: () {
                                             Navigator.push(context, MaterialPageRoute(builder: (context){
-                                              return LogHome(serverData: serverData['logConfig'][i], userId: overAllPvd.userId,controllerId: overAllPvd.controllerId,);
+                                              return LogHome(serverData: serverData['logConfig'][i], userData: widget.userData,);
                                             }));
                                           },
                                           icon: Icon(Icons.visibility,color: Colors.green,)
@@ -345,123 +432,26 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                       //   child: Text('View Report',style: TextStyle(color: Colors.white),),
                                       // ),
                                     ],
-                                  )
+                                  ),
+                                ),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                children: [
+            
+            
                                 ],
-                              ),
-                            )
-                    ]
-                )
-              else
-                if(serverData != null)
-                  if(serverData['logConfig'].isNotEmpty)
-                    for(var i = 0;i < serverData['logConfig'].length;i++)
-                      Container(
-                        margin: EdgeInsets.only(bottom: 20),
-                        padding: EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                            color:  Colors.white,
-                            boxShadow: customBoxShadow,
-                            borderRadius: BorderRadius.circular(10)
-                        ),
-                        child: Column(
-                          children: [
-                            ListTile(
-                              leading: CircleAvatar(
-                                backgroundColor: Color(0xff2B565B),
-                                radius: 20,
-                                child: Center(
-                                  child: Text('${i+1}',style: TextStyle(color: Colors.white),),
-                                ),
-                              ),
-                              title: Text('${serverData['logConfig'][i]['logName']}'),
-                              trailing: IntrinsicWidth(
-                                child: Row(
-                                  children: [
-                                    IconButton(
-                                        style: ButtonStyle(
-                                            backgroundColor: MaterialStateProperty.all(Color(0xffFFF0E5))
-                                        ),
-                                        onPressed: ()async{
-                                          setState(() {
-                                            selectedIrrigationParameterArray.editParameter(serverData['logConfig'][i]['irrigationLog']);
-                                            setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.generalParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.generalParameterList);
-                                            setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.waterParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.waterParameterList);
-                                            setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.prePostParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.prePostParameterList);
-                                            setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.centralEcPhParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.centralEcPhParameterList);
-                                            setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.centralChannel1ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.centralChannel1ParameterList);
-                                            setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.centralChannel2ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.centralChannel2ParameterList);
-                                            setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.centralChannel3ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.centralChannel3ParameterList);
-                                            setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.centralChannel4ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.centralChannel4ParameterList);
-                                            setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.centralChannel5ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.centralChannel5ParameterList);
-                                            setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.centralChannel6ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.centralChannel6ParameterList);
-                                            setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.centralChannel7ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.centralChannel7ParameterList);
-                                            setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.centralChannel8ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.centralChannel8ParameterList);
-                                            setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.localEcPhParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.localEcPhParameterList);
-                                            setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.localChannel1ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.localChannel1ParameterList);
-                                            setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.localChannel2ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.localChannel2ParameterList);
-                                            setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.localChannel3ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.localChannel3ParameterList);
-                                            setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.localChannel4ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.localChannel4ParameterList);
-                                            setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.localChannel5ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.localChannel5ParameterList);
-                                            setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.localChannel6ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.localChannel6ParameterList);
-                                            setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.localChannel7ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.localChannel7ParameterList);
-                                            setOriginalToDuplicateParameter(originalParameterList: selectedIrrigationParameterArray.localChannel8ParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.localChannel8ParameterList);
-                                            errorMessage = '';
-                                            logName = serverData['logConfig'][i]['logName'];
-                                          });
-                                          sideSheet(constraints: constraint, mode: 2,configId: serverData['logConfig'][i]['logConfigId']);
-                                        },
-                                        icon: Icon(Icons.edit_note,color: Colors.orange,)
-                                    ),
-                                    IconButton(
-                                        style: ButtonStyle(
-                                            backgroundColor: MaterialStateProperty.all(Color(0xffFFDEDC))
-                                        ),
-                                        onPressed: (){
-                                          deleteUserLogConfig(id: serverData['logConfig'][i]['logConfigId']);
-                                        },
-                                        icon: Icon(Icons.delete,color: Colors.red,)
-                                    ),
-                                    IconButton(
-                                        style: ButtonStyle(
-                                            backgroundColor: MaterialStateProperty.all(Color(0xffEFFFFB))
-                                        ),
-                                        onPressed: () {
-                                          Navigator.push(context, MaterialPageRoute(builder: (context){
-                                            return LogHome(serverData: serverData['logConfig'][i], userId: overAllPvd.userId,controllerId: overAllPvd.controllerId,);
-                                          }));
-                                        },
-                                        icon: Icon(Icons.visibility,color: Colors.green,)
-                                    ),
-                                    // MaterialButton(
-                                    //   color: Colors.green,
-                                    //   onPressed: () {
-                                    //     Navigator.push(context, MaterialPageRoute(builder: (context){
-                                    //       return LogHome(serverData: serverData['logConfig'][i]);
-                                    //       // return HomePage();
-                                    //     }));
-                                    //   },
-                                    //   child: Text('View Report',style: TextStyle(color: Colors.white),),
-                                    // ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-          
-          
-                              ],
-                            )
-                          ],
-                        ),
-                      )
-          
-            ],
+                              )
+                            ],
+                          ),
+                        )
+            
+              ],
+            ),
           ),
-        ),
-      );
-    });
+        );
+      }),
+    );
   }
 
 
@@ -564,7 +554,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
             child: StatefulBuilder(
               builder: (BuildContext context, StateSetter stateSetter) {
                 return SizedBox(
-                  width: constraints.maxWidth,
+                  width: constraints.maxWidth > 500 ? 700 : 500,
                   child: Scaffold(
                     floatingActionButton: Container(
                       decoration: BoxDecoration(
@@ -665,19 +655,19 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                               Column(
                                 children: [
                                   ListTile(
-                                    title: Text('Genral Parameter',style: TextStyle(fontWeight: FontWeight.bold,color: primaryColorDark,fontSize: 20),),
-                                    leading: Checkbox(
-                                      value: irrigationParameterArrayDuplicate.generalParameterList[irrigationParameterArrayDuplicate.generalParameterList.length - 1].show,
-                                      onChanged: (bool? value) {
-                                        stateSetter(() {
-                                          irrigationParameterArrayDuplicate.generalParameterList[irrigationParameterArrayDuplicate.generalParameterList.length - 1].show = value!;
-                                          for(var p in irrigationParameterArrayDuplicate.generalParameterList){
-                                            p.show = value;
-                                          }
-                                        });
-
-                                      },
-                                    ),
+                                    title: Text('General Parameter',style: TextStyle(fontWeight: FontWeight.bold,color: Theme.of(context).primaryColorDark,fontSize: 20),),
+                                    // leading: Checkbox(
+                                    //   value: irrigationParameterArrayDuplicate.generalParameterList[irrigationParameterArrayDuplicate.generalParameterList.length - 1].show,
+                                    //   onChanged: (bool? value) {
+                                    //     stateSetter(() {
+                                    //       irrigationParameterArrayDuplicate.generalParameterList[irrigationParameterArrayDuplicate.generalParameterList.length - 1].show = value!;
+                                    //       for(var p in irrigationParameterArrayDuplicate.generalParameterList){
+                                    //         p.show = value;
+                                    //       }
+                                    //     });
+                                    //
+                                    //   },
+                                    // ),
                                   ),
                                   Wrap(
                                     children: [
@@ -707,7 +697,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                     height: 1,
                                     child: Divider(
                                       thickness: 0.5,
-                                      color: primaryColorDark,
+                                      color: Theme.of(context).primaryColorDark,
                                     ),
                                   ),
 
@@ -759,7 +749,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                     height: 1,
                                     child: Divider(
                                       thickness: 0.5,
-                                      color: primaryColorDark,
+                                      color: Theme.of(context).primaryColorDark,
                                     ),
                                   ),
 
@@ -811,7 +801,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                     height: 1,
                                     child: Divider(
                                       thickness: 0.5,
-                                      color: primaryColorDark,
+                                      color: Theme.of(context).primaryColorDark,
                                     ),
                                   ),
 
@@ -863,7 +853,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                     height: 1,
                                     child: Divider(
                                       thickness: 0.5,
-                                      color: primaryColorDark,
+                                      color: Theme.of(context).primaryColorDark,
                                     ),
                                   ),
 
@@ -923,7 +913,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                     height: 1,
                                     child: Divider(
                                       thickness: 0.5,
-                                      color: primaryColorDark,
+                                      color: Theme.of(context).primaryColorDark,
                                     ),
                                   ),
 
@@ -982,7 +972,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                     height: 1,
                                     child: Divider(
                                       thickness: 0.5,
-                                      color: primaryColorDark,
+                                      color: Theme.of(context).primaryColorDark,
                                     ),
                                   ),
 

@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 import '../../../Constants/communication_codes.dart';
 import '../../../Constants/properties.dart';
@@ -104,7 +105,7 @@ class _ConnectionState extends State<Connection> {
                               if((selectedDevice.noOfRelay == 0 ? selectedDevice.noOfLatch : selectedDevice.noOfRelay) != 0)
                                 getConnectionBox(
                                     selectedDevice: selectedDevice,
-                                    color: const Color(0xffD2EAFF),
+                                    color: AppConstants.outputColor,
                                     from: 0,
                                     to: selectedDevice.noOfRelay == 0 ? selectedDevice.noOfLatch : selectedDevice.noOfRelay,
                                     type: '1,2',
@@ -117,7 +118,7 @@ class _ConnectionState extends State<Connection> {
                                     color: getObjectTypeCodeToColor(3),
                                     from: 0,
                                     to: selectedDevice.noOfAnalogInput,
-                                    type: '3',
+                                    type: AppConstants.analogCode,
                                     typeName: 'Analog',
                                     keyWord: 'A'
                                 ),
@@ -127,7 +128,7 @@ class _ConnectionState extends State<Connection> {
                                     color: getObjectTypeCodeToColor(4),
                                     from: 0,
                                     to: selectedDevice.noOfDigitalInput,
-                                    type: '4',
+                                    type: AppConstants.digitalCode,
                                     typeName: 'Digital',
                                     keyWord: 'D'
                                 ),
@@ -137,7 +138,7 @@ class _ConnectionState extends State<Connection> {
                                     color: getObjectTypeCodeToColor(6),
                                     from: 0,
                                     to: selectedDevice.noOfPulseInput,
-                                    type: '6',
+                                    type: AppConstants.pulseCode,
                                     typeName: 'Pulse',
                                     keyWord: 'P'
                                 ),
@@ -147,7 +148,7 @@ class _ConnectionState extends State<Connection> {
                                     color: getObjectTypeCodeToColor(5),
                                     from: 0,
                                     to: selectedDevice.noOfMoistureInput,
-                                    type: '5',
+                                    type: AppConstants.moistureCode,
                                     typeName: 'Moisture',
                                     keyWord: 'M'
                                 ),
@@ -157,7 +158,7 @@ class _ConnectionState extends State<Connection> {
                                     color: getObjectTypeCodeToColor(7),
                                     from: 0,
                                     to: selectedDevice.noOfI2CInput,
-                                    type: '7',
+                                    type: AppConstants.i2cCode,
                                     typeName: 'I2c',
                                     keyWord: 'I2c'
                                 ),
@@ -260,7 +261,12 @@ class _ConnectionState extends State<Connection> {
     return [
       outputObject(selectedDevice),
       const SizedBox(height: 10,),
-      analogObject(),
+      inputObject(title: 'Analog Input', sensorCode: AppConstants.analogCode),
+      inputObject(title: 'Digital Input', sensorCode: AppConstants.digitalCode),
+      inputObject(title: 'Moisture Input', sensorCode: AppConstants.moistureCode),
+      inputObject(title: 'Pulse Input', sensorCode: AppConstants.pulseCode),
+      inputObject(title: 'I2c Input', sensorCode: AppConstants.i2cCode),
+      // analogObject(),
     ];
   }
 
@@ -280,13 +286,15 @@ class _ConnectionState extends State<Connection> {
       firstEight = firstEight - (8 - to);
     }
     return Container(
+      margin: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
       width: to > 8 ? 500 : 250,
       height: 260,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: color,
-        // boxShadow: AppProperties.customBoxShadow
+        // border: Border.all(width: 1, color: color),
+        boxShadow: AppProperties.customBoxShadowLiteTheme,
+        color: Colors.white,
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -304,6 +312,7 @@ class _ConnectionState extends State<Connection> {
                           configPvd: widget.configPvd,
                           type: type,
                           keyWord: keyWord,
+                          color: color,
                         ),
                         const SizedBox(height: 5,)
                       ],
@@ -324,6 +333,7 @@ class _ConnectionState extends State<Connection> {
                             configPvd: widget.configPvd,
                             type: type,
                             keyWord: keyWord,
+                            color: color,
                           ),
                           const SizedBox(height: 5,)
                         ],
@@ -332,25 +342,23 @@ class _ConnectionState extends State<Connection> {
                 ),
             ],
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Text('$typeName ${from+1} to $typeName $to', style: AppProperties.tableHeaderStyle,),
-              IconButton(
-                  onPressed: (){
-                    setState(() {
-                      widget.configPvd.selectedSelectionMode = widget.configPvd.selectedSelectionMode == SelectionMode.auto
-                          ? SelectionMode.manual
-                          : SelectionMode.auto;
-                      widget.configPvd.selectedConnectionNo = 0;
-                    });
-                  },
-                  icon: widget.configPvd.selectedSelectionMode == SelectionMode.auto ? const Icon(Icons.list) : const Icon(Icons.grid_view_outlined)
-              )
-            ],
-          )
+          Text(typeName, style: TextStyle(color: color, fontWeight: FontWeight.bold),)
         ],
       ),
+    );
+  }
+
+  Widget changeMode(){
+    return IconButton(
+        onPressed: (){
+          setState(() {
+            widget.configPvd.selectedSelectionMode = widget.configPvd.selectedSelectionMode == SelectionMode.auto
+                ? SelectionMode.manual
+                : SelectionMode.auto;
+            widget.configPvd.selectedConnectionNo = 0;
+          });
+        },
+        icon: widget.configPvd.selectedSelectionMode == SelectionMode.auto ? const Icon(Icons.list) : const Icon(Icons.grid_view_outlined)
     );
   }
 
@@ -361,30 +369,62 @@ class _ConnectionState extends State<Connection> {
         .toList().where((object) => selectedDevice.connectingObjectId.contains(object.objectId)).toList().map((object) => object.objectId)
         .toList();
     List<DeviceObjectModel> filteredList = widget.configPvd.listOfObjectModelConnection.where((object)=> filteredObjectList.contains(object.objectId)).toList();
-
+    filteredList = filteredList.where((object) {
+      if(['', '0', null].contains(object.count) && getNotConfiguredObjectByObjectId(object.objectId, widget.configPvd) == 0){
+        return false;
+      }else{
+        return true;
+      }
+    }).toList();
     return ConnectionGridListTile(
       listOfObjectModel: filteredList,
       title: 'Output Object',
-      leadingColor: const Color(0xffD2EAFF),
+      leadingColor: AppConstants.outputColor,
       configPvd: widget.configPvd,
       selectedDevice: selectedDevice,
     );
   }
 
-  Widget analogObject(){
+  Widget inputObject({
+    required String title,
+    required String sensorCode,
+  }){
     DeviceModel selectedDevice = widget.configPvd.listOfDeviceModel.firstWhere((device) => device.controllerId == widget.configPvd.selectedModelControllerId);
     List<int> filteredObjectList = widget.configPvd.listOfSampleObjectModel
-        .where((object) => (!['-', '1,2'].contains(object.type) && !['', '0', null].contains(object.count)))
+        .where((object) => (object.type == sensorCode && !['', '0', null].contains(object.count)))
         .toList().where((object) => selectedDevice.connectingObjectId.contains(object.objectId)).toList().map((object) => object.objectId)
         .toList();
-    List<DeviceObjectModel> filteredList = widget.configPvd.listOfObjectModelConnection.where((object)=> filteredObjectList.contains(object.objectId)).toList();    filteredList.sort((a, b) => a.type.compareTo(b.type));
-    return ConnectionGridListTile(
+    List<DeviceObjectModel> filteredList = widget.configPvd.listOfObjectModelConnection.where((object)=> filteredObjectList.contains(object.objectId)).toList();
+    filteredList = filteredList.where((object) {
+      if(['', '0', null].contains(object.count) && getNotConfiguredObjectByObjectId(object.objectId, widget.configPvd) == 0){
+        return false;
+      }else{
+        return true;
+      }
+    }).toList();
+    return filteredList.isNotEmpty ? ConnectionGridListTile(
       listOfObjectModel: filteredList,
-      title: 'Input Object',
+      title: title,
       configPvd: widget.configPvd,
       selectedDevice: selectedDevice,
-    );
+    ) : Container();
   }
+
+  // Widget analogObject(){
+  //   DeviceModel selectedDevice = widget.configPvd.listOfDeviceModel.firstWhere((device) => device.controllerId == widget.configPvd.selectedModelControllerId);
+  //   List<int> filteredObjectList = widget.configPvd.listOfSampleObjectModel
+  //       .where((object) => (!['-', '1,2'].contains(object.type) && !['', '0', null].contains(object.count)))
+  //       .toList().where((object) => selectedDevice.connectingObjectId.contains(object.objectId)).toList().map((object) => object.objectId)
+  //       .toList();
+  //   List<DeviceObjectModel> filteredList = widget.configPvd.listOfObjectModelConnection.where((object)=> filteredObjectList.contains(object.objectId)).toList();
+  //   filteredList.sort((a, b) => a.type.compareTo(b.type));
+  //   return ConnectionGridListTile(
+  //     listOfObjectModel: filteredList,
+  //     title: 'Input Object',
+  //     configPvd: widget.configPvd,
+  //     selectedDevice: selectedDevice,
+  //   );
+  // }
 
   Widget getAvailableDeviceCategory(){
     List<int> listOfCategory = [];

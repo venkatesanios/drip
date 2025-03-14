@@ -13,6 +13,7 @@ class ConnectorWidget extends StatelessWidget {
   final int connectionNo;
   final String keyWord;
   final DeviceModel selectedDevice;
+  final Color color;
   const ConnectorWidget({
     super.key,
     required this.connectionNo,
@@ -20,6 +21,7 @@ class ConnectorWidget extends StatelessWidget {
     required this.configPvd,
     required this.type,
     required this.keyWord,
+    required this.color,
   });
 
   @override
@@ -60,7 +62,7 @@ class ConnectorWidget extends StatelessWidget {
                     height: double.infinity,
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(2),
-                        color: selectedConnector ? Colors.white : (object != null ? Theme.of(context).colorScheme.onPrimary : Colors.grey.shade500)
+                        color: selectedConnector ? Colors.white : (object != null ? color : Colors.grey.shade200)
                     ),
                   ),
                 ),

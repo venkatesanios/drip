@@ -47,36 +47,40 @@ class ValveWithCentralLocalChannelModel{
     required this.local8,
   });
 
-  ChannelForEachValveModel getChannel({required double sNo}){
-    if(central1!.sNo == sNo){
+  ChannelForEachValveModel getCentralChannel({required int channelNo}){
+    if(channelNo == 0){
       return central1!;
-    }else if(central2!.sNo == sNo){
+    }else if(channelNo == 1){
       return central2!;
-    }else if(central3!.sNo == sNo){
+    }else if(channelNo == 2){
       return central3!;
-    }else if(central4!.sNo == sNo){
+    }else if(channelNo == 3){
       return central4!;
-    }else if(central5!.sNo == sNo){
+    }else if(channelNo == 4){
       return central5!;
-    }else if(central6!.sNo == sNo){
+    }else if(channelNo == 5){
       return central6!;
-    }else if(central7!.sNo == sNo){
+    }else if(channelNo == 6){
       return central7!;
-    }else if(central8!.sNo == sNo){
+    }else{
       return central8!;
-    }else if(local1!.sNo == sNo){
+    }
+  }
+
+  ChannelForEachValveModel getLocalChannel({required int channelNo}){
+    if(channelNo == 0){
       return local1!;
-    }else if(local2!.sNo == sNo){
+    }else if(channelNo == 1){
       return local2!;
-    }else if(local3!.sNo == sNo){
+    }else if(channelNo == 2){
       return local3!;
-    }else if(local4!.sNo == sNo){
+    }else if(channelNo == 3){
       return local4!;
-    }else if(local5!.sNo == sNo){
+    }else if(channelNo == 4){
       return local5!;
-    }else if(local6!.sNo == sNo){
+    }else if(channelNo == 5){
       return local6!;
-    }else if(local7!.sNo == sNo){
+    }else if(channelNo == 6){
       return local7!;
     }else{
       return local8!;
@@ -89,7 +93,7 @@ class ValveWithCentralLocalChannelModel{
         sNo: data['sNo'],
         name: data['name'],
         objectName: data['objectName'],
-        quantity: data['quantity'],
+        quantity: data['quantity'].toString(),
         central1 : (data['central1'] as Map<String, dynamic>).isNotEmpty ? ChannelForEachValveModel.fromJson(data['central1']) : null,
         central2 : (data['central2'] as Map<String, dynamic>).isNotEmpty ? ChannelForEachValveModel.fromJson(data['central2']) : null,
         central3 : (data['central3'] as Map<String, dynamic>).isNotEmpty ? ChannelForEachValveModel.fromJson(data['central3']) : null,

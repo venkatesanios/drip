@@ -9,23 +9,20 @@ import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'package:loading_indicator/loading_indicator.dart';
-import 'package:mobile_view/constants/theme.dart';
-import 'package:mobile_view/screens/customer/Mobile%20Dashboard/IrrigationLog/scrollingTable.dart';
-import 'package:provider/provider.dart';
+import 'package:oro_drip_irrigation/Constants/properties.dart';
+import 'package:oro_drip_irrigation/Widgets/custom_buttons.dart';
+import 'package:oro_drip_irrigation/modules/irrigation_report/view/scrollingTable.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-import '../../../../../FertilizerSet.dart';
-import '../../../../../ListOfFertilizerInSet.dart';
-import '../../../../../Models/Customer/log/irrigation_parameter_model.dart';
-import '../../../../../constants/http_service.dart';
-import '../../../../../state_management/overall_use.dart';
+import '../model/data_parsing_and_sorting_model.dart';
+import '../model/general_parameter_model.dart';
+import '../repository/irrigation_repository.dart';
 
 class LogHome extends StatefulWidget {
   final dynamic serverData;
-  final int userId;
-  final int controllerId;
-  const LogHome({super.key,required this.serverData, required this.userId, required this.controllerId});
+  final Map<String, dynamic> userData;
+  const LogHome({super.key,required this.serverData, required this.userData});
   @override
   State<LogHome> createState() => _LogHomeState();
 }
@@ -71,7 +68,7 @@ class _LogHomeState extends State<LogHome> {
   int httpError = 0;
 
   Map<String,dynamic> dataToShow = {};
-  dynamic irrigationLogParameterFromServer = {
+  dynamic IrrigationLogParameterFromServer = {
     'general' : {
       'ProgramName' : ['Program',true,1],
       'Status' : ['Status',true,1],
@@ -164,8 +161,8 @@ class _LogHomeState extends State<LogHome> {
       'overAll' : ['over all',true,1]
     },
   };
-  IrrigationLog irrigationParameterArray = IrrigationLog();
-  IrrigationLog irrigationParameterArrayDuplicate = IrrigationLog();
+  IrrigationLogModel irrigationParameterArray = IrrigationLogModel();
+  IrrigationLogModel irrigationParameterArrayDuplicate = IrrigationLogModel();
   String _selectedDate = '';
   String _dateCount = '';
   String _range = '';
@@ -177,13 +174,13 @@ class _LogHomeState extends State<LogHome> {
     print('parameters => ${parameters}');
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       if (mounted) {
-        irrigationLogParameterFromServer = widget.serverData['irrigationLog'];
-        print('irrigationLogParameterFromServer => $irrigationLogParameterFromServer');
-        for(var globalParameter in irrigationLogParameterFromServer.keys){
-          print('see : ${irrigationLogParameterFromServer[globalParameter]}');
-          for(var localParameter in irrigationLogParameterFromServer[globalParameter].keys){
+        IrrigationLogParameterFromServer = widget.serverData['irrigationLog'];
+        print('irrigationLogParameterFromServer => $IrrigationLogParameterFromServer');
+        for(var globalParameter in IrrigationLogParameterFromServer.keys){
+          print('see : ${IrrigationLogParameterFromServer[globalParameter]}');
+          for(var localParameter in IrrigationLogParameterFromServer[globalParameter].keys){
             // print('hw : ${localParameter}  data => ${irrigationLogParameterFromServer[globalParameter][localParameter]}');
-            var data = irrigationLogParameterFromServer[globalParameter][localParameter];
+            var data = IrrigationLogParameterFromServer[globalParameter][localParameter];
             var split = localParameter.split('/');
             if(data[1] == true){
               for(var key in split){
@@ -225,8 +222,6 @@ class _LogHomeState extends State<LogHome> {
 
   void getData()async{
     print('data request to the server.............');
-    var overAllPvd = Provider.of<OverAllUse>(context,listen: false);
-
     DateTime now = DateTime.now();
     String formattedDate = DateFormat('dd/MM/yyyy').format(now);
     print('_selectedDate : $_selectedDate');
@@ -247,9 +242,8 @@ class _LogHomeState extends State<LogHome> {
     String formattedDate1 = "${date1.year}-${_formatNumber(date1.month)}-${_formatNumber(date1.day)}";
     String formattedDate2 = "${date2.year}-${_formatNumber(date2.month)}-${_formatNumber(date2.day)}";
 
-    irrigationParameterArray.editParameter(irrigationLogParameterFromServer);
-    irrigationParameterArrayDuplicate.editParameter(irrigationLogParameterFromServer);
-    HttpService service = HttpService();
+    irrigationParameterArray.editParameter(IrrigationLogParameterFromServer);
+    irrigationParameterArrayDuplicate.editParameter(IrrigationLogParameterFromServer);
     try{
       String? startMonth = selectedDateRange?.start.month.toString();
       print('startMonth : $startMonth');
@@ -257,19 +251,16 @@ class _LogHomeState extends State<LogHome> {
       String? startday = selectedDateRange?.start.day.toString();
       String? endMonth = selectedDateRange?.end.month.toString();
       String? endday = selectedDateRange?.end.day.toString();
-      print('userId : ${widget.userId}  controllerId : ${widget.controllerId}   $formattedDate1     $formattedDate2');
-      var response = await service.postRequest(
-          'getUserControllerLog',
-          {
-            "userId":widget.userId,
-            "controllerId":widget.controllerId,
-            "logType" : "Irrigation",
-            "fromDate" : formattedDate1,
-            "toDate" : formattedDate2,
-            "parameters" : parameters,
-          }
-      );
-      var jsonData = jsonDecode(response.body);
+      var body = {
+        "userId": widget.userData['userId'],
+        "controllerId": widget.userData['controllerId'],
+        "logType" : "Irrigation",
+        "fromDate" : formattedDate1,
+        "toDate" : formattedDate2,
+        "parameters" : parameters,
+      };
+      var response = await IrrigationRepository().getLogDateWise(body);
+      Map<String, dynamic> jsonData = jsonDecode(response.body);
       print('jsonData $jsonData');
       print('js == > ${jsonData['data']}');
       if(jsonData['code'] == 200){
@@ -287,213 +278,215 @@ class _LogHomeState extends State<LogHome> {
           status = [];
           statusDuplicate = [];
         });
-      }
-      if(dataSource != null){
-        print(dataSource.length);
-        for(var data in dataSource){
-          if(data['irrigation'].isNotEmpty){
-            if(data['irrigation']['Date'] != null){
-              //Todo date
-              try{
-                if(data['irrigation']['Date'] != null){
-                  for(var howManyDate in data['irrigation']['Date']){
-                    setState(() {
-                      if (!date.any((element) => element['name'] == howManyDate)) {
-                        date.add({
-                          'name' : howManyDate,
-                          'show' : true
-                        });
-                        dateDuplicate.add({
-                          'name' : howManyDate,
-                          'show' : true
-                        });
-                      }
-                    });
-                  }
-                }
-              }catch(e,stackTrace){
-                log('Error on Date : ${e.toString()}');
-                print('Stack Trace: $stackTrace');
-              }
-
-              //Todo Status
-              try{
-                if(data['irrigation']['Status'] != null){
-                  for(var howManyStatus in data['irrigation']['Status']){
-                    setState(() {
-                      if (!status.any((element) => element['name'] == howManyStatus)) {
-                        status.add({
-                          'name' : howManyStatus,
-                          'show' : true
-                        });
-                        statusDuplicate.add({
-                          'name' : howManyStatus,
-                          'show' : true
-                        });
-                      }
-                    });
-                  }
-                }
-              }catch(e,stackTrace){
-                log('Error on Status : ${e.toString()}');
-                print('Stack Trace: $stackTrace');
-              }
-
-              //Todo ProgramS_No
-              try{
-                if(data['irrigation']['ProgramS_No'] != null){
-                  for(var howManyProgram = 0;howManyProgram < data['irrigation']['ProgramS_No'].length;howManyProgram++){
-                    setState(() {
-                      if (!program.any((element) => element['name'] == data['irrigation']['ProgramS_No'][howManyProgram])) {
-                        program.add({
-                          'name' : data['irrigation']['ProgramS_No'][howManyProgram],
-                          'show' : true,
-                          'programName' : data['irrigation']['ProgramName'][howManyProgram]
-                        });
-                        programDuplicate.add({
-                          'name' : data['irrigation']['ProgramS_No'][howManyProgram],
-                          'show' : true,
-                          'programName' : data['irrigation']['ProgramName'][howManyProgram]
-                        });
-                      }
-                    });
-                  }
-                }
-              }catch(e,stackTrace){
-                log('Error on ProgramS_No : ${e.toString()}');
-                print('Stack Trace: $stackTrace');
-              }
-
-              //Todo ProgramCategory  && ProgramCategoryName
-              try{
-                if(data['irrigation']['ProgramCategory'] != null && data['irrigation']['ProgramCategoryName'] != null){
-                  for(var howManyLine = 0;howManyLine < data['irrigation']['ProgramCategory'].length;howManyLine++){
-                    for(var splitLine in data['irrigation']['ProgramCategory'][howManyLine].split('_')){
+        if(dataSource['log'] != null){
+          print(dataSource['log'].length);
+          for(var data in dataSource['log']){
+            if(data['irrigation'].isNotEmpty){
+              if(data['irrigation']['Date'] != null){
+                //Todo date
+                try{
+                  if(data['irrigation']['Date'] != null){
+                    for(var howManyDate in data['irrigation']['Date']){
                       setState(() {
-                        print("data['irrigation']['ProgramCategoryName']  : ${data['irrigation']['ProgramCategoryName']}");
-                        if (!line.any((element) => element['name'] == splitLine)) {
-                          line.add({
-                            'name' : splitLine,
-                            'show' : true,
-                            'lineName' : data['irrigation']['ProgramCategoryName'][howManyLine].split('_')[data['irrigation']['ProgramCategory'][howManyLine].split('_').indexOf(splitLine)]
+                        if (!date.any((element) => element['name'] == howManyDate)) {
+                          date.add({
+                            'name' : howManyDate,
+                            'show' : true
                           });
-                          lineDuplicate.add({
-                            'name' : splitLine,
-                            'show' : true,
-                            'lineName' : data['irrigation']['ProgramCategoryName'][howManyLine].split('_')[data['irrigation']['ProgramCategory'][howManyLine].split('_').indexOf(splitLine)]
+                          dateDuplicate.add({
+                            'name' : howManyDate,
+                            'show' : true
                           });
                         }
                       });
                     }
                   }
+                }catch(e,stackTrace){
+                  log('Error on Date : ${e.toString()}');
+                  print('Stack Trace: $stackTrace');
                 }
-              }catch(e,stackTrace){
-                log('Error on ProgramCategory : ${e.toString()}');
-                print('Stack Trace: $stackTrace');
-              }
 
-              //Todo SequenceData
-              try{
-                if(data['irrigation']['SequenceData'] != null){
-                  for(var howManyValve in data['irrigation']['SequenceData']){
-                    print('howManyValve = > : ${howManyValve}');
-                    for(var splitValve in howManyValve.split('_')){
+                //Todo Status
+                try{
+                  if(data['irrigation']['Status'] != null){
+                    for(var howManyStatus in data['irrigation']['Status']){
                       setState(() {
-                        if(splitValve.contains('VL')){
-                          if (!valve.any((element) => element['name'] == splitValve)) {
-                            valve.add({
-                              'name' : splitValve,
+                        if (!status.any((element) => element['name'] == howManyStatus)) {
+                          status.add({
+                            'name' : howManyStatus,
+                            'show' : true
+                          });
+                          statusDuplicate.add({
+                            'name' : howManyStatus,
+                            'show' : true
+                          });
+                        }
+                      });
+                    }
+                  }
+                }catch(e,stackTrace){
+                  log('Error on Status : ${e.toString()}');
+                  print('Stack Trace: $stackTrace');
+                }
+
+                //Todo ProgramS_No
+                try{
+                  if(data['irrigation']['ProgramS_No'] != null){
+                    for(var howManyProgram = 0;howManyProgram < data['irrigation']['ProgramS_No'].length;howManyProgram++){
+                      setState(() {
+                        if (!program.any((element) => element['name'] == data['irrigation']['ProgramS_No'][howManyProgram])) {
+                          program.add({
+                            'name' : data['irrigation']['ProgramS_No'][howManyProgram],
+                            'show' : true,
+                            'programName' : irrigationParameterArray.getProgramName(dataSource['default']['program'], data['irrigation']['ProgramS_No'][howManyProgram])
+                          });
+
+
+                          programDuplicate.add({
+                            'name' : data['irrigation']['ProgramS_No'][howManyProgram],
+                            'show' : true,
+                            'programName' : irrigationParameterArray.getProgramName(dataSource['default']['program'], data['irrigation']['ProgramS_No'][howManyProgram])
+                          });
+                        }
+                      });
+                    }
+                  }
+                }catch(e,stackTrace){
+                  log('Error on ProgramS_No : ${e.toString()}');
+                  print('Stack Trace: $stackTrace');
+                }
+
+                //Todo ProgramCategory  && ProgramCategoryName
+                try{
+                  if(data['irrigation']['ProgramCategory'] != null && data['irrigation']['HeadUnit'] != null){
+                    for(var howManyLine = 0;howManyLine < data['irrigation']['ProgramCategory'].length;howManyLine++){
+                      for(var splitLine in data['irrigation']['ProgramCategory'][howManyLine].split('_')){
+                        setState(() {
+                          print("data['irrigation']['HeadUnit']  : ${data['irrigation']['HeadUnit']}");
+                          if (!line.any((element) => element['name'] == splitLine)) {
+                            line.add({
+                              'name' : splitLine,
                               'show' : true,
+                              'lineName' : data['irrigation']['HeadUnit'][howManyLine].split('_')
                             });
-                            valveDuplicate.add({
-                              'name' : splitValve,
+                            lineDuplicate.add({
+                              'name' : splitLine,
                               'show' : true,
+                              'lineName' : data['irrigation']['HeadUnit'][howManyLine].split('_')
                             });
                           }
-
-                        }
-                      });
+                        });
+                      }
                     }
                   }
+                }catch(e,stackTrace){
+                  log('Error on HeadUnit : ${e.toString()}');
+                  print('Stack Trace: $stackTrace');
                 }
-              }catch(e,stackTrace){
-                log('Error on SequenceData : ${e.toString()}');
-                print('Stack Trace: $stackTrace');
-              }
 
+                //Todo SequenceData
+                try{
+                  if(data['irrigation']['SequenceData'] != null){
+                    for(var howManyValve in data['irrigation']['SequenceData']){
+                      for(var splitValve in howManyValve.split('_')){
+                        setState(() {
+                          if(splitValve.contains('13')){
+                            if (!valve.any((element) => element['name'] == splitValve)) {
+                              valve.add({
+                                'name' : splitValve,
+                                'show' : true,
+                              });
+                              valveDuplicate.add({
+                                'name' : splitValve,
+                                'show' : true,
+                              });
+                            }
+
+                          }
+                        });
+                      }
+                    }
+                  }
+                }catch(e,stackTrace){
+                  log('Error on SequenceData : ${e.toString()}');
+                  print('Stack Trace: $stackTrace');
+                }
+
+              }
             }
           }
+          print('get function doubt......');
+          setState(() {
+            // Check if the valve list has elements before splitting and sorting
+            if (valve.isNotEmpty) {
+              for (var val in valve) {
+                print(val['name'].split('VL.'));
+              }
+              valve.sort((a, b) {
+                var aParts = a['name'].split('VL.');
+                var bParts = b['name'].split('VL.');
+                if (aParts.length > 1 && bParts.length > 1) {
+                  return double.parse(aParts[1]).compareTo(double.parse(bParts[1]));
+                }
+                return 0;
+              });
+
+              valveDuplicate.sort((a, b) {
+                var aParts = a['name'].split('VL.');
+                var bParts = b['name'].split('VL.');
+                if (aParts.length > 1 && bParts.length > 1) {
+                  return double.parse(aParts[1]).compareTo(double.parse(bParts[1]));
+                }
+                return 0;
+              });
+            }
+
+            // Check if the line list has elements before splitting and sorting
+            if (line.isNotEmpty) {
+              line.sort((a, b) {
+                var aParts = a['name'].split('.');
+                var bParts = b['name'].split('.');
+                if (aParts.length > 1 && bParts.length > 1) {
+                  return int.parse(aParts[1]).compareTo(int.parse(bParts[1]));
+                }
+                return 0;
+              });
+
+              lineDuplicate.sort((a, b) {
+                var aParts = a['name'].split('.');
+                var bParts = b['name'].split('.');
+                if (aParts.length > 1 && bParts.length > 1) {
+                  return int.parse(aParts[1]).compareTo(int.parse(bParts[1]));
+                }
+                return 0;
+              });
+            }
+
+            // Check if the program list has elements before sorting
+            if (program.isNotEmpty) {
+              program.sort((a, b) => a['name'].compareTo(b['name']));
+              programDuplicate.sort((a, b) => a['name'].compareTo(b['name']));
+            }
+          });
+
+          print('get function ended......');
+          setState(() {
+            dataToShow = irrigationParameterArray.editDateWise(dataSource, date);
+          });
+          print('get function completed......');
         }
-        print('get function doubt......');
         setState(() {
-          // Check if the valve list has elements before splitting and sorting
-          if (valve.isNotEmpty) {
-            for (var val in valve) {
-              print(val['name'].split('VL.'));
-            }
-            valve.sort((a, b) {
-              var aParts = a['name'].split('VL.');
-              var bParts = b['name'].split('VL.');
-              if (aParts.length > 1 && bParts.length > 1) {
-                return double.parse(aParts[1]).compareTo(double.parse(bParts[1]));
-              }
-              return 0;
-            });
-
-            valveDuplicate.sort((a, b) {
-              var aParts = a['name'].split('VL.');
-              var bParts = b['name'].split('VL.');
-              if (aParts.length > 1 && bParts.length > 1) {
-                return double.parse(aParts[1]).compareTo(double.parse(bParts[1]));
-              }
-              return 0;
-            });
-          }
-
-          // Check if the line list has elements before splitting and sorting
-          if (line.isNotEmpty) {
-            line.sort((a, b) {
-              var aParts = a['name'].split('.');
-              var bParts = b['name'].split('.');
-              if (aParts.length > 1 && bParts.length > 1) {
-                return int.parse(aParts[1]).compareTo(int.parse(bParts[1]));
-              }
-              return 0;
-            });
-
-            lineDuplicate.sort((a, b) {
-              var aParts = a['name'].split('.');
-              var bParts = b['name'].split('.');
-              if (aParts.length > 1 && bParts.length > 1) {
-                return int.parse(aParts[1]).compareTo(int.parse(bParts[1]));
-              }
-              return 0;
-            });
-          }
-
-          // Check if the program list has elements before sorting
-          if (program.isNotEmpty) {
-            program.sort((a, b) => a['name'].compareTo(b['name']));
-            programDuplicate.sort((a, b) => a['name'].compareTo(b['name']));
-          }
+          httpError = 0;
         });
-
-        print('get function ended......');
         setState(() {
-          dataToShow = irrigationParameterArray.editDateWise(dataSource, date);
+          totalPages = (dataToShow['fixedColumnData'].length ~/ noOfRowsPerPage);
+          if ((totalPages * noOfRowsPerPage) < dataToShow['fixedColumnData'].length) {
+            totalPages += 1;
+          }
+          selectedPages = 1;
         });
-        print('get function completed......');
       }
-      setState(() {
-        httpError = 0;
-      });
-      setState(() {
-        totalPages = (dataToShow['fixedColumnData'].length ~/ noOfRowsPerPage);
-        if ((totalPages * noOfRowsPerPage) < dataToShow['fixedColumnData'].length) {
-          totalPages += 1;
-        }
-        selectedPages = 1;
-      });
+
     }catch(e,stackTrace){
       setState(() {
         httpError = 1;
@@ -515,7 +508,7 @@ class _LogHomeState extends State<LogHome> {
           height: 50,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            color: _selectedIndex == index ? const Color(0xff2999A9) : null,
+            color: _selectedIndex == index ? Theme.of(context).primaryColorDark : null,
           ),
           child: ListTile(
             leading: icon,
@@ -596,15 +589,13 @@ class _LogHomeState extends State<LogHome> {
                   width: 100,
                   height: 40,
                   decoration: BoxDecoration(
-                      color: primaryColorMedium,
+                      color: Theme.of(context).primaryColorDark,
                       borderRadius: BorderRadius.circular(8)
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       Checkbox(
-                          checkColor: Colors.teal,
-                          fillColor: MaterialStateProperty.all(const Color(0xFFF4FFFB)),
                           value: graphMode,
                           onChanged: (value){
                             getDialog(context);
@@ -824,11 +815,11 @@ class _LogHomeState extends State<LogHome> {
                                           padding: EdgeInsets.all(8),
                                           margin: EdgeInsets.all(8),
                                           decoration: BoxDecoration(
-                                              boxShadow: customBoxShadow,
+                                              boxShadow: AppProperties.customBoxShadowLiteTheme,
                                               color: Colors.white,
                                               borderRadius: BorderRadius.circular(20)
                                           ),
-                                          width: MediaQuery.of(context).size.width,
+                                          width: MediaQuery.of(context).size.width > 500 ? 500 : MediaQuery.of(context).size.width,
                                           height: 250,
                                           child: Column(
                                             children: [
@@ -839,24 +830,8 @@ class _LogHomeState extends State<LogHome> {
                                                     plotAreaBackgroundColor: Colors.transparent,
                                                     borderColor: Colors.transparent,
                                                     borderWidth: 0,
-                                                    // isTransposed: chartDataList!.length <= 3,
                                                     plotAreaBorderWidth: 0,
                                                     enableSideBySideSeriesPlacement: false,
-                                                    onTooltipRender: (TooltipArgs args) {
-                                                      // String sequence = args.pointIndex != null && args.pointIndex! < chartDataList!.length
-                                                      //     ? chartDataList![args.pointIndex!.toInt()].valves
-                                                      //     : '';
-                                                      // double? preValue = args.pointIndex != null && args.pointIndex! < chartDataList!.length
-                                                      //     ? (chartDataList![args.pointIndex!.toInt()].preValueHigh.toDouble() - chartDataList![args.pointIndex!.toInt()].preValueLow.toDouble())
-                                                      //     : null;
-                                                      // double? postValue = args.pointIndex != null && args.pointIndex! < chartDataList!.length
-                                                      //     ? (chartDataList![args.pointIndex!.toInt()].postValueHigh.toDouble() - chartDataList![args.pointIndex!.toInt()].postValueLow.toDouble())
-                                                      //     : null;
-                                                      // double? waterValue = args.pointIndex != null && args.pointIndex! < chartDataList!.length
-                                                      //     ? (chartDataList![args.pointIndex!.toInt()].waterValueHigh.toDouble() - chartDataList![args.pointIndex!.toInt()].waterValueLow.toDouble())
-                                                      //     : null;
-                                                      // args.text = 'Sequence: $sequence, \nPre value: $preValue, \nPost value: $postValue, \nWater value: $waterValue';
-                                                    },
                                                     tooltipBehavior: TooltipBehavior(
                                                       enable: true,
                                                       animationDuration: 0,
@@ -871,7 +846,6 @@ class _LogHomeState extends State<LogHome> {
                                                     ),
                                                     primaryXAxis: CategoryAxis(
                                                       isVisible: true,
-                                                      // title: AxisTitle(text: "Sequence"),
                                                       rangePadding: ChartRangePadding.round,
                                                       labelPlacement: LabelPlacement.onTicks,
                                                       maximumLabels: i['data'].length,
@@ -940,7 +914,7 @@ class _LogHomeState extends State<LogHome> {
                       ),
                     ),
                 Container(
-                  color: Color(0xff1C7C8A),
+                  color: Theme.of(context).primaryColorDark,
                   width: MediaQuery.of(context).size.width,
                   height: 35,
                   child: Row(
@@ -1015,26 +989,23 @@ class _LogHomeState extends State<LogHome> {
                                   },
                                 ),
                                 actions: [
-                                  ElevatedButton(
-                                      onPressed: (){
-                                        Navigator.pop(context);
-                                      },
-                                      child: Text('Cancel')
+                                  CustomMaterialButton(
+                                    title: 'Cancel',
+                                    outlined: true,
                                   ),
-                                  ElevatedButton(
-                                      onPressed: ()async{
+                                  CustomMaterialButton(
+                                    onPressed: ()async{
+                                      Navigator.pop(context);
+                                      getDialog(context);
+                                      getData();
+                                      setState(() {
+                                        _irrigationOptionWise = [['Date',true],['Program',false],['Line',false],['Valve',false],['Status',false]];
+                                      });
+                                      if(mounted){
                                         Navigator.pop(context);
-                                        getDialog(context);
-                                        getData();
-                                        setState(() {
-                                          _irrigationOptionWise = [['Date',true],['Program',false],['Line',false],['Valve',false],['Status',false]];
-                                        });
-                                        if(mounted){
-                                          Navigator.pop(context);
-                                        }
-                                      },
-                                      child: Text('Ok')
-                                  )
+                                      }
+                                    },
+                                  ),
                                 ],
                               );
 
@@ -1139,8 +1110,6 @@ class _LogHomeState extends State<LogHome> {
                   //   child: Text('Select Date'),
                   // ),
                 )
-
-
               ],
             )
                 : SizedBox(
@@ -1149,7 +1118,7 @@ class _LogHomeState extends State<LogHome> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Network is unreachable!!'),
+                  const Text('Network is unreachable!!'),
                   MaterialButton(
                     onPressed: ()async{
                       if(httpError != 2){
@@ -1179,7 +1148,7 @@ class _LogHomeState extends State<LogHome> {
         padding: EdgeInsets.symmetric(vertical: verticalPadding ?? 10,horizontal: 10),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(radius ?? 5),
-            color: index != null ? (index == _irrigationOptionWise.indexWhere((element) => element[1] == true) ? Color(0xff1A7886) : null) : Color(0xff1A7886)
+            color: index != null ? (index == _irrigationOptionWise.indexWhere((element) => element[1] == true) ? Theme.of(context).primaryColor : null) : Theme.of(context).primaryColor
         ),
         child: Text(name,style: TextStyle(color: index != null ? (index == _irrigationOptionWise.indexWhere((element) => element[1] == true) ? Colors.white : Colors.black87) : Colors.white,fontSize: 13,fontWeight: FontWeight.w200),),
       ),
@@ -1195,21 +1164,8 @@ class _LogHomeState extends State<LogHome> {
           children: [
             SvgPicture.asset(
               'assets/images/tableOptionSelected.svg',
-              // color: Color(0xffDDFFE8),
-              color: Color(0xff03464F),
+              color: Theme.of(context).primaryColor,
             ),
-            // Positioned(
-            //   top: 10,
-            //   left: 0,
-            //   child: Container(
-            //     width: 15,
-            //     height: 20,
-            //     decoration: BoxDecoration(
-            //       color: Color(0xffffffff),
-            //       borderRadius: BorderRadius.only(topLeft: Radius.circular(20))
-            //     ),
-            //   ),
-            // ),
             Positioned(
               top: 15,
               left: 20,
@@ -1257,7 +1213,6 @@ class _LogHomeState extends State<LogHome> {
     showGeneralDialog(
       barrierLabel: "Side sheet",
       barrierDismissible: true,
-      // barrierColor: const Color(0xff6600),
       transitionDuration: const Duration(milliseconds: 300),
       context: context,
       pageBuilder: (context, animation1, animation2) {
@@ -1275,7 +1230,7 @@ class _LogHomeState extends State<LogHome> {
                     floatingActionButton: Container(
                       decoration: BoxDecoration(
                           color: Colors.white,
-                          boxShadow: customBoxShadow
+                          boxShadow: AppProperties.customBoxShadowLiteTheme
                       ),
                       height: 60,
                       child: Row(
@@ -1809,10 +1764,7 @@ Widget getTableRowLinearIndicater(seting,flex){
     child: ListTile(
       title: Text('${seting['output']}',style: const TextStyle(fontSize: 12,fontWeight: FontWeight.w500),),
       subtitle:  LinearProgressIndicator(
-        // backgroundColor: Color(0xff11E196),
         backgroundColor: Colors.grey.shade300,
-        // color: Color(0xff006943),
-        // color: Color(0xff00404A),
         color: const Color(0xff10E196),
         minHeight: 7,
         borderRadius: const BorderRadius.all(Radius.circular(10)),

@@ -45,9 +45,18 @@ class _ProductLimitState extends State<ProductLimit> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 ...colorLegendBox(screenWidth,screenHeight),
-                commonObject(),
-                outputObject(),
-                analogObject(),
+                  commonObject(),
+                  outputObject(),
+                if(getInputCount(3, widget.listOfDevices) != 0)
+                  analogObject(),
+                if(getInputCount(4, widget.listOfDevices) != 0)
+                  digitalObject(),
+                if(getInputCount(5, widget.listOfDevices) != 0)
+                  moistureObject(),
+                if(getInputCount(6, widget.listOfDevices) != 0)
+                  pulseObject(),
+                if(getInputCount(7, widget.listOfDevices) != 0)
+                  i2cObject()
               ],
             ),
           ),
@@ -75,29 +84,74 @@ class _ProductLimitState extends State<ProductLimit> {
       configPvd: widget.configPvd,
     );
   }
-
   Widget analogObject(){
-    print('listOfObjectId : ${widget.configPvd.listOfSampleObjectModel.map((e) => e.objectId)}');
-    List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => (widget.configPvd.masterData['categoryId'] != 2 ? !['-', '1,2'].contains(object.type) : [22, 24, 26, 40].contains(object.objectId))).toList();
-    print('filteredList : ${filteredList.map((e) => e.objectId)}');
-    filteredList.sort((a, b) => a.type.compareTo(b.type));
+    List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => (widget.configPvd.masterData['categoryId'] != 2 ? object.type == '3' : [22, 24, 26, 40].contains(object.objectId))).toList();
     return ProductLimitGridListTile(
       listOfObjectModel: filteredList,
-      title: 'Input Object',
+      title: 'Analog Input',
       configPvd: widget.configPvd,
     );
   }
 
+  Widget digitalObject(){
+    List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => (widget.configPvd.masterData['categoryId'] != 2 ? object.type == '4' : [22, 24, 26, 40].contains(object.objectId))).toList();
+    return ProductLimitGridListTile(
+      listOfObjectModel: filteredList,
+      title: 'Digital Input',
+      configPvd: widget.configPvd,
+    );
+  }
+
+  Widget moistureObject(){
+    List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => (widget.configPvd.masterData['categoryId'] != 2 ? object.type == '5' : [22, 24, 26, 40].contains(object.objectId))).toList();
+    return ProductLimitGridListTile(
+      listOfObjectModel: filteredList,
+      title: 'Moisture Input',
+      configPvd: widget.configPvd,
+    );
+  }
+
+  Widget pulseObject(){
+    List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => (widget.configPvd.masterData['categoryId'] != 2 ? object.type == '6' : [22, 24, 26, 40].contains(object.objectId))).toList();
+    return ProductLimitGridListTile(
+      listOfObjectModel: filteredList,
+      title: 'Pulse Input',
+      configPvd: widget.configPvd,
+    );
+  }
+
+  Widget i2cObject(){
+    List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => (widget.configPvd.masterData['categoryId'] != 2 ? object.type == '7' : [22, 24, 26, 40].contains(object.objectId))).toList();
+    return ProductLimitGridListTile(
+      listOfObjectModel: filteredList,
+      title: 'I2c Input',
+      configPvd: widget.configPvd,
+    );
+  }
+
+
+  // Widget analogObject(){
+  //   print('listOfObjectId : ${widget.configPvd.listOfSampleObjectModel.map((e) => e.objectId)}');
+  //   List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => (widget.configPvd.masterData['categoryId'] != 2 ? !['-', '1,2'].contains(object.type) : [22, 24, 26, 40].contains(object.objectId))).toList();
+  //   print('filteredList : ${filteredList.map((e) => e.objectId)}');
+  //   filteredList.sort((a, b) => a.type.compareTo(b.type));
+  //   return ProductLimitGridListTile(
+  //     listOfObjectModel: filteredList,
+  //     title: 'Input Object',
+  //     configPvd: widget.configPvd,
+  //   );
+  // }
+
   List<Widget> colorLegendBox(double screenWidth,double screenHeight){
     return [
-      const Text('Enter The Count Of The Object',style: AppProperties.normalBlackBoldTextStyle),
+      const Text('Object Color Legend',style: AppProperties.normalBlackBoldTextStyle),
       const SizedBox(height: 10,),
       Container(
         width: screenWidth > 500 ? null : double.infinity,
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(width: 1),
+          border: Border.all(width: 1, color: Theme.of(context).primaryColorDark.withOpacity(0.2)),
         ),
         child: Wrap(
           runSpacing: 10,

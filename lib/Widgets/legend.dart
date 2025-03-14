@@ -19,14 +19,16 @@ class ColorLegend extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 10,
-            height: 10,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: color
-            ),
-          ),
+          Icon(Icons.radio_button_checked, color: color),
+
+          // Container(
+          //   width: 10,
+          //   height: 10,
+          //   decoration: BoxDecoration(
+          //       borderRadius: BorderRadius.circular(10),
+          //       color: color
+          //   ),
+          // ),
           const SizedBox(width: 10,),
           Text(message,)
         ],

@@ -5,7 +5,9 @@ import 'package:mqtt_client/mqtt_client.dart';
 import 'package:oro_drip_irrigation/Widgets/sized_image.dart';
 import 'package:oro_drip_irrigation/modules/calibration/repository/calibration_repository.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
+import '../../../Constants/properties.dart';
 import '../../../Widgets/custom_buttons.dart';
+import '../../../Widgets/status_box.dart';
 import '../../config_Maker/view/config_web_view.dart';
 import '../../../utils/constants.dart';
 import '../../../utils/environment.dart';
@@ -147,6 +149,7 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
                         width: 80,
                         child: TextFormField(
                           key: Key('${selectedTab.first}'),
+                          inputFormatters: AppProperties.regexForDecimal,
                           initialValue: selectedTab.first == 0 ? object.maximumValue : object.calibrationFactor,
                           onChanged: (value){
                             setState(() {
@@ -352,13 +355,13 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
   Widget getHardwareAcknowledgementWidget(HardwareAcknowledgementSate state){
     print('state : $state');
     if(state == HardwareAcknowledgementSate.notSent){
-      return statusBox(Colors.black87, const Text('Do you want to send payload..',),);
+      return const StatusBox(color:  Colors.black87,child: Text('Do you want to send payload..',),);
     }else if(state == HardwareAcknowledgementSate.success){
-      return statusBox(Colors.green, const Text('Success..',));
+      return const StatusBox(color:  Colors.green,child: Text('Success..',),);
     }else if(state == HardwareAcknowledgementSate.failed){
-      return statusBox(Colors.red, const Text('Failed..',));
+      return const StatusBox(color:  Colors.red,child: Text('Failed..',),);
     }else if(state == HardwareAcknowledgementSate.errorOnPayload){
-      return statusBox(Colors.red, const Text('Payload error..',));
+      return const StatusBox(color:  Colors.red,child: Text('Payload error..',),);
     }else{
       return const SizedBox(
           width: double.infinity,
@@ -366,19 +369,6 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
           child: LinearProgressIndicator()
       );
     }
-  }
-
-  Widget statusBox(Color color, Widget child){
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          border: Border.all(color: color),
-          borderRadius: BorderRadius.circular(5)
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 10 , vertical: 5),
-      child: child,
-    );
   }
 }
 

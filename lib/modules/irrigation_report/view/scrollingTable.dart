@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
-
-import '../../../../Models/Customer/log/irrigation_parameter_model.dart';
+import '../model/data_parsing_and_sorting_model.dart';
 
 class ScrollingTable extends StatefulWidget {
   final String fixedColumn;

@@ -183,7 +183,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: themeData.colorScheme.background,
+                      color: Colors.white,
                       borderRadius: const BorderRadius.only(topLeft: Radius.circular(10))
                     ),
                       child: configPvd.selectedTab == ConfigMakerTabs.deviceList

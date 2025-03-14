@@ -371,8 +371,13 @@ class AppConstants {
     return dataFormation;
   }
 
-  static Color outputColor = const Color(0xff7FAFD8);
-  static Color commonObjectColor = const Color(0xffC277CF);
+  static Color outputColor = const Color(0xff14AE5C);
+  static Color commonObjectColor = const Color(0xff0070D8);
+  static String analogCode = '3';
+  static String digitalCode = '4';
+  static String moistureCode = '5';
+  static String pulseCode = '6';
+  static String i2cCode = '7';
   static List<int> pumpModelList = [5, 6, 7, 8, 9, 10];
   static int levelObjectId = 26;
   static int waterMeterObjectId = 22;

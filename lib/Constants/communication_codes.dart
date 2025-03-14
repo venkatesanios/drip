@@ -72,15 +72,15 @@ Color getObjectTypeCodeToColor(int code){
     case 2 :
       return const Color(0xffD2EAFF);
     case 3 :
-      return const Color(0xffBFB976);
+      return const Color(0xffEB7C17);
     case 4 :
-      return const Color(0xff79B054);
+      return const Color(0xffC41500);
     case 5 :
-      return const Color(0xffB67FB8);
+      return const Color(0xffE73293);
     case 6 :
-      return const Color(0xffB4766F);
+      return const Color(0xff7F33E1);
     case 7 :
-      return const Color(0xffEDC9B1);
+      return const Color(0xff00EEFF);
     default :
       return const Color(0xffDBDEFF);
   }

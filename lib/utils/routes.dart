@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/calibration/view/calibration_screen.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/view/config_base_page.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/view/table_demo.dart';
+import 'package:oro_drip_irrigation/modules/global_limit/view/global_limit_screen.dart';
 
+import '../modules/irrigation_report/view/list_of_log_config.dart';
+import '../modules/irrigation_report/view/standalone_log.dart';
 import '../views/screen_controller.dart';
 import '../views/login_screen.dart';
 import '../views/splash_screen.dart';
@@ -27,9 +30,12 @@ class Routes {
         );
       case dashboard:
         return MaterialPageRoute(
+          // builder: (_) => const StandaloneLog(userData: {"userId" : 4, "controllerId": 1, "deviceId":"2CCF674C0F8A" },),
+          // builder: (_) => const ListOfLogConfig(userData: {"userId" : 4, "controllerId": 1, "deviceId":"2CCF674C0F8A" },),
+          // builder: (_) => const GlobalLimitScreen(userData: {"userId" : 4, "controllerId": 1, "deviceId":"2CCF674C0F8A" },),
           // builder: (_) => const CalibrationScreen(userData: {"userId" : 4, "controllerId": 1, "deviceId":"2CCF674C0F8A" },),
-          // builder: (_) => const ConfigBasePage(masterData: {}),
-           builder: (_) => const ScreenController(),
+          builder: (_) => const ConfigBasePage(masterData: {}),
+           // builder: (_) => const ScreenController(),
           settings: settings,
         );
       default:
