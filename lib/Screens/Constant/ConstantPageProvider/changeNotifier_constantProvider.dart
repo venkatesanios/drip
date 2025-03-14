@@ -32,9 +32,6 @@ class ConstantProvider with ChangeNotifier {
     print("✅ Updated $field to: ${overAllAlarm[index].scanTime}"); // Debugging output
     notifyListeners(); // Ensure UI updates correctly
   }
-
-
-
 }
 
 /*

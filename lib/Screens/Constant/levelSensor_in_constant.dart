@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:linked_scroll_controller/linked_scroll_controller.dart';
+import 'package:flutter/services.dart';
+import 'package:data_table_2/data_table_2.dart';
 
 import 'modal_in_constant.dart';
 
@@ -18,221 +19,114 @@ class LevelSensorInConstant extends StatefulWidget {
 }
 
 class _LevelSensorInConstantState extends State<LevelSensorInConstant> {
-  late LinkedScrollControllerGroup _controllers;
-  late ScrollController _verticalScroll;
-  late ScrollController _horizontalScroll;
-  double defaultSize = 120;
-
   Map<int, SensorData> sensorDataMap = {};
+  Map<String, String> selectedDropdownValues = {};
 
   @override
   void initState() {
     super.initState();
-    _controllers = LinkedScrollControllerGroup();
-    _verticalScroll = _controllers.addAndGet();
-    _horizontalScroll = ScrollController();
-
     for (var sensor in widget.levelSensor) {
       sensorDataMap[sensor.sensorId] = SensorData();
     }
-
-    print("Level Sensors: ${widget.levelSensor}");
-    print("Total Level Sensors: ${widget.levelSensor.length}");
   }
 
-
-  @override
-  void dispose() {
-    _verticalScroll.dispose();
-    _horizontalScroll.dispose();
-    super.dispose();
-  }
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(18.0),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          controller: _horizontalScroll,
-          child: Center(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                buildSensorColumn(),
-                buildDataTable(),
-              ],
+    return Padding(
+      padding: const EdgeInsets.only(top:50, left: 20, right: 20),
+      child: DataTable2(
+        columnSpacing: 12,
+        horizontalMargin: 12,
+        minWidth: 900,
+        border: TableBorder.all(color: Colors.brown),
+        headingRowColor: MaterialStateProperty.all(const Color(0xFFFDFDFD)),
+
+        columns: const [
+          DataColumn(label: Text('Sensor')),
+          DataColumn(label: Text('High Low')),
+          DataColumn(label: Text('Units')),
+          DataColumn(label: Text('Base')),
+          DataColumn(label: Text('Minimum')),
+          DataColumn(label: Text('Maximum')),
+          DataColumn(label: Text('Height (m)')),
+        ],
+        rows: widget.levelSensor.asMap().entries.map((entry) {
+          int index = entry.key;
+          LevelSensor sensor = entry.value;
+
+          return DataRow(
+            color: MaterialStateProperty.resolveWith<Color?>(
+                  (Set<MaterialState> states) {
+                return index.isEven ? const Color(0xFFF6F6F6) : const Color(0xFFFDFDFD);
+              },
             ),
-          ),
-        ),
+            cells: [
+              DataCell(Text(sensor.name, style: const TextStyle(color: Color(0xFF005B8D)))),
+              DataCell(getDropdown(sensor.sensorId, ['Primary', 'Secondary'])),
+              DataCell(getDropdown(sensor.sensorId, ['Bar', 'dS/m'])),
+              DataCell(getDropdown(sensor.sensorId, ['Current', 'Voltage'])),
+              DataCell(getTextField(sensor.sensorId, 'min')),
+              DataCell(getTextField(sensor.sensorId, 'max')),
+              DataCell(getTextField(sensor.sensorId, 'height')),
+            ],
+          );
+        }).toList(),
       ),
     );
   }
 
-  Widget buildSensorColumn() {
-    return Column(
-      children: [
-        Container(
-          decoration: const BoxDecoration(color: Color(0xff96CED5)),
-          padding: const EdgeInsets.only(left: 8),
-          width: defaultSize,
-          height: 50,
-          alignment: Alignment.center,
-          child: const Text('Sensor',
-              style: TextStyle(color: Color(0xff30555A), fontSize: 13)),
-        ),
-        SingleChildScrollView(
-          controller: _verticalScroll, // Fixed issue here
-          child: Column(
-            children: widget.levelSensor.map((sensor) {
-              return Container(
-                margin: const EdgeInsets.only(bottom: 1),
-                decoration: const BoxDecoration(color: Colors.white),
-                padding: const EdgeInsets.only(left: 8),
-                width: defaultSize,
-                height: 50,
-                alignment: Alignment.center,
-                child: Text(sensor.name,
-                    style: const TextStyle(color: Colors.black, fontSize: 13),
-                    overflow: TextOverflow.ellipsis),
-              );
-            }).toList(),
-          ),
-        ),
-      ],
+  Widget getDropdown(int sensorId, List<String> options) {
+    selectedDropdownValues.putIfAbsent(sensorId.toString(), () => options.first);
+
+    return DropdownButtonFormField<String>(
+      value: options.contains(selectedDropdownValues[sensorId.toString()])
+          ? selectedDropdownValues[sensorId.toString()]
+          : options.first,
+      items: options.map((value) => DropdownMenuItem<String>(
+        value: value,
+        child: Text(value),
+      )).toList(),
+      onChanged: (value) {
+        setState(() {
+          selectedDropdownValues[sensorId.toString()] = value!;
+        });
+      },
     );
   }
 
-  Widget buildDataTable() {
-    return Column(
-      children: [
-        // Header Row
-        SizedBox(
-          width: 900,
-          height: 50,
-          child: SingleChildScrollView(
-            controller: _horizontalScroll,
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                getCell(width: 120, title: 'High Low'),
-                getCell(width: 120, title: 'Units'),
-                getCell(width: 120, title: 'Base'),
-                getCell(width: 120, title: 'Minimum'),
-                getCell(width: 120, title: 'Maximum'),
-                getCell(width: 120, title: 'Height(m)'),
-              ],
-            ),
-          ),
-        ),
-        SizedBox(
-          child: Scrollbar(
-            thumbVisibility: true,
-            child: SingleChildScrollView(
-              controller: _verticalScroll,
-              scrollDirection: Axis.vertical,
-              child: Column(
-                children: widget.levelSensor.isNotEmpty
-                    ? widget.levelSensor.map((sensor) {
-                  return SizedBox(
-                    width: 900,
-                    child: Row(
-                      children: [
-                        getDropdown(sensor.sensorId),
-                        getDropdown(sensor.sensorId),
-                        getDropdown(sensor.sensorId),
-                        getTextField(sensor.sensorId),
-                        getTextField(sensor.sensorId),
-                        getTextField(sensor.sensorId),
-                      ],
-                    ),
-                  );
-                }).toList()
-                    : [
-                  const Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Text("No Sensors Available",
-                        style: TextStyle(fontSize: 16)),
-                  )
-                ],
-              ),
-            ),
-          ),
-        ),
+  Widget getTextField(int sensorId, String fieldType) {
+    final sensorData = sensorDataMap[sensorId]!;
+    TextEditingController controller;
 
-      ],
-    );
-  }
+    switch (fieldType) {
+      case 'min':
+        controller = sensorData.minController;
+        break;
+      case 'max':
+        controller = sensorData.maxController;
+        break;
+      case 'height':
+        controller = sensorData.heightController;
+        break;
+      default:
+        controller = TextEditingController();
+    }
 
-
-  Widget getDropdown(int sensorId) {
-    return Container(
-      margin: const EdgeInsets.all(1),
-      width: 119,
-      height: 50,
-      alignment: Alignment.center,
-      child: DropdownButtonFormField<String>(
-        value: sensorDataMap[sensorId]?.dropdownValue ?? 'Option 1',
-        items: ['Option 1', 'Option 2', 'Option 3']
-            .map((value) => DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        ))
-            .toList(),
-        onChanged: (value) {
-          setState(() {
-            sensorDataMap[sensorId]?.dropdownValue = value!;
-          });
-        },
-        decoration: const InputDecoration(border: OutlineInputBorder()),
-      ),
-    );
-  }
-
-  Widget getTextField(int sensorId) {
-    return Container(
-      margin: const EdgeInsets.all(1),
-      width: 119,
-      height: 50,
-      alignment: Alignment.center,
-      child: TextField(
-        controller: sensorDataMap[sensorId]?.controller ?? TextEditingController(),
-        keyboardType: TextInputType.number,
-        decoration: const InputDecoration(border: OutlineInputBorder()),
-        onChanged: (value) {
-          setState(() {
-            sensorDataMap[sensorId]?.textValue = value.isNotEmpty ? value : '0';
-            sensorDataMap[sensorId]?.controller.text =
-                sensorDataMap[sensorId]?.textValue ?? '';
-          });
-        },
-      ),
-    );
-  }
-
-  Widget getCell({required double width, required String title}) {
-    return Container(
-      width: width,
-      height: 50,
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.black),
-        color: Colors.blue.shade100,
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        title,
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      ),
+    return TextField(
+      controller: controller,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$'))],
     );
   }
 }
-class SensorData {
-  String dropdownValue;
-  String textValue;
-  TextEditingController controller;
 
-  SensorData({
-    this.dropdownValue = 'Option 1',
-    this.textValue = '',
-  }) : controller = TextEditingController(text: textValue);
+class SensorData {
+  final TextEditingController minController;
+  final TextEditingController maxController;
+  final TextEditingController heightController;
+
+  SensorData()
+      : minController = TextEditingController(text: "0.0"),
+        maxController = TextEditingController(text: "0.0"),
+        heightController = TextEditingController(text: "0.0");
 }

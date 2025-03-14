@@ -80,11 +80,11 @@ class _EcPhInConstantState extends State<EcPhInConstant> {
     width: 120,
     height: 50,
     alignment: Alignment.center,
-    color: Colors.teal.shade300,
+    color: Color(0xFFF6F6F6),
     child: Text(
       title,
       style:
-      const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+      const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
     ),
   );
 

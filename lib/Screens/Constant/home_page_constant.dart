@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:oro_drip_irrigation/Screens/Constant/pump_in_constant.dart';
 import 'package:oro_drip_irrigation/Screens/Constant/valve_in_constant.dart';
 import 'package:oro_drip_irrigation/Screens/Constant/watermeter_in_constant.dart';
@@ -25,7 +26,7 @@ class ConstantHomePage extends StatefulWidget {
   final List<FertilizerSite> fertilizerSite;
   final List<EC> ec;
   final List<PH> ph;
-  final List<WaterMeter> waterMeter;
+  final List<WaterMeters> waterMeter;
   final List<String> controlSensors;
   final List<dynamic> generalUpdated;
   final VoidCallback? onUpdateSuccess;
@@ -69,35 +70,211 @@ class ConstantHomePage extends StatefulWidget {
   _ConstantHomePageState createState() => _ConstantHomePageState();
 }
 
+
 class _ConstantHomePageState extends State<ConstantHomePage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  int _currentIndex = 0;
+  String? selectedParameter;
+  final ScrollController _scrollController = ScrollController();
+  late List<ConstantMenu> filteredMenu;
 
   @override
   void initState() {
     super.initState();
-    final filteredMenuLength = widget.constantMenu
-        .where((item) => item.parameter != "Normal Alarm")
-        .length;
 
-    _tabController = TabController(length: filteredMenuLength + 1, vsync: this);
+    // Exclude "Normal Alarm" and filter items with value == '1'
+    filteredMenu = widget.constantMenu
+        .where((item) => item.parameter != "Normal Alarm" && item.value == '1')
+        .toList();
 
-    _tabController.addListener(() {
-      setState(() {
-        _currentIndex = _tabController.index;
-      });
+    // Add the "Finish" parameter at the end
+    filteredMenu.add(ConstantMenu(parameter: "Finish", dealerDefinitionId: 0, value: '1'));
+
+    // Set initial selected parameter
+    selectedParameter = filteredMenu.firstWhere(
+          (item) => item.parameter == "General",
+      orElse: () => filteredMenu.isNotEmpty
+          ? filteredMenu.first
+          : ConstantMenu(parameter: "General", dealerDefinitionId: 82, value: '1'),
+    ).parameter;
+
+    _tabController = TabController(length: filteredMenu.length, vsync: this);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToSelected(_tabController.index);
     });
-   // var constantPvd = Provider.of<ConstantProvider>(context, listen: false);
-    //constantPvd.updateAlarm(widget.alarmData);
+
+    // Listen for tab changes
+    _tabController.addListener(() {
+      if (_tabController.index < filteredMenu.length) {
+        setState(() {
+          selectedParameter = filteredMenu[_tabController.index].parameter;
+        });
+        _scrollToSelected(_tabController.index);
+      }
+    });
   }
 
+  void _scrollToSelected(int index) {
+    if (!_scrollController.hasClients) return;
+
+    double screenWidth = MediaQuery.of(context).size.width;
+    double itemWidth = 190.0;
+    double scrollOffset = index * itemWidth - (screenWidth / 2) + (itemWidth / 2);
+
+    _scrollController.animateTo(
+      scrollOffset.clamp(0.0, _scrollController.position.maxScrollExtent),
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-   // var constantPvd = Provider.of<ConstantProvider>(context, listen: true);
-    return Scaffold(
-      body: Column(
+    return Column(
+      children: [
+        // Scrollable Tab Bar
+        SizedBox(
+          width: MediaQuery.sizeOf(context).width,
+          height: 50,
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: filteredMenu.asMap().entries.map((entry) {
+                int index = entry.key;
+                ConstantMenu filteredItem = entry.value;
+                bool isSelected = selectedParameter == filteredItem.parameter;
+
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      selectedParameter = filteredItem.parameter;
+                    });
+                    _tabController.animateTo(index);
+                  },
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      ColorFiltered(
+                        colorFilter: ColorFilter.mode(
+                          isSelected ? const Color(0xFF005B8D) : const Color(
+                              0xFFFFFFFF),
+                          BlendMode.srcIn,
+                        ),
+                        child: SvgPicture.asset(
+                          'assets/Images/Svg/white.svg',
+                          width: 190,
+                          height: 50,
+                        ),
+                      ),
+                      Positioned(
+                        child: Text(
+                          filteredItem.parameter,
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : Colors.black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+
+        // IndexedStack for content
+        Expanded(
+          child: IndexedStack(
+            index: filteredMenu.indexWhere(
+                  (item) => item.parameter == selectedParameter,
+            ).clamp(0, filteredMenu.length - 1),
+            children: [
+              ...filteredMenu.map((item) {
+                switch (item.parameter) {
+                  case "General":
+                    return GeneralPage(
+                      generalUpdated: List<Map<String, dynamic>>.from(widget.generalUpdated),
+                    );
+                  case "Pump":
+                    return PumpPage(pump: widget.pump);
+                  case "Irrigation Line":
+                    return IrrigationLineInConstant(irrigationLines: widget.irrigationLines);
+                  case "Main Valve":
+                    return MainValveInConstant(
+                      mainValves: widget.mainValves,
+                      irrigationLines: widget.irrigationLines,
+                    );
+                  case "Valve":
+                    return ValveInConstant(
+                      valves: widget.valves,
+                      irrigationLines: widget.irrigationLines,
+                    );
+                  case "Water Meter":
+                    return WatermeterInConstant(waterMeter: widget.waterMeter);
+                  case "Fertilizer":
+                    return FertilizerInConstant(
+                      fertilizerSite: widget.fertilizerSite,
+                      channels: widget.channels,
+                    );
+                  case "EC/PH":
+                    return EcPhInConstant(
+                      ec: widget.ec,
+                      ph: widget.ph,
+                      fertilizerSite: widget.fertilizerSite,
+                      controlSensors: widget.controlSensors,
+                    );
+                  case "Critical Alarm":
+                    return CriticalAlarmInConstant(alarm: widget.alarm);
+                  case "Global Alarm":
+                    return GlobalAlarmInConstant(alarm: widget.alarm);
+                  case "Moisture Sensor":
+                    return MoistureSensorConstant(moistureSensors: widget.moistureSensors);
+                  case "Level Sensor":
+                    return LevelSensorInConstant(
+                      levelSensor: widget.levelSensor,
+                      waterSource: widget.waterSource,
+                    );
+                  case "Finish":
+                    return FinishInConstant(
+                      pumps: widget.pump,
+                      valves: widget.valves,
+                      ec: widget.ec,
+                      ph: widget.ph,
+                      fertilizerSite: widget.fertilizerSite,
+                      controlSensors: widget.controlSensors,
+                      irrigationLines: widget.irrigationLines,
+                      mainValves: widget.mainValves,
+                      generalUpdated: widget.generalUpdated,
+                      alarm: widget.alarm,
+                      controllerId: widget.controllerId,
+                      userId: widget.userId,
+                    );
+                  default:
+                    return Center(child: Text(item.parameter));
+                }
+              }).toList(),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+}
+
+
+/*body: Column(
         children: [
           Container(
             color: const Color(0xff003f62), // Tab bar background color
@@ -140,11 +317,9 @@ class _ConstantHomePageState extends State<ConstantHomePage>
                           valves: widget.valves,
                           irrigationLines: widget.irrigationLines);
                     case "Water Meter":
-                      return WatermeterInConstant(
+                      return constInit?WaterMeterInConstant(
                         waterMeter: widget.waterMeter,
-                        irrigationLines: widget.irrigationLines,
-                        pump: widget.pump,
-                      );
+                      ):SizedBox();
                     case "Fertilizer":
                       return FertilizerInConstant(
                         fertilizerSite: widget.fertilizerSite,
@@ -197,8 +372,8 @@ class _ConstantHomePageState extends State<ConstantHomePage>
             ),
           ),
         ],
-      ),
-      floatingActionButton: SizedBox(
+      ),*/
+     /* floatingActionButton: SizedBox(
         width: 100,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -230,13 +405,5 @@ class _ConstantHomePageState extends State<ConstantHomePage>
           ],
         ),
       ),
-    );
+    );*/
 
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-}
