@@ -10,6 +10,7 @@ import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../StateManagement/overall_use.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
+import '../../utils/snack_bar.dart';
 import '../NewIrrigationProgram/preview_screen.dart';
 import 'add_edit_group.dart';
 
@@ -33,6 +34,7 @@ class _GroupListScreenState extends State<GroupListScreen> {
       });
     }
   }
+
   void deleteValveGroupAtIndex(int index) {
     if (_groupdata.data?.valveGroup != null &&
         index >= 0 &&
@@ -42,41 +44,38 @@ class _GroupListScreenState extends State<GroupListScreen> {
       print("Invalid index or valveGroup is null.");
     }
   }
-  Future<void> fetchData() async {
-    var overAllPvd = Provider.of<OverAllUse>(context,listen: false);
-    final prefs = await SharedPreferences.getInstance();
-    try{
-      final Repository repository = Repository(HttpService());
-      var getUserDetails = await repository.getUserFilterBackwasing({
-        "userId": overAllPvd.userId ,
-        "controllerId": overAllPvd.controllerId
-      });
-      print("getUserDetails.body ${getUserDetails.body}");
-      // final jsonData = jsonDecode(getUserDetails.body);
-      if (getUserDetails.statusCode == 200) {
-        setState(() {
-          var jsonData = jsonDecode(getUserDetails.body);
-          _groupdata = Groupdata.fromJson(jsonData);
-        });
-      } else {
-        //_showSnackBar(response.body);
-      }
-    }
-    catch (e, stackTrace) {
-      mqttPayloadProvider.httpError = true;
-      print(' Error overAll getData => ${e.toString()}');
-      print(' trace overAll getData  => ${stackTrace}');
-    }
 
+  Future<void> fetchData() async {
+    var overAllPvd = Provider.of<OverAllUse>(context, listen: false);
+
+    Map<String, Object> body = {
+      "userId": overAllPvd.takeSharedUserId
+          ? overAllPvd.sharedUserId
+          : overAllPvd.userId,
+      "controllerId": overAllPvd.controllerId
+    };
+    final Repository repository = Repository(HttpService());
+    final response = await repository.getUserPlanningValveGroup(body);
+    print("response.body in the valve group ::: ${response.body}");
+    if (response.statusCode == 200) {
+      setState(() {
+
+        var jsonData = jsonDecode(response.body);
+        _groupdata = Groupdata.fromJson(jsonData);
+      });
+    } else {
+      // _showSnackBar(response.body);
+    }
 
   }
+
   @override
   Widget build(BuildContext context) {
     mqttPayloadProvider =
         Provider.of<MqttPayloadProvider>(context, listen: true);
     if (_groupdata.data != null) {
-      print(
-          'print(_groupdata.data?.valveGroup?.length):${_groupdata.data!.valveGroup!.length}');
+      print('print(_groupdata.data?.valveGroup?.length):${_groupdata.data!.valveGroup!.length}');
+      print('print(_groupdata.data?.irrigationLine?.length):${_groupdata.data!.defaultData.irrigationLine.length}');
     }
 
     return Scaffold(
@@ -84,7 +83,7 @@ class _GroupListScreenState extends State<GroupListScreen> {
       appBar: AppBar(
         title: Text('Groups',
             style: TextStyle(
-                color: Theme.of(context).primaryColor,
+                color: Colors.white,
                 fontWeight: FontWeight.bold)),
         automaticallyImplyLeading: false,
       ),
@@ -96,7 +95,7 @@ class _GroupListScreenState extends State<GroupListScreen> {
             Expanded(
                 child: ListView.builder(
                   itemCount:
-                  3, // _groupdata.data?.valveGroup?.length, // Number of items
+                  _groupdata.data?.valveGroup!.length ?? 0, // _groupdata.data?.valveGroup?.length, // Number of items
                   itemBuilder: (context, index) {
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -127,7 +126,8 @@ class _GroupListScreenState extends State<GroupListScreen> {
                                   Wrap(
                                     spacing: 5.0,
                                     runSpacing: 10.0,
-                                    children: List.generate(_groupdata.data?.valveGroup![index].valve.length ?? 0,
+                                    children: List.generate(
+                                        3 /*_groupdata.data?.valveGroup![index].valve.length ?? 0*/,
                                             (vindex) {
                                           return Chip(
                                             label: Text(
@@ -180,9 +180,15 @@ class _GroupListScreenState extends State<GroupListScreen> {
                                 ),
                                 IconButton(
                                   icon: Icon(Icons
-                                      .edit_note_rounded), // The icon you want to display
+                                      .edit_note_rounded,color: Colors.white,), // The icon you want to display
                                   onPressed: () {
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => AddEditValveGroup(selectedline: '${_groupdata.data?.valveGroup![index].irrigationLineName}',valveGroupdata: _groupdata.data?.valveGroup![index], editcheck: true,selectedgroupindex: index,)));
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => AddEditValveGroup(
+                                      selectedline: '${_groupdata.data?.valveGroup![index].irrigationLineName}',
+                                      valveGroupdata: _groupdata.data?.valveGroup![index],
+                                      editcheck: true,
+                                      selectedgroupindex: index,
+                                      groupdata: _groupdata.data!,
+                                    )));
                                     print('Icon Button Pressed');
                                   },
                                 ),
@@ -204,13 +210,23 @@ class _GroupListScreenState extends State<GroupListScreen> {
       floatingActionButton: Row(
         children: [
           const Spacer(),
-          FloatingActionButton(
-            backgroundColor: Theme.of(context).primaryColor,
-            foregroundColor: Colors.white,
-            child: const Icon(Icons.add),
+          ElevatedButton(
+            // backgroundColor: Theme.of(context).primaryColor,
+            // foregroundColor: Colors.white,
+            child: const Icon(Icons.add,color: Colors.white,),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => AddEditValveGroup(editcheck: false,)));
-            },
+              if(_groupdata.data!.defaultData.valveGroupLimit < 0 && _groupdata.data!.valveGroup!.length > _groupdata.data!.defaultData.valveGroupLimit) {
+                Navigator.push(context, MaterialPageRoute(builder: (context) =>
+                    AddEditValveGroup(
+                      editcheck: false, groupdata: _groupdata.data!,)));
+              }
+              else
+    {
+    GlobalSnackBar.show(
+    context, "Valve group limit is reached", 201);
+    }
+    }
+
           ),
           const SizedBox(
             width: 10,
@@ -220,11 +236,11 @@ class _GroupListScreenState extends State<GroupListScreen> {
             width: 10,
           ),
           //ToDo: Send button
-          FloatingActionButton(
-            backgroundColor: Theme.of(context).primaryColor,
-            foregroundColor: Colors.white,
+          ElevatedButton(
+            // backgroundColor: Theme.of(context).primaryColor,
+            // foregroundColor: Colors.white,
             onPressed: () {},
-            child: const Icon(Icons.send),
+            child: const Icon(Icons.send,color: Colors.white,),
           ),
         ],
       ),

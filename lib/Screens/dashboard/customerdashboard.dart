@@ -2658,12 +2658,12 @@ class _DashboardState extends State<MobDashboard>
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             if(selectedTab == 0)
-                             MobCurrentProgram(scheduledPrograms: scheduledPrograms,deviceId: '${overAllPvd.imeiNo}',),
+                             MobCurrentProgram(scheduledPrograms: scheduledPrograms,deviceId: overAllPvd.imeiNo,),
                             if(selectedTab == 1)
                               // Container(),
                               NextScheduleForMobile(scheduledPrograms: scheduledPrograms,),
                             if(selectedTab == 2)
-                               ScheduledProgram(userId: userId, scheduledPrograms: scheduledPrograms, masterInx: payloadProvider.selectedMaster, deviceId: overAllPvd.imeiNo)
+                               ScheduledProgram(userId: userId, scheduledPrograms: scheduledPrograms, masterInx: payloadProvider.selectedMaster, deviceId: payloadProvider.dashboardLiveInstance!.data[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].deviceId)
                            ],
                         ),
                       ),

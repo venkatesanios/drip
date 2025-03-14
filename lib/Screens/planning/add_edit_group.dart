@@ -1,24 +1,21 @@
 import 'dart:convert'; // For JSON encoding
 import 'package:flutter/material.dart';
-
- import '../../Models/valve_group_model.dart';
-
-
+import '../../Models/valve_group_model.dart';
 class AddEditValveGroup extends StatefulWidget {
   final String? selectedline;
   final int? selectedgroupindex;
   final bool editcheck;
   final ValveGroup? valveGroupdata;
+  valveGroupData groupdata;
 
 
-  AddEditValveGroup({this.selectedline,this.selectedgroupindex,required this.editcheck, this.valveGroupdata});
+  AddEditValveGroup({this.selectedline,this.selectedgroupindex,required this.editcheck, this.valveGroupdata, required this.groupdata});
 
   @override
   _AddEditValveGroupState createState() => _AddEditValveGroupState();
 }
 
 class _AddEditValveGroupState extends State<AddEditValveGroup> {
-  Groupdata _groupdata = Groupdata();
   final TextEditingController _controller = TextEditingController();
   IrrigationLine? selectedIrrigationLine;  // Keep track of selected irrigation line
   List<Valve> selectedValves = [];
@@ -29,9 +26,7 @@ class _AddEditValveGroupState extends State<AddEditValveGroup> {
     selctlineindex = getIrrigationLineIndexByName(widget.selectedline ?? '');
     // Set a default irrigation line if available
     _controller.text = widget.valveGroupdata?.groupName ?? '';
-    if (widget.valveGroupdata != null) {
-      selectedIrrigationLine = _groupdata.data?.defaultData.irrigationLine[0];
-    }
+    selectedIrrigationLine = widget.groupdata?.defaultData.irrigationLine[0];
 
   }
 
@@ -39,7 +34,7 @@ class _AddEditValveGroupState extends State<AddEditValveGroup> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Edit Valve Group'),
+        title: const Text('Add Edit Valve Group'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -65,36 +60,36 @@ class _AddEditValveGroupState extends State<AddEditValveGroup> {
                 return null;
               },
             ),
-            SizedBox(height: 8),
-            Text(
+            const SizedBox(height: 8),
+            const Text(
               'Select Irrigation Line:',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 8),
-            // DropdownButton<IrrigationLine>(
-            //   hint: Text('Choose an irrigation line'),
-            //   value: selectedIrrigationLine,
-            //   onChanged: (IrrigationLine? newValue) {
-            //     setState(() {
-            //       selctlineindex = getIrrigationLineIndexByName(widget.selectedline ?? '');
-            //       selectedIrrigationLine = newValue;
-            //       selectedValves.clear();
-            //     });
-            //   },
-            //   items: IrrigationLine.map((IrrigationLine line) {
-            //     return DropdownMenuItem<IrrigationLine>(
-            //       value: line,
-            //       child: Text(line.name),
-            //     );
-            //   }).toList(),
-            // ),
-            SizedBox(height: 16),
+            const SizedBox(height: 8),
+            DropdownButton<IrrigationLine>(
+              hint: Text('Choose an irrigation line'),
+              value: selectedIrrigationLine,
+              onChanged: (IrrigationLine? newValue) {
+                setState(() {
+                  selctlineindex = getIrrigationLineIndexByName(widget.selectedline ?? '');
+                  selectedIrrigationLine = newValue;
+                  selectedValves.clear();
+                });
+              },
+              items: widget.groupdata!.defaultData.irrigationLine.map((IrrigationLine line) {
+                return DropdownMenuItem<IrrigationLine>(
+                  value: line,
+                  child: Text(line.name),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 16),
             if (selectedIrrigationLine != null) ...[
-              Text(
+              const Text(
                 'Select Valves:',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Wrap(
                 spacing: 8.0,
                 runSpacing: 4.0,
@@ -115,7 +110,7 @@ class _AddEditValveGroupState extends State<AddEditValveGroup> {
                 }).toList(),
               ),
             ],
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: selectedValves.isNotEmpty
                   ? () {
@@ -123,11 +118,11 @@ class _AddEditValveGroupState extends State<AddEditValveGroup> {
                 generateValveGroup();
                 // Display a confirmation message
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Valve group created!')),
+                  const SnackBar(content: Text('Valve group created!')),
                 );
               }
                   : null,
-              child: Text('Create Valve Group'),
+              child: const Text('Create Valve Group'),
             ),
           ],
         ),
@@ -136,12 +131,10 @@ class _AddEditValveGroupState extends State<AddEditValveGroup> {
   }
 
   int getIrrigationLineIndexByName(String irrigationLineName) {
-    var defaultData = _groupdata.data?.defaultData;
-    if (defaultData != null) {
-      for (int i = 0; i < defaultData.irrigationLine.length; i++) {
-        if (defaultData.irrigationLine[i].name == irrigationLineName) {
-          return i;
-        }
+    var defaultData = widget.groupdata!.defaultData;
+    for (int i = 0; i < defaultData.irrigationLine.length; i++) {
+      if (defaultData.irrigationLine[i].name == irrigationLineName) {
+        return i;
       }
     }
     return 0;
@@ -149,12 +142,15 @@ class _AddEditValveGroupState extends State<AddEditValveGroup> {
 
   // Function to generate the valveGroup JSON
   generateValveGroup() {
-    ValveGroup vdate = ValveGroup(objectId: _groupdata.data!.defaultData.irrigationLine[selctlineindex].objectId, groupName: _controller.text, irrigationLineName: _groupdata.data!.defaultData.irrigationLine[selctlineindex].name,  sNo: _groupdata.data!.defaultData.irrigationLine[selctlineindex].sNo, name: _groupdata.data!.defaultData.irrigationLine[selctlineindex].name, objectName: _groupdata.data!.defaultData.irrigationLine[selctlineindex].objectName, valve: selectedValves);
-    widget.editcheck ? _groupdata.data?.valveGroup![widget.selectedgroupindex!] = vdate : _groupdata.data?.valveGroup?.add(vdate);
+    ValveGroup vdate = ValveGroup(objectId: widget.groupdata!.defaultData.irrigationLine[selctlineindex].objectId, groupName: _controller.text, irrigationLineName: widget.groupdata!.defaultData.irrigationLine[selctlineindex].name,  sNo: widget.groupdata!.defaultData.irrigationLine[selctlineindex].sNo, name: widget.groupdata!.defaultData.irrigationLine[selctlineindex].name, objectName: widget.groupdata!.defaultData.irrigationLine[selctlineindex].objectName, valve: selectedValves);
+    widget.editcheck ? widget.groupdata!.valveGroup![widget.selectedgroupindex!] = vdate : widget.groupdata!.valveGroup?.add(vdate);
 
 
   }
 }
+
+
+
 
 
 

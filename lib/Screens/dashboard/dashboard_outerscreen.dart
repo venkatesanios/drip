@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:oro_drip_irrigation/Screens/ScheduleView/schedule_view_screen.dart';
 
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,6 +19,8 @@ import '../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../NewIrrigationProgram/preview_screen.dart';
 import '../NewIrrigationProgram/program_library.dart';
 import '../NewIrrigationProgram/schedule_screen.dart';
+import '../NewPreference/preference_main_screen.dart';
+import '../NewPreference/view_settings.dart';
 import 'customerdashboard.dart';
 
 //This is Main dashboard --
@@ -66,12 +69,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       groupId: 0,
       categoryId: 0,
     ),
-    // ScheduleViewScreen(
-    //   deviceId: 'B48C9D810C51',
-    //   userId: 0,
-    //   controllerId: 0,
-    //   customerId: 51,
-    // ),
+     ScheduleViewScreen(deviceId: '0', userId: 0, controllerId: 0, customerId: 0, groupId: 0),
     // IrrigationAndPumpLog(
     //   userId: 0,
     //   controllerId: 0,
@@ -79,23 +77,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   ];
   static List<Widget> _widgetOptionspump = <Widget>[
     MobDashboard(),
-    // PreferenceMainScreen(
-    //   controllerId: 0,
-    //   userId: 0,
-    //   deviceId: "",
-    //   customerId: 0,
-    //   menuId: 78,
-    // ),
-    // ViewSettings(userId: 0, controllerId: 0),
+    PreferenceMainScreen(
+      controllerId: 0,
+      userId: 0,
+      deviceId: "",
+      customerId: 0,
+      menuId: 78,
+    ),
+    ViewSettings(userId: 0, controllerId: 0),
     // PumpLogs(),
   ];
   DateTime? _lastPressedAt;
 
-/*  @override
+  @override
   void initState() {
     // TODO: implement initState
     irrigationProgramProvider =
         Provider.of<IrrigationProgramMainProvider>(context, listen: false);
+    payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
+
     overAllPvd = Provider.of<OverAllUse>(context, listen: false);
     //payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
     // fetchData();
@@ -122,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       }
     }
     super.initState();
-  }*/
+  }
 
   void _toggleMenu() {
     if (_isMenuOpen) {
@@ -191,8 +191,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       });
 
       // Map<String, Object> body = {"userId": 15, "controllerId": 1};
-
-      // print(response.body);
+      print('getPlanningHiddenMenu');
+      print(response.body);
       if (response.statusCode == 200) {
         setState(() {
           var jsonData = jsonDecode(response.body);
@@ -904,19 +904,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   dynamic getIconsMenu(int name) {
     final icons = {
-      66: 'assets/weather/menuwatersource.png',
-      67: 'assets/weather/menuwatersource.png',
-      68: 'assets/weather/menuradiationset.png',
-      69: 'assets/weather/menugroup.png',
-      70: 'assets/weather/menucondition.png',
-      71: 'assets/weather/menufrost.png',
-      72: 'assets/weather/menufilter.png',
-      73: 'assets/weather/menufertlizerset.png',
-      74: 'assets/weather/menuglobal.png',
-      75: 'assets/weather/menuwatersource.png',
-      76: 'assets/weather/menuprogramque.png',
-      77: 'assets/weather/menuweather.png',
-      78: 'assets/weather/menufrost.png',
+      66: 'assets/png_images/menuwatersource.png',
+      67: 'assets/png_images/menuwatersource.png',
+      68: 'assets/png_images/menuradiationset.png',
+      69: 'assets/png_images/menugroup.png',
+      70: 'assets/png_images/menucondition.png',
+      71: 'assets/png_images/menufrost.png',
+      72: 'assets/png_images/menufilter.png',
+      73: 'assets/png_images/menufertlizerset.png',
+      74: 'assets/png_images/menuglobal.png',
+      75: 'assets/png_images/menuwatersource.png',
+      76: 'assets/png_images/menuprogramque.png',
+      77: 'assets/png_images/menuweather.png',
+      78: 'assets/png_images/menufrost.png',
       79: Icon(Icons.construction),
       80: Icon(Icons.contact_page_sharp),
       81: Icon(Icons.map),

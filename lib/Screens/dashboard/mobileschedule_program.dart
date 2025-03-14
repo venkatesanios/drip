@@ -1,12 +1,8 @@
 import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:oro_drip_irrigation/Constants/properties.dart';
-import 'package:oro_drip_irrigation/Screens/NewIrrigationProgram/selection_screen.dart';
 import 'package:provider/provider.dart';
-
 import '../../Models/customer/site_model.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../services/mqtt_service.dart';
@@ -23,7 +19,7 @@ class ScheduledProgram extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    print("call schedule program ");
+    print("call schedule program deviceId$deviceId");
     print("call schedule program ");
 
     final spLive = Provider.of<MqttPayloadProvider>(context).scheduledProgram;
@@ -217,7 +213,7 @@ class ScheduledProgram extends StatelessWidget {
               child: Text(program.programName[0].toUpperCase(), style: TextStyle(color: Colors.white)),
             ),
             title: Text(program.programName, style: TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text('${program.schedulingMethod}', style: TextStyle(color: Colors.blue)),
+            subtitle: Text('${getSchedulingMethodName(program.schedulingMethod)}', style: TextStyle(color: Colors.blue)),
             trailing: Text('${program.sequence.length} Zones', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
           ),
           SizedBox(height: 10),
@@ -255,9 +251,9 @@ class ScheduledProgram extends StatelessWidget {
           // Text('Stop Condition: ${program}', style: TextStyle(color: Colors.black)),
           SizedBox(height: 10),
           Text('Start/Stop Reason:', style: TextStyle(color: Colors.red)),
-          Text('${program.startStopReason}', style: TextStyle(color: Colors.black)),
+          Text('${getContentByCode(program.startStopReason)}', style: TextStyle(color: Colors.black)),
           Text('Pause/Resume Reason:', style: TextStyle(color: Colors.red)),
-          Text('${program.pauseResumeReason}', style: TextStyle(color: Colors.black)),
+          Text('${getContentByCode(program.pauseResumeReason)}', style: TextStyle(color: Colors.black)),
           SizedBox(height: 20),
        /*   Wrap(
             spacing: 10,
@@ -321,13 +317,15 @@ class ScheduledProgram extends StatelessWidget {
                   color: int.parse(program.prgOnOff) >= 0? isStop?Colors.red: isBypass?Colors.orange :Colors.green : Colors.grey.shade300,
                   textColor: Colors.white,
                   onPressed: () {
-
+                    print("Button Name $buttonName");
+                    print("${getPermissionStatusBySNo(context, 3)}");
                     if(getPermissionStatusBySNo(context, 3)){
                       if (int.parse(program.prgOnOff) >= 0) {
                         String payload = '${program.serialNumber},${program.prgOnOff}';
                         String payLoadFinal = jsonEncode({
                           "2900": {"2901": payload}
                         });
+                        print("payLoadFinal$payLoadFinal,payLoad $payload,deviceId $deviceId");
                         MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
                         sentUserOperationToServer(
                           '${program.programName} ${getDescription(int.parse(program.prgOnOff))}',
@@ -411,7 +409,7 @@ class ScheduledProgram extends StatelessWidget {
                         String payLoadFinal = jsonEncode({
                           "6700": {"6701": payload}
                         });
-                        MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
+                        MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/${deviceId}');
                         sentUserOperationToServer(
                           '${program.programName} ${'Changed to $selectedItem'}',
                           payLoadFinal,

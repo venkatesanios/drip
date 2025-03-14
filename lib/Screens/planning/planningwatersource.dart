@@ -99,9 +99,7 @@ class _watersourceUIState extends State<watersourceUI>
     var overAllPvd = Provider.of<OverAllUse>(context,listen: true);
 
      if (_watersource.code != 200) {
-      return Center(
-          child: Text(
-              _watersource.message ?? 'Currently No Water source Available'));
+      return Center(child: Text(_watersource.message ?? 'Currently No Water source Available'));
     } else if (_watersource.data == null) {
       return const Center(child: CircularProgressIndicator());
     } else if (_watersource.data!.waterSource!.isEmpty) {
@@ -111,7 +109,7 @@ class _watersourceUIState extends State<watersourceUI>
       if (MediaQuery.sizeOf(context).width > 600) {
         return DefaultTabController(
           length: _watersource.data!.waterSource!.length,// Color(0xffE6EDF5)
-          child: Scaffold( backgroundColor: Color(0xffE6EDF5),
+          child: Scaffold( backgroundColor: const Color(0xffE6EDF5),
             body: Padding(
                padding: const EdgeInsets.only(left: 8, bottom: 80, right: 8, top: 8),
               child: Center(
@@ -255,8 +253,8 @@ class _watersourceUIState extends State<watersourceUI>
          return DefaultTabController(
           animationDuration: const Duration(milliseconds: 888),
           length: _watersource.data!.waterSource!.length,
-          child: Scaffold(backgroundColor: Color(0xffE6EDF5),
-            appBar: AppBar(title: Text('Water Source', style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold)),automaticallyImplyLeading: false,),
+          child: Scaffold(backgroundColor: const Color(0xffE6EDF5),
+            appBar: AppBar(title: const Text('Water Source', style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold)),automaticallyImplyLeading: false,),
              body: Padding(
               padding: const EdgeInsets.only(left: 8, bottom: 80, right: 8, top: 8),
               child: Center(
@@ -393,7 +391,7 @@ class _watersourceUIState extends State<watersourceUI>
             //     width: 0.5, borderRadius: BorderRadius.circular(5.0)),
             fixedColumnsColor: Theme.of(context).primaryColorLight,
             headingRowHeight: 50,
-            columns: [
+            columns: const [
               DataColumn2(
                 fixedWidth: 70,
                 label: Center(
@@ -442,7 +440,7 @@ class _watersourceUIState extends State<watersourceUI>
                 DataCell(Text(
                   "${Listofvalue?[0].title}",
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -474,7 +472,7 @@ class _watersourceUIState extends State<watersourceUI>
                 DataCell(Text(
                   "${Listofvalue?[1].title}",
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -515,7 +513,7 @@ class _watersourceUIState extends State<watersourceUI>
                 DataCell(Text(
                   "${Listofvalue?[2].title}",
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -555,7 +553,7 @@ class _watersourceUIState extends State<watersourceUI>
                 ))),
                 DataCell(Text(
                   "${Listofvalue?[3].title}",
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -603,14 +601,14 @@ class _watersourceUIState extends State<watersourceUI>
             child: ListTile(
                 title: Text(
                   sourcename,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                   softWrap: true,
                 ),
                 trailing: Text("$sourceid",
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold))),
           ),
@@ -626,7 +624,7 @@ class _watersourceUIState extends State<watersourceUI>
                         elevation: 0.1,
                         child: ListTile(
                           title: Text('${Listofvalue?[index].title}',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize:
                                     16,
                                 fontWeight: FontWeight.bold,
@@ -670,7 +668,7 @@ class _watersourceUIState extends State<watersourceUI>
                         elevation: 0.1,
                         child: ListTile(
                           title: Text('${Listofvalue?[index].title}',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize:
                                     16,
                                 fontWeight: FontWeight.bold,
@@ -700,7 +698,7 @@ class _watersourceUIState extends State<watersourceUI>
                         elevation: 0.1,
                         child: ListTile(
                           title: Text('${Listofvalue?[index].title}',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize:16,
                                 fontWeight: FontWeight.bold,
                               )),
@@ -738,7 +736,7 @@ class _watersourceUIState extends State<watersourceUI>
                         color: Colors.white,
                         child: ListTile(
                           title: Text('${Listofvalue?[index].title}',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize:
                                     16,
                                 fontWeight: FontWeight.bold,

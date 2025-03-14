@@ -107,7 +107,7 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
       // case 67:
       //   return VirtualMeterScreen(userId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber);
       case 66:
-        return watersourceUI(userId: 4, controllerId: 1, deviceID: widget.imeiNumber, menuId: 66,);
+        return watersourceUI(userId: widget.userId, controllerId: widget.controllerID, deviceID: widget.imeiNumber, menuId: 66,);
       case 67:
         return VirtualMeterScreen(userId: widget.userId, controllerId: widget.controllerID, menuId: 67, deviceId: widget.imeiNumber);
       // case 68:

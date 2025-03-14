@@ -108,7 +108,7 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
             length: _filterbackwash.data!.filterBackwashing!.length ?? 0,
             child: Scaffold(
               backgroundColor: const Color(0xffE6EDF5),
-              appBar: AppBar(title: Text('Filter BackWash', style: TextStyle(color: Theme.of(context).primaryColor,fontWeight: FontWeight.bold)),automaticallyImplyLeading: false,),
+              appBar: AppBar(title: Text('Filter BackWash', style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold)),automaticallyImplyLeading: false,),
               body: SizedBox(
                 child: Column(
                   children: [
