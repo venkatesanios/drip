@@ -15,7 +15,7 @@ class GeneralPage extends StatefulWidget {
 
 class _GeneralPageState extends State<GeneralPage> {
   late List<TextEditingController> _controllers;
-
+  int? selectedIndex;
   @override
   void initState() {
     super.initState();
@@ -43,48 +43,76 @@ class _GeneralPageState extends State<GeneralPage> {
         int cardsPerRow = (constraints.maxWidth / (cardWidth + 20)).floor();
 
         return SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 20),
-                Wrap(
-                  spacing: 20,
-                  runSpacing: 20,
-                  alignment: WrapAlignment.center,
-                  children: [
-                    for (var i = 0; i < widget.generalUpdated.length; i++)
-                      SizedBox(
-                        width: cardWidth,
-                        child: IntrinsicHeight( // Ensure uniform height for all cards
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: Colors.white,
-                              boxShadow: [
-                                BoxShadow(color: Colors.grey, blurRadius: 5)
-                              ],
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 20),
+                  Wrap(
+                    spacing: 20,
+                    runSpacing: 20,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      for (var i = 0; i < widget.generalUpdated.length; i++)
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedIndex = i; // Update selected index
+                            });
+                          },
+                          child: SizedBox(
+                            width: cardWidth,
+                            child: IntrinsicHeight( // Ensure uniform height for all cards
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: Colors.white, // Default card color
+                                  border: Border.all(
+                                    color: selectedIndex == i
+                                        ? const Color(0xFF005B8D)
+                                        : Colors.white,
+                                    width: 1,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: selectedIndex == i
+                                          ? Colors.blue.withOpacity(0.5) // Selected shadow color
+                                          : Colors.grey, // Default shadow color
+                                      blurRadius: 5, // Increase blur for better effect
+                                      spreadRadius: 3, // Make shadow more visible
+                                      offset: const Offset(0, 3), // Slight elevation effect
+                                    ),
+                                  ],
+                                ),
+                                padding: const EdgeInsets.all(10),
+                                child: getWidgetGeneral(
+                                    context, widget.generalUpdated[i], i),
+                              ),
                             ),
-                            padding: const EdgeInsets.all(10),
-                            child: getWidgetGeneral(
-                                context, widget.generalUpdated[i], i),
                           ),
                         ),
+                    ],
+                  ),
+
+                  // Add empty cards to balance row alignment
+                  if (widget.generalUpdated.length % cardsPerRow != 0)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(
+                        cardsPerRow - (widget.generalUpdated.length % cardsPerRow),
+                            (index) => SizedBox(width: cardWidth),
                       ),
-                    // Add empty cards to balance row alignment
-                    if (widget.generalUpdated.length % cardsPerRow != 0)
-                      for (var j = 0;
-                      j < (cardsPerRow - (widget.generalUpdated.length % cardsPerRow));
-                      j++)
-                        SizedBox(width: cardWidth),
-                  ],
-                ),
-                const SizedBox(height: 150),
-              ],
+                    ),
+
+                  const SizedBox(height: 150),
+                ],
+              ),
             ),
           ),
         );
+
       },
     );
   }

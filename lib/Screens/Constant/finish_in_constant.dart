@@ -6,20 +6,22 @@ import 'ConstantPageProvider/changeNotifier_constantProvider.dart';
 import 'modal_in_constant.dart';
 
 class FinishInConstant extends StatefulWidget {
-  final List<Pump> pumps;
-  final List<Valve> valves;
-  final List<EC> ec;
-  final List<PH> ph;
-  final List<FertilizerSite> fertilizerSite;
-  final List<String> controlSensors;
-  final List<IrrigationLine> irrigationLines;
-  final List<MainValve> mainValves;
-  final List<dynamic> generalUpdated;
-  final List<Alarm> alarm;
-  final int controllerId;
-  final int userId;
-
-  const FinishInConstant({
+   List<Pump> pumps;
+   List<Valve> valves;
+   List<EC> ec;
+   List<PH> ph;
+   List<FertilizerSite> fertilizerSite;
+   List<String> controlSensors;
+   List<IrrigationLine> irrigationLines;
+   List<MainValve> mainValves;
+   List<dynamic> generalUpdated;
+   List<Alarm> alarm;
+   int controllerId;
+   int userId;
+  List<MoistureSensor> moistureSensors;
+   List<LevelSensor> levelSensor;
+    List<WaterMeters> waterMeter;
+   FinishInConstant({
     super.key,
     required this.pumps,
     required this.valves,
@@ -33,6 +35,9 @@ class FinishInConstant extends StatefulWidget {
     required this.alarm,
     required this.controllerId,
     required this.userId,
+    required this.levelSensor,
+    required this.moistureSensors,
+    required this.waterMeter,
   });
 
   @override
@@ -48,7 +53,7 @@ class _FinishInConstantState extends State<FinishInConstant> {
 
   Future<void> sendPumpData() async {
     var headers = {'Content-Type': 'application/json'};
-    var provider = Provider.of<ConstantProvider>(context, listen: false); // ✅ Added provider reference
+    var provider = Provider.of<ConstantProvider>(context, listen: false);
 
 
 
@@ -126,7 +131,16 @@ class _FinishInConstantState extends State<FinishInConstant> {
           .toList(),
       "mainValve": irrigationLinesMainValve,
       "valve": irrigationLinesValve,
-      "waterMeter": [],
+      "waterMeter": widget.waterMeter
+          .map((water) => {
+        "objectId": water.objectId,
+        "sNo": water.sNo,
+        "name": water.name,
+        "objectName": water.objectName,
+        "type": water.type,
+        "ratio": water.ratio,
+      })
+          .toList(),
       "filtration": [],
       "fertilization": widget.fertilizerSite
           .map((fertilization) => {
@@ -193,8 +207,36 @@ class _FinishInConstantState extends State<FinishInConstant> {
             }),
       ],
       "analogSensor": [],
-      "moistureSensor": [],
-      "levelSensor": [],
+      "moistureSensor": widget.moistureSensors
+          .map((moisture) => {
+        "objectId": moisture.objectId,
+        "sNo": moisture.sNo,
+        "name": moisture.name,
+        "objectName": moisture.objectName,
+        "type": moisture.type,
+        "connectionNo": moisture.connectionNo,
+        "highLow": moisture.highLow,
+        "units": moisture.units,
+        "base": moisture.base,
+        "min": moisture.min,
+        "max": moisture.max,
+      })
+          .toList(),
+      "levelSensor":widget.levelSensor
+          .map((level) => {
+        "objectId": level.objectId,
+        "sNo": level.sNo,
+        "objectName": level.objectName,
+        "type": level.type,
+        "name": level.name,
+        "highLow": level.highLow,
+        "units":level.units,
+        "base":level.base,
+        "min":level.min,
+        "max":level.max,
+        "height":level.height,
+      })
+          .toList(),
       "normalAlarm": provider.overAllAlarm
           .where((alarm) => alarm.type == 'Normal')
           .map((alarm) => alarm.toJson())
