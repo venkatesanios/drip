@@ -119,10 +119,10 @@ class MqttService {
       if (payloadMessage['mC'] == '2400') {
         print(payload);
         providerState?.updateReceivedPayload(payload, false);
-        acknowledgementPayload = jsonDecode(payload);
-        if (acknowledgementPayload != null && acknowledgementPayload!['mC'] == '3600') {
-          schedulePayload = Constants.dataConversionForScheduleView(acknowledgementPayload!['cM']['3601']);
-        }
+      }
+      acknowledgementPayload = jsonDecode(payload);
+      if (acknowledgementPayload != null && acknowledgementPayload!['mC'] == '3600') {
+        schedulePayload = Constants.dataConversionForScheduleView(acknowledgementPayload!['cM']['3601']);
       }
     } catch (e) {
       debugPrint('Error parsing MQTT payload: $e');

@@ -371,6 +371,42 @@ class AppConstants {
     return dataFormation;
   }
 
+  static dynamic findLocation({required data, required double objectSno, required String key}) {
+    String name = '';
+    try {
+      for (var key in data.keys) {
+        if (!['isNewConfig', 'controllerReadStatus', 'configObject'].contains(key)) {
+          for (var place in data[key]) {
+            for (var placeKey in place.keys) {
+              if (place[placeKey] is double) {
+                if (place[placeKey] == objectSno) {
+                  name = place[key];
+                  break;
+                }
+              }
+              else if (place[placeKey] is List<double>) {
+                if (place[placeKey].contains(objectSno)) {
+                  name = place[key];
+                  break;
+                }
+              }else if(place[placeKey] is List<Map<String, dynamic>>){
+                if(place[placeKey].any((obj) => obj['sNo'] == objectSno)){
+                  name = place[key];
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      print('error : $e');
+    }
+
+    return name;
+  }
+
+
   static Color outputColor = const Color(0xff14AE5C);
   static Color commonObjectColor = const Color(0xff0070D8);
   static String analogCode = '3';
