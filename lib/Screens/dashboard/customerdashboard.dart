@@ -6,7 +6,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:oro_drip_irrigation/Screens/dashboard/mobileschedule_program.dart';
-import 'package:oro_drip_irrigation/Screens/dashboard/schedule_program.dart';
 import 'package:oro_drip_irrigation/Screens/dashboard/sidedrawer.dart';
 import 'package:oro_drip_irrigation/views/customer/node_list.dart';
 import 'package:oro_drip_irrigation/views/customer/stand_alone.dart';
