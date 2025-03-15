@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/Screens/Logs/irrigation_and_pump_log.dart';
 import 'package:oro_drip_irrigation/views/customer/program_schedule.dart';
 import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
 import 'package:oro_drip_irrigation/views/customer/site_config.dart';
@@ -649,9 +650,9 @@ class CustomerScreenController extends StatelessWidget {
       case 2:
         return SentAndReceived(customerId: userId, controllerId: controllerId);
       case 3:
-        return const Text('controller log');
+        return IrrigationAndPumpLog(userData: {'userId' : userId, 'controllerId' : controllerId});
       case 4:
-        return ControllerSettings(customerId: userId, controllerId: controllerId, adDrId: fromLogin?1:0,);
+        return ControllerSettings(customerId: userId, controllerId: controllerId, adDrId: fromLogin ? 1 : 0,);
       /*case 4:
         return SiteConfig(
             userId: userId,
