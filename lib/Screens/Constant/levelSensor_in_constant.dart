@@ -19,28 +19,46 @@ class LevelSensorInConstant extends StatefulWidget {
 }
 
 class _LevelSensorInConstantState extends State<LevelSensorInConstant> {
-  Map<int, SensorData> sensorDataMap = {};
-  Map<String, String> selectedDropdownValues = {};
+  late List<TextEditingController> minControllers;
+  late List<TextEditingController> maxControllers;
+  late List<TextEditingController> heightControllers;
 
+  final List<String> highLowOptions = ['-', 'Primary', 'Secondary'];
+  final List<String> unitOptions = ['Bar', 'dS/m'];
+  final List<String> baseOptions = ['Current', 'Voltage'];
   @override
   void initState() {
     super.initState();
-    for (var sensor in widget.levelSensor) {
-      sensorDataMap[sensor.sensorId] = SensorData();
+
+    minControllers = widget.levelSensor.map((sensor) => TextEditingController(text: sensor.min.toString())).toList();
+    maxControllers = widget.levelSensor.map((sensor) => TextEditingController(text: sensor.max.toString())).toList();
+    heightControllers = widget.levelSensor.map((sensor) => TextEditingController(text: sensor.height.toString())).toList();
+  }
+
+  @override
+  void dispose() {
+    for (var controller in minControllers) {
+      controller.dispose();
     }
+    for (var controller in maxControllers) {
+      controller.dispose();
+    }
+    for (var controller in heightControllers) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top:50, left: 20, right: 20),
+      padding: const EdgeInsets.only(top: 50, left: 20, right: 20),
       child: DataTable2(
         columnSpacing: 12,
         horizontalMargin: 12,
         minWidth: 900,
         border: TableBorder.all(color: Colors.brown),
         headingRowColor: MaterialStateProperty.all(const Color(0xFFFDFDFD)),
-
         columns: const [
           DataColumn(label: Text('Sensor')),
           DataColumn(label: Text('High Low')),
@@ -62,12 +80,12 @@ class _LevelSensorInConstantState extends State<LevelSensorInConstant> {
             ),
             cells: [
               DataCell(Text(sensor.name, style: const TextStyle(color: Color(0xFF005B8D)))),
-              DataCell(getDropdown(sensor.sensorId, ['-','Primary', 'Secondary'])),
-              DataCell(getDropdown(sensor.sensorId, ['Bar', 'dS/m'])),
-              DataCell(getDropdown(sensor.sensorId, ['Current', 'Voltage'])),
-              DataCell(getTextField(sensor.sensorId, 'min')),
-              DataCell(getTextField(sensor.sensorId, 'max')),
-              DataCell(getTextField(sensor.sensorId, 'height')),
+              DataCell(getDropdown(index, 'highLow', sensor.highLow, highLowOptions)),
+              DataCell(getDropdown(index, 'units', sensor.units, unitOptions)),
+              DataCell(getDropdown(index, 'base', sensor.base, baseOptions)),
+              DataCell(getTextField(index, 'min')),
+              DataCell(getTextField(index, 'max')),
+              DataCell(getTextField(index, 'height')),
             ],
           );
         }).toList(),
@@ -75,58 +93,62 @@ class _LevelSensorInConstantState extends State<LevelSensorInConstant> {
     );
   }
 
-  Widget getDropdown(int sensorId, List<String> options) {
-    selectedDropdownValues.putIfAbsent(sensorId.toString(), () => options.first);
+  Widget getTextField(int index, String field) {
+    TextEditingController controller;
+    if (field == 'min') {
+      controller = minControllers[index];
+    } else if (field == 'max') {
+      controller = maxControllers[index];
+    } else {
+      controller = heightControllers[index];
+    }
 
-    return DropdownButtonFormField<String>(
-      value: options.contains(selectedDropdownValues[sensorId.toString()])
-          ? selectedDropdownValues[sensorId.toString()]
-          : options.first,
-      items: options.map((value) => DropdownMenuItem<String>(
-        value: value,
-        child: Text(value),
-      )).toList(),
+    return TextField(
+      textAlign: TextAlign.center,
+      controller: controller,
+      keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: true),
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+      ],
       onChanged: (value) {
         setState(() {
-          selectedDropdownValues[sensorId.toString()] = value!;
+          double parsedValue = value.isNotEmpty ? double.parse(value) : 0.0;
+
+          if (field == 'min') {
+            widget.levelSensor[index].min = parsedValue;
+          } else if (field == 'max') {
+            widget.levelSensor[index].max = parsedValue;
+          } else if (field == 'height') {
+            widget.levelSensor[index].height = parsedValue;
+          }
         });
       },
     );
   }
 
-  Widget getTextField(int sensorId, String fieldType) {
-    final sensorData = sensorDataMap[sensorId]!;
-    TextEditingController controller;
-
-    switch (fieldType) {
-      case 'min':
-        controller = sensorData.minController;
-        break;
-      case 'max':
-        controller = sensorData.maxController;
-        break;
-      case 'height':
-        controller = sensorData.heightController;
-        break;
-      default:
-        controller = TextEditingController();
-    }
-
-    return TextField(
-      controller: controller,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$'))],
+  Widget getDropdown(int index, String field, String initialValue, List<String> options) {
+    return DropdownButtonFormField<String>(
+      value: options.contains(initialValue) ? initialValue : options.first,
+      items: options.map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+        );
+      }).toList(),
+      onChanged: (value) {
+        if (value != null) {
+          setState(() {
+            if (field == "highLow") {
+              widget.levelSensor[index].highLow = value;
+            } else if (field == "units") {
+              widget.levelSensor[index].units = value;
+            } else if (field == "base") {
+              widget.levelSensor[index].base = value;
+            }
+          });
+        }
+      },
+      decoration: const InputDecoration(border: InputBorder.none),
     );
   }
-}
-
-class SensorData {
-  final TextEditingController minController;
-  final TextEditingController maxController;
-  final TextEditingController heightController;
-
-  SensorData()
-      : minController = TextEditingController(text: "0.0"),
-        maxController = TextEditingController(text: "0.0"),
-        heightController = TextEditingController(text: "0.0");
 }

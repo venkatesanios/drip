@@ -32,21 +32,27 @@ class _ConstantInConfigState extends State<ConstantInConfig> {
 
   Future<Map<String, dynamic>> fetchData() async {
     try {
+      var provider = Provider.of<ConstantProvider>(context, listen: false);
       final response = await httpService.postRequest("/user/constant/get", {
         "userId": widget.userId,
         "controllerId": widget.controllerId,
+        "general": provider.generalUpdated,
+        "pump": provider.pumps.map((pump) => pump.toJson()).toList(),
       });
 
       if (response.statusCode == 200) {
         final dynamic decodedJson = json.decode(response.body);
+        print( 'controller id${widget.controllerId}' );
+        print('user id ${widget.userId}');
         print(response.body);
         if (decodedJson is Map<String, dynamic>) {
           if (decodedJson.containsKey('data') && decodedJson['data'] is Map<String, dynamic>) {
             var constantData = decodedJson['data']['constant'];
 
             if (constantData != null && constantData['general'] != null) {
-            /*  List<Map<String, dynamic>> generalData =
-              List<Map<String, dynamic>>.from(constantData['general']);*/
+              List<Map<String, dynamic>> generalData =
+              List<Map<String, dynamic>>.from(constantData['general']);
+              provider.setGeneralUpdated(generalData);
             }
           }
           return decodedJson;
@@ -83,7 +89,7 @@ class _ConstantInConfigState extends State<ConstantInConfig> {
                // levelSensor: levelSensors,
                 levelSensor: constantJsonData.fetchUserDataDefault.configMaker.waterSource
                     .map((waterSource) => waterSource.level)
-                    .whereType<LevelSensor>() // Ensure non-null values
+                    .whereType<LevelSensor>()
                     .toList(),
                 waterSource: constantJsonData.fetchUserDataDefault.configMaker.waterSource,
                 moistureSensors: constantJsonData.fetchUserDataDefault.configMaker.moistureSensor,

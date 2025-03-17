@@ -16,18 +16,49 @@ class ValveInConstant extends StatefulWidget {
 class _ValveInConstantState extends State<ValveInConstant> {
   late List<TextEditingController> nominalFlowControllers;
   late List<double> fillUpDelays;
+  int? selectedIrrigationIndex;
+  List<Valve> filteredValves = [];
 
   @override
   void initState() {
     super.initState();
-    nominalFlowControllers = List.generate(widget.valves.length, (index) {
-      return TextEditingController(text: widget.valves[index].nominalFlow.toString());
-    });
 
-    fillUpDelays = widget.valves
-        .map((valve) => parseTime(valve.fillUpDelay).toDouble())
-        .toList();
+    selectedIrrigationIndex = widget.irrigationLines.isNotEmpty ? 0 : null;
+
+    if (widget.irrigationLines.isNotEmpty) {
+      for (int i = 0; i < widget.irrigationLines.length; i++) {
+        print("Irrigation Line ${i + 1} Valve Count: ${widget.irrigationLines[i].valves.length}");
+      }
+    } else {
+      print("No irrigation lines available.");
+    }
+
+    if (selectedIrrigationIndex != null) {
+      filterValves();
+    }
   }
+
+
+
+  void filterValves() {
+    if (selectedIrrigationIndex == null) return;
+
+    setState(() {
+      // Get the selected irrigation line's valve list
+      filteredValves = widget.irrigationLines[selectedIrrigationIndex!].valves;
+
+      // Reset controllers with the new filtered valves
+      nominalFlowControllers = List.generate(filteredValves.length, (index) {
+        return TextEditingController(text: filteredValves[index].nominalFlow.toString());
+      });
+
+      fillUpDelays = filteredValves
+          .map((valve) => parseTime(valve.fillUpDelay).toDouble())
+          .toList();
+    });
+  }
+
+
 
   @override
   void dispose() {
@@ -49,7 +80,6 @@ class _ValveInConstantState extends State<ValveInConstant> {
     int hours = totalSeconds ~/ 3600;
     int minutes = (totalSeconds % 3600) ~/ 60;
     int seconds = totalSeconds % 60;
-
     return "${hours.toString().padLeft(2, '0')}:"
         "${minutes.toString().padLeft(2, '0')}:"
         "${seconds.toString().padLeft(2, '0')}";
@@ -59,31 +89,82 @@ class _ValveInConstantState extends State<ValveInConstant> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.only(top: 50, bottom: 20, left: 20, right: 20),
-        child: DataTable2(
-          columnSpacing: 12,
-          minWidth: 600,
-          border: TableBorder.all(),
-          headingRowColor: MaterialStateProperty.all(const Color(0xFFFDFDFD)),
+        padding: const EdgeInsets.all(18.0),
+        child: Column(
+          children: [
+            SizedBox(
+              height: 50,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: widget.irrigationLines.length,
+                itemBuilder: (context, index) {
+                  bool isSelected = index == selectedIrrigationIndex;
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedIrrigationIndex = index;
+                        filterValves();
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      margin: const EdgeInsets.symmetric(horizontal: 5),
+                      decoration: BoxDecoration(
+                        color: isSelected ? Colors.blue : Colors.grey[300],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Center(
+                        child: Text(
+                          widget.irrigationLines[index].name,
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
 
-          columns: const [
-            DataColumn(label: Center(child: Text('Valve Name'))),
-            DataColumn(label: Center(child: Text('Nominal Flow (I/hr)'))),
-            DataColumn(label: Center(child: Text('Fill Up Delay'))),
-          ],
-          rows: List.generate(widget.valves.length, (index) {
-            return DataRow(
-                color: MaterialStateProperty.resolveWith<Color?>(
-                      (Set<MaterialState> states) {
-                    return index.isEven ? Color(0xFFF6F6F6) : Color(0xFFFDFDFD) ; // Alternating row colors
-                  },
+            // Data Table for Valves
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: DataTable2(
+                  columnSpacing: 12,
+                  minWidth: 600,
+                  border: TableBorder.all(),
+                  headingRowColor: MaterialStateProperty.all(const Color(0xFFFDFDFD)),
+                  columns: const [
+                    DataColumn(label: Center(child: Text('Valve Name'))),
+                    DataColumn(label: Center(child: Text('Nominal Flow (I/hr)'))),
+                    DataColumn(label: Center(child: Text('Fill Up Delay'))),
+                  ],
+                  rows: List.generate(filteredValves.length, (index) {
+                    return DataRow(
+                      color: MaterialStateProperty.resolveWith<Color?>(
+                            (Set<MaterialState> states) {
+                          return index.isEven ? const Color(0xFFF6F6F6) : const Color(0xFFFDFDFD);
+                        },
+                      ),
+                      cells: [
+                        DataCell(Center(
+                          child: Text(
+                            filteredValves[index].name,
+                            style: const TextStyle(color: Color(0xFF005B8D)),
+                          ),
+                        )),
+                        DataCell(Center(child: getTextField(index))),
+                        DataCell(Center(child: getTimePicker(index))),
+                      ],
+                    );
+                  }),
                 ),
-                cells: [
-              DataCell(Center(child: Text(widget.valves[index].name,style: const TextStyle(color: Color(0xFF005B8D)),))),
-              DataCell(Center(child: getTextField(index))),
-              DataCell(Center(child: getTimePicker(index))),
-            ]);
-          }),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -96,7 +177,7 @@ class _ValveInConstantState extends State<ValveInConstant> {
       keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
       onChanged: (value) {
         setState(() {
-          widget.valves[index].nominalFlow = value.isNotEmpty ? value : "0";
+          filteredValves[index].nominalFlow = value.isNotEmpty ? value : "0";
         });
       },
     );
@@ -110,7 +191,7 @@ class _ValveInConstantState extends State<ValveInConstant> {
         setState(() {
           int totalSeconds = hours * 3600 + minutes * 60 + seconds;
           fillUpDelays[index] = totalSeconds.toDouble();
-          widget.valves[index].fillUpDelay = formatTime(totalSeconds);
+          filteredValves[index].fillUpDelay = formatTime(totalSeconds);
         });
       },
     );

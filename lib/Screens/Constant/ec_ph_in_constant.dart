@@ -26,6 +26,7 @@ class _EcPhInConstantState extends State<EcPhInConstant> {
   late LinkedScrollControllerGroup _scrollControllerGroup;
   late ScrollController _headerScrollController;
   late ScrollController _dataScrollController;
+  List<Map<String, TextEditingController>> controllers = [];
 
   List<dynamic> combinedList = [];
 
@@ -41,6 +42,22 @@ class _EcPhInConstantState extends State<EcPhInConstant> {
       ...widget.ec.map((e) => {'type': 'EC', 'data': e}),
       ...widget.ph.map((p) => {'type': 'PH', 'data': p})
     ];
+
+    initializeControllers();
+  }
+
+  void initializeControllers() {
+    controllers = combinedList.map((item) {
+      var data = item['data']; // Get the object (EC or PH)
+      return {
+        "delta": TextEditingController(text: data.delta?.toString() ?? ""),
+        "fineTuning": TextEditingController(text: data.fineTuning?.toString() ?? ""),
+        "coarseTuning": TextEditingController(text: data.coarseTuning?.toString() ?? ""),
+        "deadBand": TextEditingController(text: data.deadBand?.toString() ?? ""),
+        "avgFiltSpeed": TextEditingController(text: data.avgFiltSpeed?.toString() ?? ""),
+        "percentage": TextEditingController(text: data.percentage?.toString() ?? ""),
+      };
+    }).toList();
   }
 
   @override
@@ -116,14 +133,14 @@ class _EcPhInConstantState extends State<EcPhInConstant> {
           },
         )),
         _dataCell(_getTimePicker(index, "controlCycle", data.controlCycle)),
-        _dataCell(_editableTableCell(data.delta)),
-        _dataCell(_editableTableCell(data.fineTuning)),
-        _dataCell(_editableTableCell(data.coarseTuning)),
-        _dataCell(_editableTableCell(data.deadBand)),
+        _dataCell(_editableTableCell(index,'delta')),
+        _dataCell(_editableTableCell(index, 'fineTuning' )),
+        _dataCell(_editableTableCell(index, 'coarseTuning')),
+        _dataCell(_editableTableCell(index, 'deadBand')),
         _dataCell(_getTimePicker(index, "integ", data.integ)),
         _dataCell(getDropdown(index)),
-        _dataCell(_editableTableCell(data.avgFiltSpeed)),
-        _dataCell(_editableTableCell(data.percentage)),
+        _dataCell(_editableTableCell(index, 'avgFiltSpeed')),
+    _dataCell(_editableTableCell(index, 'percentage'))
       ],
     );
   });
@@ -137,33 +154,55 @@ class _EcPhInConstantState extends State<EcPhInConstant> {
     child: child,
   );
 
-  Widget _getTimePicker(int index, String key, String initialTime) => Container(
-    margin: const EdgeInsets.only(left: 1, right: 1, bottom: 1),
-    color: Colors.white,
-    width: 120,
-    height: 50,
-    child: CustomTimePicker(
-      index: index,
-      initialMinutes: _parseTime(initialTime).toDouble(),
-      onTimeSelected: (int hours, int minutes, int seconds) {
+  Widget _getTimePicker(int index, String key, String? initialTime) {
+    return Container(
+      margin: const EdgeInsets.only(left: 1, right: 1, bottom: 1),
+      color: Colors.white,
+      width: 120,
+      height: 50,
+      child: CustomTimePicker(
+        index: index,
+        initialMinutes: _parseTime(initialTime ?? "00:00").toDouble(),
+        onTimeSelected: (int hours, int minutes, int seconds) {
+          if (index >= 0 && index < combinedList.length) {
+            setState(() {
+              var item = combinedList[index]['data'];
+              if (item is Map<String, dynamic>) {
+                item[key] = "${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}";
+              } else {
+                debugPrint("Error: Data at index $index is not a Map but a ${item.runtimeType}!");
+              }
+            });
+
+          } else {
+            debugPrint("Error: Index $index is out of bounds!");
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _editableTableCell(int index, String key) {
+    if (index >= controllers.length || !controllers[index].containsKey(key)) {
+      return const Text("Error");
+    }
+    return TextField(
+      controller: controllers[index][key],
+      keyboardType: TextInputType.number,
+      textAlign: TextAlign.center,
+      decoration: const InputDecoration(border: InputBorder.none),
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*'))],
+      onChanged: (newValue) {
         setState(() {
-          combinedList[index]['data'][key] =
-          "\${hours.toString().padLeft(2, '0')}:"
-              "\${minutes.toString().padLeft(2, '0')}";
+          combinedList[index]['data'][key] = newValue;
+          debugPrint("Updated $key at index $index: $newValue");
         });
       },
-    ),
-  );
+    );
+  }
 
-  Widget _editableTableCell(String value) => TextField(
-    controller: TextEditingController(text: value),
-    keyboardType: TextInputType.number,
-    textAlign: TextAlign.center,
-    decoration: const InputDecoration(border: InputBorder.none),
-    inputFormatters: [
-      FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*'))
-    ],
-  );
+
+
 
   int _parseTime(String time) {
     List<String> parts = time.split(':');

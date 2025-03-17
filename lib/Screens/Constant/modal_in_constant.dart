@@ -1092,19 +1092,19 @@ class WaterMeters {
 }
 
 class Pump {
-  final int? objectId;
-  final double? sNo;
-  final String? name;
-  final int? connectionNo;
-  final String? objectName;
-  final String? type;
-  final int? controllerId;
-  final int? pumpType;
-  final WaterMeters? waterMeter;
-  final int? count;
-  final int level;
-  final int pressureIn;
-  final int pressureOut;
+   int? objectId;
+   double? sNo;
+   String? name;
+   int? connectionNo;
+   String? objectName;
+   String? type;
+   int? controllerId;
+   int? pumpType;
+   WaterMeters? waterMeter;
+   int? count;
+   int level;
+   int pressureIn;
+   int pressureOut;
   bool pumpStation;
   bool controlGem;
 
@@ -1217,14 +1217,14 @@ class LevelSensor {
   String type;
   int controllerId;
   int? count;
-  final dynamic connectedObject;
-  final dynamic siteMode;
-  final String highLow;
-  final String units;
-  final String base;
-  final String min;
-  final String max;
-  final String height;
+   dynamic connectedObject;
+   dynamic siteMode;
+    String highLow;
+   String units;
+   String base;
+  double min;
+   double max;
+   double height;
 
   LevelSensor({
     required this.objectId,
@@ -1262,9 +1262,9 @@ class LevelSensor {
       highLow: json['highLow']?.toString() ?? '-',
       units: json['units']?.toString() ?? 'Bar',
       base: json['base']?.toString() ?? 'Current',
-      min: json['min']?.toString() ?? '100',
-      max: json['max']?.toString() ?? '100.0',
-      height: json['height']?.toString() ?? '100.0',
+      min: (json['min'] as num?)?.toDouble() ?? 100.0,
+      max: (json['max'] as num?)?.toDouble() ?? 100.0,
+      height: (json['height'] as num?)?.toDouble() ?? 100.0,
     );
   }
 
@@ -1383,6 +1383,7 @@ class MainValve {
 }
 
 class Valve {
+  final int id;
   final int objectId;
   final double sNo;
   final String name;
@@ -1394,6 +1395,7 @@ class Valve {
   String fillUpDelay;
   String nominalFlow;
   List<IrrigationLine> irrigationLine;
+
   Valve({
     required this.objectId,
     required this.sNo,
@@ -1406,6 +1408,7 @@ class Valve {
     required this.fillUpDelay,
     required this.nominalFlow,
     required this.irrigationLine,
+    required this.id,
   });
 
   factory Valve.fromJson(Map<String, dynamic> json) {
@@ -1420,7 +1423,10 @@ class Valve {
       count: json["count"]??0,
       nominalFlow: (json["nominalFlow"] == null || json["nominalFlow"] == 0) ? "100" : json["nominalFlow"].toString(),
       fillUpDelay: (json["fillUpDelay"] == null || json["fillUpDelay"] == 0) ? "00:00:00" : json["fillUpDelay"].toString(),
-      irrigationLine: (json["irrigationLine"] != null && json["irrigationLine"] is List) ? (json["irrigationLine"] as List).map((line) => IrrigationLine.fromJson(line)).toList() : [],    );
+      irrigationLine: (json["irrigationLine"] != null && json["irrigationLine"] is List) ? (json["irrigationLine"] as List).map((line) => IrrigationLine.fromJson(line)).toList() : [],
+      id: json["objectId"],
+    );
+
   }
 
 
@@ -1490,8 +1496,8 @@ class MoistureSensor {
      String highLow;
     String units;
     String base;
-    String min;
-    String max;
+    double min;
+    double max;
   MoistureSensor({
     required this.objectId,
     required this.objectIds,
@@ -1531,8 +1537,8 @@ class MoistureSensor {
        highLow: json['highLow']?.toString() ?? '-', // Ensure it's always a String
        units: json['units']?.toString() ?? 'Bar',
        base: json['base']?.toString() ?? 'Current',
-       min: json['min']?.toString() ?? '100.0',
-       max: json['max']?.toString() ?? '100.0',
+       min: (json['min'] as num?)?.toDouble() ?? 100.0,
+       max: (json['max'] as num?)?.toDouble() ?? 100.0,
      );
    }
 

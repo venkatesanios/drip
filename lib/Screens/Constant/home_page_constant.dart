@@ -73,7 +73,7 @@ class ConstantHomePage extends StatefulWidget {
 
 class _ConstantHomePageState extends State<ConstantHomePage>
     with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+   late TabController _tabController;
   String? selectedParameter;
   final ScrollController _scrollController = ScrollController();
   late List<ConstantMenu> filteredMenu;
@@ -124,7 +124,7 @@ class _ConstantHomePageState extends State<ConstantHomePage>
 
     _scrollController.animateTo(
       scrollOffset.clamp(0.0, _scrollController.position.maxScrollExtent),
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 500),
       curve: Curves.easeInOut,
     );
   }
@@ -133,7 +133,6 @@ class _ConstantHomePageState extends State<ConstantHomePage>
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Scrollable Tab Bar
         SizedBox(
           width: MediaQuery.sizeOf(context).width,
           height: 50,
@@ -164,8 +163,8 @@ class _ConstantHomePageState extends State<ConstantHomePage>
                         ),
                         child: SvgPicture.asset(
                           'assets/Images/Svg/white.svg',
-                          width: 190,
-                          height: 50,
+                          width: 218,
+                          height: 55,
                         ),
                       ),
                       Positioned(
@@ -197,50 +196,84 @@ class _ConstantHomePageState extends State<ConstantHomePage>
               ...filteredMenu.map((item) {
                 switch (item.parameter) {
                   case "General":
-                    return GeneralPage(
-                      generalUpdated: List<Map<String, dynamic>>.from(widget.generalUpdated),
-                    );
+                    return widget.generalUpdated.isNotEmpty
+                        ? GeneralPage(generalUpdated: List<Map<String, dynamic>>.from(widget.generalUpdated))
+                        : const Center(child: Text("General Data not available"));
+
                   case "Pump":
-                    return PumpPage(pump: widget.pump);
+                    return widget.pump.isNotEmpty
+                        ? PumpPage(pump: widget.pump)
+                        : const Center(child: Text("Pump Data not available"));
+
                   case "Irrigation Line":
-                    return IrrigationLineInConstant(irrigationLines: widget.irrigationLines);
+                    return widget.irrigationLines.isNotEmpty
+                        ? IrrigationLineInConstant(irrigationLines: widget.irrigationLines)
+                        : const Center(child: Text("Irrigation Line Data not available"));
+
                   case "Main Valve":
-                    return MainValveInConstant(
+                    return widget.mainValves.isNotEmpty
+                        ? MainValveInConstant(
                       mainValves: widget.mainValves,
                       irrigationLines: widget.irrigationLines,
-                    );
+                    )
+                        : const Center(child: Text("Main Valve Data not available"));
+
                   case "Valve":
-                    return ValveInConstant(
+                    return widget.valves.isNotEmpty
+                        ? ValveInConstant(
                       valves: widget.valves,
                       irrigationLines: widget.irrigationLines,
-                    );
+                    )
+                        : const Center(child: Text("Valve Data not available"));
+
                   case "Water Meter":
-                    return WatermeterInConstant(waterMeter: widget.waterMeter);
+                    return widget.waterMeter.isNotEmpty
+                        ? WatermeterInConstant(waterMeter: widget.waterMeter)
+                        : const Center(child: Text("Water Meter Data not available"));
+
                   case "Fertilizer":
-                    return FertilizerInConstant(
+                    return widget.fertilizerSite.isNotEmpty
+                        ? FertilizerInConstant(
                       fertilizerSite: widget.fertilizerSite,
                       channels: widget.channels,
-                    );
+                    )
+                        : const Center(child: Text("Fertilizer Data not available"));
+
                   case "EC/PH":
-                    return EcPhInConstant(
+                    return widget.ec.isNotEmpty && widget.ph.isNotEmpty
+                        ? EcPhInConstant(
                       ec: widget.ec,
                       ph: widget.ph,
                       fertilizerSite: widget.fertilizerSite,
                       controlSensors: widget.controlSensors,
-                    );
+                    )
+                        : const Center(child: Text("EC/PH Data not available"));
+
                   case "Critical Alarm":
-                    return CriticalAlarmInConstant(alarm: widget.alarm);
+                    return widget.alarm.isNotEmpty
+                        ? CriticalAlarmInConstant(alarm: widget.alarm)
+                        : const Center(child: Text("Critical Alarm Data not available"));
+
                   case "Global Alarm":
-                    return GlobalAlarmInConstant(alarm: widget.alarm);
+                    return widget.alarm.isNotEmpty
+                        ? GlobalAlarmInConstant(alarm: widget.alarm)
+                        : const Center(child: Text("Global Alarm Data not available"));
+
                   case "Moisture Sensor":
-                    return MoistureSensorConstant(moistureSensors: widget.moistureSensors);
+                    return widget.moistureSensors.isNotEmpty
+                        ? MoistureSensorConstant(moistureSensors: widget.moistureSensors)
+                        : const Center(child: Text("Moisture Sensor Data not available"));
+
                   case "Level Sensor":
-                    return LevelSensorInConstant(
+                    return widget.levelSensor.isNotEmpty
+                        ? LevelSensorInConstant(
                       levelSensor: widget.levelSensor,
                       waterSource: widget.waterSource,
-                    );
+                    )
+                        : const Center(child: Text("Level Sensor Data not available"));
+
                   case "Finish":
-                    return FinishInConstant(
+                    return  FinishInConstant(
                       pumps: widget.pump,
                       valves: widget.valves,
                       ec: widget.ec,
@@ -254,11 +287,12 @@ class _ConstantHomePageState extends State<ConstantHomePage>
                       controllerId: widget.controllerId,
                       userId: widget.userId,
                       levelSensor: widget.levelSensor,
-                      moistureSensors:  widget.moistureSensors,
-                      waterMeter:  widget.waterMeter,
+                      moistureSensors: widget.moistureSensors,
+                      waterMeter: widget.waterMeter,
                     );
+
                   default:
-                    return Center(child: Text(item.parameter));
+                    return Center(child: Text("${item.parameter} Data not available"));
                 }
               }).toList(),
             ],

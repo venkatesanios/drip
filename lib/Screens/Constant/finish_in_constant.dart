@@ -45,9 +45,6 @@ class FinishInConstant extends StatefulWidget {
 }
 
 class _FinishInConstantState extends State<FinishInConstant> {
-  List<dynamic> generalUpdated = [];
-  List<Pump> updatedPumps = [];
-  List<IrrigationLine> updatedIrrigationLines = [];
   final String baseURL =
       "http://52.172.214.208:5000/api/v1/user/constant/create";
 

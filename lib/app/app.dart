@@ -55,7 +55,7 @@ Widget navigateToInitialScreen(String route) {
     case Routes.dashboard:
       // return ProgramLibraryScreenNew(userId: 4, controllerId: 1, deviceId: '2CCF674C0F8A', fromDealer: false, customerId: 4,);
      //return const ScreenController();
-       return ProgramSchedule(customerID: 4, controllerID: 1, siteName: '', imeiNumber: '2CCF674C0F8A', userId: 3,);
+       return const ProgramSchedule(customerID: 4, controllerID: 1, siteName: '', imeiNumber: '2CCF674C0F8A', userId: 4,);
     default:
       return const SplashScreen();
   }

@@ -12,17 +12,33 @@ class MoistureSensorConstant extends StatefulWidget {
 }
 
 class _MoistureSensorConstantState extends State<MoistureSensorConstant> {
-  Map<String, String> selectedDropdownValues = {};
-  Map<String, String> textFieldValues = {};
-  Map<String, TextEditingController> textFieldControllers = {};
+  final List<String> highLowOptions = ['-', 'Primary', 'Secondary'];
+  final List<String> unitOptions = ['Bar', 'dS/m'];
+  final List<String> baseOptions = ['Current', 'Voltage'];
+
+  late List<TextEditingController> minControllers;
+  late List<TextEditingController> maxControllers;
+
+  @override
+  void initState() {
+    super.initState();
+    minControllers = List.generate(widget.moistureSensors.length,
+            (index) => TextEditingController(text: widget.moistureSensors[index].min.toString()));
+    maxControllers = List.generate(widget.moistureSensors.length,
+            (index) => TextEditingController(text: widget.moistureSensors[index].max.toString()));
+  }
 
   @override
   void dispose() {
-    for (var controller in textFieldControllers.values) {
+    for (var controller in minControllers) {
+      controller.dispose();
+    }
+    for (var controller in maxControllers) {
       controller.dispose();
     }
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,7 +53,6 @@ class _MoistureSensorConstantState extends State<MoistureSensorConstant> {
               minWidth: 800,
               border: TableBorder.all(color: Colors.brown),
               headingRowColor: MaterialStateProperty.all(const Color(0xFFFDFDFD)),
-
               columns: const [
                 DataColumn(label: Text('Sensor')),
                 DataColumn(label: Text('High Low')),
@@ -57,12 +72,12 @@ class _MoistureSensorConstantState extends State<MoistureSensorConstant> {
                     },
                   ),
                   cells: [
-                    DataCell(Text(sensor.name,style: const TextStyle(color: Color(0xFF005B8D)))),
-                    DataCell(getDropdown(sensor.objectIds, 'highLow', ['-','Primary', 'Secondary'])),
-                    DataCell(getDropdown(sensor.objectIds, 'units', ['Bar', 'dS/m'])),
-                    DataCell(getDropdown(sensor.objectIds, 'base', ['Current', 'Voltage'])),
-                    DataCell(getTextField(sensor.objectIds, 'min')),
-                    DataCell(getTextField(sensor.objectIds, 'max')),
+                    DataCell(Text(sensor.name, style: const TextStyle(color: Color(0xFF005B8D)))),
+                    DataCell(getDropdown(index, 'highLow', sensor.highLow, highLowOptions)),
+                    DataCell(getDropdown(index, 'units', sensor.units, unitOptions)),
+                    DataCell(getDropdown(index, 'base', sensor.base, baseOptions)),
+                    DataCell(getTextField(index, 'min')),
+                    DataCell(getTextField(index, 'max')),
                   ],
                 );
               }).toList(),
@@ -73,39 +88,49 @@ class _MoistureSensorConstantState extends State<MoistureSensorConstant> {
     );
   }
 
-  Widget getDropdown(int sensorId, String category, List<String> options) {
-    String key = '${sensorId}_$category';
-    selectedDropdownValues.putIfAbsent(key, () => options.first);
-
-    return DropdownButtonFormField<String>(
-      value: selectedDropdownValues[key],
-      items: options.map((value) => DropdownMenuItem(value: value, child: Text(value))).toList(),
-      onChanged: (value) {
-        setState(() {
-          selectedDropdownValues[key] = value!;
-        });
-      },
-    );
-  }
-
-  Widget getTextField(int sensorId, String category) {
-    String key = '${sensorId}_$category';
-    textFieldControllers.putIfAbsent(
-      key,
-          () => TextEditingController(text: textFieldValues[key] ?? "0.0"),
-    );
-
+  Widget getTextField(int index, String field) {
     return TextField(
-      controller: textFieldControllers[key],
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      textAlign: TextAlign.center,
+      controller: field == 'min' ? minControllers[index] : maxControllers[index],
+      keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
       ],
       onChanged: (value) {
         setState(() {
-          textFieldValues[key] = value.isEmpty ? "0.0" : value;
+          if (field == 'min') {
+            widget.moistureSensors[index].min = value.isNotEmpty ? double.parse(value) : 0.0;
+          } else {
+            widget.moistureSensors[index].max = value.isNotEmpty ? double.parse(value) : 0.0;
+          }
         });
       },
+    );
+  }
+
+  Widget getDropdown(int index, String field, String initialValue, List<String> options) {
+    return DropdownButtonFormField<String>(
+      value: options.contains(initialValue) ? initialValue : options.first,
+      items: options.map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+        );
+      }).toList(),
+      onChanged: (value) {
+        if (value != null) {
+          setState(() {
+            if (field == "highLow") {
+              widget.moistureSensors[index].highLow = value;
+            } else if (field == "units") {
+              widget.moistureSensors[index].units = value;
+            } else if (field == "base") {
+              widget.moistureSensors[index].base = value;
+            }
+          });
+        }
+      },
+      decoration: const InputDecoration(border: InputBorder.none),
     );
   }
 }

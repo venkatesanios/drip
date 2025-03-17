@@ -38,6 +38,7 @@ class _GeneralPageState extends State<GeneralPage> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
+
       builder: (context, constraints) {
         double cardWidth = 300;
         int cardsPerRow = (constraints.maxWidth / (cardWidth + 20)).floor();
@@ -45,7 +46,7 @@ class _GeneralPageState extends State<GeneralPage> {
         return SingleChildScrollView(
           child: Center(
             child: Padding(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(18),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -59,7 +60,7 @@ class _GeneralPageState extends State<GeneralPage> {
                         GestureDetector(
                           onTap: () {
                             setState(() {
-                              selectedIndex = i; // Update selected index
+                              selectedIndex = i;
                             });
                           },
                           child: SizedBox(
@@ -78,11 +79,11 @@ class _GeneralPageState extends State<GeneralPage> {
                                   boxShadow: [
                                     BoxShadow(
                                       color: selectedIndex == i
-                                          ? Colors.blue.withOpacity(0.5) // Selected shadow color
-                                          : Colors.grey, // Default shadow color
-                                      blurRadius: 5, // Increase blur for better effect
-                                      spreadRadius: 3, // Make shadow more visible
-                                      offset: const Offset(0, 3), // Slight elevation effect
+                                          ? Colors.blue.withOpacity(0.5)
+                                          : Colors.grey,
+                                      blurRadius: 5,
+                                      spreadRadius: 3,
+                                      offset: const Offset(0, 3),
                                     ),
                                   ],
                                 ),
@@ -95,8 +96,6 @@ class _GeneralPageState extends State<GeneralPage> {
                         ),
                     ],
                   ),
-
-                  // Add empty cards to balance row alignment
                   if (widget.generalUpdated.length % cardsPerRow != 0)
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
