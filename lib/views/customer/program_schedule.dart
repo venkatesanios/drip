@@ -9,6 +9,7 @@ import '../../Screens/Constant/api_in_constant.dart';
 import '../../Screens/NewPreference/preference_main_screen.dart';
 import '../../Screens/SystemDefinitionScreen/system_definition_screen.dart';
 import '../../Screens/planning/frost_productionScreen.dart';
+import '../../Screens/planning/names_form.dart';
 import '../../Screens/planning/planningwatersource.dart';
 import '../../Screens/planning/valve_group_screen.dart';
 import '../../Screens/planning/virtual_screen.dart';
@@ -134,8 +135,8 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
         return PreferenceMainScreen(userId: widget.userId, controllerId: widget.controllerID, customerId: widget.customerID, deviceId: widget.imeiNumber, menuId: 0,);
         case 79:
          return ConstantInConfig(userId: widget.customerID, deviceId: widget.imeiNumber, customerId: widget.customerID, controllerId: widget.controllerID);
-      // case 80:
-      //   return Names(userID: widget.customerID, customerID: widget.customerID, controllerId: widget.controllerID, imeiNo: widget.imeiNumber);
+      case 80:
+        return Names(userID: widget.customerID, customerID: widget.customerID, controllerId: widget.controllerID, imeiNo: widget.imeiNumber, menuId: 80,);
       // case 81:
       //   return CustomMarkerPage(userId: widget.customerID,deviceID: widget.imeiNumber,controllerId: widget.controllerID,);
       case 127:

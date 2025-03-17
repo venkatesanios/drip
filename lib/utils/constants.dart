@@ -410,8 +410,7 @@ class AppConstants {
     } catch (e) {
       print('error : $e');
     }
-
-    return name;
+     return name;
   }
 
 }
