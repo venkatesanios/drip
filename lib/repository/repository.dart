@@ -313,7 +313,7 @@ class Repository{
     return await apiService.postRequest('/user/planning/conditionLibrary/get', body);
   }
 
-  ///Todo: Other urls
+
   Future<http.Response> getPlanningHiddenMenu(body) async {
     return await apiService.postRequest('/user/dealerDefinition/mainMenu/get', body);
   }
@@ -332,6 +332,9 @@ class Repository{
   }
 
 
+  Future<http.Response> saveConditionLibrary(body) async {
+    return await apiService.postRequest('/user/planning/conditionLibrary/create', body);
+  }
 
 }
 

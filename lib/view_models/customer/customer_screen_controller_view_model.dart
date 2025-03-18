@@ -50,7 +50,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     });
   }
 
-  Future<void> getAllMySites(customerId) async {
+  Future<void> getAllMySites(context, customerId) async {
     setLoading(true);
     try {
       Map<String, dynamic> body = {"userId": customerId};
@@ -62,6 +62,11 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
           mySiteList = SiteModel.fromJson(jsonData);
           wifiStrength = mySiteList.data[sIndex].master[mIndex].live?.cM['WifiStrength'];
           updateMaster(sIndex, mIndex, 0);
+          payloadProvider.saveUnits(Unit.toJsonList(mySiteList.data[0].master[0].units));
+
+          String liveJson = jsonEncode(mySiteList.data[sIndex].master[mIndex].live);
+          payloadProvider.updateReceivedPayload(liveJson, true);
+
         }
       }
     } catch (error) {
@@ -115,8 +120,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   void updateMaster(sIdx, mIdx, lIdx){
     myCurrentMaster = mySiteList.data[sIdx].master[mIdx].categoryName;
     //subscribeCurrentMaster(sIdx, mIdx);
-    if(mySiteList.data[sIdx].master[mIdx].categoryId == 1 ||
-        mySiteList.data[sIdx].master[mIdx].categoryId == 2){
+    if(mySiteList.data[sIdx].master[mIdx].categoryId == 1){
       updateMasterLine(sIdx, mIdx, lIdx);
       //displayServerData();
     }else{

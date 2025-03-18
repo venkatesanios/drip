@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/StateManagement/schedule_view_provider.dart';
+import 'package:intl/intl.dart';
 
 import '../Constants/data_convertion.dart';
 import '../Models/customer/site_model.dart';
@@ -30,7 +31,7 @@ class MqttPayloadProvider with ChangeNotifier {
   int tryingToGetPayload = 0;
 
   String version = '';
-  int powerSupply = 0;
+
   dynamic listOfSite = [];
   dynamic listOfSharedUser = {};
   bool httpError = false;
@@ -82,6 +83,8 @@ class MqttPayloadProvider with ChangeNotifier {
   List<dynamic> units = [];
 
   //kamaraj
+  int powerSupply = 0;
+  Duration lastCommunication = Duration.zero;
   int wifiStrength = 0;
   String liveDateAndTime = '';
   List<String> nodeLiveMessage = [];
@@ -476,6 +479,7 @@ class MqttPayloadProvider with ChangeNotifier {
       //live payload
       if(data['mC']=='2400'){
         liveDateAndTime = '${data['cD']} ${data['cT']}';
+        updateLastCommunication(liveDateAndTime);
         wifiStrength = data['cM']['WifiStrength'];
         updateNodeLiveMessage(data['cM']['2401'].split(";"));
         updateOutputONOffLiveMessage(data['cM']['2402'].split(";"));
@@ -813,6 +817,14 @@ class MqttPayloadProvider with ChangeNotifier {
       //   _timerForPumpController!.cancel();
       // }
     });
+  }
+
+  void updateLastCommunication(dt) {
+    final String lastSyncString = dt;
+    DateTime lastSyncDateTime = DateFormat("yyyy-MM-dd HH:mm:ss").parse(lastSyncString);
+    DateTime currentDateTime = DateTime.now();
+    lastCommunication = currentDateTime.difference(lastSyncDateTime);
+    notifyListeners();
   }
 
   void updateNodeLiveMessage(List<String> message) {
