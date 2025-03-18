@@ -373,25 +373,54 @@ class AppConstants {
 
   static dynamic findLocation({required data, required double objectSno, required String key}) {
     String name = '';
+    double sNo = 0.0;
     try {
       for (var key in data.keys) {
-        if (!['isNewConfig', 'controllerReadStatus', 'configObject'].contains(key)) {
+        if (![
+          'isNewConfig',
+          'controllerReadStatus',
+          'configObject',
+          'connectionCount',
+          'productLimit',
+          'userId',
+          'controllerId',
+          'groupId',
+          'isNewConfig',
+          'productLimit',
+          'connectionCount',
+          'deviceList',
+          'hardware',
+          'controllerReadStatus',
+          'createUser',
+        ].contains(key)) {
           for (var place in data[key]) {
             for (var placeKey in place.keys) {
               if (place[placeKey] is double) {
                 if (place[placeKey] == objectSno) {
-                  name = place[key];
+                  if(key == 'name'){
+                    name = place['name'];
+                  }else{
+                    sNo = place['sNo'];
+                  }
                   break;
                 }
               }
               else if (place[placeKey] is List<double>) {
                 if (place[placeKey].contains(objectSno)) {
-                  name = place[key];
+                  if(key == 'name'){
+                    name = place['name'];
+                  }else{
+                    sNo = place['sNo'];
+                  }
                   break;
                 }
               }else if(place[placeKey] is List<Map<String, dynamic>>){
                 if(place[placeKey].any((obj) => obj['sNo'] == objectSno)){
-                  name = place[key];
+                  if(key == 'name'){
+                    name = place['name'];
+                  }else{
+                    sNo = place['sNo'];
+                  }
                   break;
                 }
               }
@@ -403,7 +432,11 @@ class AppConstants {
       print('error : $e');
     }
 
-    return name;
+    if(key == 'name'){
+      return name;
+    }else{
+      return sNo;
+    }
   }
 
 

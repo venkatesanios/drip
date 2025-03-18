@@ -102,6 +102,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
   String errorMessage = '';
   String logName = '';
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  List<dynamic> names = [];
 
   @override
   void initState() {
@@ -163,7 +164,17 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
         'controllerId' : widget.userData['controllerId'],
       };
       var response = await IrrigationRepository().getUserLogConfig(body);
+      var configResponse = await IrrigationRepository().getUserNames(body);
       Map<String, dynamic> jsonData = jsonDecode(response.body);
+      Map<String, dynamic> configJsonData = jsonDecode(configResponse.body);
+      if(configJsonData['code'] == 200){
+        if(names.isEmpty){
+          setState(() {
+            names = configJsonData['data']['configObject'];
+          });
+        }
+      }
+
       if (kDebugMode) {
         print('getUserLogConfig jsonData => $jsonData');
       }
@@ -318,7 +329,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                             ),
                                             onPressed: () {
                                               Navigator.push(context, MaterialPageRoute(builder: (context){
-                                                return LogHome(serverData: serverData['logConfig'][i], userData: widget.userData,);
+                                                return LogHome(serverData: serverData['logConfig'][i], userData: widget.userData, nameData: names,);
                                               }));
                                             },
                                             icon: Icon(Icons.visibility,color: Colors.green,)
@@ -416,7 +427,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                           ),
                                           onPressed: () {
                                             Navigator.push(context, MaterialPageRoute(builder: (context){
-                                              return LogHome(serverData: serverData['logConfig'][i], userData: widget.userData,);
+                                              return LogHome(serverData: serverData['logConfig'][i], userData: widget.userData,nameData: names,);
                                             }));
                                           },
                                           icon: Icon(Icons.visibility,color: Colors.green,)

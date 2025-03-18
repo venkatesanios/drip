@@ -222,7 +222,7 @@ class _DeviceListState extends State<DeviceList> {
         contentPadding: const EdgeInsets.all(0),
         leading: SizedImageMedium(imagePath: 'assets/Images/Png/${F.name.contains('oro') ? 'Oro' : 'SmartComm'}/category_${configPvd.masterData['categoryId']}.png'),
         title: Text('${configPvd.masterData['deviceName']}', style: themeData.textTheme.bodyLarge,),
-        subtitle: Text('${configPvd.masterData['deviceId']}', style: themeData.textTheme.bodySmall,),
+        subtitle: SelectableText('${configPvd.masterData['deviceId']}', style: themeData.textTheme.bodySmall,),
         trailing: IntrinsicWidth(
           child: CustomMaterialButton(
               onPressed: (){

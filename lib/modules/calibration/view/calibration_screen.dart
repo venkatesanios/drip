@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:oro_drip_irrigation/Widgets/sized_image.dart';
 import 'package:oro_drip_irrigation/modules/calibration/repository/calibration_repository.dart';
+import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 import '../../../Constants/properties.dart';
 import '../../../Widgets/custom_buttons.dart';
@@ -12,7 +13,6 @@ import '../../config_Maker/view/config_web_view.dart';
 import '../../../utils/constants.dart';
 import '../../../utils/environment.dart';
 import '../model/sensor_category_model.dart';
-import 'package:oro_drip_irrigation/services/mqtt_manager_mobile.dart' if (dart.library.html) 'package:oro_drip_irrigation/services/mqtt_manager_web.dart';
 
 
 class CalibrationScreen extends StatefulWidget {
@@ -28,13 +28,14 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
   late Map<String, dynamic> defaultData;
   Set<int> selectedTab = {0};
   HardwareAcknowledgementSate payloadState = HardwareAcknowledgementSate.notSent;
-  MqttManager mqttManager = MqttManager();
+  MqttService mqttService = MqttService();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     listOfSensorCategoryModel = getCalibration(widget.userData);
+    // mqttService.initializeMQTTClient();
   }
 
   Future<List<SensorCategoryModel>> getCalibration(userData) async {
@@ -243,7 +244,7 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
       onPressed: (){
         setState(() {
           payloadState = HardwareAcknowledgementSate.notSent;
-          mqttManager.payload = null;
+          mqttService.acknowledgementPayload = null;
         });
         showDialog(
           barrierDismissible: false,
@@ -263,35 +264,31 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
                           CustomMaterialButton(
                             onPressed: ()async{
                               sendToHttp(sensorCategoryModel);
-                              if(mqttManager.connectionState == MqttConnectionState.connected){
-                                mqttManager.topicToSubscribe('${Environment.mqttSubscribeTopic}/${widget.userData['deviceId']}');
-                                print('subscribe successfully...........');
-                              }
                               var payload = jsonEncode(getCalibrationPayload(sensorCategoryModel));
-                              int delayDuration = 5;
+                              int delayDuration = 20;
                               for(var delay = 0; delay < delayDuration; delay++){
                                 if(delay == 0){
                                   stateSetter((){
                                     setState((){
-                                      mqttManager.topicToPublishAndItsMessage('${Environment.mqttPublishTopic}/${widget.userData['deviceId']}', payload);
+                                      mqttService.topicToPublishAndItsMessage(payload, '${Environment.mqttPublishTopic}/${widget.userData['deviceId']}');
                                       payloadState = HardwareAcknowledgementSate.sending;
                                     });
                                   });
                                 }
                                 stateSetter((){
                                   setState((){
-                                    if(mqttManager.payload != null){
-                                      if(validatePayloadFromHardware(mqttManager.payload!, ['cC'], widget.userData['deviceId']) && validatePayloadFromHardware(mqttManager.payload!, ['cM', '4201', 'PayloadCode'], '4600')){
-                                        if(mqttManager.payload!['cM']['4201']['Code'] == '200'){
+                                    if(mqttService.acknowledgementPayload != null){
+                                      if(validatePayloadFromHardware(mqttService.acknowledgementPayload!, ['cC'], widget.userData['deviceId']) && validatePayloadFromHardware(mqttService.acknowledgementPayload!, ['cM', '4201', 'PayloadCode'], '4600')){
+                                        if(mqttService.acknowledgementPayload!['cM']['4201']['Code'] == '200'){
                                           payloadState = HardwareAcknowledgementSate.success;
-                                        }else if(mqttManager.payload!['cM']['4201']['Code'] == '90'){
+                                        }else if(mqttService.acknowledgementPayload!['cM']['4201']['Code'] == '90'){
                                           payloadState = HardwareAcknowledgementSate.programRunning;
-                                        }else if(mqttManager.payload!['cM']['4201']['Code'] == '1'){
+                                        }else if(mqttService.acknowledgementPayload!['cM']['4201']['Code'] == '1'){
                                           payloadState = HardwareAcknowledgementSate.hardwareUnknownError;
                                         }else{
                                           payloadState = HardwareAcknowledgementSate.errorOnPayload;
                                         }
-                                        mqttManager.payload == null;
+                                        mqttService.acknowledgementPayload == null;
                                       }
                                     }
                                   });

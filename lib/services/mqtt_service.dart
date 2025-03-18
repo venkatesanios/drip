@@ -21,6 +21,7 @@ class MqttService {
   final StreamController<Map<String, dynamic>?> _payloadController = StreamController.broadcast();
   final StreamController<List<Map<String, dynamic>>?> _schedulePayloadController = StreamController.broadcast();
   final StreamController<String> mqttConnectionStreamController = StreamController.broadcast();
+  final StreamController<String> connectionStatusController = StreamController.broadcast();
 
   Stream<List<Map<String, dynamic>>?> get schedulePayloadStream => _schedulePayloadController.stream;
   Stream<String> get mqttConnectionStream => mqttConnectionStreamController.stream;
@@ -35,6 +36,8 @@ class MqttService {
   MqttService._internal();
 
   bool get isConnected => _client?.connectionStatus?.state == MqttConnectionState.connected;
+  MqttConnectionState get connectionState => _client!.connectionStatus!.state;
+
 
   set acknowledgementPayload(Map<String, dynamic>? newPayload) {
     _acknowledgementPayload = newPayload;
@@ -121,6 +124,7 @@ class MqttService {
         providerState?.updateReceivedPayload(payload, false);
       }
       acknowledgementPayload = jsonDecode(payload);
+      print('acknowledgementPayload : $acknowledgementPayload');
       if (acknowledgementPayload != null && acknowledgementPayload!['mC'] == '3600') {
         schedulePayload = Constants.dataConversionForScheduleView(acknowledgementPayload!['cM']['3601']);
       }

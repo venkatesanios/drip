@@ -21,8 +21,9 @@ import '../repository/irrigation_repository.dart';
 
 class LogHome extends StatefulWidget {
   final dynamic serverData;
+  final List<dynamic> nameData;
   final Map<String, dynamic> userData;
-  const LogHome({super.key,required this.serverData, required this.userData});
+  const LogHome({super.key,required this.serverData, required this.userData, required this.nameData});
   @override
   State<LogHome> createState() => _LogHomeState();
 }
@@ -243,7 +244,10 @@ class _LogHomeState extends State<LogHome> {
     String formattedDate2 = "${date2.year}-${_formatNumber(date2.month)}-${_formatNumber(date2.day)}";
 
     irrigationParameterArray.editParameter(IrrigationLogParameterFromServer);
+    irrigationParameterArray.editName(widget.nameData);
+
     irrigationParameterArrayDuplicate.editParameter(IrrigationLogParameterFromServer);
+    irrigationParameterArrayDuplicate.editName(widget.nameData);
     try{
       String? startMonth = selectedDateRange?.start.month.toString();
       print('startMonth : $startMonth');

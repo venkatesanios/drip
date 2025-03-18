@@ -13,20 +13,16 @@ import 'StateManagement/schedule_view_provider.dart';
 import 'StateManagement/system_definition_provider.dart';
 import 'StateManagement/mqtt_payload_provider.dart';
 import 'StateManagement/overall_use.dart';
-import 'package:oro_drip_irrigation/services/mqtt_manager_mobile.dart' if (dart.library.html) 'package:oro_drip_irrigation/services/mqtt_manager_web.dart';
 
 import 'flavors.dart';
 
 
 FutureOr<void> main() async {
   // debugPaintSizeEnabled = true;
-  MqttManager mqttManager = MqttManager();
   MqttService mqttService = MqttService();
   MqttPayloadProvider myMqtt = MqttPayloadProvider();
   ScheduleViewProvider mySchedule = ScheduleViewProvider();
   myMqtt.editMySchedule(mySchedule);
-  mqttManager.initializeMQTTClient(myMqtt);
-  mqttManager.connect();
 
   runApp(
     MultiProvider(

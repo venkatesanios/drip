@@ -1,4 +1,6 @@
 
+import 'package:oro_drip_irrigation/utils/constants.dart';
+
 class DeviceObjectModel {
   final int objectId;
   double? sNo;
@@ -45,7 +47,7 @@ class DeviceObjectModel {
     );
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson({dynamic data}) {
     return {
       'objectId': objectId,
       'sNo': sNo,
@@ -57,6 +59,8 @@ class DeviceObjectModel {
       'count': count,
       'connectedObject': connectedObject,
       'siteMode': siteMode,
+      if(data != null)
+        'location' : AppConstants.findLocation(data: data, objectSno: sNo!, key: 'sNo')
     };
   }
 }

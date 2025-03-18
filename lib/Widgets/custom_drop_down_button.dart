@@ -3,14 +3,15 @@ import 'package:flutter/material.dart';
 import '../Constants/properties.dart';
 import '../modules/config_Maker/view/device_list.dart';
 
-
 class CustomDropDownButton extends StatelessWidget {
   final String value;
+  TextStyle? style;
   final List<String> list;
   final void Function(String?)? onChanged;
-  const CustomDropDownButton({
+  CustomDropDownButton({
     super.key,
     required this.value,
+    this.style,
     required this.list,
     required this.onChanged,
   });
@@ -22,7 +23,7 @@ class CustomDropDownButton extends StatelessWidget {
       isExpanded: true,
       underline: Container(),
       value: value,
-      style: Theme.of(context).textTheme.headlineSmall,
+      style: style ?? Theme.of(context).textTheme.headlineSmall,
       items: list.map((String item) {
         return DropdownMenuItem<String>(
           value: item,

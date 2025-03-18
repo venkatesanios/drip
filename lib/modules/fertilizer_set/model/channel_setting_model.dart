@@ -22,10 +22,10 @@ class ChannelSettingModel{
         objectId: data['objectId'],
         sNo: data['sNo'],
         name: data['name'],
-        active: data['active'],
-        method: data['method'],
-        timeValve: data['timeValve'],
-        quantityValve: data['quantityValve'],
+        active: data['active'] ?? 0,
+        method: data['method'] ?? 'Time',
+        timeValve: data['timeValve'] ?? '00:00:00',
+        quantityValve: data['quantityValve'] ?? '0',
     );
   }
 
