@@ -10,6 +10,7 @@ class DeviceObjectModel {
   String? count;
   int? connectedObject;
   int? siteMode;
+  double? location;
 
   DeviceObjectModel({
     required this.objectId,
@@ -22,12 +23,9 @@ class DeviceObjectModel {
     this.count,
     this.connectedObject,
     this.siteMode,
+    this.location,
   });
 
-  @override
-  String toString() {
-    return '$objectName(name: $name, objectId: $objectId, connectionNo: $connectionNo, type: $type, controllerId: $controllerId, count: $count, connectedObject: $connectedObject)';
-  }
 
   factory DeviceObjectModel.fromJson(Map<String, dynamic> data) {
     // print("deveice object model:::::$data");
@@ -42,6 +40,7 @@ class DeviceObjectModel {
       count: data['count'],
       connectedObject: data['connectedObject'],
       siteMode: data['siteMode'],
+      location: data['location'] ?? 0.00,
     );
   }
 
@@ -57,6 +56,7 @@ class DeviceObjectModel {
       'count': count,
       'connectedObject': connectedObject,
       'siteMode': siteMode,
+      'location': location,
     };
   }
 }

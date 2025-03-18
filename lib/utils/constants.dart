@@ -418,7 +418,4 @@ class AppConstants {
   static int levelObjectId = 26;
   static int waterMeterObjectId = 22;
   static int pressureSensorObjectId = 24;
-
-
-
 }

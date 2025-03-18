@@ -199,7 +199,9 @@ class Repository{
   Future<http.Response> getUserConfigMaker(body) async {
     return await apiService.postRequest('/user/configMaker/getAsDefault', body);
   }
-
+  Future<http.Response> updateUserNames(body) async {
+     return await apiService.putRequest('/user/configMaker/name/update', body);
+  }
   Future<http.Response> getUserProgramWaterAndFert(body) async {
     return await apiService.postRequest('/user/program/waterAndFert/get', body);
   }

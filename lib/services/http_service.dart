@@ -45,7 +45,8 @@ class HttpService
   {
     final token = await PreferenceHelper.getToken();
 
-    debugPrint('body: $bodyData');
+    // debugPrint('body: $bodyData');
+    debugPrint('endpoint:');
     debugPrint('${AppConstants.apiUrl}$endpoint');
 
     var headers = {

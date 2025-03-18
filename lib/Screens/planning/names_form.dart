@@ -1,92 +1,73 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:oro_drip_irrigation/Screens/NewIrrigationProgram/program_library.dart';
-
 import 'package:provider/provider.dart';
-
-import '../../StateManagement/mqtt_payload_provider.dart';
+import '../../Models/names_model.dart';
 import '../../StateManagement/overall_use.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
+import '../../utils/snack_bar.dart';
+import '../NewIrrigationProgram/program_library.dart';
 
-// Model class (as defined above)
- class Names extends StatefulWidget {
-  final int userID, customerID, controllerId, menuId;
-  final String imeiNo;
-  Names({required this.userID, required this.customerID, required this.controllerId, required this.menuId, required this.imeiNo});
+
+class Names extends StatefulWidget {
+  final int userID, customerID, controllerId;
+
+  Names({
+    required this.userID,
+    required this.customerID,
+    required this.controllerId,
+  });
 
   @override
   _NamesState createState() => _NamesState();
 }
 
 class _NamesState extends State<Names> {
-
-  late List<Map<String, dynamic>> configObjects;
-    List<String> uniqueObjectNames = [];
-   Map<String, dynamic> configData = {};
-  late MqttPayloadProvider payloadProvider;
-  late OverAllUse overAllPvd;
-  var liveData;
+    NamesConfigModel configModel = NamesConfigModel();
+  List<String> uniqueObjectNames = [];
+    var liveData;
 
   void getData() async {
-     print("getData");
-    try
-    {
+     try {
       final Repository repository = Repository(HttpService());
-      var getUserDetails = await repository.fetchAllMySite({
+      var getUserDetails = await repository.getUserConfigMaker({
         "userId": widget.userID ?? 4,
+        "controllerId" : widget.controllerId ??1
       });
+      {
 
-      final jsonData = jsonDecode(getUserDetails.body);
-       if (jsonData['code'] == 200) {
-
-        await payloadProvider.updateDashboardPayload(jsonData);
-        setState(() {
-          liveData = payloadProvider.dashboardLiveInstance!.data;
-          configObjects = List<Map<String, dynamic>>.from(jsonData['data'][0]['master'][0]["config"]["configObject"]);
-          uniqueObjectNames = configObjects.map((obj) => obj["objectName"] as String).toSet().toList();
-          });
-       }
-      payloadProvider.httpError = false;
-    } catch (e, stackTrace) {
-      payloadProvider.httpError = true;
-      print(' Error overAll getData => ${e.toString()}');
-      print(' trace overAll getData  => ${stackTrace}');
-    }
   }
 
+      final jsonData = jsonDecode(getUserDetails.body);
+      if (jsonData['code'] == 200) {
+         setState(() {
+          configModel = NamesConfigModel.fromJson(
+            jsonData['data'],
+          );
+          uniqueObjectNames = (configModel.configObject ?? [])
+              .map((obj) => obj.objectName ?? '')
+              .toSet()
+              .toList();
 
+        });
+      }
+     } catch (e, stackTrace) {
+       print('Error overAll getData => ${e.toString()}');
+      print('trace overAll getData  => ${stackTrace}');
+    }
+  }
   @override
   void initState() {
     super.initState();
-    // Parse JSON into ConfigObject list
-    payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
-    overAllPvd = Provider.of<OverAllUse>(context, listen: false);
-
-    getData();
-
+     getData();
   }
-  String getNameBySNo(double sNo) {
-    for (var obj in configObjects) {
-      if (obj['sNo'] == sNo) {
-        return obj['name'];
-      }
-    }
-    return "Not found";
-  }
-
-
-  void _updateName(int index, String newName) {
-    setState(() {
-      configObjects[index]["name"] = newName;
-    });
-  }
-
 
 
   Widget buildTab(String objectName) {
-    final filteredData = configObjects.where((obj) => obj["objectName"] == objectName).toList();
+    final filteredData = (configModel.configObject ?? [])
+        .where((obj) => obj.objectName == objectName)
+        .toList();
 
     return SingleChildScrollView(
       child: Padding(
@@ -140,51 +121,51 @@ class _NamesState extends State<Names> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Center( // Center the S.No text vertically
+                    child: Center(
                       child: Text(
-                        filteredData[index]["sNo"].toString(),
+                        filteredData[index].sNo.toString(),
                         textAlign: TextAlign.center,
                       ),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Center( // Center the Location text vertically
-                      child: Text( getNameBySNo(filteredData[index]["location"]),
-                         textAlign: TextAlign.center,
+                    child: Center(
+                      child: Text(
+                        configModel.getNameBySNo(filteredData[index].location ?? 0.0),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Center( // Center the TextFormField vertically
+                    child: Center(
                       child: TextFormField(
                         inputFormatters: [
                           LengthLimitingTextInputFormatter(15),
                           FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s.]')),
                         ],
-                        initialValue: filteredData[index]["name"],
+                        initialValue: filteredData[index].name,
                         onChanged: (val) {
                           setState(() {
                             bool nameExists = false;
-                            for (var element in configObjects) {
-                              if (element["name"] == val && element != filteredData[index]) {
-                                showSnackBar(
-                                    message: 'Name Already Exists', context: context);
+                            for (var element in configModel.configObject ?? []) {
+                              if (element.name == val && element != filteredData[index]) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Name Already Exists')),
+                                );
                                 nameExists = true;
                                 break;
                               }
                             }
                             if (val.length > 15) {
-                              showSnackBar(
-                                  message: 'Name length Maximum reached', context: context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Name length Maximum reached')),
+                              );
                             }
-
                             if (!nameExists && val.isNotEmpty) {
-                              filteredData[index]["name"] = val;
-                            }
-
-                            _updateName(index,val);
+                              filteredData[index].name = val;
+                             }
                           });
                         },
                         decoration: const InputDecoration(
@@ -202,8 +183,63 @@ class _NamesState extends State<Names> {
       ),
     );
   }
+  void updateAllNames() {
+    print("configNames");
+    Map<double, String> configNames = {};
+    for (var obj in configModel.configObject ?? []) {
+      if (obj.sNo != null && obj.name != null) {
+        configNames[obj.sNo!] = obj.name!;
+      }
+    }
+    print("waterSource");
+    for (var src in configModel.waterSource ?? []) {
+      if (configNames.containsKey(src.commonDetails.sNo)) {
+        src.commonDetails.name = configNames[src.commonDetails.sNo];
+      }
+    }
+    print("pump");
+    for (var pump in configModel.pump ?? []) {
+      if (configNames.containsKey(pump.commonDetails.sNo)) {
+        pump.commonDetails.name = configNames[pump.commonDetails.sNo];
+      }
+    }
+    print("filterSite");
+    for (var filterSite in configModel.filterSite ?? []) {
+      if (configNames.containsKey(filterSite.commonDetails.sNo)) {
+        filterSite.commonDetails.name = configNames[filterSite.commonDetails.sNo];
+      }
+    }
+    print("fertilizerSite");
+
+    for (var fertSite in configModel.fertilizerSite ?? []) {
+      if (configNames.containsKey(fertSite.commonDetails.sNo)) {
+        fertSite.commonDetails.name = configNames[fertSite.commonDetails.sNo];
+      }
+    }
+    print("moistureSensor");
+    for (var moisture in configModel.moistureSensor ?? []) {
+      if (configNames.containsKey(moisture.commonDetails.sNo)) {
+        moisture.commonDetails.name = configNames[moisture.commonDetails.sNo];
+      }
+    }
+    print("irrigationLine");
+    for (var line in configModel.irrigationLine ?? []) {
+      if (configNames.containsKey(line.commonDetails.sNo)) {
+        line.commonDetails.name = configNames[line.commonDetails.sNo];
+      }
+    }
+
+    setState(() {}); // Trigger UI update
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (configModel == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return DefaultTabController(
       length: uniqueObjectNames.length,
       child: Scaffold(
@@ -211,7 +247,7 @@ class _NamesState extends State<Names> {
           title: const Text('Names'),
           bottom: TabBar(
             labelColor: Colors.white,
-              unselectedLabelColor: Colors.white54,
+            unselectedLabelColor: Colors.white54,
             indicatorColor: Theme.of(context).primaryColorDark,
             isScrollable: true,
             tabs: uniqueObjectNames.map((name) => Tab(text: name)).toList(),
@@ -219,12 +255,53 @@ class _NamesState extends State<Names> {
         ),
         body: TabBarView(
           children: uniqueObjectNames.map((name) {
-            return configObjects.any((obj) => obj["objectName"] == name)
+            return (configModel.configObject ?? []).any((obj) => obj.objectName == name)
                 ? buildTab(name)
                 : const Center(child: Text('No Record found'));
           }).toList(),
         ),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Theme.of(context).primaryColorDark,
+          foregroundColor: Colors.white,
+          onPressed: ()  {
+            setState(()  {
+               updateAllNames();
+                updateUserNames();
+
+            });
+          },
+          tooltip: 'Send',
+          child: const Icon(Icons.send),
+        ),
       ),
     );
   }
+    updateUserNames() async {
+      var overAllPvd = Provider.of<OverAllUse>(context,listen: false);
+       Map<String, dynamic> namesmodeldata =
+      configModel.toJson();
+
+
+      final Repository repository = Repository(HttpService());
+
+      Map<String, dynamic> body = {
+        "userId": overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : widget.userID,
+        "controllerId": widget.controllerId,
+        "configObject": namesmodeldata['configObject'],
+        "waterSource":namesmodeldata['waterSource'],
+        "pump": namesmodeldata['pump'],
+        "filterSite": namesmodeldata['filterSite'],
+        "fertilizerSite": namesmodeldata['fertilizerSite'],
+        "irrigationLine": namesmodeldata['irrigationLine'],
+        "moistureSensor": namesmodeldata['moistureSensor'],
+        "createUser": widget.userID
+      };
+      var getUserDetails = await repository.updateUserNames(body);
+      final jsonDataResponseput = json.decode(getUserDetails.body);
+       GlobalSnackBar.show(
+          context, jsonDataResponseput['message'], jsonDataResponseput['code']);
+
+
+    }
+
 }
