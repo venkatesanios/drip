@@ -300,8 +300,5 @@ class _NamesState extends State<Names> {
       final jsonDataResponseput = json.decode(getUserDetails.body);
        GlobalSnackBar.show(
           context, jsonDataResponseput['message'], jsonDataResponseput['code']);
-
-
-    }
-
+   }
 }

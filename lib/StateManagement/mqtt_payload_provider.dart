@@ -461,8 +461,6 @@ class MqttPayloadProvider with ChangeNotifier {
 
   }
 
- 
-
   void updateReceivedPayload(String payload,bool dataFromHttp) async{
     // print("updateReceivedPayload ====$payload");
     if(!dataFromHttp) {

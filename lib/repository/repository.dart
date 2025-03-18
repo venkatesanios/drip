@@ -199,6 +199,13 @@ class Repository{
   Future<http.Response> getUserConfigMaker(body) async {
     return await apiService.postRequest('/user/configMaker/getAsDefault', body);
   }
+
+  Future<http.Response> getdealerDefinition(body) async {
+    return await apiService.postRequest('/user/dealerDefinition/get', body);
+  }
+  Future<http.Response> createdealerDefinition(body) async {
+    return await apiService.postRequest('/user/dealerDefinition/create', body);
+  }
   Future<http.Response> updateUserNames(body) async {
      return await apiService.putRequest('/user/configMaker/name/update', body);
   }
