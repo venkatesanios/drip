@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Models/customer/condition_library_model.dart';
 import '../../repository/repository.dart';
+import '../../utils/snack_bar.dart';
 
 class ConditionLibraryViewModel extends ChangeNotifier {
 
@@ -12,52 +13,175 @@ class ConditionLibraryViewModel extends ChangeNotifier {
   String errorMessage = "";
 
   late ConditionLibraryModel conditionLibraryData;
-  List<String> selectedCnType = [];
-  List<String> selectedComponent = [];
-  List<String> selectedParameter = [];
-  List<String> selectedValue = [];
-  List<String> selectedReason= [];
-  List<String> selectedDelayTime= [];
-  List<String> selectedMessage= [];
-  List<bool> selectedSwitchState = [];
 
-  List<String> sensorList = [];
+  List<String> connectingCondition = [];
+  List<List<String>> connectedTo = [];
 
+  String? selectedConditions;
 
-  TimeOfDay selectedStartTime = const TimeOfDay(hour: 6, minute: 0);
-  TimeOfDay selectedEndTime = const TimeOfDay(hour: 12, minute: 0);
+  List<TextEditingController> vtTEVControllers = [];
+  List<TextEditingController> amTEVControllers = [];
 
-  final TextEditingController controllerVT = TextEditingController();
-  final TextEditingController controllerAM = TextEditingController();
 
   ConditionLibraryViewModel(this.repository);
 
   Future<void> getConditionLibraryData(int customerId, int controllerId) async
   {
     setLoading(true);
-    try {
-      var response = await repository.fetchConditionLibrary({"customerId": customerId,"controllerId": controllerId});
-      if (response.statusCode == 200) {
-        print(response.body);
-        final jsonData = jsonDecode(response.body);
-        if (jsonData["code"] == 200) {
-          conditionLibraryData = ConditionLibraryModel.fromJson(jsonData['data']);
-          print("Parameter List: ${conditionLibraryData.defaultData.parameter}");
-          print("sensors List: ${conditionLibraryData.defaultData.sensors}");
-
-          sensorList = conditionLibraryData.defaultData.sensors;
-          sensorList.insert(0, '--');
-
-          selectedParameter = List.generate(conditionLibraryData.defaultData.parameter.length+1, (index) => '--');
-          selectedCnType = List.generate(5, (index) => 'Sensor');
-          selectedComponent = List.generate(7, (index) => '--');
-          selectedValue = List.generate(7, (index) => '--');
-          selectedReason = List.generate(11, (index) => '--');
-          selectedDelayTime = List.generate(4, (index) => '--');
-          selectedMessage = List.generate(5, (index) => '--');
-          selectedSwitchState = List.generate(5, (index) => false);
-
+    Future.delayed(const Duration(milliseconds: 500), () async {
+      try {
+        var response = await repository.fetchConditionLibrary({"userId": customerId,"controllerId": controllerId});
+        if (response.statusCode == 200) {
+          final jsonData = jsonDecode(response.body);
+          if (jsonData["code"] == 200) {
+            conditionLibraryData = ConditionLibraryModel.fromJson(jsonData['data']);
+            vtTEVControllers = List.generate(conditionLibraryData.conditionLibrary.condition.length, (index) => TextEditingController());
+            amTEVControllers = List.generate(conditionLibraryData.conditionLibrary.condition.length, (index) => TextEditingController());
+            connectedTo = List.generate(5, (index) => []);
+          }
         }
+      } catch (error) {
+        debugPrint('Error fetching language list: $error');
+      } finally {
+        setLoading(false);
+      }
+    });
+
+  }
+
+  void conTypeOnChange(String type, int index){
+    conditionLibraryData.conditionLibrary.condition[index].type = type;
+    notifyListeners();
+  }
+
+  void componentOnChange(String component, int index){
+    conditionLibraryData.conditionLibrary.condition[index].component = component;
+    conditionLibraryData.conditionLibrary.condition[index].parameter = '--';
+    conditionLibraryData.conditionLibrary.condition[index].threshold = '--';
+    conditionLibraryData.conditionLibrary.condition[index].value = '--';
+    conditionLibraryData.conditionLibrary.condition[index].reason = '--';
+    conditionLibraryData.conditionLibrary.condition[index].delayTime = '--';
+    conditionLibraryData.conditionLibrary.condition[index].alertMessage = '--';
+    notifyListeners();
+  }
+
+  void parameterOnChange(String param, int index){
+    conditionLibraryData.conditionLibrary.condition[index].parameter = param;
+    notifyListeners();
+
+  }
+
+  void thresholdOnChange(String valT, int index){
+    conditionLibraryData.conditionLibrary.condition[index].threshold = valT;
+    if(valT.contains('Lower')){
+      conditionLibraryData.conditionLibrary.condition[index].delayTime = '10 Sec';
+    }else{
+      conditionLibraryData.conditionLibrary.condition[index].delayTime = '3 Sec';
+    }
+    notifyListeners();
+  }
+
+  void valueOnChange(String val, int index){
+    conditionLibraryData.conditionLibrary.condition[index].value = val;
+    notifyListeners();
+  }
+
+  void reasonOnChange(String reason, int index){
+    conditionLibraryData.conditionLibrary.condition[index].reason = reason;
+
+    conditionLibraryData.conditionLibrary.condition[index].alertMessage =
+    '${conditionLibraryData.conditionLibrary.condition[index].reason} detected in '
+        '${conditionLibraryData.conditionLibrary.condition[index].component}';
+    amTEVControllers[index].text = conditionLibraryData.conditionLibrary.condition[index].alertMessage;
+
+    conditionLibraryData.conditionLibrary.condition[index].rule =
+    '${conditionLibraryData.conditionLibrary.condition[index].parameter} of '
+        '${conditionLibraryData.conditionLibrary.condition[index].component} is '
+        '${conditionLibraryData.conditionLibrary.condition[index].threshold} '
+        '${conditionLibraryData.conditionLibrary.condition[index].value}';
+
+    amTEVControllers[index].text = conditionLibraryData.conditionLibrary.condition[index].alertMessage;
+
+    notifyListeners();
+  }
+
+  void delayTimeOnChange(String delayTime, int index){
+    conditionLibraryData.conditionLibrary.condition[index].delayTime = delayTime;
+    notifyListeners();
+  }
+
+  void switchStateOnChange(bool status, int index){
+    conditionLibraryData.conditionLibrary.condition[index].status = status;
+    notifyListeners();
+  }
+
+  void buildConnectingConditions(int count) {
+    connectingCondition = List.generate(count, (index) => "Condition ${index+1}");
+    notifyListeners();
+  }
+
+  List<String> getAvailableCondition(int index) {
+    buildConnectingConditions(conditionLibraryData.conditionLibrary.condition.length);
+    if (index >= 0 && index < connectingCondition.length) {
+      connectingCondition.removeAt(index);
+    }
+    List<String> available = List.from(connectingCondition);
+    if(conditionLibraryData.conditionLibrary.condition[index].component!='--'){
+      List<String> resultList = conditionLibraryData.conditionLibrary.condition[index].component.split(RegExp(r'\s*-\s*'));
+      connectedTo[index] = resultList;
+    }
+    available.removeWhere((source) => connectedTo[index].contains(source));
+    return available;
+  }
+
+  void combinedTO(int index, String source) {
+    if (connectedTo[index].contains(source)) {
+      connectedTo[index].remove(source);
+    } else {
+      connectedTo[index].add(source);
+      List<String> cc = connectedTo[index];
+      String result = cc.join(" - ");
+      conditionLibraryData.conditionLibrary.condition[index].component = result;
+    }
+    notifyListeners();
+  }
+
+  void createNewCondition() {
+
+    Condition newCondition = Condition(
+      name: "Condition ${conditionLibraryData.conditionLibrary.condition.length+1}",
+      status: false,
+      type: "Sensor",
+      rule: "--",
+      component: "--",
+      parameter: "--",
+      threshold: "--",
+      value: "--",
+      reason: "--",
+      delayTime: "--",
+      alertMessage: "--",
+    );
+
+    conditionLibraryData.conditionLibrary.condition.add(newCondition);
+    vtTEVControllers = List.generate(conditionLibraryData.conditionLibrary.condition.length, (index) => TextEditingController());
+    amTEVControllers = List.generate(conditionLibraryData.conditionLibrary.condition.length, (index) => TextEditingController());
+    notifyListeners();
+  }
+
+  Future<void> saveConditionLibrary(BuildContext context, int customerId, int controllerId, userId) async
+  {
+    try {
+      Map<String, dynamic> body = {
+        "userId": customerId,
+        "controllerId": controllerId,
+        "condition": conditionLibraryData.conditionLibrary.toJson(),
+        "createUser": userId,
+      };
+
+      var response = await repository.saveConditionLibrary(body);
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        GlobalSnackBar.show(context, jsonData["message"], jsonData["code"]);
       }
     } catch (error) {
       debugPrint('Error fetching language list: $error');
@@ -65,92 +189,6 @@ class ConditionLibraryViewModel extends ChangeNotifier {
       setLoading(false);
     }
   }
-
-  void conTypeOnChange(String type, int index){
-    selectedCnType[index] = type;
-    notifyListeners();
-  }
-
-  void lvlSensorCountOnChange(String param, int index){
-    selectedParameter[index] = param;
-    notifyListeners();
-  }
-
-  void componentOnChange(String lvlSensor, int index){
-    selectedComponent[index] = lvlSensor;
-    notifyListeners();
-  }
-
-  void valueOnChange(String lvlSensor, int index){
-    selectedValue[index] = lvlSensor;
-    notifyListeners();
-  }
-
-  void reasonOnChange(String lvlSensor, int index){
-    selectedReason[index] = lvlSensor;
-    notifyListeners();
-  }
-
-  void delayTimeOnChange(String lvlSensor, int index){
-    selectedDelayTime[index] = lvlSensor;
-    notifyListeners();
-  }
-
-  void switchStateOnChange(bool state, int index){
-    selectedSwitchState[index] = state;
-    notifyListeners();
-  }
-
-
-
-
-  void messageOnChange(String lvlSensor, int index){
-    selectedMessage[index] = lvlSensor;
-    notifyListeners();
-  }
-
-  void clearCondition(int index){
-    selectedParameter[index] = '--';
-    selectedComponent[index] = '--';
-    selectedValue[index] = '--';
-    selectedReason[index] = '--';
-    selectedDelayTime[index] = '--';
-    selectedMessage[index] = '--';
-    notifyListeners();
-  }
-
-
-  Future<void> selectStartTime(BuildContext context) async {
-    TimeOfDay? pickedTime = await showTimePicker(
-      context: context,
-      initialTime: selectedStartTime,
-    );
-
-    if (pickedTime != null && pickedTime != selectedStartTime) {
-      selectedStartTime = pickedTime;
-      notifyListeners();
-    }
-  }
-
-  Future<void> selectEndTime(BuildContext context) async {
-    TimeOfDay? pickedTime = await showTimePicker(
-      context: context,
-      initialTime: selectedEndTime,
-    );
-
-    if (pickedTime != null && pickedTime != selectedEndTime) {
-      selectedEndTime = pickedTime;
-      notifyListeners();
-    }
-  }
-
-
-
-
-
-
-
-
 
   void setLoading(bool value) {
     isLoading = value;

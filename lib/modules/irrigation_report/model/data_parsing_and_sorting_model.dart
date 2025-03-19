@@ -25,6 +25,7 @@ class IrrigationLogModel {
   List<GeneralParameterModel> localChannel6ParameterList = [];
   List<GeneralParameterModel> localChannel7ParameterList = [];
   List<GeneralParameterModel> localChannel8ParameterList = [];
+  List<dynamic> names = [];
 
   IrrigationLogModel();
 
@@ -67,6 +68,10 @@ class IrrigationLogModel {
       localChannel7ParameterList = getListOfGeneralParameterModel(name: '<L - CH7>', keyList: data['<L - CH7>'].keys.toList(), data: data);
       localChannel8ParameterList = getListOfGeneralParameterModel(name: '<L - CH8>', keyList: data['<L - CH8>'].keys.toList(), data: data);
     }
+  }
+
+  void editName(List<dynamic> nameData){
+    names = nameData;
   }
 
   dynamic toJson(){
@@ -221,6 +226,18 @@ class IrrigationLogModel {
     return name;
   }
 
+  String getName(dynamic sNo){
+    var name = '';
+    for(var n in names){
+      if(n['sNo'].toString() == sNo.toString()){
+        name = n['name'];
+      }
+    }
+    // print('names data : $names');
+    // print('name : $name    sNo : $sNo');
+    return name.isEmpty ? sNo : name;
+  }
+
   Map<String,dynamic> editValveWise(dynamic dataSource,List<dynamic> noOfValve){
     var generalColumn = [...getColumn(generalParameterList)];
     var generalColumnData = [];
@@ -283,7 +300,7 @@ class IrrigationLogModel {
           if(date['irrigation'].isNotEmpty){
             for(var howManyValve = 0;howManyValve < date['irrigation']['SequenceData'].length;howManyValve++){
               if(date['irrigation']['SequenceData'][howManyValve].contains(findValve['name'])){
-                fixedColumnData.add(findValve['name']);
+                fixedColumnData.add(getName(findValve['name']));
                 var myList = [];
                 var waterList = [];
                 var prePostList = [];
@@ -308,7 +325,7 @@ class IrrigationLogModel {
                   }
                   if(parameter.payloadKey == 'HeadUnit') {
                     if(parameter.show == true){
-                      myList.add(date['irrigation']['HeadUnit'][howManyValve]);
+                      myList.add(getName(date['irrigation']['HeadUnit'][howManyValve]));
                     }
                   }
                   if(parameter.payloadKey == 'ScheduledStartTime') {
@@ -318,7 +335,7 @@ class IrrigationLogModel {
                   }
                   if(parameter.payloadKey == 'Pump') {
                     if(parameter.show == true){
-                      myList.add(date['irrigation']['Pump'][howManyValve]);
+                      myList.add(getName(date['irrigation']['Pump'][howManyValve]));
                     }
                   }
                   if(parameter.payloadKey == 'ProgramStartStopReason') {
@@ -696,7 +713,7 @@ class IrrigationLogModel {
           if(date['irrigation'].isNotEmpty){
             for(var howManyLine = 0;howManyLine < date['irrigation']['ProgramCategory'].length;howManyLine++){
               if(date['irrigation']['ProgramCategory'][howManyLine].contains(findLine['name'])){
-                fixedColumnData.add(findLine['lineName']);
+                fixedColumnData.add(getName(findLine['lineName']));
                 var myList = [];
                 var waterList = [];
                 var prePostList = [];
@@ -716,7 +733,7 @@ class IrrigationLogModel {
                   }
                   if(parameter.payloadKey == 'SequenceData') {
                     if(parameter.show == true){
-                      myList.add(date['irrigation']['SequenceData'][howManyLine]);
+                      myList.add(getName(date['irrigation']['SequenceData'][howManyLine]));
                     }
                   }
                   if(parameter.payloadKey == 'Date') {
@@ -731,7 +748,7 @@ class IrrigationLogModel {
                   }
                   if(parameter.payloadKey == 'Pump') {
                     if(parameter.show == true){
-                      myList.add(date['irrigation']['Pump'][howManyLine]);
+                      myList.add(getName(date['irrigation']['Pump'][howManyLine]));
                     }
                   }
                   if(parameter.payloadKey == 'ProgramStartStopReason') {
@@ -1127,7 +1144,7 @@ class IrrigationLogModel {
                   }
                   if(parameter.payloadKey == 'SequenceData') {
                     if(parameter.show == true){
-                      myList.add(date['irrigation']['SequenceData'][howManyProgram]);
+                      myList.add(getName(date['irrigation']['SequenceData'][howManyProgram]));
                     }
                   }
                   if(parameter.payloadKey == 'Date') {
@@ -1137,7 +1154,7 @@ class IrrigationLogModel {
                   }
                   if(parameter.payloadKey == 'HeadUnit') {
                     if(parameter.show == true){
-                      myList.add(date['irrigation']['HeadUnit'][howManyProgram]);
+                      myList.add(getName(date['irrigation']['HeadUnit'][howManyProgram]));
                     }
                   }
                   if(parameter.payloadKey == 'ScheduledStartTime') {
@@ -1147,7 +1164,7 @@ class IrrigationLogModel {
                   }
                   if(parameter.payloadKey == 'Pump') {
                     if(parameter.show == true){
-                      myList.add(date['irrigation']['Pump'][howManyProgram]);
+                      myList.add(getName(date['irrigation']['Pump'][howManyProgram]));
                     }
                   }
                   if(parameter.payloadKey == 'ProgramStartStopReason') {
@@ -1546,12 +1563,12 @@ class IrrigationLogModel {
                   }
                   if(parameter.payloadKey == 'SequenceData') {
                     if(parameter.show == true){
-                      myList.add(date['irrigation']['SequenceData'][howManyDate]);
+                      myList.add(getName(date['irrigation']['SequenceData'][howManyDate]));
                     }
                   }
                   if(parameter.payloadKey == 'HeadUnit') {
                     if(parameter.show == true){
-                      myList.add(date['irrigation']['HeadUnit'][howManyDate]);
+                      myList.add(getName(date['irrigation']['HeadUnit'][howManyDate]));
                     }
                   }
                   if(parameter.payloadKey == 'ScheduledStartTime') {
@@ -1561,7 +1578,7 @@ class IrrigationLogModel {
                   }
                   if(parameter.payloadKey == 'Pump') {
                     if(parameter.show == true){
-                      myList.add(date['irrigation']['Pump'][howManyDate]);
+                      myList.add(getName(date['irrigation']['Pump'][howManyDate]));
                     }
                   }
                   if(parameter.payloadKey == 'ProgramStartStopReason') {
@@ -1589,7 +1606,7 @@ class IrrigationLogModel {
                       waterList.add(date['irrigation']['IrrigationMethod'][howManyDate] == 1 ? 'Time' : 'Quantity (L)');
                     }
                   }
-                  print('IrrigationMethod---');
+                  // print('IrrigationMethod---');
                   if(parameter.payloadKey == 'IrrigationDuration_Quantity') {
                     graphData[indexOfDataToAdd]['totalTime'] = calculateTotalTime([graphData[indexOfDataToAdd]['totalTime'],date['irrigation']['IrrigationDurationCompleted'][howManyDate]]);
                     graphData[indexOfDataToAdd]['data'].add(
@@ -1640,7 +1657,7 @@ class IrrigationLogModel {
                       var listOfFilterDuration = (filterDuration == null || filterDuration.isEmpty) ? [] : filterDuration.split('_');
                       var listOfNameAndDuration = [];
                       for(var name = 0;name < listOfFilterName.length;name++){
-                        print("listOfFilterName : ${listOfFilterName[name]} == ${listOfFilterDuration}");
+                        // print("listOfFilterName : ${listOfFilterName[name]} == ${listOfFilterDuration}");
                         if(name < listOfFilterDuration.length){
                           listOfNameAndDuration.add('${listOfFilterName[name]} - ${listOfFilterDuration[name]}');
                         }else{
@@ -1959,7 +1976,7 @@ class IrrigationLogModel {
                   }
                   if(parameter.payloadKey == 'SequenceData') {
                     if(parameter.show == true){
-                      myList.add(date['irrigation']['SequenceData'][howManyStatus]);
+                      myList.add(getName(date['irrigation']['SequenceData'][howManyStatus]));
                     }
                   }
                   if(parameter.payloadKey == 'Date') {
@@ -1969,7 +1986,7 @@ class IrrigationLogModel {
                   }
                   if(parameter.payloadKey == 'HeadUnit') {
                     if(parameter.show == true){
-                      myList.add(date['irrigation']['HeadUnit'][howManyStatus]);
+                      myList.add(getName(date['irrigation']['HeadUnit'][howManyStatus]));
                     }
                   }
                   if(parameter.payloadKey == 'ScheduledStartTime') {
@@ -1979,7 +1996,7 @@ class IrrigationLogModel {
                   }
                   if(parameter.payloadKey == 'Pump') {
                     if(parameter.show == true){
-                      myList.add(date['irrigation']['Pump'][howManyStatus]);
+                      myList.add(getName(date['irrigation']['Pump'][howManyStatus]));
                     }
                   }
                   if(parameter.payloadKey == 'ProgramStartStopReason') {
@@ -2311,7 +2328,7 @@ class IrrigationLogModel {
                 if(splitData.length <= channelNo){
                   list.add(null);
                 }else{
-                  print("${splitData.length} ==== $channelNo");
+                  // print("${splitData.length} ==== $channelNo");
                   list.add(splitData[channelNo]);
                 }
               }else{
@@ -2374,15 +2391,15 @@ class GraphData{
 }
 
 GraphData getGraphData({required method,required planned,required actualDuration,required actualLiters,required flowRate,required String name,preValue,postValue}){
-  print({
-    'method' : method,
-    'planned' : planned,
-    'actualDuration' : actualDuration,
-    'flowRate' : flowRate,
-    'name' : name,
-    'preValue' : preValue,
-    'postValue' : postValue,
-  });
+  // print({
+  //   'method' : method,
+  //   'planned' : planned,
+  //   'actualDuration' : actualDuration,
+  //   'flowRate' : flowRate,
+  //   'name' : name,
+  //   'preValue' : preValue,
+  //   'postValue' : postValue,
+  // });
   var preValueInSec = DataConvert().parseTimeString(preValue ?? '00:00:00');
   var postValueInSec = DataConvert().parseTimeString(postValue ?? '00:00:00');
   var plannedSeconds = method == 1 ? DataConvert().parseTimeString(planned) : 0;
@@ -2407,19 +2424,19 @@ GraphData getGraphData({required method,required planned,required actualDuration
   dynamic plannedFrom = 0;
   dynamic plannedTo = 0;
   if(actualInLiters > preInLiters){
-    print('$name : first if');
+    // print('$name : first if');
     preTo = preInLiters;
     actualFrom = preTo;
-    print('preTo = ${preTo.runtimeType} | actualFrom = ${actualFrom.runtimeType} | preInLiters = ${preInLiters.runtimeType} | plannedInLiters = ${plannedInLiters.runtimeType} | postInLiters = ${postInLiters.runtimeType} | actualInLiters = ${actualInLiters.runtimeType} |  ');
+    // print('preTo = ${preTo.runtimeType} | actualFrom = ${actualFrom.runtimeType} | preInLiters = ${preInLiters.runtimeType} | plannedInLiters = ${plannedInLiters.runtimeType} | postInLiters = ${postInLiters.runtimeType} | actualInLiters = ${actualInLiters.runtimeType} |  ');
     if((plannedInLiters - postInLiters) > actualInLiters){
-      print('$name : second if');
+      // print('$name : second if');
       actualTo = actualInLiters;
       postFrom = actualTo;
       postTo = postFrom;
       plannedFrom = postTo;
       plannedTo = plannedInLiters;
     }else{
-      print('$name : second else');
+      // print('$name : second else');
       actualTo = plannedInLiters - postInLiters;
       postFrom = actualTo;
       postTo = plannedInLiters - (plannedInLiters - actualInLiters);
@@ -2427,7 +2444,7 @@ GraphData getGraphData({required method,required planned,required actualDuration
       plannedTo = plannedInLiters;
     }
   }else{
-    print('$name : first else');
+    // print('$name : first else');
     preTo = actualInLiters;
     actualFrom = preTo;
     actualTo = actualFrom;
@@ -2436,17 +2453,17 @@ GraphData getGraphData({required method,required planned,required actualDuration
     plannedFrom = postTo;
     plannedTo = plannedInLiters;
   }
-  print({
-    'preFrom': preFrom,
-    'preTo': preTo,
-    'actualFrom': actualFrom,
-    'actualTo': actualTo,
-    'postFrom': postFrom,
-    'postTo': postTo,
-    'plannedFrom': plannedFrom,
-    'plannedTo': plannedTo,
-    'seqName': name
-  });
+  // print({
+  //   'preFrom': preFrom,
+  //   'preTo': preTo,
+  //   'actualFrom': actualFrom,
+  //   'actualTo': actualTo,
+  //   'postFrom': postFrom,
+  //   'postTo': postTo,
+  //   'plannedFrom': plannedFrom,
+  //   'plannedTo': plannedTo,
+  //   'seqName': name
+  // });
   return GraphData(
       preFrom: preFrom,
       preTo: preTo,

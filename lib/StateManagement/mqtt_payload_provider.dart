@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../Constants/data_convertion.dart';
 import '../Models/customer/site_model.dart';
@@ -24,11 +25,12 @@ class MqttPayloadProvider with ChangeNotifier {
   // bool isWaiting = false;
   int dataFetchingStatus = 2;
   List<dynamic> unitList = [];
+
   //Todo : Dashboard start
   int tryingToGetPayload = 0;
 
   String version = '';
-  int powerSupply = 0;
+
   dynamic listOfSite = [];
   dynamic listOfSharedUser = {};
   bool httpError = false;
@@ -80,6 +82,8 @@ class MqttPayloadProvider with ChangeNotifier {
   List<dynamic> units = [];
 
   //kamaraj
+  int powerSupply = 0;
+  Duration lastCommunication = Duration.zero;
   int wifiStrength = 0;
   String liveDateAndTime = '';
   List<String> nodeLiveMessage = [];
@@ -459,7 +463,7 @@ class MqttPayloadProvider with ChangeNotifier {
 
   }
 
- 
+
 
   void updateReceivedPayload(String payload,bool dataFromHttp) async{
     // print("updateReceivedPayload ====$payload");
@@ -476,6 +480,7 @@ class MqttPayloadProvider with ChangeNotifier {
       //live payload
       if(data['mC']=='2400'){
         liveDateAndTime = '${data['cD']} ${data['cT']}';
+        updateLastCommunication(liveDateAndTime);
         wifiStrength = data['cM']['WifiStrength'];
         updateNodeLiveMessage(data['cM']['2401'].split(";"));
         updateOutputONOffLiveMessage(data['cM']['2402'].split(";"));
@@ -760,6 +765,8 @@ class MqttPayloadProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  //Todo : Dashboard stop
+
   Future<void> updateDashboardPayload(Map<String, dynamic> payload) async{
     _dashboardLiveInstance = SiteModel.fromJson(payload);
     waterSourceMobDash = _dashboardLiveInstance!.data[0].master[0].config.waterSource;
@@ -838,6 +845,14 @@ class MqttPayloadProvider with ChangeNotifier {
 
   void updateMQTTConnectionState(MQTTConnectionState state) {
     _appConnectionState = state;
+    notifyListeners();
+  }
+
+  void updateLastCommunication(dt) {
+    final String lastSyncString = dt;
+    DateTime lastSyncDateTime = DateFormat("yyyy-MM-dd HH:mm:ss").parse(lastSyncString);
+    DateTime currentDateTime = DateTime.now();
+    lastCommunication = currentDateTime.difference(lastSyncDateTime);
     notifyListeners();
   }
 

@@ -47,7 +47,7 @@ class CustomerScreenController extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => NavRailViewModel()),
         ChangeNotifierProvider(
-          create: (_) => CustomerScreenControllerViewModel(context, Repository(HttpService()))..getAllMySites(customerId),
+          create: (_) => CustomerScreenControllerViewModel(context, Repository(HttpService()))..getAllMySites(context, customerId),
         ),
       ],
       child: Consumer2<NavRailViewModel, CustomerScreenControllerViewModel>(
@@ -56,7 +56,8 @@ class CustomerScreenController extends StatelessWidget {
           int wifiStrength = Provider.of<MqttPayloadProvider>(context).wifiStrength;
           String liveDataAndTime = Provider.of<MqttPayloadProvider>(context).liveDateAndTime;
           var iLineLiveMessage = Provider.of<MqttPayloadProvider>(context).lineLiveMessage;
-          print(iLineLiveMessage);
+          Duration lastCommunication = Provider.of<MqttPayloadProvider>(context).lastCommunication;
+          int powerSupply = Provider.of<MqttPayloadProvider>(context).powerSupply;
 
           if(liveDataAndTime.isNotEmpty){
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -101,7 +102,7 @@ class CustomerScreenController extends StatelessWidget {
                     }).toList(),
                     onChanged: (siteName) => vm.siteOnChanged(siteName!),
                     value: vm.myCurrentSite,
-                    dropdownColor: Colors.teal,
+                    dropdownColor: Theme.of(context).primaryColorLight,
                     iconEnabledColor: Colors.white,
                     iconDisabledColor: Colors.white,
                     focusColor: Colors.transparent,
@@ -113,7 +114,36 @@ class CustomerScreenController extends StatelessWidget {
                   Container(width: 1,height: 20, color: Colors.white54,),
                   const SizedBox(width: 5,),
 
-                  vm.mySiteList.data[vm.sIndex].master.length>1? DropdownButton(
+                  vm.mySiteList.data[vm.sIndex].master.length>1? PopupMenuButton<String>(
+                    color: Colors.white,
+                    tooltip: '',
+                    child: MaterialButton(
+                      onPressed: null,
+                      textColor: Colors.white,
+                      child: Row(
+                        children: [
+                          Text(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName),
+                          const SizedBox(width: 3),
+                          const Icon(Icons.arrow_drop_down, color: Colors.white),
+                        ],
+                      ),
+                    ),
+                    itemBuilder: (context) {
+                      return List.generate(vm.mySiteList.data[vm.sIndex].master.length, (index) {
+                        return PopupMenuItem<String>(
+                          value: vm.mySiteList.data[vm.sIndex].master[index].categoryName,
+                          child: Text(vm.mySiteList.data[vm.sIndex].master[index].categoryName),
+                        );
+                      });
+                    },
+                    onSelected: (selectedCategory) {
+                      vm.masterOnChanged(selectedCategory);
+                    },
+                  ):
+                  Text(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
+                    style: const TextStyle(fontSize: 17),),
+
+                  /*vm.mySiteList.data[vm.sIndex].master.length>1? DropdownButton(
                     isExpanded: false,
                     underline: Container(),
                     items: (vm.mySiteList.data[vm.sIndex].master ?? []).map((master) {
@@ -124,13 +154,13 @@ class CustomerScreenController extends StatelessWidget {
                     }).toList(),
                     onChanged: (categoryName) => vm.masterOnChanged(categoryName),
                     value: vm.myCurrentMaster,
-                    dropdownColor: Colors.teal,
+                    dropdownColor: Theme.of(context).primaryColorLight,
                     iconEnabledColor: Colors.white,
                     iconDisabledColor: Colors.white,
                     focusColor: Colors.transparent,
                   ) :
                   Text(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
-                    style: const TextStyle(fontSize: 17),),
+                    style: const TextStyle(fontSize: 17),),*/
 
                   vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1?
                   const SizedBox(width: 15,): const SizedBox(),
@@ -315,225 +345,138 @@ class CustomerScreenController extends StatelessWidget {
               ],
             ),
             extendBody: true,
-            body: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                NavigationRail(
-                  selectedIndex: navViewModel.selectedIndex,
-                  labelType: NavigationRailLabelType.all,
-                  elevation: 5,
-                  onDestinationSelected: (int index) {
-                    navViewModel.onDestinationSelectingChange(index);
-                  },
-                  destinations: getNavigationDestinations(),
-                ),
-                Expanded(
-                  child: Container(
+            body: Container(
+              color: Theme.of(context).primaryColor,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  NavigationRail(
+                    selectedIndex: navViewModel.selectedIndex,
+                    labelType: NavigationRailLabelType.all,
+                    elevation: 5,
+                    onDestinationSelected: (int index) {
+                      navViewModel.onDestinationSelectingChange(index);
+                    },
+                    destinations: getNavigationDestinations(),
+                  ),
+                  Container(
+                    width: MediaQuery.sizeOf(context).width-140,
+                    height: MediaQuery.sizeOf(context).height,
                     decoration: BoxDecoration(
                       color: Theme.of(context).scaffoldBackgroundColor,
-                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(5),topRight: Radius.circular(5)),
+                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(8),topRight: Radius.circular(8)),
                     ),
-                    child: mainScreen(navViewModel.selectedIndex, vm.mySiteList.data[vm.sIndex].groupId,
-                        vm.mySiteList.data[vm.sIndex].groupName, vm.mySiteList.data[vm.sIndex].master,
-                        vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId),
+                    child: Column(
+                      children: [
+                        lastCommunication.inMinutes >= 10 && powerSupply == 0?Container(
+                          height: 23.0,
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade200,
+                            borderRadius: const BorderRadius.only(topLeft: Radius.circular(5),topRight: Radius.circular(5)),
+                          ),
+                          child: Center(
+                            child: Text('No communication and power Supply to Controller'.toUpperCase(),
+                              style: const TextStyle(
+                                color: Colors.black87,
+                                fontSize: 12.0,
+                              ),
+                            ),
+                          ),
+                        ):
+                        powerSupply == 0?Container(
+                          height: 20.0,
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade300,
+                            borderRadius: const BorderRadius.only(topLeft: Radius.circular(5),topRight: Radius.circular(5)),
+                          ),
+                          child: Center(
+                            child: Text('No power Supply to Controller'.toUpperCase(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12.0,
+                              ),
+                            ),
+                          ),
+                        ):
+                        const SizedBox(),
+
+                        Expanded(
+                          child: mainScreen(navViewModel.selectedIndex, vm.mySiteList.data[vm.sIndex].groupId,
+                              vm.mySiteList.data[vm.sIndex].groupName, vm.mySiteList.data[vm.sIndex].master,
+                              vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                              vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId==1?
-                Container(
-                  width: 60,
-                  height: MediaQuery.sizeOf(context).height,
-                  color: Theme.of(context).primaryColor,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 10),
-                      Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            color: Colors.transparent
-                        ),
-                        width: 45,
-                        height: 45,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(vm.wifiStrength == 0? Icons.wifi_off:
-                            vm.wifiStrength >= 1 && vm.wifiStrength <= 20 ? Icons.network_wifi_1_bar_outlined:
-                            vm.wifiStrength >= 21 && vm.wifiStrength <= 40 ? Icons.network_wifi_2_bar_outlined:
-                            vm.wifiStrength >= 41 && vm.wifiStrength <= 60 ? Icons.network_wifi_3_bar_outlined:
-                            vm.wifiStrength >= 61 && vm.wifiStrength <= 80 ? Icons.network_wifi_3_bar_outlined:
-                            Icons.wifi, color: Colors.white,),
-                            Text('${vm.wifiStrength} %',style: const TextStyle(fontSize: 11.0, color: Colors.white70),
-                            ),
-                          ],
-                        ),
+                  vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId==1?
+                  Container(
+                    width: 60,
+                    height: MediaQuery.sizeOf(context).height,
+                    color: Theme.of(context).primaryColor,
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                        const SizedBox(height: 10),
+                    Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          color: Colors.transparent
                       ),
-                      const SizedBox(height: 15),
-                      Container(
-                        width: 45,
-                        height: 45,
-                        decoration: const BoxDecoration(
-                          color: Colors.transparent,
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                        ),
-                        child: BadgeButton(
-                          onPressed: (){
-                            /*showPopover(
-                              context: context,
-                              bodyBuilder: (context) => AlarmListItems(payload:payload, deviceID:deviceID, customerId: customerId, controllerId: controllerId,),
-                              onPop: () => print('Popover was popped!'),
-                              direction: PopoverDirection.left,
-                              width: payload.alarmList.isNotEmpty?600:250,
-                              height: payload.alarmList.isNotEmpty?(payload.alarmList.length*45)+20:50,
-                              arrowHeight: 15,
-                              arrowWidth: 30,
-                            );*/
-                          },
-                          icon: Icons.alarm,
-                          badgeNumber: 0,
-                        ),
+                      width: 45,
+                      height: 45,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(vm.wifiStrength == 0? Icons.wifi_off:
+                          vm.wifiStrength >= 1 && vm.wifiStrength <= 20 ? Icons.network_wifi_1_bar_outlined:
+                          vm.wifiStrength >= 21 && vm.wifiStrength <= 40 ? Icons.network_wifi_2_bar_outlined:
+                          vm.wifiStrength >= 41 && vm.wifiStrength <= 60 ? Icons.network_wifi_3_bar_outlined:
+                          vm.wifiStrength >= 61 && vm.wifiStrength <= 80 ? Icons.network_wifi_3_bar_outlined:
+                          Icons.wifi, color: Colors.white,),
+                          Text('${vm.wifiStrength} %',style: const TextStyle(fontSize: 11.0, color: Colors.white70),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 15),
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundColor: Colors.transparent,
-                        child: SizedBox(
-                          height: 45,
-                          width: 45,
-                          child: IconButton(
-                            tooltip: 'Node status',
-                            onPressed: () {
-                              showGeneralDialog(
-                                barrierLabel: "Side sheet",
-                                barrierDismissible: true,
-                                barrierColor: const Color(0xff66000000),
-                                transitionDuration: const Duration(milliseconds: 300),
+                    ),
+                    const SizedBox(height: 15),
+                    Container(
+                      width: 45,
+                      height: 45,
+                      decoration: const BoxDecoration(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.all(Radius.circular(5)),
+                      ),
+                      child: BadgeButton(
+                        onPressed: (){
+                          /*showPopover(
                                 context: context,
-                                pageBuilder: (context, animation1, animation2) {
-                                  return Align(
-                                    alignment: Alignment.centerRight,
-                                    child: Material(
-                                      elevation: 15,
-                                      color: Colors.transparent,
-                                      borderRadius: BorderRadius.zero,
-                                      child: StatefulBuilder(
-                                        builder: (BuildContext context, StateSetter stateSetter) {
-                                          return NodeList(customerId: customerId, nodes: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList,
-                                            deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                                            deviceName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
-                                            controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId, userId: userId,);
-                                        },
-                                      ),
-                                    ),
-                                  );
-                                },
-                                transitionBuilder: (context, animation1, animation2, child) {
-                                  return SlideTransition(
-                                    position: Tween(begin: const Offset(1, 0), end: const Offset(0, 0)).animate(animation1),
-                                    child: child,
-                                  );
-                                },
-                              );
-                            },
-                            icon: const Icon(Icons.format_list_numbered),
-                            color: Colors.white,
-                            iconSize: 24.0,
-                            hoverColor: Theme.of(context).primaryColorLight,
-                          ),
-                        ),
+                                bodyBuilder: (context) => AlarmListItems(payload:payload, deviceID:deviceID, customerId: customerId, controllerId: controllerId,),
+                                onPop: () => print('Popover was popped!'),
+                                direction: PopoverDirection.left,
+                                width: payload.alarmList.isNotEmpty?600:250,
+                                height: payload.alarmList.isNotEmpty?(payload.alarmList.length*45)+20:50,
+                                arrowHeight: 15,
+                                arrowWidth: 30,
+                              );*/
+                        },
+                        icon: Icons.alarm,
+                        badgeNumber: 0,
                       ),
-                      const SizedBox(height: 15),
-                      Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            color: Colors.transparent
-                        ),
-                        width: 45,
+                    ),
+                    const SizedBox(height: 15),
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Colors.transparent,
+                      child: SizedBox(
                         height: 45,
+                        width: 45,
                         child: IconButton(
-                          tooltip: 'Input/Output Connection details',
+                          tooltip: 'Node status',
                           onPressed: () {
-                            Navigator.push(context,
-                              MaterialPageRoute(
-                                builder: (context) => InputOutputConnectionDetails(masterInx: vm.mIndex, nodes: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.settings_input_component_outlined),
-                          color: Colors.white,
-                          iconSize: 24.0,
-                          hoverColor: Theme.of(context).primaryColorLight,
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-                      Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            color: Colors.transparent
-                        ),
-                        width: 45,
-                        height: 45,
-                        child: IconButton(
-                          tooltip: 'Program',
-                          onPressed: vm.getPermissionStatusBySNo(context, 10) ? () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ProgramSchedule(
-                                  customerID: customerId,
-                                  controllerID: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                                  siteName: vm.mySiteList.data[vm.sIndex].groupName,
-                                  imeiNumber: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                                  userId: userId,
-                                  groupId: vm.mySiteList.data[vm.sIndex].groupId,
-                                  categoryId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
-                                ),
-                              ),
-                            );
-                          }:null,
-                          icon: const Icon(Icons.list_alt),
-                          color: Colors.white,
-                          iconSize: 24.0,
-                          hoverColor: Theme.of(context).primaryColorLight,
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-                      Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            color: Colors.transparent
-                        ),
-                        width: 45,
-                        height: 45,
-                        child: IconButton(
-                          tooltip: 'Scheduled Program details',
-                          // onPressed: (){},
-                          onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ScheduleViewScreen(deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId, userId: userId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId, customerId: customerId, groupId: vm.mySiteList.data[vm.sIndex].groupId),
-                            ),
-                          ),
-                          icon: const Icon(Icons.view_list_outlined),
-                          color: Colors.white,
-                          iconSize: 24.0,
-                          hoverColor: Theme.of(context).primaryColorLight,
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-                      Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            color: Colors.transparent
-                        ),
-                        width: 45,
-                        height: 45,
-                        child: IconButton(
-                          tooltip: 'Manual',
-                          onPressed:  () {
                             showGeneralDialog(
                               barrierLabel: "Side sheet",
                               barrierDismissible: true,
@@ -549,11 +492,10 @@ class CustomerScreenController extends StatelessWidget {
                                     borderRadius: BorderRadius.zero,
                                     child: StatefulBuilder(
                                       builder: (BuildContext context, StateSetter stateSetter) {
-                                        return StandAlone(siteId: vm.mySiteList.data[vm.sIndex].groupId,
-                                          controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                                          customerId: customerId,
+                                        return NodeList(customerId: customerId, nodes: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList,
                                           deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                                          callbackFunction: callbackFunction, userId: userId, config: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config,);
+                                          deviceName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
+                                          controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId, userId: userId,);
                                       },
                                     ),
                                   ),
@@ -567,17 +509,147 @@ class CustomerScreenController extends StatelessWidget {
                               },
                             );
                           },
-                          icon: const Icon(Icons.touch_app_outlined),
+                          icon: const Icon(Icons.format_list_numbered),
                           color: Colors.white,
                           iconSize: 24.0,
                           hoverColor: Theme.of(context).primaryColorLight,
                         ),
                       ),
-                    ],
-                  ),
-                ):
-                const SizedBox(),
-              ],
+                    ),
+                    const SizedBox(height: 15),
+                    Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          color: Colors.transparent
+                      ),
+                      width: 45,
+                      height: 45,
+                      child: IconButton(
+                        tooltip: 'Input/Output Connection details',
+                        onPressed: () {
+                          Navigator.push(context,
+                            MaterialPageRoute(
+                              builder: (context) => InputOutputConnectionDetails(masterInx: vm.mIndex, nodes: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.settings_input_component_outlined),
+                        color: Colors.white,
+                        iconSize: 24.0,
+                        hoverColor: Theme.of(context).primaryColorLight,
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          color: Colors.transparent
+                      ),
+                      width: 45,
+                      height: 45,
+                      child: IconButton(
+                        tooltip: 'Program',
+                        onPressed: vm.getPermissionStatusBySNo(context, 10) ? () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProgramSchedule(
+                                customerID: customerId,
+                                controllerID: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                                siteName: vm.mySiteList.data[vm.sIndex].groupName,
+                                imeiNumber: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                                userId: userId, groupId: vm.mySiteList.data[vm.sIndex].groupId,
+                                categoryId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
+                              ),
+                            ),
+                          );
+                        }:null,
+                        icon: const Icon(Icons.list_alt),
+                        color: Colors.white,
+                        iconSize: 24.0,
+                        hoverColor: Theme.of(context).primaryColorLight,
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          color: Colors.transparent
+                      ),
+                      width: 45,
+                      height: 45,
+                      child: IconButton(
+                        tooltip: 'Scheduled Program details',
+                        onPressed: (){},
+                        /*onPressed: getPermissionStatusBySNo(context, 3) ? () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ScheduleViewScreen(deviceId: mySiteList[siteIndex].master[masterIndex].deviceId, userId: widget.userId, controllerId: mySiteList[siteIndex].master[masterIndex].controllerId, customerId: widget.customerId),
+                                ),
+                              );
+                            }:null,*/
+                        icon: const Icon(Icons.view_list_outlined),
+                        color: Colors.white,
+                        iconSize: 24.0,
+                        hoverColor: Theme.of(context).primaryColorLight,
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          color: Colors.transparent
+                      ),
+                      width: 45,
+                      height: 45,
+                      child: IconButton(
+                        tooltip: 'Manual',
+                        onPressed:  () {
+                          showGeneralDialog(
+                            barrierLabel: "Side sheet",
+                            barrierDismissible: true,
+                            barrierColor: const Color(0xff66000000),
+                            transitionDuration: const Duration(milliseconds: 300),
+                            context: context,
+                            pageBuilder: (context, animation1, animation2) {
+                              return Align(
+                                alignment: Alignment.centerRight,
+                                child: Material(
+                                  elevation: 15,
+                                  color: Colors.transparent,
+                                  borderRadius: BorderRadius.zero,
+                                  child: StatefulBuilder(
+                                    builder: (BuildContext context, StateSetter stateSetter) {
+                                      return StandAlone(siteId: vm.mySiteList.data[vm.sIndex].groupId,
+                                        controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                                        customerId: customerId,
+                                        deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                                        callbackFunction: callbackFunction, userId: userId, config: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config,);
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
+                            transitionBuilder: (context, animation1, animation2, child) {
+                              return SlideTransition(
+                                position: Tween(begin: const Offset(1, 0), end: const Offset(0, 0)).animate(animation1),
+                                child: child,
+                              );
+                            },
+                          );
+                        },
+                        icon: const Icon(Icons.touch_app_outlined),
+                        color: Colors.white,
+                        iconSize: 24.0,
+                        hoverColor: Theme.of(context).primaryColorLight,
+                      ),
+                    ),
+                  ]),
+                  ):
+                  SizedBox()
+                ],
+              ),
             ),
           ) : HomeScreen(userId: 4,fromDealer: false,);
         },
@@ -641,10 +713,11 @@ class CustomerScreenController extends StatelessWidget {
     return destinations;
   }
 
-  Widget mainScreen(int index, groupId, groupName, List<Master> masterData, int controllerId) {
+  Widget mainScreen(int index, groupId, groupName, List<Master> masterData, int controllerId, int categoryId) {
     switch (index) {
       case 0:
-        return CustomerHome(customerId: userId);
+        return categoryId==1?CustomerHome(customerId: userId):
+        Text('pump dashboard');
       case 1:
         return CustomerProduct(customerId: userId);
       case 2:

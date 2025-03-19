@@ -21,8 +21,9 @@ import '../repository/irrigation_repository.dart';
 
 class LogHome extends StatefulWidget {
   final dynamic serverData;
+  final List<dynamic> nameData;
   final Map<String, dynamic> userData;
-  const LogHome({super.key,required this.serverData, required this.userData});
+  const LogHome({super.key,required this.serverData, required this.userData, required this.nameData});
   @override
   State<LogHome> createState() => _LogHomeState();
 }
@@ -243,7 +244,10 @@ class _LogHomeState extends State<LogHome> {
     String formattedDate2 = "${date2.year}-${_formatNumber(date2.month)}-${_formatNumber(date2.day)}";
 
     irrigationParameterArray.editParameter(IrrigationLogParameterFromServer);
+    irrigationParameterArray.editName(widget.nameData);
+
     irrigationParameterArrayDuplicate.editParameter(IrrigationLogParameterFromServer);
+    irrigationParameterArrayDuplicate.editName(widget.nameData);
     try{
       String? startMonth = selectedDateRange?.start.month.toString();
       print('startMonth : $startMonth');
@@ -556,8 +560,8 @@ class _LogHomeState extends State<LogHome> {
           appBar: AppBar(
             title: Column(
               children: [
-                Text('Irrigation Log'),
-                Text('${_selectedDate}',style: TextStyle(fontSize: 12),),
+                const Text('Irrigation Log'),
+                Text('${_selectedDate}',style: const TextStyle(fontSize: 12),),
               ],
             ),
             actions: [
@@ -565,7 +569,7 @@ class _LogHomeState extends State<LogHome> {
                 onPressed: (){
                   sideSheet(constraint);
                 },
-                icon: Icon(Icons.filter_list_alt,color: Colors.black,),
+                icon: const Icon(Icons.filter_list_alt,color: Colors.black,),
               ),
               PopupMenuButton<int>(
                 onSelected: (value){
@@ -599,7 +603,7 @@ class _LogHomeState extends State<LogHome> {
                           value: graphMode,
                           onChanged: (value){
                             getDialog(context);
-                            Future.delayed(Duration(seconds: 1),(){
+                            Future.delayed(const Duration(seconds: 1),(){
                               setState(() {
                                 graphMode = value!;
                               });
@@ -671,11 +675,11 @@ class _LogHomeState extends State<LogHome> {
               children: [
                 if((dataSource != null || dataToShow.isNotEmpty))
                   Container(
-                    margin: EdgeInsets.all(8),
+                    margin: const EdgeInsets.all(8),
                     width: double.infinity,
                     height: 40,
                     decoration: BoxDecoration(
-                        color: Color(0xffE6EDF5),
+                        color: const Color(0xffE6EDF5),
                         borderRadius: BorderRadius.circular(20)
                     ),
                     child: SingleChildScrollView(
@@ -693,11 +697,11 @@ class _LogHomeState extends State<LogHome> {
                                   name: '${_irrigationOptionWise[i][0]}',
                                   onTap: (){
                                     getDialog(context);
-                                    Future.delayed(Duration(seconds: 1),(){
+                                    Future.delayed(const Duration(seconds: 1),(){
                                       setState(() {
                                         _scrollController.animateTo(
                                           (i * (_selectedIndex > i ? 100 : 100)).toDouble(),
-                                          duration: Duration(milliseconds: 500),
+                                          duration: const Duration(milliseconds: 500),
                                           curve: Curves.easeInOut,
                                         );
                                         _irrigationOptionWise[i][1] = true;
@@ -800,7 +804,7 @@ class _LogHomeState extends State<LogHome> {
                         controller: _graphController,
                         thickness: 20,
                         interactive: true,
-                        radius: Radius.circular(50),
+                        radius: const Radius.circular(50),
                         child: SingleChildScrollView(
                           controller: _graphController,
                           child: Column(
@@ -812,8 +816,8 @@ class _LogHomeState extends State<LogHome> {
                                     if(dataToShow.isNotEmpty)
                                       for(var i in dataToShow['graphData'])
                                         Container(
-                                          padding: EdgeInsets.all(8),
-                                          margin: EdgeInsets.all(8),
+                                          padding: const EdgeInsets.all(8),
+                                          margin: const EdgeInsets.all(8),
                                           decoration: BoxDecoration(
                                               boxShadow: AppProperties.customBoxShadowLiteTheme,
                                               color: Colors.white,
@@ -854,7 +858,7 @@ class _LogHomeState extends State<LogHome> {
                                                       initialVisibleMinimum: -0.5,
                                                       initialVisibleMaximum: (i['data'])!.length <= 3 ? (i['data'])!.length.toDouble() - 0.5 : 3,
                                                     ),
-                                                    primaryYAxis: NumericAxis(
+                                                    primaryYAxis: const NumericAxis(
                                                       isVisible: true,
                                                       // title: AxisTitle(text: "Dur/Qty"),
                                                       minimum: 0,
@@ -935,8 +939,8 @@ class _LogHomeState extends State<LogHome> {
                               },
                               child: Container(
                                 color: Colors.white,
-                                padding: EdgeInsets.all(5),
-                                child: Icon(Icons.keyboard_double_arrow_left),
+                                padding: const EdgeInsets.all(5),
+                                child: const Icon(Icons.keyboard_double_arrow_left),
                               ),
                             ),
                             if(dataToShow['fixedColumnData'] != null)
@@ -944,7 +948,7 @@ class _LogHomeState extends State<LogHome> {
                                 '${
                                     (selectedPages * noOfRowsPerPage) - 20} - ${((selectedPages * noOfRowsPerPage) < dataToShow['fixedColumnData'].length
                                     ?  (selectedPages * noOfRowsPerPage)
-                                    : dataToShow['fixedColumnData'].length)} / ${dataToShow['fixedColumnData'].length}',style: TextStyle(color: Colors.white),
+                                    : dataToShow['fixedColumnData'].length)} / ${dataToShow['fixedColumnData'].length}',style: const TextStyle(color: Colors.white),
                               ),
                             InkWell(
                               onTap: (){
@@ -956,8 +960,8 @@ class _LogHomeState extends State<LogHome> {
                               },
                               child: Container(
                                 color: Colors.white,
-                                padding: EdgeInsets.all(5),
-                                child: Icon(Icons.keyboard_double_arrow_right),
+                                padding: const EdgeInsets.all(5),
+                                child: const Icon(Icons.keyboard_double_arrow_right),
                               ),
                             ),
                           ],
@@ -965,11 +969,11 @@ class _LogHomeState extends State<LogHome> {
                       ),
                       MaterialButton(
                           color: Colors.white,
-                          child: Text('Select Date'),
+                          child: const Text('Select Date'),
                           onPressed: (){
                             showDialog(context: context, builder: (context){
                               return AlertDialog(
-                                title: Text('Date Picker'),
+                                title: const Text('Date Picker'),
                                 content: StatefulBuilder(
                                   builder: (BuildContext context, StateSetter stateSetter) {
                                     return SizedBox(
@@ -1019,7 +1023,7 @@ class _LogHomeState extends State<LogHome> {
                               builder: (context){
                                 var fileName = 'file';
                                 return AlertDialog(
-                                  title: Text('Give Name For Your File'),
+                                  title: const Text('Give Name For Your File'),
                                   content: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
@@ -1028,7 +1032,7 @@ class _LogHomeState extends State<LogHome> {
                                         onChanged: (value){
                                           fileName = value;
                                         },
-                                        decoration: InputDecoration(
+                                        decoration: const InputDecoration(
                                             border: OutlineInputBorder()
                                         ),
                                       ),
@@ -1040,7 +1044,7 @@ class _LogHomeState extends State<LogHome> {
                                           generateExcel(dataToShow,fileName,context);
                                           Navigator.pop(context);
                                         },
-                                        child: Text('Click to download')
+                                        child: const Text('Click to download')
                                     )
                                   ],
                                 );
@@ -1050,12 +1054,12 @@ class _LogHomeState extends State<LogHome> {
 
                         },
                         child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 5,horizontal: 10),
+                          padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(5),
                               color: Colors.white
                           ),
-                          child: Icon(Icons.download),
+                          child: const Icon(Icons.download),
                         ),
                       )
                     ],
@@ -1125,11 +1129,11 @@ class _LogHomeState extends State<LogHome> {
                         setState(() {
                           httpError = 2;
                         });
-                        await Future.delayed(Duration(seconds: 2));
+                        await Future.delayed(const Duration(seconds: 2));
                         getData();
                       }
                     },
-                    child: httpError != 2 ? Text('RETRY',style: TextStyle(color: Colors.white),) : loadingButtuon(),
+                    child: httpError != 2 ? const Text('RETRY',style: TextStyle(color: Colors.white),) : loadingButtuon(),
                     color: Colors.blueGrey,
                   ),
                 ],
@@ -1169,7 +1173,7 @@ class _LogHomeState extends State<LogHome> {
             Positioned(
               top: 15,
               left: 20,
-              child: Text('${data[0]}',style: TextStyle(color: Colors.white),),
+              child: Text('${data[0]}',style: const TextStyle(color: Colors.white),),
             )
           ],
         ),
@@ -1179,7 +1183,7 @@ class _LogHomeState extends State<LogHome> {
         width: 150,
         height: 50,
         child: Center(
-          child: Text('${data[0]}',style: TextStyle(color: Colors.black)),
+          child: Text('${data[0]}',style: const TextStyle(color: Colors.black)),
         ),
       );
     }
@@ -1240,7 +1244,7 @@ class _LogHomeState extends State<LogHome> {
                             onPressed: (){
                               Navigator.pop(context);
                             },
-                            child: Text("Cancel",style: TextStyle(color: Colors.white),),
+                            child: const Text("Cancel",style: TextStyle(color: Colors.white),),
                             color: Colors.red,
                           ),
                           MaterialButton(
@@ -1299,7 +1303,7 @@ class _LogHomeState extends State<LogHome> {
                               });
                               Navigator.pop(context);
                             },
-                            child: Text("OK",style: TextStyle(color: Colors.white)),
+                            child: const Text("OK",style: TextStyle(color: Colors.white)),
                             color: Theme.of(context).primaryColor,
                           )
                         ],
@@ -1323,14 +1327,14 @@ class _LogHomeState extends State<LogHome> {
                             if(_irrigationOptionWise[0][1] == true)
                               Column(
                                 children: [
-                                  SizedBox(height: 40,),
+                                  const SizedBox(height: 40,),
                                   Text('Filter Date',style: headingStyleInSheet,),
                                   for(var i in dateDuplicate)
                                     Container(
-                                      margin: EdgeInsets.symmetric(horizontal: 5),
+                                      margin: const EdgeInsets.symmetric(horizontal: 5),
                                       width: 250,
                                       child: ListTile(
-                                        leading: Icon(Icons.commit,color: Colors.blueGrey,),
+                                        leading: const Icon(Icons.commit,color: Colors.blueGrey,),
                                         title: Text('${i['name']}',style: const TextStyle(fontSize: 12),),
                                         trailing: Checkbox(
                                           value: i['show'],
@@ -1343,7 +1347,7 @@ class _LogHomeState extends State<LogHome> {
                                         ),
                                       ),
                                     ),
-                                  SizedBox(height: 10,)
+                                  const SizedBox(height: 10,)
                                 ],
                               ),
                             if(_irrigationOptionWise[1][1] == true)
@@ -1352,10 +1356,10 @@ class _LogHomeState extends State<LogHome> {
                                   Text('Filter Program',style: headingStyleInSheet),
                                   for(var i in programDuplicate)
                                     Container(
-                                      margin: EdgeInsets.symmetric(horizontal: 5),
+                                      margin: const EdgeInsets.symmetric(horizontal: 5),
                                       width: 250,
                                       child: ListTile(
-                                        leading: Icon(Icons.commit,color: Colors.blueGrey,),
+                                        leading: const Icon(Icons.commit,color: Colors.blueGrey,),
                                         title: Text('${i['programName']}',style: const TextStyle(fontSize: 12),),
                                         trailing: Checkbox(
                                           value: i['show'],
@@ -1368,7 +1372,7 @@ class _LogHomeState extends State<LogHome> {
                                         ),
                                       ),
                                     ),
-                                  SizedBox(height: 10,)
+                                  const SizedBox(height: 10,)
                                 ],
                               ),
                             if(_irrigationOptionWise[2][1] == true)
@@ -1377,10 +1381,10 @@ class _LogHomeState extends State<LogHome> {
                                   Text('Filter Line',style: headingStyleInSheet),
                                   for(var i in lineDuplicate)
                                     Container(
-                                      margin: EdgeInsets.symmetric(horizontal: 5),
+                                      margin: const EdgeInsets.symmetric(horizontal: 5),
                                       width: 250,
                                       child: ListTile(
-                                        leading: Icon(Icons.commit,color: Colors.blueGrey,),
+                                        leading: const Icon(Icons.commit,color: Colors.blueGrey,),
                                         title: Text('${i['lineName']}',style: const TextStyle(fontSize: 12),),
                                         trailing: Checkbox(
                                           value: i['show'],
@@ -1393,7 +1397,7 @@ class _LogHomeState extends State<LogHome> {
                                         ),
                                       ),
                                     ),
-                                  SizedBox(height: 10,)
+                                  const SizedBox(height: 10,)
                                 ],
                               ),
                             if(_irrigationOptionWise[3][1] == true)
@@ -1402,10 +1406,10 @@ class _LogHomeState extends State<LogHome> {
                                   Text('Filter Valve',style: headingStyleInSheet),
                                   for(var i in valveDuplicate)
                                     Container(
-                                      margin: EdgeInsets.symmetric(horizontal: 5),
+                                      margin: const EdgeInsets.symmetric(horizontal: 5),
                                       width: 250,
                                       child: ListTile(
-                                        leading: Icon(Icons.commit,color: Colors.blueGrey,),
+                                        leading: const Icon(Icons.commit,color: Colors.blueGrey,),
                                         title: Text('${i['name']}',style: const TextStyle(fontSize: 12),),
                                         trailing: Checkbox(
                                           value: i['show'],
@@ -1418,7 +1422,7 @@ class _LogHomeState extends State<LogHome> {
                                         ),
                                       ),
                                     ),
-                                  SizedBox(height: 10,)
+                                  const SizedBox(height: 10,)
                                 ],
                               ),
                             if(_irrigationOptionWise[4][1] == true)
@@ -1427,10 +1431,10 @@ class _LogHomeState extends State<LogHome> {
                                   Text('Filter Status',style: headingStyleInSheet),
                                   for(var i in statusDuplicate)
                                     Container(
-                                      margin: EdgeInsets.symmetric(horizontal: 5),
+                                      margin: const EdgeInsets.symmetric(horizontal: 5),
                                       width: 250,
                                       child: ListTile(
-                                        leading: Icon(Icons.commit,color: Colors.blueGrey,),
+                                        leading: const Icon(Icons.commit,color: Colors.blueGrey,),
                                         title: Text('${getStatus(i['name'])['status']}',style: const TextStyle(fontSize: 12),),
                                         trailing: Checkbox(
                                           value: i['show'],
@@ -1442,10 +1446,10 @@ class _LogHomeState extends State<LogHome> {
                                         ),
                                       ),
                                     ),
-                                  SizedBox(height: 10,)
+                                  const SizedBox(height: 10,)
                                 ],
                               ),
-                            SizedBox(
+                            const SizedBox(
                               height: 50,
                             ),
                           ],
@@ -1477,7 +1481,7 @@ class _LogHomeState extends State<LogHome> {
                 width: 250,
                 height: 60,
                 child: ListTile(
-                  title: Text('<C - CH$channelNo> Parameter',style: TextStyle(fontWeight: FontWeight.bold),),
+                  title: Text('<C - CH$channelNo> Parameter',style: const TextStyle(fontWeight: FontWeight.bold),),
                   leading: Checkbox(
                     value: parameterList[parameterList.length - 1].show,
                     onChanged: (bool? value) {
@@ -1495,10 +1499,10 @@ class _LogHomeState extends State<LogHome> {
               for(var i in parameterList)
                 if(i.payloadKey != 'overAll')
                   Container(
-                    margin: EdgeInsets.symmetric(horizontal: 5),
+                    margin: const EdgeInsets.symmetric(horizontal: 5),
                     width: 250,
                     child: ListTile(
-                      leading: Icon(Icons.adb_outlined,color: Colors.blueGrey,),
+                      leading: const Icon(Icons.adb_outlined,color: Colors.blueGrey,),
                       title: Text('${i.uiKey}',style: const TextStyle(fontSize: 12),),
                       trailing: Checkbox(
                         value: i.show,
@@ -1511,7 +1515,7 @@ class _LogHomeState extends State<LogHome> {
                       ),
                     ),
                   ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
             ],
@@ -1661,7 +1665,7 @@ Future<void> generateExcel(data,name, context) async {
                   onPressed: (){
                     Navigator.pop(context);
                   },
-                  child: Text('Ok')
+                  child: const Text('Ok')
               )
             ],
           );
@@ -1677,7 +1681,7 @@ Future<void> generateExcel(data,name, context) async {
                   onPressed: (){
                     Navigator.pop(context);
                   },
-                  child: Text('Ok')
+                  child: const Text('Ok')
               )
             ],
           );
@@ -1696,7 +1700,7 @@ void getDialog(context){
   showDialog(
       context: context,
       builder: (BuildContext context){
-        return AlertDialog(
+        return const AlertDialog(
           title: Text('Please wait......'),
           content: Text('Processing.....'),
         );
@@ -1821,10 +1825,10 @@ double convertTimeStringToHours(String timeString) {
   double totalHours = hours + (minutes / 60) + (seconds / 3600);
   return totalHours;
 }
-TextStyle headingStyleInSheet = TextStyle(fontSize: 14,fontWeight: FontWeight.bold);
+TextStyle headingStyleInSheet = const TextStyle(fontSize: 14,fontWeight: FontWeight.bold);
 
 Widget loadingButtuon(){
-  return SizedBox(
+  return const SizedBox(
     width: 20,
     height: 20,
     child: LoadingIndicator(

@@ -137,7 +137,7 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
         case 79:
          return ConstantInConfig(userId: widget.customerID, deviceId: widget.imeiNumber, customerId: widget.customerID, controllerId: widget.controllerID);
       case 80:
-        return Names(userID: widget.customerID, customerID: widget.customerID, controllerId: widget.controllerID, imeiNo: widget.imeiNumber, menuId: 80,);
+        return Names(userID: widget.customerID, customerID: widget.customerID, controllerId: widget.controllerID, menuId: 0, imeiNo: widget.imeiNumber, );
       // case 81:
       //   return CustomMarkerPage(userId: widget.customerID,deviceID: widget.imeiNumber,controllerId: widget.controllerID,);
       case 127:

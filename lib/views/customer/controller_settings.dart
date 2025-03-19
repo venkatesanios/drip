@@ -31,7 +31,7 @@ class ControllerSettings extends StatelessWidget {
               child: Column(
                 children: [
                   TabBar(
-                    indicatorColor: Colors.teal,
+                    indicatorColor: Theme.of(context).primaryColorLight,
                     labelColor: Colors.black,
                     unselectedLabelColor: Colors.grey,
                     tabs: const [
@@ -392,7 +392,7 @@ class ControllerSettings extends StatelessWidget {
                           ),
                         ),
                         const Center(child: Text('Tab 2 Content')),
-                        Center(child: ConditionLibrary(customerId, controllerId)),
+                        ConditionLibrary(customerId, controllerId, adDrId),
                         const Center(child: Text('Tab 4 Content')),
                         const Center(child: Text('Tab 5 Content')),
                         /*Column(

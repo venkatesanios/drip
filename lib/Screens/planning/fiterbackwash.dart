@@ -176,7 +176,7 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
                 foregroundColor: Colors.white,
                 onPressed: () async {
                   setState(() {
-                    updateRadiationSet();
+                    updatefilterbackwash();
                   });
                 },
                 tooltip: 'Send',
@@ -1003,7 +1003,7 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
     );
   }
 
-  updateRadiationSet() async {
+  updatefilterbackwash() async {
     var overAllPvd = Provider.of<OverAllUse>(context,listen: false);
      // List<Map<String, dynamic>> filterBackWash =
     // _filterbackwash.data!.filterBackwashing.map((condition) => condition.toJson()).toList();

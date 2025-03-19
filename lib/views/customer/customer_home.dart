@@ -599,7 +599,7 @@ class DisplayPumpStation extends StatelessWidget {
                                   ),
                                   width: 45,
                                   height: 22,
-                                  child: Center(
+                                  /*child: Center(
                                     child: Text(fertilizerSite[fIndex].selector[0]['Status']!=0?
                                     fertilizerSite[fIndex].selector[0]['Name'] : '--' , style: const TextStyle(
                                       color: Colors.black,
@@ -607,7 +607,7 @@ class DisplayPumpStation extends StatelessWidget {
                                       fontWeight: FontWeight.bold,
                                     ),
                                     ),
-                                  ),
+                                  ),*/
                                 ) :
                                 const SizedBox(),
                               ),

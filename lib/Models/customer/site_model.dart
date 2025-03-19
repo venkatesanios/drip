@@ -211,6 +211,10 @@ class Unit {
       'value': value,
     };
   }
+
+  static List<Map<String, dynamic>> toJsonList(List<Unit> units) {
+    return units.map((unit) => unit.toJson()).toList();
+  }
 }
 
 class ConfigObject {
@@ -237,7 +241,7 @@ class ConfigObject {
   factory ConfigObject.fromJson(Map<String, dynamic> json) {
     return ConfigObject(
       objectId: json['objectId'],
-      sNo: (json['sNo'] as num).toDouble(), // Ensures proper double conversion
+      sNo: (json['sNo'] as num).toDouble(),
       name: json['name'],
       connectionNo: json['connectionNo'],
       objectName: json['objectName'],

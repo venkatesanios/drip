@@ -1,39 +1,67 @@
-import 'package:data_table_2/data_table_2.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+
+import 'package:oro_drip_irrigation/utils/my_function.dart';
+import 'package:oro_drip_irrigation/view_models/create_account_view_model.dart';
 import 'package:provider/provider.dart';
+import '../../Models/customer/condition_library_model.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../view_models/customer/condition_library_view_model.dart';
 
 class ConditionLibrary extends StatelessWidget {
-  const ConditionLibrary(this.customerId, this.controllerId, {super.key});
-  final int customerId, controllerId;
+  const ConditionLibrary(this.customerId, this.controllerId, this.userId,
+      {super.key});
+
+  final int customerId, controllerId, userId;
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => ConditionLibraryViewModel(Repository(HttpService()))
+      create: (_) =>
+      ConditionLibraryViewModel(Repository(HttpService()))
         ..getConditionLibraryData(customerId, controllerId),
       child: Consumer<ConditionLibraryViewModel>(
-        builder: (context, viewModel, _) {
-          return viewModel.isLoading?
-          buildLoadingIndicator(true, MediaQuery.sizeOf(context).width)
-              : Scaffold(
-            backgroundColor: Colors.white,
+        builder: (context, vm, _) {
+          return vm.isLoading ?
+          Padding(
+            padding: EdgeInsets.only(left: MediaQuery.of(context).size.width/2-95,
+                right: MediaQuery.of(context).size.width/2-95),
+            child: const LoadingIndicator(
+              indicatorType: Indicator.ballPulse,
+              strokeWidth: 100,
+            ),
+          ) :
+          Scaffold(
+            backgroundColor: Theme
+                .of(context)
+                .scaffoldBackgroundColor,
             body: Padding(
               padding: const EdgeInsets.only(left: 8, right: 8, top: 8),
-              child: GridView.builder(
-                itemCount: 3,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 5.0,
-                  mainAxisSpacing: 5.0,
-                  childAspectRatio: 1.21,
+              child: vm.conditionLibraryData.conditionLibrary.condition
+                  .isNotEmpty ?
+              GridView.builder(
+                itemCount: vm.conditionLibraryData.conditionLibrary.condition
+                    .length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: MediaQuery
+                      .sizeOf(context)
+                      .width > 1350 ? 3 : 2,
+                  crossAxisSpacing: 3.0,
+                  mainAxisSpacing: 3.0,
+                  childAspectRatio: MediaQuery
+                      .sizeOf(context)
+                      .width > 1350 ? MediaQuery
+                      .sizeOf(context)
+                      .width / 1200 :
+                  MediaQuery
+                      .sizeOf(context)
+                      .width / 750,
                 ),
                 itemBuilder: (BuildContext context, int index) {
                   return Card(
+                    color: Colors.white,
+                    elevation: 1,
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Column(
@@ -41,29 +69,39 @@ class ConditionLibrary extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              Text('Condition ${index + 1}'),
-                              const Spacer(),
-                              MaterialButton(
-                                height: 30,
-                                minWidth: 60,
-                                color: Colors.redAccent,
-                                textColor: Colors.white,
-                                onPressed: (){
-                                  viewModel.clearCondition(index);
-                                },
-                                child: const Text('Clear', style: TextStyle(fontSize: 12),),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Condition ${index + 1}',
+                                      style: const TextStyle(fontSize: 15)),
+                                  Text(vm.conditionLibraryData.conditionLibrary
+                                      .condition[index].rule,
+                                      style: const TextStyle(
+                                          fontSize: 12, color: Colors.black54)),
+                                  const SizedBox(height: 5),
+                                ],
                               ),
-                              const SizedBox(width: 5),
+                              const Spacer(),
                               Transform.scale(
                                 scale: 0.7,
                                 child: Tooltip(
-                                  message: viewModel.selectedSwitchState[index]? 'Condition disable' : 'Condition enable',
+                                  message: vm.conditionLibraryData
+                                      .conditionLibrary.condition[index].status
+                                      ?
+                                  'deactivate':
+                                  'activate',
                                   child: Switch(
-                                    hoverColor: Theme.of(context).primaryColor,
-                                    activeColor: Theme.of(context).primaryColorLight,
-                                    value: viewModel.selectedSwitchState[index],
+                                    hoverColor: Theme
+                                        .of(context)
+                                        .primaryColor,
+                                    activeColor: Theme
+                                        .of(context)
+                                        .primaryColorLight,
+                                    value: vm.conditionLibraryData
+                                        .conditionLibrary.condition[index]
+                                        .status,
                                     onChanged: (bool value) {
-                                      viewModel.switchStateOnChange(value, index);
+                                      vm.switchStateOnChange(value, index);
                                     },
                                   ),
                                 ),
@@ -74,386 +112,818 @@ class ConditionLibrary extends StatelessWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              SizedBox(
-                                width: 100,
+                              Container(
+                                  width: 0.5, height: 40, color: Colors.grey),
+                              Expanded(
                                 child: RadioListTile<String>(
                                   title: const Text("Sensor"),
                                   value: 'Sensor',
-                                  groupValue: viewModel.selectedCnType[index],
-                                  onChanged: (value) => viewModel.conTypeOnChange(value!, index),
+                                  groupValue: vm.conditionLibraryData
+                                      .conditionLibrary.condition[index].type,
+                                  onChanged: (value) =>
+                                      vm.conTypeOnChange(value!, index),
                                   contentPadding: EdgeInsets.zero,
-                                  visualDensity: const VisualDensity(horizontal: -4.0, vertical: -4.0),
-                                  activeColor: Theme.of(context).primaryColorLight,
+                                  visualDensity: const VisualDensity(
+                                      horizontal: -4.0, vertical: -4.0),
+                                  activeColor: Theme
+                                      .of(context)
+                                      .primaryColorLight,
                                 ),
                               ),
-                              SizedBox(
-                                width: 110,
+                              Container(
+                                  width: 0.5, height: 40, color: Colors.grey),
+                              Expanded(
                                 child: RadioListTile<String>(
-                                  title: const Text("program"),
-                                  value: 'program',
-                                  groupValue: viewModel.selectedCnType[index],
-                                  onChanged: (value) => viewModel.conTypeOnChange(value!, index),
+                                  title: const Text("Program"),
+                                  value: 'Program',
+                                  groupValue: vm.conditionLibraryData
+                                      .conditionLibrary.condition[index].type,
+                                  onChanged: (value) =>
+                                      vm.conTypeOnChange(value!, index),
                                   contentPadding: EdgeInsets.zero,
-                                  visualDensity: const VisualDensity(horizontal: -4.0, vertical: -4.0),
-                                  activeColor: Theme.of(context).primaryColorLight,
+                                  visualDensity: const VisualDensity(
+                                      horizontal: -4.0, vertical: -4.0),
+                                  activeColor: Theme
+                                      .of(context)
+                                      .primaryColorLight,
                                 ),
                               ),
-                              SizedBox(
-                                width: 120,
+                              Container(
+                                  width: 0.5, height: 40, color: Colors.grey),
+                              Expanded(
                                 child: RadioListTile<String>(
                                   title: const Text("Combined"),
                                   value: 'Combined',
-                                  groupValue: viewModel.selectedCnType[index],
-                                  onChanged: (value) => viewModel.conTypeOnChange(value!, index),
+                                  groupValue: vm.conditionLibraryData
+                                      .conditionLibrary.condition[index].type,
+                                  onChanged: (value) =>
+                                      vm.conTypeOnChange(value!, index),
                                   contentPadding: EdgeInsets.zero,
-                                  visualDensity: const VisualDensity(horizontal: -4.0, vertical: -4.0),
-                                  activeColor: Theme.of(context).primaryColorLight,
+                                  visualDensity: const VisualDensity(
+                                      horizontal: -4.0, vertical: -4.0),
+                                  activeColor: Theme
+                                      .of(context)
+                                      .primaryColorLight,
                                 ),
                               ),
+                              Container(
+                                  width: 0.5, height: 40, color: Colors.grey),
                             ],
                           ),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              const SizedBox(
-                                width: 125,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Component', style: TextStyle(color: Colors.black54)),
-                                    SizedBox(height: 10),
-                                    Text('Parameter', style: TextStyle(color: Colors.black54)),
-                                    SizedBox(height: 10),
-                                    Text('Value/Threshold', style: TextStyle(color: Colors.black54)),
-                                    SizedBox(height: 10),
-                                    Text('Reason', style: TextStyle(color: Colors.black54)),
-                                    SizedBox(height: 10),
-                                    Text('Delay Time',style: TextStyle(color: Colors.black54)),
-                                  ],
+                          const Divider(height: 0),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8, top: 8),
+                            child: Row(
+                              children: [
+                                const SizedBox(
+                                  width: 125,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment
+                                        .start,
+                                    children: [
+                                      Text('Component', style: TextStyle(
+                                          color: Colors.black54)),
+                                      SizedBox(height: 8),
+                                      Text('Parameter', style: TextStyle(
+                                          color: Colors.black54)),
+                                      SizedBox(height: 10),
+                                      Text('Value/Threshold', style: TextStyle(
+                                          color: Colors.black54)),
+                                      SizedBox(height: 12),
+                                      Text('Reason', style: TextStyle(
+                                          color: Colors.black54)),
+                                      SizedBox(height: 15),
+                                      Text('Delay Time', style: TextStyle(
+                                          color: Colors.black54)),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(
-                                width: 20,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(':'),
-                                    SizedBox(height: 10),
-                                    Text(':'),
-                                    SizedBox(height: 10),
-                                    Text(':'),
-                                    SizedBox(height: 10),
-                                    Text(':'),
-                                    SizedBox(height: 10),
-                                    Text(':'),
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    PopupMenuButton<String>(
-                                      onSelected: (String selectedValue) {
-                                        viewModel.componentOnChange(selectedValue, index);
-                                      },
-                                      itemBuilder: (BuildContext context) {
-                                        return ['--',  'flow meter 1', 'Pressure Sensor 1', 'Pressure Sensor 2', 'flow meter 2', 'pressure switch', 'moisture sensor 1', 'level sensor 1',
-                                          'well pump', 'program 1', 'filter 1']
-                                            .map((String value) => PopupMenuItem<String>(
-                                          value: value,
-                                          height: 30,
-                                          child: Text(value),
-                                        )).toList();
-                                      },
-                                      child: Text(
-                                        viewModel.selectedComponent[index],
+                                Expanded(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment
+                                        .start,
+                                    children: [
+                                      Container(
+                                        width: double.infinity,
+                                        height: 27,
+                                        decoration: BoxDecoration(
+                                            color: Theme
+                                                .of(context)
+                                                .primaryColor
+                                                .withValues(alpha: 0.05),
+                                            borderRadius: BorderRadius.circular(
+                                                3),
+                                            border: Border.all(
+                                                width: 0.5,
+                                                color: Colors.grey.shade400
+                                            )
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                              left: 5, top: 3),
+                                          child: vm.conditionLibraryData
+                                              .conditionLibrary.condition[index]
+                                              .type == 'Combined' ?
+                                          PopupMenuButton<String>(
+                                            onSelected: (String cName) =>
+                                                vm.combinedTO(index, cName),
+                                            itemBuilder: (
+                                                BuildContext context) {
+                                              return vm.getAvailableCondition(
+                                                  index).map((String source) {
+                                                return CheckedPopupMenuItem<
+                                                    String>(
+                                                  value: source,
+                                                  height: 30,
+                                                  checked: vm.connectedTo[index]
+                                                      .contains(source),
+                                                  child: Text(source),
+                                                );
+                                              }).toList();
+                                            },
+                                            child: Text(
+                                              vm.conditionLibraryData
+                                                  .conditionLibrary
+                                                  .condition[index].component,
+                                            ),
+                                          ) :
+                                          PopupMenuButton<String>(
+                                            tooltip: vm.conditionLibraryData
+                                                .conditionLibrary
+                                                .condition[index].type ==
+                                                'Sensor'
+                                                ? 'Select your sensor'
+                                                :
+                                            vm.conditionLibraryData
+                                                .conditionLibrary
+                                                .condition[index].type ==
+                                                'Program'
+                                                ? 'Select your program'
+                                                :
+                                            'Select more than one conditions',
+                                            onSelected: (String selectedValue) {
+                                              vm.componentOnChange(
+                                                  selectedValue, index);
+                                            },
+                                            itemBuilder: (
+                                                BuildContext context) {
+                                              return vm.conditionLibraryData
+                                                  .conditionLibrary
+                                                  .condition[index].type ==
+                                                  'Sensor' ?
+                                              vm.conditionLibraryData
+                                                  .defaultData.sensors.map<
+                                                  PopupMenuEntry<String>>((
+                                                  sensor) {
+                                                return PopupMenuItem<String>(
+                                                  value: sensor.name,
+                                                  height: 35,
+                                                  child: Text(sensor.name),
+                                                );
+                                              }).toList() :
+                                              vm.conditionLibraryData
+                                                  .defaultData.program.map<
+                                                  PopupMenuEntry<String>>((
+                                                  program) {
+                                                return PopupMenuItem<String>(
+                                                  value: program.name,
+                                                  height: 35,
+                                                  child: Text(program.name),
+                                                );
+                                              }).toList();
+                                            },
+                                            child: Text(
+                                              vm.conditionLibraryData
+                                                  .conditionLibrary
+                                                  .condition[index].component,
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    PopupMenuButton<String>(
-                                      onSelected: (String selectedValue) {
-                                        viewModel.lvlSensorCountOnChange(selectedValue, index);
-                                      },
-                                      itemBuilder: (BuildContext context) {
-                                        return ['--', 'Flow rate', 'Pressure', 'Temperature', 'Level', 'Power', 'Combined']
-                                            .map((String value) => PopupMenuItem<String>(
-                                          value: value,
-                                          height: 30,
-                                          child: Text(value),
-                                        )).toList();
-                                      },
-                                      child: Text(
-                                        viewModel.selectedParameter[index],
+                                      const SizedBox(height: 5),
+                                      Container(
+                                        width: double.infinity,
+                                        height: 27,
+                                        decoration: BoxDecoration(
+                                            color: Theme
+                                                .of(context)
+                                                .primaryColor
+                                                .withValues(alpha: 0.05),
+                                            borderRadius: BorderRadius.circular(
+                                                3),
+                                            border: Border.all(
+                                                width: 0.5,
+                                                color: Colors.grey.shade400
+                                            )
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                              left: 5, top: 3),
+                                          child: PopupMenuButton<String>(
+                                            onSelected: (String selectedValue) {
+                                              vm.parameterOnChange(
+                                                  selectedValue, index);
+                                            },
+                                            itemBuilder: (
+                                                BuildContext context) {
+                                              if (vm.conditionLibraryData
+                                                  .conditionLibrary
+                                                  .condition[index].type ==
+                                                  'Sensor') {
+                                                final selectedSensor = vm
+                                                    .conditionLibraryData
+                                                    .defaultData.sensors
+                                                    .firstWhereOrNull((
+                                                    sensor) =>
+                                                sensor.name == vm
+                                                    .conditionLibraryData
+                                                    .conditionLibrary
+                                                    .condition[index]
+                                                    .component);
+
+                                                final filteredParameters = vm
+                                                    .conditionLibraryData
+                                                    .defaultData.sensorParameter
+                                                    .where((param) =>
+                                                param.objectId ==
+                                                    selectedSensor?.objectId)
+                                                    .toList();
+
+                                                return filteredParameters.map<
+                                                    PopupMenuEntry<String>>((
+                                                    program) {
+                                                  return PopupMenuItem<String>(
+                                                    value: program.parameter,
+                                                    height: 35,
+                                                    child: Text(
+                                                        program.parameter),
+                                                  );
+                                                }).toList();
+                                              } else {
+                                                return ['Status'].map((
+                                                    String value) =>
+                                                    PopupMenuItem<String>(
+                                                      value: value,
+                                                      height: 30,
+                                                      child: Text(value),
+                                                    )).toList();
+                                              }
+                                            },
+                                            child: Text(
+                                              vm.conditionLibraryData
+                                                  .conditionLibrary
+                                                  .condition[index].parameter,
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    TextButton(
-                                      onPressed: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return AlertDialog(
-                                              title: const Text('Select values and Operator'),
-                                              content: SizedBox(
-                                                width: 250,
-                                                height: 370,
-                                                child: Column(
-                                                  children: [
-                                                    SizedBox(
-                                                        width: 250,
-                                                        height: 50,
-                                                        child: TextFormField(
-                                                          controller: viewModel.controllerVT,
-                                                          maxLength: 100,
-                                                          readOnly: true,
-                                                          decoration: const InputDecoration(
-                                                            counterText: '',
-                                                            labelText: 'Value/Threshold',
-                                                            contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                                                            enabledBorder: UnderlineInputBorder(
-                                                              borderSide: BorderSide(color: Colors.black12),
-                                                            ),
-                                                          ),
-                                                          validator: (value) {
-                                                            if (value == null || value.isEmpty) {
-                                                              return 'Please fill out this field';
-                                                            }
-                                                            return null;
-                                                          },
-                                                        )
-                                                    ),
-                                                    const SizedBox(height: 8),
-                                                    SizedBox(
-                                                        width: 250,
-                                                        height: 40,
-                                                        child: Row(
-                                                          children: [
-                                                            MaterialButton(
-                                                              color: Theme.of(context).primaryColor,
-                                                              textColor: Colors.white,
-                                                              height: 40,
-                                                              minWidth: 94,
-                                                              onPressed: (){
-                                                                viewModel.controllerVT.text += 'Higher than ';
-                                                              },
-                                                              child: const Text('Higher than', style: TextStyle(fontSize: 13),),
-                                                            ),
-                                                            const SizedBox(width: 5),
-                                                            MaterialButton(
-                                                              color: Theme.of(context).primaryColor,
-                                                              textColor: Colors.white,
-                                                              height: 40,
-                                                              minWidth: 94,
-                                                              onPressed: (){
-                                                                viewModel.controllerVT.text += 'Lower than ';
-                                                              },
-                                                              child: const Text('Lower than', style: TextStyle(fontSize: 13),),
-                                                            ),
-                                                            const SizedBox(width: 5),
-                                                            MaterialButton(
-                                                              color: Theme.of(context).primaryColor,
-                                                              textColor: Colors.white,
-                                                              height: 40,
-                                                              minWidth: 75,
-                                                              onPressed: (){
-                                                                viewModel.controllerVT.text += 'Equal to ';
-                                                              },
-                                                              child: const Text('Equal to', style: TextStyle(fontSize: 13),),
-                                                            ),
-                                                          ],
-                                                        )
-                                                    ),
-                                                    SizedBox(
-                                                      width: 250,
-                                                      height: 200,
-                                                      child: GridView.count(
-                                                        crossAxisCount: 5,
-                                                        crossAxisSpacing: 5,
-                                                        mainAxisSpacing: 5,
-                                                        children: [
-                                                          '%','°C','.','cl','C','hour','min','sec','and',
-                                                          'or','9','8','7','6','5','4',
-                                                          '3','2','1','0'
-                                                        ].map((operator) => ElevatedButton(
-                                                            onPressed: () {
-                                                              if(operator=='C'){
-                                                                viewModel.controllerVT.text='';
-                                                              }else if(operator=='cl'){
-                                                                viewModel.controllerVT.text = viewModel.controllerVT.text.substring(0, viewModel.controllerVT.text.length - 1);
-                                                              }
-                                                              else if(operator=='Ok'){
-                                                                Navigator.pop(context);
-                                                              }else{
-                                                                viewModel.controllerVT.text += operator;
-                                                              }
-                                                              ChangeNotifier();
-                                                              //result = operator;
-                                                              //Navigator.pop(context);
-                                                            },
-                                                          style: ButtonStyle(
-                                                            backgroundColor: operator=='C'?WidgetStateProperty.all<Color>(Colors.redAccent):
-                                                            WidgetStateProperty.all<Color>(Theme.of(context).primaryColor),
-                                                          ),
-                                                            child: operator=='cl'? const Icon(Icons.backspace_outlined, color: Colors.white):
-                                                            Text(operator, style: const TextStyle(fontSize: 15, color: Colors.white)),
-                                                          ),
-                                                        ).toList(),
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                        width: 250,
-                                                        height: 50,
-                                                        child: Row(
-                                                          children: [
-                                                            MaterialButton(
-                                                              color: Theme.of(context).primaryColor,
-                                                              textColor: Colors.white,
-                                                              height: 40,
-                                                              minWidth: 170,
-                                                              onPressed: (){
-                                                                viewModel.controllerVT.text += ' ';
-                                                              },
-                                                              child: const Text('Space'),
-                                                            ),
-                                                            const SizedBox(width: 5),
-                                                            MaterialButton(
-                                                              height: 40,
-                                                              color: Theme.of(context).primaryColorLight,
-                                                              textColor: Colors.white,
-                                                              onPressed: (){
-                                                                viewModel.valueOnChange(viewModel.controllerVT.text, index);
-                                                                Navigator.pop(context);
-                                                              },
-                                                              child: const Text('Enter'),
-                                                            ),
-                                                          ],
-                                                        )
-                                                    ),
-                                                  ],
+                                      const SizedBox(height: 5),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Container(
+                                              height: 27,
+                                              decoration: BoxDecoration(
+                                                  color: Theme
+                                                      .of(context)
+                                                      .primaryColor
+                                                      .withValues(alpha: 0.05),
+                                                  borderRadius: BorderRadius
+                                                      .circular(3),
+                                                  border: Border.all(
+                                                      width: 0.5,
+                                                      color: Colors.grey
+                                                          .shade400
+                                                  )
+                                              ),
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 5, top: 3),
+                                                child: PopupMenuButton<String>(
+                                                  onSelected: (
+                                                      String selectedValue) {
+                                                    vm.thresholdOnChange(
+                                                        selectedValue, index);
+                                                  },
+                                                  itemBuilder: (
+                                                      BuildContext context) {
+
+                                                    /* final selectedSensor = vm.conditionLibraryData.defaultData.sensors
+                                                        .firstWhereOrNull((sensor) => sensor.name == vm.selectedComponent[index]);
+
+                                                    final List<String> options = (selectedSensor?.objectId == 40)
+                                                        ? ['--', 'Low', 'High']
+                                                        : ['--', 'Lower than', 'Higher than', 'Equal to'];*/
+
+                                                    final List<
+                                                        String> options = (vm
+                                                        .conditionLibraryData
+                                                        .conditionLibrary
+                                                        .condition[index]
+                                                        .type == 'Sensor')
+                                                        ? [
+                                                      'Lower than',
+                                                      'Higher than',
+                                                      'Equal to'
+                                                    ] :
+                                                    (vm.conditionLibraryData
+                                                        .conditionLibrary
+                                                        .condition[index]
+                                                        .type == 'Program') ?
+                                                    [
+                                                      'is Running',
+                                                      "is Starting",
+                                                      "is Ending"
+                                                    ] : [
+                                                      'Anyone is',
+                                                      "Both are"
+                                                    ];
+
+
+                                                    return options.map((
+                                                        String value) =>
+                                                        PopupMenuItem<String>(
+                                                          value: value,
+                                                          height: 30,
+                                                          child: Text(value),
+                                                        )).toList();
+                                                  },
+                                                  child: Text(
+                                                    vm.conditionLibraryData
+                                                        .conditionLibrary
+                                                        .condition[index]
+                                                        .threshold,
+                                                  ),
                                                 ),
                                               ),
-                                            );
-                                          },
-                                        );
-                                      },
-                                      style: ButtonStyle(
-                                        padding: WidgetStateProperty.all(EdgeInsets.zero),
-                                        minimumSize: WidgetStateProperty.all(Size.zero),
-                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                        backgroundColor: WidgetStateProperty.all(Colors.transparent),
-                                      ),
-                                      child: Text(viewModel.selectedValue[index], style: const TextStyle(color: Colors.black)),
-                                    ),
-                                    /*PopupMenuButton<String>(
-                                      onSelected: (String selectedValue) {
-                                        viewModel.valueOnChange(selectedValue, index);
-                                      },
-                                      itemBuilder: (BuildContext context) {
-                                        return ['--', '< 10 L/min', '> 150 L/min', '> 120 psi', '> 80°C', '> 90%', '< 10%', '0 L/min']
-                                            .map((String value) => PopupMenuItem<String>(
-                                          value: value,
-                                          height: 30,
-                                          child: Text(value),
-                                        )).toList();
-                                      },
-                                      child: Text(
-                                        viewModel.selectedValue[index],
-                                      ),
-                                    ),*/
-                                    const SizedBox(height: 10),
-                                    PopupMenuButton<String>(
-                                      onSelected: (String selectedValue) {
-                                        viewModel.reasonOnChange(selectedValue, index);
-                                        viewModel.controllerAM.text = '${viewModel.selectedReason[index]} detected in '
-                                            '${viewModel.selectedComponent[index]}';
-                                      },
-                                      itemBuilder: (BuildContext context) {
-                                        return ['--', 'Low flow', 'High flow', 'No flow',
-                                          'High pressure', 'Low pressure', 'Over heating',
-                                          'Low level', 'High level', 'Time limit', 'Dry run']
-                                            .map((String value) => PopupMenuItem<String>(
-                                          value: value,
-                                          height: 30,
-                                          child: Text(value),
-                                        )).toList();
-                                      },
-                                      child: Text(
-                                        viewModel.selectedReason[index],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    PopupMenuButton<String>(
-                                      onSelected: (String selectedValue) {
-                                        viewModel.delayTimeOnChange(selectedValue, index);
-                                      },
-                                      itemBuilder: (BuildContext context) {
-                                        return ['--', '3 Sec', '5 Sec', '10 Sec']
-                                            .map((String value) => PopupMenuItem<String>(
-                                          value: value,
-                                          height: 30,
-                                          child: Text(value),
-                                        )).toList();
-                                      },
-                                      child: Text(
-                                        viewModel.selectedDelayTime[index],
-                                      ),
-                                    ),
-                                    /*Row(
-                                      children: [
-                                        Flexible(
-                                            flex: 1,
-                                            child: Row(
-                                              children: [
-                                                const Text('Start at ', style: TextStyle(color: Colors.black54)),
-                                                GestureDetector(
-                                                  onTap: () => viewModel.selectStartTime(context), // Open Time Picker on tap
-                                                  child: Text(
-                                                    viewModel.selectedStartTime.format(context),
-                                                  ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 5,),
+                                          vm.conditionLibraryData
+                                              .conditionLibrary.condition[index]
+                                              .type == 'Sensor' ?
+                                          Container(
+                                            width: 100,
+                                            height: 27,
+                                            decoration: BoxDecoration(
+                                                color: Theme
+                                                    .of(context)
+                                                    .primaryColor
+                                                    .withValues(alpha: 0.05),
+                                                borderRadius: BorderRadius
+                                                    .circular(3),
+                                                border: Border.all(
+                                                    width: 0.5,
+                                                    color: Colors.grey.shade400
+                                                )
+                                            ),
+                                            child: TextButton(
+                                              onPressed: () {
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (
+                                                      BuildContext context) {
+                                                    return AlertDialog(
+                                                      title: const Text(
+                                                          'Select values and Operator'),
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius
+                                                            .circular(10),
+                                                      ),
+                                                      content: SizedBox(
+                                                        width: 250,
+                                                        height: 260,
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(
+                                                                width: 250,
+                                                                height: 50,
+                                                                child: TextFormField(
+                                                                  controller: vm
+                                                                      .vtTEVControllers[index],
+                                                                  maxLength: 100,
+                                                                  readOnly: true,
+                                                                  decoration: const InputDecoration(
+                                                                    counterText: '',
+                                                                    labelText: 'Value/Threshold',
+                                                                    contentPadding: EdgeInsets
+                                                                        .symmetric(
+                                                                        vertical: 10.0,
+                                                                        horizontal: 10.0),
+                                                                    enabledBorder: UnderlineInputBorder(
+                                                                      borderSide: BorderSide(
+                                                                          color: Colors
+                                                                              .black12),
+                                                                    ),
+                                                                  ),
+                                                                  validator: (
+                                                                      value) {
+                                                                    if (value ==
+                                                                        null ||
+                                                                        value
+                                                                            .isEmpty) {
+                                                                      return 'Please fill out this field';
+                                                                    }
+                                                                    return null;
+                                                                  },
+                                                                )
+                                                            ),
+                                                            const SizedBox(
+                                                                height: 8),
+                                                            SizedBox(
+                                                              width: 250,
+                                                              height: 150,
+                                                              child: GridView
+                                                                  .count(
+                                                                crossAxisCount: 5,
+                                                                crossAxisSpacing: 5,
+                                                                mainAxisSpacing: 5,
+                                                                children: [
+                                                                  '%',
+                                                                  '°C',
+                                                                  '.',
+                                                                  'cl',
+                                                                  'C',
+                                                                  '9',
+                                                                  '8',
+                                                                  '7',
+                                                                  '6',
+                                                                  '5',
+                                                                  '4',
+                                                                  '3',
+                                                                  '2',
+                                                                  '1',
+                                                                  '0'
+                                                                ].map((
+                                                                    operator) =>
+                                                                    ElevatedButton(
+                                                                      onPressed: () {
+                                                                        if (operator ==
+                                                                            'C') {
+                                                                          vm
+                                                                              .vtTEVControllers[index]
+                                                                              .text =
+                                                                          '';
+                                                                        } else
+                                                                        if (operator ==
+                                                                            'cl') {
+                                                                          vm
+                                                                              .vtTEVControllers[index]
+                                                                              .text =
+                                                                              vm
+                                                                                  .vtTEVControllers[index]
+                                                                                  .text
+                                                                                  .substring(
+                                                                                  0,
+                                                                                  vm
+                                                                                      .vtTEVControllers[index]
+                                                                                      .text
+                                                                                      .length -
+                                                                                      1);
+                                                                        }
+                                                                        else
+                                                                        if (operator ==
+                                                                            'Ok') {
+                                                                          Navigator
+                                                                              .pop(
+                                                                              context);
+                                                                        } else {
+                                                                          vm
+                                                                              .vtTEVControllers[index]
+                                                                              .text +=
+                                                                              operator;
+                                                                        }
+                                                                        ChangeNotifier();
+                                                                        //result = operator;
+                                                                        //Navigator.pop(context);
+                                                                      },
+                                                                      style: ButtonStyle(
+                                                                        backgroundColor: operator ==
+                                                                            'C'
+                                                                            ? WidgetStateProperty
+                                                                            .all<
+                                                                            Color>(
+                                                                            Colors
+                                                                                .redAccent)
+                                                                            :
+                                                                        WidgetStateProperty
+                                                                            .all<
+                                                                            Color>(
+                                                                            Theme
+                                                                                .of(
+                                                                                context)
+                                                                                .primaryColor),
+                                                                      ),
+                                                                      child: operator ==
+                                                                          'cl'
+                                                                          ? const Icon(
+                                                                          Icons
+                                                                              .backspace_outlined,
+                                                                          color: Colors
+                                                                              .white)
+                                                                          :
+                                                                      Text(
+                                                                          operator,
+                                                                          style: const TextStyle(
+                                                                              fontSize: 15,
+                                                                              color: Colors
+                                                                                  .white)),
+                                                                    ),
+                                                                ).toList(),
+                                                              ),
+                                                            ),
+                                                            SizedBox(
+                                                                width: 250,
+                                                                height: 50,
+                                                                child: Row(
+                                                                  children: [
+                                                                    MaterialButton(
+                                                                      color: Theme
+                                                                          .of(
+                                                                          context)
+                                                                          .primaryColor,
+                                                                      textColor: Colors
+                                                                          .white,
+                                                                      height: 40,
+                                                                      minWidth: 170,
+                                                                      onPressed: () {
+                                                                        vm
+                                                                            .vtTEVControllers[index]
+                                                                            .text +=
+                                                                        ' ';
+                                                                      },
+                                                                      child: const Text(
+                                                                          'Space'),
+                                                                    ),
+                                                                    const SizedBox(
+                                                                        width: 5),
+                                                                    MaterialButton(
+                                                                      height: 40,
+                                                                      color: Theme
+                                                                          .of(
+                                                                          context)
+                                                                          .primaryColorLight,
+                                                                      textColor: Colors
+                                                                          .white,
+                                                                      onPressed: () {
+                                                                        if (vm
+                                                                            .vtTEVControllers[index]
+                                                                            .text
+                                                                            .trim()
+                                                                            .isEmpty) {
+                                                                          showDialog(
+                                                                            context: context,
+                                                                            builder: (
+                                                                                context) {
+                                                                              return AlertDialog(
+                                                                                title: const Text(
+                                                                                    "Error"),
+                                                                                content: const Text(
+                                                                                    "Field cannot be empty or contain only spaces."),
+                                                                                actions: [
+                                                                                  TextButton(
+                                                                                    onPressed: () =>
+                                                                                        Navigator
+                                                                                            .pop(
+                                                                                            context),
+                                                                                    child: const Text(
+                                                                                        "OK"),
+                                                                                  ),
+                                                                                ],
+                                                                              );
+                                                                            },
+                                                                          );
+                                                                        } else {
+                                                                          final sensor = vm
+                                                                              .conditionLibraryData
+                                                                              .defaultData
+                                                                              .sensors
+                                                                              .firstWhere(
+                                                                                (
+                                                                                sensor) =>
+                                                                            sensor
+                                                                                .name ==
+                                                                                vm
+                                                                                    .conditionLibraryData
+                                                                                    .conditionLibrary
+                                                                                    .condition[index]
+                                                                                    .component,
+                                                                            orElse: () =>
+                                                                                Sensor(
+                                                                                    objectId: 0,
+                                                                                    sNo: 0.0,
+                                                                                    name: '',
+                                                                                    objectName: ''),
+                                                                          );
+                                                                          if (sensor
+                                                                              .objectName
+                                                                              .isNotEmpty) {
+                                                                            String unit = MyFunction()
+                                                                                .getUnitValue(
+                                                                                context,
+                                                                                sensor
+                                                                                    .objectName,
+                                                                                vm
+                                                                                    .vtTEVControllers[index]
+                                                                                    .text) ??
+                                                                                '';
+                                                                            vm
+                                                                                .valueOnChange(
+                                                                                '${vm
+                                                                                    .vtTEVControllers[index]
+                                                                                    .text} $unit',
+                                                                                index);
+                                                                            Navigator
+                                                                                .pop(
+                                                                                context);
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      child: const Text(
+                                                                          'Enter'),
+                                                                    ),
+                                                                  ],
+                                                                )
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                );
+                                              },
+                                              style: ButtonStyle(
+                                                padding: WidgetStateProperty
+                                                    .all(EdgeInsets.zero),
+                                                minimumSize: WidgetStateProperty
+                                                    .all(Size.zero),
+                                                tapTargetSize: MaterialTapTargetSize
+                                                    .shrinkWrap,
+                                                backgroundColor: WidgetStateProperty
+                                                    .all(Colors.transparent),
+                                              ),
+                                              child: Text(
+                                                vm.conditionLibraryData
+                                                    .conditionLibrary
+                                                    .condition[index].value,
+                                                style: const TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 13),
+                                                textAlign: TextAlign.left,),
+                                            ),
+                                          ) :
+                                          Container(
+                                            width: 100,
+                                            decoration: BoxDecoration(
+                                                color: Theme
+                                                    .of(context)
+                                                    .primaryColor
+                                                    .withValues(alpha: 0.05),
+                                                borderRadius: BorderRadius
+                                                    .circular(3),
+                                                border: Border.all(
+                                                    width: 0.5,
+                                                    color: Colors.grey.shade400
+                                                )
+                                            ),
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 5, top: 3),
+                                              child: PopupMenuButton<String>(
+                                                onSelected: (
+                                                    String selectedValue) {
+                                                  vm.valueOnChange(
+                                                      selectedValue, index);
+                                                },
+                                                itemBuilder: (
+                                                    BuildContext context) {
+                                                  return ['true', 'False'].map((
+                                                      String value) =>
+                                                      PopupMenuItem<String>(
+                                                        value: value,
+                                                        height: 30,
+                                                        child: Text(value),
+                                                      )).toList();
+                                                },
+                                                child: Text(
+                                                  vm.conditionLibraryData
+                                                      .conditionLibrary
+                                                      .condition[index].value,
                                                 ),
-                                              ],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Container(
+                                        width: double.infinity,
+                                        height: 27,
+                                        decoration: BoxDecoration(
+                                            color: Theme
+                                                .of(context)
+                                                .primaryColor
+                                                .withValues(alpha: 0.05),
+                                            borderRadius: BorderRadius.circular(
+                                                3),
+                                            border: Border.all(
+                                                width: 0.5,
+                                                color: Colors.grey.shade400
                                             )
                                         ),
-                                        Flexible(
-                                            flex: 1,
-                                            child: Row(
-                                              children: [
-                                                const Text('End at ', style: TextStyle(color: Colors.black54)),
-                                                GestureDetector(
-                                                  onTap: () => viewModel.selectEndTime(context), // Open Time Picker on tap
-                                                  child: Text(
-                                                    viewModel.selectedEndTime.format(context),
-                                                  ),
-                                                ),
-                                              ],
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                              left: 5, top: 3),
+                                          child: PopupMenuButton<String>(
+                                            onSelected: (
+                                                String selectedValue) =>
+                                                vm.reasonOnChange(
+                                                    selectedValue, index),
+                                            itemBuilder: (
+                                                BuildContext context) {
+                                              return [
+                                                '--',
+                                                'Low flow',
+                                                'High flow',
+                                                'No flow',
+                                                'High pressure',
+                                                'Low pressure',
+                                                'Over heating',
+                                                'Low level',
+                                                'High level',
+                                                'Time limit',
+                                                'Dry run'
+                                              ]
+                                                  .map((String value) =>
+                                                  PopupMenuItem<String>(
+                                                    value: value,
+                                                    height: 30,
+                                                    child: Text(value),
+                                                  )).toList();
+                                            },
+                                            child: Text(
+                                              vm.conditionLibraryData
+                                                  .conditionLibrary
+                                                  .condition[index].reason,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Container(
+                                        width: double.infinity,
+                                        height: 27,
+                                        decoration: BoxDecoration(
+                                            color: Theme
+                                                .of(context)
+                                                .primaryColor
+                                                .withValues(alpha: 0.05),
+                                            borderRadius: BorderRadius.circular(
+                                                3),
+                                            border: Border.all(
+                                                width: 0.5,
+                                                color: Colors.grey.shade400
                                             )
                                         ),
-                                      ],
-                                    ),*/
-                                    /*PopupMenuButton<String>(
-                                      onSelected: (String selectedValue) {
-                                        viewModel.controllerAM.text = '${viewModel.selectedReason[index]} detected in '
-                                            '${viewModel.selectedComponent[index]}';
-                                        viewModel.actionOnChange(selectedValue, index);
-                                      },
-                                      itemBuilder: (BuildContext context) {
-                                        return ['--', 'turn_off', 'turn_on', 'turn_off & Notify', 'turn_on & Notify',]
-                                            .map((String value) => PopupMenuItem<String>(
-                                          value: value,
-                                          height: 30,
-                                          child: Text(value),
-                                        )).toList();
-                                      },
-                                      child: Text(
-                                        viewModel.selectedAction[index],
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                              left: 5, top: 3),
+                                          child: PopupMenuButton<String>(
+                                            onSelected: (String selectedValue) {
+                                              vm.delayTimeOnChange(
+                                                  selectedValue, index);
+                                            },
+                                            itemBuilder: (
+                                                BuildContext context) {
+                                              return [
+                                                '--',
+                                                '3 Sec',
+                                                '5 Sec',
+                                                '10 Sec',
+                                                '20 Sec',
+                                                '30 Sec'
+                                              ]
+                                                  .map((String value) =>
+                                                  PopupMenuItem<String>(
+                                                    value: value,
+                                                    height: 30,
+                                                    child: Text(value),
+                                                  )).toList();
+                                            },
+                                            child: Text(
+                                              vm.conditionLibraryData
+                                                  .conditionLibrary
+                                                  .condition[index].delayTime,
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                    ),*/
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                           const SizedBox(height: 10),
                           SizedBox(
@@ -461,11 +931,12 @@ class ConditionLibrary extends StatelessWidget {
                             height: 50,
                             child: TextFormField(
                               maxLength: 100,
-                              controller: viewModel.controllerAM,
+                              controller: vm.amTEVControllers[index],
                               decoration: const InputDecoration(
                                 counterText: '',
                                 labelText: 'Alert message',
-                                contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: 10.0, horizontal: 10.0),
                                 enabledBorder: UnderlineInputBorder(
                                   borderSide: BorderSide(color: Colors.black12),
                                 ),
@@ -483,30 +954,43 @@ class ConditionLibrary extends StatelessWidget {
                     ),
                   );
                 },
-              ),
+              ) :
+              const Center(child: Text('No condition available')),
             ),
-            floatingActionButton: MaterialButton(
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
-              onPressed: (){},
-              child: Text('Save'),
+            floatingActionButton: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              // Align to the bottom right
+              mainAxisSize: MainAxisSize.min,
+              // Prevents stretching across the screen
+              children: [
+                Text('Total : ${vm.conditionLibraryData.conditionLibrary
+                    .condition.length} of '
+                    '${vm.conditionLibraryData.defaultData.conditionLimit}'),
+                const SizedBox(width: 10),
+                MaterialButton(
+                  color: Theme
+                      .of(context)
+                      .primaryColor,
+                  textColor: Colors.white,
+                  onPressed: vm.conditionLibraryData.conditionLibrary.condition
+                      .length !=
+                      vm.conditionLibraryData.defaultData.conditionLimit ?
+                      () => vm.createNewCondition() :
+                  null,
+                  child: const Text('Create condition'),
+                ),
+                const SizedBox(width: 10), // Spacing between buttons
+                MaterialButton(
+                  color: Colors.green,
+                  textColor: Colors.white,
+                  onPressed: () => vm.saveConditionLibrary(
+                      context, customerId, controllerId, userId),
+                  child: const Text('Save'),
+                ),
+              ],
             ),
           );
         },
-      ),
-    );
-  }
-
-
-  Widget buildLoadingIndicator(bool isVisible, double width) {
-    return Visibility(
-      visible: isVisible,
-      child: Container(
-        color: Colors.white,
-        padding: EdgeInsets.symmetric(horizontal: width / 2 - 25),
-        child: const LoadingIndicator(
-          indicatorType: Indicator.ballPulse,
-        ),
       ),
     );
   }

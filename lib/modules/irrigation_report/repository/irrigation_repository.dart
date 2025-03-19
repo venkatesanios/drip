@@ -10,6 +10,10 @@ class IrrigationRepository{
     return await httpService.postRequest('/user/logConfig/get', body);
   }
 
+  Future<http.Response> getUserNames(body) async {
+    return await httpService.postRequest('/user/configMaker/getAsDefault', body);
+  }
+
   Future<http.Response> createUserLogConfig(body) async {
     return await httpService.postRequest('/user/logConfig/create', body);
   }

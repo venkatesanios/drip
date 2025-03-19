@@ -774,7 +774,7 @@ class _HoursMinutesSecondsState extends State<HoursMinutesSeconds> {
                 onPressed: (){
                   Navigator.pop(context);
                 },
-                child: Text('Cancel',style: TextStyle(color: Colors.black87),)
+                child: const Text('Cancel',style: TextStyle(color: Colors.black87),)
             ),
             TextButton(
                 style: ButtonStyle(

@@ -1,5 +1,5 @@
 class ConditionLibraryModel {
-  final Map<String, dynamic> conditionLibrary;
+  final ConditionLibrary conditionLibrary;
   final DefaultData defaultData;
 
   ConditionLibraryModel({
@@ -9,7 +9,7 @@ class ConditionLibraryModel {
 
   factory ConditionLibraryModel.fromJson(Map<String, dynamic> json) {
     return ConditionLibraryModel(
-      conditionLibrary: json['conditionLibrary'] ?? {},
+      conditionLibrary: ConditionLibrary.fromJson(json['conditionLibrary']),
       defaultData: DefaultData.fromJson(json['default']),
     );
   }
@@ -22,15 +22,105 @@ class ConditionLibraryModel {
   }
 }
 
+class ConditionLibrary {
+  List<Condition> condition;
+  String controllerReadStatus;
+
+  ConditionLibrary({
+    required this.condition,
+    required this.controllerReadStatus,
+  });
+
+  factory ConditionLibrary.fromJson(Map<String, dynamic> json) {
+    return ConditionLibrary(
+      condition: (json['condition'] as List<dynamic>?)
+          ?.map((e) => Condition.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+          [],
+      controllerReadStatus: json['controllerReadStatus'] ?? "0",
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "condition": condition.map((e) => e.toJson()).toList(),
+      "controllerReadStatus": controllerReadStatus,
+    };
+  }
+}
+
+class Condition {
+  String name;
+  bool status;
+  String type;
+  String rule;
+  String component;
+  String parameter;
+  String threshold;
+  String value;
+  String reason;
+  String delayTime;
+  String alertMessage;
+
+  Condition({
+    required this.name,
+    required this.status,
+    required this.type,
+    required this.rule,
+    required this.component,
+    required this.parameter,
+    required this.threshold,
+    required this.value,
+    required this.reason,
+    required this.delayTime,
+    required this.alertMessage,
+  });
+
+  factory Condition.fromJson(Map<String, dynamic> json) {
+    return Condition(
+      name: json['name'] ?? '',
+      status: json['status'] ?? false,
+      type: json['type'] ?? '',
+      rule: json['rule'] ?? '',
+      component: json['component'] ?? '',
+      parameter: json['parameter'] ?? '',
+      threshold: json['threshold'] ?? '',
+      value: json['value'] ?? '',
+      reason: json['reason'] ?? '',
+      delayTime: json['delay time'] ?? '',
+      alertMessage: json['alert message'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "name": name,
+      "status": status,
+      "type": type,
+      "rule": rule,
+      "component": component,
+      "parameter": parameter,
+      "threshold": threshold,
+      "value": value,
+      "reason": reason,
+      "delay time": delayTime,
+      "alert message": alertMessage,
+    };
+  }
+}
+
+
 class DefaultData {
   final int conditionLimit;
   final List<String> dropdown;
   final List<String> reason;
   final List<String> parameter;
   final List<String> action;
-  final List<String> program;
-  final List<String> sequence;
-  final List<String> sensors;
+  List<Program> program;
+  List<Sequence> sequence;
+  List<Sensor> sensors;
+  List<SensorParameter> sensorParameter;
+  List<String> programParameter;
 
   DefaultData({
     required this.conditionLimit,
@@ -41,18 +131,38 @@ class DefaultData {
     required this.program,
     required this.sequence,
     required this.sensors,
+    required this.sensorParameter,
+    required this.programParameter,
   });
 
   factory DefaultData.fromJson(Map<String, dynamic> json) {
+
     return DefaultData(
       conditionLimit: json['conditionLimit'] ?? 0,
       dropdown: List<String>.from(json['dropdown'] ?? []),
       reason: List<String>.from(json['reason'] ?? []),
       parameter: List<String>.from(json['parameter'] ?? []),
       action: List<String>.from(json['action'] ?? []),
-      program: List<String>.from(json['program'] ?? []),
-      sequence: List<String>.from(json['sequence'] ?? []),
-      sensors: List<String>.from(json['sensors'] ?? []),
+      program: (json['program'] as List<dynamic>?)
+          ?.map((e) => Program.fromJson(e))
+          .toList() ??
+          [],
+      sequence: (json['sequence'] as List<dynamic>?)
+          ?.map((e) => Sequence.fromJson(e))
+          .toList() ??
+          [],
+      sensors: (json['sensors'] as List<dynamic>?)
+          ?.map((e) => Sensor.fromJson(e))
+          .toList() ??
+          [],
+
+      sensorParameter: (json['sensorParameter'] as List<dynamic>?)
+          ?.map((e) => SensorParameter.fromJson(e))
+          .toList() ??
+          [],
+      programParameter: _staticProgramParameters(),
+
+
     );
   }
 
@@ -64,8 +174,137 @@ class DefaultData {
       'parameter': parameter,
       'action': action,
       'program': program,
-      'sequence': sequence,
-      'sensors': sensors,
+      'sensorParameter': sensorParameter.map((e) => e.toJson()).toList(),
+      'programParameter': programParameter,
+    };
+  }
+
+  static List<String> _staticProgramParameters() {
+    return ["Running", "Not Running", "Starting", "Ending"];
+  }
+
+}
+
+class Program {
+  int sNo;
+  String id;
+  String name;
+  String location;
+
+  Program({
+    required this.sNo,
+    required this.id,
+    required this.name,
+    required this.location,
+  });
+
+  factory Program.fromJson(Map<String, dynamic> json) {
+    return Program(
+      sNo: json['sNo'] ?? 0,
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      location: json['location'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'sNo': sNo,
+      'id': id,
+      'name': name,
+      'location': location,
+    };
+  }
+}
+
+class Sequence {
+  String sNo;
+  String id;
+  String name;
+  String location;
+  String locationName;
+
+  Sequence({
+    required this.sNo,
+    required this.id,
+    required this.name,
+    required this.location,
+    required this.locationName,
+  });
+
+  factory Sequence.fromJson(Map<String, dynamic> json) {
+    return Sequence(
+      sNo: json['sNo'] ?? '',
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      location: json['location'] ?? '',
+      locationName: json['locationName'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'sNo': sNo,
+      'id': id,
+      'name': name,
+      'location': location,
+      'locationName': locationName,
+    };
+  }
+}
+
+class Sensor {
+  int objectId;
+  double sNo;
+  String name;
+  String objectName;
+
+  Sensor({
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+    required this.objectName,
+  });
+
+  factory Sensor.fromJson(Map<String, dynamic> json) {
+    return Sensor(
+      objectId: json['objectId'] ?? 0,
+      sNo: (json['sNo'] ?? 0.0).toDouble(),
+      name: json['name'] ?? '',
+      objectName: json['objectName'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'objectName': objectName,
+    };
+  }
+}
+
+class SensorParameter {
+  int objectId;
+  String parameter;
+
+  SensorParameter({
+    required this.objectId,
+    required this.parameter,
+  });
+
+  factory SensorParameter.fromJson(Map<String, dynamic> json) {
+    return SensorParameter(
+      objectId: json['objectId'],
+      parameter: json['parameter'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "objectId": objectId,
+      "parameter": parameter,
     };
   }
 }

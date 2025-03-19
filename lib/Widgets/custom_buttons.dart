@@ -4,13 +4,15 @@ class CustomMaterialButton extends StatelessWidget {
   void Function()? onPressed;
   String? title;
   bool? outlined;
-  CustomMaterialButton({super.key, this.onPressed, this.title, this.outlined});
+  Widget? child;
+  Color? color;
+  CustomMaterialButton({super.key, this.onPressed, this.title, this.outlined, this.child, this.color});
 
   @override
   Widget build(BuildContext context) {
     return MaterialButton(
       hoverColor: Theme.of(context).primaryColorLight,
-      color: outlined != null ? Colors.white70 : Theme.of(context).primaryColor,
+      color: color ?? (outlined != null ? Colors.white70 : Theme.of(context).primaryColor),
       shape: RoundedRectangleBorder(
         side: outlined != null ? BorderSide(color: Theme.of(context).colorScheme.primary) : BorderSide.none,
         borderRadius: BorderRadius.circular(15),
@@ -19,7 +21,7 @@ class CustomMaterialButton extends StatelessWidget {
       onPressed: onPressed ?? () {
         Navigator.of(context).pop(); // Dismiss the alert
       },
-      child: Text(
+      child: child ?? Text(
         title ?? "OK",
         style: TextStyle(color: outlined != null ? Theme.of(context).colorScheme.primary : Colors.white),
       ),

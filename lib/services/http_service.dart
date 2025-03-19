@@ -23,7 +23,6 @@ class HttpService
 
   Future<http.Response> postRequest(String endpoint, Map<String, dynamic> bodyData) async {
     final token = await PreferenceHelper.getToken();
-
     debugPrint('body: ${jsonEncode(bodyData)},endpoint $endpoint');
     debugPrint('${AppConstants.apiUrl}$endpoint');
 
@@ -45,7 +44,8 @@ class HttpService
   {
     final token = await PreferenceHelper.getToken();
 
-    debugPrint('body: $bodyData');
+    // debugPrint('body: $bodyData');
+    debugPrint('endpoint:');
     debugPrint('${AppConstants.apiUrl}$endpoint');
 
     var headers = {
