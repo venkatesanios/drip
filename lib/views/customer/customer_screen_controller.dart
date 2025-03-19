@@ -116,7 +116,8 @@ class CustomerScreenController extends StatelessWidget {
 
                   vm.mySiteList.data[vm.sIndex].master.length>1? PopupMenuButton<String>(
                     color: Colors.white,
-                    tooltip: '',
+                    surfaceTintColor: Theme.of(context).primaryColorLight,
+                    tooltip: 'master controller',
                     child: MaterialButton(
                       onPressed: null,
                       textColor: Colors.white,
@@ -142,25 +143,6 @@ class CustomerScreenController extends StatelessWidget {
                   ):
                   Text(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
                     style: const TextStyle(fontSize: 17),),
-
-                  /*vm.mySiteList.data[vm.sIndex].master.length>1? DropdownButton(
-                    isExpanded: false,
-                    underline: Container(),
-                    items: (vm.mySiteList.data[vm.sIndex].master ?? []).map((master) {
-                      return DropdownMenuItem(
-                        value: master.categoryName,
-                        child: Text(master.deviceName, style: const TextStyle(color: Colors.white, fontSize: 17),),
-                      );
-                    }).toList(),
-                    onChanged: (categoryName) => vm.masterOnChanged(categoryName),
-                    value: vm.myCurrentMaster,
-                    dropdownColor: Theme.of(context).primaryColorLight,
-                    iconEnabledColor: Colors.white,
-                    iconDisabledColor: Colors.white,
-                    focusColor: Colors.transparent,
-                  ) :
-                  Text(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
-                    style: const TextStyle(fontSize: 17),),*/
 
                   vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1?
                   const SizedBox(width: 15,): const SizedBox(),
@@ -360,7 +342,8 @@ class CustomerScreenController extends StatelessWidget {
                     destinations: getNavigationDestinations(),
                   ),
                   Container(
-                    width: MediaQuery.sizeOf(context).width-140,
+                    width: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId==1?
+                    MediaQuery.sizeOf(context).width-140:MediaQuery.sizeOf(context).width-80,
                     height: MediaQuery.sizeOf(context).height,
                     decoration: BoxDecoration(
                       color: Theme.of(context).scaffoldBackgroundColor,
