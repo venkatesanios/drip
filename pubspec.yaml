@@ -47,6 +47,7 @@ dependencies:
   flutter_date_range_picker: ^0.1.1
   syncfusion_flutter_datepicker: ^27.1.51
   excel: ^4.0.6
+  syncfusion_flutter_gauges: ^27.2.5
 
 dev_dependencies:
   flutter_test:

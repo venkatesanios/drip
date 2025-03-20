@@ -71,7 +71,7 @@ class CustomerScreenController extends StatelessWidget {
           if(vm.isLoading){
             return const Scaffold(body: Center(child: Text('Site loading please waite....')));
           }
-          return kIsWeb ? Scaffold(
+          return  Scaffold(
             appBar: AppBar(
               title:  Row(
                 children: [
@@ -680,7 +680,7 @@ class CustomerScreenController extends StatelessWidget {
                 ],
               ),
             ),
-          ) : HomeScreen(userId: 4,fromDealer: false,);
+          ) ;
         },
       ),
     );

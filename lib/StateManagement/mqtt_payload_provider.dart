@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../Constants/data_convertion.dart';
+import '../Models/Weather_model.dart';
 import '../Models/customer/site_model.dart';
 
 
@@ -17,6 +18,7 @@ class MqttPayloadProvider with ChangeNotifier {
   SiteModel? get dashboardLiveInstance => _dashboardLiveInstance;
   dynamic spa = '';
   String dashBoardPayload = '', schedulePayload = '';
+  WeatherModel weatherModelinstance = WeatherModel();
 
   Map<String, dynamic> pumpControllerPayload = {};
   Map<String, dynamic> preferencePayload = {};
@@ -494,6 +496,9 @@ class MqttPayloadProvider with ChangeNotifier {
       else if(data.containsKey('3600') && data['3600'] != null && data['3600'].isNotEmpty){
         // mySchedule.dataFromMqttConversion(payload);
         schedulePayload = payload;
+      }
+      else if(data.containsKey('5100') && data['5100'] != null && data['5100'].isNotEmpty){
+        weatherModelinstance = WeatherModel.fromJson(data);
       }
       /* if(data['liveSyncDate'] != null){
         String dateStr = data['liveSyncDate'];

@@ -362,6 +362,9 @@ class Repository{
   Future<http.Response> getUserDeviceFirmwareDetails(body) async {
     return await apiService.postRequest('/user/deviceList/getFirmwareDetails', body);
   }
+  Future<http.Response> getUserDashboard(body) async {
+    return await apiService.postRequest('/user/deviceList/getFirmwareDetails', body);
+  }
 
 }
 
