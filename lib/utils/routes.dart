@@ -37,6 +37,7 @@ class Routes {
           // builder: (_) => const CalibrationScreen(userData: {"userId" : 4, "controllerId": 1, "deviceId":"2CCF674C0F8A" },),
           // builder: (_) => const ConfigBasePage(masterData: {}),
           // builder: (_) => ScheduleViewScreen(deviceId: "2CCF674C0F8A", userId: 4, controllerId: 1, customerId: 4, groupId: 1),
+          // builder: (_) => ScheduleViewScreen(deviceId: "2CCF674C0F8A", userId: 4, controllerId: 1, customerId: 4, groupId: 1),
            builder: (_) => const ScreenController(),
           settings: settings,
         );

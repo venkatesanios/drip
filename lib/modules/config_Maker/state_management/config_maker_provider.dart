@@ -34,7 +34,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     4 : 25,
     5 : 2,
   };
-  int selectedConfigurationTab = 2;
+  int selectedConfigurationTab = 5;
   SelectionMode selectedSelectionMode = SelectionMode.auto;
   int selectedConnectionNo = 0;
   String selectedType = '';
@@ -237,7 +237,7 @@ class ConfigMakerProvider extends ChangeNotifier{
               );
             }else if(deviceObjectModel.objectId == 2){
               line.add(
-                  IrrigationLineModel(commonDetails: deviceObjectModel, source: [], sourcePump: [], irrigationPump: [], valve: [], mainValve: [], fan: [], fogger: [], pesticides: [], heater: [], screen: [], vent: [], moisture: [], temperature: [], soilTemperature: [], humidity: [], co2: [])
+                  IrrigationLineModel(commonDetails: deviceObjectModel, source: [], sourcePump: [], irrigationPump: [], valve: [], mainValve: [], fan: [], fogger: [], pesticides: [], heater: [], screen: [], vent: [], moisture: [], temperature: [], soilTemperature: [], humidity: [], co2: [], weatherStation: [])
               );
             }
           }
@@ -748,7 +748,7 @@ class ConfigMakerProvider extends ChangeNotifier{
           "DeviceTypeNumber": controller.categoryId,
           "DeviceRunningNumber": findOutReferenceNumber(controller),
           "Output_InputNumber": object.connectionNo,
-          "IO_Mode": getObjectTypeCodeToHardware(object.type),
+          "IO_Mode": controller.categoryId ==  4 ? 8 : getObjectTypeCodeToHardware(object.type),
         }.entries.map((e) => e.value).join(","));
       }
     }
@@ -758,7 +758,6 @@ class ConfigMakerProvider extends ChangeNotifier{
 
   String getWeatherPayload() {
     List<dynamic> weatherPayload = [];
-
     final weatherControllersList = listOfDeviceModel.where((e) => e.categoryId == 4).toList();
     for (var i = 0; i < weatherControllersList.length; i++) {
       var weather = weatherControllersList[i];
@@ -793,7 +792,6 @@ class ConfigMakerProvider extends ChangeNotifier{
         weatherPayload.add(weatherSensorPayload(weather, leafWetnessSensor.isNotEmpty ? leafWetnessSensor[0] : null, 15));
       }
     }
-
     return weatherPayload.join(";");
   }
 

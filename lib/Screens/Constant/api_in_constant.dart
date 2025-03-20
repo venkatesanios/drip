@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../modules/Preferences/model/preference_data_model.dart';
 import '../../services/http_service.dart';
 import 'ConstantPageProvider/changeNotifier_constantProvider.dart';
 import 'home_page_constant.dart';

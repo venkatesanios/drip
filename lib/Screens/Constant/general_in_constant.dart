@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
-import 'ConstantPageProvider/changeNotifier_constantProvider.dart';
 import 'constant_tableChart/customTimepicker_in_const.dart';
 
 class GeneralPage extends StatefulWidget {
