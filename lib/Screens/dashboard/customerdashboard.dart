@@ -608,7 +608,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin{
                             SizedBox(
                               width: 30,
                               height: 30,
-                              child: Image.asset('assets/png_images/choose_controller.png'),
+                              child: Image.asset('assets/png/choose_controller.png'),
                             ),
                             Column(
                               children: [
@@ -670,7 +670,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin{
                               SizedBox(
                                 width: 30,
                                 height: 30,
-                                child: Image.asset('assets/png_images/irrigation_line1.png'),
+                                child: Image.asset('assets/png/irrigation_line1.png'),
                               ),
                               SizedBox(
                                   width: MediaQuery.of(context).size.width * 0.25,
@@ -815,7 +815,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin{
                           leading: SizedBox(
                             width: 30,
                             height: 30,
-                            child: Image.asset('assets/png_images/irrigation_line1.png'),
+                            child: Image.asset('assets/png/irrigation_line1.png'),
                           ),
                           subtitle: getLinePauseResumeMessage(selectedLine.irrigationLine.mode) == '' ? null : Text('${getLinePauseResumeMessage(selectedLine.irrigationLine.mode)}',style: const TextStyle(color: Colors.red,fontWeight: FontWeight.bold),),
                           title: Text('${selectedLine.irrigationLine.name}',style: const TextStyle(fontSize: 12,color: Colors.black),),

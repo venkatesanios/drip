@@ -146,12 +146,12 @@ class ValveWidget extends StatelessWidget {
                 width: 35,
                 height: 35,
                 status == 0
-                    ? 'assets/png_images/valve_gray.png'
+                    ? 'assets/png/valve_gray.png'
                     : status == 1
-                    ? 'assets/png_images/valve_green.png'
+                    ? 'assets/png/valve_green.png'
                     : status == 2
-                    ? 'assets/png_images/valve_orange.png'
-                    : 'assets/png_images/valve_red.png',
+                    ? 'assets/png/valve_orange.png'
+                    : 'assets/png/valve_red.png',
               ),
               const SizedBox(height: 4),
               Text(

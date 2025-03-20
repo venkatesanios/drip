@@ -195,7 +195,7 @@ class ConfigObject {
   final String type;
   final int? controllerId;
   final int? count;
-  final double location;
+  final double? location;
 
   ConfigObject({
     required this.objectId,
@@ -219,7 +219,7 @@ class ConfigObject {
       type: json['type'],
       controllerId: json['controllerId'],
       count: json['count'],
-      location: json['location'],
+      location: json['location'] ?? 0.0,
     );
   }
 
@@ -1121,6 +1121,7 @@ class ProgramList {
   int startStopReason;
   int pauseResumeReason;
   String prgPauseResume;
+  int status;
 
 
   ProgramList({
@@ -1141,6 +1142,7 @@ class ProgramList {
     this.startStopReason = 0,
     this.pauseResumeReason = 0,
     this.prgPauseResume = '0',
+    this.status = 0,
   });
 
   // Factory method to create an instance from JSON

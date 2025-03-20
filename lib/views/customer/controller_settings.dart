@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
+import 'constant.dart';
 
 class ControllerSettings extends StatelessWidget {
   const ControllerSettings({super.key, required this.customerId, required this.controllerId, required this.adDrId});
@@ -37,6 +38,7 @@ class ControllerSettings extends StatelessWidget {
                     tabs: const [
                       Tab(text: 'General'),
                       Tab(text: 'Preference'),
+                      Tab(text: 'Constant'),
                       Tab(text: 'Condition Library'),
                       Tab(text: 'Notification'),
                       Tab(text: 'Names'),
@@ -392,6 +394,7 @@ class ControllerSettings extends StatelessWidget {
                           ),
                         ),
                         const Center(child: Text('Tab 2 Content')),
+                        Constant(customerId: customerId, controllerId: controllerId, userId: adDrId),
                         ConditionLibrary(customerId, controllerId, adDrId),
                         const Center(child: Text('Tab 4 Content')),
                         const Center(child: Text('Tab 5 Content')),

@@ -55,6 +55,7 @@ class CustomerScreenController extends StatelessWidget {
           var iLineLiveMessage = Provider.of<MqttPayloadProvider>(context).lineLiveMessage;
           Duration lastCommunication = Provider.of<MqttPayloadProvider>(context).lastCommunication;
           int powerSupply = Provider.of<MqttPayloadProvider>(context).powerSupply;
+          var currentSchedule = Provider.of<MqttPayloadProvider>(context).currentSchedule;
 
           if(liveDataAndTime.isNotEmpty){
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -73,8 +74,8 @@ class CustomerScreenController extends StatelessWidget {
                   fromLogin ?const SizedBox():
                   const SizedBox(width: 10),
                   fromLogin ? Image(
-                    image: F.appFlavor!.name.contains('oro')?const AssetImage("assets/png_images/oro_logo_white.png"):
-                    const AssetImage("assets/png_images/company_logo.png"),
+                    image: F.appFlavor!.name.contains('oro')?const AssetImage("assets/png/oro_logo_white.png"):
+                    const AssetImage("assets/png/company_logo.png"),
                     width: 110,
                     fit: BoxFit.fitWidth,
                   ):
@@ -214,14 +215,14 @@ class CustomerScreenController extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    /*vm.currentSchedule.isNotEmpty?
+                    currentSchedule.isNotEmpty?
                     CircleAvatar(
                       radius: 15,
-                      backgroundImage: const AssetImage('assets/gif_images/water_drop_ani.gif'),
+                      backgroundImage: const AssetImage('assets/gif/water_drop_ani.gif'),
                       backgroundColor: Colors.blue.shade100,
                     ):
                     const SizedBox(),
-                    const SizedBox(width: 10,),*/
+                    const SizedBox(width: 10,),
 
                     vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData.length>1? TextButton(
                       onPressed: () => vm.linePauseOrResume(iLineLiveMessage),
@@ -258,7 +259,7 @@ class CustomerScreenController extends StatelessWidget {
                       backgroundColor: Colors.white,
                       child: Icon(Icons.live_help_outlined),
                     )),
-                    IconButton(tooltip : 'Niagara Account\n$customerName\n $mobileNo', onPressed: (){
+                    IconButton(tooltip : 'Your Account\n$customerName\n $mobileNo', onPressed: (){
                       showMenu(
                         context: context,
                         position: const RelativeRect.fromLTRB(100, 0, 10, 0),
@@ -353,7 +354,7 @@ class CustomerScreenController extends StatelessWidget {
                         lastCommunication.inMinutes >= 10 && powerSupply == 0?Container(
                           height: 23.0,
                           decoration: BoxDecoration(
-                            color: Colors.red.shade200,
+                            color: Colors.red.shade300,
                             borderRadius: const BorderRadius.only(topLeft: Radius.circular(5),topRight: Radius.circular(5)),
                           ),
                           child: Center(

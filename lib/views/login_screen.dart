@@ -36,7 +36,7 @@ class LoginScreen extends StatelessWidget {
                       padding: const EdgeInsets.all(50.0),
                       child: SvgPicture.asset('assets/svg_images/login_left_picture.svg'),
                     ):
-                    const Image(image: AssetImage('assets/png_images/lk_login_left_picture.png'), fit: BoxFit.fill),
+                    const Image(image: AssetImage('assets/png/lk_login_left_picture.png'), fit: BoxFit.fill),
                   ),
                 ):
                 Container(),
@@ -51,7 +51,7 @@ class LoginScreen extends StatelessWidget {
                               child: Row(
                                 children: [
                                   Expanded(flex: 3, child: Container()),
-                                  const Image(image: AssetImage('assets/png_images/login_top_corner.png')),
+                                  const Image(image: AssetImage('assets/png/login_top_corner.png')),
                                 ],
                               ),
                             ),

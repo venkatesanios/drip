@@ -19,11 +19,27 @@ class CustomerHome extends StatelessWidget {
   Widget build(BuildContext context) {
     final viewModel = Provider.of<CustomerScreenControllerViewModel>(context);
 
+    List<FilterSite> filteredFilterSite = [];
+
     final waterSources = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.waterSource;
-    final filterSite = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.filterSite;
+    final allFilterSite = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.filterSite;
     final fertilizerSite = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.fertilizerSite;
     final lineData = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.lineData;
     final scheduledProgram = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].programList;
+
+    if(viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.lineData[viewModel.lIndex].name=='All irrigation line'){
+      filteredFilterSite = allFilterSite;
+    }else{
+      final filteredLineData = viewModel.mySiteList.data[viewModel.sIndex]
+          .master[viewModel.mIndex].config.lineData
+          .where((line) => line.name == viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.lineData[viewModel.lIndex].name)
+          .toList();
+
+      filteredFilterSite = viewModel.mySiteList.data[viewModel.sIndex]
+          .master[viewModel.mIndex].config.filterSite
+          .where((filterSite) => filterSite.sNo == filteredLineData[0].centralFiltration)
+          .toList();
+    }
 
     if(viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.lineData[viewModel.lIndex].sNo==0)
     {
@@ -39,7 +55,7 @@ class CustomerHome extends StatelessWidget {
           DisplayPumpStation(
             waterSource: waterSources,
             irrLineData: lineData,
-            filterSite: filterSite,
+            filterSite: filteredFilterSite,
             fertilizerSite: fertilizerSite,
             currentLineName: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.lineData[viewModel.lIndex].name,
           ),
@@ -374,7 +390,7 @@ class DisplayPumpStation extends StatelessWidget {
                         height: 70,
                         child : Stack(
                           children: [
-                            Image.asset('assets/png_images/dp_prs_sensor.png',),
+                            Image.asset('assets/png/dp_prs_sensor.png',),
                             Positioned(
                               top: 42,
                               left: 5,
@@ -482,7 +498,7 @@ class DisplayPumpStation extends StatelessWidget {
                         height: 70,
                         child : Stack(
                           children: [
-                            Image.asset('assets/png_images/dp_prs_sensor.png',),
+                            Image.asset('assets/png/dp_prs_sensor.png',),
                             Positioned(
                               top: 42,
                               left: 5,
@@ -615,7 +631,7 @@ class DisplayPumpStation extends StatelessWidget {
                               Positioned(
                                 top: 115,
                                 left: 8.3,
-                                child: Image.asset('assets/png_images/dp_frt_vertical_pipe.png', width: 9.5, height: 37,),
+                                child: Image.asset('assets/png/dp_frt_vertical_pipe.png', width: 9.5, height: 37,),
                               ),
                             ],
                           )
@@ -926,7 +942,7 @@ class DisplayPumpStation extends StatelessWidget {
         imageName += '.png';
     }
 
-    return Image.asset('assets/png_images/$imageName');
+    return Image.asset('assets/png/$imageName');
 
   }
 

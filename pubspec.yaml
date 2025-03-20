@@ -71,10 +71,10 @@ flutter:
      - assets/Images/Filtration/
      - assets/Images/Png/
      - assets/Images/Source/
-     - assets/png_images/
+     - assets/png/
      - assets/svg_images/
      - assets/SVGPicture/
-     - assets/png_images/
+     - assets/gif/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

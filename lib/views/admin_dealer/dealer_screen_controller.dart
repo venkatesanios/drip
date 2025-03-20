@@ -25,8 +25,8 @@ class DealerScreenController extends StatelessWidget {
               title: Image.asset(
                 width: F.appFlavor!.name.contains('oro')?70:110,
                 F.appFlavor!.name.contains('oro')
-                    ? "assets/png_images/oro_logo_white.png"
-                    : "assets/png_images/company_logo.png",
+                    ? "assets/png/oro_logo_white.png"
+                    : "assets/png/company_logo.png",
                 fit: BoxFit.fitWidth,
               ),
               actions: <Widget>[
@@ -35,7 +35,7 @@ class DealerScreenController extends StatelessWidget {
                   children: [
                     Image.asset(
                       width: 140,
-                      "assets/png_images/lk_logo_white.png",
+                      "assets/png/lk_logo_white.png",
                       fit: BoxFit.fitWidth,
                     ),
                     const SizedBox(width: 10),
@@ -54,7 +54,7 @@ class DealerScreenController extends StatelessWidget {
                           const SizedBox(width: 2),
                           const CircleAvatar(
                             radius: 18,
-                            backgroundImage: AssetImage("assets/png_images/user_thumbnail.png"),
+                            backgroundImage: AssetImage("assets/png/user_thumbnail.png"),
                           ),
                           const SizedBox(width: 5),
                           Text(userName, style: const TextStyle(fontWeight: FontWeight.bold))
@@ -65,7 +65,7 @@ class DealerScreenController extends StatelessWidget {
                     const SizedBox(width: 08),
                     const CircleAvatar(
                       radius: 23,
-                      backgroundImage: AssetImage("assets/png_images/user_thumbnail.png"),
+                      backgroundImage: AssetImage("assets/png/user_thumbnail.png"),
                     ),*/
                   ],),
               ],
