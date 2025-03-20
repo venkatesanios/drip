@@ -41,6 +41,7 @@ class CustomerHome extends StatelessWidget {
             irrLineData: lineData,
             filterSite: filterSite,
             fertilizerSite: fertilizerSite,
+            currentLineName: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.lineData[viewModel.lIndex].name,
           ),
           CurrentProgram(scheduledPrograms: scheduledProgram, deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,),
           NextSchedule(scheduledPrograms: scheduledProgram),
@@ -60,22 +61,22 @@ class DisplayPumpStation extends StatelessWidget {
   final List<FilterSite> filterSite;
   final List<FertilizerSite> fertilizerSite;
   final List<IrrigationLineData>? irrLineData;
+  final String currentLineName;
 
   const DisplayPumpStation({super.key, required this.waterSource,
     required this.irrLineData, required this.filterSite,
-    required this.fertilizerSite});
+    required this.fertilizerSite, required this.currentLineName});
 
   @override
   Widget build(BuildContext context) {
 
-    var outputOnOffLiveMessage = Provider.of<MqttPayloadProvider>(context).outputOnOffLiveMessage;
-    print('outputOnOffLiveMessage:$outputOnOffLiveMessage');
+    var outputStatusPayload = Provider.of<MqttPayloadProvider>(context).outputStatusPayload;
 
-    List<String> filteredPumpStatus = outputOnOffLiveMessage
+    List<String> filteredPumpStatus = outputStatusPayload
         .where((item) => item.startsWith('5.')).toList();
     updatePumpStatus(waterSource, filteredPumpStatus);
 
-    List<String> filteredValveStatus = outputOnOffLiveMessage
+    List<String> filteredValveStatus = outputStatusPayload
         .where((item) => item.startsWith('13.')).toList();
     updateValveStatus(irrLineData!, filteredValveStatus);
 
@@ -147,7 +148,7 @@ class DisplayPumpStation extends StatelessWidget {
                 ),
               ):
               buildRow(context, sortedWaterSources),
-              IrrigationLine(lineData: irrLineData, pumpStationWith: 0,),
+              IrrigationLine(lineData: irrLineData, pumpStationWith: 0, currentLineName: currentLineName,),
             ],
           ),
         ),

@@ -173,6 +173,7 @@ class CustomerScreenController extends StatelessWidget {
                   vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData[0].name:
                   'Line empty', style: const TextStyle(fontSize: 17),):
                   const SizedBox(),
+
                   const SizedBox(width: 15,),
                   Container(width: 1, height: 20, color: Colors.white54,),
                   const SizedBox(width: 5,),
@@ -697,8 +698,8 @@ class CustomerScreenController extends StatelessWidget {
   Widget mainScreen(int index, groupId, groupName, List<Master> masterData, int controllerId, int categoryId) {
     switch (index) {
       case 0:
-        return categoryId==1?CustomerHome(customerId: userId):
-        Text('pump dashboard');
+        return categoryId==1? CustomerHome(customerId: userId):
+        const Text('pump dashboard');
       case 1:
         return CustomerProduct(customerId: userId);
       case 2:

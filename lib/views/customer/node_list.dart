@@ -328,20 +328,15 @@ class NodeList extends StatelessWidget {
                                               style: const TextStyle(fontWeight: FontWeight.normal),
                                             ),
                                             const SizedBox(width: 5),
-                                            /*IconButton(
-                                        tooltip: 'Serial set',
-                                        onPressed: getPermissionStatusBySNo(context, 7) ? () {
-                                          String payLoadFinal = jsonEncode({
-                                            "2300": [
-                                              {"2301": "${nodeList[index].serialNumber}"},
-                                            ]
-                                          });
-                                          MQTTManager().publish(payLoadFinal, 'AppToFirmware/$deviceId');
-                                          sentToServer('Serial set for the ${nodeList[index].deviceName} all Relay', payLoadFinal);
-                                          GlobalSnackBar.show(context, 'Your comment sent successfully', 200);
-                                        }:null,
-                                        icon: Icon(Icons.fact_check_outlined, color: getPermissionStatusBySNo(context, 7) ? primaryColorDark:Colors.black26),
-                                      )*/
+                                            IconButton(
+                                              tooltip: 'Serial set',
+                                              onPressed: vm.getPermissionStatusBySNo(context, 7) ? () {
+                                                vm.actionSerialSet(index, deviceId);
+                                                GlobalSnackBar.show(context, 'Your comment sent successfully', 200);
+                                              }:null,
+                                              icon: Icon(Icons.fact_check_outlined, color: vm.getPermissionStatusBySNo(context, 7) ?
+                                              Theme.of(context).primaryColor:Colors.black26),
+                                            ),
                                           ],
                                         ),
                                       ),

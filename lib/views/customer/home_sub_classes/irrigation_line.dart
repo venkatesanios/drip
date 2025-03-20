@@ -7,8 +7,9 @@ import '../../../view_models/customer/irrigation_line_view_model.dart';
 class IrrigationLine extends StatelessWidget {
   final List<IrrigationLineData>? lineData;
   final double pumpStationWith;
+  final String currentLineName;
 
-  const IrrigationLine({super.key, required this.lineData, required this.pumpStationWith});
+  const IrrigationLine({super.key, required this.lineData, required this.pumpStationWith, required this.currentLineName});
 
   @override
   Widget build(BuildContext context) {
@@ -22,12 +23,23 @@ class IrrigationLine extends StatelessWidget {
           final List<Widget> valveWidgets;
 
           valveWidgets = [
-            for (var line in lineData!) ...[
-              ...line.valves.map((vl) => ValveWidget(vl: vl, status: vl.status,
-                userId: 0,
-                controllerId: 0,
-              )),
-            ]
+            if (currentLineName == 'All irrigation line')
+              for (var line in lineData!)
+                ...line.valves.map((vl) => ValveWidget(
+                  vl: vl,
+                  status: vl.status,
+                  userId: 0,
+                  controllerId: 0,
+                ))
+            else
+              for (var line in lineData!)
+                if (line.name == currentLineName)
+                  ...line.valves.map((vl) => ValveWidget(
+                    vl: vl,
+                    status: vl.status,
+                    userId: 0,
+                    controllerId: 0,
+                  )),
           ];
 
           int crossAxisCount = (screenWidth / 90).floor().clamp(1, double.infinity).toInt();

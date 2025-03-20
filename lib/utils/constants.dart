@@ -340,12 +340,17 @@ class AppConstants {
  static dynamic payloadConversion(data) {
     dynamic dataFormation = {};
     for(var globalKey in data.keys) {
-      if(['filterSite', 'fertilizerSite', 'waterSource', 'pump', 'moistureSensor', 'irrigationLine'].contains(globalKey)){
+
+      if(['filterSite', 'fertilizerSite', 'waterSource', 'pump', 'moistureSensor', 'irrigationLine'].contains(globalKey))
+      {
         dataFormation[globalKey] = [];
-        for(var site in data[globalKey]){
+        for(var site in data[globalKey])
+        {
           dynamic siteFormation = site;
-          for(var siteKey in site.keys){
-            if(!['objectId', 'sNo', 'name', 'objectName', 'connectionNo', 'type', 'controllerId', 'count', 'siteMode', 'pumpType'].contains(siteKey)){
+          for(var siteKey in site.keys)
+          {
+            if(!['objectId', 'sNo', 'name', 'objectName', 'connectionNo', 'type', 'controllerId', 'count', 'siteMode', 'pumpType',].contains(siteKey))
+            {
               siteFormation[siteKey] = siteFormation[siteKey] is List<dynamic>
                   ? (siteFormation[siteKey] as List<dynamic>).map((element) {
                 if(element is double){
