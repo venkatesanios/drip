@@ -69,7 +69,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
                   const SizedBox(height: 10,),
                   Expanded(
                     child: Container(
-                      padding: const EdgeInsets.all(8),
+                      // padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -160,9 +160,108 @@ class _LineConfigurationState extends State<LineConfiguration> {
                               ),
                             ),
                             const SizedBox(height: 10,),
-                            diagramWidget(selectedIrrigationLine),
+                            Stack(
+                              children: [
+                                diagramWidget(selectedIrrigationLine),
+                                Positioned(
+                                  right: 10,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    spacing: 10,
+                                    children: [
+                                      IconButton(
+                                          onPressed: (){
+                                            setState(() {
+                                              if(widget.configPvd.ratio < 1){
+                                                widget.configPvd.ratio += 0.1;
+                                              }
+                                            });
+                                          },
+                                          icon: const Icon(Icons.zoom_in)
+                                      ),
+                                      const Text('Zoom'),
+                                      IconButton(
+                                          onPressed: (){
+                                            setState(() {
+                                              if(widget.configPvd.ratio > 0){
+                                                widget.configPvd.ratio -= 0.1;
+                                              }
+                                            });
+                                          },
+                                          icon: const Icon(Icons.zoom_out)
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
                             const SizedBox(height: 20,),
+                            Row(
+                              spacing: 20,
+                              children: [
+                                for(var device in widget.configPvd.listOfDeviceModel.where((device) => (device.masterId != null && device.categoryId == 4)).toList())
+                                  Tooltip(
+                                    verticalOffset: -80,
+                                    message: 'Do you want weather station \n for ${selectedIrrigationLine.commonDetails.name}',
+                                    child: Container(
+                                      margin: const EdgeInsets.only(left: 5),
+                                      padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+                                      width: 300,
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(10),
+                                          color: Colors.white,
+                                        boxShadow: const [
+                                          BoxShadow(color: Colors.grey, blurRadius: 5)
+                                        ]
+                                      ),
+                                      child: Row(
+                                        spacing: 20,
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 30,
+                                            backgroundColor: themeData.primaryColor.withOpacity(0.1),
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(10.0),
+                                              child: Image.asset(
+                                                'assets/Images/Png/weather_station.png',
+                                                width: 60,
+                                                height: 60,
+                                              ),
+                                            ),
+                                          ),
+                                          Column(
+                                            children: [
+                                              Text(device.deviceName, style: themeData.textTheme.labelLarge,),
+                                              Text(device.deviceId, style: themeData.textTheme.labelSmall),
+                                            ],
+                                          ),
+                                          Checkbox(
+                                              value: selectedIrrigationLine.weatherStation.contains(device.controllerId),
+                                              onChanged: (value){
+                                                setState(() {
+                                                  if(value! == true){
+                                                    selectedIrrigationLine.weatherStation.add(device.controllerId);
+                                                  }else{
+                                                    selectedIrrigationLine.weatherStation.remove(device.controllerId);
+                                                  }
+                                                });
+                                              }
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                              ],
+                            ),
+                            SizedBox(height: 20,),
                             checkingAnyParameterAvailableInLine(selectedIrrigationLine),
+
+
+                            SizedBox(height: 50,),
+
+
+
                           ],
                         ),
                       ),
@@ -266,7 +365,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
       padding: const EdgeInsets.symmetric(horizontal: 5),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.black)
+          border: Border.all(color: themeData.primaryColor.withOpacity(0.3))
       ),
       child: ResponsiveGridList(
         horizontalGridMargin: 0,

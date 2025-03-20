@@ -28,6 +28,7 @@ class IrrigationLineModel{
   List<double> soilTemperature;
   List<double> humidity;
   List<double> co2;
+  List<int> weatherStation;
 
   IrrigationLineModel({
     required this.commonDetails,
@@ -56,6 +57,7 @@ class IrrigationLineModel{
     required this.soilTemperature,
     required this.humidity,
     required this.co2,
+    required this.weatherStation,
   });
 
   factory IrrigationLineModel.fromJson(data){
@@ -87,7 +89,8 @@ class IrrigationLineModel{
         temperature: (data['temperature'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         soilTemperature: (data['soilTemperature'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         humidity: (data['humidity'] as List<dynamic>).map((sNo) => sNo as double).toList(),
-        co2: (data['co2'] as List<dynamic>).map((sNo) => sNo as double).toList()
+        co2: (data['co2'] as List<dynamic>).map((sNo) => sNo as double).toList(),
+        weatherStation: data['weatherStation'] != null ? (data['weatherStation'] as List<dynamic>).map((controllerNo) => controllerNo as int).toList() : []
     );
   }
 
@@ -119,6 +122,7 @@ class IrrigationLineModel{
       'soilTemperature' : soilTemperature,
       'humidity' : humidity,
       'co2' : co2,
+      'weatherStation' : weatherStation,
     });
     return commonInfo;
   }
