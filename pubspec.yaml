@@ -80,13 +80,10 @@ flutter:
      - assets/png/
      - assets/svg_images/
      - assets/SVGPicture/
-<<<<<<< HEAD
      - assets/png_images/
      - assets/Images/Source/
      - assets/mob_dashboard/
-=======
      - assets/gif/
->>>>>>> Kamaraj
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
