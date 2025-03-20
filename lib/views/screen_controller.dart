@@ -51,14 +51,14 @@ class ScreenController extends StatelessWidget {
           emailId: emailId,
         );
       default:
-        // return  WeatherScreen(userId: 4, controllerId: 1, deviceID: '',) ;
-         return CustomerScreenController(userId: userId,
-          customerName: userName,
-          mobileNo: mobileNo,
-          emailId: emailId,
-          customerId: userId,
-          fromLogin: true,
-        ) ;
+        return  WeatherScreen(userId: 4, controllerId: 1, deviceID: '',) ;
+        //  return CustomerScreenController(userId: userId,
+        //   customerName: userName,
+        //   mobileNo: mobileNo,
+        //   emailId: emailId,
+        //   customerId: userId,
+        //   fromLogin: true,
+        // ) ;
     }
   }
 }

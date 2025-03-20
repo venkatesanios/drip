@@ -165,8 +165,8 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
           children: [
             const BackButton(),
             Image(
-              image: F.appFlavor!.name.contains('oro')?const AssetImage("assets/png_images/oro_logo_white.png"):
-              const AssetImage("assets/png_images/company_logo.png"),
+              image: F.appFlavor!.name.contains('oro')?const AssetImage("assets/png/oro_logo_white.png"):
+              const AssetImage("assets/png/company_logo.png"),
               width: 110,
               fit: BoxFit.fitWidth,
             )

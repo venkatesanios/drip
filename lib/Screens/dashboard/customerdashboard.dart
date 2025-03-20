@@ -980,7 +980,7 @@ class _DashboardState extends State<MobDashboard>
                                       width: 30,
                                       height: 30,
                                       child: Image.asset(
-                                          'assets/png_images/choose_controller.png'),
+                                          'assets/png/choose_controller.png'),
                                     ),
                                     Column(
                                       children: [
@@ -1083,7 +1083,7 @@ class _DashboardState extends State<MobDashboard>
                                         width: 30,
                                         height: 30,
                                         child: Image.asset(
-                                            'assets/png_images/irrigation_line1.png'),
+                                            'assets/png/irrigation_line1.png'),
                                       ),
                                       SizedBox(
                                           width: MediaQuery.of(context)
@@ -1310,7 +1310,7 @@ class _DashboardState extends State<MobDashboard>
                                     width: 30,
                                     height: 30,
                                     child: Image.asset(
-                                        'assets/png_images/irrigation_line1.png'),
+                                        'assets/png/irrigation_line1.png'),
                                   ),
                                   subtitle: getLinePauseResumeMessage(
                                       selectedLine!.sNo) ==
@@ -1750,7 +1750,7 @@ class _DashboardState extends State<MobDashboard>
                             child: Stack(
                               children: [
                                 Image.asset(
-                                  'assets/png_images/dp_prs_sensor.png',
+                                  'assets/png/dp_prs_sensor.png',
                                 ),
                                 Positioned(
                                   top: 42,
@@ -1834,7 +1834,7 @@ class _DashboardState extends State<MobDashboard>
                             child: Stack(
                               children: [
                                 Image.asset(
-                                  'assets/png_images/dp_prs_sensor.png',
+                                  'assets/png/dp_prs_sensor.png',
                                 ),
                                 Positioned(
                                   top: 42,
@@ -2031,7 +2031,7 @@ class _DashboardState extends State<MobDashboard>
                                     top: 115,
                                     left: 8.3,
                                     child: Image.asset(
-                                      'assets/png_images/dp_frt_vertical_pipe.png',
+                                      'assets/png/dp_frt_vertical_pipe.png',
                                       width: 9.5,
                                       height: 37,
                                     ),
@@ -2489,7 +2489,7 @@ class _DashboardState extends State<MobDashboard>
         imageName += '.png';
     }
 
-    return Image.asset('assets/png_images/$imageName');
+    return Image.asset('assets/png/$imageName');
   }
 
   void updatePumpStatus(List<WaterSource> waterSource, List<dynamic> filteredPumpStatus) {

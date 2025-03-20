@@ -1,30 +1,25 @@
-
-
-// Data Models
 class WeatherStation {
-  final int id;
-  final String deviceName;
+  final int deviceId; // Device ID (S_No for the weather station)
   final List<Sensor> sensors;
 
   WeatherStation({
-    required this.id,
-    required this.deviceName,
+    required this.deviceId,
     required this.sensors,
   });
 
   factory WeatherStation.fromString(String data) {
     final parts = data.split(',');
-    final id = int.parse(parts[0]);
-    final deviceName = parts[1];
+    final deviceId = int.parse(parts[0]); // First index is device ID
     final sensors = <Sensor>[];
 
-    // Start at index 2, step by 3, ensure we have full triplets
-    for (int i = 2; i < parts.length - 2; i += 3) {
+    // Start at index 1, step by 3, ensure we have full triplets
+    for (int i = 1; i < parts.length - 2; i += 3) {
       try {
-        final errorStatus = int.parse(parts[i]);
-        final value = double.parse(parts[i + 2]);
+        final sensorSno = double.parse(parts[i]); // Sensor S_No
+        final value = double.parse(parts[i + 1]); // Sensor Value
+        final errorStatus = int.parse(parts[i + 2]); // Sensor Error Status
         sensors.add(Sensor(
-          id: (i - 2) ~/ 3 + 1, // Sensor S_No (1 to 16)
+          sno: sensorSno,
           value: value,
           errorStatus: errorStatus,
         ));
@@ -34,17 +29,17 @@ class WeatherStation {
       }
     }
 
-    return WeatherStation(id: id, deviceName: deviceName, sensors: sensors);
+    return WeatherStation(deviceId: deviceId, sensors: sensors);
   }
 }
 
 class Sensor {
-  final int id; // S_No
-  final double value;
-  final int errorStatus;
+  final double sno; // Sensor S_No (using double as per your data)
+  final double value; // Sensor Value
+  final int errorStatus; // Sensor Error Status
 
   Sensor({
-    required this.id,
+    required this.sno,
     required this.value,
     required this.errorStatus,
   });

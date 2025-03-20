@@ -77,13 +77,12 @@ flutter:
      - assets/Images/Png/Oro/
      - assets/Images/Png/SmartComm/
      - assets/Images/Source/
-     - assets/png/
      - assets/svg_images/
      - assets/SVGPicture/
-     - assets/png_images/
      - assets/Images/Source/
      - assets/mob_dashboard/
      - assets/gif/
+     - assets/png/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

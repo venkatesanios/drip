@@ -110,7 +110,7 @@ class AppConstants {
   static const enterValidEmail = 'Please enter a valid email';
   static const nameValidationError = 'Name must not contain numbers or special characters';
 
-  static const String pngPath = "assets/png_images/";
+  static const String pngPath = "assets/png/";
   static const String gifPath = "assets/gif_images/";
 
   static const String pumpOFF = "dp_irr_pump.png";
@@ -337,7 +337,6 @@ class AppConstants {
   static const String svgObjectPath = 'assets/Images/Svg/';
 
   static dynamic payloadConversion(data) {
-    print('siva start');
     dynamic dataFormation = {};
 
     try
@@ -348,7 +347,7 @@ class AppConstants {
           for(var site in data[globalKey]){
             dynamic siteFormation = site;
             for(var siteKey in site.keys){
-              if(!['objectId', 'sNo', 'name', 'objectName', 'connectionNo', 'type', 'controllerId', 'count', 'siteMode', 'pumpType', 'connectedObject'].contains(siteKey)){
+              if(!['objectId', 'sNo', 'name', 'objectName', 'connectionNo', 'type', 'controllerId', 'count', 'siteMode', 'pumpType', 'connectedObject', 'weatherStation'].contains(siteKey)){
                 siteFormation[siteKey] = siteFormation[siteKey] is List<dynamic>
                     ? (siteFormation[siteKey] as List<dynamic>).map((element) {
                   if(element is double){
@@ -373,12 +372,10 @@ class AppConstants {
       }
       // print('dataFormation : ${jsonEncode(dataFormation)}');
       // print('-------------------------------------------');
-      print('siva end');
-
     }
-    catch(e,stateErrors){
-      print(e.toString());
-      print(stateErrors);
+    catch(e,stackTrace){
+      print('Error on payloadConversion :: $e');
+      print('stackTrace on payloadConversion :: $stackTrace');
     }
     return dataFormation;
 

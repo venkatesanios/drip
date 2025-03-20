@@ -55,7 +55,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         "cT": "12:15:00",
         "cD": "2024-11-14",
         "cM": {
-          "5101": "1,weatherstation1,255,0.0,12.001,255,0.0,12.001,255,0.0,12.001,255,0.0,12.001,255,0.0,12.001,255,0.0,12.001,255,0.0,12.001,255,0.0,12.001,12.001,255,0.0,12.001,255,0.0,12.001,255,0.0;2,weatherstation2,255,0.0,12.001,255,0.0,12.001,255,0.0,12.001,255,0.0,12.001,255,0.0,12.001,255,0.0,12.001,255,0.0,12.001,255,0.0,12.001,12.001,255,0.0,12.001,255,0.0,12.001,255,0.0"
+          "5101": "1,12.001,0.0,255,12.001,0.0,255,12.001,0.0,255,12.001,0.0,255,12.001,0.0,255,12.001,0.0,255,12.001,0.0,255,12.001,0.0,255,12.001,0.0,255,12.001,0.0,255,12.001,0.0,255;2,12.001,0.0,255,12.001,0.0,255,12.001,0.0,255,12.001,0.0,255,12.001,0.0,255,12.001,0.0,255,12.001,0.0,255,12.001,0.0,255,12.001,0.0,255,12.001,0.0,255,12.001,0.0,255"
         },
         "mC": "5100"
       }
@@ -195,7 +195,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                     fit: BoxFit.cover,
                                   ),
                                   Text(
-                                    '${weathernewlive.stations[0].deviceName}',
+                                    '${weathernewlive.stations[i].sensors[6].value}',
                                     style: const TextStyle(
                                         fontWeight: FontWeight.normal,
                                         fontSize: 28,
@@ -251,8 +251,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
                             style: const TextStyle(
                                 fontWeight: FontWeight.normal, fontSize: 15),
                           ),
-                          const Text(
-                            'Last Sync: dd/mm/yyyy / 00:00:00',
+                           Text(
+                            'Last Sync: ${weathernewlive.cT} / ${weathernewlive.cD}',
                             style: TextStyle(
                                 fontWeight: FontWeight.normal, fontSize: 15),
                           ),
@@ -275,7 +275,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                 childAspectRatio: 1,
                               ),
                               // childAspectRatio: 1.7),
-                              itemCount: weathernewlive.stations[0].sensors.length,
+                              itemCount: weathernewlive.stations[i].sensors.length,
                               itemBuilder: (BuildContext context, int index) {
                                 return InkWell(
                                   child: Container(
@@ -290,11 +290,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                           ],
                                         )),
                                     child: gaugeViewWeather(
-                                        _mqttPayloadProvider
-                                            .weatherModelinstance
-                                            .data![0]
-                                            .WeatherSensorlist![i]
-                                            .sensorlist[index],
+                                        weathernewlive.stations[i].sensors[index].value.toString(),
                                         i,
                                         index),
                                   ),
@@ -370,9 +366,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                     icon: Icon(Icons.refresh)),
                               ],
                             ),
-                            const Text(
+                             Text(
                               maxLines: 3,
-                              '00:00:00 / ddmmyyy',
+                              '${weathernewlive.cT} / ${weathernewlive.cD}',
                               style: TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 18),
                               textAlign: TextAlign.center,
@@ -386,7 +382,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           fit: BoxFit.cover,
                         ),
                         Text(
-                          '50 oC',
+                           '${weathernewlive.stations[i].sensors[6].value}°C',
                           style: TextStyle(
                               fontWeight: FontWeight.normal,
                               fontSize: 68,
@@ -478,57 +474,12 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                       screenWidth: constraints.maxWidth,
                                       listOfWidget: [
                                         for (var index = 0;
-                                        index <
-                                            _mqttPayloadProvider
-                                                .weatherModelinstance
-                                                .data![0]
-                                                .WeatherSensorlist![i]
-                                                .sensorlist
-                                                .length;
+                                        index < weathernewlive.stations[i].sensors.length;
                                         index++)
-                                          InkWell(
-                                            onTap: () {
-                                              if (_mqttPayloadProvider
-                                                  .weatherModelinstance
-                                                  .data![0]
-                                                  .WeatherSensorlist![0]
-                                                  .sensorlist[index] !=
-                                                  'WindDirection') {
-                                                // Navigator.push(
-                                                //   context,
-                                                //   MaterialPageRoute(
-                                                //       builder: (context) => WeatherReportbar(
-                                                //           index: i,
-                                                //           Sno: _mqttPayloadProvider
-                                                //               .weatherModelinstance
-                                                //               .data![0]
-                                                //               .WeatherSensorlist![i]
-                                                //               .sNo,
-                                                //           userId: widget.userId,
-                                                //           controllerId:
-                                                //           widget.controllerId,
-                                                //           titletype: _mqttPayloadProvider
-                                                //               .weatherModelinstance
-                                                //               .data![0]
-                                                //               .WeatherSensorlist![i]
-                                                //               .sensorlist[index],
-                                                //           titlekeyvalue: _mqttPayloadProvider
-                                                //               .weatherModelinstance
-                                                //               .data![0]
-                                                //               .WeatherSensorlist![i]
-                                                //               .sensorlisthw[index])),
-                                                // );
-                                              }
-                                            },
-                                            child: gaugeViewWeather(
-                                                _mqttPayloadProvider
-                                                    .weatherModelinstance
-                                                    .data![0]
-                                                    .WeatherSensorlist![i]
-                                                    .sensorlist[index],
-                                                i,
-                                                index),
-                                          )
+                                          gaugeViewWeather(
+                                              weathernewlive.stations[i].sensors[index].sno.toString(),
+                                              i,
+                                              index)
                                       ],
                                     ),
                                   );
@@ -552,14 +503,10 @@ class _WeatherScreenState extends State<WeatherScreen> {
     String Unit = '0';
     String imageAsserStr = '';
     double Max = 100;
-    String value = cardValues(
-        _mqttPayloadProvider.weatherModelinstance.data![0].WeatherSensorlist![0]
-            .sensorlist[index],
-        i);
-    String errorStatus = cardErrValues(
-        _mqttPayloadProvider.weatherModelinstance.data![0].WeatherSensorlist![0]
-            .sensorlist[index],
-        i);
+
+    String value = '${weathernewlive.stations[i].sensors[index].value}';
+    String errorStatus = '${weathernewlive.stations[i].sensors[index].errorStatus}';
+
     Color bgcolor = Colors.transparent;
     if (errorStatus == '1') {
       bgcolor = Colors.red.shade50;
@@ -570,89 +517,101 @@ class _WeatherScreenState extends State<WeatherScreen> {
     } else {
       bgcolor = Colors.white;
     }
-    if (title == 'SoilMoisture1') {
+     if (index == 0) {
       title = 'SoilMoisture 1';
       type = '1';
       Unit = 'CB';
       Max = 200;
-      imageAsserStr = 'assets/weatherIcons2/SoilMoisture.png';
-    } else if (title == 'SoilMoisture2') {
+      imageAsserStr = 'assets/mob_dashboard/SoilMoisture.png';
+    } else if (index == 1) {
       title = 'SoilMoisture 2';
       type = '1';
       Unit = 'CB';
       Max = 200;
-      imageAsserStr = 'assets/weatherIcons2/SoilMoisture.png';
-    } else if (title == 'SoilMoisture3') {
+      imageAsserStr = 'assets/mob_dashboard/SoilMoisture.png';
+    } else if (index == 2) {
       title = 'SoilMoisture 3';
       type = '1';
       Unit = 'CB';
       Max = 200;
-      imageAsserStr = 'assets/weatherIcons2/SoilMoisture.png';
-    } else if (title == 'SoilMoisture4') {
+      imageAsserStr = 'assets/mob_dashboard/SoilMoisture.png';
+    } else if (index == 3) {
       title = 'SoilMoisture 4';
       type = '1';
       Unit = 'CB';
       Max = 200;
-      imageAsserStr = 'assets/weatherIcons2/SoilMoisture.png';
-    } else if (title == 'SoilTemperature') {
+      imageAsserStr = 'assets/mob_dashboard/SoilMoisture.png';
+    } else if (index == 4) {
+       title = 'Temperature';
       type = '2';
       Unit = '°C';
       Max = 100;
-      imageAsserStr = 'assets/weatherIcons2/SoilTemp .png';
-    } else if (title == 'Temperature') {
+      imageAsserStr = 'assets/mob_dashboard/SoilTemp .png';
+    } else if (index == 5) {
+       title = 'AtmospherePressure';
       type = '2';
       Unit = '°C';
       Max = 100;
-      imageAsserStr = 'assets/weatherIcons2/SoilTemp .png';
-    } else if (title == 'AtmospherePressure') {
+      imageAsserStr = 'assets/mob_dashboard/SoilTemp .png';
+    } else if (index == 6) {
+       title = 'Humidity';
       type = '3';
       Unit = 'kPa';
       Max = 2000;
-      imageAsserStr = 'assets/weatherIcons2/pressure.png';
-    } else if (title == 'Humidity') {
+      imageAsserStr = 'assets/mob_dashboard/pressure.png';
+    } else if (index == 7) {
+       title = 'LeafWetness';
       type = '2';
       Unit = '%';
       Max = 100;
-      imageAsserStr = 'assets/weatherIcons2/humidity.png';
-    } else if (title == 'LeafWetness') {
+      imageAsserStr = 'assets/mob_dashboard/humidity.png';
+    } else if (index == 8) {
+       title = 'Co2';
       type = '4';
       Unit = '%';
       Max = 100;
-      imageAsserStr = 'assets/weatherIcons2/leafWetness.png';
-    } else if (title == 'Co2') {
+      imageAsserStr = 'assets/mob_dashboard/leafWetness.png';
+    } else if (index == 9) {
+       title = 'LDR';
       type = '2';
       Unit = 'ppm';
       Max = 1000;
-      imageAsserStr = 'assets/weatherIcons2/CO-2.png';
-    } else if (title == 'LDR') {
+      imageAsserStr = 'assets/mob_dashboard/CO-2.png';
+    } else if (index == 10) {
+       title = 'Lux';
       type = '5';
       Unit = 'Lu';
       Max = 100;
-      imageAsserStr = 'assets/weatherIcons2/LDR.png';
-    } else if (title == 'Lux') {
+      imageAsserStr = 'assets/mob_dashboard/LDR.png';
+    } else if (index == 11) {
+       title = 'WindDirection';
       type = '5';
       Unit = 'Lu';
       Max = 100;
-      imageAsserStr = 'assets/weatherIcons2/Lux.png';
-    } else if (title == 'WindDirection') {
+      imageAsserStr = 'assets/mob_dashboard/Lux.png';
+    } else if (index == 12) {
+       title = 'Rainfall';
       type = '7';
       Unit = 'CB';
       Max = 360;
-      imageAsserStr = 'assets/weatherIcons2/WindDirection.png';
-    } else if (title == 'Rainfall') {
+      imageAsserStr = 'assets/mob_dashboard/WindDirection.png';
+    } else if (index == 13) {
+       title = 'WindSpeed';
       type = '2';
       Unit = 'mm';
       Max = 100;
-      imageAsserStr = 'assets/weatherIcons2/rainFall.png';
-    } else if (title == 'WindSpeed') {
+      imageAsserStr = 'assets/mob_dashboard/rainFall.png';
+    } else if (index == 14) {
+       title = 'Wind Direction';
       type = '3';
       Unit = 'km/h';
       Max = 100;
-      imageAsserStr = 'assets/weatherIcons2/WindSpeed.png';
+      imageAsserStr = 'assets/mob_dashboard/WindSpeed.png';
     } else {
+       title = 'WindSpeed';
       type = '0';
       Unit = '';
-      imageAsserStr = 'assets/weatherIcons2/WindSpeed.png';
+      imageAsserStr = 'assets/mob_dashboard/WindSpeed.png';
     }
     // type = '1';
     if (type == "1") {
@@ -921,8 +880,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     enableLoadingAnimation: true,
                     animationDuration: 1000,
                     axes: <RadialAxis>[
-                      RadialAxis(
-                          backgroundImage: AssetImage('assets/weather/compass.png'),
+                       RadialAxis(
+                          backgroundImage: AssetImage('assets/mob_dashboard/compass.png'),
                           radiusFactor: 1,
                           canRotateLabels: true,
                           offsetUnit: GaugeSizeUnit.factor,
@@ -1147,48 +1106,46 @@ class _WeatherScreenState extends State<WeatherScreen> {
       const GaugeTextStyle(color: Color(0xFFFFFFFF), fontSize: 10);
     }
   }
-  String cardValues(String checkStr, int i) {
-    _mqttPayloadProvider =
-        Provider.of<MqttPayloadProvider>(context, listen: true);
+  String cardValues(int checkStr, int i) {
+
     switch (checkStr) {
-      case 'SoilMoisture1':
-        return '${_mqttPayloadProvider.weatherModelinstance.data![0].WeatherSensorlist![i].soilMoisture1}';
+      case 0:
+        return '${weathernewlive.stations[i].sensors[0].value}';
       case 'SoilMoisture2':
-        return '${_mqttPayloadProvider.weatherModelinstance.data![0].WeatherSensorlist![i].soilMoisture2}';
+        return '${weathernewlive.stations[i].sensors[1].value}';
       case 'SoilMoisture3':
-        return '${_mqttPayloadProvider.weatherModelinstance.data![0].WeatherSensorlist![i].soilMoisture3}';
+        return '${weathernewlive.stations[i].sensors[2].value}';
       case 'SoilMoisture4':
-        return '${_mqttPayloadProvider.weatherModelinstance.data![0].WeatherSensorlist![i].soilMoisture4}';
+        return '${weathernewlive.stations[i].sensors[3].value}';
       case 'SoilTemperature':
-        return '${_mqttPayloadProvider.weatherModelinstance.data![0].WeatherSensorlist![i].soilTemperature}';
+        return '${weathernewlive.stations[i].sensors[4].value}';
       case 'Humidity':
-        return '${_mqttPayloadProvider.weatherModelinstance.data![0].WeatherSensorlist![i].humidity}';
+        return '${weathernewlive.stations[i].sensors[5].value}';
       case 'Temperature':
-        return '${_mqttPayloadProvider.weatherModelinstance.data![0].WeatherSensorlist![i].temperature}';
+        return '${weathernewlive.stations[i].sensors[6].value}';
       case 'AtmospherePressure':
-        return '${_mqttPayloadProvider.weatherModelinstance.data![0].WeatherSensorlist![i].atmospherePressure}';
+        return '${weathernewlive.stations[i].sensors[7].value}';
       case 'Co2':
-        return '${_mqttPayloadProvider.weatherModelinstance.data![0].WeatherSensorlist![i].co2}';
+        return '${weathernewlive.stations[i].sensors[8].value}';
       case 'LDR':
-        return '${_mqttPayloadProvider.weatherModelinstance.data![0].WeatherSensorlist![i].ldr}';
+        return '${weathernewlive.stations[i].sensors[9].value}';
       case 'Lux':
-        return '${_mqttPayloadProvider.weatherModelinstance.data![0].WeatherSensorlist![i].lux}';
+        return '${weathernewlive.stations[i].sensors[10].value}';
       case 'WindDirection':
-        return '${_mqttPayloadProvider.weatherModelinstance.data![0].WeatherSensorlist![i].windDirection}';
+        return '${weathernewlive.stations[i].sensors[11].value}';
       case 'WindSpeed':
-        return '${_mqttPayloadProvider.weatherModelinstance.data![0].WeatherSensorlist![i].windSpeed}';
+        return '${weathernewlive.stations[i].sensors[12].value}';
       case 'Rainfall':
-        return '${_mqttPayloadProvider.weatherModelinstance.data![0].WeatherSensorlist![i].rainfall}';
+        return '${weathernewlive.stations[i].sensors[13].value}';
       case 'LeafWetness':
-        return '${_mqttPayloadProvider.weatherModelinstance.data![0].WeatherSensorlist![i].leafWetness}';
+        return '${weathernewlive.stations[i].sensors[14].value}';
       default:
         return '0';
     }
   }
 
   String cardErrValues(String checkstr, int i) {
-    _mqttPayloadProvider =
-        Provider.of<MqttPayloadProvider>(context, listen: false);
+
     switch (checkstr) {
       case 'SoilMoisture1':
         return '${_mqttPayloadProvider.weatherModelinstance.data![0].WeatherSensorlist![i].soilMoisture1Err}';
