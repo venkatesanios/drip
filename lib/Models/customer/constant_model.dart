@@ -10,8 +10,24 @@ class UserConstant {
   });
 
   factory UserConstant.fromJson(Map<String, dynamic> json) {
+    List<Map<String, dynamic>> jsonConstant = [];
+
+    if (json['default'] != null &&
+        json['default']['configMaker'] != null &&
+        json['default']['configMaker']['configObject'] != null) {
+
+      jsonConstant =
+      (json['default']['configMaker']['configObject'] as List)
+          .map((e) => e as Map<String, dynamic>)
+          .toList();
+
+      print(jsonConstant);
+    } else {
+      print("configObject is null or missing");
+    }
+
     return UserConstant(
-      constant: ConstantData.fromJson(json['constant']),
+      constant: ConstantData.fromJson(json['constant'], jsonConstant),
       defaultData: DefaultData.fromJson(json['default']),
     );
   }
@@ -19,15 +35,148 @@ class UserConstant {
 
 class ConstantData {
   final String controllerReadStatus;
+  final List<GeneralMenu> generalMenu;
+  final List<Valve>? valveList;
 
   ConstantData({
     required this.controllerReadStatus,
+    required this.generalMenu,
+    required this.valveList,
   });
 
-  factory ConstantData.fromJson(Map<String, dynamic> json) {
+  factory ConstantData.fromJson(Map<String, dynamic> jsonConstant, List<Map<String, dynamic>> jsonConfigObject) {
+    print(jsonConfigObject);
+
+    List<Map<String, dynamic>> valveDataList = jsonConfigObject
+        .where((obj) => obj['objectId'] == 13)
+        .toList();
+
+    List<Valve> valveList = valveDataList.map((valve) => Valve.fromJson(valve)).toList();
+
     return ConstantData(
-      controllerReadStatus: json['controllerReadStatus'] ?? '0',
+      controllerReadStatus: jsonConstant['controllerReadStatus'] ?? '0',
+      generalMenu : (jsonConstant['general'] as List<dynamic>?)
+          ?.map((general) => GeneralMenu.fromJson(general))
+          .toList() ??
+          [
+            GeneralMenu.fromJson({"sNo": 1, "title": "Number of Programs", "widgetTypeId": 1, "value": "0"}),
+            GeneralMenu.fromJson({"sNo": 2, "title": "Number of Valve Groups", "widgetTypeId": 1, "value": "0"}),
+            GeneralMenu.fromJson({"sNo": 3, "title": "Number of Conditions", "widgetTypeId": 1, "value": "0"}),
+            GeneralMenu.fromJson({"sNo": 4, "title": "Run List Limit", "widgetTypeId": 1, "value": "0"}),
+            GeneralMenu.fromJson({"sNo": 5, "title": "Fertilizer Leakage Limit", "widgetTypeId": 1, "value": "0"}),
+            GeneralMenu.fromJson({"sNo": 6, "title": "Reset Time", "widgetTypeId": 3, "value": "00:00:00"}),
+            GeneralMenu.fromJson({"sNo": 7, "title": "No Pressure Delay", "widgetTypeId": 3, "value": "00:00:00"}),
+            GeneralMenu.fromJson({"sNo": 8, "title": "Common dosing coefficient", "widgetTypeId": 1, "value": "0"}),
+            GeneralMenu.fromJson({"sNo": 9, "title": "Water pulse before dosing", "widgetTypeId": 2, "value": false}),
+            GeneralMenu.fromJson({"sNo": 10, "title": "Pump on after valve on", "widgetTypeId": 2, "value": false}),
+            GeneralMenu.fromJson({"sNo": 11, "title": "Lora Key 1", "widgetTypeId": 1, "value": "0"}),
+            GeneralMenu.fromJson({"sNo": 12, "title": "Lora Key 2", "widgetTypeId": 1, "value": "0"}),
+          ],
+      valveList: valveList,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'controllerReadStatus': controllerReadStatus,
+      'general': generalMenu.map((e) => e.toJson()).toList(),
+      'valveList': valveList?.map((e) => e.toJson()).toList() ?? [],
+    };
+  }
+
+}
+
+class GeneralMenu {
+  final int sNo;
+  final String title;
+  final int widgetTypeId;
+  dynamic value;
+
+  GeneralMenu({
+    required this.sNo,
+    required this.title,
+    required this.widgetTypeId,
+    required this.value,
+  });
+
+  factory GeneralMenu.fromJson(Map<String, dynamic> json) {
+    return GeneralMenu(
+      sNo: json['sNo'] as int,
+      title: json['title'] as String,
+      widgetTypeId: json['widgetTypeId'] as int,
+      value: json['value'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'sNo': sNo,
+      'title': title,
+      'widgetTypeId': widgetTypeId,
+      'value': value,
+    };
+  }
+}
+
+class Valve {
+  final int objectId;
+  final double sNo;
+  final String name;
+  final String objectName;
+  final String type;
+  final int? controllerId;
+  final int? connectionNo;
+  final int? count;
+  final String? connectedObject;
+  final String? siteMode;
+  String txtValue;
+  String pickerVal;
+
+  Valve({
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+    required this.objectName,
+    required this.type,
+    this.controllerId,
+    this.connectionNo,
+    this.count,
+    this.connectedObject,
+    this.siteMode,
+    this.txtValue = "0",
+    this.pickerVal = "00:00:00"
+  });
+
+  factory Valve.fromJson(Map<String, dynamic> json) {
+    return Valve(
+      objectId: json['objectId'],
+      sNo: (json['sNo'] as num).toDouble(),
+      name: json['name'],
+      objectName: json['objectName'],
+      type: json['type'],
+      controllerId: json['controllerId'],
+      connectionNo: json['connectionNo'],
+      count: json['count'],
+      connectedObject: json['connectedObject'],
+      siteMode: json['siteMode'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'objectName': objectName,
+      'type': type,
+      'controllerId': controllerId,
+      'connectionNo': connectionNo, // Fixed
+      'count': count, // Fixed
+      'connectedObject': connectedObject, // Fixed
+      'siteMode': siteMode,
+      'txtValue': txtValue,
+      'pickerVal': pickerVal,
+    };
   }
 }
 
@@ -46,8 +195,7 @@ class DefaultData {
     return DefaultData(
       alarms: (json['alarm'] as List).map((e) => Alarm.fromJson(e)).toList(),
       constantMenus: (json['constantMenu'] as List)
-          .map((e) => ConstantMenu.fromJson(e))
-          .toList(),
+          .map((e) => ConstantMenu.fromJson(e)).toList(),
       configMaker: ConfigMaker.fromJson(json['configMaker']),
     );
   }
@@ -128,6 +276,8 @@ class ConfigObject {
   final int? count;
   final String? connectedObject;
   final String? siteMode;
+  String txtValue;
+  String pickerVal;
 
   ConfigObject({
     required this.objectId,
@@ -140,6 +290,8 @@ class ConfigObject {
     this.count,
     this.connectedObject,
     this.siteMode,
+    this.txtValue = "0",
+    this.pickerVal = "00:00:00"
   });
 
   factory ConfigObject.fromJson(Map<String, dynamic> json) {
@@ -155,6 +307,23 @@ class ConfigObject {
       connectedObject: json['connectedObject'],
       siteMode: json['siteMode'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'objectName': objectName,
+      'type': type,
+      'controllerId': controllerId,
+      'connectionNo': connectionNo, // Fixed
+      'count': count, // Fixed
+      'connectedObject': connectedObject, // Fixed
+      'siteMode': siteMode,
+      'txtValue': txtValue,
+      'pickerVal': pickerVal,
+    };
   }
 }
 

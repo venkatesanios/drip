@@ -1,4 +1,6 @@
+import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
@@ -31,970 +33,282 @@ class Constant extends StatelessWidget {
           ) :
           Scaffold(
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            body:   SingleChildScrollView(
-              //controller: _scrollController,
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: vm.filteredMenu.asMap().entries.map((entry) {
-                  int index = entry.key;
-                  ConstantMenu filteredItem = entry.value;
-                  return GestureDetector(
-                    onTap: () {
-                      /*setState(() {
-                        selectedParameter = filteredItem.parameter;
-                      });
-                      _tabController.animateTo(index);*/
-                    },
-                    child: Stack(
-                      alignment: Alignment.center,
+            body: Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
+              child: Column(
+                children: [
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: vm.filteredMenu.asMap().entries.map((entry) {
+                        int index = entry.key;
+                        ConstantMenu filteredItem = entry.value;
+                        return GestureDetector(
+                          onTap: () {
+                            vm.menuOnChange(index);
+                          },
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              ColorFiltered(
+                                colorFilter: ColorFilter.mode(
+                                  entry.value.isSelected ? const Color(0xFF005B8D) : const Color(0xFFFFFFFF),
+                                  BlendMode.srcIn,
+                                ),
+                                child: SvgPicture.asset('assets/svg_images/white_arrow.svg',
+                                  width: 250,
+                                  height: 35,
+                                ),
+                              ),
+                              Positioned(
+                                child: Text(
+                                  filteredItem.parameter,
+                                  style: TextStyle(
+                                    color: entry.value.isSelected ? Colors.white : Colors.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: IndexedStack(
+                      index: vm.filteredMenu.indexWhere((item) => item.isSelected == true,
+                      ).clamp(0, vm.filteredMenu.length - 1),
                       children: [
-                        ColorFiltered(
-                          colorFilter: ColorFilter.mode(
-                            entry.value.isSelected ? const Color(0xFF005B8D) : const Color(0xFFFFFFFF),
-                            BlendMode.srcIn,
-                          ),
-                          child: SvgPicture.asset('assets/svg_images/white_arrow.svg',
-                            width: 250,
-                            height: 40,
-                          ),
-                        ),
-                        Positioned(
-                          child: Text(
-                            filteredItem.parameter,
-                            style: TextStyle(
-                              color: entry.value.isSelected ? Colors.white : Colors.black,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
+                        ...vm.filteredMenu.map((item) {
+                          print(item.parameter);
+                          switch (item.parameter) {
+                            case "General":
+                              return GridView.builder(
+                                itemCount: vm.userConstant.constant.generalMenu!.length,
+                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: MediaQuery.sizeOf(context).width > 1350 ? 3 : 2,
+                                  crossAxisSpacing: 16.0,
+                                  mainAxisSpacing: 16.0,
+                                  childAspectRatio: MediaQuery.sizeOf(context).width > 1350 ?
+                                  MediaQuery.sizeOf(context).width / 250 :
+                                  MediaQuery.sizeOf(context).width / 750,
+                                ),
+                                itemBuilder: (BuildContext context, int index) {
+
+                                  return Card(
+                                    color: Colors.white,
+                                    elevation: 1,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(top: 10),
+                                      child: ListTile(
+                                        title: Text(vm.userConstant.constant.generalMenu[index].title),
+                                        trailing: vm.userConstant.constant.generalMenu[index].widgetTypeId==1?
+                                        SizedBox(
+                                          width: 75,
+                                          child: TextField(
+                                            controller: vm.txtEdControllers[index],
+                                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                            keyboardType: TextInputType.number,
+                                            textAlign: TextAlign.right,
+                                            style: const TextStyle(fontWeight: FontWeight.bold),
+                                            decoration: const InputDecoration(
+                                              border: InputBorder.none,
+                                              hintText: "value",
+                                            ),
+                                            onChanged: (value) {
+                                              vm.updateGeneralValve(index, value, 'general');
+                                            },
+                                          ),
+                                        ):
+                                        vm.userConstant.constant.generalMenu[index].widgetTypeId==2?
+                                        Transform.scale(
+                                          scale: 0.8,
+                                          child: Tooltip(
+                                            message: vm.userConstant.constant.generalMenu![index].value ? 'Disable' : 'Enable',
+                                            child: Switch(
+                                              hoverColor: Theme.of(context).primaryColor,
+                                              activeColor: Theme.of(context).primaryColorLight,
+                                              value: vm.userConstant.constant.generalMenu![index].value,
+                                              onChanged: (value) {
+                                                vm.updateGeneralSwitch(index, !(vm.userConstant.constant.generalMenu[index].value as bool));
+                                              },
+                                            ),
+                                          ),
+                                        ):
+                                        TextButton(onPressed: (){
+                                          vm.showDurationInputDialog(context, vm.userConstant.constant.generalMenu[index].value, index, 'general');
+                                        }, child: Text(vm.userConstant.constant.generalMenu[index].value)),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+
+                            case "Valve":
+                              return vm.userConstant.constant.valveList!.isNotEmpty?
+                              DataTable2(
+                                border: const TableBorder(
+
+                                  top: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+                                  bottom: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+                                  left: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+                                  right: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+                                ),
+                                columnSpacing: 12,
+                                minWidth: 1020,
+                                dataRowHeight: 45.0,
+                                headingRowHeight: 40,
+                                headingRowColor: WidgetStateProperty.all( const Color(0xFFFDFDFD)),
+                                columns: const [
+                                  DataColumn(label: Center(child: Text('Valve Name'))),
+                                  DataColumn(label: Center(child: Text('Nominal Flow (I/hr)'))),
+                                  DataColumn(label: Center(child: Text('Fill Up Delay'))),
+                                ],
+                                rows: List.generate(vm.userConstant.constant.valveList!.length, (index) {
+                                  return DataRow(
+                                    color: WidgetStateProperty.resolveWith<Color?>(
+                                          (Set<MaterialState> states) {
+                                        return index.isEven ? const Color(0xFFF6F6F6) : const Color(0xFFFDFDFD);
+                                      },
+                                    ),
+                                    cells: [
+                                      DataCell(Center(
+                                        child: Text(
+                                          vm.userConstant.constant.valveList![index].name,
+                                          style: const TextStyle(color: Color(0xFF005B8D)),
+                                        ),
+                                      )),
+                                      DataCell(Center(child: SizedBox(
+                                        width: 100,
+                                        child: TextField(
+                                          controller: vm.txtEdControllersNF[index],
+                                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                          keyboardType: TextInputType.number,
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(fontWeight: FontWeight.bold),
+                                          decoration: const InputDecoration(
+                                            border: InputBorder.none,
+                                            hintText: "Enter value",
+                                            hintStyle: TextStyle(color: Colors.grey)
+                                          ),
+                                          onChanged: (value) {
+                                            vm.updateGeneralValve(index, value, 'value');
+                                          },
+                                        ),
+                                      ))),
+                                      DataCell(Center(child: TextButton(onPressed: (){
+                                        vm.showDurationInputDialog(context, vm.userConstant.constant.valveList![index].pickerVal, index, 'value');
+                                      }, child: Text(vm.userConstant.constant.valveList![index].pickerVal)))),
+                                    ],
+                                  );
+                                }),
+                              ):
+                              const Center(child: Text("Valve Data not available"));
+
+                            /*case "Pump":
+                              return widget.pump.isNotEmpty
+                                  ? PumpPage(pump: widget.pump)
+                                  : const Center(child: Text("Pump Data not available"));
+
+                            case "Irrigation Line":
+                              return widget.irrigationLines.isNotEmpty
+                                  ? IrrigationLineInConstant(irrigationLines: widget.irrigationLines)
+                                  : const Center(child: Text("Irrigation Line Data not available"));
+
+                            case "Main Valve":
+                              return widget.mainValves.isNotEmpty
+                                  ? MainValveInConstant(
+                                mainValves: widget.mainValves,
+                                irrigationLines: widget.irrigationLines,
+                              )
+                                  : const Center(child: Text("Main Valve Data not available"));
+
+                            case "Valve":
+                              return widget.valves.isNotEmpty
+                                  ? ValveInConstant(
+                                valves: widget.valves,
+                                irrigationLines: widget.irrigationLines,
+                              )
+                                  : const Center(child: Text("Valve Data not available"));
+
+                            case "Water Meter":
+                              return widget.waterMeter.isNotEmpty
+                                  ? WatermeterInConstant(waterMeter: widget.waterMeter)
+                                  : const Center(child: Text("Water Meter Data not available"));
+
+                            case "Fertilizer":
+                              return widget.fertilizerSite.isNotEmpty
+                                  ? FertilizerInConstant(
+                                fertilizerSite: widget.fertilizerSite,
+                                channels: widget.channels,
+                              )
+                                  : const Center(child: Text("Fertilizer Data not available"));
+
+                            case "EC/PH":
+                              return widget.ec.isNotEmpty && widget.ph.isNotEmpty
+                                  ? EcPhInConstant(
+                                ec: widget.ec,
+                                ph: widget.ph,
+                                fertilizerSite: widget.fertilizerSite,
+                                controlSensors: widget.controlSensors,
+                              )
+                                  : const Center(child: Text("EC/PH Data not available"));
+
+                            case "Critical Alarm":
+                              return widget.alarm.isNotEmpty
+                                  ? CriticalAlarmInConstant(alarm: widget.alarm)
+                                  : const Center(child: Text("Critical Alarm Data not available"));
+
+                            case "Global Alarm":
+                              return widget.alarm.isNotEmpty
+                                  ? GlobalAlarmInConstant(alarm: widget.alarm)
+                                  : const Center(child: Text("Global Alarm Data not available"));
+
+                            case "Moisture Sensor":
+                              return widget.moistureSensors.isNotEmpty
+                                  ? MoistureSensorConstant(moistureSensors: widget.moistureSensors)
+                                  : const Center(child: Text("Moisture Sensor Data not available"));
+
+                            case "Level Sensor":
+                              return widget.levelSensor.isNotEmpty
+                                  ? LevelSensorInConstant(
+                                levelSensor: widget.levelSensor,
+                                waterSource: widget.waterSource,
+                              )
+                                  : const Center(child: Text("Level Sensor Data not available"));
+
+                            case "Finish":
+                              return  FinishInConstant(
+                                pumps: widget.pump,
+                                valves: widget.valves,
+                                ec: widget.ec,
+                                ph: widget.ph,
+                                fertilizerSite: widget.fertilizerSite,
+                                controlSensors: widget.controlSensors,
+                                irrigationLines: widget.irrigationLines,
+                                mainValves: widget.mainValves,
+                                generalUpdated: widget.generalUpdated,
+                                alarm: widget.alarm,
+                                controllerId: widget.controllerId,
+                                userId: widget.userId,
+                                levelSensor: widget.levelSensor,
+                                moistureSensors: widget.moistureSensors,
+                                waterMeter: widget.waterMeter,
+                              );*/
+
+                            default:
+                              return Center(child: Text("${item.parameter} Data not available"));
+                          }
+                        }).toList(),
                       ],
                     ),
-                  );
-                }).toList(),
+                  ),
+                ],
               ),
-            ),
-            /*body: Padding(
-              padding: const EdgeInsets.only(left: 8, right: 8, top: 8),
-              child: vm.conditionLibraryData.conditionLibrary.condition
-                  .isNotEmpty ?
-              GridView.builder(
-                itemCount: vm.conditionLibraryData.conditionLibrary.condition
-                    .length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: MediaQuery
-                      .sizeOf(context)
-                      .width > 1350 ? 3 : 2,
-                  crossAxisSpacing: 3.0,
-                  mainAxisSpacing: 3.0,
-                  childAspectRatio: MediaQuery
-                      .sizeOf(context)
-                      .width > 1350 ? MediaQuery
-                      .sizeOf(context)
-                      .width / 1200 :
-                  MediaQuery
-                      .sizeOf(context)
-                      .width / 750,
-                ),
-                itemBuilder: (BuildContext context, int index) {
-                  return Card(
-                    color: Colors.white,
-                    elevation: 1,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Condition ${index + 1}',
-                                      style: const TextStyle(fontSize: 15)),
-                                  Text(vm.conditionLibraryData.conditionLibrary
-                                      .condition[index].rule,
-                                      style: const TextStyle(
-                                          fontSize: 12, color: Colors.black54)),
-                                  const SizedBox(height: 5),
-                                ],
-                              ),
-                              const Spacer(),
-                              Transform.scale(
-                                scale: 0.7,
-                                child: Tooltip(
-                                  message: vm.conditionLibraryData
-                                      .conditionLibrary.condition[index].status
-                                      ?
-                                  'deactivate':
-                                  'activate',
-                                  child: Switch(
-                                    hoverColor: Theme
-                                        .of(context)
-                                        .primaryColor,
-                                    activeColor: Theme
-                                        .of(context)
-                                        .primaryColorLight,
-                                    value: vm.conditionLibraryData
-                                        .conditionLibrary.condition[index]
-                                        .status,
-                                    onChanged: (bool value) {
-                                      vm.switchStateOnChange(value, index);
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const Divider(height: 0),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Container(
-                                  width: 0.5, height: 40, color: Colors.grey),
-                              Expanded(
-                                child: RadioListTile<String>(
-                                  title: const Text("Sensor"),
-                                  value: 'Sensor',
-                                  groupValue: vm.conditionLibraryData
-                                      .conditionLibrary.condition[index].type,
-                                  onChanged: (value) =>
-                                      vm.conTypeOnChange(value!, index),
-                                  contentPadding: EdgeInsets.zero,
-                                  visualDensity: const VisualDensity(
-                                      horizontal: -4.0, vertical: -4.0),
-                                  activeColor: Theme
-                                      .of(context)
-                                      .primaryColorLight,
-                                ),
-                              ),
-                              Container(
-                                  width: 0.5, height: 40, color: Colors.grey),
-                              Expanded(
-                                child: RadioListTile<String>(
-                                  title: const Text("Program"),
-                                  value: 'Program',
-                                  groupValue: vm.conditionLibraryData
-                                      .conditionLibrary.condition[index].type,
-                                  onChanged: (value) =>
-                                      vm.conTypeOnChange(value!, index),
-                                  contentPadding: EdgeInsets.zero,
-                                  visualDensity: const VisualDensity(
-                                      horizontal: -4.0, vertical: -4.0),
-                                  activeColor: Theme
-                                      .of(context)
-                                      .primaryColorLight,
-                                ),
-                              ),
-                              Container(
-                                  width: 0.5, height: 40, color: Colors.grey),
-                              Expanded(
-                                child: RadioListTile<String>(
-                                  title: const Text("Combined"),
-                                  value: 'Combined',
-                                  groupValue: vm.conditionLibraryData
-                                      .conditionLibrary.condition[index].type,
-                                  onChanged: (value) =>
-                                      vm.conTypeOnChange(value!, index),
-                                  contentPadding: EdgeInsets.zero,
-                                  visualDensity: const VisualDensity(
-                                      horizontal: -4.0, vertical: -4.0),
-                                  activeColor: Theme
-                                      .of(context)
-                                      .primaryColorLight,
-                                ),
-                              ),
-                              Container(
-                                  width: 0.5, height: 40, color: Colors.grey),
-                            ],
-                          ),
-                          const Divider(height: 0),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8, top: 8),
-                            child: Row(
-                              children: [
-                                const SizedBox(
-                                  width: 125,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment
-                                        .start,
-                                    children: [
-                                      Text('Component', style: TextStyle(
-                                          color: Colors.black54)),
-                                      SizedBox(height: 8),
-                                      Text('Parameter', style: TextStyle(
-                                          color: Colors.black54)),
-                                      SizedBox(height: 10),
-                                      Text('Value/Threshold', style: TextStyle(
-                                          color: Colors.black54)),
-                                      SizedBox(height: 12),
-                                      Text('Reason', style: TextStyle(
-                                          color: Colors.black54)),
-                                      SizedBox(height: 15),
-                                      Text('Delay Time', style: TextStyle(
-                                          color: Colors.black54)),
-                                    ],
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment
-                                        .start,
-                                    children: [
-                                      Container(
-                                        width: double.infinity,
-                                        height: 27,
-                                        decoration: BoxDecoration(
-                                            color: Theme
-                                                .of(context)
-                                                .primaryColor
-                                                .withValues(alpha: 0.05),
-                                            borderRadius: BorderRadius.circular(
-                                                3),
-                                            border: Border.all(
-                                                width: 0.5,
-                                                color: Colors.grey.shade400
-                                            )
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(
-                                              left: 5, top: 3),
-                                          child: vm.conditionLibraryData
-                                              .conditionLibrary.condition[index]
-                                              .type == 'Combined' ?
-                                          PopupMenuButton<String>(
-                                            onSelected: (String cName) =>
-                                                vm.combinedTO(index, cName),
-                                            itemBuilder: (
-                                                BuildContext context) {
-                                              return vm.getAvailableCondition(
-                                                  index).map((String source) {
-                                                return CheckedPopupMenuItem<
-                                                    String>(
-                                                  value: source,
-                                                  height: 30,
-                                                  checked: vm.connectedTo[index]
-                                                      .contains(source),
-                                                  child: Text(source),
-                                                );
-                                              }).toList();
-                                            },
-                                            child: Text(
-                                              vm.conditionLibraryData
-                                                  .conditionLibrary
-                                                  .condition[index].component,
-                                            ),
-                                          ) :
-                                          PopupMenuButton<String>(
-                                            tooltip: vm.conditionLibraryData
-                                                .conditionLibrary
-                                                .condition[index].type ==
-                                                'Sensor'
-                                                ? 'Select your sensor'
-                                                :
-                                            vm.conditionLibraryData
-                                                .conditionLibrary
-                                                .condition[index].type ==
-                                                'Program'
-                                                ? 'Select your program'
-                                                :
-                                            'Select more than one conditions',
-                                            onSelected: (String selectedValue) {
-                                              vm.componentOnChange(
-                                                  selectedValue, index);
-                                            },
-                                            itemBuilder: (
-                                                BuildContext context) {
-                                              return vm.conditionLibraryData
-                                                  .conditionLibrary
-                                                  .condition[index].type ==
-                                                  'Sensor' ?
-                                              vm.conditionLibraryData
-                                                  .defaultData.sensors.map<
-                                                  PopupMenuEntry<String>>((
-                                                  sensor) {
-                                                return PopupMenuItem<String>(
-                                                  value: sensor.name,
-                                                  height: 35,
-                                                  child: Text(sensor.name),
-                                                );
-                                              }).toList() :
-                                              vm.conditionLibraryData
-                                                  .defaultData.program.map<
-                                                  PopupMenuEntry<String>>((
-                                                  program) {
-                                                return PopupMenuItem<String>(
-                                                  value: program.name,
-                                                  height: 35,
-                                                  child: Text(program.name),
-                                                );
-                                              }).toList();
-                                            },
-                                            child: Text(
-                                              vm.conditionLibraryData
-                                                  .conditionLibrary
-                                                  .condition[index].component,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 5),
-                                      Container(
-                                        width: double.infinity,
-                                        height: 27,
-                                        decoration: BoxDecoration(
-                                            color: Theme
-                                                .of(context)
-                                                .primaryColor
-                                                .withValues(alpha: 0.05),
-                                            borderRadius: BorderRadius.circular(
-                                                3),
-                                            border: Border.all(
-                                                width: 0.5,
-                                                color: Colors.grey.shade400
-                                            )
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(
-                                              left: 5, top: 3),
-                                          child: PopupMenuButton<String>(
-                                            onSelected: (String selectedValue) {
-                                              vm.parameterOnChange(
-                                                  selectedValue, index);
-                                            },
-                                            itemBuilder: (
-                                                BuildContext context) {
-                                              if (vm.conditionLibraryData
-                                                  .conditionLibrary
-                                                  .condition[index].type ==
-                                                  'Sensor') {
-                                                final selectedSensor = vm
-                                                    .conditionLibraryData
-                                                    .defaultData.sensors
-                                                    .firstWhereOrNull((
-                                                    sensor) =>
-                                                sensor.name == vm
-                                                    .conditionLibraryData
-                                                    .conditionLibrary
-                                                    .condition[index]
-                                                    .component);
-
-                                                final filteredParameters = vm
-                                                    .conditionLibraryData
-                                                    .defaultData.sensorParameter
-                                                    .where((param) =>
-                                                param.objectId ==
-                                                    selectedSensor?.objectId)
-                                                    .toList();
-
-                                                return filteredParameters.map<
-                                                    PopupMenuEntry<String>>((
-                                                    program) {
-                                                  return PopupMenuItem<String>(
-                                                    value: program.parameter,
-                                                    height: 35,
-                                                    child: Text(
-                                                        program.parameter),
-                                                  );
-                                                }).toList();
-                                              } else {
-                                                return ['Status'].map((
-                                                    String value) =>
-                                                    PopupMenuItem<String>(
-                                                      value: value,
-                                                      height: 30,
-                                                      child: Text(value),
-                                                    )).toList();
-                                              }
-                                            },
-                                            child: Text(
-                                              vm.conditionLibraryData
-                                                  .conditionLibrary
-                                                  .condition[index].parameter,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 5),
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: Container(
-                                              height: 27,
-                                              decoration: BoxDecoration(
-                                                  color: Theme
-                                                      .of(context)
-                                                      .primaryColor
-                                                      .withValues(alpha: 0.05),
-                                                  borderRadius: BorderRadius
-                                                      .circular(3),
-                                                  border: Border.all(
-                                                      width: 0.5,
-                                                      color: Colors.grey
-                                                          .shade400
-                                                  )
-                                              ),
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 5, top: 3),
-                                                child: PopupMenuButton<String>(
-                                                  onSelected: (
-                                                      String selectedValue) {
-                                                    vm.thresholdOnChange(
-                                                        selectedValue, index);
-                                                  },
-                                                  itemBuilder: (
-                                                      BuildContext context) {
-
-                                                    *//* final selectedSensor = vm.conditionLibraryData.defaultData.sensors
-                                                        .firstWhereOrNull((sensor) => sensor.name == vm.selectedComponent[index]);
-
-                                                    final List<String> options = (selectedSensor?.objectId == 40)
-                                                        ? ['--', 'Low', 'High']
-                                                        : ['--', 'Lower than', 'Higher than', 'Equal to'];*//*
-
-                                                    final List<
-                                                        String> options = (vm
-                                                        .conditionLibraryData
-                                                        .conditionLibrary
-                                                        .condition[index]
-                                                        .type == 'Sensor')
-                                                        ? [
-                                                      'Lower than',
-                                                      'Higher than',
-                                                      'Equal to'
-                                                    ] :
-                                                    (vm.conditionLibraryData
-                                                        .conditionLibrary
-                                                        .condition[index]
-                                                        .type == 'Program') ?
-                                                    [
-                                                      'is Running',
-                                                      "is Starting",
-                                                      "is Ending"
-                                                    ] : [
-                                                      'Anyone is',
-                                                      "Both are"
-                                                    ];
-
-
-                                                    return options.map((
-                                                        String value) =>
-                                                        PopupMenuItem<String>(
-                                                          value: value,
-                                                          height: 30,
-                                                          child: Text(value),
-                                                        )).toList();
-                                                  },
-                                                  child: Text(
-                                                    vm.conditionLibraryData
-                                                        .conditionLibrary
-                                                        .condition[index]
-                                                        .threshold,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 5,),
-                                          vm.conditionLibraryData
-                                              .conditionLibrary.condition[index]
-                                              .type == 'Sensor' ?
-                                          Container(
-                                            width: 100,
-                                            height: 27,
-                                            decoration: BoxDecoration(
-                                                color: Theme
-                                                    .of(context)
-                                                    .primaryColor
-                                                    .withValues(alpha: 0.05),
-                                                borderRadius: BorderRadius
-                                                    .circular(3),
-                                                border: Border.all(
-                                                    width: 0.5,
-                                                    color: Colors.grey.shade400
-                                                )
-                                            ),
-                                            child: TextButton(
-                                              onPressed: () {
-                                                showDialog(
-                                                  context: context,
-                                                  builder: (
-                                                      BuildContext context) {
-                                                    return AlertDialog(
-                                                      title: const Text(
-                                                          'Select values and Operator'),
-                                                      shape: RoundedRectangleBorder(
-                                                        borderRadius: BorderRadius
-                                                            .circular(10),
-                                                      ),
-                                                      content: SizedBox(
-                                                        width: 250,
-                                                        height: 260,
-                                                        child: Column(
-                                                          children: [
-                                                            SizedBox(
-                                                                width: 250,
-                                                                height: 50,
-                                                                child: TextFormField(
-                                                                  controller: vm
-                                                                      .vtTEVControllers[index],
-                                                                  maxLength: 100,
-                                                                  readOnly: true,
-                                                                  decoration: const InputDecoration(
-                                                                    counterText: '',
-                                                                    labelText: 'Value/Threshold',
-                                                                    contentPadding: EdgeInsets
-                                                                        .symmetric(
-                                                                        vertical: 10.0,
-                                                                        horizontal: 10.0),
-                                                                    enabledBorder: UnderlineInputBorder(
-                                                                      borderSide: BorderSide(
-                                                                          color: Colors
-                                                                              .black12),
-                                                                    ),
-                                                                  ),
-                                                                  validator: (
-                                                                      value) {
-                                                                    if (value ==
-                                                                        null ||
-                                                                        value
-                                                                            .isEmpty) {
-                                                                      return 'Please fill out this field';
-                                                                    }
-                                                                    return null;
-                                                                  },
-                                                                )
-                                                            ),
-                                                            const SizedBox(
-                                                                height: 8),
-                                                            SizedBox(
-                                                              width: 250,
-                                                              height: 150,
-                                                              child: GridView
-                                                                  .count(
-                                                                crossAxisCount: 5,
-                                                                crossAxisSpacing: 5,
-                                                                mainAxisSpacing: 5,
-                                                                children: [
-                                                                  '%',
-                                                                  '°C',
-                                                                  '.',
-                                                                  'cl',
-                                                                  'C',
-                                                                  '9',
-                                                                  '8',
-                                                                  '7',
-                                                                  '6',
-                                                                  '5',
-                                                                  '4',
-                                                                  '3',
-                                                                  '2',
-                                                                  '1',
-                                                                  '0'
-                                                                ].map((
-                                                                    operator) =>
-                                                                    ElevatedButton(
-                                                                      onPressed: () {
-                                                                        if (operator ==
-                                                                            'C') {
-                                                                          vm
-                                                                              .vtTEVControllers[index]
-                                                                              .text =
-                                                                          '';
-                                                                        } else
-                                                                        if (operator ==
-                                                                            'cl') {
-                                                                          vm
-                                                                              .vtTEVControllers[index]
-                                                                              .text =
-                                                                              vm
-                                                                                  .vtTEVControllers[index]
-                                                                                  .text
-                                                                                  .substring(
-                                                                                  0,
-                                                                                  vm
-                                                                                      .vtTEVControllers[index]
-                                                                                      .text
-                                                                                      .length -
-                                                                                      1);
-                                                                        }
-                                                                        else
-                                                                        if (operator ==
-                                                                            'Ok') {
-                                                                          Navigator
-                                                                              .pop(
-                                                                              context);
-                                                                        } else {
-                                                                          vm
-                                                                              .vtTEVControllers[index]
-                                                                              .text +=
-                                                                              operator;
-                                                                        }
-                                                                        ChangeNotifier();
-                                                                        //result = operator;
-                                                                        //Navigator.pop(context);
-                                                                      },
-                                                                      style: ButtonStyle(
-                                                                        backgroundColor: operator ==
-                                                                            'C'
-                                                                            ? WidgetStateProperty
-                                                                            .all<
-                                                                            Color>(
-                                                                            Colors
-                                                                                .redAccent)
-                                                                            :
-                                                                        WidgetStateProperty
-                                                                            .all<
-                                                                            Color>(
-                                                                            Theme
-                                                                                .of(
-                                                                                context)
-                                                                                .primaryColor),
-                                                                      ),
-                                                                      child: operator ==
-                                                                          'cl'
-                                                                          ? const Icon(
-                                                                          Icons
-                                                                              .backspace_outlined,
-                                                                          color: Colors
-                                                                              .white)
-                                                                          :
-                                                                      Text(
-                                                                          operator,
-                                                                          style: const TextStyle(
-                                                                              fontSize: 15,
-                                                                              color: Colors
-                                                                                  .white)),
-                                                                    ),
-                                                                ).toList(),
-                                                              ),
-                                                            ),
-                                                            SizedBox(
-                                                                width: 250,
-                                                                height: 50,
-                                                                child: Row(
-                                                                  children: [
-                                                                    MaterialButton(
-                                                                      color: Theme
-                                                                          .of(
-                                                                          context)
-                                                                          .primaryColor,
-                                                                      textColor: Colors
-                                                                          .white,
-                                                                      height: 40,
-                                                                      minWidth: 170,
-                                                                      onPressed: () {
-                                                                        vm
-                                                                            .vtTEVControllers[index]
-                                                                            .text +=
-                                                                        ' ';
-                                                                      },
-                                                                      child: const Text(
-                                                                          'Space'),
-                                                                    ),
-                                                                    const SizedBox(
-                                                                        width: 5),
-                                                                    MaterialButton(
-                                                                      height: 40,
-                                                                      color: Theme
-                                                                          .of(
-                                                                          context)
-                                                                          .primaryColorLight,
-                                                                      textColor: Colors
-                                                                          .white,
-                                                                      onPressed: () {
-                                                                        if (vm
-                                                                            .vtTEVControllers[index]
-                                                                            .text
-                                                                            .trim()
-                                                                            .isEmpty) {
-                                                                          showDialog(
-                                                                            context: context,
-                                                                            builder: (
-                                                                                context) {
-                                                                              return AlertDialog(
-                                                                                title: const Text(
-                                                                                    "Error"),
-                                                                                content: const Text(
-                                                                                    "Field cannot be empty or contain only spaces."),
-                                                                                actions: [
-                                                                                  TextButton(
-                                                                                    onPressed: () =>
-                                                                                        Navigator
-                                                                                            .pop(
-                                                                                            context),
-                                                                                    child: const Text(
-                                                                                        "OK"),
-                                                                                  ),
-                                                                                ],
-                                                                              );
-                                                                            },
-                                                                          );
-                                                                        } else {
-                                                                          final sensor = vm
-                                                                              .conditionLibraryData
-                                                                              .defaultData
-                                                                              .sensors
-                                                                              .firstWhere(
-                                                                                (
-                                                                                sensor) =>
-                                                                            sensor
-                                                                                .name ==
-                                                                                vm
-                                                                                    .conditionLibraryData
-                                                                                    .conditionLibrary
-                                                                                    .condition[index]
-                                                                                    .component,
-                                                                            orElse: () =>
-                                                                                Sensor(
-                                                                                    objectId: 0,
-                                                                                    sNo: 0.0,
-                                                                                    name: '',
-                                                                                    objectName: ''),
-                                                                          );
-                                                                          if (sensor
-                                                                              .objectName
-                                                                              .isNotEmpty) {
-                                                                            String unit = MyFunction()
-                                                                                .getUnitValue(
-                                                                                context,
-                                                                                sensor
-                                                                                    .objectName,
-                                                                                vm
-                                                                                    .vtTEVControllers[index]
-                                                                                    .text) ??
-                                                                                '';
-                                                                            vm
-                                                                                .valueOnChange(
-                                                                                '${vm
-                                                                                    .vtTEVControllers[index]
-                                                                                    .text} $unit',
-                                                                                index);
-                                                                            Navigator
-                                                                                .pop(
-                                                                                context);
-                                                                          }
-                                                                        }
-                                                                      },
-                                                                      child: const Text(
-                                                                          'Enter'),
-                                                                    ),
-                                                                  ],
-                                                                )
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    );
-                                                  },
-                                                );
-                                              },
-                                              style: ButtonStyle(
-                                                padding: WidgetStateProperty
-                                                    .all(EdgeInsets.zero),
-                                                minimumSize: WidgetStateProperty
-                                                    .all(Size.zero),
-                                                tapTargetSize: MaterialTapTargetSize
-                                                    .shrinkWrap,
-                                                backgroundColor: WidgetStateProperty
-                                                    .all(Colors.transparent),
-                                              ),
-                                              child: Text(
-                                                vm.conditionLibraryData
-                                                    .conditionLibrary
-                                                    .condition[index].value,
-                                                style: const TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: 13),
-                                                textAlign: TextAlign.left,),
-                                            ),
-                                          ) :
-                                          Container(
-                                            width: 100,
-                                            decoration: BoxDecoration(
-                                                color: Theme
-                                                    .of(context)
-                                                    .primaryColor
-                                                    .withValues(alpha: 0.05),
-                                                borderRadius: BorderRadius
-                                                    .circular(3),
-                                                border: Border.all(
-                                                    width: 0.5,
-                                                    color: Colors.grey.shade400
-                                                )
-                                            ),
-                                            child: Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 5, top: 3),
-                                              child: PopupMenuButton<String>(
-                                                onSelected: (
-                                                    String selectedValue) {
-                                                  vm.valueOnChange(
-                                                      selectedValue, index);
-                                                },
-                                                itemBuilder: (
-                                                    BuildContext context) {
-                                                  return ['true', 'False'].map((
-                                                      String value) =>
-                                                      PopupMenuItem<String>(
-                                                        value: value,
-                                                        height: 30,
-                                                        child: Text(value),
-                                                      )).toList();
-                                                },
-                                                child: Text(
-                                                  vm.conditionLibraryData
-                                                      .conditionLibrary
-                                                      .condition[index].value,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 5),
-                                      Container(
-                                        width: double.infinity,
-                                        height: 27,
-                                        decoration: BoxDecoration(
-                                            color: Theme
-                                                .of(context)
-                                                .primaryColor
-                                                .withValues(alpha: 0.05),
-                                            borderRadius: BorderRadius.circular(
-                                                3),
-                                            border: Border.all(
-                                                width: 0.5,
-                                                color: Colors.grey.shade400
-                                            )
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(
-                                              left: 5, top: 3),
-                                          child: PopupMenuButton<String>(
-                                            onSelected: (
-                                                String selectedValue) =>
-                                                vm.reasonOnChange(
-                                                    selectedValue, index),
-                                            itemBuilder: (
-                                                BuildContext context) {
-                                              return [
-                                                '--',
-                                                'Low flow',
-                                                'High flow',
-                                                'No flow',
-                                                'High pressure',
-                                                'Low pressure',
-                                                'Over heating',
-                                                'Low level',
-                                                'High level',
-                                                'Time limit',
-                                                'Dry run'
-                                              ]
-                                                  .map((String value) =>
-                                                  PopupMenuItem<String>(
-                                                    value: value,
-                                                    height: 30,
-                                                    child: Text(value),
-                                                  )).toList();
-                                            },
-                                            child: Text(
-                                              vm.conditionLibraryData
-                                                  .conditionLibrary
-                                                  .condition[index].reason,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 5),
-                                      Container(
-                                        width: double.infinity,
-                                        height: 27,
-                                        decoration: BoxDecoration(
-                                            color: Theme
-                                                .of(context)
-                                                .primaryColor
-                                                .withValues(alpha: 0.05),
-                                            borderRadius: BorderRadius.circular(
-                                                3),
-                                            border: Border.all(
-                                                width: 0.5,
-                                                color: Colors.grey.shade400
-                                            )
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(
-                                              left: 5, top: 3),
-                                          child: PopupMenuButton<String>(
-                                            onSelected: (String selectedValue) {
-                                              vm.delayTimeOnChange(
-                                                  selectedValue, index);
-                                            },
-                                            itemBuilder: (
-                                                BuildContext context) {
-                                              return [
-                                                '--',
-                                                '3 Sec',
-                                                '5 Sec',
-                                                '10 Sec',
-                                                '20 Sec',
-                                                '30 Sec'
-                                              ]
-                                                  .map((String value) =>
-                                                  PopupMenuItem<String>(
-                                                    value: value,
-                                                    height: 30,
-                                                    child: Text(value),
-                                                  )).toList();
-                                            },
-                                            child: Text(
-                                              vm.conditionLibraryData
-                                                  .conditionLibrary
-                                                  .condition[index].delayTime,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 50,
-                            child: TextFormField(
-                              maxLength: 100,
-                              controller: vm.amTEVControllers[index],
-                              decoration: const InputDecoration(
-                                counterText: '',
-                                labelText: 'Alert message',
-                                contentPadding: EdgeInsets.symmetric(
-                                    vertical: 10.0, horizontal: 10.0),
-                                enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.black12),
-                                ),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please fill out this field';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ) :
-              const Center(child: Text('No condition available')),
             ),
             floatingActionButton: Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -1002,35 +316,22 @@ class Constant extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               // Prevents stretching across the screen
               children: [
-                Text('Total : ${vm.conditionLibraryData.conditionLibrary
-                    .condition.length} of '
-                    '${vm.conditionLibraryData.defaultData.conditionLimit}'),
-                const SizedBox(width: 10),
-                MaterialButton(
-                  color: Theme
-                      .of(context)
-                      .primaryColor,
-                  textColor: Colors.white,
-                  onPressed: vm.conditionLibraryData.conditionLibrary.condition
-                      .length !=
-                      vm.conditionLibraryData.defaultData.conditionLimit ?
-                      () => vm.createNewCondition() :
-                  null,
-                  child: const Text('Create condition'),
-                ),
-                const SizedBox(width: 10), // Spacing between buttons
                 MaterialButton(
                   color: Colors.green,
                   textColor: Colors.white,
-                  onPressed: () => vm.saveConditionLibrary(
-                      context, customerId, controllerId, userId),
+                  onPressed: () {
+                    vm.saveConstantData(context, customerId, controllerId, userId);
+                  },
                   child: const Text('Save'),
                 ),
               ],
-            ),*/
+            ),
           );
         },
       ),
     );
   }
+
 }
+
+

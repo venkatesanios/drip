@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import '../../Models/customer/constant_model.dart';
 import '../../repository/repository.dart';
+import '../../utils/snack_bar.dart';
 
 class ConstantViewModel extends ChangeNotifier {
 
@@ -10,8 +12,17 @@ class ConstantViewModel extends ChangeNotifier {
   bool isLoading = false;
   String errorMessage = "";
 
+
   late UserConstant userConstant;
   late List<ConstantMenu> filteredMenu = [];
+  //List<ConfigObject> valveList = [];
+
+  List<TextEditingController> txtEdControllers = [];
+  final TextEditingController _hoursController = TextEditingController();
+  final TextEditingController _minutesController = TextEditingController();
+  final TextEditingController _secondsController = TextEditingController();
+
+  List<TextEditingController> txtEdControllersNF = [];
 
 
   ConstantViewModel(this.repository);
@@ -30,7 +41,20 @@ class ConstantViewModel extends ChangeNotifier {
             filteredMenu = userConstant.defaultData.constantMenus
                 .where((item) => item.parameter != "Normal Alarm" && item.value == '1')
                 .toList();
-            menuOnChange();
+
+            txtEdControllers = List.generate(12, (index) => TextEditingController());
+
+            var valveList = userConstant.defaultData.configMaker.configObjects
+                .where((obj) => obj.objectId == 13).toList();
+            txtEdControllersNF  = List.generate(valveList.length, (index) => TextEditingController());
+
+
+
+            for(int i=0; i < userConstant.constant.generalMenu.length; i++){
+              txtEdControllers[i].text = userConstant.constant.generalMenu[i].value;
+            }
+
+            menuOnChange(0);
 
           }
         }
@@ -43,8 +67,202 @@ class ConstantViewModel extends ChangeNotifier {
 
   }
 
-  void menuOnChange(){
-    filteredMenu[0].isSelected = true;
+  void menuOnChange(int index){
+    for (var item in filteredMenu) {
+      item.isSelected = false;
+    }
+    filteredMenu[index].isSelected = true;
+    notifyListeners();
+  }
+
+  void updateGeneralValve(int index, String value, String type){
+    String finalVal = value.trim();
+    if(type=='value'){
+      userConstant.constant.valveList![index].txtValue = finalVal;
+    }else{
+      userConstant.constant.generalMenu[index].value = finalVal;
+    }
+  }
+
+  void updateGeneralSwitch(int index, bool status){
+    userConstant.constant.generalMenu[index].value = status;
+    notifyListeners();
+  }
+
+  void showDurationInputDialog(BuildContext context, String durationValue, int index, String cnsType) {
+    List<String> timeParts = durationValue.split(':');
+    _hoursController.text = timeParts[0];
+    _minutesController.text = timeParts[1];
+    _secondsController.text = timeParts[2];
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('duration'),
+          content: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 80,
+                child: TextField(
+                  controller: _hoursController,
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 23),
+                  decoration: const InputDecoration(
+                    labelText: 'Hours',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              SizedBox(
+                width: 80,
+                child: TextField(
+                  controller: _minutesController,
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 23),
+                  decoration: const InputDecoration(
+                    labelText: 'Minutes',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              SizedBox(
+                width: 80,
+                child: TextField(
+                  controller: _secondsController,
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 23),
+                  decoration: const InputDecoration(
+                    labelText: 'Seconds',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            MaterialButton(
+              color: Colors.redAccent,
+              textColor: Colors.white,
+              onPressed:() async {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            MaterialButton(
+              color: Colors.teal,
+              textColor: Colors.white,
+              onPressed:() async {
+                if (_validateTime(_hoursController.text, 'hours') &&
+                    _validateTime(_minutesController.text, 'minutes') &&
+                    _validateTime(_secondsController.text, 'seconds')) {
+                  durationValue = '${_hoursController.text}:${_minutesController.text}:${_secondsController.text}';
+                  if(cnsType == 'general'){
+                    userConstant.constant.generalMenu[index].value = durationValue;
+                  }else{
+                    userConstant.constant.valveList![index].pickerVal = durationValue;
+                  }
+
+                  notifyListeners();
+                  Navigator.of(context).pop();
+                }
+                else{
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Invalid time formed'),
+                        content: const Text('Please fill correct time format and try again.'),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(); // Close the dialog
+                            },
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
+              },
+              child: const Text('Set duration'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  bool _validateTime(String value, String fieldType) {
+    if (value.isEmpty) {
+      return false;
+    }
+    int intValue = int.tryParse(value) ?? -1;
+    if (intValue < 0) {
+      return false;
+    }
+    switch (fieldType) {
+      case 'hours':
+        return intValue >= 0 && intValue <= 23;
+      case 'minutes':
+      case 'seconds':
+        return intValue >= 0 && intValue <= 59;
+      default:
+        return false;
+    }
+  }
+
+  Future<void> saveConstantData(context, int customerId, int controllerId, int createUserId) async
+  {
+    Future.delayed(const Duration(milliseconds: 500), () async {
+      try {
+        Map<String, dynamic> cnsMenu = userConstant.constant.toJson();
+
+        Map<String, dynamic> body = {
+          "userId": customerId,
+          "controllerId": controllerId,
+          "general": cnsMenu['general'],
+          "line": [],
+          "mainValve": [],
+          "valve": cnsMenu['valveList'],
+          "pump": [],
+          "waterMeter": [],
+          "filtration": [],
+          "fertilization": [],
+          "ecPh": [],
+          "analogSensor": [],
+          "moistureSensor": [],
+          "levelSensor": [],
+          "normalAlarm": [],
+          "criticalAlarm": [],
+          "globalAlarm": [],
+          "controllerReadStatus": '0',
+          "createUser": createUserId,
+
+        };
+
+        var response = await repository.saveConstantData(body);
+        print(response.body);
+        if (response.statusCode == 200) {
+          final jsonData = jsonDecode(response.body);
+          if (jsonData["code"] == 200) {
+            GlobalSnackBar.show(context, jsonData["message"], jsonData["code"]);
+          }
+        }
+      } catch (error) {
+        debugPrint('Error fetching language list: $error');
+      } finally {
+        setLoading(false);
+      }
+    });
+
   }
 
 
