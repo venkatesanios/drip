@@ -15,7 +15,6 @@ class ConstantInConfig extends StatefulWidget {
   @override
   _ConstantInConfigState createState() => _ConstantInConfigState();
 }
-
 class _ConstantInConfigState extends State<ConstantInConfig> {
   late HttpService httpService;
   Future<Map<String, dynamic>>? futureData;
@@ -32,38 +31,27 @@ class _ConstantInConfigState extends State<ConstantInConfig> {
 
   Future<Map<String, dynamic>> fetchData() async {
     try {
-      var provider = Provider.of<ConstantProvider>(context, listen: false);
       final response = await httpService.postRequest("/user/constant/get", {
         "userId": widget.userId,
         "controllerId": widget.controllerId,
-        "general": provider.generalUpdated,
-        "pump": provider.pumps.map((pump) => pump.toJson()).toList(),
       });
 
       if (response.statusCode == 200) {
         final dynamic decodedJson = json.decode(response.body);
-        print( 'controller id${widget.controllerId}' );
-        print('user id ${widget.userId}');
+        print('Controller ID: ${widget.controllerId}');
+        print('User ID: ${widget.userId}');
         print(response.body);
+
         if (decodedJson is Map<String, dynamic>) {
           if (decodedJson.containsKey('data') && decodedJson['data'] is Map<String, dynamic>) {
-            var constantData = decodedJson['data']['constant'];
-
-            if (constantData != null && constantData['general'] != null) {
-              List<Map<String, dynamic>> generalData =
-              List<Map<String, dynamic>>.from(constantData['general']);
-              provider.setGeneralUpdated(generalData);
-            }
+            return decodedJson;
           }
-          return decodedJson;
-        } else {
-          throw Exception("Invalid response format: Expected a Map<String, dynamic>");
         }
-      } else {
-        throw Exception("Failed to load data. Status code: ${response.statusCode}");
       }
+      return {};
     } catch (e) {
-      throw Exception("Error in fetchData: $e");
+      print("Error in fetchData: $e");
+      return {};
     }
   }
 
@@ -86,14 +74,12 @@ class _ConstantInConfigState extends State<ConstantInConfig> {
               }
 
               return ConstantHomePage(
-               // levelSensor: levelSensors,
                 levelSensor: constantJsonData.fetchUserDataDefault.configMaker.waterSource
                     .map((waterSource) => waterSource.level)
                     .whereType<LevelSensor>()
                     .toList(),
                 waterSource: constantJsonData.fetchUserDataDefault.configMaker.waterSource,
                 moistureSensors: constantJsonData.fetchUserDataDefault.configMaker.moistureSensor,
-
                 controllerId: widget.controllerId,
                 userId: widget.userId,
                 alarmData: jsonData['data']['default']['alarm'],
@@ -114,7 +100,11 @@ class _ConstantInConfigState extends State<ConstantInConfig> {
                   ...constantJsonData.fetchUserDataDefault.configMaker.pump.map((pump) => pump.waterMeter).whereType<WaterMeters>()
                 ],
                 controlSensors: List<String>.from(jsonData['controlSensors'] ?? []),
-                generalUpdated:  [
+
+                generalUpdated: jsonData['data']['constant'] != null &&
+                    jsonData['data']['constant']['general'] != null
+                    ? List<Map<String, dynamic>>.from(jsonData['data']['constant']['general'])
+                    :  [
                   {"sNo": 1, "title": "Number of Programs", "widgetTypeId": 1, "value": "0"},
                   {"sNo": 2, "title": "Number of Valve Groups", "widgetTypeId": 1, "value": "0"},
                   {"sNo": 3, "title": "Number of Conditions", "widgetTypeId": 1, "value": "0"},
@@ -126,7 +116,7 @@ class _ConstantInConfigState extends State<ConstantInConfig> {
                   {"sNo": 9, "title": "Water pulse before dosing", "widgetTypeId": 2, "value": false},
                   {"sNo": 10, "title": "Pump on after valve on", "widgetTypeId": 2, "value": false},
                   {"sNo": 11, "title": "Lora Key 1", "widgetTypeId": 1, "value": "0"},
-                  {"sNo": 12, "title": "Lora Key 2", "widgetTypeId": 1, "value": "0"}
+                  {"sNo": 12, "title": "Lora Key 2", "widgetTypeId": 1, "value": "0"},
                 ],
 
               );

@@ -5,7 +5,7 @@ import 'ConstantPageProvider/changeNotifier_constantProvider.dart';
 import 'constant_tableChart/customTimepicker_in_const.dart';
 
 class GeneralPage extends StatefulWidget {
-  const GeneralPage({super.key, required this.generalUpdated});
+   GeneralPage({super.key, required this.generalUpdated});
 
   final List<Map<String, dynamic>> generalUpdated;
 
@@ -15,6 +15,7 @@ class GeneralPage extends StatefulWidget {
 
 class _GeneralPageState extends State<GeneralPage> {
   late List<TextEditingController> _controllers;
+
   int? selectedIndex;
   @override
   void initState() {
@@ -38,7 +39,6 @@ class _GeneralPageState extends State<GeneralPage> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
-
       builder: (context, constraints) {
         double cardWidth = 300;
         int cardsPerRow = (constraints.maxWidth / (cardWidth + 20)).floor();
@@ -100,7 +100,7 @@ class _GeneralPageState extends State<GeneralPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(
-                        cardsPerRow - (widget.generalUpdated.length % cardsPerRow),
+                        (cardsPerRow - (widget.generalUpdated.length % cardsPerRow)).toInt(),
                             (index) => SizedBox(width: cardWidth),
                       ),
                     ),

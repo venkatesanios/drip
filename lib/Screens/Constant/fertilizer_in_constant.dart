@@ -106,7 +106,8 @@ class _FertilizerInConstantState extends State<FertilizerInConstant> {
                                   margin: const EdgeInsets.only(left: 1, right: 1, bottom: 1),
 
                                   decoration:
-                                      const BoxDecoration(color: Color(0xff96CED5)),
+                                      const BoxDecoration(color: Color(
+                                          0xff005b8d)),
                                   padding: const EdgeInsets.only(left: 8),
                                   width: 150,
                                   height: 50,
@@ -114,7 +115,7 @@ class _FertilizerInConstantState extends State<FertilizerInConstant> {
                                   child: const Text(
                                     "Fertilizer Site",
                                     style: TextStyle(
-                                        color: Color(0xff30555A), fontSize: 13),
+                                        color: Color(0xfffbfbfb), fontSize: 13),
                                   )),
                               Column(
                                 children: [

@@ -54,19 +54,23 @@ class _LevelSensorInConstantState extends State<LevelSensorInConstant> {
     return Padding(
       padding: const EdgeInsets.only(top: 50, left: 20, right: 20),
       child: DataTable2(
+        border: const TableBorder(
+          top: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+          bottom: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+          left: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+          right: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+        ),
         columnSpacing: 12,
-        horizontalMargin: 12,
-        minWidth: 900,
-        border: TableBorder.all(color: Colors.brown),
+        minWidth: 1020,
         headingRowColor: MaterialStateProperty.all(const Color(0xFFFDFDFD)),
         columns: const [
-          DataColumn(label: Text('Sensor')),
-          DataColumn(label: Text('High Low')),
-          DataColumn(label: Text('Units')),
-          DataColumn(label: Text('Base')),
-          DataColumn(label: Text('Minimum')),
-          DataColumn(label: Text('Maximum')),
-          DataColumn(label: Text('Height (m)')),
+          DataColumn(label: Text('Sensor',style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold,))),
+          DataColumn(label: Text('High Low',style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold,))),
+          DataColumn(label: Text('Units',style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold,))),
+          DataColumn(label: Text('Base',style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold,))),
+          DataColumn(label: Text('Minimum',style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold,))),
+          DataColumn(label: Text('Maximum',style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold,))),
+          DataColumn(label: Text('Height (m)',style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold,))),
         ],
         rows: widget.levelSensor.asMap().entries.map((entry) {
           int index = entry.key;
@@ -103,31 +107,40 @@ class _LevelSensorInConstantState extends State<LevelSensorInConstant> {
       controller = heightControllers[index];
     }
 
-    return TextField(
-      textAlign: TextAlign.center,
-      controller: controller,
-      keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: true),
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
-      ],
-      onChanged: (value) {
-        setState(() {
-          double parsedValue = value.isNotEmpty ? double.parse(value) : 0.0;
+    return SizedBox(
+      width: 50,
+      child: TextField(
+        textAlign: TextAlign.center,
+        controller: controller,
+        keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: true),
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+        ],
+        decoration: const InputDecoration(
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.zero,
+        ),
+        onChanged: (value) {
+          setState(() {
+            double parsedValue = value.isNotEmpty ? double.parse(value) : 0.0;
 
-          if (field == 'min') {
-            widget.levelSensor[index].min = parsedValue;
-          } else if (field == 'max') {
-            widget.levelSensor[index].max = parsedValue;
-          } else if (field == 'height') {
-            widget.levelSensor[index].height = parsedValue;
-          }
-        });
-      },
+            if (field == 'min') {
+              widget.levelSensor[index].min = parsedValue;
+            } else if (field == 'max') {
+              widget.levelSensor[index].max = parsedValue;
+            } else if (field == 'height') {
+              widget.levelSensor[index].height = parsedValue;
+            }
+          });
+        },
+      ),
     );
   }
 
   Widget getDropdown(int index, String field, String initialValue, List<String> options) {
-    return DropdownButtonFormField<String>(
+    return SizedBox(
+        width: 100,
+    child:  DropdownButtonFormField<String>(
       value: options.contains(initialValue) ? initialValue : options.first,
       items: options.map((String value) {
         return DropdownMenuItem<String>(
@@ -149,6 +162,7 @@ class _LevelSensorInConstantState extends State<LevelSensorInConstant> {
         }
       },
       decoration: const InputDecoration(border: InputBorder.none),
-    );
+      icon: const SizedBox.shrink(),
+    ));
   }
 }

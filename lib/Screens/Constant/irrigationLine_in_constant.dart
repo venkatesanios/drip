@@ -29,17 +29,22 @@ class _IrrigationLineInConstantState extends State<IrrigationLineInConstant> {
       body: Padding(
         padding: const EdgeInsets.only(top: 50, bottom: 20, left: 20, right: 20),
         child: DataTable2(
-          border: TableBorder.all(),
+          border: const TableBorder(
+            top: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+            bottom: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+            left: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+            right: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+          ),
           headingRowColor: MaterialStateProperty.all(const Color(0xFFFDFDFD)),
           columnSpacing: 12,
           horizontalMargin: 12,
-          minWidth: 600,
+          minWidth: 1200,
           columns: const [
-            DataColumn(label: Center(child: Text('Irrigation Line'))),
-            DataColumn(label: Center(child: Text('Low Flow Delay'))),
-            DataColumn(label: Center(child: Text('High Flow Delay'))),
-            DataColumn(label: Center(child: Text('Low Flow Action'))),
-            DataColumn(label: Center(child: Text('High Flow Action'))),
+            DataColumn(label: Center(child: Text('Irrigation Line',style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold,)))),
+            DataColumn(label: Center(child: Text('Low Flow Delay',style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold,)))),
+            DataColumn(label: Center(child: Text('High Flow Delay',style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold,)))),
+            DataColumn(label: Center(child: Text('Low Flow Action',style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold,)))),
+            DataColumn(label: Center(child: Text('High Flow Action',style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold,)))),
           ],
 
           rows: List.generate(widget.irrigationLines.length, (index) {
@@ -87,29 +92,95 @@ class _IrrigationLineInConstantState extends State<IrrigationLineInConstant> {
   }
 
   Widget getDropdown(int index, String field, String initialValue) {
+    Color actionColor = getColorForAction(initialValue); // Get dynamic color
+
     return Center(
-      child: DropdownButtonFormField<String>(
-        value: actionOptions.contains(initialValue) ? initialValue : actionOptions.last,
-        items: actionOptions.map((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
-          );
-        }).toList(),
-        onChanged: (value) {
-          if (value != null) {
-            setState(() {
-              if (field == "lowFlowAction") {
-                widget.irrigationLines[index].lowFlowAction = value;
-              } else if (field == "highFlowAction") {
-                widget.irrigationLines[index].highFlowAction = value;
-              }
-            });
-          }
-        },
-        decoration: const InputDecoration(border: InputBorder.none),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 55),
+        child: DropdownButtonFormField<String>(
+          value: actionOptions.contains(initialValue) ? initialValue : actionOptions.last,
+          items: actionOptions.map((String value) {
+            Color itemColor = getColorForAction(value); // Get color for each item
+
+            return DropdownMenuItem<String>(
+              value: value,
+              child: SizedBox(
+                width: 80,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 12.29,
+                      height: 12.29,
+                      decoration: BoxDecoration(
+                        color: itemColor,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      value,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: itemColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+          onChanged: (value) {
+            if (value != null) {
+              setState(() {
+                if (field == "lowFlowAction") {
+                  widget.irrigationLines[index].lowFlowAction = value;
+                } else if (field == "highFlowAction") {
+                  widget.irrigationLines[index].highFlowAction = value;
+                }
+              });
+            }
+          },
+          icon: const SizedBox.shrink(),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: actionColor.withOpacity(0.2),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20),
+              borderSide: BorderSide(
+                color: actionColor,
+                width: 2,
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20),
+              borderSide: BorderSide(
+                color: actionColor,
+                width: 2,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20),
+              borderSide: BorderSide(
+                color: actionColor,
+                width: 2,
+              ),
+            ),
+          ),
+          borderRadius: BorderRadius.circular(20),
+        ),
       ),
     );
   }
 
+  Color getColorForAction(String value) {
+    if (value == "Do Next") {
+      return const Color(0xFF006FD6);
+    } else if (value == "Wait") {
+      return const Color(0xFFE97B17);
+    } else {
+      return const Color(0xFFE53292);
+    }
+  }
 }

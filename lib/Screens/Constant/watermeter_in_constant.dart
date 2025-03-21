@@ -42,11 +42,16 @@ class _WatermeterInConstantState extends State<WatermeterInConstant> {
         padding: const EdgeInsets.only(top: 50, bottom: 20, left: 80, right: 80),
 
         child: DataTable2(
+          border: const TableBorder(
+            top: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+            bottom: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+            left: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+            right: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+          ),
           columnSpacing: 12,
-          minWidth: 300,
+          minWidth: 1020,
           headingRowHeight: 50,
           dataRowHeight: 50,
-          border: TableBorder.all(color: Colors.brown),
           headingRowColor: MaterialStateProperty.all(const Color(0xFFFDFDFD)),
           columns: const [
             DataColumn(

@@ -4,23 +4,54 @@ import 'dart:convert';
 class ConstantDataModel {
   final Constant constant;
   final Default fetchUserDataDefault;
+  final List<Map<String, dynamic>> generalUpdated;
   ConstantDataModel({
     required this.constant,
     required this.fetchUserDataDefault,
+    required this.generalUpdated,
   });
 
   factory ConstantDataModel.fromJson(Map<String, dynamic> json) {
-    return ConstantDataModel(
-      constant: json["constant"] is Map<String, dynamic> ? Constant.fromJson(json["constant"])
-          : Constant(general: [], line: [], mainValve: [], valve: [], pump: [], waterMeter: [],
-          fertilization: [], filtration: [], ecPh: [], analogSensor: [], moistureSensor: [],
-          levelSensor: [], normalAlarm: [], criticalAlarm: [], globalAlarm: [], controllerReadStatus: ''),
+    print("Decoding ConstantDataModel from JSON: $json");
 
+    return ConstantDataModel(
+      constant: json["constant"] is Map<String, dynamic>
+          ? Constant.fromJson(json["constant"])
+          : Constant(
+        general: [],
+        line: [],
+        mainValve: [],
+        valve: [],
+        pump: [],
+        waterMeter: [],
+        fertilization: [],
+        filtration: [],
+        ecPh: [],
+        analogSensor: [],
+        moistureSensor: [],
+        levelSensor: [],
+        normalAlarm: [],
+        criticalAlarm: [],
+        globalAlarm: [],
+        controllerReadStatus: '',
+      ),
       fetchUserDataDefault: json["default"] is Map<String, dynamic>
           ? Default.fromJson(json["default"])
-          : Default(alarm: [], constantMenu: [], configMaker:
-      ConfigMaker(filterSite: [], fertilizerSite: [], waterSource: [],moistureSensor: [],
-          pump: [], irrigationLine: [],), ),
+          : Default(
+        alarm: [],
+        constantMenu: [],
+        configMaker: ConfigMaker(
+          filterSite: [],
+          fertilizerSite: [],
+          waterSource: [],
+          moistureSensor: [],
+          pump: [],
+          irrigationLine: [],
+        ),
+      ),
+      generalUpdated: json["generalUpdated"] != null && (json["generalUpdated"] is List)
+          ? List<Map<String, dynamic>>.from(json["generalUpdated"])
+          : [],
     );
   }
 
@@ -29,6 +60,7 @@ class ConstantDataModel {
     "default": fetchUserDataDefault.toJson(),
   };
 }
+
 class Constant {
   List<dynamic> general;
   List<dynamic> line;
@@ -69,22 +101,22 @@ class Constant {
   factory Constant.fromJson(Map<String, dynamic> json) {
     final constantData = json['constant'] ?? {}; // Safe check for null
     return Constant(
-      general: List<dynamic>.from(constantData['general'] ?? []),
-      line: List<dynamic>.from(constantData['line'] ?? []),
-      mainValve: List<dynamic>.from(constantData['mainValve'] ?? []),
-      valve: List<dynamic>.from(constantData['valve'] ?? []),
-      pump: List<dynamic>.from(constantData['pump'] ?? []),
-      waterMeter: List<dynamic>.from(constantData['waterMeter'] ?? []),
-      fertilization: List<dynamic>.from(constantData['fertilization'] ?? []),
-      filtration: List<dynamic>.from(constantData['filtration'] ?? []),
-      ecPh: List<dynamic>.from(constantData['ecPh'] ?? []),
-      analogSensor: List<dynamic>.from(constantData['analogSensor'] ?? []),
-      moistureSensor: List<dynamic>.from(constantData['moistureSensor'] ?? []),
-      levelSensor: List<dynamic>.from(constantData['levelSensor'] ?? []),
-      normalAlarm: List<dynamic>.from(constantData['normalAlarm'] ?? []),
-      criticalAlarm: List<dynamic>.from(constantData['criticalAlarm'] ?? []),
-      globalAlarm: List<dynamic>.from(constantData['globalAlarm'] ?? []),
-      controllerReadStatus: constantData['controllerReadStatus'] ?? '0',
+      general: List<dynamic>.from(json['general'] ?? []),
+      line: List<dynamic>.from(json['line'] ?? []),
+      mainValve: List<dynamic>.from(json['mainValve'] ?? []),
+      valve: List<dynamic>.from(json['valve'] ?? []),
+      pump: List<dynamic>.from(json['pump'] ?? []),
+      waterMeter: List<dynamic>.from(json['waterMeter'] ?? []),
+      fertilization: List<dynamic>.from(json['fertilization'] ?? []),
+      filtration: List<dynamic>.from(json['filtration'] ?? []),
+      ecPh: List<dynamic>.from(json['ecPh'] ?? []),
+      analogSensor: List<dynamic>.from(json['analogSensor'] ?? []),
+      moistureSensor: List<dynamic>.from(json['moistureSensor'] ?? []),
+      levelSensor: List<dynamic>.from(json['levelSensor'] ?? []),
+      normalAlarm: List<dynamic>.from(json['normalAlarm'] ?? []),
+      criticalAlarm: List<dynamic>.from(json['criticalAlarm'] ?? []),
+      globalAlarm: List<dynamic>.from(json['globalAlarm'] ?? []),
+      controllerReadStatus: json['controllerReadStatus'] ?? '0',
     );
   }
 
@@ -1470,7 +1502,6 @@ class GeneralData {
     };
   }
 
-  // Convert Map<String, dynamic> back to GeneralData object
   factory GeneralData.fromMap(Map<String, dynamic> map) {
     return GeneralData(
       sNo: map["sNo"],
@@ -1528,13 +1559,13 @@ class MoistureSensor {
        objectName: json['objectName']?.toString() ?? '',
        type: json['type']?.toString() ?? '',
        controllerId: json['controllerId'] ?? 0,
-       count: json['count'] as int? ?? 0, // Ensure null-safety for count
+       count: json['count'] as int? ?? 0,
        connectedObject: json['connectedObject'] is Map<String, dynamic>
            ? json['connectedObject'] as Map<String, dynamic>
            : {},
-       siteMode: json['siteMode']?.toString() ?? '', // Ensure it's always a String
+       siteMode: json['siteMode']?.toString() ?? '',
        valves: json['valves'] is List ? List.from(json['valves']) : [],
-       highLow: json['highLow']?.toString() ?? '-', // Ensure it's always a String
+       highLow: json['highLow']?.toString() ?? '-',
        units: json['units']?.toString() ?? 'Bar',
        base: json['base']?.toString() ?? 'Current',
        min: (json['min'] as num?)?.toDouble() ?? 100.0,
@@ -1566,8 +1597,6 @@ class MoistureSensor {
     };
   }
 }
-
-
 
 dynamic payloadConversion(data) {
   dynamic dataFormation = {};

@@ -106,23 +106,26 @@ class _ValveInConstantState extends State<ValveInConstant> {
                         filterValves();
                       });
                     },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      margin: const EdgeInsets.symmetric(horizontal: 5),
-                      decoration: BoxDecoration(
-                        color: isSelected ? Colors.blue : Colors.grey[300],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Center(
-                        child: Text(
-                          widget.irrigationLines[index].name,
-                          style: TextStyle(
-                            color: isSelected ? Colors.white : Colors.black,
-                            fontWeight: FontWeight.bold,
+                    child: Column(
+                      children:[  Container(
+                        height: 40,
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        margin: const EdgeInsets.symmetric(horizontal: 5),
+                        decoration: BoxDecoration(
+                          color: isSelected ? const Color(0xFF005B8D) : Colors.grey[300],
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Center(
+                          child: Text(
+                            widget.irrigationLines[index].name,
+                            style: TextStyle(
+                              color: isSelected ? Colors.white : Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                    ]),
                   );
                 },
               ),
@@ -133,14 +136,21 @@ class _ValveInConstantState extends State<ValveInConstant> {
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: DataTable2(
+                  border: const TableBorder(
+
+                    top: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+                    bottom: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+                    left: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+                    right: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+                  ),
                   columnSpacing: 12,
-                  minWidth: 600,
-                  border: TableBorder.all(),
-                  headingRowColor: MaterialStateProperty.all(const Color(0xFFFDFDFD)),
+                  minWidth: 1020,
+
+                  headingRowColor: MaterialStateProperty.all( Color(0xFFFDFDFD)),
                   columns: const [
-                    DataColumn(label: Center(child: Text('Valve Name'))),
-                    DataColumn(label: Center(child: Text('Nominal Flow (I/hr)'))),
-                    DataColumn(label: Center(child: Text('Fill Up Delay'))),
+                     DataColumn(label: Center(child: Text('Valve Name'))),
+                     DataColumn(label: Center(child: Text('Nominal Flow (I/hr)'))),
+                     DataColumn(label: Center(child: Text('Fill Up Delay'))),
                   ],
                   rows: List.generate(filteredValves.length, (index) {
                     return DataRow(
@@ -180,8 +190,15 @@ class _ValveInConstantState extends State<ValveInConstant> {
           filteredValves[index].nominalFlow = value.isNotEmpty ? value : "0";
         });
       },
+      decoration: const InputDecoration(
+        border: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        contentPadding: EdgeInsets.zero,
+      ),
     );
   }
+
 
   Widget getTimePicker(int index) {
     return CustomTimePicker(

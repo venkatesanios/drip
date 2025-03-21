@@ -136,7 +136,8 @@ class _ConstantHomePageState extends State<ConstantHomePage>
         SizedBox(
           width: MediaQuery.sizeOf(context).width,
           height: 50,
-          child: SingleChildScrollView(
+          child:
+          SingleChildScrollView(
             controller: _scrollController,
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -186,7 +187,6 @@ class _ConstantHomePageState extends State<ConstantHomePage>
           ),
         ),
 
-        // IndexedStack for content
         Expanded(
           child: IndexedStack(
             index: filteredMenu.indexWhere(

@@ -50,17 +50,9 @@ class ConstantProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void updateGeneralValue(int index, dynamic newValue) {
-    if (index < 0 || index >= generalUpdated.length) return;
-
-    generalUpdated = List.generate(
-      generalUpdated.length,
-          (i) => i == index
-          ? {...generalUpdated[i], 'value': newValue} // Update specific entry
-          : generalUpdated[i],
-    );
-
-    notifyListeners(); // 🔔 Ensure UI refresh
+  void updateGeneralValue(int index, Map<String, dynamic> newValue) {
+    generalUpdated[index] = newValue;
+    notifyListeners();
   }
 
   void updateTime(int index, String field, String newValue) {

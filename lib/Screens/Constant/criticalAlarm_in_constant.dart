@@ -87,20 +87,24 @@ class _CriticalAlarmInConstantState extends State<CriticalAlarmInConstant> {
       body: Padding(
         padding: const EdgeInsets.only(top: 18, bottom: 20, left: 20, right: 20),
         child: DataTable2(
+    border: const TableBorder(
+    top: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+    bottom: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+    left: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+    right: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+    ),
           columnSpacing: 12,
-          horizontalMargin: 12,
-          minWidth: 1000,
+          minWidth: 1020,
           headingRowHeight: 60,
-          border: TableBorder.all(color: Colors.brown),
           headingRowColor: MaterialStateProperty.all(const Color(0xFFFDFDFD)),
-          columns: [
-            DataColumn2(label: Text('Alarm Type'), size: ColumnSize.M),
-            DataColumn2(label: Text('Scan Time'), size: ColumnSize.S),
-            DataColumn(label: Text('Alarm On Status')),
-            DataColumn(label: Text('Reset After Irrigation')),
-            DataColumn(label: Text('Auto Reset Duration')),
-            DataColumn(label: Text('Threshold')),
-            DataColumn(label: Text('Units')),
+          columns: const [
+            DataColumn2(label: Text('Alarm Type',style: TextStyle(color: Colors.black, fontWeight: FontWeight.normal,)), size: ColumnSize.M),
+            DataColumn2(label: Text('Scan Time',style: TextStyle(color: Colors.black, fontWeight: FontWeight.normal,)), size: ColumnSize.S),
+            DataColumn(label: Text('Alarm On Status',style: TextStyle(color: Colors.black, fontWeight: FontWeight.normal,))),
+            DataColumn(label: Text('Reset After Irrigation',style: TextStyle(color: Colors.black, fontWeight: FontWeight.normal,))),
+            DataColumn(label: Text('Auto Reset Duration',style: TextStyle(color: Colors.black, fontWeight: FontWeight.normal,))),
+            DataColumn(label: Text('Threshold',style: TextStyle(color: Colors.black, fontWeight: FontWeight.normal,))),
+            DataColumn(label: Text('Units',style: TextStyle(color: Colors.black, fontWeight: FontWeight.normal,))),
           ],
           rows: List<DataRow>.generate(overAllAlarm.length, (index) {
             var alarm = overAllAlarm[index];
@@ -120,31 +124,57 @@ class _CriticalAlarmInConstantState extends State<CriticalAlarmInConstant> {
               DataCell(
                 PopupMenuButton<String>(
                   onSelected: (String selectedValue) {
-
                     final provider = Provider.of<ConstantProvider>(context, listen: false);
                     provider.overAllAlarm[index].resetAfterIrrigation = selectedValue;
-
                     sourceOnChange(selectedValue, index);
-
                   },
                   itemBuilder: (BuildContext context) {
-                    return ['Do Nothing', 'Stop Irrigation','Stop Fertigation','Skip Irrigation']
+                    return ['Do Nothing', 'Stop Irrigation', 'Stop Fertigation', 'Skip Irrigation']
                         .map((String value) => PopupMenuItem<String>(
                       value: value,
                       height: 30,
-                      child: Text(value, style: TextStyle(fontSize: 17),),
-                    )).toList();
-                  },
-                  child: Center(
-                    child: Text(
-                      overAllAlarm[index].resetAfterIrrigation,
-                      style: const TextStyle(
-                        decoration: TextDecoration.underline,
-                        decorationColor: Colors.black,
-                        decorationThickness: 1.0,
-                        fontSize: 17,
-                        color: Colors.black54,
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 12.29,
+                            height: 12.29,
+                            decoration: BoxDecoration(
+                              color: getActionColor(value),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(value, style: const TextStyle(fontSize: 17)),
+                        ],
                       ),
+                    ))
+                        .toList();
+                  },
+                  icon: null,
+                  child: Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          overAllAlarm[index].resetAfterIrrigation,
+                          style: const TextStyle(
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.black,
+                            decorationThickness: 1.0,
+                            fontSize: 17,
+                            color: Colors.black54,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          width: 12.29,
+                          height: 12.29,
+                          decoration: BoxDecoration(
+                            color: getActionColor(overAllAlarm[index].resetAfterIrrigation),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -167,6 +197,7 @@ class _CriticalAlarmInConstantState extends State<CriticalAlarmInConstant> {
                       child: Text(value, style: TextStyle(fontSize: 17),),
                     )).toList();
                   },
+                  icon: null,
                   child: Center(
                     child: Text(
                       overAllAlarm[index].alarmOnStatus,
@@ -240,6 +271,10 @@ class _CriticalAlarmInConstantState extends State<CriticalAlarmInConstant> {
         keyboardType: TextInputType.number,
         textAlign: TextAlign.center,
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        decoration: const InputDecoration(
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.zero,
+        ),
         onChanged: (value) {
           setState(() {
             alarm.threshold = value;
@@ -258,4 +293,20 @@ class _CriticalAlarmInConstantState extends State<CriticalAlarmInConstant> {
       onStatus[index] = source;
     });
   }
+  Color getActionColor(String value) {
+    switch (value) {
+      case "Do Nothing":
+        return const Color(0xFF006FD6);
+      case "Stop Irrigation":
+        return const Color(0xFFF5F900);
+      case "Stop Fertigation":
+        return const Color(0xFFE01313);
+      case "Skip Irrigation":
+        return const Color(0xFF006FD6);
+      default:
+        return Colors.black54;
+    }
+  }
+
+
 }

@@ -43,13 +43,15 @@ class _PumpPageState extends State<PumpPage> {
         padding: const EdgeInsets.only(top: 50, bottom: 20, left: 50, right: 50),
 
         child: DataTable2(
-          dataRowHeight: 50,
-          headingRowHeight: 60,
+          border: const TableBorder(
+          top: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+          bottom: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+          left: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+          right: BorderSide(color: Color(0xFFDFE0E1), width: 1),
+        ),
           columnSpacing: 12,
-          horizontalMargin: 12,
-          border: TableBorder.all(color: Colors.brown),
           headingRowColor: MaterialStateProperty.all(const Color(0xFFFDFDFD)),
-
+         minWidth: 1020,
           columns: const [
             DataColumn(
               label: Align(
@@ -102,6 +104,9 @@ class _PumpPageState extends State<PumpPage> {
                     alignment: Alignment.center,
                     child: Checkbox(
                       value: widget.pump[index].pumpStation,
+            side: const BorderSide(color: Color(0xFF939398), width: 2), // Border color
+            shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5)),
                       onChanged: (bool? value) {
                         setState(() {
                           widget.pump[index].pumpStation = value ?? false;
@@ -115,6 +120,9 @@ class _PumpPageState extends State<PumpPage> {
                     alignment: Alignment.center,
                     child: Checkbox(
                       value: widget.pump[index].controlGem,
+                      side: const BorderSide(color: Color(0xFF939398), width: 2), // Border color
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5)),
                       onChanged: (bool? value) {
                         setState(() {
                           widget.pump[index].controlGem = value ?? false;
