@@ -12,10 +12,9 @@ class ConstantViewModel extends ChangeNotifier {
   bool isLoading = false;
   String errorMessage = "";
 
-
   late UserConstant userConstant;
   late List<ConstantMenu> filteredMenu = [];
-  //List<ConfigObject> valveList = [];
+
 
   List<TextEditingController> txtEdControllers = [];
   final TextEditingController _hoursController = TextEditingController();
@@ -43,15 +42,16 @@ class ConstantViewModel extends ChangeNotifier {
                 .toList();
 
             txtEdControllers = List.generate(12, (index) => TextEditingController());
-
-            var valveList = userConstant.defaultData.configMaker.configObjects
-                .where((obj) => obj.objectId == 13).toList();
-            txtEdControllersNF  = List.generate(valveList.length, (index) => TextEditingController());
-
-
+            txtEdControllersNF  = List.generate(userConstant.constant.valveList!.length, (index) => TextEditingController());
 
             for(int i=0; i < userConstant.constant.generalMenu.length; i++){
-              txtEdControllers[i].text = userConstant.constant.generalMenu[i].value;
+              if(userConstant.constant.generalMenu[i].widgetTypeId == 1) {
+                txtEdControllers[i].text = userConstant.constant.generalMenu[i].value;
+              }
+            }
+
+            for(int i=0; i < userConstant.constant.valveList!.length; i++){
+              txtEdControllersNF[i].text = userConstant.constant.valveList![i].txtValue;
             }
 
             menuOnChange(0);
@@ -219,6 +219,16 @@ class ConstantViewModel extends ChangeNotifier {
     }
   }
 
+  void pumpStationOnChange(int index, bool status){
+    userConstant.constant.pumpList![index].pumpStation = status;
+    notifyListeners();
+  }
+
+  void controlGemOnChange(int index, bool status){
+    userConstant.constant.pumpList![index].controlGem = status;
+    notifyListeners();
+  }
+
   Future<void> saveConstantData(context, int customerId, int controllerId, int createUserId) async
   {
     Future.delayed(const Duration(milliseconds: 500), () async {
@@ -232,7 +242,7 @@ class ConstantViewModel extends ChangeNotifier {
           "line": [],
           "mainValve": [],
           "valve": cnsMenu['valveList'],
-          "pump": [],
+          "pump": cnsMenu['pumpList'],
           "waterMeter": [],
           "filtration": [],
           "fertilization": [],
