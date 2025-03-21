@@ -272,6 +272,10 @@ class Repository{
     return await apiService.postRequest('/user/constant/get', body);
   }
 
+  Future<http.Response> saveConstantData(body) async {
+    return await apiService.postRequest('/user/constant/create', body);
+  }
+
   Future<http.Response> fetchConditionLibrary(body) async {
     return await apiService.postRequest('/user/planning/conditionLibrary/get', body);
   }
