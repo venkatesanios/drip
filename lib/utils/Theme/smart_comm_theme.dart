@@ -54,7 +54,7 @@ class SmartCommTheme {
           if (states.contains(WidgetState.selected)) {
             return primary;
           }
-          return Colors.grey[300];
+          return primaryLight.withOpacity(0.1);
         },
         ),
         foregroundColor: WidgetStateProperty.resolveWith<Color?>(
@@ -70,8 +70,8 @@ class SmartCommTheme {
         ),
         side: WidgetStateProperty.resolveWith<BorderSide>(
               (states) => BorderSide(
-            color: states.contains(WidgetState.selected) ? Colors.blueGrey : Colors.grey,
-            width: 0.5,
+            color: primaryLight,
+            width: 1,
           ),
         ),
         shape: WidgetStateProperty.all<RoundedRectangleBorder>(
@@ -108,23 +108,31 @@ class SmartCommTheme {
         borderRadius: BorderRadius.circular(5.0),
       ),
     ),
-    checkboxTheme: CheckboxThemeData(
-      checkColor: WidgetStateProperty.all(Colors.white),
-      fillColor: WidgetStateProperty.all(primary)
-    ),
+    // checkboxTheme: CheckboxThemeData(
+    //   checkColor: WidgetStateProperty.all(Colors.white),
+    //   fillColor: WidgetStateProperty.all(primary)
+    // ),
     cardColor: Colors.white,
     colorScheme: ColorScheme.fromSeed(
       primary: primary, // siva
       secondary: primaryLight, // siva
       surface: Colors.white,
-      background: Colors.white, // siva
+      background: primaryBackground, // siva
       error: Colors.red,
-      onPrimary: primary, // siva
+      // onPrimary: primary, // siva
       onSecondary: Colors.white, // siva
       onSurface: Colors.black,
       onBackground: primary.withOpacity(0.1), // siva
       onError: Colors.white,
-      seedColor: primaryDark,
+      seedColor: primary,
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        backgroundColor: primaryLight,
+        foregroundColor: Colors.white,
+        iconColor: Colors.white,
+        side: BorderSide.none,
+      ),
     ),
   );
 
@@ -161,6 +169,13 @@ class SmartCommTheme {
       focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.blue)),
       labelStyle: const TextStyle(color: Colors.blue),
     ),*/
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        backgroundColor: Colors.transparent,
+        foregroundColor: primary,
+        side: const BorderSide(color: Colors.white),
+      ),
+    ),
     dialogBackgroundColor: Colors.white,
     dialogTheme: DialogTheme(
       shape: RoundedRectangleBorder(

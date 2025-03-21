@@ -123,8 +123,8 @@ class DisplayPumpStation extends StatelessWidget {
         totalFilters + totalPressureIn + totalPressureOut +
         totalBoosterPump + totalChannels + totalAgitators;
 
-    print("Grand Total: $grandTotal");
-    print(screenWith);
+    // print("Grand Total: $grandTotal");
+    // print(screenWith);
 
     List<WaterSource> sortedWaterSources = [...waterSource]
       ..sort((a, b) {

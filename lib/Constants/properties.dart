@@ -106,13 +106,17 @@ class AppProperties {
   static LinearGradient linearGradientLeading = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: F.appFlavor!.name.contains('oro') ? [const Color(0xff1D808E), const Color(0xff044851)] : [SmartCommTheme.lightTheme.primaryColor.withOpacity(0.7), SmartCommTheme.lightTheme.primaryColorDark],
+    colors: F.appFlavor!.name.contains('oro')
+        ? [const Color(0xff1D808E), const Color(0xff044851)]
+        : [SmartCommTheme.lightTheme.primaryColor.withOpacity(0.7), SmartCommTheme.lightTheme.primaryColorDark],
   );
 
-  static LinearGradient linearGradientLeading2 = const LinearGradient(
+  static LinearGradient linearGradientLeading2 = LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
-    colors: [Color(0xff1D808E), Color(0xff044851)],
+    colors: F.appFlavor!.name.contains('oro')
+        ? [const Color(0xff1D808E), const Color(0xff044851)]
+        : [SmartCommTheme.lightTheme.primaryColor.withOpacity(0.7), SmartCommTheme.lightTheme.primaryColorDark],
   );
 
   static LinearGradient redLinearGradientLeading = LinearGradient(
@@ -160,8 +164,8 @@ class AppProperties {
             onTap: () {
               onTap(index);
             },
-            selectedTileColor: selected ? const Color(0xff2999A9)  : null,
-            hoverColor: selected ? const Color(0xff2999A9) : null
+            selectedTileColor: selected ? Theme.of(context).primaryColor  : null,
+            hoverColor: selected ? Theme.of(context).primaryColor : null
         ),
       ) :
       InkWell(
@@ -177,7 +181,9 @@ class AppProperties {
                   // boxShadow: customBoxShadow2,
                   gradient: selected ? linearGradientLeading : null,
                   border: Border.all(color: Theme.of(context).primaryColor, width: 0.3),
-                  color: selected ? Theme.of(context).primaryColor : const Color(0xffF2F2F2)
+                  color: selected
+                      ? Theme.of(context).primaryColor
+                      : const Color(0xffF2F2F2)
               ),
               child: Center(
                   child: child ?? Text(title, style: TextStyle(color: selected ? Colors.white : Theme.of(context).primaryColor),)

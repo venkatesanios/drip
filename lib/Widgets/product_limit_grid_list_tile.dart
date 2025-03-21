@@ -4,9 +4,9 @@ import 'package:oro_drip_irrigation/Widgets/toggle_text_form_field_product_limit
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 import '../Constants/communication_codes.dart';
 import '../Constants/properties.dart';
-import '../Models/Configuration/device_object_model.dart';
-import '../Screens/ConfigMaker/product_limit.dart';
-import '../StateManagement/config_maker_provider.dart';
+import '../modules/config_Maker/model/device_object_model.dart';
+import '../modules/config_Maker/view/product_limit.dart';
+import '../modules/config_Maker/state_management/config_maker_provider.dart';
 import '../utils/constants.dart';
 import 'blinking_container.dart';
 
@@ -97,7 +97,7 @@ class _ProductLimitGridListTileState extends State<ProductLimitGridListTile> wit
     Color typeColor = widget.leadingColor ?? getObjectTypeCodeToColor(int.parse(object.type));
     Widget myWidget = ListTile(
       contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-      title: Text(object.objectName, style: Theme.of(context).textTheme.labelLarge,),
+      title: Text(object.objectName, style: Theme.of(context).textTheme.labelLarge, overflow: TextOverflow.ellipsis,),
       subtitle: Text('Configured : ${getConfiguredObjectByObjectId(object.objectId)}', style: Theme.of(context).textTheme.labelSmall,),
         leading: CircleAvatar(
           radius: 30,
@@ -124,7 +124,10 @@ class _ProductLimitGridListTileState extends State<ProductLimitGridListTile> wit
             borderRadius: BorderRadius.circular(5),
             border: Border(left: BorderSide(width: 3, color: typeColor)),
             color: Theme.of(context).cardColor,
-            boxShadow: AppProperties.customBoxShadowLiteTheme
+            boxShadow: const [
+              BoxShadow(color: Colors.grey, blurRadius: 5)
+            ],
+            // boxShadow: AppProperties.customBoxShadowLiteTheme
         ),
         width: 300,
         child: myWidget,
@@ -166,6 +169,7 @@ class _ProductLimitGridListTileState extends State<ProductLimitGridListTile> wit
         visible = false;
       }
     }
+    print('objectId ($objectId) - $visible');
 
     return visible;
   }
@@ -173,4 +177,4 @@ class _ProductLimitGridListTileState extends State<ProductLimitGridListTile> wit
 
 List<int> objectIdDependsOnDosing = [7, 8, 10, 27, 28];
 List<int> objectIdDependsOnFiltration = [11, 12];
-List<int> objectIdDependsOnTank = [5, 26, 39];
+List<int> objectIdDependsOnTank = [5, 26, 40];

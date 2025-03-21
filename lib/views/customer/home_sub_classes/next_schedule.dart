@@ -14,7 +14,7 @@ class NextSchedule extends StatelessWidget {
   Widget build(BuildContext context) {
 
     var nextSchedule = Provider.of<MqttPayloadProvider>(context).nextSchedule;
-    print('nextSchedule:$nextSchedule');
+    // print('nextSchedule:$nextSchedule');
 
     return nextSchedule.isNotEmpty && nextSchedule[0].isNotEmpty?
     Padding(
@@ -178,3 +178,21 @@ class NextSchedule extends StatelessWidget {
   }
 
 }
+
+  String? getSequenceNameById(ProgramList program, String sequenceId) {
+    try {
+      return program.sequence.firstWhere((seq) => seq.sNo == sequenceId).name;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  String convert24HourTo12Hour(String timeString) {
+    if(timeString=='-'){
+      return '-';
+    }
+    final parsedTime = DateFormat('HH:mm:ss').parse(timeString);
+    final formattedTime = DateFormat('hh:mm a').format(parsedTime);
+    return formattedTime;
+  }
+

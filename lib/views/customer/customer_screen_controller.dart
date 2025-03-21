@@ -1,12 +1,15 @@
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/Screens/Logs/irrigation_and_pump_log.dart';
 import 'package:oro_drip_irrigation/views/customer/program_schedule.dart';
 import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
 import 'package:oro_drip_irrigation/views/customer/site_config.dart';
 import 'package:oro_drip_irrigation/views/customer/stand_alone.dart';
 import '../../Models/customer/site_model.dart';
 import 'package:provider/provider.dart';
+import '../../Screens/Dealer/controllerverssionupdate.dart';
+import '../../Screens/dashboard/dashboard_outerscreen.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../flavors.dart';
 import '../../repository/repository.dart';
@@ -39,6 +42,8 @@ class CustomerScreenController extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String _correctPassword = 'Oro@321';
+
 
     return MultiProvider(
       providers: [
@@ -66,8 +71,7 @@ class CustomerScreenController extends StatelessWidget {
           if(vm.isLoading){
             return const Scaffold(body: Center(child: Text('Site loading please waite....')));
           }
-
-          return Scaffold(
+          return  Scaffold(
             appBar: AppBar(
               title:  Row(
                 children: [
@@ -101,7 +105,7 @@ class CustomerScreenController extends StatelessWidget {
                     }).toList(),
                     onChanged: (siteName) => vm.siteOnChanged(siteName!),
                     value: vm.myCurrentSite,
-                    dropdownColor: Theme.of(context).primaryColorLight,
+                    dropdownColor: Colors.teal,
                     iconEnabledColor: Colors.white,
                     iconDisabledColor: Colors.white,
                     focusColor: Colors.transparent,
@@ -253,8 +257,50 @@ class CustomerScreenController extends StatelessWidget {
                       child: Icon(Icons.mic, color: Colors.black26,),
                     )),
                     IconButton(tooltip : 'Help & Support', onPressed: (){
-
-                    }, icon: const CircleAvatar(
+                      showMenu(
+                        context: context,
+                        color: Colors.white,
+                        position: const RelativeRect.fromLTRB(100, 0, 50, 0),
+                        items: <PopupMenuEntry>[
+                        PopupMenuItem(
+                        child: Column(
+                        children: [
+                        ListTile(
+                        leading: const Icon(Icons.info_outline),
+                        title: const Text('App info'),
+                        onTap: () {
+                        Navigator.pop(context);
+                        },
+                        ),
+                        ListTile(
+                        leading: const Icon(Icons.help_outline),
+                        title: const Text('Help'),
+                        onTap: () {
+                        Navigator.pop(context);
+                        },
+                        ),
+                        ListTile(
+                        leading: const Icon(Icons.info_outline),
+                        title: const Text('Controller info'),
+                        onTap: () {
+                      Navigator.pop(context);
+                      showPasswordDialog(context, _correctPassword, userId, vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId, vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId);
+                        },
+                        ),
+                        const Divider(height: 0),
+                        ListTile(
+                        leading: const Icon(Icons.feedback_outlined),
+                        title: const Text('Send feedback'),
+                        onTap: () {
+                        Navigator.pop(context);
+                        },
+                        ),
+                        ],
+                        ),
+                        ),
+                        ],
+                        );
+                        }, icon: const CircleAvatar(
                       radius: 17,
                       backgroundColor: Colors.white,
                       child: Icon(Icons.live_help_outlined),
@@ -398,44 +444,44 @@ class CustomerScreenController extends StatelessWidget {
                     height: MediaQuery.sizeOf(context).height,
                     color: Theme.of(context).primaryColor,
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
                         const SizedBox(height: 10),
-                        Container(
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                              color: Colors.transparent
+                    Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          color: Colors.transparent
+                      ),
+                      width: 45,
+                      height: 45,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(vm.wifiStrength == 0? Icons.wifi_off:
+                          vm.wifiStrength >= 1 && vm.wifiStrength <= 20 ? Icons.network_wifi_1_bar_outlined:
+                          vm.wifiStrength >= 21 && vm.wifiStrength <= 40 ? Icons.network_wifi_2_bar_outlined:
+                          vm.wifiStrength >= 41 && vm.wifiStrength <= 60 ? Icons.network_wifi_3_bar_outlined:
+                          vm.wifiStrength >= 61 && vm.wifiStrength <= 80 ? Icons.network_wifi_3_bar_outlined:
+                          Icons.wifi, color: Colors.white,),
+                          Text('${vm.wifiStrength} %',style: const TextStyle(fontSize: 11.0, color: Colors.white70),
                           ),
-                          width: 45,
-                          height: 45,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(vm.wifiStrength == 0? Icons.wifi_off:
-                              vm.wifiStrength >= 1 && vm.wifiStrength <= 20 ? Icons.network_wifi_1_bar_outlined:
-                              vm.wifiStrength >= 21 && vm.wifiStrength <= 40 ? Icons.network_wifi_2_bar_outlined:
-                              vm.wifiStrength >= 41 && vm.wifiStrength <= 60 ? Icons.network_wifi_3_bar_outlined:
-                              vm.wifiStrength >= 61 && vm.wifiStrength <= 80 ? Icons.network_wifi_3_bar_outlined:
-                              Icons.wifi, color: Colors.white,),
-                              Text('${vm.wifiStrength} %',style: const TextStyle(fontSize: 11.0, color: Colors.white70),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        Container(
-                          width: 45,
-                          height: 45,
-                          decoration: const BoxDecoration(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.all(Radius.circular(5)),
-                          ),
-                          child: BadgeButton(
-                            onPressed: (){
-                              /*showPopover(
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    Container(
+                      width: 45,
+                      height: 45,
+                      decoration: const BoxDecoration(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.all(Radius.circular(5)),
+                      ),
+                      child: BadgeButton(
+                        onPressed: (){
+                          /*showPopover(
                                 context: context,
                                 bodyBuilder: (context) => AlarmListItems(payload:payload, deviceID:deviceID, customerId: customerId, controllerId: controllerId,),
                                 onPop: () => print('Popover was popped!'),
@@ -445,125 +491,126 @@ class CustomerScreenController extends StatelessWidget {
                                 arrowHeight: 15,
                                 arrowWidth: 30,
                               );*/
-                            },
-                            icon: Icons.alarm,
-                            badgeNumber: 0,
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        CircleAvatar(
-                          radius: 20,
-                          backgroundColor: Colors.transparent,
-                          child: SizedBox(
-                            height: 45,
-                            width: 45,
-                            child: IconButton(
-                              tooltip: 'Node status',
-                              onPressed: () {
-                                showGeneralDialog(
-                                  barrierLabel: "Side sheet",
-                                  barrierDismissible: true,
-                                  barrierColor: const Color(0xff66000000),
-                                  transitionDuration: const Duration(milliseconds: 300),
-                                  context: context,
-                                  pageBuilder: (context, animation1, animation2) {
-                                    return Align(
-                                      alignment: Alignment.centerRight,
-                                      child: Material(
-                                        elevation: 15,
-                                        color: Colors.transparent,
-                                        borderRadius: BorderRadius.zero,
-                                        child: StatefulBuilder(
-                                          builder: (BuildContext context, StateSetter stateSetter) {
-                                            return NodeList(customerId: customerId, nodes: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList,
-                                              deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                                              deviceName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
-                                              controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId, userId: userId,);
-                                          },
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  transitionBuilder: (context, animation1, animation2, child) {
-                                    return SlideTransition(
-                                      position: Tween(begin: const Offset(1, 0), end: const Offset(0, 0)).animate(animation1),
-                                      child: child,
-                                    );
-                                  },
+                        },
+                        icon: Icons.alarm,
+                        badgeNumber: 0,
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Colors.transparent,
+                      child: SizedBox(
+                        height: 45,
+                        width: 45,
+                        child: IconButton(
+                          tooltip: 'Node status',
+                          onPressed: () {
+                            showGeneralDialog(
+                              barrierLabel: "Side sheet",
+                              barrierDismissible: true,
+                              barrierColor: const Color(0xff66000000),
+                              transitionDuration: const Duration(milliseconds: 300),
+                              context: context,
+                              pageBuilder: (context, animation1, animation2) {
+                                return Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Material(
+                                    elevation: 15,
+                                    color: Colors.transparent,
+                                    borderRadius: BorderRadius.zero,
+                                    child: StatefulBuilder(
+                                      builder: (BuildContext context, StateSetter stateSetter) {
+                                        return NodeList(customerId: customerId, nodes: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList,
+                                          deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                                          deviceName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
+                                          controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId, userId: userId,);
+                                      },
+                                    ),
+                                  ),
                                 );
                               },
-                              icon: const Icon(Icons.format_list_numbered),
-                              color: Colors.white,
-                              iconSize: 24.0,
-                              hoverColor: Theme.of(context).primaryColorLight,
+                              transitionBuilder: (context, animation1, animation2, child) {
+                                return SlideTransition(
+                                  position: Tween(begin: const Offset(1, 0), end: const Offset(0, 0)).animate(animation1),
+                                  child: child,
+                                );
+                              },
+                            );
+                          },
+                          icon: const Icon(Icons.format_list_numbered),
+                          color: Colors.white,
+                          iconSize: 24.0,
+                          hoverColor: Theme.of(context).primaryColorLight,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          color: Colors.transparent
+                      ),
+                      width: 45,
+                      height: 45,
+                      child: IconButton(
+                        tooltip: 'Input/Output Connection details',
+                        onPressed: () {
+                          Navigator.push(context,
+                            MaterialPageRoute(
+                              builder: (context) => InputOutputConnectionDetails(masterInx: vm.mIndex, nodes: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList),
                             ),
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        Container(
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                              color: Colors.transparent
-                          ),
-                          width: 45,
-                          height: 45,
-                          child: IconButton(
-                            tooltip: 'Input/Output Connection details',
-                            onPressed: () {
-                              Navigator.push(context,
-                                MaterialPageRoute(
-                                  builder: (context) => InputOutputConnectionDetails(masterInx: vm.mIndex, nodes: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList),
-                                ),
-                              );
-                            },
-                            icon: const Icon(Icons.settings_input_component_outlined),
-                            color: Colors.white,
-                            iconSize: 24.0,
-                            hoverColor: Theme.of(context).primaryColorLight,
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        Container(
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                              color: Colors.transparent
-                          ),
-                          width: 45,
-                          height: 45,
-                          child: IconButton(
-                            tooltip: 'Program',
-                            onPressed: vm.getPermissionStatusBySNo(context, 10) ? () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ProgramSchedule(
-                                    customerID: customerId,
-                                    controllerID: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                                    siteName: vm.mySiteList.data[vm.sIndex].groupName,
-                                    imeiNumber: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                                    userId: userId,
-                                  ),
-                                ),
-                              );
-                            }:null,
-                            icon: const Icon(Icons.list_alt),
-                            color: Colors.white,
-                            iconSize: 24.0,
-                            hoverColor: Theme.of(context).primaryColorLight,
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        Container(
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                              color: Colors.transparent
-                          ),
-                          width: 45,
-                          height: 45,
-                          child: IconButton(
-                            tooltip: 'Scheduled Program details',
-                            onPressed: (){},
-                            /*onPressed: getPermissionStatusBySNo(context, 3) ? () {
+                          );
+                        },
+                        icon: const Icon(Icons.settings_input_component_outlined),
+                        color: Colors.white,
+                        iconSize: 24.0,
+                        hoverColor: Theme.of(context).primaryColorLight,
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          color: Colors.transparent
+                      ),
+                      width: 45,
+                      height: 45,
+                      child: IconButton(
+                        tooltip: 'Program',
+                        onPressed: vm.getPermissionStatusBySNo(context, 10) ? () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProgramSchedule(
+                                customerID: customerId,
+                                controllerID: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                                siteName: vm.mySiteList.data[vm.sIndex].groupName,
+                                imeiNumber: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                                userId: userId, groupId: vm.mySiteList.data[vm.sIndex].groupId,
+                                categoryId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
+                              ),
+                            ),
+                          );
+                        }:null,
+                        icon: const Icon(Icons.list_alt),
+                        color: Colors.white,
+                        iconSize: 24.0,
+                        hoverColor: Theme.of(context).primaryColorLight,
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          color: Colors.transparent
+                      ),
+                      width: 45,
+                      height: 45,
+                      child: IconButton(
+                        tooltip: 'Scheduled Program details',
+                        onPressed: (){},
+                        /*onPressed: getPermissionStatusBySNo(context, 3) ? () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -571,74 +618,141 @@ class CustomerScreenController extends StatelessWidget {
                                 ),
                               );
                             }:null,*/
-                            icon: const Icon(Icons.view_list_outlined),
-                            color: Colors.white,
-                            iconSize: 24.0,
-                            hoverColor: Theme.of(context).primaryColorLight,
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        Container(
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                              color: Colors.transparent
-                          ),
-                          width: 45,
-                          height: 45,
-                          child: IconButton(
-                            tooltip: 'Manual',
-                            onPressed:  () {
-                              showGeneralDialog(
-                                barrierLabel: "Side sheet",
-                                barrierDismissible: true,
-                                barrierColor: const Color(0xff66000000),
-                                transitionDuration: const Duration(milliseconds: 300),
-                                context: context,
-                                pageBuilder: (context, animation1, animation2) {
-                                  return Align(
-                                    alignment: Alignment.centerRight,
-                                    child: Material(
-                                      elevation: 15,
-                                      color: Colors.transparent,
-                                      borderRadius: BorderRadius.zero,
-                                      child: StatefulBuilder(
-                                        builder: (BuildContext context, StateSetter stateSetter) {
-                                          return StandAlone(siteId: vm.mySiteList.data[vm.sIndex].groupId,
-                                            controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                                            customerId: customerId,
-                                            deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                                            callbackFunction: callbackFunction, userId: userId, config: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config,);
-                                        },
-                                      ),
-                                    ),
-                                  );
-                                },
-                                transitionBuilder: (context, animation1, animation2, child) {
-                                  return SlideTransition(
-                                    position: Tween(begin: const Offset(1, 0), end: const Offset(0, 0)).animate(animation1),
-                                    child: child,
-                                  );
-                                },
+                        icon: const Icon(Icons.view_list_outlined),
+                        color: Colors.white,
+                        iconSize: 24.0,
+                        hoverColor: Theme.of(context).primaryColorLight,
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          color: Colors.transparent
+                      ),
+                      width: 45,
+                      height: 45,
+                      child: IconButton(
+                        tooltip: 'Manual',
+                        onPressed:  () {
+                          showGeneralDialog(
+                            barrierLabel: "Side sheet",
+                            barrierDismissible: true,
+                            barrierColor: const Color(0xff66000000),
+                            transitionDuration: const Duration(milliseconds: 300),
+                            context: context,
+                            pageBuilder: (context, animation1, animation2) {
+                              return Align(
+                                alignment: Alignment.centerRight,
+                                child: Material(
+                                  elevation: 15,
+                                  color: Colors.transparent,
+                                  borderRadius: BorderRadius.zero,
+                                  child: StatefulBuilder(
+                                    builder: (BuildContext context, StateSetter stateSetter) {
+                                      return StandAlone(siteId: vm.mySiteList.data[vm.sIndex].groupId,
+                                        controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                                        customerId: customerId,
+                                        deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                                        callbackFunction: callbackFunction, userId: userId, config: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config,);
+                                    },
+                                  ),
+                                ),
                               );
                             },
-                            icon: const Icon(Icons.touch_app_outlined),
-                            color: Colors.white,
-                            iconSize: 24.0,
-                            hoverColor: Theme.of(context).primaryColorLight,
-                          ),
-                        ),
-                      ],
+                            transitionBuilder: (context, animation1, animation2, child) {
+                              return SlideTransition(
+                                position: Tween(begin: const Offset(1, 0), end: const Offset(0, 0)).animate(animation1),
+                                child: child,
+                              );
+                            },
+                          );
+                        },
+                        icon: const Icon(Icons.touch_app_outlined),
+                        color: Colors.white,
+                        iconSize: 24.0,
+                        hoverColor: Theme.of(context).primaryColorLight,
+                      ),
                     ),
+                  ]),
                   ):
-                  const SizedBox(),
+                  SizedBox()
                 ],
               ),
             ),
-          );
+          ) ;
         },
       ),
     );
   }
+
+  void showPasswordDialog(BuildContext context, correctPassword,userId,controllerID,imeiNumber) {
+    final TextEditingController _passwordController = TextEditingController();
+
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Enter Password'),
+          content: TextField(
+            controller: _passwordController,
+            obscureText: true,
+            decoration: InputDecoration(
+              labelText: 'Password',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                final enteredPassword = _passwordController.text;
+
+                if (enteredPassword == correctPassword) {
+                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) =>  ResetVerssion(userId: userId, controllerId: controllerID, deviceID: imeiNumber,)),
+                  );
+                } else {
+                  Navigator.of(context).pop(); // Close the dialog
+                  showErrorDialog(context);
+                }
+              },
+              child: Text('Submit'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showErrorDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error'),
+          content: Text('Incorrect password. Please try again.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   List<NavigationRailDestination> getNavigationDestinations() {
     final destinations = [
@@ -706,9 +820,9 @@ class CustomerScreenController extends StatelessWidget {
       case 2:
         return SentAndReceived(customerId: userId, controllerId: controllerId);
       case 3:
-        return const Text('controller log');
+        return IrrigationAndPumpLog(userData: {'userId' : userId, 'controllerId' : controllerId});
       case 4:
-        return ControllerSettings(customerId: userId, controllerId: controllerId, adDrId: fromLogin?1:0,);
+        return ControllerSettings(customerId: userId, controllerId: controllerId, adDrId: fromLogin ? 1 : 0,);
       /*case 4:
         return SiteConfig(
             userId: userId,

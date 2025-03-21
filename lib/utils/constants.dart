@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
-import '../Screens/ConfigMaker/config_web_view.dart';
+import '../modules/config_Maker/view/config_web_view.dart';
 import 'environment.dart';
 
 enum UserRole { admin, dealer, subUser }
@@ -85,12 +85,11 @@ enum GemLineSSReasonCode {
 class AppConstants {
   static String apiUrl = Environment.apiUrl;
   static const int timeoutDuration = 30;
-
-  static String mqttUrlWeb = Environment.mqttWebUrl;
-  static int mqttPortWeb = Environment.mqttWebPort;
-
   static String mqttUrlMobile = Environment.mqttMobileUrl;
-  static int mqttPortMobile = Environment.mqttMobilePort;
+
+  static String mqttUrl = Environment.mqttWebUrl;
+  static int mqttWebPort = Environment.mqttWebPort;
+  static int mqttMobilePort = Environment.mqttMobilePort;
 
   static const String publishTopic = 'AppToFirmware';
   static const String subscribeTopic = 'FirmwareToApp';
@@ -337,45 +336,129 @@ class AppConstants {
 
   static const String svgObjectPath = 'assets/Images/Svg/';
 
- static dynamic payloadConversion(data) {
+  static dynamic payloadConversion(data) {
     dynamic dataFormation = {};
-    for(var globalKey in data.keys) {
 
-      if(['filterSite', 'fertilizerSite', 'waterSource', 'pump', 'moistureSensor', 'irrigationLine'].contains(globalKey))
-      {
-        dataFormation[globalKey] = [];
-        for(var site in data[globalKey])
-        {
-          dynamic siteFormation = site;
-          for(var siteKey in site.keys)
-          {
-            if(!['objectId', 'sNo', 'name', 'objectName', 'connectionNo', 'type', 'controllerId', 'count', 'siteMode', 'pumpType',].contains(siteKey))
-            {
-              siteFormation[siteKey] = siteFormation[siteKey] is List<dynamic>
-                  ? (siteFormation[siteKey] as List<dynamic>).map((element) {
-                if(element is double){
-                  return (data['configObject'] as List<dynamic>).firstWhere((object) => object['sNo'] == element);
-                }else{
-                  print('element : $element');
-                  var object = (data['configObject'] as List<dynamic>).firstWhere((object) => object['sNo'] == element['sNo']);
-                  for(var key in element.keys){
-                    if(!(object as Map<String, dynamic>).containsKey(key)){
-                      object[key] = element[key];
+    try
+    {
+      for(var globalKey in data.keys) {
+        if(['filterSite', 'fertilizerSite', 'waterSource', 'pump', 'moistureSensor', 'irrigationLine'].contains(globalKey)){
+          dataFormation[globalKey] = [];
+          for(var site in data[globalKey]){
+            dynamic siteFormation = site;
+            for(var siteKey in site.keys){
+              if(!['objectId', 'sNo', 'name', 'objectName', 'connectionNo', 'type', 'controllerId', 'count', 'siteMode', 'pumpType', 'connectedObject', 'weatherStation'].contains(siteKey)){
+                siteFormation[siteKey] = siteFormation[siteKey] is List<dynamic>
+                    ? (siteFormation[siteKey] as List<dynamic>).map((element) {
+                  if(element is double){
+                    return (data['configObject'] as List<dynamic>).firstWhere((object) => object['sNo'] == element);
+                  }else{
+                    print('element[sNo] == ${element['sNo']}');
+                    var object = (data['configObject'] as List<dynamic>).firstWhere((object) => object['sNo'] == element['sNo']);
+                    for(var key in element.keys){
+                      if(!(object as Map<String, dynamic>).containsKey(key)){
+                        object[key] = element[key];
+                      }
                     }
+                    return object;
                   }
-                  return object;
-                }
-              }).toList()
-                  : (data['configObject'] as List<dynamic>).firstWhere((object) => object['sNo'] == siteFormation[siteKey], orElse: ()=> {});
+                }).toList()
+                    : (data['configObject'] as List<dynamic>).firstWhere((object) => object['sNo'] == siteFormation[siteKey], orElse: ()=> {});
+              }
             }
+            dataFormation[globalKey].add(site);
           }
-          dataFormation[globalKey].add(site);
         }
       }
+      // print('dataFormation : ${jsonEncode(dataFormation)}');
+      // print('-------------------------------------------');
     }
-    // print('dataFormation : ${jsonEncode(dataFormation)}');
-    // print('-------------------------------------------');
+    catch(e,stackTrace){
+      print('Error on payloadConversion :: $e');
+      print('stackTrace on payloadConversion :: $stackTrace');
+    }
     return dataFormation;
+
   }
 
+  static dynamic findLocation({required data, required double objectSno, required String key}) {
+    String name = '';
+    double sNo = 0.0;
+    try {
+      for (var key in data.keys) {
+        if (![
+          'isNewConfig',
+          'controllerReadStatus',
+          'configObject',
+          'connectionCount',
+          'productLimit',
+          'userId',
+          'controllerId',
+          'groupId',
+          'isNewConfig',
+          'productLimit',
+          'connectionCount',
+          'deviceList',
+          'hardware',
+          'controllerReadStatus',
+          'createUser',
+        ].contains(key)) {
+          for (var place in data[key]) {
+            for (var placeKey in place.keys) {
+              if (place[placeKey] is double) {
+                if (place[placeKey] == objectSno) {
+                  if(key == 'name'){
+                    name = place['name'];
+                  }else{
+                    sNo = place['sNo'];
+                  }
+                  break;
+                }
+              }
+              else if (place[placeKey] is List<double>) {
+                if (place[placeKey].contains(objectSno)) {
+                  if(key == 'name'){
+                    name = place['name'];
+                  }else{
+                    sNo = place['sNo'];
+                  }
+                  break;
+                }
+              }else if(place[placeKey] is List<Map<String, dynamic>>){
+                if(place[placeKey].any((obj) => obj['sNo'] == objectSno)){
+                  if(key == 'name'){
+                    name = place['name'];
+                  }else{
+                    sNo = place['sNo'];
+                  }
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      print('error : $e');
+    }
+
+    if(key == 'name'){
+      return name;
+    }else{
+      return sNo;
+    }
+  }
+
+
+  static Color outputColor = const Color(0xff14AE5C);
+  static Color commonObjectColor = const Color(0xff0070D8);
+  static String analogCode = '3';
+  static String digitalCode = '4';
+  static String moistureCode = '5';
+  static String pulseCode = '6';
+  static String i2cCode = '7';
+  static List<int> pumpModelList = [5, 6, 7, 8, 9, 10];
+  static int levelObjectId = 26;
+  static int waterMeterObjectId = 22;
+  static int pressureSensorObjectId = 24;
 }

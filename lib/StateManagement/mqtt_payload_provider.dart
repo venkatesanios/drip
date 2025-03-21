@@ -5,16 +5,20 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../Constants/data_convertion.dart';
-import '../Models/customer/dashboard_live.dart';
+import '../Models/Weather_model.dart';
+import '../Models/customer/site_model.dart';
 
 
 enum MQTTConnectionState { connected, disconnected, connecting }
 
 class MqttPayloadProvider with ChangeNotifier {
   MQTTConnectionState _appConnectionState = MQTTConnectionState.disconnected;
-   LiveData dashboardLiveInstance = LiveData();
+  // SiteModel dashboardLiveInstance = SiteModel(data: data);
+  SiteModel? _dashboardLiveInstance;
+  SiteModel? get dashboardLiveInstance => _dashboardLiveInstance;
   dynamic spa = '';
   String dashBoardPayload = '', schedulePayload = '';
+  WeatherModel weatherModelinstance = WeatherModel();
 
   Map<String, dynamic> pumpControllerPayload = {};
   Map<String, dynamic> preferencePayload = {};
@@ -47,6 +51,7 @@ class MqttPayloadProvider with ChangeNotifier {
   List<dynamic> filtersLocal = [];
   List<dynamic> irrigationPump = [];
   List<dynamic> sourcePump = [];
+  List<dynamic> sourcetype = [];
   List<dynamic> fertilizerCentral = [];
   List<dynamic> fertilizerLocal = [];
   List<dynamic> flowMeter = [];
@@ -89,6 +94,11 @@ class MqttPayloadProvider with ChangeNotifier {
   List<String> nextSchedule = [];
   List<String> scheduledProgram = [];
   List<String> lineLiveMessage = [];
+
+  List<WaterSource> waterSourceMobDash = [];
+  List<FilterSite> filterSiteMobDash = [];
+  List<FertilizerSite> fertilizerSiteMobDash = [];
+  List<IrrigationLineData>? irrLineDataMobDash = [];
 
 
   void editSensorLogData(data){
@@ -455,8 +465,10 @@ class MqttPayloadProvider with ChangeNotifier {
 
   }
 
+
+
   void updateReceivedPayload(String payload,bool dataFromHttp) async{
-    // print('payload $payload');
+    // print("updateReceivedPayload ====$payload");
     if(!dataFromHttp) {
       dataFetchingStatus = 1;
     } else {
@@ -466,6 +478,7 @@ class MqttPayloadProvider with ChangeNotifier {
       // Todo : Dashboard payload start
       Map<String, dynamic> data = jsonDecode(payload);
 
+      // print("data from controller ::: $data");
       //live payload
       if(data['mC']=='2400'){
         liveDateAndTime = '${data['cD']} ${data['cT']}';
@@ -480,8 +493,14 @@ class MqttPayloadProvider with ChangeNotifier {
 
         notifyListeners();
       }
-
-      if(data['liveSyncDate'] != null){
+      else if(data.containsKey('3600') && data['3600'] != null && data['3600'].isNotEmpty){
+        // mySchedule.dataFromMqttConversion(payload);
+        schedulePayload = payload;
+      }
+      else if(data.containsKey('5100') && data['5100'] != null && data['5100'].isNotEmpty){
+        weatherModelinstance = WeatherModel.fromJson(data);
+      }
+      /* if(data['liveSyncDate'] != null){
         String dateStr = data['liveSyncDate'];
         String timeStr = data['liveSyncTime'];
         // Parse date string
@@ -701,7 +720,7 @@ class MqttPayloadProvider with ChangeNotifier {
       }
       else if(data.containsKey('5100') && data['5100'] != null && data['5100'].isNotEmpty){
         // weatherModelinstance = WeatherModel.fromJson(data);
-      }
+      }*/
     } catch (e, stackTrace) {
       print('Error parsing JSON: $e');
       print('Stacktrace while parsing json : $stackTrace');
@@ -753,20 +772,19 @@ class MqttPayloadProvider with ChangeNotifier {
 
   //Todo : Dashboard stop
 
-  // void editMySchedule(ScheduleViewProvider instance){
-  //   mySchedule = instance;
-  //   notifyListeners();
-  // }
-  //
-  //
-  // void updatehttpweather(Map<String, dynamic> payload) {
-  //   weatherModelinstance = WeatherModel.fromJson(payload);
-  //   notifyListeners();
-  // }
+  Future<void> updateDashboardPayload(Map<String, dynamic> payload) async{
+    _dashboardLiveInstance = SiteModel.fromJson(payload);
+    waterSourceMobDash = _dashboardLiveInstance!.data[0].master[0].config.waterSource;
+    filterSiteMobDash = _dashboardLiveInstance!.data[0].master[0].config.filterSite;
+    fertilizerSiteMobDash = _dashboardLiveInstance!.data[0].master[0].config.fertilizerSite;
+    irrLineDataMobDash = _dashboardLiveInstance!.data[0].master[0].config.lineData;
 
-  void updatedashboard(Map<String, dynamic> payload) {
-    dashboardLiveInstance =  LiveData.fromJson(payload);
-    print('dashboardLiveInstance update payload');
+      sourcetype = _dashboardLiveInstance!.data[0].master[0].config.waterSource.map((element) => element).toList();
+    fertilizerCentral = _dashboardLiveInstance!.data[0].master[0].config.fertilizerSite.where((e) => e.siteMode == 1).toList().map((element) => element).toList();
+    fertilizerLocal = _dashboardLiveInstance!.data[0].master[0].config.fertilizerSite.where((e) => e.siteMode == 2).toList().map((element) => element).toList();
+    filtersCentral = _dashboardLiveInstance!.data[0].master[0].config.filterSite.where((e) => e.siteMode == 1).toList().map((element) => element).toList();
+    filtersLocal = _dashboardLiveInstance!.data[0].master[0].config.filterSite.where((e) => e.siteMode == 2).toList().map((element) => element).toList();
+     print("sourcePump :::: $sourcePump");
     notifyListeners();
   }
 
@@ -802,14 +820,6 @@ class MqttPayloadProvider with ChangeNotifier {
     });
   }
 
-  void updateLastCommunication(dt) {
-    final String lastSyncString = dt;
-    DateTime lastSyncDateTime = DateFormat("yyyy-MM-dd HH:mm:ss").parse(lastSyncString);
-    DateTime currentDateTime = DateTime.now();
-    lastCommunication = currentDateTime.difference(lastSyncDateTime);
-    notifyListeners();
-  }
-
   void updateNodeLiveMessage(List<String> message) {
     nodeLiveMessage = message;
   }
@@ -840,6 +850,14 @@ class MqttPayloadProvider with ChangeNotifier {
 
   void updateMQTTConnectionState(MQTTConnectionState state) {
     _appConnectionState = state;
+    notifyListeners();
+  }
+
+  void updateLastCommunication(dt) {
+    final String lastSyncString = dt;
+    DateTime lastSyncDateTime = DateFormat("yyyy-MM-dd HH:mm:ss").parse(lastSyncString);
+    DateTime currentDateTime = DateTime.now();
+    lastCommunication = currentDateTime.difference(lastSyncDateTime);
     notifyListeners();
   }
 

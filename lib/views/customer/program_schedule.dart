@@ -1,19 +1,35 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/Screens/NewIrrigationProgram/program_library.dart';
+import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/program_library.dart';
+import 'package:oro_drip_irrigation/Screens/planning/fiterbackwash.dart';
+import 'package:oro_drip_irrigation/modules/calibration/view/calibration_screen.dart';
+import 'package:oro_drip_irrigation/modules/fertilizer_set/view/fertilizer_Set_screen.dart';
+import 'package:oro_drip_irrigation/modules/global_limit/view/global_limit_screen.dart';
+
+import '../../Constants/properties.dart';
+import '../../Screens/Constant/api_in_constant.dart';
+import '../../modules/Preferences/view/preference_main_screen.dart';
+import '../../modules/SystemDefinitions/view/system_definition_screen.dart';
+import '../../Screens/planning/frost_productionScreen.dart';
+import '../../Screens/planning/names_form.dart';
+import '../../Screens/planning/planningwatersource.dart';
+import '../../Screens/planning/valve_group_screen.dart';
+import '../../Screens/planning/virtual_screen.dart';
+import '../../repository/repository.dart';
+import '../../services/http_service.dart';
 
 
 class ProgramSchedule extends StatefulWidget {
   const ProgramSchedule({
-    Key? key,
+    super.key,
     required this.customerID,
     required this.controllerID,
     required this.siteName,
     required this.imeiNumber,
-    required this.userId,
-  }) : super(key: key);
+    required this.userId, required this.groupId, required this.categoryId,
+  });
 
-  final int userId, customerID, controllerID;
+  final int userId, customerID, controllerID, groupId, categoryId;
   final String siteName, imeiNumber;
 
   @override
@@ -22,20 +38,20 @@ class ProgramSchedule extends StatefulWidget {
 
 class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProviderStateMixin {
   List<Map<String, dynamic>> sideMenuList = [];
-
+  final Repository repository = Repository(HttpService());
   int selectedIndex = 0;
   int hoverTab = -1;
 
   @override
   void initState() {
     super.initState();
-    //getPlanningSideMenu();
+    getPlanningSideMenu();
   }
 
- /* Future<void> getPlanningSideMenu() async {
+  Future<void> getPlanningSideMenu() async {
     try {
       Map<String, Object> body = {"userId": widget.customerID, "controllerId": widget.controllerID};
-      final response = await HttpService().postRequest("getUserMainMenuHiddenStatus", body);
+      final response = await repository.getPlanningHiddenMenu(body);
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
         List<dynamic> itemList = jsonResponse['data'];
@@ -48,7 +64,7 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
     } catch (e) {
       print('Error: $e');
     }
-  }*/
+  }
 
   Icon getIconForParameter(int id) {
     switch (id) {
@@ -86,32 +102,47 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
   }
 
   Widget getViewForParameter(int id) {
-    // return Container();
     switch (id) {
       case 1:
-        return ProgramLibraryScreenNew(userId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber, fromDealer: false,);
+        return ProgramLibraryScreenNew(customerId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber, userId: widget.userId, fromDealer: false, groupId: widget.groupId, categoryId: widget.categoryId,);
       // case 66:
       //   return watersourceUI(userId: widget.customerID, controllerId: widget.controllerID, deviceID: widget.imeiNumber,);
       // case 67:
       //   return VirtualMeterScreen(userId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber);
+      case 66:
+        return watersourceUI(userId: widget.userId, controllerId: widget.controllerID, deviceID: widget.imeiNumber, menuId: 66,);
+      case 67:
+        return VirtualMeterScreen(userId: widget.userId, controllerId: widget.controllerID, menuId: 67, deviceId: widget.imeiNumber);
       // case 68:
-      //   return MyGroupScreen(userId: widget.customerID, controllerId: widget.controllerID);
-      // case 69:
-      //   return ConditionScreen(userId: widget.customerID, controllerId: widget.controllerID, imeiNo: widget.imeiNumber);
-      // case 70:
-      //   return FrostMobUI(userId: widget.customerID, controllerId: widget.controllerID,deviceID: widget.imeiNumber,);
-      // case 71:
-      //   return FilterBackwashUI(userId: widget.customerID, controllerId: widget.controllerID,deviceID: widget.imeiNumber,);
-      // case 72:
-      //   return FertilizerLibrary(userId: widget.userId, controllerId: widget.controllerID, customerID: widget.customerID);
-      // case 73:
-      //   return GlobalFertLimit(userId: widget.userId, controllerId: widget.controllerID, customerId: widget.customerID,);
-      // case 74:
-      //   return SystemDefinition(userId: widget.userId, controllerId: widget.controllerID);
+      //   return RadiationSetUI(userId: widget.customerID, controllerId: widget.controllerID, );
+      case 69:
+        return GroupListScreen();
+      case 70:
+      //   return ConditionScreen(customerId: widget.customerID, controllerId: widget.controllerID, imeiNo: widget.imeiNumber, isProgram: false, serialNumber: 0,);
+      case 71:
+        return FrostMobUI(userId: widget.customerID, controllerId: widget.controllerID,deviceID: widget.imeiNumber, menuId: 71,);
+      case 72:
+        return FilterBackwashUI(userId: widget.userId, controllerId: widget.controllerID, deviceId: widget.imeiNumber, customerId: widget.customerID, fromDealer: false,);
+      case 73:
+        return FertilizerSetScreen(userData: {'userId' : widget.customerID, 'controllerId' : widget.controllerID, 'deviceId' : widget.imeiNumber});
+      case 74:
+        return GlobalLimitScreen(userData: {'userId' : widget.customerID, 'controllerId' : widget.controllerID, 'deviceId' : widget.imeiNumber});
+      case 75:
+        return SystemDefinition(userId: widget.userId, controllerId: widget.controllerID, deviceId: widget.imeiNumber, customerId: widget.customerID,);
+      // case 76:
+      //   return ProgramQueueScreen(userId: widget.customerID, controllerId: widget.controllerID, cutomerId: widget.customerID, customerId: widget.customerID, deviceId: widget.imeiNumber,);
       // case 77:
-      //   return ProgramQueueScreen(userId: widget.userId, controllerId: widget.controllerID, cutomerId: widget.customerID,);
-      // case 78:
-      //   return ScheduleViewScreen(userId: widget.userId, controllerId: widget.controllerID, customerId: widget.customerID, deviceId: widget.imeiNumber,);
+      //   return WeatherScreen(userId: widget.customerID, controllerId: widget.controllerID,deviceID: widget.imeiNumber,initialIndex: 0,);
+      case 78:
+        return PreferenceMainScreen(userId: widget.userId, controllerId: widget.controllerID, customerId: widget.customerID, deviceId: widget.imeiNumber, menuId: 0,);
+      case 79:
+        return ConstantInConfig(userId: widget.customerID, deviceId: widget.imeiNumber, customerId: widget.customerID, controllerId: widget.controllerID);
+      case 80:
+        return Names(userID: widget.customerID, customerID: widget.customerID, controllerId: widget.controllerID, menuId: 0, imeiNo: widget.imeiNumber, );
+      // case 81:
+      //   return CustomMarkerPage(userId: widget.customerID,deviceID: widget.imeiNumber,controllerId: widget.controllerID,);
+      case 127:
+        return CalibrationScreen(userData: {'userId' : widget.customerID, 'controllerId' : widget.controllerID, 'deviceId' : widget.imeiNumber});
       default:
         return const Center(child: Text('id'));
     }
@@ -125,133 +156,91 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
     return Scaffold(
       backgroundColor: const Color(0xFF03464F),
       body:
-      // sideMenuList.isEmpty? const Center(child: CircularProgressIndicator()):
+      sideMenuList.isEmpty? const Center(child: CircularProgressIndicator()):
       SafeArea(
-        child: SizedBox(
-          width: double.infinity,
-          height: double.infinity,
-          child: Row(
-            children: [
-              Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [
-                      Color(0xFF1C7C8A),
-                      Color(0xFF03464F),
-                    ],
-                  ),
-                ),
-                width: 210,
-                height: double.infinity,
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      InkWell(
-                          onTap: () {
-                            setState(() {
-                              Navigator.pop(context);
-                            });
-                          },
-                          child: Container(
-                            height: 45,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
+        child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            return SizedBox(
+              width: double.infinity,
+              height: double.infinity,
+              child: Row(
+
+                children: [
+                  Container(
+                    width: constraints.maxWidth * 0.15,
+                    color: Theme.of(context).primaryColorDark,
+                    child: ListView(
+                      padding: const EdgeInsets.all(10),
+                      children: [
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child:  Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                const BackButton(color: Colors.white,),
+                                const SizedBox(width: 10,),
+                                Expanded(
+                                  child: Text(
+                                    "Planning",
+                                    style: TextStyle(
+                                        fontSize: Theme.of(context).textTheme.titleLarge!.fontSize,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            // padding: EdgeInsets.all(10),
-                            margin: const EdgeInsets.symmetric(vertical: 2),
-                            width: 200,
-                            child: const Row(children: [
-                              SizedBox(
-                                width: 20,
+                          ),
+                        ),
+                        for (var i = 0; i < sideMenuList.length; i++)
+                          Material(
+                            type: MaterialType.transparency,
+                            child: ListTile(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)
                               ),
-                              Icon(Icons.arrow_back,color: Colors.white,),
-                              SizedBox(
-                                width: 20,
-                              ),
-                              Text(
-                                'Planning',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,fontSize: 22),
-                              )
-                            ]),
-                          )),
-                      for (var i = 0; i < sideMenuList.length; i++)
-                        InkWell(
-                            onTap: () {
-                              //fertSetPvd.closeOverLay();
-                              setState(() {
-                                selectedIndex = i;
-                              });
-                            },
-                            onHover: (value) {
-                              if (value == true) {
+                              title: !(constraints
+                                  .maxWidth > 500 && constraints
+                                  .maxWidth <= 600)
+                                  ? Text(sideMenuList[i]['label'], style: const TextStyle(color: Colors.white),) : null,
+                              leading: getIconForParameter(sideMenuList[i]['id']),
+                              selected: selectedIndex == i,
+                              onTap: () {
                                 setState(() {
-                                  hoverTab = i;
+                                  selectedIndex = i;
                                 });
-                              } else {
-                                setState(() {
-                                  hoverTab = -1;
-                                });
-                              }
-                            },
-                            child: Container(
-                              height: 45,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: (hoverTab == i && selectedIndex == i)
-                                    ? const Color(0xFF2999A9)
-                                    : hoverTab == i
-                                    ? const Color(0xFF2999A9)
-                                    : selectedIndex == i
-                                    ? const Color(0xFF2999A9)
-                                    : null,
-                              ),
-                              margin: const EdgeInsets.symmetric(vertical: 2),
-                              width: 200,
-                              child: Row(children: [
-                                const SizedBox(
-                                  width: 20,
-                                ),
-                                getIconForParameter(sideMenuList[i]['id']),
-                                const SizedBox(
-                                  width: 20,
-                                ),
-                                Text(
-                                  sideMenuList[i]['label'],
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold),
-                                )
-                              ]),
-                            )),
-                    ],
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    decoration: BoxDecoration(
-                        color: const Color(0xffE6EDF5),
-                        borderRadius: BorderRadius.circular(20)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: getViewForParameter(1),
-                      // child: getViewForParameter(sideMenuList[selectedIndex]['id']),
+                              },
+                              /*  selectedTileColor: _tabController.index == i ? const Color(0xff2999A9) : null,
+                                  hoverColor: _tabController.index == i ? const Color(0xff2999A9) : null*/
+                              selectedTileColor: selectedIndex == i ? Theme.of(context).primaryColorLight : null,
+                              hoverColor: selectedIndex == i ? Theme.of(context).primaryColorLight : null,
+                            ),
+                          ),
+                      ],
                     ),
                   ),
-                ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        width: double.infinity,
+                        height: double.infinity,
+                        decoration: BoxDecoration(
+                            color: const Color(0xffE6EDF5),
+                            borderRadius: BorderRadius.circular(20)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: getViewForParameter(sideMenuList[selectedIndex]['id']),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          }
         ),
       ),
     );

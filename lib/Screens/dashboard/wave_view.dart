@@ -2,7 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math.dart' as vector;
 
-import '../NewIrrigationProgram/preview_screen.dart';
+import '../../modules/IrrigationProgram/view/preview_screen.dart';
 
 
 class WaveView extends StatefulWidget {

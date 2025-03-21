@@ -14,6 +14,9 @@ class Constants {
   static const String waterMeter = 'waterMeter';
 
   static dynamic payloadConversion(data) {
+    // List<dynamic> configObject = List<dynamic>.from(data["configObject"]);
+    List<dynamic> configObject = List<dynamic>.from(data["configObject"]);
+
     dynamic dataFormation = {};
     for(var globalKey in data.keys) {
       if(['filterSite', 'fertilizerSite', 'waterSource', 'pump', 'moistureSensor', 'irrigationLine'].contains(globalKey)){
@@ -21,13 +24,13 @@ class Constants {
         for(var site in data[globalKey]){
           dynamic siteFormation = site;
           for(var siteKey in site.keys){
-            if(!['objectId', 'sNo', 'name', 'objectName', 'connectionNo', 'type', 'controllerId', 'count', 'siteMode', 'pumpType', 'connectedObject'].contains(siteKey)){
+            if(!['objectId', 'sNo', 'name', 'objectName', 'connectionNo', 'type', 'controllerId', 'count', 'siteMode', 'pumpType', 'connectedObject', 'location'].contains(siteKey)){
               siteFormation[siteKey] = siteFormation[siteKey] is List<dynamic>
                   ? (siteFormation[siteKey] as List<dynamic>).map((element) {
                 if(element is double){
-                  return (data['configObject'] as List<dynamic>).firstWhere((object) => object['sNo'] == element);
+                  return configObject.firstWhere((object) => object['sNo'] == element);
                 }else{
-                  var object = (data['configObject'] as List<dynamic>).firstWhere((object) => object['sNo'] == element['sNo']);
+                  var object = configObject.firstWhere((object) => object['sNo'] == element['sNo']);
                   for(var key in element.keys){
                     if(!(object as Map<String, dynamic>).containsKey(key)){
                       object[key] = element[key];
@@ -36,7 +39,7 @@ class Constants {
                   return object;
                 }
               }).toList()
-                  : (data['configObject'] as List<dynamic>).firstWhere((object) => object['sNo'] == siteFormation[siteKey], orElse: ()=> {});
+                  : configObject.firstWhere((object) => object['sNo'] == siteFormation[siteKey], orElse: ()=> {});
             }
           }
           dataFormation[globalKey].add(site);
@@ -46,5 +49,25 @@ class Constants {
     // print('dataFormation : ${jsonEncode(dataFormation)}');
     // print('-------------------------------------------');
     return dataFormation;
+  }
+
+  static List<Map<String, dynamic>> dataConversionForScheduleView(Map<String, dynamic> payload) {
+    List<Map<String, dynamic>> convertedListInside = [];
+
+    print('payload in the data conversion :: $payload');
+    if(payload.isNotEmpty) {
+      for (int i = 0; i < payload["S_No"].length; i++) {
+        Map<String, dynamic> resultDict = {};
+
+        payload.forEach((key, value) {
+          resultDict[key] = value[i];
+        });
+
+        convertedListInside.add(resultDict);
+      }
+    }
+
+    print("in the conversion :: $convertedListInside");
+    return convertedListInside;
   }
 }

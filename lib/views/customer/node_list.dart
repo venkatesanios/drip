@@ -1,4 +1,5 @@
 import 'package:data_table_2/data_table_2.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:oro_drip_irrigation/Models/customer/site_model.dart';
@@ -24,12 +25,12 @@ class NodeList extends StatelessWidget {
       child: Consumer<NodeListViewModel>(
         builder: (context, vm, _) {
           return Container(
-            padding: const EdgeInsets.all(10),
+            padding: kIsWeb ? const EdgeInsets.all(10) : const EdgeInsets.all(0),
             decoration: const BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.zero,
             ),
-            height: MediaQuery.sizeOf(context).height,
+            height: MediaQuery.sizeOf(context).height ,
             width: 400,
             child: Column(
               children: [
@@ -342,250 +343,249 @@ class NodeList extends StatelessWidget {
                                       ),
                                       Column(
                                         children: [
+                                         if (vm.nodeList[index].rlyStatus.isNotEmpty)
+                                           const SizedBox(
+                                             width: double.infinity,
+                                             height: 20,
+                                             child: Row(
+                                               children: [
+                                                 SizedBox(width: 10),
+                                                 CircleAvatar(
+                                                   radius: 5,
+                                                   backgroundColor: Colors.green,
+                                                 ),
+                                                 SizedBox(width: 5),
+                                                 Text('ON', style: TextStyle(fontSize: 12)),
+                                                 SizedBox(width: 20),
+                                                 CircleAvatar(
+                                                   radius: 5,
+                                                   backgroundColor: Colors.black45,
+                                                 ),
+                                                 SizedBox(width: 5),
+                                                 Text('OFF', style: TextStyle(fontSize: 12)),
+                                                 SizedBox(width: 20),
+                                                 CircleAvatar(
+                                                   radius: 5,
+                                                   backgroundColor: Colors.orange,
+                                                 ),
+                                                 SizedBox(width: 5),
+                                                 Text('ON in OFF', style: TextStyle(fontSize: 12)),
+                                                 SizedBox(width: 20),
+                                                 CircleAvatar(
+                                                   radius: 5,
+                                                   backgroundColor: Colors.redAccent,
+                                                 ),
+                                                 SizedBox(width: 5),
+                                                 Text('OFF in ON', style: TextStyle(fontSize: 12)),
+                                               ],
+                                             ),
+                                           ),
+                                         const SizedBox(height: 5),
+                                         SizedBox(
+                                           width: double.infinity,
+                                           height: vm.calculateGridHeight(vm.nodeList[index].rlyStatus.length),
+                                           child: GridView.builder(
+                                             itemCount: vm.nodeList[index].rlyStatus.length, // Number of items in the grid
+                                             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                               crossAxisCount: 5,
+                                               crossAxisSpacing: 5.0,
+                                               mainAxisSpacing: 5.0,
+                                               childAspectRatio: 1.45,
+                                             ),
+                                             itemBuilder: (BuildContext context, int indexGv) {
+                                               return Column(
+                                                 children: [
+                                                   CircleAvatar(
+                                                     radius: 13,
+                                                     backgroundColor: vm.nodeList[index].rlyStatus[indexGv]
+                                                         .status ==
+                                                         0
+                                                         ? Colors.grey
+                                                         : vm.nodeList[index].rlyStatus[indexGv].status ==
+                                                         1
+                                                         ? Colors.green
+                                                         : vm.nodeList[index].rlyStatus[indexGv]
+                                                         .status ==
+                                                         2
+                                                         ? Colors.orange
+                                                         : vm.nodeList[index].rlyStatus[indexGv]
+                                                         .status ==
+                                                         3
+                                                         ? Colors.redAccent
+                                                         : Colors.black12, // Avatar background color
+                                                     child: Text(
+                                                       (vm.nodeList[index].rlyStatus[indexGv].rlyNo)
+                                                           .toString(),
+                                                       style: const TextStyle(color: Colors.white, fontSize: 12),
+                                                     ),
+                                                   ),
+                                                   Text(
+                                                     (vm.nodeList[index].rlyStatus[indexGv].swName!.isNotEmpty
+                                                         ? vm.nodeList[index].rlyStatus[indexGv].swName
+                                                         : vm.nodeList[index].rlyStatus[indexGv].name)
+                                                         .toString(),
+                                                     style:
+                                                     const TextStyle(color: Colors.black, fontSize: 9),
+                                                   ),
+                                                 ],
+                                               );
+                                             },
+                                           ),
+                                         ),
 
-                                          if (vm.nodeList[index].rlyStatus.isNotEmpty)
-                                            const SizedBox(
-                                              width: double.infinity,
-                                              height: 20,
-                                              child: Row(
-                                                children: [
-                                                  SizedBox(width: 10),
-                                                  CircleAvatar(
-                                                    radius: 5,
-                                                    backgroundColor: Colors.green,
-                                                  ),
-                                                  SizedBox(width: 5),
-                                                  Text('ON', style: TextStyle(fontSize: 12)),
-                                                  SizedBox(width: 20),
-                                                  CircleAvatar(
-                                                    radius: 5,
-                                                    backgroundColor: Colors.black45,
-                                                  ),
-                                                  SizedBox(width: 5),
-                                                  Text('OFF', style: TextStyle(fontSize: 12)),
-                                                  SizedBox(width: 20),
-                                                  CircleAvatar(
-                                                    radius: 5,
-                                                    backgroundColor: Colors.orange,
-                                                  ),
-                                                  SizedBox(width: 5),
-                                                  Text('ON in OFF', style: TextStyle(fontSize: 12)),
-                                                  SizedBox(width: 20),
-                                                  CircleAvatar(
-                                                    radius: 5,
-                                                    backgroundColor: Colors.redAccent,
-                                                  ),
-                                                  SizedBox(width: 5),
-                                                  Text('OFF in ON', style: TextStyle(fontSize: 12)),
-                                                ],
-                                              ),
-                                            ),
-                                          const SizedBox(height: 5),
-                                          SizedBox(
-                                            width: double.infinity,
-                                            height: vm.calculateGridHeight(vm.nodeList[index].rlyStatus.length),
-                                            child: GridView.builder(
-                                              itemCount: vm.nodeList[index].rlyStatus.length, // Number of items in the grid
-                                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                                crossAxisCount: 5,
-                                                crossAxisSpacing: 5.0,
-                                                mainAxisSpacing: 5.0,
-                                                childAspectRatio: 1.45,
-                                              ),
-                                              itemBuilder: (BuildContext context, int indexGv) {
-                                                return Column(
-                                                  children: [
-                                                    CircleAvatar(
-                                                      radius: 13,
-                                                      backgroundColor: vm.nodeList[index].rlyStatus[indexGv]
-                                                          .status ==
-                                                          0
-                                                          ? Colors.grey
-                                                          : vm.nodeList[index].rlyStatus[indexGv].status ==
-                                                          1
-                                                          ? Colors.green
-                                                          : vm.nodeList[index].rlyStatus[indexGv]
-                                                          .status ==
-                                                          2
-                                                          ? Colors.orange
-                                                          : vm.nodeList[index].rlyStatus[indexGv]
-                                                          .status ==
-                                                          3
-                                                          ? Colors.redAccent
-                                                          : Colors.black12, // Avatar background color
-                                                      child: Text(
-                                                        (vm.nodeList[index].rlyStatus[indexGv].rlyNo)
-                                                            .toString(),
-                                                        style: const TextStyle(color: Colors.white, fontSize: 12),
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      (vm.nodeList[index].rlyStatus[indexGv].swName!.isNotEmpty
-                                                          ? vm.nodeList[index].rlyStatus[indexGv].swName
-                                                          : vm.nodeList[index].rlyStatus[indexGv].name)
-                                                          .toString(),
-                                                      style:
-                                                      const TextStyle(color: Colors.black, fontSize: 9),
-                                                    ),
-                                                  ],
-                                                );
-                                              },
-                                            ),
-                                          ),
-
-                                          /*if (nodeList[index].rlyStatus.isNotEmpty ||
-                                        nodeList[index].sensor.isNotEmpty)
-                                      const SizedBox(
-                                        width: double.infinity,
-                                        height: 20,
-                                        child: Row(
-                                          children: [
-                                            SizedBox(width: 10),
-                                            CircleAvatar(
-                                              radius: 5,
-                                              backgroundColor: Colors.green,
-                                            ),
-                                            SizedBox(width: 5),
-                                            Text('ON', style: TextStyle(fontSize: 12)),
-                                            SizedBox(width: 20),
-                                            CircleAvatar(
-                                              radius: 5,
-                                              backgroundColor: Colors.black45,
-                                            ),
-                                            SizedBox(width: 5),
-                                            Text('OFF', style: TextStyle(fontSize: 12)),
-                                            SizedBox(width: 20),
-                                            CircleAvatar(
-                                              radius: 5,
-                                              backgroundColor: Colors.orange,
-                                            ),
-                                            SizedBox(width: 5),
-                                            Text('ON in OFF', style: TextStyle(fontSize: 12)),
-                                            SizedBox(width: 20),
-                                            CircleAvatar(
-                                              radius: 5,
-                                              backgroundColor: Colors.redAccent,
-                                            ),
-                                            SizedBox(width: 5),
-                                            Text('OFF in ON', style: TextStyle(fontSize: 12)),
-                                          ],
-                                        ),
-                                      ),
-                                    const SizedBox(height: 5),
-                                    SizedBox(
-                                      width: double.infinity,
-                                      height: calculateGridHeight(nodeList[index].rlyStatus.length),
-                                      child: GridView.builder(
-                                        itemCount: nodeList[index].rlyStatus.length, // Number of items in the grid
-                                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 5,
-                                          crossAxisSpacing: 5.0,
-                                          mainAxisSpacing: 5.0,
-                                          childAspectRatio: 1.45,
-                                        ),
-                                        itemBuilder: (BuildContext context, int indexGv) {
-                                          return Column(
-                                            children: [
-                                              CircleAvatar(
-                                                radius: 13,
-                                                backgroundColor: nodeList[index].rlyStatus[indexGv]
-                                                    .Status ==
-                                                    0
-                                                    ? Colors.grey
-                                                    : nodeList[index].rlyStatus[indexGv].Status ==
-                                                    1
-                                                    ? Colors.green
-                                                    : nodeList[index].rlyStatus[indexGv]
-                                                    .Status ==
-                                                    2
-                                                    ? Colors.orange
-                                                    : nodeList[index].rlyStatus[indexGv]
-                                                    .Status ==
-                                                    3
-                                                    ? Colors.redAccent
-                                                    : Colors.black12, // Avatar background color
-                                                child: Text(
-                                                  (nodeList[index].rlyStatus[indexGv].rlyNo)
-                                                      .toString(),
-                                                  style: const TextStyle(color: Colors.white, fontSize: 12),
-                                                ),
-                                              ),
-                                              Text(
-                                                (nodeList[index].rlyStatus[indexGv].swName!.isNotEmpty
-                                                    ? nodeList[index].rlyStatus[indexGv].swName
-                                                    : nodeList[index].rlyStatus[indexGv].name)
-                                                    .toString(),
-                                                style:
-                                                const TextStyle(color: Colors.black, fontSize: 9),
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                    nodeList[index].sensor.isNotEmpty? const Padding(
-                                      padding: EdgeInsets.only(left: 8, right: 8),
-                                      child: Divider(
-                                        thickness: 0.5,
-                                      ),
-                                    ):
-                                    const SizedBox(),
-                                    nodeList[index].sensor.isNotEmpty? SizedBox(
-                                      width: double.infinity,
-                                      height: calculateGridHeight(nodeList[index].sensor.length),
-                                      child: GridView.builder(
-                                        itemCount: nodeList[index].sensor.length, // Number of items in the grid
-                                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 5,
-                                          crossAxisSpacing: 5.0,
-                                          mainAxisSpacing: 5.0,
-                                          childAspectRatio: 1.45,
-                                        ),
-                                        itemBuilder: (BuildContext context, int indexSnr) {
-                                          return Column(
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              CircleAvatar(
-                                                radius: 13,
-                                                backgroundColor: Colors.black38,
-                                                child: Text(
-                                                  textAlign: TextAlign.center,
-                                                  (nodeList[index].sensor[indexSnr].angIpNo !=
-                                                      null
-                                                      ? 'A-${nodeList[index].sensor[indexSnr].angIpNo}'
-                                                      : 'P-${nodeList[index].sensor[indexSnr].pulseIpNo}')
-                                                      .toString(),
-                                                  style: const TextStyle(color: Colors.white, fontSize: 10),
-                                                ),
-                                              ),
-                                              Text(
-                                                (nodeList[index].sensor[indexSnr].swName!.isNotEmpty
-                                                    ? nodeList[index].sensor[indexSnr].swName
-                                                    : nodeList[index].sensor[indexSnr].name)
-                                                    .toString(),
-                                                style: const TextStyle(color: Colors.black, fontSize: 8),
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      ),
-                                    ):
-                                    const SizedBox(),*/
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              ],
+                                         /*if (nodeList[index].rlyStatus.isNotEmpty ||
+                                       nodeList[index].sensor.isNotEmpty)
+                                     const SizedBox(
+                                       width: double.infinity,
+                                       height: 20,
+                                       child: Row(
+                                         children: [
+                                           SizedBox(width: 10),
+                                           CircleAvatar(
+                                             radius: 5,
+                                             backgroundColor: Colors.green,
+                                           ),
+                                           SizedBox(width: 5),
+                                           Text('ON', style: TextStyle(fontSize: 12)),
+                                           SizedBox(width: 20),
+                                           CircleAvatar(
+                                             radius: 5,
+                                             backgroundColor: Colors.black45,
+                                           ),
+                                           SizedBox(width: 5),
+                                           Text('OFF', style: TextStyle(fontSize: 12)),
+                                           SizedBox(width: 20),
+                                           CircleAvatar(
+                                             radius: 5,
+                                             backgroundColor: Colors.orange,
+                                           ),
+                                           SizedBox(width: 5),
+                                           Text('ON in OFF', style: TextStyle(fontSize: 12)),
+                                           SizedBox(width: 20),
+                                           CircleAvatar(
+                                             radius: 5,
+                                             backgroundColor: Colors.redAccent,
+                                           ),
+                                           SizedBox(width: 5),
+                                           Text('OFF in ON', style: TextStyle(fontSize: 12)),
+                                         ],
+                                       ),
+                                     ),
+                                   const SizedBox(height: 5),
+                                   SizedBox(
+                                     width: double.infinity,
+                                     height: calculateGridHeight(nodeList[index].rlyStatus.length),
+                                     child: GridView.builder(
+                                       itemCount: nodeList[index].rlyStatus.length, // Number of items in the grid
+                                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                         crossAxisCount: 5,
+                                         crossAxisSpacing: 5.0,
+                                         mainAxisSpacing: 5.0,
+                                         childAspectRatio: 1.45,
+                                       ),
+                                       itemBuilder: (BuildContext context, int indexGv) {
+                                         return Column(
+                                           children: [
+                                             CircleAvatar(
+                                               radius: 13,
+                                               backgroundColor: nodeList[index].rlyStatus[indexGv]
+                                                   .Status ==
+                                                   0
+                                                   ? Colors.grey
+                                                   : nodeList[index].rlyStatus[indexGv].Status ==
+                                                   1
+                                                   ? Colors.green
+                                                   : nodeList[index].rlyStatus[indexGv]
+                                                   .Status ==
+                                                   2
+                                                   ? Colors.orange
+                                                   : nodeList[index].rlyStatus[indexGv]
+                                                   .Status ==
+                                                   3
+                                                   ? Colors.redAccent
+                                                   : Colors.black12, // Avatar background color
+                                               child: Text(
+                                                 (nodeList[index].rlyStatus[indexGv].rlyNo)
+                                                     .toString(),
+                                                 style: const TextStyle(color: Colors.white, fontSize: 12),
+                                               ),
+                                             ),
+                                             Text(
+                                               (nodeList[index].rlyStatus[indexGv].swName!.isNotEmpty
+                                                   ? nodeList[index].rlyStatus[indexGv].swName
+                                                   : nodeList[index].rlyStatus[indexGv].name)
+                                                   .toString(),
+                                               style:
+                                               const TextStyle(color: Colors.black, fontSize: 9),
+                                             ),
+                                           ],
+                                         );
+                                       },
+                                     ),
+                                   ),
+                                   nodeList[index].sensor.isNotEmpty? const Padding(
+                                     padding: EdgeInsets.only(left: 8, right: 8),
+                                     child: Divider(
+                                       thickness: 0.5,
+                                     ),
+                                   ):
+                                   const SizedBox(),
+                                   nodeList[index].sensor.isNotEmpty? SizedBox(
+                                     width: double.infinity,
+                                     height: calculateGridHeight(nodeList[index].sensor.length),
+                                     child: GridView.builder(
+                                       itemCount: nodeList[index].sensor.length, // Number of items in the grid
+                                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                         crossAxisCount: 5,
+                                         crossAxisSpacing: 5.0,
+                                         mainAxisSpacing: 5.0,
+                                         childAspectRatio: 1.45,
+                                       ),
+                                       itemBuilder: (BuildContext context, int indexSnr) {
+                                         return Column(
+                                           crossAxisAlignment: CrossAxisAlignment.center,
+                                           mainAxisAlignment: MainAxisAlignment.center,
+                                           children: [
+                                             CircleAvatar(
+                                               radius: 13,
+                                               backgroundColor: Colors.black38,
+                                               child: Text(
+                                                 textAlign: TextAlign.center,
+                                                 (nodeList[index].sensor[indexSnr].angIpNo !=
+                                                     null
+                                                     ? 'A-${nodeList[index].sensor[indexSnr].angIpNo}'
+                                                     : 'P-${nodeList[index].sensor[indexSnr].pulseIpNo}')
+                                                     .toString(),
+                                                 style: const TextStyle(color: Colors.white, fontSize: 10),
+                                               ),
+                                             ),
+                                             Text(
+                                               (nodeList[index].sensor[indexSnr].swName!.isNotEmpty
+                                                   ? nodeList[index].sensor[indexSnr].swName
+                                                   : nodeList[index].sensor[indexSnr].name)
+                                                   .toString(),
+                                               style: const TextStyle(color: Colors.black, fontSize: 8),
+                                             ),
+                                           ],
+                                         );
+                                       },
+                                     ),
+                                   ):
+                                   const SizedBox(),*/
+                                       ],
+                                     ),
+                                   ],
+                                 ),
+                               ),
+                             ],
+                           );
+                         },
+                       ),
+                     ),
+                   ],
+                 ),
+               )
+             ],
             ),
           );
         },

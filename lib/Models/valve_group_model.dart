@@ -1,6 +1,4 @@
 import 'dart:convert';
-
-
 Groupdata groupdataFromJson(String str) => Groupdata.fromJson(json.decode(str));
 
 String groupdataToJson(Groupdata data) => json.encode(data.toJson());
@@ -29,7 +27,6 @@ class Groupdata {
   };
 }
 
-
 class valveGroupData {
   final List<ValveGroup>? valveGroup;
   final Default defaultData;
@@ -55,35 +52,45 @@ class valveGroupData {
   }
 }
 
-
-
 class ValveGroup {
-  final String groupID;
+  final int objectId;
   final String groupName;
   final String irrigationLineName;
+  final double sNo;
+  final String name;
+  final String objectName;
   final List<Valve> valve;
 
   ValveGroup({
-    required this.groupID,
+    required this.objectId,
     required this.groupName,
     required this.irrigationLineName,
+    required this.sNo,
+    required this.name,
+    required this.objectName,
     required this.valve,
   });
 
   factory ValveGroup.fromJson(Map<String, dynamic> json) {
     return ValveGroup(
-      groupID: json['groupId'],
+      objectId: json['objectId'],
       groupName: json['groupName'],
       irrigationLineName: json['irrigationLineName'],
+      sNo: json['sNo'].toDouble(),
+      name: json['name'],
+      objectName: json['objectName'],
       valve: List<Valve>.from(json['valve'].map((x) => Valve.fromJson(x))),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'groupId': groupID,
+      'objectId': objectId,
       'groupName': groupName,
       'irrigationLineName': irrigationLineName,
+      'sNo': sNo,
+      'name': name,
+      'objectName': objectName,
       'valve': valve.map((x) => x.toJson()).toList(),
     };
   }
@@ -93,13 +100,11 @@ class Valve {
   final int objectId;
   final double sNo;
   final String name;
-  String? type;
   final String objectName;
 
   Valve({
     required this.objectId,
     required this.sNo,
-    this.type,
     required this.name,
     required this.objectName,
   });
@@ -109,7 +114,6 @@ class Valve {
       objectId: json['objectId'],
       sNo: json['sNo'].toDouble(),
       name: json['name'],
-      type: json['type'],
       objectName: json['objectName'],
     );
   }
@@ -119,7 +123,6 @@ class Valve {
       'objectId': objectId,
       'sNo': sNo,
       'name': name,
-      'type': name,
       'objectName': objectName,
     };
   }

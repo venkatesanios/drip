@@ -1,0 +1,140 @@
+
+import 'device_object_model.dart';
+
+class IrrigationLineModel{
+  DeviceObjectModel commonDetails;
+  List<double> source;
+  List<double> sourcePump;
+  List<double> irrigationPump;
+  double centralFiltration;
+  double localFiltration;
+  double centralFertilization;
+  double localFertilization;
+  List<double> valve;
+  List<double> mainValve;
+  List<double> fan;
+  List<double> fogger;
+  List<double> pesticides;
+  List<double> heater;
+  List<double> screen;
+  List<double> vent;
+  double powerSupply;
+  double pressureSwitch;
+  double waterMeter;
+  double pressureIn;
+  double pressureOut;
+  List<double> moisture;
+  List<double> temperature;
+  List<double> soilTemperature;
+  List<double> humidity;
+  List<double> co2;
+  List<int> weatherStation;
+
+  IrrigationLineModel({
+    required this.commonDetails,
+    required this.source,
+    required this.sourcePump,
+    required this.irrigationPump,
+    this.centralFiltration = 0.00,
+    this.localFiltration = 0.00,
+    this.centralFertilization = 0.00,
+    this.localFertilization = 0.00,
+    required this.valve,
+    required this.mainValve,
+    required this.fan,
+    required this.fogger,
+    required this.pesticides,
+    required this.heater,
+    required this.screen,
+    required this.vent,
+    this.powerSupply = 0.00,
+    this.pressureSwitch = 0.00,
+    this.waterMeter = 0.00,
+    this.pressureIn = 0.00,
+    this.pressureOut = 0.00,
+    required this.moisture,
+    required this.temperature,
+    required this.soilTemperature,
+    required this.humidity,
+    required this.co2,
+    required this.weatherStation,
+  });
+
+  factory IrrigationLineModel.fromJson(data){
+    DeviceObjectModel deviceObjectModel = DeviceObjectModel.fromJson(data);
+
+    return IrrigationLineModel(
+        commonDetails: deviceObjectModel,
+        source: (data['source'] as List<dynamic>).map((sNo) => sNo as double).toList(),
+        sourcePump: (data['sourcePump'] as List<dynamic>).map((sNo) => sNo as double).toList(),
+        irrigationPump: (data['irrigationPump'] as List<dynamic>).map((sNo) => sNo as double).toList(),
+        centralFiltration: intOrDoubleValidate(data['centralFiltration']),
+        localFiltration: intOrDoubleValidate(data['localFiltration']),
+        centralFertilization: intOrDoubleValidate(data['centralFertilization']),
+        localFertilization: intOrDoubleValidate(data['localFertilization']),
+        valve: (data['valve'] as List<dynamic>).map((sNo) => sNo as double).toList(),
+        mainValve: (data['mainValve'] as List<dynamic>).map((sNo) => sNo as double).toList(),
+        fan: (data['fan'] as List<dynamic>).map((sNo) => sNo as double).toList(),
+        fogger: (data['fogger'] as List<dynamic>).map((sNo) => sNo as double).toList(),
+        pesticides: (data['pesticides'] as List<dynamic>).map((sNo) => sNo as double).toList(),
+        heater: (data['heater'] as List<dynamic>).map((sNo) => sNo as double).toList(),
+        screen: (data['screen'] as List<dynamic>).map((sNo) => sNo as double).toList(),
+        vent: (data['vent'] as List<dynamic>).map((sNo) => sNo as double).toList(),
+        powerSupply: intOrDoubleValidate(data['powerSupply']),
+        pressureSwitch: intOrDoubleValidate(data['pressureSwitch']),
+        waterMeter: intOrDoubleValidate(data['waterMeter']),
+        pressureIn: intOrDoubleValidate(data['pressureIn']),
+        pressureOut: intOrDoubleValidate(data['pressureOut']),
+        moisture: (data['moisture'] as List<dynamic>).map((sNo) => sNo as double).toList(),
+        temperature: (data['temperature'] as List<dynamic>).map((sNo) => sNo as double).toList(),
+        soilTemperature: (data['soilTemperature'] as List<dynamic>).map((sNo) => sNo as double).toList(),
+        humidity: (data['humidity'] as List<dynamic>).map((sNo) => sNo as double).toList(),
+        co2: (data['co2'] as List<dynamic>).map((sNo) => sNo as double).toList(),
+        weatherStation: data['weatherStation'] != null ? (data['weatherStation'] as List<dynamic>).map((controllerNo) => controllerNo as int).toList() : []
+    );
+  }
+
+  Map<String, dynamic> toJson(){
+    var commonInfo = commonDetails.toJson();
+    commonInfo.addAll({
+      'source' : source,
+      'sourcePump' : sourcePump,
+      'irrigationPump' : irrigationPump,
+      'centralFiltration' : centralFiltration,
+      'localFiltration' : localFiltration,
+      'centralFertilization' : centralFertilization,
+      'localFertilization' : localFertilization,
+      'valve' : valve,
+      'mainValve' : mainValve,
+      'fan' : fan,
+      'fogger' : fogger,
+      'pesticides' : pesticides,
+      'heater' : heater,
+      'screen' : screen,
+      'vent' : vent,
+      'powerSupply' : powerSupply,
+      'pressureSwitch' : pressureSwitch,
+      'waterMeter' : waterMeter,
+      'pressureIn' : pressureIn,
+      'pressureOut' : pressureOut,
+      'moisture' : moisture,
+      'temperature' : temperature,
+      'soilTemperature' : soilTemperature,
+      'humidity' : humidity,
+      'co2' : co2,
+      'weatherStation' : weatherStation,
+    });
+    return commonInfo;
+  }
+}
+
+double intOrDoubleValidate(value){
+  if(value is int){
+    return value.toDouble();
+  }else{
+    return value;
+  }
+}
+
+enum LineParameter{source, sourcePump, irrigationPump, centralFiltration, localFiltration, centralFertilization, localFertilization, valve, mainValve, fan, fogger, pesticides, heater, screen, vent, powerSupply, pressureSwitch, waterMeter, pressureIn, pressureOut, moisture, temperature, soilTemperature, humidity, co2}
+

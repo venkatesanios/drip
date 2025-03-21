@@ -3,14 +3,28 @@
 // import 'dart:io';
 // import 'package:flutter/material.dart';
 // import 'package:flutter/services.dart';
+// import 'package:oro_drip_irrigation/modules/ScheduleView/view/schedule_view_screen.dart';
 //
 // import 'package:provider/provider.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 //
-// import '../../StateManagement/irrigation_program_provider.dart';
+// import '../../Models/customer/hiddenmenu_model.dart';
+// import '../../modules/IrrigationProgram/state_management/irrigation_program_provider.dart';
 // import '../../StateManagement/mqtt_payload_provider.dart';
 // import '../../StateManagement/overall_use.dart';
-// import '../NewIrrigationProgram/program_library.dart';
+// import '../../modules/Preferences/state_management/preference_provider.dart';
+// import '../../repository/repository.dart';
+// import '../../services/http_service.dart';
+// import '../../modules/IrrigationProgram/view/preview_screen.dart';
+// import '../../modules/IrrigationProgram/view/program_library.dart';
+// import '../../modules/IrrigationProgram/view/schedule_screen.dart';
+// import '../../modules/Preferences/view/preference_main_screen.dart';
+// import '../../modules/Preferences/view/view_settings.dart';
+// import '../planning/fiterbackwash.dart';
+// import '../planning/frost_productionScreen.dart';
+// import '../planning/planningwatersource.dart';
+// import '../planning/virtual_screen.dart';
+// import 'customerdashboard.dart';
 //
 // //This is Main dashboard --
 // class HomeScreen extends StatefulWidget {
@@ -42,41 +56,39 @@
 //   int selectedSite = 0;
 //   int selectedMaster = 0;
 //   bool httperroronhs = false;
-//   MQTTManager manager = MQTTManager();
+//   // MqttManager manager = MqttManager();
 //   late AnimationController _controller;
 //   late Animation<double> _animation;
 //   bool _isMenuOpen = false;
+//   var liveData;
 //   // TODO: bottom menu bar button in page calling
 //   static const List<Widget> _widgetOptions = <Widget>[
-//     Dashboard(),
+//     MobDashboard(),
 //     ProgramLibraryScreenNew(
 //       userId: 0,
 //       controllerId: 0,
 //       deviceId: 'B48C9D810C51',
-//       fromDealer: false,
+//       fromDealer: false, customerId: 0,
+//       groupId: 0,
+//       categoryId: 0,
 //     ),
-//     ScheduleViewScreen(
-//       deviceId: 'B48C9D810C51',
-//       userId: 0,
-//       controllerId: 0,
-//       customerId: 51,
-//     ),
-//     IrrigationAndPumpLog(
-//       userId: 0,
-//       controllerId: 0,
-//     ),
+//      ScheduleViewScreen(deviceId: '0', userId: 0, controllerId: 0, customerId: 0, groupId: 0),
+//     // IrrigationAndPumpLog(
+//     //   userId: 0,
+//     //   controllerId: 0,
+//     // ),
 //   ];
 //   static List<Widget> _widgetOptionspump = <Widget>[
-//     Dashboard(),
-//     PreferenceMainScreen(
+//     const MobDashboard(),
+//     const PreferenceMainScreen(
 //       controllerId: 0,
 //       userId: 0,
 //       deviceId: "",
 //       customerId: 0,
 //       menuId: 78,
 //     ),
-//     ViewSettings(userId: 0, controllerId: 0),
-//     PumpLogs(),
+//     const ViewSettings(userId: 0, controllerId: 0),
+//     // PumpLogs(),
 //   ];
 //   DateTime? _lastPressedAt;
 //
@@ -85,18 +97,20 @@
 //     // TODO: implement initState
 //     irrigationProgramProvider =
 //         Provider.of<IrrigationProgramMainProvider>(context, listen: false);
-//     overAllPvd = Provider.of<OverAllUse>(context, listen: false);
 //     payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
+//
+//     overAllPvd = Provider.of<OverAllUse>(context, listen: false);
+//     //payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
 //     // fetchData();
 //     if (payloadProvider.selectedSiteString == '' || widget.fromDealer) {
 //       if (mounted) {
 //         getData();
-//         Future.delayed(Duration(seconds: 2), () {
+//         Future.delayed(const Duration(seconds: 2), () {
 //           irrigationProgramProvider.updateBottomNavigation(0);
 //         });
-//         if (!(widget.fromDealer)) {
-//           checkForUpdate(context);
-//         }
+//         // if (!(widget.fromDealer)) {
+//         //   checkForUpdate(context);
+//         // }
 //         WidgetsBinding.instance.addPostFrameCallback((_) {
 //           _controller = AnimationController(
 //             duration: const Duration(milliseconds: 500),
@@ -138,8 +152,8 @@
 //
 //   Future<void> getData() async {
 //     try {
-//       await mqttConfigureAndConnect();
-//       await initializeSharedPreference();
+//       // await mqttConfigureAndConnect();
+//       // await initializeSharedPreference();
 //       await getDashBoardData();
 //       await fetchData();
 //     } catch (e) {
@@ -147,12 +161,12 @@
 //     }
 //   }
 //
-//   Future<void> mqttConfigureAndConnect() async {
-//     MqttPayloadProvider payloadProvider =
-//     Provider.of<MqttPayloadProvider>(context, listen: false);
-//     manager.initializeMQTTClient(state: payloadProvider);
-//     manager.connect();
-//   }
+//   // Future<void> mqttConfigureAndConnect() async {
+//   //   MqttPayloadProvider payloadProvider =
+//   //   Provider.of<MqttPayloadProvider>(context, listen: false);
+//   //   // manager.initializeMQTTClient(payloadProvider);
+//   //   // manager.connect();
+//   // }
 //
 //   Future<void> initializeSharedPreference() async {
 //     // print("getUserData function");
@@ -172,20 +186,21 @@
 //     try {
 //       // print("fetch data function");
 //       overAllPvd.menuIdList.clear();
-//       Map<String, Object> body = {
-//         "userId": overAllPvd.userId,
-//         "controllerId": overAllPvd.controllerId
-//       };
+//
+//       final Repository repository = Repository(HttpService());
+//       var response = await repository.getPlanningHiddenMenu({
+//         "userId":  widget.userId,
+//         "controllerId": 1
+//       });
+//
 //       // Map<String, Object> body = {"userId": 15, "controllerId": 1};
-//       final response =
-//       await HttpService().postRequest("getUserMainMenuHiddenStatus", body);
-//       // print(response.body);
+//       print('getPlanningHiddenMenu');
+//       print(response.body);
 //       if (response.statusCode == 200) {
 //         setState(() {
 //           var jsonData = jsonDecode(response.body);
 //           _hiddenMenu = HiddenMenu.fromJson(jsonData);
-//           overAllPvd.menuIdList =
-//               _hiddenMenu.data!.map((e) => e.dealerDefinitionId!).toList();
+//           overAllPvd.menuIdList = _hiddenMenu.data!.map((e) => e.dealerDefinitionId!).toList();
 //         });
 //       } else {
 //         // _showSnackBar(response.body);
@@ -214,7 +229,7 @@
 //         setState(() {
 //           payloadProvider.dataFetchingStatus = 2;
 //         });
-//         Future.delayed(Duration(seconds: 10), () {
+//         Future.delayed(const Duration(seconds: 10), () {
 //           if (payloadProvider.dataFetchingStatus != 1) {
 //             setState(() {
 //               payloadProvider.dataFetchingStatus = 3;
@@ -227,9 +242,9 @@
 //   }
 //
 //   void autoReferesh() async {
-//     manager.subscribeToTopic('FirmwareToApp/${overAllPvd.imeiNo}');
-//     manager.publish(
-//         payloadProvider.publishMessage, 'AppToFirmware/${overAllPvd.imeiNo}');
+//     // manager.subscribeToTopic('FirmwareToApp/${overAllPvd.imeiNo}');
+//     // manager.publish(
+//     //     payloadProvider.publishMessage, 'AppToFirmware/${overAllPvd.imeiNo}');
 //     if (mounted) {
 //       setState(() {
 //         payloadProvider.tryingToGetPayload += 1;
@@ -237,182 +252,66 @@
 //     }
 //   }
 //
-//   Future<void> getDashBoardData() async {
-//     // print('//////////////////////////////////////////get function called//////////////////////////');
-//     if (payloadProvider.timerForCentralFertigation != null) {
-//       setState(() {
-//         payloadProvider.timerForIrrigationPump!.cancel();
-//         payloadProvider.timerForSourcePump!.cancel();
-//         payloadProvider.timerForCentralFiltration!.cancel();
-//         payloadProvider.timerForLocalFiltration!.cancel();
-//         payloadProvider.timerForCentralFertigation!.cancel();
-//         payloadProvider.timerForLocalFertigation!.cancel();
-//         payloadProvider.timerForCurrentSchedule!.cancel();
-//       });
-//     }
-//     payloadProvider.clearData();
-//     final prefs = await SharedPreferences.getInstance();
-//     final userIdFromPref = prefs.getString('userId') ?? '';
-//     setState(() {
-//       overAllPvd.userId = int.parse(userIdFromPref);
-//     });
-//     // payloadProvider.editLoading(true);
-//     try {
-//       HttpService service = HttpService();
-//       var getUserDetails = await service.postRequest('getCustomerDashboard', {
-//         'userId': !widget.fromDealer ? userIdFromPref : widget.userId,
-//       });
-//       var jsonData = jsonDecode(getUserDetails.body);
-//       if (jsonData['code'] == 200) {
-//         payloadProvider.listOfSite = jsonData['data'];
-//         if (jsonData['data'].isNotEmpty) {
-//           await Future.delayed(Duration.zero, () {
-//             setState(() {
-//               payloadProvider.selectedSiteString = 'site-0';
-//               userId = !widget.fromDealer
-//                   ? int.parse(userIdFromPref)
-//                   : widget.userId;
-//               var selectedMasterData =
-//               payloadProvider.listOfSite[payloadProvider.selectedSite]
-//               ['master'][payloadProvider.selectedMaster];
-//               overAllPvd.userId = userId;
-//               overAllPvd.fromDealer = widget.fromDealer;
-//               if (overAllPvd.fromDealer) {
-//                 overAllPvd.dealerId = widget.userId;
-//               }
-//               overAllPvd.imeiNo = selectedMasterData['deviceId'];
-//               print(overAllPvd.imeiNo);
-//               overAllPvd.controllerId = selectedMasterData['controllerId'];
-//               overAllPvd.controllerType = selectedMasterData['categoryId'];
-//               overAllPvd.takeSharedUserId = false;
-//               if ([1, 2].contains(overAllPvd.controllerType)) {
-//                 final rawData = payloadProvider
-//                     .listOfSite[payloadProvider.selectedSite]['master']
-//                 [payloadProvider.selectedMaster]['2400'][0]['2401'] as List;
-//                 payloadProvider.nodeData =
-//                     rawData.map((item) => NodeModel.fromJson(item)).toList();
-//               }
-//               if (selectedMasterData['irrigationLine'] != null) {
-//                 payloadProvider
-//                     .editLineData(selectedMasterData['irrigationLine']);
-//               }
-//               payloadProvider.updateReceivedPayload(
-//                   jsonEncode([3, 4].contains(overAllPvd.controllerType)
-//                       ? {"mC": "LD01", 'cM': selectedMasterData['liveMessage']}
-//                       : selectedMasterData),
-//                   true);
-//               print("controllerType ==> ${overAllPvd.controllerType}");
-//               if ([3, 4].contains(overAllPvd.controllerType)) {
-//                 if (payloadProvider.dataFetchingStatus != 1) {
-//                   payloadProvider
-//                       .lastUpdate = DateTime.parse(selectedMasterData[
-//                   'liveSyncDate'] !=
-//                       null
-//                       ? "${selectedMasterData['liveSyncDate']} ${selectedMasterData['liveSyncTime']}"
-//                       : DateTime.now().toString());
-//                 }
-//               }
-//               payloadProvider.subscribeTopic =
-//               'FirmwareToApp/${selectedMasterData['deviceId']}';
-//               payloadProvider.publishTopic =
-//               'AppToFirmware/${selectedMasterData['deviceId']}';
-//               payloadProvider.publishMessage = getPublishMessage();
-//             });
-//           });
-//           for (var i = 0; i < 2; i++) {
-//             Future.delayed(Duration(seconds: 3), () {
-//               autoReferesh();
-//             });
-//           }
-//         }
-//       }
-//       try {
-//         var getSharedUserDetails = await service.postRequest(
-//             'getSharedUserDeviceList',
-//             {'userId': userIdFromPref, 'sharedUserId': null});
-//         var jsonDataSharedDevice = jsonDecode(getSharedUserDetails.body);
-//         if (jsonDataSharedDevice['code'] == 200) {
-//           setState(() {
-//             payloadProvider.listOfSharedUser = jsonDataSharedDevice['data'];
-//             if (payloadProvider.listOfSite.isEmpty) {
-//               if (payloadProvider.listOfSharedUser['devices'].isNotEmpty) {
-//                 setState(() {
-//                   if ([1, 2].contains(overAllPvd.controllerType)) {
-//                     final rawData = payloadProvider.listOfSharedUser['devices']
-//                     [payloadProvider.selectedMaster]['2400'][0]['2401']
-//                     as List;
-//                     payloadProvider.nodeData = rawData
-//                         .map((item) => NodeModel.fromJson(item))
-//                         .toList();
-//                   }
-//                   var selectedMasterData =
-//                   payloadProvider.listOfSharedUser['devices']
-//                   [payloadProvider.selectedMaster];
-//                   payloadProvider.selectedSiteString = 'sharedUser-0';
-//                   payloadProvider.selectedMaster = 0;
-//                   if (selectedMasterData['irrigationLine'] != null) {
-//                     payloadProvider
-//                         .editLineData(selectedMasterData['irrigationLine']);
-//                   }
-//                   overAllPvd.takeSharedUserId = true;
-//                   overAllPvd.sharedUserId =
-//                   jsonDataSharedDevice['data']['users'][0]['userId'];
-//                   // overAllPvd.userId = selectedMasterData['userId'];
-//                   overAllPvd.imeiNo = selectedMasterData['deviceId'];
-//                   overAllPvd.controllerId = selectedMasterData['controllerId'];
-//                   overAllPvd.controllerType = selectedMasterData['categoryId'];
-//                   payloadProvider.updateReceivedPayload(
-//                       jsonEncode([3, 4].contains(overAllPvd.controllerType)
-//                           ? {
-//                         "mC": "LD01",
-//                         'cM': selectedMasterData['liveMessage']
-//                       }
-//                           : selectedMasterData),
-//                       true);
-//                   if (payloadProvider.dataFetchingStatus != 1) {
-//                     payloadProvider.lastUpdate = DateTime.parse(
-//                         "${selectedMasterData['liveSyncDate']} ${selectedMasterData['liveSyncTime']}");
-//                   }
-//                   payloadProvider.subscribeTopic =
-//                   'FirmwareToApp/${selectedMasterData['deviceId']}';
-//                   payloadProvider.publishTopic =
-//                   'AppToFirmware/${selectedMasterData['deviceId']}';
-//                   payloadProvider.publishMessage = getPublishMessage();
-//                 });
-//                 for (var i = 0; i < 2; i++) {
-//                   Future.delayed(Duration(seconds: 3), () {
-//                     autoReferesh();
-//                   });
-//                 }
-//               }
-//             }
-//           });
-//           // print('getSharedUserDevice : ${payloadProvider.listOfSharedUser}');
-//           // print(jsonDataSharedDevice['data'].runtimeType);
-//         }
-//         print(
-//             'payloadProvider.listOfSharedUser ::: ${payloadProvider.listOfSharedUser}');
-//       } catch (e, stackTrace) {
-//         setState(() {
-//           payloadProvider.httpError = true;
-//         });
-//         print(' Error getSharedUserDeviceList  => ${e.toString()}');
-//         print(' trace getSharedUserDeviceList  => ${stackTrace}');
-//       }
-//       setState(() {
-//         payloadProvider.httpError = false;
-//       });
-//     } catch (e, stackTrace) {
-//       setState(() {
-//         payloadProvider.httpError = true;
-//       });
-//       print(' Error overAll getData => ${e.toString()}');
-//       print(' trace overAll getData  => ${stackTrace}');
-//     }
+//   Future<void> getDashBoardData()
+//   async {
+//    print("getData");
+//   // print('//////////////////////////////////////////get function called//////////////////////////');
+//   if (payloadProvider.timerForIrrigationPump != null) {
+//   setState(() {
+//   payloadProvider.timerForIrrigationPump!.cancel();
+//   payloadProvider.timerForSourcePump!.cancel();
+//   payloadProvider.timerForCentralFiltration!.cancel();
+//   payloadProvider.timerForLocalFiltration!.cancel();
+//   payloadProvider.timerForCentralFertigation!.cancel();
+//   payloadProvider.timerForLocalFertigation!.cancel();
+//   payloadProvider.timerForCurrentSchedule!.cancel();
+//   });
 //   }
+//   // payloadProvider.clearData();
+//
+//   print("userId:$userId");
+//
+//   // final usernameFromPref = prefs.getString('user_role');
+// // print("userIdFromPref:$userIdFromPref usernameFromPref:usernameFromPref");
+//   // payloadProvider.editLoading(true);
+//   try {
+//   final Repository repository = Repository(HttpService());
+//   var getUserDetails = await repository.fetchAllMySite({
+//   "userId": userId ?? 4,
+//   });
+//
+//   final jsonData = jsonDecode(getUserDetails.body);
+//   print("jason data---: $jsonData");
+//   if (jsonData['code'] == 200) {
+//   await payloadProvider.updateDashboardPayload(jsonData);
+//   setState(() {
+//   liveData = payloadProvider.dashboardLiveInstance!.data;
+//   overAllPvd.editControllerType((!overAllPvd.takeSharedUserId
+//   ? liveData[payloadProvider.selectedSite]
+//       .master[payloadProvider.selectedMaster]
+//       .categoryId
+//       : payloadProvider.listOfSharedUser['devices']
+//   [payloadProvider.selectedMaster]['categoryId']));
+//   overAllPvd.edituserGroupId(payloadProvider.dashboardLiveInstance!
+//       .data[payloadProvider.selectedSite].groupId);
+//   overAllPvd.editDeviceId(payloadProvider
+//       .dashboardLiveInstance!
+//       .data[payloadProvider.selectedSite]
+//       .master[payloadProvider.selectedMaster]
+//       .deviceId);
+//   });
+//   }
+//   payloadProvider.httpError = false;
+//   } catch (e, stackTrace) {
+//   payloadProvider.httpError = true;
+//   print(' Error overAll getData => ${e.toString()}');
+//   print(' trace overAll getData  => ${stackTrace}');
+//   }
+// }
 //
 //   @override
 //   Widget build(BuildContext context) {
+//
 //     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
 //       statusBarColor: Colors.transparent,
 //       statusBarIconBrightness: Brightness.dark,
@@ -422,24 +321,7 @@
 //     overAllPvd = Provider.of<OverAllUse>(context, listen: true);
 //     payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: true);
 //
-//     return overAllPvd.fromDealer == false
-//         ? PopScope(
-//       canPop: false,
-//       onPopInvoked: (didPop) async {
-//         if (irrigationProgramProvider.selectedIndex != 0 ||
-//             isBottomSheet) {
-//           setState(() {
-//             isBottomSheet = false;
-//           });
-//           irrigationProgramProvider.updateBottomNavigation(0);
-//         } else if (await _onWillPop(context)) {
-//           Navigator.pop(context);
-//         }
-//       },
-//       child:
-//       httperroronhs ? buildErrorScreen() : buildMainScreen(context),
-//     )
-//         : (httperroronhs ? buildErrorScreen() : buildMainScreen(context));
+//     return buildMainScreen(context);
 //   }
 //
 //   Widget buildMainScreen(BuildContext context) {
@@ -466,15 +348,13 @@
 //               child: InkWell(
 //                 onTap: _showMenuSheet,
 //                 child: Card(
-//                   shape: CircleBorder(),
+//                   color: Theme.of(context).primaryColorDark,
+//                   shape: const CircleBorder(),
 //                   elevation: 20,
 //                   child: Container(
 //                       padding: const EdgeInsets.all(8),
-//                       decoration: BoxDecoration(
-//                           shape: BoxShape.circle,
-//                           gradient: linearGradientLeading,
-//                           boxShadow: customBoxShadow),
-//                       child: const Icon(
+//
+//                       child:  const Icon(
 //                         Icons.keyboard_arrow_up,
 //                         size: 35,
 //                         color: Colors.white,
@@ -502,28 +382,28 @@
 //       context: context,
 //       transitionAnimationController: AnimationController(
 //         vsync: Navigator.of(context),
-//         duration: Duration(milliseconds: 500),
-//         reverseDuration: Duration(milliseconds: 300),
+//         duration: const Duration(milliseconds: 500),
+//         reverseDuration: const Duration(milliseconds: 300),
 //       ),
-//       shape: RoundedRectangleBorder(
+//       shape: const RoundedRectangleBorder(
 //         borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
 //       ),
 //       builder: (BuildContext context) {
 //         return Consumer<OverAllUse>(
 //           builder: (context, overAllPvd, _) {
 //             return Container(
-//               padding: EdgeInsets.symmetric(horizontal: 20),
+//               padding: const EdgeInsets.symmetric(horizontal: 20),
 //               child: RefreshIndicator(
 //                 onRefresh: fetchData,
 //                 child: Column(
 //                   mainAxisSize: MainAxisSize.min,
 //                   children: [
-//                     SizedBox(height: 20),
+//                     const SizedBox(height: 20),
 //                     SizedBox(
 //                       height: 310,
 //                       child: GridView.builder(
 //                         itemCount: _hiddenMenu.data!.length,
-//                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+//                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
 //                           crossAxisCount: 4,
 //                           crossAxisSpacing: 10,
 //                           mainAxisSpacing: 15,
@@ -572,7 +452,7 @@
 //                         progress: _controller,
 //                       ),
 //                     ),
-//                     SizedBox(height: 20),
+//                     const SizedBox(height: 20),
 //                   ],
 //                 ),
 //               ),
@@ -592,10 +472,10 @@
 //       context: context,
 //       transitionAnimationController: AnimationController(
 //         vsync: Navigator.of(context),
-//         duration: Duration(milliseconds: 500),
-//         reverseDuration: Duration(milliseconds: 300),
+//         duration: const Duration(milliseconds: 500),
+//         reverseDuration: const Duration(milliseconds: 300),
 //       ),
-//       shape: RoundedRectangleBorder(
+//       shape: const RoundedRectangleBorder(
 //         borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
 //       ),
 //       builder: (BuildContext context) {
@@ -615,12 +495,12 @@
 //                     ListTile(
 //                       subtitle: Text(
 //                         item.parameter!,
-//                         style: TextStyle(
+//                         style: const TextStyle(
 //                             fontSize: 16, fontWeight: FontWeight.bold),
 //                       ),
 //                       title: Text(
 //                         "STEP ${index + 1}",
-//                         style: TextStyle(fontSize: 12),
+//                         style: const TextStyle(fontSize: 12),
 //                       ),
 //                       leading: Container(
 //                         height: 40,
@@ -659,7 +539,7 @@
 //                       trailing: IntrinsicWidth(
 //                         child: Container(
 //                           padding:
-//                           EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+//                           const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
 //                           decoration: BoxDecoration(
 //                             color: controllerReadStatus
 //                                 ? Colors.green.shade50
@@ -680,7 +560,7 @@
 //                     ),
 //                     if (index != _hiddenMenu.data!.length - 1)
 //                       Container(
-//                         margin: EdgeInsets.only(left: 35),
+//                         margin: const EdgeInsets.only(left: 35),
 //                         height: 15,
 //                         width: 3,
 //                         decoration: BoxDecoration(
@@ -729,14 +609,14 @@
 //               gradient: LinearGradient(
 //                 begin: Alignment.topCenter,
 //                 end: Alignment.bottomCenter,
-//                 colors: color ?? [Color(0xffd2e5ee), Color(0xffcde6fc)],
+//                 colors: color ?? [const Color(0xffd2e5ee), const Color(0xffcde6fc)],
 //               ),
 //               boxShadow: customBoxShadow,
 //               border: Border.all(color: borderColor ?? Colors.grey, width: 0.3),
 //             ),
 //             child: Center(child: getIconsMenu(id!)),
 //           ),
-//           SizedBox(height: 5),
+//           const SizedBox(height: 5),
 //           SizedBox(
 //             width: 80,
 //             height: 30,
@@ -744,7 +624,7 @@
 //               child: Text(
 //                 label ?? "Coming soon",
 //                 textAlign: TextAlign.center,
-//                 style: TextStyle(fontSize: 11),
+//                 style: const TextStyle(fontSize: 11),
 //               ),
 //             ),
 //           ),
@@ -760,11 +640,11 @@
 //           child: Column(
 //             mainAxisAlignment: MainAxisAlignment.center,
 //             children: [
-//               Text('Network is unreachable!!'),
+//               const Text('Network is unreachable!!'),
 //               MaterialButton(
 //                 onPressed: getData,
 //                 color: Colors.blueGrey,
-//                 child: Text('RETRY', style: TextStyle(color: Colors.white)),
+//                 child: const Text('RETRY', style: TextStyle(color: Colors.white)),
 //               ),
 //             ],
 //           ),
@@ -805,7 +685,7 @@
 //             [1, 2].contains(overAllPvd.controllerType) ? actualIndex : index);
 //       },
 //       items: [
-//         BottomNavigationBarItem(
+//         const BottomNavigationBarItem(
 //             activeIcon: Icon(Icons.dashboard),
 //             label: "Dashboard",
 //             icon: Icon(Icons.dashboard_outlined)),
@@ -820,7 +700,7 @@
 //                 ? Icons.schedule_outlined
 //                 : Icons.settings_outlined)),
 //         if ([1, 2].contains(overAllPvd.controllerType))
-//           BottomNavigationBarItem(
+//           const BottomNavigationBarItem(
 //               icon: SizedBox.shrink(), label: ''), // Placeholder
 //         BottomNavigationBarItem(
 //           icon: Icon([1, 2].contains(overAllPvd.controllerType)
@@ -833,22 +713,16 @@
 //           [1, 2].contains(overAllPvd.controllerType) ? "Schedule" : "View",
 //         ),
 //         BottomNavigationBarItem(
-//             icon: Icon(Icons.assessment_outlined),
-//             activeIcon: Icon(Icons.assessment),
+//             icon: const Icon(Icons.assessment_outlined),
+//             activeIcon: const Icon(Icons.assessment),
 //             label: [1, 2].contains(overAllPvd.controllerType) ? "Log" : "Logs"),
 //       ],
 //     );
 //   }
 //
 //   Widget buildControllerContent() {
-//     if ([1, 2].contains(overAllPvd.controllerType)) {
-//       return _widgetOptions[irrigationProgramProvider.selectedIndex];
-//     } else if ([3, 4].contains(overAllPvd.controllerType)) {
-//       return _widgetOptionspump[irrigationProgramProvider.selectedIndex];
-//     } else {
-//       return Container();
-//     }
-//   }
+//       return _widgetOptions[0];
+//    }
 //
 //   String getAppBarTitle(int index, int controllerType) {
 //     if ([1, 2].contains(controllerType)) {
@@ -881,7 +755,7 @@
 //     overAllPvd = Provider.of<OverAllUse>(context, listen: true);
 //
 //     final screens = {
-//       66: () => watersourceUI1(
+//       66: () => watersourceUI(
 //         userId: overAllPvd.takeSharedUserId
 //             ? overAllPvd.sharedUserId
 //             : overAllPvd.userId,
@@ -897,31 +771,31 @@
 //         deviceId: overAllPvd.imeiNo,
 //         menuId: 67,
 //       ),
-//       68: () => RadiationSetUI(
+//       // 68: () => RadiationSetUI(
+//       //   userId: overAllPvd.takeSharedUserId
+//       //       ? overAllPvd.sharedUserId
+//       //       : overAllPvd.userId,
+//       //   controllerId: overAllPvd.controllerId,
+//       //   deviceId: overAllPvd.imeiNo,
+//       //   menuId: 68,
+//       // ),
+//       69: () => VirtualMeterScreen(
 //         userId: overAllPvd.takeSharedUserId
 //             ? overAllPvd.sharedUserId
 //             : overAllPvd.userId,
 //         controllerId: overAllPvd.controllerId,
 //         deviceId: overAllPvd.imeiNo,
-//         menuId: 68,
-//       ),
-//       69: () => MyGroupScreen(
-//         userId: overAllPvd.takeSharedUserId
-//             ? overAllPvd.sharedUserId
-//             : overAllPvd.userId,
-//         controllerId: overAllPvd.controllerId,
-//         deviceID: overAllPvd.imeiNo,
 //         menuId: 69,
 //       ),
-//       70: () => ConditionScreen(
-//         userId: overAllPvd.takeSharedUserId
-//             ? overAllPvd.sharedUserId
-//             : overAllPvd.userId,
-//         controllerId: overAllPvd.controllerId,
-//         deviceID: overAllPvd.imeiNo,
-//         isProgram: false,
-//         menuId: 70,
-//       ),
+//       // 70: () => ConditionScreen(
+//       //   userId: overAllPvd.takeSharedUserId
+//       //       ? overAllPvd.sharedUserId
+//       //       : overAllPvd.userId,
+//       //   controllerId: overAllPvd.controllerId,
+//       //   deviceID: overAllPvd.imeiNo,
+//       //   isProgram: false,
+//       //   menuId: 70,
+//       // ),
 //       71: () => FrostMobUI(
 //         userId: overAllPvd.takeSharedUserId
 //             ? overAllPvd.sharedUserId
@@ -930,96 +804,96 @@
 //         deviceID: overAllPvd.imeiNo,
 //         menuId: 71,
 //       ),
-//       72: () => FilterBackwashUI1(
+//       72: () => FilterBackwashUI(
 //         userId: overAllPvd.takeSharedUserId
 //             ? overAllPvd.sharedUserId
 //             : overAllPvd.userId,
 //         controllerId: overAllPvd.controllerId,
-//         deviceID: overAllPvd.imeiNo,
-//         menuId: 72,
+//         deviceId: overAllPvd.imeiNo, customerId: overAllPvd.customerId, fromDealer: false,
+//
 //       ),
-//       73: () => FertilizerSetScreen(
-//         userId: overAllPvd.takeSharedUserId
-//             ? overAllPvd.sharedUserId
-//             : overAllPvd.userId,
-//         customerID: overAllPvd.customerId,
-//         controllerId: overAllPvd.controllerId,
-//         deviceId: overAllPvd.imeiNo,
-//         menuId: 73,
-//       ),
-//       74: () => GlobalFertilizerLimit(
-//         customerId: overAllPvd.customerId,
-//         userId: overAllPvd.takeSharedUserId
-//             ? overAllPvd.sharedUserId
-//             : overAllPvd.userId,
-//         controllerId: overAllPvd.controllerId,
-//         deviceId: overAllPvd.imeiNo,
-//         menuId: 74,
-//       ),
-//       75: () => SystemDefinition(
-//         userId: overAllPvd.takeSharedUserId
-//             ? overAllPvd.sharedUserId
-//             : overAllPvd.userId,
-//         controllerId: controllerId,
-//         deviceId: overAllPvd.imeiNo,
-//         menuId: 75,
-//       ),
-//       76: () => ProgramQueueScreen(
-//         userId: overAllPvd.takeSharedUserId
-//             ? overAllPvd.sharedUserId
-//             : overAllPvd.userId,
-//         controllerId: controllerId,
-//         customerId: overAllPvd.customerId,
-//         deviceId: overAllPvd.imeiNo,
-//         menuId: 76,
-//       ),
-//       77: () => WeatherScreen(
-//         userId: overAllPvd.takeSharedUserId
-//             ? overAllPvd.sharedUserId
-//             : overAllPvd.userId,
-//         controllerId: overAllPvd.controllerId,
-//         menuId: 77,
-//         initialIndex: 0,
-//       ),
-//       78: () => PreferenceMainScreen(
-//         userId: overAllPvd.takeSharedUserId
-//             ? overAllPvd.sharedUserId
-//             : overAllPvd.userId,
-//         controllerId: overAllPvd.controllerId,
-//         deviceId: overAllPvd.imeiNo,
-//         customerId: overAllPvd.customerId,
-//         menuId: 78,
-//       ),
-//       79: () => ConstantInConfig(
-//         userId: overAllPvd.customerId,
-//         deviceId: overAllPvd.imeiNo,
-//         customerId: overAllPvd.userId,
-//         controllerId: overAllPvd.controllerId,
-//         menuId: 79,
-//       ),
-//       80: () => Names(
-//         userID: overAllPvd.takeSharedUserId
-//             ? overAllPvd.sharedUserId
-//             : overAllPvd.customerId,
-//         customerID: overAllPvd.takeSharedUserId
-//             ? overAllPvd.sharedUserId
-//             : overAllPvd.userId,
-//         controllerId: overAllPvd.controllerId,
-//         imeiNo: overAllPvd.imeiNo,
-//         menuId: 80,
-//       ),
-//       81: () => CustomMarkerPage(
-//         userId: overAllPvd.customerId,
-//         controllerId: overAllPvd.controllerId,
-//         deviceID: overAllPvd.imeiNo,
-//         menuId: 81,
-//       ),
-//       127: () => Calibration(
-//         userId: overAllPvd.userId,
-//         controllerId: overAllPvd.controllerId,
-//         deviceId: overAllPvd.imeiNo,
-//         menuId: 127,
-//       ),
+//       // 73: () => FertilizerSetScreen(
+//       //   userId: overAllPvd.takeSharedUserId
+//       //       ? overAllPvd.sharedUserId
+//       //       : overAllPvd.userId,
+//       //   customerID: overAllPvd.customerId,
+//       //   controllerId: overAllPvd.controllerId,
+//       //   deviceId: overAllPvd.imeiNo,
+//       //   menuId: 73,
+//       // ),
+//       // 74: () => GlobalFertilizerLimit(
+//       //   customerId: overAllPvd.customerId,
+//       //   userId: overAllPvd.takeSharedUserId
+//       //       ? overAllPvd.sharedUserId
+//       //       : overAllPvd.userId,
+//       //   controllerId: overAllPvd.controllerId,
+//       //   deviceId: overAllPvd.imeiNo,
+//       //   menuId: 74,
+//       // ),
+//       // 75: () => SystemDefinition(
+//       //   userId: overAllPvd.takeSharedUserId
+//       //       ? overAllPvd.sharedUserId
+//       //       : overAllPvd.userId,
+//       //   controllerId: controllerId,
+//       //   deviceId: overAllPvd.imeiNo,
+//       //   menuId: 75,
+//       // ),
+//       // 76: () => ProgramQueueScreen(
+//       //   userId: overAllPvd.takeSharedUserId
+//       //       ? overAllPvd.sharedUserId
+//       //       : overAllPvd.userId,
+//       //   controllerId: controllerId,
+//       //   customerId: overAllPvd.customerId,
+//       //   deviceId: overAllPvd.imeiNo,
+//       //   menuId: 76,
+//       // ),
+//       // 77: () => WeatherScreen(
+//       //   userId: overAllPvd.takeSharedUserId
+//       //       ? overAllPvd.sharedUserId
+//       //       : overAllPvd.userId,
+//       //   controllerId: overAllPvd.controllerId,
+//       //   menuId: 77,
+//       //   initialIndex: 0,
+//       // ),
+//       // 78: () => PreferenceMainScreen(
+//       //   userId: overAllPvd.takeSharedUserId
+//       //       ? overAllPvd.sharedUserId
+//       //       : overAllPvd.userId,
+//       //   controllerId: overAllPvd.controllerId,
+//       //   deviceId: overAllPvd.imeiNo,
+//       //   customerId: overAllPvd.customerId,
+//       //   menuId: 78,
+//       // ),
+//       // 79: () => ConstantInConfig(
+//       //   userId: overAllPvd.customerId,
+//       //   deviceId: overAllPvd.imeiNo,
+//       //   customerId: overAllPvd.userId,
+//       //   controllerId: overAllPvd.controllerId,
+//       //   menuId: 79,
+//       // ),
+//       // 80: () => Names(
+//       //   userID: overAllPvd.takeSharedUserId
+//       //       ? overAllPvd.sharedUserId
+//       //       : overAllPvd.customerId,
+//       //   customerID: overAllPvd.takeSharedUserId
+//       //       ? overAllPvd.sharedUserId
+//       //       : overAllPvd.userId,
+//       //   controllerId: overAllPvd.controllerId,
+//       //   imeiNo: overAllPvd.imeiNo,
+//       //   menuId: 80,
+//       // ),
+//       // 81: () => CustomMarkerPage(
+//       //   userId: overAllPvd.customerId,
+//       //   controllerId: overAllPvd.controllerId,
+//       //   deviceID: overAllPvd.imeiNo,
+//       //   menuId: 81,
+//       // ),
+//       // 127: () => Calibration(
+//       //   userId: overAllPvd.userId,
+//       //   controllerId: overAllPvd.controllerId,
+//       //   deviceId: overAllPvd.imeiNo,
+//       //   menuId: 127,
+//       // ),
 //     };
 //
 //     try {
@@ -1033,26 +907,26 @@
 //
 //   dynamic getIconsMenu(int name) {
 //     final icons = {
-//       66: 'assets/weather/menuwatersource.png',
-//       67: 'assets/weather/menuwatersource.png',
-//       68: 'assets/weather/menuradiationset.png',
-//       69: 'assets/weather/menugroup.png',
-//       70: 'assets/weather/menucondition.png',
-//       71: 'assets/weather/menufrost.png',
-//       72: 'assets/weather/menufilter.png',
-//       73: 'assets/weather/menufertlizerset.png',
-//       74: 'assets/weather/menuglobal.png',
-//       75: 'assets/weather/menuwatersource.png',
-//       76: 'assets/weather/menuprogramque.png',
-//       77: 'assets/weather/menuweather.png',
-//       78: 'assets/weather/menufrost.png',
-//       79: Icon(Icons.construction),
-//       80: Icon(Icons.contact_page_sharp),
-//       81: Icon(Icons.map),
+//       66: 'assets/png_images/menuwatersource.png',
+//       67: 'assets/png_images/menuwatersource.png',
+//       68: 'assets/png_images/menuradiationset.png',
+//       69: 'assets/png_images/menugroup.png',
+//       70: 'assets/png_images/menucondition.png',
+//       71: 'assets/png_images/menufrost.png',
+//       72: 'assets/png_images/menufilter.png',
+//       73: 'assets/png_images/menufertlizerset.png',
+//       74: 'assets/png_images/menuglobal.png',
+//       75: 'assets/png_images/menuwatersource.png',
+//       76: 'assets/png_images/menuprogramque.png',
+//       77: 'assets/png_images/menuweather.png',
+//       78: 'assets/png_images/menufrost.png',
+//       79: const Icon(Icons.construction),
+//       80: const Icon(Icons.contact_page_sharp),
+//       81: const Icon(Icons.map),
 //     };
 //
 //     final icon = icons[name];
-//     return icon is String ? Image.asset(icon) : icon ?? Icon(Icons.person);
+//     return icon is String ? Image.asset(icon) : icon ?? const Icon(Icons.person);
 //   }
 //
 //   Future<bool> _onWillPop(BuildContext context) async {
@@ -1060,13 +934,13 @@
 //       context: context,
 //       barrierDismissible: false,
 //       builder: (context) => AlertDialog(
-//         title: Text("Exit"),
-//         content: Text("Do you want to exit?"),
+//         title: const Text("Exit"),
+//         content: const Text("Do you want to exit?"),
 //         actions: <Widget>[
 //           TextButton(
 //             onPressed: () => exit(0),
 //             // onPressed: () => Navigator.of(context).pop(true),// Return true to pop the route
-//             child: Text(
+//             child: const Text(
 //               "Yes",
 //               style: TextStyle(
 //                 color: Colors.blue,
@@ -1077,7 +951,7 @@
 //           ),
 //           TextButton(
 //             onPressed: () => Navigator.of(context).pop(false),
-//             child: Text(
+//             child: const Text(
 //               "No",
 //               style: TextStyle(
 //                 color: Colors.blue,
@@ -1164,7 +1038,7 @@
 //                 onPressed: () {
 //                   Navigator.pop(dialogContext);
 //                 },
-//                 child: Text(
+//                 child: const Text(
 //                   "Stay",
 //                   style: TextStyle(color: Colors.red),
 //                 )),
@@ -1174,7 +1048,7 @@
 //                       .updateSelectedMenu(menuId);
 //                   Navigator.pop(dialogContext);
 //                 },
-//                 child: Text("Go Next")),
+//                 child: const Text("Go Next")),
 //           ],
 //         );
 //       });

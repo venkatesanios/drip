@@ -17,7 +17,6 @@ class Environment {
     'smartComm' : {
       'apiUrl': 'http://52.172.214.208:5000/api/v1',
       'apiKey': 'prod-api-key',
-      //'mqttWebUrl': 'ws://52.172.214.208:1883/mqtt',
       'mqttWebUrl': 'ws://52.172.214.208:9001/mqtt',
       'mqttMobileUrl': '52.172.214.208',
       'publishTopic': 'AppToFirmware',
@@ -46,5 +45,6 @@ class Environment {
   static int get mqttWebPort => config[F.name]?['mqttWebPort'] ?? 0;
   static int get mqttMobilePort => config[F.name]?['mqttMobilePort'] ?? 0;
 
-  static String get mqttWebPublishTopic => config[F.name]?['publishTopic'] ?? '';
+  static String get mqttSubscribeTopic => config[F.name]?['subscribeTopic'] ?? '';
+  static String get mqttPublishTopic => config[F.name]?['publishTopic'] ?? '';
 }

@@ -74,4 +74,21 @@ class Master {
       outputObjectId: json['outputObjectId'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "controllerId": controllerId,
+      "dealerId": dealerId,
+      "productId": productId,
+      "deviceId": deviceId,
+      "deviceName": deviceName,
+      "productStatus": productStatus,
+      "categoryId": categoryId,
+      "categoryName": categoryName,
+      "modelId": modelId,
+      "modelName": modelName,
+      "inputObjectId": inputObjectId,
+      "outputObjectId": outputObjectId,
+    };
+  }
 }

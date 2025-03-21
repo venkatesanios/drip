@@ -1,12 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../flavors.dart';
-import '../utils/constants.dart';
+import '../Screens/Dealer/dealer_definition.dart';
+import '../Screens/planning/WeatherScreen.dart';
+import '../Screens/planning/names_form.dart';
 import '../view_models/screen_controller_view_model.dart';
-import 'admin_dealer/admin_dashboard.dart';
 import 'admin_dealer/admin_screen_controller.dart';
 import 'admin_dealer/dealer_screen_controller.dart';
-import 'admin_dealer/product_inventory.dart';
 import 'customer/customer_screen_controller.dart';
 
 class ScreenController extends StatelessWidget {
@@ -14,7 +14,6 @@ class ScreenController extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return ChangeNotifierProvider(
       create: (_) => ScreenControllerViewModel(),
       child: Consumer<ScreenControllerViewModel>(
@@ -52,14 +51,14 @@ class ScreenController extends StatelessWidget {
           emailId: emailId,
         );
       default:
-        return CustomerScreenController(
-          userId: userId,
+        // return  WeatherScreen(userId: 4, controllerId: 1, deviceID: '',) ;
+         return CustomerScreenController(userId: userId,
           customerName: userName,
           mobileNo: mobileNo,
           emailId: emailId,
           customerId: userId,
           fromLogin: true,
-        );
+        ) ;
     }
   }
 }

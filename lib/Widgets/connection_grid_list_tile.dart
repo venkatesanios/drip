@@ -4,9 +4,9 @@ import 'package:oro_drip_irrigation/Widgets/toggle_text_form_field_connection.da
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 import '../Constants/communication_codes.dart';
 import '../Constants/properties.dart';
-import '../Models/Configuration/device_model.dart';
-import '../Models/Configuration/device_object_model.dart';
-import '../StateManagement/config_maker_provider.dart';
+import '../modules/config_Maker/model/device_model.dart';
+import '../modules/config_Maker/model/device_object_model.dart';
+import '../modules/config_Maker/state_management/config_maker_provider.dart';
 import '../utils/constants.dart';
 
 class ConnectionGridListTile extends StatefulWidget {
@@ -88,8 +88,8 @@ class _ConnectionGridListTileState extends State<ConnectionGridListTile> with Si
 
   Widget myWidget = ListTile(
       contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-    title: Text(object.objectName, style: Theme.of(context).textTheme.labelLarge,),
-      subtitle: Text('Not Configured : ${widget.configPvd.listOfGeneratedObject.where((element) => (element.objectId == object.objectId)).length}', style: Theme.of(context).textTheme.labelSmall,),
+    title: Text(object.objectName, style: Theme.of(context).textTheme.labelLarge,overflow: TextOverflow.ellipsis),
+      subtitle: Text('Not Configured : ${getNotConfiguredObjectByObjectId(object.objectId, widget.configPvd)}', style: Theme.of(context).textTheme.labelSmall,),
     leading: CircleAvatar(
       radius: 30,
       backgroundColor: Theme.of(context).colorScheme.primary,
@@ -118,7 +118,10 @@ class _ConnectionGridListTileState extends State<ConnectionGridListTile> with Si
         borderRadius: BorderRadius.circular(5),
         border: Border(left: BorderSide(width: 3, color: typeColor)),
         color: Theme.of(context).cardColor,
-        boxShadow: AppProperties.customBoxShadowLiteTheme
+        boxShadow: const [
+          BoxShadow(color: Colors.grey, blurRadius: 5)
+        ],
+        // boxShadow: AppProperties.customBoxShadowLiteTheme
       ),
       width: 300,
       child: myWidget,

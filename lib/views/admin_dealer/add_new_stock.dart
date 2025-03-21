@@ -2,7 +2,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:oro_drip_irrigation/Screens/NewIrrigationProgram/selection_screen.dart';
+import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/selection_screen.dart';
 import 'package:oro_drip_irrigation/utils/Theme/smart_comm_theme.dart';
 import 'package:provider/provider.dart';
 

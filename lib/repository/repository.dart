@@ -2,7 +2,6 @@ import 'package:http/http.dart' as http;
 import '../services/http_service.dart';
 
 class Repository{
-
   final HttpService apiService;
   Repository(this.apiService);
 
@@ -143,9 +142,36 @@ class Repository{
   }
 
   Future<http.Response> fetchAllMySite(body) async {
-    return await apiService.postRequest('/user/dashboard', body);
+     return await apiService.postRequest('/user/dashboard', body);
+  }
+  Future<http.Response> getUserFilterBackwasing(body) async {
+    return await apiService.postRequest('/user/planning/filterBackwashing/get', body);
   }
 
+  Future<http.Response> UpdateFilterBackwasing(body) async {
+    return await apiService.postRequest('/user/planning/filterBackwashing/create', body);
+  }
+  Future<http.Response> getUserwaterSource(body) async {
+    return await apiService.postRequest('/user/planning/waterSource/get', body);
+  }
+  Future<http.Response> UpdatewaterSource(body) async {
+    return await apiService.postRequest('/user/planning/waterSource/create', body);
+  }
+  Future<http.Response> getUservirtualwatermeter(body) async {
+    return await apiService.postRequest('/user/planning/virtualwatermeter/get', body);
+  }
+  Future<http.Response> Updatevirtualwatermeter(body) async {
+    return await apiService.postRequest('/user/planning/virtualwatermeter/create', body);
+  }
+  Future<http.Response> getUserfrostProtection(body) async {
+    return await apiService.postRequest('/user/planning/frostProtectionAndRainDelay/get', body);
+  }
+  Future<http.Response> UpdatefrostProtection(body) async {
+    return await apiService.postRequest('/user/planning/frostProtectionAndRainDelay/create', body);
+  }
+
+
+  ///Todo: Program urls
   Future<http.Response> getUserProgramSequence(body) async {
     return await apiService.postRequest('/user/program/sequence/get', body);
   }
@@ -174,6 +200,15 @@ class Repository{
     return await apiService.postRequest('/user/configMaker/getAsDefault', body);
   }
 
+  Future<http.Response> getdealerDefinition(body) async {
+    return await apiService.postRequest('/user/dealerDefinition/get', body);
+  }
+  Future<http.Response> createdealerDefinition(body) async {
+    return await apiService.postRequest('/user/dealerDefinition/create', body);
+  }
+  Future<http.Response> updateUserNames(body) async {
+     return await apiService.putRequest('/user/configMaker/name/update', body);
+  }
   Future<http.Response> getUserProgramWaterAndFert(body) async {
     return await apiService.postRequest('/user/program/waterAndFert/get', body);
   }
@@ -207,6 +242,7 @@ class Repository{
   }
 
 
+  ///Todo: Preference urls
   Future<http.Response> getUserPreferenceSetting(body) async {
     return await apiService.postRequest('/user/preference/setting/get', body);
   }
@@ -231,6 +267,8 @@ class Repository{
     return await apiService.postRequest('/user/check', body);
   }
 
+
+  ///Todo: System definition urls
   Future<http.Response> getUserPlanningSystemDefinition(body) async {
     return await apiService.postRequest('/user/planning/systemDefinition/get', body);
   }
@@ -239,6 +277,8 @@ class Repository{
     return await apiService.postRequest('/user/planning/systemDefinition/create', body);
   }
 
+
+  ///Todo: Other planning urls
   Future<http.Response> getUserPlanningValveGroup(body) async {
     return await apiService.postRequest('/user/planning/valveGroup/get', body);
   }
@@ -251,11 +291,12 @@ class Repository{
   Future<http.Response> fetchUserManualOperation(body) async {
     return await apiService.postRequest('/user/manualOperation/recent/get', body);
   }
-
-  Future<http.Response> createUserValveGroup(body) async {
-    return await apiService.postRequest('/user/deviceList/create', body);
+  Future<http.Response> getUserValveGroup(body) async {
+    return await apiService.postRequest('/user/planning/valveGroup/get', body);
   }
-
+  Future<http.Response> createUserValveGroup(body) async {
+    return await apiService.postRequest('/user/planning/valveGroup/create', body);
+  }
   Future<http.Response> fetchStandAloneData(body) async {
     return await apiService.postRequest('/user/getUserDashboardByManual', body);
   }
@@ -280,8 +321,53 @@ class Repository{
     return await apiService.postRequest('/user/planning/conditionLibrary/get', body);
   }
 
+
+  Future<http.Response> getPlanningHiddenMenu(body) async {
+    return await apiService.postRequest('/user/dealerDefinition/mainMenu/get', body);
+  }
+
+  Future<http.Response> getUserIrrigationLog(body) async {
+    return await apiService.postRequest('/user/log/gem/get', body);
+  }
+
+  ///Todo: Schedule view urls
+  Future<http.Response> updateUserSequencePriority(body) async {
+    return await apiService.postRequest('/user/sequencePriority/update', body);
+  }
+
+  Future<http.Response> createUserSentAndReceivedMessageManually(body) async {
+    return await apiService.postRequest('/user/sentAndReceivedMessage/createManually', body);
+  }
+
+
   Future<http.Response> saveConditionLibrary(body) async {
     return await apiService.postRequest('/user/planning/conditionLibrary/create', body);
+  }
+
+  Future<http.Response> getUserServiceRequest(body) async {
+    return await apiService.postRequest('/user/serviceRequest/get', body);
+  }
+
+  Future<http.Response> getUserServiceRequestForDealer(body) async {
+    return await apiService.postRequest('/user/serviceRequest/getForDealer', body);
+  }
+  Future<http.Response> getUserAllServiceRequestForDealer(body) async {
+    return await apiService.postRequest('/user/serviceRequest/getAllForDealer', body);
+  }
+  Future<http.Response> getAllUserAllServiceRequestForAdmin(body) async {
+    return await apiService.postRequest('/user/serviceRequest/getAllForAdmin', body);
+  }
+  Future<http.Response> createUserServiceRequest(body) async {
+    return await apiService.postRequest('/user/serviceRequest/create', body);
+  }
+  Future<http.Response> updateUserServiceRequest(body) async {
+    return await apiService.postRequest('/user/serviceRequest/update', body);
+  }
+  Future<http.Response> getUserDeviceFirmwareDetails(body) async {
+    return await apiService.postRequest('/user/deviceList/getFirmwareDetails', body);
+  }
+  Future<http.Response> getUserDashboard(body) async {
+    return await apiService.postRequest('/user/deviceList/getFirmwareDetails', body);
   }
 
 }

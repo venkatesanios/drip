@@ -14,6 +14,8 @@ class OverAllUse extends ChangeNotifier{
   bool takeSharedUserId = false;
   int createUser = 0;
   int controllerId = 13;
+  String deviceId = '';
+  int userGroupId = 0;
   int controllerType = 0;
   int customerId = 8;
   int dealerId = 0;
@@ -50,6 +52,10 @@ class OverAllUse extends ChangeNotifier{
     userId = value;
     notifyListeners();
   }
+  void edituserGroupId(int value){
+    userGroupId = value;
+    notifyListeners();
+  }
   void editSharedUserId(int value){
     sharedUserId = value;
     notifyListeners();
@@ -77,8 +83,13 @@ class OverAllUse extends ChangeNotifier{
     controllerId = value;
     notifyListeners();
   }
+  void editDeviceId(String value){
+    deviceId = value;
+    notifyListeners();
+  }
 
   void editControllerType(int value){
+    print("editControllerType --->$value");
     controllerType = value;
     notifyListeners();
   }
