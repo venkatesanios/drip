@@ -58,6 +58,7 @@ class FertilizerSiteSettingModel{
       'objectId' : objectId,
       'sNo' : sNo,
       'name' : name,
+      'recipeName' : recipeName,
       'channel' : channel.map((channel) => channel.toJson()).toList(),
       'ec' : ec.map((ec) => ec.toJson()).toList(),
       'ph' : ph.map((ph) => ph.toJson()).toList(),

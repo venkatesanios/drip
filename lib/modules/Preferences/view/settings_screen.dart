@@ -964,7 +964,7 @@ Widget buildCustomListTileWidget({
 }) {
   Widget customWidget;
   switch(widgetType) {
-    case 1:
+    case 1:case 4:
       customWidget = SizedBox(
         width: 80,
         child: TextFormField(
@@ -1010,7 +1010,7 @@ Widget buildCustomListTileWidget({
         textAlign: TextAlign.right,
         style: const TextStyle(fontSize: 14),);
       break;
-    case 4:
+   /* case 4:
       customWidget = SizedBox(
         width: 80,
         child: TextFormField(
@@ -1029,7 +1029,7 @@ Widget buildCustomListTileWidget({
           },
         ),
       );
-      break;
+      break;*/
     case 6:
       customWidget = SizedBox(
         width: 80,

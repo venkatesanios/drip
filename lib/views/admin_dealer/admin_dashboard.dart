@@ -359,7 +359,7 @@ class AdminDashboard extends StatelessWidget {
                                 return ListTile(
                                   leading: const CircleAvatar(
                                     backgroundImage: AssetImage(
-                                        "assets/png_images/user_thumbnail.png"),
+                                        "assets/png/user_thumbnail.png"),
                                     backgroundColor: Colors.transparent,
                                   ),
                                   title: Text(

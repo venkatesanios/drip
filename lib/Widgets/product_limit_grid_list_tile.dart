@@ -124,7 +124,10 @@ class _ProductLimitGridListTileState extends State<ProductLimitGridListTile> wit
             borderRadius: BorderRadius.circular(5),
             border: Border(left: BorderSide(width: 3, color: typeColor)),
             color: Theme.of(context).cardColor,
-            boxShadow: AppProperties.customBoxShadowLiteTheme
+            boxShadow: const [
+              BoxShadow(color: Colors.grey, blurRadius: 5)
+            ],
+            // boxShadow: AppProperties.customBoxShadowLiteTheme
         ),
         width: 300,
         child: myWidget,

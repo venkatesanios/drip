@@ -293,6 +293,7 @@ class _ConnectionState extends State<Connection> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         // border: Border.all(width: 1, color: color),
+
         boxShadow: AppProperties.customBoxShadowLiteTheme,
         color: Colors.white,
       ),

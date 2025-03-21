@@ -34,6 +34,7 @@ class ScheduledProgram extends StatelessWidget {
           scheduledPrograms[index].pauseResumeReason = int.parse(values[8]);
           scheduledPrograms[index].prgOnOff = values[10];
           scheduledPrograms[index].prgPauseResume = values[11];
+          scheduledPrograms[index].status = 1;
         }
 
       }
@@ -204,7 +205,8 @@ class ScheduledProgram extends StatelessWidget {
                           DataCell(Center(child: Text('${scheduledPrograms[index].sequence.length}'))),
                           DataCell(Center(child: Text('${changeDateFormat(scheduledPrograms[index].startDate)} : ${convert24HourTo12Hour(scheduledPrograms[index].startTime)}'))),
                           DataCell(Center(child: Text(changeDateFormat(scheduledPrograms[index].endDate)))),
-                          DataCell(Row(
+                          DataCell(
+                              scheduledPrograms[index].status==1? Row(
                             children: [
                               Tooltip(
                                 message: getDescription(int.parse(scheduledPrograms[index].prgOnOff)),
@@ -315,7 +317,9 @@ class ScheduledProgram extends StatelessWidget {
                               ):
                               const IconButton(onPressed: null, icon: Icon(Icons.more_vert, color: Colors.grey,)),
                             ],
-                          )),
+                          ):
+                                  const Center(child: Text('The program is not ready', style: TextStyle(color: Colors.red),)),
+                          ),
                         ]);
                       }),
                     ),

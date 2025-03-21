@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:oro_drip_irrigation/Screens/dashboard/mobileschedule_program.dart';
 import 'package:oro_drip_irrigation/Screens/dashboard/sidedrawer.dart';
-import 'package:oro_drip_irrigation/modules/Preferences/state_management/preference_provider.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:oro_drip_irrigation/views/customer/node_list.dart';
 import 'package:oro_drip_irrigation/views/customer/stand_alone.dart';
@@ -15,7 +14,6 @@ import 'package:provider/provider.dart';
 import '../../Models/customer/site_model.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../StateManagement/overall_use.dart';
-import '../../modules/IrrigationProgram/state_management/irrigation_program_provider.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/Theme/oro_theme.dart';
@@ -50,7 +48,6 @@ class _DashboardState extends State<MobDashboard>
   bool irrigationPumpMode = false;
   bool filtrationWidgetMode = false;
   bool fertigationWidgetMode = false;
-  bool isBottomSheet = false;
   late Timer _timer;
   int selectedTab = 0;
   int userId = 0;
@@ -96,7 +93,7 @@ class _DashboardState extends State<MobDashboard>
     await fetchUserPreferences();
     print("getData");
     // print('//////////////////////////////////////////get function called//////////////////////////');
-    if (payloadProvider.timerForCurrentSchedule != null) {
+    if (payloadProvider.timerForIrrigationPump != null) {
       setState(() {
         payloadProvider.timerForIrrigationPump!.cancel();
         payloadProvider.timerForSourcePump!.cancel();
@@ -128,10 +125,10 @@ class _DashboardState extends State<MobDashboard>
           liveData = payloadProvider.dashboardLiveInstance!.data;
           overAllPvd.editControllerType((!overAllPvd.takeSharedUserId
               ? liveData[payloadProvider.selectedSite]
-                  .master[payloadProvider.selectedMaster]
-                  .categoryId
+              .master[payloadProvider.selectedMaster]
+              .categoryId
               : payloadProvider.listOfSharedUser['devices']
-                  [payloadProvider.selectedMaster]['categoryId']));
+          [payloadProvider.selectedMaster]['categoryId']));
           overAllPvd.edituserGroupId(payloadProvider.dashboardLiveInstance!
               .data[payloadProvider.selectedSite].groupId);
           overAllPvd.editDeviceId(payloadProvider
@@ -141,7 +138,7 @@ class _DashboardState extends State<MobDashboard>
               .deviceId);
 
         });
-       await onRefresh();
+        await onRefresh();
       }
       payloadProvider.httpError = false;
     } catch (e, stackTrace) {
@@ -150,6 +147,8 @@ class _DashboardState extends State<MobDashboard>
       print(' trace overAll getData  => ${stackTrace}');
     }
   }
+
+
 
   @override
   void dispose() {
@@ -160,11 +159,11 @@ class _DashboardState extends State<MobDashboard>
 
   dynamic getPublishMessage() {
     dynamic refersh = '';
-    if (![2].contains(!overAllPvd.takeSharedUserId
+    if (![3, 4].contains(!overAllPvd.takeSharedUserId
         ? payloadProvider.listOfSite[payloadProvider.selectedSite]['master']
-            [payloadProvider.selectedMaster]['categoryId']
+    [payloadProvider.selectedMaster]['categoryId']
         : payloadProvider.listOfSharedUser['devices']
-            [payloadProvider.selectedMaster]['categoryId'])) {
+    [payloadProvider.selectedMaster]['categoryId'])) {
       refersh = jsonEncode({
         "3000": [
           {"3001": ""}
@@ -266,7 +265,7 @@ class _DashboardState extends State<MobDashboard>
     // manager.subscribeToTopic('FirmwareToApp/${overAllPvd.imeiNo}');
     manager.topicToSubscribe('FirmwareToApp/${liveData[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].deviceId}');
     manager.topicToPublishAndItsMessage('AppToFirmware/${liveData[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].deviceId}',livePayload,);
-     // manager.publish(payloadProvider.publishMessage,'AppToFirmware/${overAllPvd.imeiNo}');
+    // manager.publish(payloadProvider.publishMessage,'AppToFirmware/${overAllPvd.imeiNo}');
     setState(() {
       payloadProvider.tryingToGetPayload += 1;
     });
@@ -367,32 +366,32 @@ class _DashboardState extends State<MobDashboard>
                 ),
             // if(payloadProvider.upcomingProgram.isNotEmpty)
             //   if(payloadProvider.selectedLine == 0 || payloadProvider.upcomingProgram.map((up) => up['ProgCategory']).join('').contains(payloadProvider.lineData[payloadProvider.selectedLine]['id']) )
-                InkWell(
-                  onTap: (){
-                    setState(() {
-                      selectedTab = 2;
-                    });
-                    sideSheet( payloadProvider: payloadProvider, selectedTab: selectedTab, overAllPvd: overAllPvd,scheduledPrograms: scheduledPrograms);
+            InkWell(
+              onTap: (){
+                setState(() {
+                  selectedTab = 2;
+                });
+                sideSheet( payloadProvider: payloadProvider, selectedTab: selectedTab, overAllPvd: overAllPvd,scheduledPrograms: scheduledPrograms);
 
-                  },
-                  child: Container(
-                    decoration: const BoxDecoration(
-                        color: Color(0xff69BCFC),
-                        borderRadius: BorderRadius.only(topLeft: Radius.circular(8),topRight: Radius.circular(30),bottomLeft: Radius.circular(8),bottomRight: Radius.circular(8))
-                    ),
-                    padding: const EdgeInsets.only(top: 5,bottom: 5,left: 10,right: 10),
-                    child: Row(
-                      children: [
-                        const Text('Scheduled\nProgram',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 12),),
-                        if(payloadProvider.upcomingProgram.any((program)=> (program['StartCondition'].isNotEmpty || program['StopCondition'].isNotEmpty)))
-                          const Padding(
-                            padding: EdgeInsets.all(5.0),
-                            child: Icon(Icons.info,color: Colors.amberAccent,size: 30,),
-                          )
-                      ],
-                    ),
-                  ),
+              },
+              child: Container(
+                decoration: const BoxDecoration(
+                    color: Color(0xff69BCFC),
+                    borderRadius: BorderRadius.only(topLeft: Radius.circular(8),topRight: Radius.circular(30),bottomLeft: Radius.circular(8),bottomRight: Radius.circular(8))
                 ),
+                padding: const EdgeInsets.only(top: 5,bottom: 5,left: 10,right: 10),
+                child: Row(
+                  children: [
+                    const Text('Scheduled\nProgram',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 12),),
+                    if(payloadProvider.upcomingProgram.any((program)=> (program['StartCondition'].isNotEmpty || program['StopCondition'].isNotEmpty)))
+                      const Padding(
+                        padding: EdgeInsets.all(5.0),
+                        child: Icon(Icons.info,color: Colors.amberAccent,size: 30,),
+                      )
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ) : null,
@@ -400,866 +399,866 @@ class _DashboardState extends State<MobDashboard>
       drawer: !overAllPvd.fromDealer ? DrawerWidget(listOfSite: payloadProvider.listOfSite) : Container(),
 
       body: SafeArea(
-                child: Center(
-                    child: Column(
-              children: [
-                Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                            onPressed: () {
-                              if (overAllPvd.fromDealer) {
-                                // MqttManager().onDisconnected();
-                                Future.delayed(Duration.zero, () {
-                                  payloadProvider.clearData();
-                                  overAllPvd.userId = 0;
-                                  overAllPvd.controllerId = 0;
-                                  overAllPvd.controllerType = 0;
-                                  overAllPvd.imeiNo = '';
-                                  overAllPvd.customerId = 0;
-                                  overAllPvd.sharedUserId = 0;
-                                  overAllPvd.takeSharedUserId = false;
-                                });
-                                Navigator.of(context).pop();
-                              } else {
-                                _scaffoldKey.currentState?.openDrawer();
-                              }
-                            },
-                            icon: Icon(
-                              !overAllPvd.fromDealer
-                                  ? Icons.menu
-                                  : Icons.arrow_back,
-                              size: 25,
-                            )),
-                        InkWell(
-                          onTap: () {
-                            // print('liveData!!.length: ${liveData!.length}');
-                            showModalBottomSheet(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return StatefulBuilder(builder:
-                                      (context, StateSetter stateSetter) {
-                                    return Container(
-                                      height: 400,
-                                      decoration: const BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.only(
-                                              topLeft: Radius.circular(20),
-                                              topRight: Radius.circular(20))),
-                                      child: Column(
-                                        children: [
-                                          const Padding(
-                                            padding: EdgeInsets.all(8.0),
-                                            child: Text(
-                                              'List of Site',
-                                              style: TextStyle(fontSize: 20),
+          child: Center(
+              child: Column(
+                children: [
+                  Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                              onPressed: () {
+                                if (overAllPvd.fromDealer) {
+                                  // MqttManager().onDisconnected();
+                                  Future.delayed(Duration.zero, () {
+                                    payloadProvider.clearData();
+                                    overAllPvd.userId = 0;
+                                    overAllPvd.controllerId = 0;
+                                    overAllPvd.controllerType = 0;
+                                    overAllPvd.imeiNo = '';
+                                    overAllPvd.customerId = 0;
+                                    overAllPvd.sharedUserId = 0;
+                                    overAllPvd.takeSharedUserId = false;
+                                  });
+                                  Navigator.of(context).pop();
+                                } else {
+                                  _scaffoldKey.currentState?.openDrawer();
+                                }
+                              },
+                              icon: Icon(
+                                !overAllPvd.fromDealer
+                                    ? Icons.menu
+                                    : Icons.arrow_back,
+                                size: 25,
+                              )),
+                          InkWell(
+                            onTap: () {
+                              // print('liveData!!.length: ${liveData!.length}');
+                              showModalBottomSheet(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return StatefulBuilder(builder:
+                                        (context, StateSetter stateSetter) {
+                                      return Container(
+                                        height: 400,
+                                        decoration: const BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(20),
+                                                topRight: Radius.circular(20))),
+                                        child: Column(
+                                          children: [
+                                            const Padding(
+                                              padding: EdgeInsets.all(8.0),
+                                              child: Text(
+                                                'List of Site',
+                                                style: TextStyle(fontSize: 20),
+                                              ),
                                             ),
-                                          ),
-                                          Expanded(
-                                            child: SingleChildScrollView(
-                                              child: Column(
-                                                children: [
-                                                  for (var site = 0;
-                                                      site < liveData!.length;
-                                                      site++)
-                                                    ListTile(
-                                                      title: Text(liveData[site]
-                                                              .groupName ??
-                                                          ''),
-                                                      trailing: IntrinsicWidth(
-                                                        child: Radio(
-                                                          value: 'site-${site}',
-                                                          groupValue:
-                                                              payloadProvider
-                                                                  .selectedSiteString,
-                                                          onChanged: (value) {
-                                                            stateSetter(() {
-                                                              setState(() {
-                                                                var unSubscribeTopic =
-                                                                    'FirmwareToApp/${overAllPvd.imeiNo}';
-                                                                payloadProvider
-                                                                        .selectedSite =
-                                                                    site;
-                                                                payloadProvider
-                                                                        .selectedSiteString =
-                                                                    value!;
-                                                                payloadProvider
-                                                                    .selectedMaster = 0;
-                                                                overAllPvd
-                                                                        .takeSharedUserId =
-                                                                    false;
-                                                                var selectedMasterData = liveData[payloadProvider
-                                                                            .selectedSite]
-                                                                        .master[
-                                                                    payloadProvider
-                                                                        .selectedMaster];
-                                                                overAllPvd
-                                                                        .imeiNo =
-                                                                    selectedMasterData
-                                                                        .deviceId;
-                                                                overAllPvd
-                                                                        .controllerId =
-                                                                    selectedMasterData
-                                                                        .controllerId;
-                                                                overAllPvd
-                                                                        .controllerType =
-                                                                    selectedMasterData
-                                                                        .categoryId;
-                                                                /*if(selectedMasterData.config!.irrigationLine != null){
+                                            Expanded(
+                                              child: SingleChildScrollView(
+                                                child: Column(
+                                                  children: [
+                                                    for (var site = 0;
+                                                    site < liveData!.length;
+                                                    site++)
+                                                      ListTile(
+                                                        title: Text(liveData[site]
+                                                            .groupName ??
+                                                            ''),
+                                                        trailing: IntrinsicWidth(
+                                                          child: Radio(
+                                                            value: 'site-${site}',
+                                                            groupValue:
+                                                            payloadProvider
+                                                                .selectedSiteString,
+                                                            onChanged: (value) {
+                                                              stateSetter(() {
+                                                                setState(() {
+                                                                  var unSubscribeTopic =
+                                                                      'FirmwareToApp/${overAllPvd.imeiNo}';
+                                                                  payloadProvider
+                                                                      .selectedSite =
+                                                                      site;
+                                                                  payloadProvider
+                                                                      .selectedSiteString =
+                                                                  value!;
+                                                                  payloadProvider
+                                                                      .selectedMaster = 0;
+                                                                  overAllPvd
+                                                                      .takeSharedUserId =
+                                                                  false;
+                                                                  var selectedMasterData = liveData[payloadProvider
+                                                                      .selectedSite]
+                                                                      .master[
+                                                                  payloadProvider
+                                                                      .selectedMaster];
+                                                                  overAllPvd
+                                                                      .imeiNo =
+                                                                      selectedMasterData
+                                                                          .deviceId;
+                                                                  overAllPvd
+                                                                      .controllerId =
+                                                                      selectedMasterData
+                                                                          .controllerId;
+                                                                  overAllPvd
+                                                                      .controllerType =
+                                                                      selectedMasterData
+                                                                          .categoryId;
+                                                                  /*if(selectedMasterData.config!.irrigationLine != null){
                                                             payloadProvider.editLineData(selectedMasterData.config!.irrigationLine);
                                                           }*/
 
-                                                                print(
-                                                                    "controllerType ==> ${overAllPvd.controllerType}");
-                                                                payloadProvider.updateReceivedPayload(
-                                                                    jsonEncode([
-                                                                      3,
-                                                                      4
-                                                                    ].contains(overAllPvd
-                                                                            .controllerType)
-                                                                        ? {
-                                                                            "mC":
-                                                                                "LD01",
-                                                                            'cM':
-                                                                                "selectedMasterData['liveMessage']"
-                                                                          }
-                                                                        : jsonEncode(
-                                                                            selectedMasterData)),
-                                                                    true);
-                                                                if ([
-                                                                  3,
-                                                                  4
-                                                                ].contains(
-                                                                    overAllPvd
-                                                                        .controllerType)) {
-                                                                  if (payloadProvider
-                                                                          .dataFetchingStatus !=
-                                                                      1) {
-                                                                    // payloadProvider.lastUpdate = DateTime.parse("${selectedMasterData['liveSyncDate']} ${selectedMasterData['liveSyncTime']}");
-                                                                    payloadProvider
-                                                                            .lastUpdate =
-                                                                        DateTime.parse(
-                                                                            "12-01-2025 00:00:00}");
+                                                                  print(
+                                                                      "controllerType ==> ${overAllPvd.controllerType}");
+                                                                  payloadProvider.updateReceivedPayload(
+                                                                      jsonEncode([
+                                                                        3,
+                                                                        4
+                                                                      ].contains(overAllPvd
+                                                                          .controllerType)
+                                                                          ? {
+                                                                        "mC":
+                                                                        "LD01",
+                                                                        'cM':
+                                                                        "selectedMasterData['liveMessage']"
+                                                                      }
+                                                                          : jsonEncode(
+                                                                          selectedMasterData)),
+                                                                      true);
+                                                                  if ([
+                                                                    3,
+                                                                    4
+                                                                  ].contains(
+                                                                      overAllPvd
+                                                                          .controllerType)) {
+                                                                    if (payloadProvider
+                                                                        .dataFetchingStatus !=
+                                                                        1) {
+                                                                      // payloadProvider.lastUpdate = DateTime.parse("${selectedMasterData['liveSyncDate']} ${selectedMasterData['liveSyncTime']}");
+                                                                      payloadProvider
+                                                                          .lastUpdate =
+                                                                          DateTime.parse(
+                                                                              "12-01-2025 00:00:00}");
+                                                                    }
                                                                   }
-                                                                }
-                                                                manager.topicToSubscribe(
-                                                                    'FirmwareToApp/${overAllPvd.imeiNo}');
+                                                                  manager.topicToSubscribe(
+                                                                      'FirmwareToApp/${overAllPvd.imeiNo}');
 
-                                                                Future.delayed(
-                                                                    const Duration(
-                                                                        milliseconds:
-                                                                            300),
-                                                                    () {
-                                                                  Navigator.pop(
-                                                                      context);
+                                                                  Future.delayed(
+                                                                      const Duration(
+                                                                          milliseconds:
+                                                                          300),
+                                                                          () {
+                                                                        Navigator.pop(
+                                                                            context);
+                                                                      });
                                                                 });
                                                               });
-                                                            });
-                                                          },
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  if (payloadProvider
-                                                      .listOfSharedUser
-                                                      .isNotEmpty)
-                                                    for (var sharedUser = 0;
-                                                        sharedUser <
-                                                            payloadProvider
-                                                                .listOfSharedUser[
-                                                                    'users']
-                                                                .length;
-                                                        sharedUser++)
-                                                      if (payloadProvider
-                                                          .listOfSharedUser[
-                                                              'devices']
-                                                          .isNotEmpty)
-                                                        ListTile(
-                                                          title: Text(payloadProvider
-                                                                          .listOfSharedUser[
-                                                                      'users']
-                                                                  [sharedUser]
-                                                              ['userName']),
-                                                          trailing:
-                                                              IntrinsicWidth(
-                                                            child: Radio(
-                                                              value:
-                                                                  'sharedUser-${sharedUser}',
-                                                              groupValue:
-                                                                  payloadProvider
-                                                                      .selectedSiteString,
-                                                              onChanged:
-                                                                  (value) async {
-                                                                try {
-                                                                  HttpService
-                                                                      service =
-                                                                      HttpService();
-                                                                  var getSharedUserDetails =
-                                                                      await service
-                                                                          .postRequest(
-                                                                              'getSharedUserDeviceList',
-                                                                              {
-                                                                        'userId':
-                                                                            overAllPvd.userId,
-                                                                        "sharedUser":
-                                                                            payloadProvider.listOfSharedUser['users'][sharedUser]['userId']
-                                                                      });
-                                                                  stateSetter(
-                                                                      () {
-                                                                    setState(
-                                                                        () {
-                                                                      var unSubscribeTopic =
-                                                                          'FirmwareToApp/${overAllPvd.imeiNo}';
-                                                                      payloadProvider
-                                                                              .selectedSite =
-                                                                          sharedUser;
-                                                                      payloadProvider
-                                                                              .selectedSiteString =
-                                                                          value!;
-                                                                      payloadProvider
-                                                                          .selectedMaster = 0;
-                                                                      var jsonDataSharedDevice =
-                                                                          jsonDecode(
-                                                                              getSharedUserDetails.body);
-                                                                      // print('code is =======================       ${jsonDataSharedDevice['code']}      ========================');
-                                                                      if (jsonDataSharedDevice[
-                                                                              'code'] ==
-                                                                          200) {
-                                                                        payloadProvider.listOfSharedUser =
-                                                                            jsonDataSharedDevice['data'];
-                                                                        // print('getSharedUserDeviceList : ${payloadProvider.listOfSharedUser}');
-                                                                        if (payloadProvider
-                                                                            .listOfSharedUser['devices']
-                                                                            .isNotEmpty) {
-                                                                          setState(
-                                                                              () {
-                                                                            payloadProvider.selectedMaster =
-                                                                                0;
-                                                                            var imeiNo =
-                                                                                payloadProvider.listOfSharedUser['devices'][payloadProvider.selectedMaster]['deviceId'];
-                                                                            var controllerId =
-                                                                                payloadProvider.listOfSharedUser['devices'][payloadProvider.selectedMaster]['controllerId'];
-                                                                            overAllPvd.sharedUserId =
-                                                                                jsonDataSharedDevice['data']['users'][0]['userId'];
-                                                                            overAllPvd.takeSharedUserId =
-                                                                                true;
-                                                                            overAllPvd.imeiNo =
-                                                                                imeiNo;
-                                                                            overAllPvd.controllerId =
-                                                                                controllerId;
-                                                                            overAllPvd.controllerType =
-                                                                                payloadProvider.listOfSharedUser['devices'][payloadProvider.selectedMaster]['categoryId'];
-                                                                            if (payloadProvider.listOfSharedUser['devices'][payloadProvider.selectedMaster]['irrigationLine'] !=
-                                                                                null) {
-                                                                              payloadProvider.editLineData(payloadProvider.listOfSharedUser['devices'][payloadProvider.selectedMaster]['irrigationLine']);
-                                                                            }
-                                                                            payloadProvider.updateReceivedPayload(
-                                                                                jsonEncode([2].contains(overAllPvd.controllerType)
-                                                                                    ? {
-                                                                                        "mC": "LD01",
-                                                                                        'cM': payloadProvider.listOfSharedUser['devices'][payloadProvider.selectedMaster]['liveMessage']
-                                                                                      }
-                                                                                    : payloadProvider.listOfSharedUser['devices'][payloadProvider.selectedMaster]),
-                                                                                true);
-                                                                            if ([
-                                                                              3,
-                                                                              4
-                                                                            ].contains(overAllPvd.controllerType)) {
-                                                                              if (payloadProvider.dataFetchingStatus != 1) {
-                                                                                payloadProvider.lastUpdate = DateTime.parse("${payloadProvider.listOfSharedUser['devices'][payloadProvider.selectedMaster]['liveSyncDate']} ${payloadProvider.listOfSharedUser['devices'][payloadProvider.selectedMaster]['liveSyncTime']}");
-                                                                              }
-                                                                            }
-                                                                            payloadProvider.editSubscribeTopic('FirmwareToApp/$imeiNo');
-                                                                            payloadProvider.editPublishTopic('AppToFirmware/$imeiNo');
-                                                                            payloadProvider.editPublishMessage(getPublishMessage());
-                                                                            // manager.topicToUnSubscribe(unSubscribeTopic);
-                                                                            manager.topicToSubscribe('FirmwareToApp/${overAllPvd.imeiNo}');
-                                                                            Future.delayed(const Duration(milliseconds: 300),
-                                                                                () {
-                                                                              Navigator.pop(context);
-                                                                            });
-                                                                          });
-                                                                          for (var i = 0;
-                                                                              i < 2;
-                                                                              i++) {
-                                                                            Future.delayed(const Duration(seconds: 3),
-                                                                                () {
-                                                                              autoRefresh();
-                                                                            });
-                                                                          }
-                                                                        }
-                                                                      }
-                                                                      overAllPvd.editImeiNo(payloadProvider
-                                                                              .listOfSharedUser['devices']
-                                                                          [
-                                                                          payloadProvider
-                                                                              .selectedMaster]['deviceId']);
-                                                                      overAllPvd.editControllerId(payloadProvider
-                                                                              .listOfSharedUser['devices']
-                                                                          [
-                                                                          payloadProvider
-                                                                              .selectedMaster]['controllerId']);
-                                                                      overAllPvd.editControllerType(payloadProvider
-                                                                              .listOfSharedUser['devices']
-                                                                          [
-                                                                          payloadProvider
-                                                                              .selectedMaster]['categoryId']);
-                                                                    });
-                                                                  });
-                                                                } catch (e, stackTrace) {
-                                                                  setState(() {
-                                                                    payloadProvider
-                                                                            .httpError =
-                                                                        true;
-                                                                  });
-                                                                  print(
-                                                                      ' Site selecting Error getSharedUserDeviceList  => ${e.toString()}');
-                                                                  print(
-                                                                      ' Site selecting trace getSharedUserDeviceList  => ${stackTrace}');
-                                                                }
-                                                                // print('after => ${overAllPvd.userId}');
-                                                              },
-                                                            ),
+                                                            },
                                                           ),
                                                         ),
-                                                ],
+                                                      ),
+                                                    if (payloadProvider
+                                                        .listOfSharedUser
+                                                        .isNotEmpty)
+                                                      for (var sharedUser = 0;
+                                                      sharedUser <
+                                                          payloadProvider
+                                                              .listOfSharedUser[
+                                                          'users']
+                                                              .length;
+                                                      sharedUser++)
+                                                        if (payloadProvider
+                                                            .listOfSharedUser[
+                                                        'devices']
+                                                            .isNotEmpty)
+                                                          ListTile(
+                                                            title: Text(payloadProvider
+                                                                .listOfSharedUser[
+                                                            'users']
+                                                            [sharedUser]
+                                                            ['userName']),
+                                                            trailing:
+                                                            IntrinsicWidth(
+                                                              child: Radio(
+                                                                value:
+                                                                'sharedUser-${sharedUser}',
+                                                                groupValue:
+                                                                payloadProvider
+                                                                    .selectedSiteString,
+                                                                onChanged:
+                                                                    (value) async {
+                                                                  try {
+                                                                    HttpService
+                                                                    service =
+                                                                    HttpService();
+                                                                    var getSharedUserDetails =
+                                                                    await service
+                                                                        .postRequest(
+                                                                        'getSharedUserDeviceList',
+                                                                        {
+                                                                          'userId':
+                                                                          overAllPvd.userId,
+                                                                          "sharedUser":
+                                                                          payloadProvider.listOfSharedUser['users'][sharedUser]['userId']
+                                                                        });
+                                                                    stateSetter(
+                                                                            () {
+                                                                          setState(
+                                                                                  () {
+                                                                                var unSubscribeTopic =
+                                                                                    'FirmwareToApp/${overAllPvd.imeiNo}';
+                                                                                payloadProvider
+                                                                                    .selectedSite =
+                                                                                    sharedUser;
+                                                                                payloadProvider
+                                                                                    .selectedSiteString =
+                                                                                value!;
+                                                                                payloadProvider
+                                                                                    .selectedMaster = 0;
+                                                                                var jsonDataSharedDevice =
+                                                                                jsonDecode(
+                                                                                    getSharedUserDetails.body);
+                                                                                // print('code is =======================       ${jsonDataSharedDevice['code']}      ========================');
+                                                                                if (jsonDataSharedDevice[
+                                                                                'code'] ==
+                                                                                    200) {
+                                                                                  payloadProvider.listOfSharedUser =
+                                                                                  jsonDataSharedDevice['data'];
+                                                                                  // print('getSharedUserDeviceList : ${payloadProvider.listOfSharedUser}');
+                                                                                  if (payloadProvider
+                                                                                      .listOfSharedUser['devices']
+                                                                                      .isNotEmpty) {
+                                                                                    setState(
+                                                                                            () {
+                                                                                          payloadProvider.selectedMaster =
+                                                                                          0;
+                                                                                          var imeiNo =
+                                                                                          payloadProvider.listOfSharedUser['devices'][payloadProvider.selectedMaster]['deviceId'];
+                                                                                          var controllerId =
+                                                                                          payloadProvider.listOfSharedUser['devices'][payloadProvider.selectedMaster]['controllerId'];
+                                                                                          overAllPvd.sharedUserId =
+                                                                                          jsonDataSharedDevice['data']['users'][0]['userId'];
+                                                                                          overAllPvd.takeSharedUserId =
+                                                                                          true;
+                                                                                          overAllPvd.imeiNo =
+                                                                                              imeiNo;
+                                                                                          overAllPvd.controllerId =
+                                                                                              controllerId;
+                                                                                          overAllPvd.controllerType =
+                                                                                          payloadProvider.listOfSharedUser['devices'][payloadProvider.selectedMaster]['categoryId'];
+                                                                                          if (payloadProvider.listOfSharedUser['devices'][payloadProvider.selectedMaster]['irrigationLine'] !=
+                                                                                              null) {
+                                                                                            payloadProvider.editLineData(payloadProvider.listOfSharedUser['devices'][payloadProvider.selectedMaster]['irrigationLine']);
+                                                                                          }
+                                                                                          payloadProvider.updateReceivedPayload(
+                                                                                              jsonEncode([3, 4].contains(overAllPvd.controllerType)
+                                                                                                  ? {
+                                                                                                "mC": "LD01",
+                                                                                                'cM': payloadProvider.listOfSharedUser['devices'][payloadProvider.selectedMaster]['liveMessage']
+                                                                                              }
+                                                                                                  : payloadProvider.listOfSharedUser['devices'][payloadProvider.selectedMaster]),
+                                                                                              true);
+                                                                                          if ([
+                                                                                            3,
+                                                                                            4
+                                                                                          ].contains(overAllPvd.controllerType)) {
+                                                                                            if (payloadProvider.dataFetchingStatus != 1) {
+                                                                                              payloadProvider.lastUpdate = DateTime.parse("${payloadProvider.listOfSharedUser['devices'][payloadProvider.selectedMaster]['liveSyncDate']} ${payloadProvider.listOfSharedUser['devices'][payloadProvider.selectedMaster]['liveSyncTime']}");
+                                                                                            }
+                                                                                          }
+                                                                                          payloadProvider.editSubscribeTopic('FirmwareToApp/$imeiNo');
+                                                                                          payloadProvider.editPublishTopic('AppToFirmware/$imeiNo');
+                                                                                          payloadProvider.editPublishMessage(getPublishMessage());
+                                                                                          // manager.topicToUnSubscribe(unSubscribeTopic);
+                                                                                          manager.topicToSubscribe('FirmwareToApp/${overAllPvd.imeiNo}');
+                                                                                          Future.delayed(const Duration(milliseconds: 300),
+                                                                                                  () {
+                                                                                                Navigator.pop(context);
+                                                                                              });
+                                                                                        });
+                                                                                    for (var i = 0;
+                                                                                    i < 2;
+                                                                                    i++) {
+                                                                                      Future.delayed(const Duration(seconds: 3),
+                                                                                              () {
+                                                                                            autoRefresh();
+                                                                                          });
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                                overAllPvd.editImeiNo(payloadProvider
+                                                                                    .listOfSharedUser['devices']
+                                                                                [
+                                                                                payloadProvider
+                                                                                    .selectedMaster]['deviceId']);
+                                                                                overAllPvd.editControllerId(payloadProvider
+                                                                                    .listOfSharedUser['devices']
+                                                                                [
+                                                                                payloadProvider
+                                                                                    .selectedMaster]['controllerId']);
+                                                                                overAllPvd.editControllerType(payloadProvider
+                                                                                    .listOfSharedUser['devices']
+                                                                                [
+                                                                                payloadProvider
+                                                                                    .selectedMaster]['categoryId']);
+                                                                              });
+                                                                        });
+                                                                  } catch (e, stackTrace) {
+                                                                    setState(() {
+                                                                      payloadProvider
+                                                                          .httpError =
+                                                                      true;
+                                                                    });
+                                                                    print(
+                                                                        ' Site selecting Error getSharedUserDeviceList  => ${e.toString()}');
+                                                                    print(
+                                                                        ' Site selecting trace getSharedUserDeviceList  => ${stackTrace}');
+                                                                  }
+                                                                  // print('after => ${overAllPvd.userId}');
+                                                                },
+                                                              ),
+                                                            ),
+                                                          ),
+                                                  ],
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
+                                          ],
+                                        ),
+                                      );
+                                    });
                                   });
-                                });
-                          },
-                          child: SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.5,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '${!overAllPvd.takeSharedUserId ? liveData![0].groupName : 'test'}',
-                                      style: const TextStyle(
-                                          fontSize: 14,
-                                          overflow: TextOverflow.ellipsis,
-                                          fontWeight: FontWeight.bold),
+                            },
+                            child: SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.5,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '${!overAllPvd.takeSharedUserId ? liveData![0].groupName : 'test'}',
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            overflow: TextOverflow.ellipsis,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Text(
+                                        'Last Sync : \n${payloadProvider.lastUpdate.day}/${payloadProvider.lastUpdate.month}/${payloadProvider.lastUpdate.year} ${payloadProvider.lastUpdate.hour}:${payloadProvider.lastUpdate.minute}:${payloadProvider.lastUpdate.second}',
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.normal,
+                                            color: Colors.black,
+                                            fontSize: 12,
+                                            overflow: TextOverflow.ellipsis),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                      width: 15,
+                                      child: Icon(Icons.arrow_drop_down_sharp))
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          // Modified by saravanan
+                          buildPopUpMenuButton(
+                              context: context,
+                              dataList: ([1, 2]
+                                  .contains(overAllPvd.controllerType) &&
+                                  overAllPvd.fromDealer)
+                                  ? [
+                                "Standalone",
+                                "Node status",
+                                "Node details",
+                                "Sent and Received",
+                                "Controller Info"
+                              ]
+                                  : [1, 2].contains(overAllPvd.controllerType)
+                                  ? [
+                                "Standalone",
+                                "Node status",
+                                "Node details"
+                              ]
+                                  : ["Sent and Received", "Controller Info"],
+                              onSelected: (newValue) {
+                                if (newValue == "Standalone") {
+                                  showGeneralDialog(
+                                    barrierLabel: "Side sheet",
+                                    barrierDismissible: true,
+                                    // barrierColor: const Color(0xff6600),
+                                    transitionDuration:
+                                    const Duration(milliseconds: 300),
+                                    context: context,
+                                    pageBuilder:
+                                        (context, animation1, animation2) {
+                                      return Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Container(
+                                            width:
+                                            MediaQuery.of(context).size.width,
+                                            child: Scaffold( appBar: AppBar(title: const Text("StandAlone")),body: StandAlone(customerId: overAllPvd.customerId, siteId: overAllPvd.userGroupId, controllerId: overAllPvd.controllerId, userId: userId, deviceId: overAllPvd.deviceId, callbackFunction: callbackFunction, config: liveData?[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].config))
+                                        ),
+                                      );
+                                    },
+                                    transitionBuilder:
+                                        (context, animation1, animation2, child) {
+                                      return SlideTransition(
+                                        position: Tween(
+                                            begin: const Offset(1, 0),
+                                            end: const Offset(0, 0))
+                                            .animate(animation1),
+                                        child: child,
+                                      );
+                                    },
+                                  );
+                                }
+                                else if(newValue == "Node status") {
+                                  showGeneralDialog(
+                                    barrierLabel: "Side sheet",
+                                    barrierDismissible: true,
+                                    barrierColor: const Color(0xff66000000),
+                                    transitionDuration: const Duration(milliseconds: 300),
+                                    context: context,
+                                    pageBuilder: (context, animation1, animation2) {
+                                      return Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Material(
+                                          elevation: 15,
+                                          color: Colors.transparent,
+                                          borderRadius: BorderRadius.zero,
+                                          child: Consumer<MqttPayloadProvider>(
+                                              builder: (context, mqttPayloadProvider, _) {
+                                                return NodeList(customerId: overAllPvd.customerId, userId: userId, controllerId: overAllPvd.controllerId, deviceId: overAllPvd.deviceId, deviceName: liveData[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].deviceName, nodes: liveData[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].nodeList);
+                                              }
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    transitionBuilder: (context, animation1, animation2, child) {
+                                      return SlideTransition(
+                                        position: Tween(begin: const Offset(1, 0), end: const Offset(0, 0)).animate(animation1),
+                                        child: child,
+                                      );
+                                    },
+                                  );
+                                }
+                                else if (newValue == "Sent and Received") {
+                                  // Navigator.push(context, MaterialPageRoute(builder: (context) => SentAndReceived()));
+                                } else if (newValue == "Controller Info") {
+                                  showPasswordDialog(context, _correctPassword);
+                                }
+                              },
+                              child: ([1, 2]
+                                  .contains(overAllPvd.controllerType) ||
+                                  overAllPvd.fromDealer)
+                                  ? const Padding(
+                                padding:
+                                EdgeInsets.symmetric(horizontal: 5.0),
+                                child: Icon(Icons.more_vert),
+                              )
+                                  : ![1, 2].contains(overAllPvd.controllerType)
+                                  ? Container()
+                                  : Container())
+                        ],
+                      ),
+                      (payloadProvider.listOfSite.isNotEmpty
+                          ? liveData![payloadProvider.selectedSite]
+                          .master
+                          .length >
+                          1 ||
+                          [1, 2].contains(overAllPvd.controllerType)
+                          : true)
+                          ? Container(
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(20)),
+                          // boxShadow: customBoxShadow
+                        ),
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 5, vertical: 5),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: Theme.of(context).primaryColor),
+                              child: PopupMenuButton<int>(
+                                offset: const Offset(0, 50),
+                                initialValue:
+                                payloadProvider.selectedMaster,
+                                onSelected: (int master) {
+                                  setState(() {
+                                    payloadProvider.selectedMaster = master;
+                                  });
+                                },
+                                //every ternary operator  ? user device : sharedevice details
+                                itemBuilder: (BuildContext context) =>
+                                <PopupMenuEntry<int>>[
+                                  for (var master = 0;
+                                  master <
+                                      (!overAllPvd.takeSharedUserId
+                                          ? liveData[payloadProvider
+                                          .selectedSite]
+                                          .master
+                                          : liveData)
+                                          .length;
+                                  master++)
+                                    PopupMenuItem<int>(
+                                      value: master,
+                                      child: Text(!overAllPvd
+                                          .takeSharedUserId
+                                          ? '${liveData[payloadProvider.selectedSite].master[master].deviceName ?? ''}\n${liveData[payloadProvider.selectedSite].master[master].deviceId} ${[
+                                        1,
+                                        2
+                                      ].contains(liveData[payloadProvider.selectedSite].master[master].categoryId) ? '(version : ${payloadProvider.version})' : ''}'
+                                          : '${liveData[payloadProvider.selectedSite].master[master].deviceName ?? ''}\n ${[
+                                        1,
+                                        2
+                                      ].contains(liveData[payloadProvider.selectedSite].master[master].categoryId ?? '') ? '(version : ${payloadProvider.version})' : ''}'),
+                                      onTap: () async {
+                                        var unSubscribeTopic =
+                                            'FirmwareToApp/${overAllPvd.imeiNo}';
+                                        payloadProvider.selectedMaster =
+                                            master;
+                                        overAllPvd.editImeiNo((!overAllPvd.takeSharedUserId? liveData[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].deviceName: payloadProvider.listOfSharedUser['devices'][payloadProvider.selectedMaster]['deviceId']));
+                                        overAllPvd.editControllerType((!overAllPvd.takeSharedUserId ? liveData[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].categoryId : payloadProvider.listOfSharedUser['devices'][payloadProvider.selectedMaster]['categoryId']));
+                                        overAllPvd.editControllerId(
+                                            (!overAllPvd.takeSharedUserId ? liveData[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].controllerId : payloadProvider.listOfSharedUser['devices'][payloadProvider.selectedMaster]['controllerId']));
+                                        var selectedMaster = !overAllPvd
+                                            .takeSharedUserId
+                                            ? liveData[payloadProvider
+                                            .selectedSite]
+                                            .master[
+                                        payloadProvider
+                                            .selectedMaster]
+                                            : payloadProvider
+                                            .listOfSharedUser[
+                                        'devices'][
+                                        payloadProvider
+                                            .selectedMaster];
+
+                                        // manager.topicToUnSubscribe(
+                                        //     'FirmwareToApp/${overAllPvd.imeiNo}');
+
+                                        payloadProvider
+                                            .updateReceivedPayload(
+                                            jsonEncode([3, 4].contains(
+                                                overAllPvd
+                                                    .controllerType)
+                                                ? {
+                                              "mC": "LD01",
+                                              'cM': selectedMaster[
+                                              'liveMessage']
+                                            }
+                                                : jsonEncode(
+                                                selectedMaster)),
+                                            true);
+                                        if ([3, 4].contains(
+                                            overAllPvd.controllerType)) {
+                                          payloadProvider.lastUpdate =
+                                              DateTime.parse(
+                                                  "${selectedMaster['liveSyncDate']}${selectedMaster['liveSyncTime']}");
+                                        }
+                                        for (var i = 0; i < 1; i++) {
+                                          await Future.delayed(
+                                              const Duration(seconds: 3));
+                                          autoRefresh();
+                                        }
+                                      },
                                     ),
-                                    Text(
-                                      'Last Sync : \n${payloadProvider.lastUpdate.day}/${payloadProvider.lastUpdate.month}/${payloadProvider.lastUpdate.year} ${payloadProvider.lastUpdate.hour}:${payloadProvider.lastUpdate.minute}:${payloadProvider.lastUpdate.second}',
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.normal,
-                                          color: Colors.black,
-                                          fontSize: 12,
-                                          overflow: TextOverflow.ellipsis),
+                                ],
+                                child: Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 30,
+                                      height: 30,
+                                      child: Image.asset(
+                                          'assets/png_images/choose_controller.png'),
+                                    ),
+                                    Column(
+                                      children: [
+                                        SizedBox(
+                                          width: MediaQuery.of(context)
+                                              .size
+                                              .width *
+                                              0.3,
+                                          //                 liveData!![payloadProvider.selectedSite].master![payloadProvider.selectedMaster]
+                                          child: Text(
+                                            '${(!overAllPvd.takeSharedUserId ? liveData![payloadProvider.selectedSite].master[payloadProvider.selectedMaster].config.lineData[payloadProvider.selectedLine].name : liveData![payloadProvider.selectedSite].master[payloadProvider.selectedMaster].deviceName)}',
+                                            style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.white,
+                                                overflow:
+                                                TextOverflow.ellipsis),
+                                          ),
+                                        ),
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.wifi,
+                                              color: Colors.orange,
+                                              size: 20,
+                                            ),
+                                            const SizedBox(
+                                              width: 10,
+                                            ),
+                                            Text(
+                                              '${payloadProvider.wifiStrength}',
+                                              style: const TextStyle(
+                                                  color: Colors.white),
+                                            )
+                                          ],
+                                        )
+                                      ],
                                     ),
                                   ],
                                 ),
-                                const SizedBox(
-                                    width: 15,
-                                    child: Icon(Icons.arrow_drop_down_sharp))
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
-
-                        // Modified by saravanan
-                        buildPopUpMenuButton(
-                            context: context,
-                            dataList: ([1]
-                                        .contains(overAllPvd.controllerType) &&
-                                    overAllPvd.fromDealer)
-                                ? [
-                                    "Standalone",
-                                    "Node status",
-                                    "Node details",
-                                    "Sent and Received",
-                                    "Controller Info"
-                                  ]
-                                : [1].contains(overAllPvd.controllerType)
-                                    ? [
-                                        "Standalone",
-                                        "Node status",
-                                        "Node details"
-                                      ]
-                                    : ["Sent and Received", "Controller Info"],
-                            onSelected: (newValue) {
-                              if (newValue == "Standalone") {
-                                showGeneralDialog(
-                                  barrierLabel: "Side sheet",
-                                  barrierDismissible: true,
-                                  // barrierColor: const Color(0xff6600),
-                                  transitionDuration:
-                                      const Duration(milliseconds: 300),
-                                  context: context,
-                                  pageBuilder:
-                                      (context, animation1, animation2) {
-                                    return Align(
-                                      alignment: Alignment.centerRight,
-                                      child: Container(
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        child: Scaffold( appBar: AppBar(title: const Text("StandAlone")),body: StandAlone(customerId: overAllPvd.customerId, siteId: overAllPvd.userGroupId, controllerId: overAllPvd.controllerId, userId: userId, deviceId: overAllPvd.deviceId, callbackFunction: callbackFunction, config: liveData?[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].config))
-                                      ),
-                                    );
+                            if (![3, 4].contains(overAllPvd.controllerType))
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 5, vertical: 5),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    color: Colors.white),
+                                child: PopupMenuButton<int>(
+                                  offset: const Offset(0, 50),
+                                  initialValue:
+                                  payloadProvider.selectedLine,
+                                  onSelected: (int line) {
+                                    setState(() {
+                                      payloadProvider.selectedLine = line;
+                                    });
                                   },
-                                  transitionBuilder:
-                                      (context, animation1, animation2, child) {
-                                    return SlideTransition(
-                                      position: Tween(
-                                              begin: const Offset(1, 0),
-                                              end: const Offset(0, 0))
-                                          .animate(animation1),
-                                      child: child,
-                                    );
-                                  },
-                                );
-                              }
-                              else if(newValue == "Node status") {
-                                showGeneralDialog(
-                                  barrierLabel: "Side sheet",
-                                  barrierDismissible: true,
-                                  barrierColor: const Color(0xff66000000),
-                                  transitionDuration: const Duration(milliseconds: 300),
-                                  context: context,
-                                  pageBuilder: (context, animation1, animation2) {
-                                    return Align(
-                                      alignment: Alignment.centerRight,
-                                      child: Material(
-                                        elevation: 15,
-                                        color: Colors.transparent,
-                                        borderRadius: BorderRadius.zero,
-                                        child: Consumer<MqttPayloadProvider>(
-                                            builder: (context, mqttPayloadProvider, _) {
-                                              return NodeList(customerId: overAllPvd.customerId, userId: userId, controllerId: overAllPvd.controllerId, deviceId: overAllPvd.deviceId, deviceName: liveData[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].deviceName, nodes: liveData[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].nodeList);
-                                            }
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  transitionBuilder: (context, animation1, animation2, child) {
-                                    return SlideTransition(
-                                      position: Tween(begin: const Offset(1, 0), end: const Offset(0, 0)).animate(animation1),
-                                      child: child,
-                                    );
-                                  },
-                                );
-                              }
-                              else if (newValue == "Sent and Received") {
-                                // Navigator.push(context, MaterialPageRoute(builder: (context) => SentAndReceived()));
-                              } else if (newValue == "Controller Info") {
-                                showPasswordDialog(context, _correctPassword);
-                              }
-                            },
-                            child: ([1]
-                                        .contains(overAllPvd.controllerType) ||
-                                    overAllPvd.fromDealer)
-                                ? const Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 5.0),
-                                    child: Icon(Icons.more_vert),
-                                  )
-                                : ![1].contains(overAllPvd.controllerType)
-                                    ? Container()
-                                    : Container())
-                      ],
-                    ),
-                    (payloadProvider.listOfSite.isNotEmpty
-                            ? liveData![payloadProvider.selectedSite]
-                                        .master
-                                        .length >
-                                    1 ||
-                                [1].contains(overAllPvd.controllerType)
-                            : true)
-                        ? Container(
-                            decoration: const BoxDecoration(
-                              borderRadius: BorderRadius.only(
-                                  bottomLeft: Radius.circular(20)),
-                              // boxShadow: customBoxShadow
-                            ),
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 5, vertical: 5),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      color: Theme.of(context).primaryColor),
-                                  child: PopupMenuButton<int>(
-                                    offset: const Offset(0, 50),
-                                    initialValue:
-                                        payloadProvider.selectedMaster,
-                                    onSelected: (int master) {
-                                      setState(() {
-                                        payloadProvider.selectedMaster = master;
-                                      });
-                                    },
-                                    //every ternary operator  ? user device : sharedevice details
-                                    itemBuilder: (BuildContext context) =>
-                                        <PopupMenuEntry<int>>[
-                                      for (var master = 0;
-                                          master <
-                                              (!overAllPvd.takeSharedUserId
-                                                      ? liveData[payloadProvider
-                                                              .selectedSite]
-                                                          .master
-                                                      : liveData)
-                                                  .length;
-                                          master++)
-                                        PopupMenuItem<int>(
-                                          value: master,
-                                          child: Text(!overAllPvd
-                                                  .takeSharedUserId
-                                              ? '${liveData[payloadProvider.selectedSite].master[master].deviceName ?? ''}\n${liveData[payloadProvider.selectedSite].master[master].deviceId} ${[
-                                                  1,
-                                                  2
-                                                ].contains(liveData[payloadProvider.selectedSite].master[master].categoryId) ? '(version : ${payloadProvider.version})' : ''}'
-                                              : '${liveData[payloadProvider.selectedSite].master[master].deviceName ?? ''}\n ${[
-                                                  1,
-                                                  2
-                                                ].contains(liveData[payloadProvider.selectedSite].master[master].categoryId ?? '') ? '(version : ${payloadProvider.version})' : ''}'),
-                                          onTap: () async {
-                                            var unSubscribeTopic =
-                                                'FirmwareToApp/${overAllPvd.imeiNo}';
-                                            payloadProvider.selectedMaster =
-                                                master;
-                                            overAllPvd.editImeiNo((!overAllPvd.takeSharedUserId? liveData[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].deviceName: payloadProvider.listOfSharedUser['devices'][payloadProvider.selectedMaster]['deviceId']));
-                                            overAllPvd.editControllerType((!overAllPvd.takeSharedUserId ? liveData[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].categoryId : payloadProvider.listOfSharedUser['devices'][payloadProvider.selectedMaster]['categoryId']));
-                                            overAllPvd.editControllerId(
-                                                (!overAllPvd.takeSharedUserId ? liveData[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].controllerId : payloadProvider.listOfSharedUser['devices'][payloadProvider.selectedMaster]['controllerId']));
-                                            var selectedMaster = !overAllPvd
-                                                    .takeSharedUserId
-                                                ? liveData[payloadProvider
-                                                            .selectedSite]
-                                                        .master[
-                                                    payloadProvider
-                                                        .selectedMaster]
-                                                : payloadProvider
-                                                            .listOfSharedUser[
-                                                        'devices'][
-                                                    payloadProvider
-                                                        .selectedMaster];
-
-                                            // manager.topicToUnSubscribe(
-                                            //     'FirmwareToApp/${overAllPvd.imeiNo}');
-
-                                            payloadProvider
-                                                .updateReceivedPayload(
-                                                    jsonEncode([2].contains(
-                                                            overAllPvd
-                                                                .controllerType)
-                                                        ? {
-                                                            "mC": "LD01",
-                                                            'cM': selectedMaster[
-                                                                'liveMessage']
-                                                          }
-                                                        : jsonEncode(
-                                                            selectedMaster)),
-                                                    true);
-                                            if ([2].contains(
-                                                overAllPvd.controllerType)) {
-                                              payloadProvider.lastUpdate =
-                                                  DateTime.parse(
-                                                      "${selectedMaster['liveSyncDate']}${selectedMaster['liveSyncTime']}");
-                                            }
-                                            for (var i = 0; i < 1; i++) {
-                                              await Future.delayed(
-                                                  const Duration(seconds: 3));
-                                              autoRefresh();
-                                            }
-                                          },
-                                        ),
-                                    ],
-                                    child: Row(
-                                      children: [
-                                        SizedBox(
-                                          width: 30,
-                                          height: 30,
-                                          child: Image.asset(
-                                              'assets/png_images/choose_controller.png'),
-                                        ),
-                                        Column(
+                                  itemBuilder: (BuildContext context) =>
+                                  <PopupMenuEntry<int>>[
+                                    for (var line = 0;
+                                    line <
+                                        liveData[payloadProvider
+                                            .selectedSite]
+                                            .master[payloadProvider
+                                            .selectedMaster]
+                                            .config
+                                            .lineData
+                                            .length;
+                                    line++)
+                                      PopupMenuItem<int>(
+                                        value: line,
+                                        child: Row(
                                           children: [
-                                            SizedBox(
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.3,
-                                              //                 liveData!![payloadProvider.selectedSite].master![payloadProvider.selectedMaster]
-                                              child: Text(
-                                                '${(!overAllPvd.takeSharedUserId ? liveData![payloadProvider.selectedSite].master[payloadProvider.selectedMaster].config.lineData[payloadProvider.selectedLine].name : liveData![payloadProvider.selectedSite].master[payloadProvider.selectedMaster].deviceName)}',
-                                                style: const TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.white,
-                                                    overflow:
-                                                        TextOverflow.ellipsis),
-                                              ),
+                                            Text(
+                                                '${liveData[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].config.lineData[line].name}'),
+                                            const SizedBox(
+                                              width: 10,
                                             ),
-                                            Row(
-                                              children: [
-                                                const Icon(
-                                                  Icons.wifi,
-                                                  color: Colors.orange,
-                                                  size: 20,
-                                                ),
-                                                const SizedBox(
-                                                  width: 10,
-                                                ),
-                                                Text(
-                                                  '${payloadProvider.wifiStrength}',
-                                                  style: const TextStyle(
-                                                      color: Colors.white),
-                                                )
-                                              ],
-                                            )
+                                            if (payloadProvider
+                                                .lineData[line]
+                                            ['mode'] !=
+                                                0)
+                                              const Icon(
+                                                Icons.info,
+                                                color: Colors.red,
+                                              )
                                           ],
                                         ),
-                                      ],
-                                    ),
+                                        onTap: () {
+                                          setState(() {
+                                            payloadProvider.selectedLine =
+                                                line;
+                                          });
+                                        },
+                                      ),
+                                  ],
+                                  child: Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 30,
+                                        height: 30,
+                                        child: Image.asset(
+                                            'assets/png_images/irrigation_line1.png'),
+                                      ),
+                                      SizedBox(
+                                          width: MediaQuery.of(context)
+                                              .size
+                                              .width *
+                                              0.25,
+                                          child: Text(
+                                            '${liveData[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].config.lineData[0].name}',
+                                            style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.black,
+                                                overflow:
+                                                TextOverflow.ellipsis),
+                                          )),
+                                      if (payloadProvider.lineData
+                                          .any((line) => line['mode'] != 0))
+                                        const Icon(
+                                          Icons.info,
+                                          color: Colors.red,
+                                        )
+                                    ],
                                   ),
                                 ),
-                                if (![2].contains(overAllPvd.controllerType))
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 5, vertical: 5),
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        color: Colors.white),
-                                    child: PopupMenuButton<int>(
-                                      offset: const Offset(0, 50),
-                                      initialValue:
-                                          payloadProvider.selectedLine,
-                                      onSelected: (int line) {
-                                        setState(() {
-                                          payloadProvider.selectedLine = line;
-                                        });
-                                      },
-                                      itemBuilder: (BuildContext context) =>
-                                          <PopupMenuEntry<int>>[
-                                        for (var line = 0;
-                                            line <
-                                                liveData[payloadProvider
-                                                        .selectedSite]
-                                                    .master[payloadProvider
-                                                        .selectedMaster]
-                                                    .config
-                                                    .lineData
-                                                    .length;
-                                            line++)
-                                          PopupMenuItem<int>(
-                                            value: line,
-                                            child: Row(
+                              ),
+                            if (![3, 4].contains(overAllPvd.controllerType))
+                              InkWell(
+                                onTap: () {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return Consumer<MqttPayloadProvider>(
+                                        builder: (context, payloadProvider,
+                                            child) {
+                                          return Container(
+                                            height: 300,
+                                            decoration: const BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                              BorderRadius.only(
+                                                topLeft:
+                                                Radius.circular(20),
+                                                topRight:
+                                                Radius.circular(20),
+                                              ),
+                                            ),
+                                            child: Column(
                                               children: [
-                                                Text(
-                                                    '${liveData[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].config.lineData[line].name}'),
-                                                const SizedBox(
-                                                  width: 10,
+                                                Row(
+                                                  mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                                  children: [
+                                                    const Padding(
+                                                      padding: EdgeInsets
+                                                          .symmetric(
+                                                          horizontal:
+                                                          10),
+                                                      child: Text(
+                                                        'Alarms',
+                                                        style: TextStyle(
+                                                            fontSize: 20),
+                                                      ),
+                                                    ),
+                                                    IconButton(
+                                                      onPressed: () {
+                                                        // Close the bottom sheet
+                                                        Navigator.pop(
+                                                            context);
+                                                      },
+                                                      icon: const Icon(
+                                                          Icons.cancel),
+                                                    ),
+                                                  ],
                                                 ),
-                                                if (payloadProvider
-                                                            .lineData[line]
-                                                        ['mode'] !=
-                                                    0)
-                                                  const Icon(
-                                                    Icons.info,
-                                                    color: Colors.red,
+                                                for (var alarm = 0;
+                                                alarm <
+                                                    payloadProvider
+                                                        .alarmList
+                                                        .length;
+                                                alarm++)
+                                                  ListTile(
+                                                    title: Text(
+                                                        '${getAlarmMessage[payloadProvider.alarmList[alarm]['AlarmType']]}'),
+                                                    subtitle: Text(
+                                                        'Location : ${payloadProvider.alarmList[alarm]['Location']}'),
+                                                    trailing: (overAllPvd
+                                                        .takeSharedUserId
+                                                        ? (payloadProvider
+                                                        .userPermission[0]
+                                                    [
+                                                    'status'] ||
+                                                        payloadProvider
+                                                            .userPermission[5]
+                                                        [
+                                                        'status'])
+                                                        : true)
+                                                        ? MaterialButton(
+                                                      color: payloadProvider.alarmList[alarm]
+                                                      [
+                                                      'Status'] ==
+                                                          1
+                                                          ? Colors
+                                                          .orange
+                                                          : Colors
+                                                          .red,
+                                                      onPressed:
+                                                          () {},
+                                                      // onPressed: DashboardPayloadHandler(manager: manager, payloadProvider: payloadProvider, overAllPvd: overAllPvd, setState: setState, context: context,index: alarm).alarmReset,
+                                                      // onPressed: () {
+                                                      //   String payload =  '${i['S_No']}';
+                                                      //   String payLoadFinal = jsonEncode({
+                                                      //     "4100": [{"4101": payload}]
+                                                      //   });
+                                                      //   MqttManager().publish(payLoadFinal, payloadProvider.publishTopic);
+                                                      // },
+                                                      child:
+                                                      const Text(
+                                                        'Reset',
+                                                        style: TextStyle(
+                                                            color: Colors
+                                                                .white),
+                                                      ),
+                                                    )
+                                                        : null,
                                                   )
                                               ],
                                             ),
-                                            onTap: () {
-                                              setState(() {
-                                                payloadProvider.selectedLine =
-                                                    line;
-                                              });
-                                            },
-                                          ),
-                                      ],
-                                      child: Row(
-                                        children: [
-                                          SizedBox(
-                                            width: 30,
-                                            height: 30,
-                                            child: Image.asset(
-                                                'assets/png_images/irrigation_line1.png'),
-                                          ),
-                                          SizedBox(
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.25,
-                                              child: Text(
-                                                '${liveData[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].config.lineData[0].name}',
-                                                style: const TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.black,
-                                                    overflow:
-                                                        TextOverflow.ellipsis),
-                                              )),
-                                          if (payloadProvider.lineData
-                                              .any((line) => line['mode'] != 0))
-                                            const Icon(
-                                              Icons.info,
-                                              color: Colors.red,
-                                            )
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                if (![2].contains(overAllPvd.controllerType))
-                                  InkWell(
-                                    onTap: () {
-                                      showModalBottomSheet(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return Consumer<MqttPayloadProvider>(
-                                            builder: (context, payloadProvider,
-                                                child) {
-                                              return Container(
-                                                height: 300,
-                                                decoration: const BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.only(
-                                                    topLeft:
-                                                        Radius.circular(20),
-                                                    topRight:
-                                                        Radius.circular(20),
-                                                  ),
-                                                ),
-                                                child: Column(
-                                                  children: [
-                                                    Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        const Padding(
-                                                          padding: EdgeInsets
-                                                              .symmetric(
-                                                                  horizontal:
-                                                                      10),
-                                                          child: Text(
-                                                            'Alarms',
-                                                            style: TextStyle(
-                                                                fontSize: 20),
-                                                          ),
-                                                        ),
-                                                        IconButton(
-                                                          onPressed: () {
-                                                            // Close the bottom sheet
-                                                            Navigator.pop(
-                                                                context);
-                                                          },
-                                                          icon: const Icon(
-                                                              Icons.cancel),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    for (var alarm = 0;
-                                                        alarm <
-                                                            payloadProvider
-                                                                .alarmList
-                                                                .length;
-                                                        alarm++)
-                                                      ListTile(
-                                                        title: Text(
-                                                            '${getAlarmMessage[payloadProvider.alarmList[alarm]['AlarmType']]}'),
-                                                        subtitle: Text(
-                                                            'Location : ${payloadProvider.alarmList[alarm]['Location']}'),
-                                                        trailing: (overAllPvd
-                                                                    .takeSharedUserId
-                                                                ? (payloadProvider
-                                                                            .userPermission[0]
-                                                                        [
-                                                                        'status'] ||
-                                                                    payloadProvider
-                                                                            .userPermission[5]
-                                                                        [
-                                                                        'status'])
-                                                                : true)
-                                                            ? MaterialButton(
-                                                                color: payloadProvider.alarmList[alarm]
-                                                                            [
-                                                                            'Status'] ==
-                                                                        1
-                                                                    ? Colors
-                                                                        .orange
-                                                                    : Colors
-                                                                        .red,
-                                                                onPressed:
-                                                                    () {},
-                                                                // onPressed: DashboardPayloadHandler(manager: manager, payloadProvider: payloadProvider, overAllPvd: overAllPvd, setState: setState, context: context,index: alarm).alarmReset,
-                                                                // onPressed: () {
-                                                                //   String payload =  '${i['S_No']}';
-                                                                //   String payLoadFinal = jsonEncode({
-                                                                //     "4100": [{"4101": payload}]
-                                                                //   });
-                                                                //   MqttManager().publish(payLoadFinal, payloadProvider.publishTopic);
-                                                                // },
-                                                                child:
-                                                                    const Text(
-                                                                  'Reset',
-                                                                  style: TextStyle(
-                                                                      color: Colors
-                                                                          .white),
-                                                                ),
-                                                              )
-                                                            : null,
-                                                      )
-                                                  ],
-                                                ),
-                                              );
-                                            },
                                           );
                                         },
                                       );
                                     },
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Stack(
-                                        children: [
-                                          const Icon(
-                                            Icons.notifications,
-                                            color: Colors.black,
-                                            size: 30,
-                                          ),
-                                          if (payloadProvider
-                                              .alarmList.isNotEmpty)
-                                            const Positioned(
-                                              top: 0,
-                                              left: 10,
-                                              child: CircleAvatar(
-                                                radius: 8,
-                                                backgroundColor: Colors.red,
-                                                child: Center(
-                                                    child: Text(
+                                  );
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Stack(
+                                    children: [
+                                      const Icon(
+                                        Icons.notifications,
+                                        color: Colors.black,
+                                        size: 30,
+                                      ),
+                                      if (payloadProvider
+                                          .alarmList.isNotEmpty)
+                                        const Positioned(
+                                          top: 0,
+                                          left: 10,
+                                          child: CircleAvatar(
+                                            radius: 8,
+                                            backgroundColor: Colors.red,
+                                            child: Center(
+                                                child: Text(
                                                   '1',
                                                   style: TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 12),
                                                 )),
-                                              ),
-                                            )
-                                        ],
-                                      ),
-                                    ),
+                                          ),
+                                        )
+                                    ],
                                   ),
-                              ],
-                            ),
-                          )
-                        : Container(),
-                  ],
-                ),
-                Expanded(
-                  child: RefreshIndicator(
-                    onRefresh: onRefresh,
-                    child: [1].contains(overAllPvd.controllerType)
-                        ? SingleChildScrollView(
-                            child: Container(
+                                ),
+                              ),
+                          ],
+                        ),
+                      )
+                          : Container(),
+                    ],
+                  ),
+                  Expanded(
+                    child: RefreshIndicator(
+                      onRefresh: onRefresh,
+                      child: [1, 2].contains(overAllPvd.controllerType)
+                          ? SingleChildScrollView(
+                          child: Container(
                             width: MediaQuery.of(context).size.width,
                             decoration: const BoxDecoration(
                               borderRadius: BorderRadius.only(
@@ -1314,52 +1313,52 @@ class _DashboardState extends State<MobDashboard>
                                         'assets/png_images/irrigation_line1.png'),
                                   ),
                                   subtitle: getLinePauseResumeMessage(
-                                              selectedLine!.sNo) ==
-                                          ''
+                                      selectedLine!.sNo) ==
+                                      ''
                                       ? null
                                       : Text(
-                                          '${getLinePauseResumeMessage(selectedLine!.sNo)}',
-                                          style: const TextStyle(
-                                              color: Colors.red,
-                                              fontWeight: FontWeight.bold),
-                                        ),
+                                    '${getLinePauseResumeMessage(selectedLine!.sNo)}',
+                                    style: const TextStyle(
+                                        color: Colors.red,
+                                        fontWeight: FontWeight.bold),
+                                  ),
                                   title: Text(
                                     '${selectedLine!.name}',
                                     style: const TextStyle(
                                         fontSize: 12, color: Colors.black),
                                   ),
                                   trailing: ([0, 1].contains(selectedLine) &&
-                                          (overAllPvd.takeSharedUserId
-                                              ? (payloadProvider
-                                                          .userPermission[0]
-                                                      ['status'] ||
-                                                  payloadProvider
-                                                          .userPermission[4]
-                                                      ['status'])
-                                              : true))
+                                      (overAllPvd.takeSharedUserId
+                                          ? (payloadProvider
+                                          .userPermission[0]
+                                      ['status'] ||
+                                          payloadProvider
+                                              .userPermission[4]
+                                          ['status'])
+                                          : true))
                                       ? MaterialButton(
-                                          color: selectedLine.sNo == 0
-                                              ? Colors.orange
-                                              : Colors.yellow,
-                                          onPressed: () {},
-                                          // onPressed: DashboardPayloadHandler(manager: manager, payloadProvider: payloadProvider, overAllPvd: overAllPvd, setState: setState, context: context).irrigationLinePauseResume,
-                                          child: Text(
-                                            selectedLine.sNo == 0
-                                                ? 'Pause'
-                                                : 'Resume',
-                                            style: TextStyle(
-                                                color: selectedLine!.sNo == 0
-                                                    ? Colors.white
-                                                    : Colors.black),
-                                          )
-                                          // : loadingButton(),
-                                          )
+                                      color: selectedLine.sNo == 0
+                                          ? Colors.orange
+                                          : Colors.yellow,
+                                      onPressed: () {},
+                                      // onPressed: DashboardPayloadHandler(manager: manager, payloadProvider: payloadProvider, overAllPvd: overAllPvd, setState: setState, context: context).irrigationLinePauseResume,
+                                      child: Text(
+                                        selectedLine.sNo == 0
+                                            ? 'Pause'
+                                            : 'Resume',
+                                        style: TextStyle(
+                                            color: selectedLine!.sNo == 0
+                                                ? Colors.white
+                                                : Colors.black),
+                                      )
+                                    // : loadingButton(),
+                                  )
                                       : null,
                                   // subtitle: Text("subtile"),
                                   // title: Text("title"),
                                   // trailing: Text("trailing"),
                                 ),
-                                if ([2].contains(overAllPvd.controllerType))
+                                if ([3, 4].contains(overAllPvd.controllerType))
                                   Container(
                                     color: Colors.red,
                                     child: const Text(
@@ -1371,7 +1370,7 @@ class _DashboardState extends State<MobDashboard>
                                   Column(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    CrossAxisAlignment.start,
                                     children: [
                                       Container(
                                         width: double.infinity,
@@ -1387,27 +1386,27 @@ class _DashboardState extends State<MobDashboard>
                                       ),
                                       SizedBox(
                                         height:
-                                            MediaQuery.of(context).size.height *
-                                                0.3,
+                                        MediaQuery.of(context).size.height *
+                                            0.3,
                                       ),
                                     ],
                                   )
                               ],
                             ),
                           ))
-                        : Container(
-                            color: Colors.red,
-                            child: const Text(
-                              " PumpControllerDashboard",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ), // PumpControllerDashboard(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : userId, deviceId: overAllPvd.imeiNo, controllerId: overAllPvd.controllerId, selectedSite: payloadProvider.selectedSite, selectedMaster: payloadProvider.selectedMaster,),
+                          : Container(
+                        color: Colors.red,
+                        child: const Text(
+                          " PumpControllerDashboard",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ), // PumpControllerDashboard(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : userId, deviceId: overAllPvd.imeiNo, controllerId: overAllPvd.controllerId, selectedSite: payloadProvider.selectedSite, selectedMaster: payloadProvider.selectedMaster,),
+                    ),
                   ),
-                ),
-                // buildBottomNavigationBar(),
-              ],
-            ))),
-          )
+                  // buildBottomNavigationBar(),
+                ],
+              ))),
+    )
         : const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 
@@ -1418,7 +1417,7 @@ class _DashboardState extends State<MobDashboard>
     List<FertilizerSite> fertilizerSite = payloadProvider.fertilizerSiteMobDash;
     List<IrrigationLineData>? irrLineData = payloadProvider.irrLineDataMobDash;
 
-    var outputOnOffLiveMessage = Provider.of<MqttPayloadProvider>(context).outputOnOffLiveMessage;
+    var outputOnOffLiveMessage = Provider.of<MqttPayloadProvider>(context).outputStatusPayload;
     print('outputOnOffLiveMessage:$outputOnOffLiveMessage');
 
     List<String> filteredPumpStatus = outputOnOffLiveMessage
@@ -1434,10 +1433,10 @@ class _DashboardState extends State<MobDashboard>
 
     int totalWaterSources = waterSource.length;
     int totalOutletPumps =
-        waterSource.fold(0, (sum, source) => sum + source.outletPump.length);
+    waterSource.fold(0, (sum, source) => sum + source.outletPump.length);
 
     int totalFilters =
-        filterSite.fold(0, (sum, site) => sum + (site.filters.length ?? 0));
+    filterSite.fold(0, (sum, site) => sum + (site.filters.length ?? 0));
     int totalPressureIn = filterSite.fold(
         0, (sum, site) => sum + (site.pressureIn! != null ? 1 : 0));
     int totalPressureOut = filterSite.fold(
@@ -1446,7 +1445,7 @@ class _DashboardState extends State<MobDashboard>
     int totalBoosterPump = fertilizerSite.fold(
         0, (sum, site) => sum + (site.boosterPump.length ?? 0));
     int totalChannels =
-        fertilizerSite.fold(0, (sum, site) => sum + (site.channel.length ?? 0));
+    fertilizerSite.fold(0, (sum, site) => sum + (site.channel.length ?? 0));
     int totalAgitators = fertilizerSite.fold(
         0, (sum, site) => sum + (site.agitator.length ?? 0));
 
@@ -1462,17 +1461,17 @@ class _DashboardState extends State<MobDashboard>
     print(screenWith);
 
     List<WaterSource> sortedWaterSources = [...waterSource]..sort((a, b) {
-        bool aHasOutlet = a.outletPump.isNotEmpty;
-        bool bHasOutlet = b.outletPump.isNotEmpty;
+      bool aHasOutlet = a.outletPump.isNotEmpty;
+      bool bHasOutlet = b.outletPump.isNotEmpty;
 
-        bool aHasInlet = a.inletPump.isNotEmpty;
-        bool bHasInlet = b.inletPump.isNotEmpty;
+      bool aHasInlet = a.inletPump.isNotEmpty;
+      bool bHasInlet = b.inletPump.isNotEmpty;
 
-        if (aHasOutlet && !aHasInlet && (!bHasOutlet || bHasInlet)) return -1;
-        if (bHasOutlet && !bHasInlet && (!aHasOutlet || aHasInlet)) return 1;
+      if (aHasOutlet && !aHasInlet && (!bHasOutlet || bHasInlet)) return -1;
+      if (bHasOutlet && !bHasInlet && (!aHasOutlet || aHasInlet)) return 1;
 
-        return 0;
-      });
+      return 0;
+    });
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -1556,9 +1555,9 @@ class _DashboardState extends State<MobDashboard>
                                       padding: const EdgeInsets.only(left: 3),
                                       child: Row(
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                         mainAxisAlignment:
-                                            MainAxisAlignment.start,
+                                        MainAxisAlignment.start,
                                         children: [
                                           VerticalDivider(
                                               thickness: 1,
@@ -1661,7 +1660,7 @@ class _DashboardState extends State<MobDashboard>
                 displayFertilizerSite(context, fertilizerSite),
               IrrigationLine(
                 lineData: irrLineData,
-                pumpStationWith: 0,
+                pumpStationWith: 0, currentLineName: '',
               ),
             ],
           ),
@@ -1703,7 +1702,7 @@ class _DashboardState extends State<MobDashboard>
         SizedBox(
             width: 70,
             child:
-                Divider(thickness: 2, color: Colors.grey.shade300, height: 10)),
+            Divider(thickness: 2, color: Colors.grey.shade300, height: 10)),
         SizedBox(
           width: 70,
           height: 100,
@@ -1746,44 +1745,44 @@ class _DashboardState extends State<MobDashboard>
                         children: [
                           filterSite[i].pressureIn! != null
                               ? SizedBox(
-                                  width: 70,
-                                  height: 70,
-                                  child: Stack(
-                                    children: [
-                                      Image.asset(
-                                        'assets/png_images/dp_prs_sensor.png',
+                            width: 70,
+                            height: 70,
+                            child: Stack(
+                              children: [
+                                Image.asset(
+                                  'assets/png_images/dp_prs_sensor.png',
+                                ),
+                                Positioned(
+                                  top: 42,
+                                  left: 5,
+                                  child: Container(
+                                    width: 60,
+                                    height: 17,
+                                    decoration: BoxDecoration(
+                                      color: Colors.yellow,
+                                      borderRadius:
+                                      const BorderRadius.all(
+                                          Radius.circular(2)),
+                                      border: Border.all(
+                                        color: Colors.grey,
+                                        width: .50,
                                       ),
-                                      Positioned(
-                                        top: 42,
-                                        left: 5,
-                                        child: Container(
-                                          width: 60,
-                                          height: 17,
-                                          decoration: BoxDecoration(
-                                            color: Colors.yellow,
-                                            borderRadius:
-                                                const BorderRadius.all(
-                                                    Radius.circular(2)),
-                                            border: Border.all(
-                                              color: Colors.grey,
-                                              width: .50,
-                                            ),
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              '${filterSite[i].pressureIn?.value} bar',
-                                              style: const TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        '${filterSite[i].pressureIn?.value} bar',
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                    ],
+                                    ),
                                   ),
-                                )
+                                ),
+                              ],
+                            ),
+                          )
                               : const SizedBox(),
                           SizedBox(
                             height: 91,
@@ -1830,44 +1829,44 @@ class _DashboardState extends State<MobDashboard>
                           ),
                           filterSite[i].pressureOut! != null
                               ? SizedBox(
-                                  width: 70,
-                                  height: 70,
-                                  child: Stack(
-                                    children: [
-                                      Image.asset(
-                                        'assets/png_images/dp_prs_sensor.png',
+                            width: 70,
+                            height: 70,
+                            child: Stack(
+                              children: [
+                                Image.asset(
+                                  'assets/png_images/dp_prs_sensor.png',
+                                ),
+                                Positioned(
+                                  top: 42,
+                                  left: 5,
+                                  child: Container(
+                                    width: 60,
+                                    height: 17,
+                                    decoration: BoxDecoration(
+                                      color: Colors.yellow,
+                                      borderRadius:
+                                      const BorderRadius.all(
+                                          Radius.circular(2)),
+                                      border: Border.all(
+                                        color: Colors.grey,
+                                        width: .50,
                                       ),
-                                      Positioned(
-                                        top: 42,
-                                        left: 5,
-                                        child: Container(
-                                          width: 60,
-                                          height: 17,
-                                          decoration: BoxDecoration(
-                                            color: Colors.yellow,
-                                            borderRadius:
-                                                const BorderRadius.all(
-                                                    Radius.circular(2)),
-                                            border: Border.all(
-                                              color: Colors.grey,
-                                              width: .50,
-                                            ),
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              '${filterSite[i].pressureOut?.value} bar',
-                                              style: const TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        '${filterSite[i].pressureOut?.value} bar',
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                    ],
+                                    ),
                                   ),
-                                )
+                                ),
+                              ],
+                            ),
+                          )
                               : const SizedBox(),
                         ],
                       ),
@@ -1963,69 +1962,69 @@ class _DashboardState extends State<MobDashboard>
                                     top: 70,
                                     left: 15,
                                     child: fertilizerSite[fIndex]
-                                            .selector
-                                            .isNotEmpty
+                                        .selector
+                                        .isNotEmpty
                                         ? const SizedBox(
-                                            width: 50,
-                                            child: Center(
-                                              child: Text(
-                                                'Selector',
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 10,
-                                                  fontWeight: FontWeight.normal,
-                                                ),
-                                              ),
-                                            ),
-                                          )
+                                      width: 50,
+                                      child: Center(
+                                        child: Text(
+                                          'Selector',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.normal,
+                                          ),
+                                        ),
+                                      ),
+                                    )
                                         : const SizedBox(),
                                   ),
                                   Positioned(
                                     top: 85,
                                     left: 18,
                                     child: fertilizerSite[fIndex]
-                                            .selector
-                                            .isNotEmpty
+                                        .selector
+                                        .isNotEmpty
                                         ? Container(
-                                            decoration: BoxDecoration(
-                                              color: fertilizerSite[fIndex]
-                                                              .selector[0]
-                                                          ['Status'] ==
-                                                      0
-                                                  ? Colors.grey.shade300
-                                                  : fertilizerSite[fIndex]
-                                                                  .selector[0]
-                                                              ['Status'] ==
-                                                          1
-                                                      ? Colors.greenAccent
-                                                      : fertilizerSite[fIndex]
-                                                                      .selector[
-                                                                  0]['Status'] ==
-                                                              2
-                                                          ? Colors.orangeAccent
-                                                          : Colors.redAccent,
-                                              borderRadius:
-                                                  BorderRadius.circular(3),
-                                            ),
-                                            width: 45,
-                                            height: 22,
-                                            child: Center(
-                                              child: Text(
-                                                fertilizerSite[fIndex]
-                                                                .selector[0]
-                                                            ['Status'] !=
-                                                        0
-                                                    ? fertilizerSite[fIndex]
-                                                        .selector[0]['Name']
-                                                    : '--',
-                                                style: const TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ),
-                                          )
+                                      decoration: BoxDecoration(
+                                        color: fertilizerSite[fIndex]
+                                            .selector[0]
+                                        ['Status'] ==
+                                            0
+                                            ? Colors.grey.shade300
+                                            : fertilizerSite[fIndex]
+                                            .selector[0]
+                                        ['Status'] ==
+                                            1
+                                            ? Colors.greenAccent
+                                            : fertilizerSite[fIndex]
+                                            .selector[
+                                        0]['Status'] ==
+                                            2
+                                            ? Colors.orangeAccent
+                                            : Colors.redAccent,
+                                        borderRadius:
+                                        BorderRadius.circular(3),
+                                      ),
+                                      width: 45,
+                                      height: 22,
+                                      child: Center(
+                                        child: Text(
+                                          fertilizerSite[fIndex]
+                                              .selector[0]
+                                          ['Status'] !=
+                                              0
+                                              ? fertilizerSite[fIndex]
+                                              .selector[0]['Name']
+                                              : '--',
+                                          style: const TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    )
                                         : const SizedBox(),
                                   ),
                                   Positioned(
@@ -2047,7 +2046,7 @@ class _DashboardState extends State<MobDashboard>
                               itemCount: fertilizerSite[fIndex].channel.length,
                               itemBuilder: (BuildContext context, int index) {
                                 var fertilizer =
-                                    fertilizerSite[fIndex].channel[index];
+                                fertilizerSite[fIndex].channel[index];
                                 double fertilizerQty = 0.0;
                                 var qtyValue = fertilizer.qty;
                                 fertilizerQty = double.parse(qtyValue);
@@ -2086,14 +2085,14 @@ class _DashboardState extends State<MobDashboard>
                                           decoration: BoxDecoration(
                                             color: Colors.transparent,
                                             borderRadius:
-                                                BorderRadius.circular(3),
+                                            BorderRadius.circular(3),
                                           ),
                                           width: 60,
                                           child: Center(
                                             child: Text(
                                               fertilizer.fertMethod == '1' ||
-                                                      fertilizer.fertMethod ==
-                                                          '3'
+                                                  fertilizer.fertMethod ==
+                                                      '3'
                                                   ? fertilizer.duration
                                                   : '${fertilizerQty.toStringAsFixed(2)} L',
                                               style: const TextStyle(
@@ -2112,7 +2111,7 @@ class _DashboardState extends State<MobDashboard>
                                           decoration: BoxDecoration(
                                             color: Colors.transparent,
                                             borderRadius:
-                                                BorderRadius.circular(3),
+                                            BorderRadius.circular(3),
                                           ),
                                           width: 60,
                                           child: Center(
@@ -2131,35 +2130,35 @@ class _DashboardState extends State<MobDashboard>
                                         top: 103,
                                         left: 0,
                                         child: fertilizer.status != 0 &&
-                                                fertilizer.selected != '_' &&
-                                                fertilizer.durationLeft !=
-                                                    '00:00:00'
+                                            fertilizer.selected != '_' &&
+                                            fertilizer.durationLeft !=
+                                                '00:00:00'
                                             ? Container(
-                                                decoration: BoxDecoration(
-                                                  color: Colors.greenAccent,
-                                                  borderRadius:
-                                                      BorderRadius.circular(3),
-                                                ),
-                                                width: 50,
-                                                child: Center(
-                                                  child: Text(
-                                                    fertilizer.fertMethod ==
-                                                                '1' ||
-                                                            fertilizer
-                                                                    .fertMethod ==
-                                                                '3'
-                                                        ? fertilizer
-                                                            .durationLeft
-                                                        : '${fertilizer.qtyLeft} L',
-                                                    style: const TextStyle(
-                                                      color: Colors.black,
-                                                      fontSize: 10,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ),
-                                              )
+                                          decoration: BoxDecoration(
+                                            color: Colors.greenAccent,
+                                            borderRadius:
+                                            BorderRadius.circular(3),
+                                          ),
+                                          width: 50,
+                                          child: Center(
+                                            child: Text(
+                                              fertilizer.fertMethod ==
+                                                  '1' ||
+                                                  fertilizer
+                                                      .fertMethod ==
+                                                      '3'
+                                                  ? fertilizer
+                                                  .durationLeft
+                                                  : '${fertilizer.qtyLeft} L',
+                                              style: const TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 10,
+                                                fontWeight:
+                                                FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        )
                                             : const SizedBox(),
                                       ),
                                     ],
@@ -2170,32 +2169,32 @@ class _DashboardState extends State<MobDashboard>
                           ),
                           fertilizerSite[fIndex].agitator.isNotEmpty
                               ? Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: fertilizerSite[fIndex]
-                                      .agitator
-                                      .map<Widget>((agitator) {
-                                    return Column(
-                                      children: [
-                                        SizedBox(
-                                          width: 59,
-                                          height: 34,
-                                          child: AppConstants.getAsset(
-                                            'agitator',
-                                            agitator.status,
-                                            '',
-                                          ),
-                                        ),
-                                        Center(
-                                            child: Text(
-                                          agitator.name,
-                                          style: const TextStyle(
-                                              fontSize: 10,
-                                              color: Colors.black54),
-                                        )),
-                                      ],
-                                    );
-                                  }).toList(), // Convert the map result to a list of widgets
-                                )
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: fertilizerSite[fIndex]
+                                .agitator
+                                .map<Widget>((agitator) {
+                              return Column(
+                                children: [
+                                  SizedBox(
+                                    width: 59,
+                                    height: 34,
+                                    child: AppConstants.getAsset(
+                                      'agitator',
+                                      agitator.status,
+                                      '',
+                                    ),
+                                  ),
+                                  Center(
+                                      child: Text(
+                                        agitator.name,
+                                        style: const TextStyle(
+                                            fontSize: 10,
+                                            color: Colors.black54),
+                                      )),
+                                ],
+                              );
+                            }).toList(), // Convert the map result to a list of widgets
+                          )
                               : const SizedBox(),
                         ],
                       )),
@@ -2203,7 +2202,7 @@ class _DashboardState extends State<MobDashboard>
                 SizedBox(
                   height: 30,
                   width: (fertilizerSite[fIndex].channel.length * 79 +
-                          fertilizerSite[fIndex].agitator.length * 59) +
+                      fertilizerSite[fIndex].agitator.length * 59) +
                       50,
                   child: Column(
                     children: [
@@ -2239,128 +2238,128 @@ class _DashboardState extends State<MobDashboard>
                                   width: 5.0,
                                 ),
                                 fertilizerSite[fIndex].ec!.isNotEmpty ||
-                                        fertilizerSite[fIndex].ph!.isNotEmpty
+                                    fertilizerSite[fIndex].ph!.isNotEmpty
                                     ? SizedBox(
-                                        width:
-                                            fertilizerSite[fIndex].ec!.length >
-                                                    1
-                                                ? 110
-                                                : 60,
-                                        height: 24,
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            fertilizerSite[fIndex]
-                                                    .ec!
-                                                    .isNotEmpty
-                                                ? SizedBox(
-                                                    height: 12,
-                                                    child: ListView.builder(
-                                                      scrollDirection:
-                                                          Axis.horizontal,
-                                                      itemCount:
-                                                          fertilizerSite[fIndex]
-                                                              .ec!
-                                                              .length,
-                                                      itemBuilder:
-                                                          (BuildContext context,
-                                                              int index) {
-                                                        return Row(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            const Center(
-                                                                child: Text(
-                                                              'Ec : ',
-                                                              style: TextStyle(
-                                                                  fontSize: 10,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .normal),
-                                                            )),
-                                                            Center(
-                                                              child: Text(
-                                                                double.parse(fertilizerSite[
-                                                                            fIndex]
-                                                                        .ec![
-                                                                            index]
-                                                                        .value)
-                                                                    .toStringAsFixed(
-                                                                        2),
-                                                                style: const TextStyle(
-                                                                    fontSize:
-                                                                        10,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .normal),
-                                                              ),
-                                                            ),
-                                                            const SizedBox(
-                                                              width: 5,
-                                                            ),
-                                                          ],
-                                                        );
-                                                      },
-                                                    ),
-                                                  )
-                                                : const SizedBox(),
-                                            fertilizerSite[fIndex]
-                                                    .ph!
-                                                    .isNotEmpty
-                                                ? SizedBox(
-                                                    height: 12,
-                                                    child: ListView.builder(
-                                                      scrollDirection:
-                                                          Axis.horizontal,
-                                                      itemCount:
-                                                          fertilizerSite[fIndex]
-                                                              .ph!
-                                                              .length,
-                                                      itemBuilder:
-                                                          (BuildContext context,
-                                                              int index) {
-                                                        return Row(
-                                                          children: [
-                                                            const Center(
-                                                                child: Text(
-                                                              'pH : ',
-                                                              style: TextStyle(
-                                                                  fontSize: 10,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .normal),
-                                                            )),
-                                                            Center(
-                                                              child: Text(
-                                                                double.parse(fertilizerSite[
-                                                                            fIndex]
-                                                                        .ph![
-                                                                            index]
-                                                                        .value)
-                                                                    .toStringAsFixed(
-                                                                        2),
-                                                                style: const TextStyle(
-                                                                    fontSize:
-                                                                        10,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .normal),
-                                                              ),
-                                                            ),
-                                                            const SizedBox(
-                                                              width: 5,
-                                                            ),
-                                                          ],
-                                                        );
-                                                      },
-                                                    ),
-                                                  )
-                                                : const SizedBox(),
-                                          ],
+                                  width:
+                                  fertilizerSite[fIndex].ec!.length >
+                                      1
+                                      ? 110
+                                      : 60,
+                                  height: 24,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                    children: [
+                                      fertilizerSite[fIndex]
+                                          .ec!
+                                          .isNotEmpty
+                                          ? SizedBox(
+                                        height: 12,
+                                        child: ListView.builder(
+                                          scrollDirection:
+                                          Axis.horizontal,
+                                          itemCount:
+                                          fertilizerSite[fIndex]
+                                              .ec!
+                                              .length,
+                                          itemBuilder:
+                                              (BuildContext context,
+                                              int index) {
+                                            return Row(
+                                              crossAxisAlignment:
+                                              CrossAxisAlignment
+                                                  .start,
+                                              children: [
+                                                const Center(
+                                                    child: Text(
+                                                      'Ec : ',
+                                                      style: TextStyle(
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                          FontWeight
+                                                              .normal),
+                                                    )),
+                                                Center(
+                                                  child: Text(
+                                                    double.parse(fertilizerSite[
+                                                    fIndex]
+                                                        .ec![
+                                                    index]
+                                                        .value)
+                                                        .toStringAsFixed(
+                                                        2),
+                                                    style: const TextStyle(
+                                                        fontSize:
+                                                        10,
+                                                        fontWeight:
+                                                        FontWeight
+                                                            .normal),
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  width: 5,
+                                                ),
+                                              ],
+                                            );
+                                          },
                                         ),
                                       )
+                                          : const SizedBox(),
+                                      fertilizerSite[fIndex]
+                                          .ph!
+                                          .isNotEmpty
+                                          ? SizedBox(
+                                        height: 12,
+                                        child: ListView.builder(
+                                          scrollDirection:
+                                          Axis.horizontal,
+                                          itemCount:
+                                          fertilizerSite[fIndex]
+                                              .ph!
+                                              .length,
+                                          itemBuilder:
+                                              (BuildContext context,
+                                              int index) {
+                                            return Row(
+                                              children: [
+                                                const Center(
+                                                    child: Text(
+                                                      'pH : ',
+                                                      style: TextStyle(
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                          FontWeight
+                                                              .normal),
+                                                    )),
+                                                Center(
+                                                  child: Text(
+                                                    double.parse(fertilizerSite[
+                                                    fIndex]
+                                                        .ph![
+                                                    index]
+                                                        .value)
+                                                        .toStringAsFixed(
+                                                        2),
+                                                    style: const TextStyle(
+                                                        fontSize:
+                                                        10,
+                                                        fontWeight:
+                                                        FontWeight
+                                                            .normal),
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  width: 5,
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        ),
+                                      )
+                                          : const SizedBox(),
+                                    ],
+                                  ),
+                                )
                                     : const SizedBox(),
                                 Container(
                                   decoration: BoxDecoration(
@@ -2368,14 +2367,14 @@ class _DashboardState extends State<MobDashboard>
                                     borderRadius: BorderRadius.circular(3),
                                   ),
                                   width: (fertilizerSite[fIndex]
-                                              .channel
-                                              .length *
-                                          67) -
+                                      .channel
+                                      .length *
+                                      67) -
                                       (fertilizerSite[fIndex].ec!.isNotEmpty
                                           ? fertilizerSite[fIndex].ec!.length *
-                                              70
+                                          70
                                           : fertilizerSite[fIndex].ph!.length *
-                                              70),
+                                          70),
                                   child: Center(
                                     child: Text(
                                       fertilizerSite[fIndex].name,
@@ -2401,12 +2400,12 @@ class _DashboardState extends State<MobDashboard>
 
   Widget buildBottomNavigationBar() {
     return BottomNavigationBar(
-      currentIndex:
-      [1].contains(overAllPvd.controllerType) ? !isBottomSheet ? context.read<IrrigationProgramMainProvider>().selectedIndex > 1
-          ? context.read<IrrigationProgramMainProvider>().selectedIndex + 1
-          : context.read<IrrigationProgramMainProvider>().selectedIndex
-          : 2
-          : context.read<IrrigationProgramMainProvider>().selectedIndex,
+      currentIndex:  0 ,
+      // [1, 2].contains(overAllPvd.controllerType) ? !isBottomSheet ? irrigationProgramProvider.selectedIndex > 1
+      //     ? irrigationProgramProvider.selectedIndex + 1
+      //     : irrigationProgramProvider.selectedIndex
+      //     : 2
+      //     : irrigationProgramProvider.selectedIndex,
       type: BottomNavigationBarType.fixed,
       selectedItemColor: Theme.of(context).primaryColor,
       unselectedItemColor: Colors.grey,
@@ -2415,34 +2414,34 @@ class _DashboardState extends State<MobDashboard>
       backgroundColor: cardColor,
       // showUnselectedLabels: false, // Hide labels for unselected items
       onTap: (index) {
-        if([1].contains(overAllPvd.controllerType)) {
+        if([1, 2].contains(overAllPvd.controllerType)) {
           if (index == 2) return;
         }
         final actualIndex = index > 2 ? index - 1 : index;
-        isBottomSheet = false;
-        if([2].contains(overAllPvd.controllerType) && !isBottomSheet) {
-          context.read<PreferenceProvider>().getUserPreference(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, controllerId: overAllPvd.controllerId);
-        }
-        context.read<IrrigationProgramMainProvider>().updateBottomNavigation([1].contains(overAllPvd.controllerType) ? actualIndex : index);
+        // isBottomSheet = false;
+        // if([3, 4].contains(overAllPvd.controllerType) && !isBottomSheet) {
+        //   Provider.of<PreferenceProvider>(context, listen: false).getUserPreference(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, controllerId: overAllPvd.controllerId);
+        // }
+        // irrigationProgramProvider.updateBottomNavigation([1, 2].contains(overAllPvd.controllerType) ? actualIndex : index);
       },
       items: [
         const BottomNavigationBarItem(activeIcon: Icon(Icons.dashboard), label: "Dashboard", icon: Icon(Icons.dashboard_outlined)),
         BottomNavigationBarItem(
-            activeIcon: Icon([1].contains(overAllPvd.controllerType) ? Icons.schedule : Icons.settings),
-            label: [1].contains(overAllPvd.controllerType) ? "Program" : "Settings",
-            icon: Icon([1].contains(overAllPvd.controllerType) ? Icons.schedule_outlined : Icons.settings_outlined)
+            activeIcon: Icon([1, 2].contains(overAllPvd.controllerType) ? Icons.schedule : Icons.settings),
+            label: [1, 2].contains(overAllPvd.controllerType) ? "Program" : "Settings",
+            icon: Icon([1, 2].contains(overAllPvd.controllerType) ? Icons.schedule_outlined : Icons.settings_outlined)
         ),
-        if([1].contains(overAllPvd.controllerType))
+        if([1, 2].contains(overAllPvd.controllerType))
           const BottomNavigationBarItem(icon: SizedBox.shrink(), label: ''), // Placeholder
         BottomNavigationBarItem(
-          icon: Icon([1].contains(overAllPvd.controllerType) ? Icons.calendar_month_outlined : Icons.schedule_outlined),
-          activeIcon: Icon([1].contains(overAllPvd.controllerType) ? Icons.calendar_month : Icons.schedule),
-          label: [1].contains(overAllPvd.controllerType) ? "Schedule" : "View",
+          icon: Icon([1, 2].contains(overAllPvd.controllerType) ? Icons.calendar_month_outlined : Icons.schedule_outlined),
+          activeIcon: Icon([1, 2].contains(overAllPvd.controllerType) ? Icons.calendar_month : Icons.schedule),
+          label: [1, 2].contains(overAllPvd.controllerType) ? "Schedule" : "View",
         ),
         BottomNavigationBarItem(
             icon: const Icon(Icons.assessment_outlined),
             activeIcon: const Icon(Icons.assessment),
-            label: [1].contains(overAllPvd.controllerType) ? "Log" : "Logs"
+            label: [1, 2].contains(overAllPvd.controllerType) ? "Log" : "Logs"
         ),
       ],
     );
@@ -2535,10 +2534,10 @@ class _DashboardState extends State<MobDashboard>
 
   Widget getActiveObjects(
       {required BuildContext context,
-      required bool active,
-      required String title,
-      required Function()? onTap,
-      required int mode}) {
+        required bool active,
+        required String title,
+        required Function()? onTap,
+        required int mode}) {
     List<Color> gradient = active == true
         ? [const Color(0xff22414C), const Color(0xff294C5C)]
         : [];
@@ -2556,19 +2555,19 @@ class _DashboardState extends State<MobDashboard>
             ),
             gradient: active == true
                 ? LinearGradient(
-                    begin: Alignment.topRight,
-                    end: Alignment.bottomLeft,
-                    colors: gradient,
-                  )
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft,
+              colors: gradient,
+            )
                 : null,
             color: active == false ? const Color(0xffECECEC) : null),
         child: Center(
             child: Text(
-          title,
-          style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: active == true ? Colors.white : Colors.black),
-        )),
+              title,
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: active == true ? Colors.white : Colors.black),
+            )),
       ),
     );
   }
@@ -2656,13 +2655,13 @@ class _DashboardState extends State<MobDashboard>
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             if(selectedTab == 0)
-                             MobCurrentProgram(scheduledPrograms: scheduledPrograms,deviceId: overAllPvd.imeiNo,),
+                              MobCurrentProgram(scheduledPrograms: scheduledPrograms,deviceId: overAllPvd.imeiNo,),
                             if(selectedTab == 1)
-                              // Container(),
+                            // Container(),
                               NextScheduleForMobile(scheduledPrograms: scheduledPrograms,),
                             if(selectedTab == 2)
-                               ScheduledProgram(userId: userId, scheduledPrograms: scheduledPrograms, masterInx: payloadProvider.selectedMaster, deviceId: payloadProvider.dashboardLiveInstance!.data[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].deviceId)
-                           ],
+                              ScheduledProgram(userId: userId, scheduledPrograms: scheduledPrograms, masterInx: payloadProvider.selectedMaster, deviceId: payloadProvider.dashboardLiveInstance!.data[payloadProvider.selectedSite].master[payloadProvider.selectedMaster].deviceId)
+                          ],
                         ),
                       ),
                     ),
@@ -2782,8 +2781,8 @@ void callbackFunction(message)
 }
 void stayAlert(
     {required BuildContext context,
-    required MqttPayloadProvider payloadProvider,
-    required String message}) {
+      required MqttPayloadProvider payloadProvider,
+      required String message}) {
   GlobalSnackBar.show(
       context, message, int.parse(payloadProvider.messageFromHw['Code']));
 }

@@ -128,8 +128,8 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         Future.delayed(Duration.zero,() {
           _irrigationLine = SequenceModel.fromJson(sequenceJson);
           // for (var element in _irrigationLine!.sequence) {
-          //   element['valve'].removeWhere((e) => configObjects.any((config) => config['sNo'] == e['sNo']));
-          //   element['mainValve'].removeWhere((e) => configObjects.any((config) => config['sNo'] == e['sNo']));
+          //   element['valve'].removeWhere((e) => configObjects.any((config) => config['sNo'] != e['sNo']));
+          //   element['mainValve'].removeWhere((e) => configObjects.any((config) => config['sNo'] != e['sNo']));
           // }
           updateGroup(valveGroup: _irrigationLine!.defaultData.group);
         }).then((value) {
@@ -2371,7 +2371,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       _selectedObjects = null;
       if(jsonData['data']['selection']['selected'] != null) {
         _selectedObjects = (jsonData['data']['selection']['selected'] as List).map((e) => DeviceObjectModel.fromJson(e as Map<String, dynamic>)).toList();
-        _selectedObjects!.removeWhere((element) => configObjects.any((element2) => element2['sNo'] != element.sNo));
+        // _selectedObjects!.removeWhere((element) => configObjects.any((element2) => element2['sNo'] != element.sNo));
       } else {
         _selectedObjects = [];
       }
@@ -2882,6 +2882,26 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         + int.parse(runDays != '' ? runDays : "1") + int.parse(skipDays != '' ? skipDays : "0")
         ? firstDate
         : DateTime.parse(endDate);
+
+   /* print('head unit pause :: ${sampleIrrigationLine!.where((headUnit) {
+      var sampleLineValveList = headUnit.valve!.map((valve) => valve.sNo).toList();
+      dynamic valveList = irrigationLine!.sequence.map((seq) {
+        return seq['valve'];
+      }).toList().expand((element) => element).toList();
+
+      valveList = valveList.map((val) => val['sNo']).toList();
+      List<double?> usedValveInSequence = sampleLineValveList.where((valSno) => valveList.contains(valSno)).toList();
+      return usedValveInSequence.isEmpty;
+    }).map((e) => e.irrigationLine).toList().map((e) => e.sNo).toList().join("_")}');*/
+
+  /*  print('Head unit to pause :: ${
+        sampleIrrigationLine!.where((headUnit) {
+          List<double?> headUnitList = sampleIrrigationLine!.map((element) => element.irrigationLine.sNo).toList();
+          List<double?> selectedItems = selectedObjects!.map((element) => element.sNo).toList();
+          List<double?> filteredList = headUnitList.where((valSno) => !selectedItems.contains(valSno)).toList();
+          return filteredList.contains(headUnit.irrigationLine.sNo);
+        }).map((e) => e.irrigationLine.sNo).join("_")}');*/
+
     return {
       "2500" : {
         "2501" : "${hwPayloadForWF(serialNumber)};",
@@ -3036,18 +3056,21 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
               }).toList().join("+")}',/*HeadUnit*/
               "HeadUnitToPause": '${programType == "Irrigation Program"
                   ? selectedObjects!.any((element) => element.objectId == 5)
-                  ? sampleIrrigationLine!.where((line) => selectedObjects!
-                  .any((element) => line.irrigationPump != null && line.irrigationPump!.any((pump) => element.sNo == pump.sNo) && line.irrigationLine.sNo != element.sNo))
-                  .map((line) => line.irrigationLine)
-                  .toList().map((e) => e.sNo).join("_")
+                  ? sampleIrrigationLine!.where((headUnit) {
+                List<double?> headUnitList = sampleIrrigationLine!.map((element) => element.irrigationLine.sNo).toList();
+                List<double?> selectedItems = selectedObjects!.map((element) => element.sNo).toList();
+                List<double?> filteredList = headUnitList.where((valSno) => !selectedItems.contains(valSno)).toList();
+                return filteredList.contains(headUnit.irrigationLine.sNo);
+              }).map((e) => e.irrigationLine.sNo).join("_")
                   : sampleIrrigationLine!.where((headUnit) {
-                return irrigationLine!.sequence.any((sequenceItem) {
-                  return sequenceItem['valve'].any((valve) {
-                    return headUnit.valve!.any((valveItem) {
-                      return valveItem.sNo == valve['sNo'];
-                    });
-                  });
-                });
+                var sampleLineValveList = headUnit.valve!.map((valve) => valve.sNo).toList();
+                dynamic valveList = irrigationLine!.sequence.map((seq) {
+                  return seq['valve'];
+                }).toList().expand((element) => element).toList();
+
+                valveList = valveList.map((val) => val['sNo']).toList();
+                List<double?> usedValveInSequence = sampleLineValveList.where((valSno) => valveList.contains(valSno)).toList();
+                return usedValveInSequence.isEmpty;
               }).map((e) => e.irrigationLine).toList().map((e) => e.sNo).toList().join("_")
                   : _irrigationLine?.sequence.map((e) {
                 List valveSerialNumbers = e['valve'].map((valve) => valve['sNo']).toList();

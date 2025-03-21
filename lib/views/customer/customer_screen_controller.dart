@@ -76,8 +76,8 @@ class CustomerScreenController extends StatelessWidget {
                   fromLogin ?const SizedBox():
                   const SizedBox(width: 10),
                   fromLogin ? Image(
-                    image: F.appFlavor!.name.contains('oro')?const AssetImage("assets/png_images/oro_logo_white.png"):
-                    const AssetImage("assets/png_images/company_logo.png"),
+                    image: F.appFlavor!.name.contains('oro')?const AssetImage("assets/png/oro_logo_white.png"):
+                    const AssetImage("assets/png/company_logo.png"),
                     width: 110,
                     fit: BoxFit.fitWidth,
                   ):
@@ -212,18 +212,18 @@ class CustomerScreenController extends StatelessWidget {
                   ),
                 ),
               ),
-             /* actions: <Widget>[
+              actions: <Widget>[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    *//*vm.currentSchedule.isNotEmpty?
+                    /*vm.currentSchedule.isNotEmpty?
                     CircleAvatar(
                       radius: 15,
                       backgroundImage: const AssetImage('assets/gif_images/water_drop_ani.gif'),
                       backgroundColor: Colors.blue.shade100,
                     ):
-                    const SizedBox(),
-                    const SizedBox(width: 10,),*//*
+                    const SizedBox(),*/
+                    const SizedBox(width: 10,),
 
                     vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData.length>1? TextButton(
                       onPressed: () => vm.linePauseOrResume(iLineLiveMessage),
@@ -325,7 +325,7 @@ class CustomerScreenController extends StatelessWidget {
                     ),
                   ],),
                 const SizedBox(width: 05),
-              ],*/
+              ],
             ),
             extendBody: true,
             body: kIsWeb ? Container(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/program_library.dart';
 import 'package:oro_drip_irrigation/Screens/planning/fiterbackwash.dart';
 import 'package:oro_drip_irrigation/modules/calibration/view/calibration_screen.dart';
+import 'package:oro_drip_irrigation/modules/fertilizer_set/view/fertilizer_Set_screen.dart';
 import 'package:oro_drip_irrigation/modules/global_limit/view/global_limit_screen.dart';
 
 import '../../Constants/properties.dart';
@@ -122,8 +123,8 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
         return FrostMobUI(userId: widget.customerID, controllerId: widget.controllerID,deviceID: widget.imeiNumber, menuId: 71,);
       case 72:
         return FilterBackwashUI(userId: widget.userId, controllerId: widget.controllerID, deviceId: widget.imeiNumber, customerId: widget.customerID, fromDealer: false,);
-      // case 73:
-      //   return FertilizerSetScreen(userId: widget.customerID, controllerId: widget.controllerID, customerID: widget.customerID, deviceId: widget.imeiNumber,);
+      case 73:
+        return FertilizerSetScreen(userData: {'userId' : widget.customerID, 'controllerId' : widget.controllerID, 'deviceId' : widget.imeiNumber});
       case 74:
         return GlobalLimitScreen(userData: {'userId' : widget.customerID, 'controllerId' : widget.controllerID, 'deviceId' : widget.imeiNumber});
       case 75:
@@ -134,15 +135,14 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
       //   return WeatherScreen(userId: widget.customerID, controllerId: widget.controllerID,deviceID: widget.imeiNumber,initialIndex: 0,);
       case 78:
         return PreferenceMainScreen(userId: widget.userId, controllerId: widget.controllerID, customerId: widget.customerID, deviceId: widget.imeiNumber, menuId: 0,);
-        case 79:
-         return ConstantInConfig(userId: widget.customerID, deviceId: widget.imeiNumber, customerId: widget.customerID, controllerId: widget.controllerID);
+      case 79:
+        return ConstantInConfig(userId: widget.customerID, deviceId: widget.imeiNumber, customerId: widget.customerID, controllerId: widget.controllerID);
       case 80:
         return Names(userID: widget.customerID, customerID: widget.customerID, controllerId: widget.controllerID, menuId: 0, imeiNo: widget.imeiNumber, );
       // case 81:
       //   return CustomMarkerPage(userId: widget.customerID,deviceID: widget.imeiNumber,controllerId: widget.controllerID,);
       case 127:
         return CalibrationScreen(userData: {'userId' : widget.customerID, 'controllerId' : widget.controllerID, 'deviceId' : widget.imeiNumber});
-
       default:
         return const Center(child: Text('id'));
     }

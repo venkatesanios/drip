@@ -360,7 +360,7 @@ class DealerDashboard extends StatelessWidget {
                                 final customer = viewModel.filteredCustomerList[index];
                                 return ListTile(
                                   leading: const CircleAvatar(
-                                    backgroundImage: AssetImage("assets/png_images/user_thumbnail.png"),
+                                    backgroundImage: AssetImage("assets/png/user_thumbnail.png"),
                                     backgroundColor: Colors.transparent,
                                   ),
                                   trailing: Row(
@@ -476,7 +476,7 @@ class DealerDashboard extends StatelessWidget {
                                 return ListTile(
                                   leading: const CircleAvatar(
                                     backgroundImage: AssetImage(
-                                        "assets/png_images/user_thumbnail.png"),
+                                        "assets/png/user_thumbnail.png"),
                                     backgroundColor: Colors.transparent,
                                   ),
                                   title: Text(

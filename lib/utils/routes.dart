@@ -23,7 +23,6 @@ class Routes {
           builder: (_) => const SplashScreen(),
           settings: settings,
         );
-
       case login:
         return MaterialPageRoute(
           builder: (_) => const LoginScreen(),

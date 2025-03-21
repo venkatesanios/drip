@@ -9,6 +9,7 @@ class CalibrationObjectModel {
   String calibrationFactor;
   String maximumValue;
 
+
   CalibrationObjectModel({
     required this.objectId,
     required this.sNo,

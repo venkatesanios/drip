@@ -160,4 +160,14 @@ class NodeListViewModel extends ChangeNotifier {
     });
   }
 
+  void actionSerialSet(int index, deviceId){
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      String payLoadFinal = jsonEncode({
+        "2300": {"2301": "${nodeList[index].serialNumber}"}
+      });
+      MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
+      //sentToServer('Serial set for the ${nodeList[index].deviceName} all Relay', payLoadFinal);
+    });
+  }
+
 }

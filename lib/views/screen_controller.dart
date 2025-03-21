@@ -13,7 +13,6 @@ class ScreenController extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return ChangeNotifierProvider(
       create: (_) => ScreenControllerViewModel(),
       child: Consumer<ScreenControllerViewModel>(

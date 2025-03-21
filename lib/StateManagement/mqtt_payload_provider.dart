@@ -87,7 +87,7 @@ class MqttPayloadProvider with ChangeNotifier {
   int wifiStrength = 0;
   String liveDateAndTime = '';
   List<String> nodeLiveMessage = [];
-  List<String> outputOnOffLiveMessage = [];
+  List<String> outputStatusPayload= [];
   List<String> currentSchedule = [];
   List<String> nextSchedule = [];
   List<String> scheduledProgram = [];
@@ -483,7 +483,7 @@ class MqttPayloadProvider with ChangeNotifier {
         updateLastCommunication(liveDateAndTime);
         wifiStrength = data['cM']['WifiStrength'];
         updateNodeLiveMessage(data['cM']['2401'].split(";"));
-        updateOutputONOffLiveMessage(data['cM']['2402'].split(";"));
+        updateOutputStatusPayload(data['cM']['2402'].split(";"));
         updateLineLiveMessage(data['cM']['2405'].split(";"));
         updateCurrentProgram(data['cM']['2408'].split(";"));
         updateNextProgram(data['cM']['2409'].split(";"));
@@ -819,8 +819,8 @@ class MqttPayloadProvider with ChangeNotifier {
     lineLiveMessage = message;
   }
 
-  void updateOutputONOffLiveMessage(List<String> message) {
-    outputOnOffLiveMessage = message;
+  void updateOutputStatusPayload(List<String> message) {
+    outputStatusPayload = message;
   }
 
   void updateCurrentProgram(List<String> program) {

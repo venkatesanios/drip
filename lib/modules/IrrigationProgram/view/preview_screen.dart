@@ -6,6 +6,7 @@ import 'package:oro_drip_irrigation/Constants/properties.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+import '../../../views/customer/program_schedule.dart';
 import '../model/sequence_model.dart';
 import '../../config_Maker/model/device_object_model.dart';
 import '../repository/irrigation_program_repo.dart';
@@ -25,13 +26,15 @@ class PreviewScreen extends StatefulWidget {
   final int userId;
   final int customerId;
   final int controllerId;
+  final int groupId;
+  final int categoryId;
   final String deviceId;
   final int serialNumber;
   final bool toDashboard;
   final String? programType;
   final bool? conditionsLibraryIsNotEmpty;
   final bool fromDealer;
-  const PreviewScreen({super.key, required this.userId, required this.controllerId, required this.deviceId, required this.serialNumber, required this.toDashboard, this.programType, this.conditionsLibraryIsNotEmpty, required this.fromDealer, required this.customerId});
+  const PreviewScreen({super.key, required this.userId, required this.controllerId, required this.deviceId, required this.serialNumber, required this.toDashboard, this.programType, this.conditionsLibraryIsNotEmpty, required this.fromDealer, required this.customerId, required this.groupId, required this.categoryId});
 
   @override
   State<PreviewScreen> createState() => _PreviewScreenState();
@@ -527,22 +530,16 @@ class _PreviewScreenState extends State<PreviewScreen> {
           if(createUserProgram.statusCode == 200) {
             // await irrigationProvider.programLibraryData(widget.userId, widget.controllerId);
             ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: response['message']));
-           /* if(widget.toDashboard) {
-              irrigationProvider.updateBottomNavigation(0);
+            if(widget.toDashboard) {
               Navigator.of(context).pop();
-              print(irrigationProvider.selectedIndex);
-              // Navigator.push(
-              //   context,
-              //   // MaterialPageRoute(builder: (context) => HomeScreen(userId: widget.userId, fromDealer: widget.fromDealer,)),
-              // );
             } else {
-              Navigator.of(context).pop();
-              irrigationProvider.updateBottomNavigation(1);
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => HomeScreen(userId: widget.userId, fromDealer: widget.fromDealer,)),
-              // );
-            }*/
+              // Navigator.of(context).pop();
+              // Navigator.of(context).pop();
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProgramSchedule(customerID: widget.userId, controllerID: widget.controllerId, siteName: "", imeiNumber: widget.deviceId, userId: widget.userId, groupId: widget.groupId, categoryId: widget.categoryId,))
+              );
+            }
           }
         });
       } catch (error) {

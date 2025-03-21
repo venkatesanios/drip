@@ -265,7 +265,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                             ),
                           ],
                           rows: List<DataRow>.generate(config.pump.length, (index) => DataRow(cells: [
-                            DataCell(Center(child: Image.asset('assets/png_images/dp_pump.png',width: 30, height: 30,))),
+                            DataCell(Center(child: Image.asset('assets/png/dp_pump.png',width: 30, height: 30,))),
                             DataCell(Text(config.pump[index].name, style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14))),
                             DataCell(Transform.scale(
                               scale: 0.7,
@@ -358,7 +358,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                                 cells: [
                                   DataCell(Center(
                                     child: Image.asset(
-                                      'assets/png_images/filter.png',
+                                      'assets/png/filter.png',
                                       width: 30,
                                       height: 30,
                                     ),
@@ -461,7 +461,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                                 cells: [
                                   DataCell(Center(
                                     child: Image.asset(
-                                      'assets/png_images/fert_chanel.png',
+                                      'assets/png/fert_chanel.png',
                                       width: 30,
                                       height: 30,
                                     ),
@@ -521,7 +521,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                                 cells: [
                                   DataCell(Center(
                                     child: Image.asset(
-                                      'assets/png_images/booster_pump.png',
+                                      'assets/png/booster_pump.png',
                                       width: 30,
                                       height: 30,
                                     ),
@@ -581,7 +581,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                                 cells: [
                                   DataCell(Center(
                                     child: Image.asset(
-                                      'assets/png_images/agitator_gray.png',
+                                      'assets/png/agitator_gray.png',
                                       width: 30,
                                       height: 30,
                                     ),
@@ -708,7 +708,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                             ),
                           ],
                           rows: List<DataRow>.generate(line.valves.length, (index) => DataRow(cells: [
-                            DataCell(Center(child: Image.asset('assets/png_images/valve_gray.png',width: 25, height: 25,))),
+                            DataCell(Center(child: Image.asset('assets/png/valve_gray.png',width: 25, height: 25,))),
                             DataCell(Text(line.valves[index].name, style: const TextStyle(fontWeight: FontWeight.normal))),
                             DataCell(Transform.scale(
                               scale: 0.7,

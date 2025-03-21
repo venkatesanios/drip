@@ -145,7 +145,7 @@ class _StandaloneLogState extends State<StandaloneLog> {
             list.add(standaloneDataFromHttp[date]['standalone']['ZoneName'][schedule]);
             var valveName = '';
             for(var valve in standaloneDataFromHttp[date]['standalone']['SequenceData'][schedule].split('_')){
-              valveName += '${valveName.isNotEmpty ? '__' : ''}';
+              valveName += valveName.isNotEmpty ? '__' : '';
               valveName += '${nameData[valve] ?? valve}';
             }
             list.add(valveName);
@@ -660,5 +660,3 @@ class _StandaloneLogState extends State<StandaloneLog> {
     });
   }
 }
-
-

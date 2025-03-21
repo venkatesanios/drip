@@ -12,6 +12,7 @@ import 'package:responsive_grid_list/responsive_grid_list.dart';
 import '../../../Constants/properties.dart';
 import '../../../StateManagement/overall_use.dart';
 import '../../../Widgets/HoursMinutesSeconds.dart';
+import '../../../Widgets/status_box.dart';
 import '../../config_Maker/view/config_web_view.dart';
 import '../model/channel_setting_model.dart';
 
@@ -64,6 +65,9 @@ class _FertilizerSetScreenState extends State<FertilizerSetScreen> {
         listOfFertilizerSite = (jsonData['data']['default']['fertilizerSite'] as List<dynamic>).map((site){
           return FertilizerSiteSettingModel.fromJson(site);
         }).toList();
+        listOfFertilizerSet = (jsonData['data']['fertilizerSet'] as List<dynamic>).map((site){
+          return FertilizerSiteSettingModel.fromJson(site);
+        }).toList();
       });
       return jsonData['code'];
     }catch(e, stackTrace){
@@ -98,7 +102,7 @@ class _FertilizerSetScreenState extends State<FertilizerSetScreen> {
           } else if (snapshot.hasData) {
             return Scaffold(
               backgroundColor: Colors.white,
-              // floatingActionButton: getFloatingActionButton(),
+              floatingActionButton: getFloatingActionButton(),
               body: SafeArea(
                 child: Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -112,8 +116,6 @@ class _FertilizerSetScreenState extends State<FertilizerSetScreen> {
                             getFertilizerSiteTab(),
                             addDeleteSelect(),
                             ResponsiveGridList(
-                              horizontalGridMargin: 50,
-                              verticalGridMargin: 20,
                               horizontalGridSpacing: 20,
                               minItemWidth: 350,
                               shrinkWrap: true,
@@ -256,6 +258,86 @@ class _FertilizerSetScreenState extends State<FertilizerSetScreen> {
           }
         }
     );
+  }
+
+  Widget getFloatingActionButton(){
+    return FloatingActionButton(
+      onPressed: (){
+        setState(() {
+          payloadState = HardwareAcknowledgementSate.notSent;
+        });
+        showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (context){
+              return StatefulBuilder(
+                  builder: (context, stateSetter){
+                    return AlertDialog(
+                      title: Text('Send Payload', style: Theme.of(context).textTheme.labelLarge,),
+                      content: getHardwareAcknowledgementWidget(payloadState),
+                      actions: [
+                        if(payloadState != HardwareAcknowledgementSate.sending && payloadState != HardwareAcknowledgementSate.notSent)
+                          CustomMaterialButton(),
+                        if(payloadState == HardwareAcknowledgementSate.notSent)
+                          CustomMaterialButton(title: 'Cancel',outlined: true,),
+                        if(payloadState == HardwareAcknowledgementSate.notSent)
+                          CustomMaterialButton(
+                            onPressed: ()async{
+                              stateSetter((){
+                                setState(() {
+                                  payloadState = HardwareAcknowledgementSate.sending;
+                                });
+                              });
+                              sendToHttp();
+                              await Future.delayed(const Duration(seconds: 1));
+                              stateSetter((){
+                                setState(() {
+                                  payloadState = HardwareAcknowledgementSate.success;
+                                });
+                              });
+                            },
+                            title: 'Send',
+                          ),
+
+                      ],
+                    );
+                  }
+              );
+            }
+        );
+      },
+      child: const Icon(Icons.send),
+    );
+  }
+
+  void sendToHttp()async{
+    var body = {
+      "userId" : widget.userData['userId'],
+      "controllerId" : widget.userData['controllerId'],
+      'fertilizerSet' : listOfFertilizerSet.map((set) => set.toJson()).toList(),
+      "createUser" : widget.userData['userId']
+    };
+    var response = await FertilizerSetRepository().createUserFertilizerSet(body);
+    print('response fertilizerSet : ${response.body}');
+  }
+
+  Widget getHardwareAcknowledgementWidget(HardwareAcknowledgementSate state){
+    print('state : $state');
+    if(state == HardwareAcknowledgementSate.notSent){
+      return const StatusBox(color:  Colors.black87,child: Text('Do you want to send payload..',),);
+    }else if(state == HardwareAcknowledgementSate.success){
+      return const StatusBox(color:  Colors.green,child: Text('Success..',),);
+    }else if(state == HardwareAcknowledgementSate.failed){
+      return const StatusBox(color:  Colors.red,child: Text('Failed..',),);
+    }else if(state == HardwareAcknowledgementSate.errorOnPayload){
+      return const StatusBox(color:  Colors.red,child: Text('Payload error..',),);
+    }else{
+      return const SizedBox(
+          width: double.infinity,
+          height: 5,
+          child: LinearProgressIndicator()
+      );
+    }
   }
 
   Widget tableColumnCell({
