@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../Models/customer/constant_model.dart';
 import '../../repository/repository.dart';
@@ -15,7 +14,6 @@ class ConstantViewModel extends ChangeNotifier {
   late UserConstant userConstant;
   late List<ConstantMenu> filteredMenu = [];
 
-
   List<TextEditingController> txtEdControllers = [];
   final TextEditingController _hoursController = TextEditingController();
   final TextEditingController _minutesController = TextEditingController();
@@ -25,6 +23,7 @@ class ConstantViewModel extends ChangeNotifier {
 
 
   ConstantViewModel(this.repository);
+
 
   Future<void> getConstantData(int customerId, int controllerId) async
   {
@@ -165,10 +164,14 @@ class ConstantViewModel extends ChangeNotifier {
                   durationValue = '${_hoursController.text}:${_minutesController.text}:${_secondsController.text}';
                   if(cnsType == 'general'){
                     userConstant.constant.generalMenu[index].value = durationValue;
-                  }else{
+                  }else if(cnsType == 'valve'){
                     userConstant.constant.valveList![index].pickerVal = durationValue;
+                  }else if(cnsType == 'mainValve'){
+                  userConstant.constant.mainValveList![index].pickerVal = durationValue;
+                  }else if(cnsType == 'irrigateLine') {
+                    userConstant.constant.irrigationLineList![index].pickerVal =
+                        durationValue;
                   }
-
                   notifyListeners();
                   Navigator.of(context).pop();
                 }
@@ -229,6 +232,19 @@ class ConstantViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void delay(int index, String selectedValue){
+    userConstant.constant.mainValveList![index].delay = selectedValue;
+    notifyListeners();
+  }
+  void lowFlowAction(int index, String selectedValue){
+    userConstant.constant.irrigationLineList![index].lowFlowAction = selectedValue;
+    notifyListeners();
+  }
+  void highFlowAction(int index, String selectedValue){
+    userConstant.constant.irrigationLineList![index].highFlowAction = selectedValue;
+    notifyListeners();
+  }
+
   Future<void> saveConstantData(context, int customerId, int controllerId, int createUserId) async
   {
     Future.delayed(const Duration(milliseconds: 500), () async {
@@ -239,8 +255,8 @@ class ConstantViewModel extends ChangeNotifier {
           "userId": customerId,
           "controllerId": controllerId,
           "general": cnsMenu['general'],
-          "line": [],
-          "mainValve": [],
+          "line": cnsMenu['irrigationLineList'],
+          "mainValve": cnsMenu['mainValveList'],
           "valve": cnsMenu['valveList'],
           "pump": cnsMenu['pumpList'],
           "waterMeter": [],
@@ -280,5 +296,4 @@ class ConstantViewModel extends ChangeNotifier {
     isLoading = value;
     notifyListeners();
   }
-
 }

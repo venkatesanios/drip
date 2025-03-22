@@ -1,4 +1,5 @@
-import 'dart:convert';
+
+
 
 class UserConstant {
   final ConstantData constant;
@@ -33,14 +34,18 @@ class UserConstant {
 class ConstantData {
   final String controllerReadStatus;
   final List<GeneralMenu> generalMenu;
-  final List<Valve>? valveList;
+  final List<ValveData>? valveList;
   final List<Pump>? pumpList;
+  final List<MainValveData>? mainValveList;
+  final List<IrrigationLine>? irrigationLineList;
 
   ConstantData({
     required this.controllerReadStatus,
     required this.generalMenu,
     required this.valveList,
     required this.pumpList,
+    required this.mainValveList,
+    required this.irrigationLineList,
   });
 
   factory ConstantData.fromJson(Map<String, dynamic> jsonConstant, List<Map<String, dynamic>> jsonConfigObject) {
@@ -51,6 +56,14 @@ class ConstantData {
 
     List<Map<String, dynamic>> pumpDataList = jsonConfigObject
         .where((obj) => obj['objectId'] == 5)
+        .toList();
+
+    List<Map<String, dynamic>> mainValveDataList = jsonConfigObject
+        .where((obj) => obj['objectId'] == 14)
+        .toList();
+
+    List<Map<String, dynamic>>  irrigationLineList = jsonConfigObject
+        .where((obj) => obj['objectId'] == 2)
         .toList();
 
     return ConstantData(
@@ -74,13 +87,21 @@ class ConstantData {
           ],
 
       valveList: (jsonConstant['valve'] as List<dynamic>?)
-          ?.map((general) => Valve.fromJson(general))
+          ?.map((val) => ValveData.fromJson(val))
           .toList() ??
-          valveDataList.map((valve) => Valve.fromJson(valve)).toList(),
+          valveDataList.map((val) => ValveData.fromJson(val)).toList(),
 
       pumpList: (jsonConstant['pump'] as List<dynamic>?)?.isNotEmpty == true
           ? (jsonConstant['pump'] as List<dynamic>).map((pmp) => Pump.fromJson(pmp)).toList()
           : pumpDataList.map((pmp) => Pump.fromJson(pmp)).toList(),
+
+      mainValveList: (jsonConstant['mainValve'] as List<dynamic>?)?.isNotEmpty == true
+          ? (jsonConstant['mainValve'] as List<dynamic>).map((mv) => MainValveData.fromJson(mv)).toList()
+          : mainValveDataList.map((mv) => MainValveData.fromJson(mv)).toList(),
+
+      irrigationLineList: (jsonConstant['irrigationLine'] as List<dynamic>?)?.isNotEmpty == true
+          ? (jsonConstant['mainValve'] as List<dynamic>).map((ir) => IrrigationLine.fromJson(ir)).toList()
+          : irrigationLineList.map((ir) => IrrigationLine.fromJson(ir)).toList(),
     );
   }
 
@@ -90,6 +111,8 @@ class ConstantData {
       'general': generalMenu.map((e) => e.toJson()).toList(),
       'valveList': valveList?.map((e) => e.toJson()).toList() ?? [],
       'pumpList': pumpList?.map((e) => e.toJson()).toList() ?? [],
+      'mainValveList': mainValveList?.map((e) => e.toJson()).toList() ?? [],
+      'irrigationLineList': irrigationLineList?.map((e) => e.toJson()).toList() ?? [],
     };
   }
 
@@ -127,7 +150,7 @@ class GeneralMenu {
   }
 }
 
-class Valve {
+class ValveData {
   final int objectId;
   final double sNo;
   final String name;
@@ -141,7 +164,7 @@ class Valve {
   String txtValue;
   String pickerVal;
 
-  Valve({
+  ValveData({
     required this.objectId,
     required this.sNo,
     required this.name,
@@ -156,8 +179,8 @@ class Valve {
     required this.pickerVal,
   });
 
-  factory Valve.fromJson(Map<String, dynamic> json) {
-    return Valve(
+  factory ValveData.fromJson(Map<String, dynamic> json) {
+    return ValveData(
       objectId: json['objectId'],
       sNo: (json['sNo'] as num).toDouble(),
       name: json['name'],
@@ -191,11 +214,64 @@ class Valve {
   }
 }
 
+class MainValveData {
+  final int objectId;
+  final double sNo;
+  final String name;
+  final int? connectionNo;
+  final String objectName;
+  final String? type;
+  final int? controllerId;
+  final int? count;
+  String pickerVal;
+  String delay;
+
+  MainValveData({
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+    required this.connectionNo,
+    required this.objectName,
+    required this.type,
+    required this.controllerId,
+    this.count,
+    required this.pickerVal,
+    this.delay = "No delay",
+  });
+
+  factory MainValveData.fromJson(Map<String, dynamic> json) => MainValveData(
+    objectId: json["objectId"],
+    sNo: (json["sNo"] as num).toDouble(),
+    name: json["name"],
+    connectionNo: json["connectionNo"]??0,
+    objectName: json["objectName"],
+    type: json["type"],
+    controllerId: json["controllerId"]??0,
+    count: json["count"]??0,
+    delay: json["delay"] != null && json["delay"].isNotEmpty ? json["delay"] : "No delay",
+    pickerVal: json.containsKey('pickerVal') ? json['pickerVal'] : "00:00:00",
+
+  );
+
+  Map<String, dynamic> toJson() => {
+    "objectId": objectId,
+    "sNo": sNo,
+    "name": name,
+    "connectionNo": connectionNo,
+    "objectName": objectName,
+    "type": type,
+    "controllerId": controllerId,
+    "count": count,
+    "pickerVal": pickerVal,
+    "delay": delay,
+  };
+}
+
 class Pump {
   final int objectId;
   final double sNo;
   final String name;
-  final String objectName;
+ // final String objectName;
   final String type;
   final int? controllerId;
   final int? connectionNo;
@@ -209,7 +285,7 @@ class Pump {
     required this.objectId,
     required this.sNo,
     required this.name,
-    required this.objectName,
+   // required this.objectName,
     required this.type,
     this.controllerId,
     this.connectionNo,
@@ -225,7 +301,7 @@ class Pump {
       objectId: json['objectId'],
       sNo: (json['sNo'] as num).toDouble(),
       name: json['name'],
-      objectName: json['objectName'],
+     // objectName: json['objectName'],
       type: json['type'],
       controllerId: json['controllerId'],
       connectionNo: json['connectionNo'],
@@ -242,7 +318,7 @@ class Pump {
       'objectId': objectId,
       'sNo': sNo,
       'name': name,
-      'objectName': objectName,
+     // 'objectName': objectName,
       'type': type,
       'controllerId': controllerId,
       'connectionNo': connectionNo,
@@ -251,6 +327,79 @@ class Pump {
       'siteMode': siteMode,
       'pumpStation': pumpStation,
       'controlGem': controlGem,
+    };
+  }
+}
+
+class IrrigationLine {
+  final int objectId;
+  final double sNo;
+  final String name;
+  final String objectName;
+  final String type;
+  final dynamic connectionNo;
+  final dynamic controllerId;
+  final dynamic count;
+  final dynamic connectedObject;
+  final dynamic siteMode;
+  final double location;
+  String pickerVal;
+  String lowFlowAction;
+  String highFlowAction;
+
+  IrrigationLine({
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+    required this.objectName,
+    required this.type,
+    this.connectionNo,
+    this.controllerId,
+    this.count,
+    this.connectedObject,
+    this.siteMode,
+    required this.location,
+    required this.pickerVal,
+    required this.lowFlowAction,
+    required this.highFlowAction,
+  });
+
+  factory IrrigationLine.fromJson(Map<String, dynamic> json) {
+    return IrrigationLine(
+      objectId: json['objectId'] ?? 0,
+      sNo: (json['sNo'] as num).toDouble(),
+      name: json['name'] ?? '',
+      objectName: json['objectName'] ?? '',
+      type: json['type'] ?? '-',
+      connectionNo: json['connectionNo'],
+      controllerId: json['controllerId'],
+      count: json['count'],
+      connectedObject: json['connectedObject'],
+      siteMode: json['siteMode'],
+      location: (json['location'] as num).toDouble(),
+      pickerVal: json.containsKey('pickerVal') ? json['pickerVal'] : "00:00:00",
+      lowFlowAction: json["lowFlowAction"] != null && json["lowFlowAction"].isNotEmpty ? json["lowFlowAction"] : "Ignore",
+      highFlowAction: json["lowFlowAction"] != null && json["lowFlowAction"].isNotEmpty ? json["lowFlowAction"] : "Ignore",
+
+
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'objectName': objectName,
+      'type': type,
+      'connectionNo': connectionNo,
+      'controllerId': controllerId,
+      'count': count,
+      'connectedObject': connectedObject,
+      'siteMode': siteMode,
+      'location': location,
+      'pickerVal': pickerVal,
+      'lowFlowAction': lowFlowAction,
     };
   }
 }
