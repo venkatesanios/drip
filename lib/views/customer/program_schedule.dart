@@ -117,7 +117,7 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
       // case 68:
       //   return RadiationSetUI(userId: widget.customerID, controllerId: widget.controllerID, );
       case 69:
-        return GroupListScreen();
+        return GroupListScreen(userId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber,);
       case 70:
       //   return ConditionScreen(customerId: widget.customerID, controllerId: widget.controllerID, imeiNo: widget.imeiNumber, isProgram: false, serialNumber: 0,);
       case 71:

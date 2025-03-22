@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:oro_drip_irrigation/Models/admin&dealer/dealer_definition_model.dart';
+import 'package:oro_drip_irrigation/Screens/Dealer/dealer_definition.dart';
 import 'package:oro_drip_irrigation/view_models/customer/controller_settings_view_model.dart';
 import 'package:oro_drip_irrigation/views/customer/condition_library.dart';
 import 'package:provider/provider.dart';
@@ -28,7 +30,7 @@ class ControllerSettings extends StatelessWidget {
               : Scaffold(
             backgroundColor: Colors.white,
             body: DefaultTabController(
-              length: 6,
+              length: 8,
               child: Column(
                 children: [
                   TabBar(
@@ -43,6 +45,7 @@ class ControllerSettings extends StatelessWidget {
                       Tab(text: 'Notification'),
                       Tab(text: 'Names'),
                       Tab(text: 'View Settings'),
+                      Tab(text: 'Dealer Definition'),
                     ],
                   ),
                   Expanded(
@@ -398,60 +401,9 @@ class ControllerSettings extends StatelessWidget {
                         ConditionLibrary(customerId, controllerId, adDrId),
                         const Center(child: Text('Tab 4 Content')),
                         const Center(child: Text('Tab 5 Content')),
-                        /*Column(
-                          children: [
-                            Expanded(
-                              child: ListView.builder(
-                                itemCount: (viewModel.notifications.length / 3).ceil(), // Grouping items in rows of 3
-                                itemBuilder: (context, index) {
-                                  int startIndex = index * 3; // Each row starts with a multiple of 3
-                                  return Padding(
-                                    padding: const EdgeInsets.only(left: 8, right: 8, top: 8),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        buildNotificationCard(startIndex),
-                                        if (startIndex + 1 < viewModel.notifications.length)
-                                          buildNotificationCard(startIndex + 1),
-                                        if (startIndex + 2 < viewModel.notifications.length)
-                                          buildNotificationCard(startIndex + 2),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                            ListTile(trailing: MaterialButton(
-                              color: Colors.green,
-                              textColor: Colors.white,
-                              onPressed:() async {
-                                List<int> selectedIds = viewModel.notifications.where((notification) => notification.selected).map((notification) => notification.pushNotificationId).toList();
-                                if(selectedIds.isNotEmpty){
-                                  final response = await HttpService().putRequest("updateUserPushNotificationType",
-                                      {"userId": widget.customerID, "controllerId": widget.siteData.master[0].controllerId, "pushNotificationType": selectedIds, "modifyUser": widget.customerID,});
-                                  if (response.statusCode == 200) {
-                                    var data = jsonDecode(response.body);
-                                    if (data["code"] == 200) {
-                                      GlobalSnackBar.show(context, data["message"], 200);
-                                    }
-                                  }
-                                }else{
-                                  GlobalSnackBar.show(context, "Notification setting saved successfully", 200);
-                                }
-                              },
-                              child: const Text('Save'),
-                            ),),
-                          ],
-                        ),
-                        Center(
-                            child: Names(
-                              userID: widget.customerID,
-                              customerID: widget.customerID,
-                              controllerId: widget.siteData.master[0].controllerId,
-                              imeiNo: widget.siteData.master[0].deviceId,)),*/
                         const Center(child: Text('Tab 6 Content')),
-                      ],
+                         DealerDefinitionInConfig(userId: adDrId, customerId: customerId, controllerId: controllerId, imeiNo: viewModel.deviceId),
+                        ],
                     ),
                   ),
                 ],

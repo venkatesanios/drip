@@ -118,43 +118,25 @@ class DealerDefinitionInConfigState extends State<DealerDefinitionInConfig> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                TextButton.icon(
+                 TextButton.icon(
                   onPressed: () async {
-                    String strPayload = Mqttdata(data);
-                     String payLoadFinal = jsonEncode({
-                      "500": [
-                        {"501": strPayload},
-                      ]
-                    });
-                    MqttService().topicToPublishAndItsMessage('AppToFirmware/${widget.imeiNo}', payLoadFinal);
 
-                    Map<String, dynamic> dealerDefinitionJson = {};
-                    data.dealerDefinition.forEach((key, value) {
-                      dealerDefinitionJson[key] = value.map((item) => item.toJson()).toList();
-                    });
+                    final sendData = jsonEncode(data.dealerDefinition);
+                    final Repository repository = Repository(HttpService());
                     Map<String, Object> body = {
                       "userId": widget.customerId,
                       "controllerId": widget.controllerId,
-                      "dealerDefinition": dealerDefinitionJson,
+                      "dealerDefinition": sendData,
                       "createUser": widget.userId
                     };
-
-                    final response = await HttpService().postRequest("createUserDealerDefinition", body);
-                    if (response.statusCode == 200) {
-                      var data = jsonDecode(response.body);
-                      if (data["code"] == 200) {
-                        _showSnackBar(data["message"]);
-                      } else {
-                        _showSnackBar(data["message"]);
-                      }
-                    }
+                    var getUserDetails = await repository.createdealerDefinition(body);
+                    final jsonDataResponseput = json.decode(getUserDetails.body);
+                     GlobalSnackBar.show(context, jsonDataResponseput['message'], jsonDataResponseput['code']);
                   },
                   label: const Text('Save'),
                   icon: const Icon(
                     Icons.save_as_outlined,
-                  ),style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).primaryColorDark),foregroundColor: MaterialStateProperty.all<Color>(Colors.white)
-                ),
-                ),
+                  ),style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).primaryColor,),foregroundColor: MaterialStateProperty.all<Color>(Colors.white)),),
                 const SizedBox(
                   width: 20,
                 )
@@ -548,7 +530,8 @@ class _MyContainerWithTabsState extends State<MyContainerWithTabs> {
               children: [
                 TextButton.icon(
                   onPressed: () async {
-                    final sendData = jsonEncode(widget.data.dealerDefinition);
+
+                     final sendData = jsonEncode(widget.data.dealerDefinition);
                     final Repository repository = Repository(HttpService());
                     Map<String, Object> body = {
                       "userId": widget.customerID,
