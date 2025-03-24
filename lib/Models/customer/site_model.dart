@@ -382,6 +382,8 @@ class Pump {
   int status;
   bool selected;
   String onDelayLeft;
+  String voltage;
+  String current;
 
   Pump({
     required this.objectId,
@@ -395,6 +397,8 @@ class Pump {
     this.status=0,
     this.selected=false,
     this.onDelayLeft='00:00:00',
+    this.voltage='0',
+    this.current='0_0_0',
   });
 
   factory Pump.fromJson(Map<String, dynamic> json) {

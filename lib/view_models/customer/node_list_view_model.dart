@@ -1,25 +1,41 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../Models/customer/site_model.dart';
+import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../services/mqtt_service.dart';
 import '../../utils/constants.dart';
 
 class NodeListViewModel extends ChangeNotifier {
 
+  late MqttPayloadProvider payloadProvider;
+
   final mqttService = MqttService();
   final List<NodeListModel> nodeList;
-  final List<String> nodeLiveMeg;
 
-  NodeListViewModel(this.nodeList, this.nodeLiveMeg) {
-    onLivePayloadReceived();
-    if(nodeLiveMeg.isNotEmpty){
-      onLivePayloadReceived();
-    }
+  List<dynamic> _previousLiveMessage = [];
+  List<dynamic> _previousRelayStatus = [];
 
+  NodeListViewModel(BuildContext context, this.nodeList) {
+    payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
   }
 
-  void onLivePayloadReceived(){
+  bool shouldUpdate(List<dynamic> newLiveMessage, List<dynamic> newRelayStatus) {
+    if (!listEquals(_previousLiveMessage, newLiveMessage) ||
+        !listEquals(_previousRelayStatus, newRelayStatus)) {
+      _previousLiveMessage = List.from(newLiveMessage);
+      _previousRelayStatus = List.from(newRelayStatus);
+      return true;
+    }
+    return false;
+  }
+
+  void onLivePayloadReceived(List<String> nodeLiveMeg, List<String> inputOutputStatus){
+
+    print('node live recived');
+
     for (String group in nodeLiveMeg) {
       List<String> values = group.split(",");
       int sNo = int.parse(values[0]);
@@ -33,6 +49,26 @@ class NodeListViewModel extends ChangeNotifier {
         }
       }
     }
+
+    for (String group in inputOutputStatus) {
+      List<String> values = group.split(",");
+      if (values.length < 2) continue;
+
+      String relaySNo = values[0];
+      int relayStatus = int.parse(values[1]);
+      for (var node in nodeList) {
+        for (var relay in node.rlyStatus) {
+          if (relay.sNo.toString() == relaySNo) {
+            relay.status = relayStatus;
+            break;
+          }
+        }
+      }
+    }
+
+    //payloadProvider.nodeLiveMessage.clear();
+    //payloadProvider.outputStatusPayload.clear();
+
     notifyListeners();
   }
 

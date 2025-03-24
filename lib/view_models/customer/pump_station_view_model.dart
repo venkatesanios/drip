@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import '../../Models/customer/site_model.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
@@ -15,15 +16,27 @@ class PumpStationViewModel extends ChangeNotifier {
 
   int grandTotal = 0;
   late List<WaterSource> sortedWaterSources = [];
+  final ValueNotifier<int> popoverUpdateNotifier = ValueNotifier<int>(0);
+
+  List<dynamic> _previousRelayStatus = [];
 
   PumpStationViewModel(context, this.mvWaterSource, this.mvFilterSite, this.mvFertilizerSite, this.mvIrrLineData, this.mvCurrentLineName) {
     payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
   }
 
+  bool shouldUpdate(List<dynamic> newRelayStatus) {
+    if (!listEquals(_previousRelayStatus, newRelayStatus)) {
+      _previousRelayStatus = List.from(newRelayStatus);
+      return true;
+    }
+    return false;
+  }
+
+
   void updateOutputStatus(List<String> outputStatusPayload){
     print(outputStatusPayload);
 
-    payloadProvider.outputStatusPayload.clear();
+    //payloadProvider.outputStatusPayload.clear();
 
     List<String> filteredPumpStatus = outputStatusPayload
         .where((item) => item.startsWith('5.')).toList();
@@ -32,6 +45,10 @@ class PumpStationViewModel extends ChangeNotifier {
     List<String> filteredValveStatus = outputStatusPayload
         .where((item) => item.startsWith('13.')).toList();
     updateValveStatus(mvIrrLineData!, filteredValveStatus);
+
+    List<String> filteredFilterStatus = outputStatusPayload
+        .where((item) => item.startsWith('11.')).toList();
+    updateFilterStatus(mvFilterSite, filteredFilterStatus);
 
     int totalWaterSources = mvWaterSource.length;
     int totalOutletPumps = mvWaterSource.fold(0, (sum, source) => sum + source.outletPump.length);
@@ -74,6 +91,19 @@ class PumpStationViewModel extends ChangeNotifier {
           pump.status = status;
         } else {
           print("Serial Number ${pump.sNo} not found");
+        }
+      }
+    }
+  }
+
+  void updateFilterStatus(List<FilterSite> mvFilterSite, List<dynamic> filterStatus) {
+    for (var filters in mvFilterSite) {
+      for (var filter in filters.filters) {
+        int? status = getStatus(filterStatus, filter.sNo);
+        if (status != null) {
+          filter.status = status;
+        } else {
+          print("Serial Number ${filter.sNo} not found");
         }
       }
     }
