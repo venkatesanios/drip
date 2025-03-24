@@ -326,7 +326,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     width: 250,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
-                      color: Colors.teal.shade100,
+                      color: Colors.grey.shade100,
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -441,7 +441,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           Expanded(
                             flex: 3,
                             child: Container(
-                              color: Colors.teal.shade100,
+                              color: Colors.grey.shade100,
                               padding:
                               EdgeInsets.only(left: 15, right: 15, bottom: 10),
                               // height: constraints.maxHeight * 0.59,
