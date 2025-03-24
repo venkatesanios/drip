@@ -23,6 +23,8 @@ class MqttPayloadProvider with ChangeNotifier {
   Map<String, dynamic> pumpControllerPayload = {};
   Map<String, dynamic> preferencePayload = {};
   List viewSettingsList = [];
+  List cCList = [];
+  Map<String, dynamic> viewSetting = {};
   // bool isCommunicatable = false;
   // bool isWaiting = false;
   int dataFetchingStatus = 2;
@@ -478,7 +480,7 @@ class MqttPayloadProvider with ChangeNotifier {
       // Todo : Dashboard payload start
       Map<String, dynamic> data = jsonDecode(payload);
 
-      // print("data from controller ::: $data");
+      print("data from controller ::: $data");
       //live payload
       if(data['mC']=='2400'){
         liveDateAndTime = '${data['cD']} ${data['cT']}';
@@ -496,9 +498,18 @@ class MqttPayloadProvider with ChangeNotifier {
       else if(data.containsKey('3600') && data['3600'] != null && data['3600'].isNotEmpty){
         // mySchedule.dataFromMqttConversion(payload);
         schedulePayload = payload;
-      }
-      else if(data.containsKey('5100') && data['5100'] != null && data['5100'].isNotEmpty){
+      } else if(data.containsKey('5100') && data['5100'] != null && data['5100'].isNotEmpty){
         weatherModelinstance = WeatherModel.fromJson(data);
+      } else if(data['mC'] != null && data["mC"].contains("VIEW")) {
+        cCList = {...cCList, data['cC']}.toList();
+        viewSetting = data;
+        if (!viewSettingsList.contains(jsonEncode(data['cM']))) {
+          viewSettingsList.add(jsonEncode(data["cM"]));
+          // print("viewSettingsList ==> $viewSettingsList");
+        }
+      } else if(data['mC'] != null && data['mC'] == 'SMS') {
+        preferencePayload = data;
+        print("preferencePayload :: $preferencePayload");
       }
       /* if(data['liveSyncDate'] != null){
         String dateStr = data['liveSyncDate'];

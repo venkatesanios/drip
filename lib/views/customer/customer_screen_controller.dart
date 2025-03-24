@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Screens/Logs/irrigation_and_pump_log.dart';
+import 'package:oro_drip_irrigation/modules/PumpController/view/pump_dashboard_screen.dart';
 import 'package:oro_drip_irrigation/views/customer/program_schedule.dart';
 import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
 import 'package:oro_drip_irrigation/views/customer/stand_alone.dart';
@@ -10,6 +11,7 @@ import 'package:provider/provider.dart';
 import '../../Screens/Dealer/controllerverssionupdate.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../flavors.dart';
+import '../../modules/PumpController/view/pump_controller_home.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/formatters.dart';
@@ -73,7 +75,7 @@ class CustomerScreenController extends StatelessWidget {
             appBar: AppBar(
               title:  Row(
                 children: [
-                  fromLogin ?const SizedBox():
+                 /* fromLogin ?const SizedBox():
                   const SizedBox(width: 10),
                   fromLogin ? Image(
                     image: F.appFlavor!.name.contains('oro')?const AssetImage("assets/png/oro_logo_white.png"):
@@ -87,7 +89,7 @@ class CustomerScreenController extends StatelessWidget {
                   const SizedBox(width: 0),
 
                   Container(width: 1, height: 20, color: Colors.white54,),
-                  const SizedBox(width: 5,),
+                  const SizedBox(width: 5,),*/
 
                   vm.mySiteList.data.length>1? DropdownButton(
                     isExpanded: false,
@@ -111,9 +113,9 @@ class CustomerScreenController extends StatelessWidget {
                   Text(vm.mySiteList.data[vm.sIndex].groupName,
                     style: const TextStyle(fontSize: 17), overflow: TextOverflow.ellipsis,),
 
-                  const SizedBox(width: 15,),
+                  /*const SizedBox(width: 15,),
                   Container(width: 1,height: 20, color: Colors.white54,),
-                  const SizedBox(width: 5,),
+                  const SizedBox(width: 5,),*/
 
                   vm.mySiteList.data[vm.sIndex].master.length>1? PopupMenuButton<String>(
                     color: Colors.white,
@@ -177,10 +179,10 @@ class CustomerScreenController extends StatelessWidget {
                   'Line empty', style: const TextStyle(fontSize: 17),):
                   const SizedBox(),
 
-                  const SizedBox(width: 15,),
+                 /* const SizedBox(width: 15,),
                   Container(width: 1, height: 20, color: Colors.white54,),
-                  const SizedBox(width: 5,),
-                  Container(
+                  const SizedBox(width: 5,),*/
+                  /*Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5),
                         color: Colors.transparent
@@ -195,7 +197,7 @@ class CustomerScreenController extends StatelessWidget {
                       iconSize: 24.0,
                       hoverColor: Theme.of(context).primaryColorLight,
                     ),
-                  ),
+                  ),*/
                   Text(
                     'Last sync @ - ${Formatters.formatDateTime('${vm.mySiteList.data[vm.sIndex].master[vm.mIndex].live?.cD} ${vm.mySiteList.data[vm.sIndex].master[vm.mIndex].live?.cT}')}',
                     style: const TextStyle(fontSize: 15, color: Colors.white70),
@@ -214,7 +216,7 @@ class CustomerScreenController extends StatelessWidget {
                 ),
               ),
               actions: <Widget>[
-                Row(
+               /* Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     currentSchedule.isNotEmpty?
@@ -367,7 +369,7 @@ class CustomerScreenController extends StatelessWidget {
                         )
                     ),
                   ],),
-                const SizedBox(width: 05),
+                const SizedBox(width: 05),*/
               ],
             ),
             extendBody: true,
@@ -376,7 +378,7 @@ class CustomerScreenController extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  NavigationRail(
+                  kIsWeb ? NavigationRail(
                     selectedIndex: navViewModel.selectedIndex,
                     labelType: NavigationRailLabelType.all,
                     elevation: 5,
@@ -384,16 +386,17 @@ class CustomerScreenController extends StatelessWidget {
                       navViewModel.onDestinationSelectingChange(index);
                     },
                     destinations: getNavigationDestinations(),
-                  ),
+                  ) : SizedBox(),
                   Container(
                     width: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId==1?
-                    MediaQuery.sizeOf(context).width-140:MediaQuery.sizeOf(context).width-80,
+                    MediaQuery.sizeOf(context).width-140:kIsWeb ? MediaQuery.sizeOf(context).width-80 : MediaQuery.sizeOf(context).width,
                     height: MediaQuery.sizeOf(context).height,
                     decoration: BoxDecoration(
                       color: Theme.of(context).scaffoldBackgroundColor,
                       borderRadius: const BorderRadius.only(topLeft: Radius.circular(8),topRight: Radius.circular(8)),
                     ),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         lastCommunication.inMinutes >= 10 && powerSupply == 0?Container(
                           height: 23.0,
@@ -410,7 +413,7 @@ class CustomerScreenController extends StatelessWidget {
                             ),
                           ),
                         ):
-                        powerSupply == 0?Container(
+                        (powerSupply == 0 && vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId==1)?Container(
                           height: 20.0,
                           decoration: BoxDecoration(
                             color: Colors.red.shade300,
@@ -431,7 +434,10 @@ class CustomerScreenController extends StatelessWidget {
                           child: mainScreen(navViewModel.selectedIndex, vm.mySiteList.data[vm.sIndex].groupId,
                               vm.mySiteList.data[vm.sIndex].groupName, vm.mySiteList.data[vm.sIndex].master,
                               vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                              vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId),
+                              vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
+                              vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                              vm.mySiteList.data[vm.sIndex].master[vm.mIndex].live?.cM
+                          ),
                         ),
                       ],
                     ),
@@ -808,11 +814,18 @@ class CustomerScreenController extends StatelessWidget {
     return destinations;
   }
 
-  Widget mainScreen(int index, groupId, groupName, List<Master> masterData, int controllerId, int categoryId) {
+  Widget mainScreen(int index, groupId, groupName, List<Master> masterData, int controllerId, int categoryId, String deviceId, liveData) {
     switch (index) {
       case 0:
         return categoryId==1? CustomerHome(customerId: userId):
-        const Text('pump dashboard');
+        PumpControllerHome(
+          deviceId: deviceId,
+          liveData: liveData,
+          masterName: groupName,
+          userId: userId,
+          customerId: customerId,
+          controllerId: controllerId,
+        );
       case 1:
         return CustomerProduct(customerId: userId);
       case 2:

@@ -1,4 +1,5 @@
 
+import '../../modules/PumpController/model/pump_controller_data_model.dart';
 import '../../utils/constants.dart';
 
 class SiteModel {
@@ -984,7 +985,7 @@ class Item {
 
 class LiveMessage {
   String cC;
-  Map<String, dynamic> cM;
+  dynamic cM;
   String cD;
   String cT;
   String mC;
@@ -1002,7 +1003,7 @@ class LiveMessage {
       cC: json['cC'],
       cM: json['cM'] is Map<String, dynamic>
           ? Map<String, dynamic>.from(json['cM'])
-          : (json['cM'] is List ? <String, dynamic>{} : <String, dynamic>{}),
+          : (json['cM'] is List ? json['mC'] == 'LD01' ? PumpControllerData.fromJson(json, "cM", 2) : <String, dynamic>{} : <String, dynamic>{}),
       cD: json['cD'],
       cT: json['cT'],
       mC: json['mC'],

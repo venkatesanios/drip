@@ -28,6 +28,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
 
   CustomerScreenControllerViewModel(context, this.repository){
     fromWhere='init';
+    print(('CustomerScreenControllerViewModel constructor'));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
       mqttConfigureAndConnect(context);

@@ -299,7 +299,7 @@ class CommonPumpSetting {
         categoryId: json["categoryId"] ?? 0,
         deviceId: json["deviceId"],
         deviceName: json["deviceName"],
-        serialNumber: json['serialNumber'],
+        serialNumber: json['serialNumber'] ?? 0,
         referenceNumber: json['referenceNumber'] ?? 0,
         interfaceTypeId: json['interfaceTypeId'] ?? 0,
         settingList: settingsList
