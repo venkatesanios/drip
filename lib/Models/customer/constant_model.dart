@@ -12,6 +12,7 @@ class UserConstant {
 
   factory UserConstant.fromJson(Map<String, dynamic> json) {
     List<Map<String, dynamic>> configObject = [];
+    List<Map<String, dynamic>> alarmList = [];
 
     if (json['default'] != null &&
         json['default']['configMaker'] != null &&
@@ -20,12 +21,17 @@ class UserConstant {
       configObject =  (json['default']['configMaker']['configObject'] as List)
           .map((e) => e as Map<String, dynamic>)
           .toList();
+
+      alarmList =  (json['default']['alarm']as List)
+          .map((e) => e as Map<String, dynamic>)
+          .toList();
+
     } else {
       print("configObject is null or missing");
     }
 
     return UserConstant(
-      constant: ConstantData.fromJson(json['constant'], configObject),
+      constant: ConstantData.fromJson(json['constant'], configObject, alarmList),
       defaultData: DefaultData.fromJson(json['default']),
     );
   }
@@ -38,6 +44,14 @@ class ConstantData {
   final List<Pump>? pumpList;
   final List<MainValveData>? mainValveList;
   final List<IrrigationLine>? irrigationLineList;
+  final List<WaterMeterModel>? waterMeterList;
+  final List<AllAlarmModel>? criticalAlarm;
+  final List<GlobalAlarmModel>? globalAlarm;
+  final List<LevelSensor>? levelSensor;
+  final List<MoistureSensor>? moistureSensor;
+
+
+
 
   ConstantData({
     required this.controllerReadStatus,
@@ -46,9 +60,14 @@ class ConstantData {
     required this.pumpList,
     required this.mainValveList,
     required this.irrigationLineList,
+    required this.waterMeterList,
+    required this.criticalAlarm,
+    required this.globalAlarm,
+    required this.levelSensor,
+    required this.moistureSensor,
   });
 
-  factory ConstantData.fromJson(Map<String, dynamic> jsonConstant, List<Map<String, dynamic>> jsonConfigObject) {
+  factory ConstantData.fromJson(Map<String, dynamic> jsonConstant, List<Map<String, dynamic>> jsonConfigObject, List<Map<String, dynamic>> alarm) {
 
     List<Map<String, dynamic>> valveDataList = jsonConfigObject
         .where((obj) => obj['objectId'] == 13)
@@ -64,6 +83,58 @@ class ConstantData {
 
     List<Map<String, dynamic>>  irrigationLineList = jsonConfigObject
         .where((obj) => obj['objectId'] == 2)
+        .toList();
+
+    List<Map<String, dynamic>>  waterMeterDataList = jsonConfigObject
+        .where((obj) => obj['objectId'] == 22)
+        .toList();
+
+    List<AllAlarmModel> criticalAlarm = (jsonConstant['criticalAlarm'] as List<dynamic>?)
+        ?.map((cAlarm) => AllAlarmModel.fromMap(cAlarm))
+        .toList() ?? [];
+
+    List<GlobalAlarmModel> globalAlarm = (jsonConstant['globalAlarm'] as List<dynamic>?)
+        ?.map((cAlarm) => GlobalAlarmModel.fromMap(cAlarm))
+        .toList() ?? [];
+
+    if (alarm.isNotEmpty) {
+      for (var alarmItem in alarm) {
+        criticalAlarm.add(AllAlarmModel.fromMap({
+          "sNo": alarmItem['sNo'],
+          "name": alarmItem['name'],
+          "scanTime": '00:00:00',
+          "unit": "%",
+          "alarmOnStatus": 'Do Nothing',
+          "resetAfterIrrigation": "No",
+          "autoResetDuration": '00:00:00',
+          "threshold": "0",
+          "type": "Normal"
+        }));
+        criticalAlarm.add(AllAlarmModel.fromMap({
+          "sNo": alarmItem['sNo'],
+          "name": alarmItem['name'],
+          "scanTime": '00:00:00',
+          "unit": "%",
+          "alarmOnStatus": 'Do Nothing',
+          "resetAfterIrrigation": "No",
+          "autoResetDuration": '00:00:00',
+          "threshold": "0",
+          "type": "Critical"
+        }));
+
+        globalAlarm.add(GlobalAlarmModel.fromMap({
+          "name": alarmItem['name'],
+          "value": false,
+        }));
+      }
+    }
+
+    List<Map<String, dynamic>>  levelSensorDataList = jsonConfigObject
+        .where((obj) => obj['objectId'] == 26)
+        .toList();
+
+    List<Map<String, dynamic>>  moistureSensorDataList = jsonConfigObject
+        .where((obj) => obj['objectId'] == 25)
         .toList();
 
     return ConstantData(
@@ -100,8 +171,25 @@ class ConstantData {
           : mainValveDataList.map((mv) => MainValveData.fromJson(mv)).toList(),
 
       irrigationLineList: (jsonConstant['irrigationLine'] as List<dynamic>?)?.isNotEmpty == true
-          ? (jsonConstant['mainValve'] as List<dynamic>).map((ir) => IrrigationLine.fromJson(ir)).toList()
+          ? (jsonConstant['irrigationLine'] as List<dynamic>).map((ir) => IrrigationLine.fromJson(ir)).toList()
           : irrigationLineList.map((ir) => IrrigationLine.fromJson(ir)).toList(),
+
+      waterMeterList: (jsonConstant['waterMeter'] as List<dynamic>?)?.isNotEmpty == true
+          ? (jsonConstant['waterMeter'] as List<dynamic>).map((ir) => WaterMeterModel.fromJson(ir)).toList()
+          : waterMeterDataList.map((ir) => WaterMeterModel.fromJson(ir)).toList(),
+
+      criticalAlarm : criticalAlarm,
+
+      globalAlarm : globalAlarm,
+
+      levelSensor: (jsonConstant['levelSensor'] as List<dynamic>?)?.isNotEmpty == true
+          ? (jsonConstant['levelSensor'] as List<dynamic>).map((pmp) => LevelSensor.fromJson(pmp)).toList()
+          : levelSensorDataList.map((pmp) => LevelSensor.fromJson(pmp)).toList(),
+
+      moistureSensor: (jsonConstant['moistureSensor'] as List<dynamic>?)?.isNotEmpty == true
+          ? (jsonConstant['moistureSensor'] as List<dynamic>).map((pmp) => MoistureSensor.fromJson(pmp)).toList()
+          : moistureSensorDataList.map((pmp) => MoistureSensor.fromJson(pmp)).toList(),
+
     );
   }
 
@@ -111,8 +199,13 @@ class ConstantData {
       'general': generalMenu.map((e) => e.toJson()).toList(),
       'valveList': valveList?.map((e) => e.toJson()).toList() ?? [],
       'pumpList': pumpList?.map((e) => e.toJson()).toList() ?? [],
-      'mainValveList': mainValveList?.map((e) => e.toJson()).toList() ?? [],
-      'irrigationLineList': irrigationLineList?.map((e) => e.toJson()).toList() ?? [],
+      'mainValve': mainValveList?.map((e) => e.toJson()).toList() ?? [],
+      'irrigationLine': irrigationLineList?.map((e) => e.toJson()).toList() ?? [],
+      'waterMeter': waterMeterList?.map((e) => e.toJson()).toList() ?? [],
+      "criticalAlarm": criticalAlarm?.map((e) => e.toJson()).toList() ?? [],
+      "globalAlarm": globalAlarm?.map((e) => e.toJson()).toList() ?? [],
+      "levelSensor": levelSensor?.map((e) => e.toJson()).toList() ?? [],
+      "moistureSensor": moistureSensor?.map((e) => e.toJson()).toList() ?? [],
     };
   }
 
@@ -162,7 +255,7 @@ class ValveData {
   final String? connectedObject;
   final String? siteMode;
   String txtValue;
-  String pickerVal;
+  String duration;
 
   ValveData({
     required this.objectId,
@@ -176,7 +269,7 @@ class ValveData {
     this.connectedObject,
     this.siteMode,
     required this.txtValue,
-    required this.pickerVal,
+    required this.duration,
   });
 
   factory ValveData.fromJson(Map<String, dynamic> json) {
@@ -192,7 +285,7 @@ class ValveData {
       connectedObject: json['connectedObject'],
       siteMode: json['siteMode'],
       txtValue: json.containsKey('txtValue') ? json['txtValue'] : "0",
-      pickerVal: json.containsKey('pickerVal') ? json['pickerVal'] : "00:00:00",
+      duration: json.containsKey('duration') ? json['duration'] : "00:00:00",
     );
   }
 
@@ -209,7 +302,7 @@ class ValveData {
       'connectedObject': connectedObject,
       'siteMode': siteMode,
       'txtValue': txtValue,
-      'pickerVal': pickerVal,
+      'duration': duration,
     };
   }
 }
@@ -223,7 +316,7 @@ class MainValveData {
   final String? type;
   final int? controllerId;
   final int? count;
-  String pickerVal;
+  String duration;
   String delay;
 
   MainValveData({
@@ -235,7 +328,7 @@ class MainValveData {
     required this.type,
     required this.controllerId,
     this.count,
-    required this.pickerVal,
+    required this.duration,
     this.delay = "No delay",
   });
 
@@ -249,7 +342,7 @@ class MainValveData {
     controllerId: json["controllerId"]??0,
     count: json["count"]??0,
     delay: json["delay"] != null && json["delay"].isNotEmpty ? json["delay"] : "No delay",
-    pickerVal: json.containsKey('pickerVal') ? json['pickerVal'] : "00:00:00",
+    duration: json.containsKey('duration') ? json['duration'] : "00:00:00",
 
   );
 
@@ -262,7 +355,7 @@ class MainValveData {
     "type": type,
     "controllerId": controllerId,
     "count": count,
-    "pickerVal": pickerVal,
+    "duration": duration,
     "delay": delay,
   };
 }
@@ -343,7 +436,8 @@ class IrrigationLine {
   final dynamic connectedObject;
   final dynamic siteMode;
   final double location;
-  String pickerVal;
+  String lowFlowDelay;
+  String highFlowDelay;
   String lowFlowAction;
   String highFlowAction;
 
@@ -359,7 +453,8 @@ class IrrigationLine {
     this.connectedObject,
     this.siteMode,
     required this.location,
-    required this.pickerVal,
+    required this.highFlowDelay,
+    required this.lowFlowDelay,
     required this.lowFlowAction,
     required this.highFlowAction,
   });
@@ -377,7 +472,8 @@ class IrrigationLine {
       connectedObject: json['connectedObject'],
       siteMode: json['siteMode'],
       location: (json['location'] as num).toDouble(),
-      pickerVal: json.containsKey('pickerVal') ? json['pickerVal'] : "00:00:00",
+      lowFlowDelay: json.containsKey('lowFlowDelay') ? json['lowFlowDelay'] : "00:00:00",
+      highFlowDelay: json.containsKey('highFlowDelay') ? json['highFlowDelay'] : "00:00:00",
       lowFlowAction: json["lowFlowAction"] != null && json["lowFlowAction"].isNotEmpty ? json["lowFlowAction"] : "Ignore",
       highFlowAction: json["lowFlowAction"] != null && json["lowFlowAction"].isNotEmpty ? json["lowFlowAction"] : "Ignore",
 
@@ -398,11 +494,320 @@ class IrrigationLine {
       'connectedObject': connectedObject,
       'siteMode': siteMode,
       'location': location,
-      'pickerVal': pickerVal,
+      'highFlowDelay': highFlowDelay,
+      'lowFlowDelay': lowFlowDelay,
       'lowFlowAction': lowFlowAction,
+      'highFlowAction': highFlowAction,
+    };
+
+  }
+}
+
+class WaterMeterModel {
+  final int objectId;
+  final double sNo;
+  final String name;
+  final String objectName;
+  final String type;
+  final dynamic connectionNo;
+  final dynamic controllerId;
+  final dynamic count;
+  final dynamic connectedObject;
+  final dynamic siteMode;
+  final double location;
+  String radio;
+
+  WaterMeterModel({
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+    required this.objectName,
+    required this.type,
+    this.connectionNo,
+    this.controllerId,
+    this.count,
+    this.connectedObject,
+    this.siteMode,
+    required this.location,
+    required this.radio,
+  });
+
+  factory WaterMeterModel.fromJson(Map<String, dynamic> json) {
+    return WaterMeterModel(
+      objectId: json['objectId'] ?? 0,
+      sNo: (json['sNo'] as num).toDouble(),
+      name: json['name'] ?? '',
+      objectName: json['objectName'] ?? '',
+      type: json['type'] ?? '-',
+      connectionNo: json['connectionNo'],
+      controllerId: json['controllerId'],
+      count: json['count'],
+      connectedObject: json['connectedObject'],
+      siteMode: json['siteMode'],
+      location: (json['location'] as num).toDouble(),
+      radio: json.containsKey('radio') ? json['radio'] : "0",
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'objectName': objectName,
+      'type': type,
+      'connectionNo': connectionNo,
+      'controllerId': controllerId,
+      'count': count,
+      'connectedObject': connectedObject,
+      'siteMode': siteMode,
+      'location': location,
+      'radio': radio,
+    };
+
+  }
+}
+
+class AllAlarmModel {
+  String name;
+  String unit;
+  String scanTime;
+  String alarmOnStatus;
+  String resetAfterIrrigation;
+  String autoResetDuration;
+  String threshold;
+  String type;
+
+  AllAlarmModel({
+    required this.name,
+    required this.unit,
+    required this.scanTime,
+    required this.alarmOnStatus,
+    required this.resetAfterIrrigation,
+    required this.autoResetDuration,
+    required this.threshold,
+    required this.type,
+  });
+
+  factory AllAlarmModel.fromMap(Map<String, dynamic> json) {
+    return AllAlarmModel(
+      name: json['name'],
+      unit: json['unit'],
+      scanTime: json['scanTime'],
+      alarmOnStatus: json['alarmOnStatus'],
+      resetAfterIrrigation: json['resetAfterIrrigation'],
+      autoResetDuration: json['autoResetDuration'],
+      threshold: json['threshold'],
+      type: json['type'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "name": name,
+      "scanTime": scanTime,
+      "alarmOnStatus": alarmOnStatus,
+      "resetAfterIrrigation": resetAfterIrrigation,
+      "autoResetDuration": autoResetDuration,
+      "threshold": threshold,
+      "unit": unit,
+      "type": type,
+    };
+  }
+
+
+}
+
+class GlobalAlarmModel {
+  String name;
+  bool value;
+
+  GlobalAlarmModel({
+    required this.name,
+    required this.value,
+  });
+
+  factory GlobalAlarmModel.fromMap(Map<String, dynamic> json) {
+    return GlobalAlarmModel(
+      name: json['name'],
+      value: json['value'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "name": name,
+      "value": value,
+    };
+  }
+
+}
+
+class LevelSensor {
+  int objectId;
+  int sensorId;
+  double sNo;
+  String name;
+  int connectionNo;
+  String objectName;
+  String type;
+  int controllerId;
+  String highLow;
+  String units;
+  String base;
+  double min;
+  double max;
+  double height;
+
+  LevelSensor({
+    required this.objectId,
+    required this.sensorId,
+    required this.sNo,
+    required this.name,
+    required this.connectionNo,
+    required this.objectName,
+    required this.type,
+    required this.controllerId,
+    required this.highLow,
+
+    required this.units,
+    required this.base,
+    required this.min,
+    required this.max,
+    required this.height,
+  });
+
+  factory LevelSensor.fromJson(Map<String, dynamic> json) {
+    return LevelSensor(
+      objectId: (json['objectId'] as num?)?.toInt() ?? 0,
+      sensorId: (json['sensorId'] as num?)?.toInt() ?? 0,
+      sNo: (json['sNo'] as num?)?.toDouble() ?? 0.0,
+      name: json['name']?.toString() ?? '',
+      connectionNo: (json['connectionNo'] as num?)?.toInt() ?? 0,
+      objectName: json['objectName']?.toString() ?? '',
+      type: json['type']?.toString() ?? '',
+      controllerId: (json['controllerId'] as num?)?.toInt() ?? 0,
+
+      highLow: json.containsKey('highLow') ? json['highLow'] : '-',
+      units: json.containsKey('units') ? json['units'] : 'Bar',
+      base: json.containsKey('base') ? json['base'] : 'Current',
+      min: json.containsKey('min') ? json['min'] : 0.00,
+      max: json.containsKey('max') ? json['max'] : 0.00,
+      height: json.containsKey('height') ? json['height'] : 0.00,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sensorId': sensorId,
+      'sNo': sNo,
+      'name': name,
+      'connectionNo': connectionNo,
+      'objectName': objectName,
+      'type': type,
+      'controllerId': controllerId,
+
+      'highLow': highLow,
+      'units': units,
+      'base': base,
+      'min': min,
+      'max': max,
+      'height': height,
     };
   }
 }
+
+class MoistureSensor {
+  int objectId;
+  int objectIds;
+  double sNo;
+  final String name;
+  final int connectionNo;
+  final String objectName;
+  final String type;
+  final int controllerId;
+  final int? count;
+  final Map<String, dynamic> connectedObject;
+  final dynamic siteMode;
+  final List<dynamic> valves;
+  String highLow;
+  String units;
+  String base;
+  double min;
+  double max;
+
+  MoistureSensor({
+    required this.objectId,
+    required this.objectIds,
+    required this.sNo,
+    required this.name,
+    required this.connectionNo,
+    required this.objectName,
+    required this.type,
+    required this.controllerId,
+    this.count,
+    required this.connectedObject,
+    this.siteMode,
+    required this.valves,
+    required this.highLow,
+    required this.units,
+    required this.base,
+    required this.min,
+    required this.max,
+  });
+
+  factory MoistureSensor.fromJson(Map<String, dynamic> json) {
+    return MoistureSensor(
+      objectId: json['objectId'] ?? 0,
+      objectIds: json['objectIds'] ?? 0,
+      sNo: (json['sNo'] as num?)?.toDouble() ?? 0.0,
+      name: json['name']?.toString() ?? '',
+      connectionNo: json['connectionNo'] ?? 0,
+      objectName: json['objectName']?.toString() ?? '',
+      type: json['type']?.toString() ?? '',
+      controllerId: json['controllerId'] ?? 0,
+      count: json['count'] as int? ?? 0,
+      connectedObject: json['connectedObject'] is Map<String, dynamic>
+          ? json['connectedObject'] as Map<String, dynamic>
+          : {},
+      siteMode: json['siteMode']?.toString() ?? '',
+      valves: json['valves'] is List ? List.from(json['valves']) : [],
+
+      highLow: json.containsKey('highLow') ? json['highLow'] : '-',
+      units: json.containsKey('units') ? json['units'] : 'Bar',
+      base: json.containsKey('base') ? json['base'] : 'Current',
+      min: json.containsKey('min') ? json['min'] : 0.00,
+      max: json.containsKey('max') ? json['max'] : 0.00,
+    );
+  }
+
+
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'objectIds': objectIds,
+      'sNo': sNo,
+      'name': name,
+      'connectionNo': connectionNo,
+      'objectName': objectName,
+      'type': type,
+      'controllerId': controllerId,
+      'count': count,
+      'connectedObject': connectedObject,
+      'siteMode': siteMode,
+      'valves': valves,
+      'highLow': highLow,
+      'units': units,
+      'base': base,
+      'min': min,
+      'max': max,
+    };
+  }
+}
+
+
 
 class DefaultData {
   final List<Alarm> alarms;
