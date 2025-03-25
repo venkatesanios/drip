@@ -70,33 +70,31 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
   Icon getIconForParameter(int id) {
     switch (id) {
       case 66:
-        return const Icon(Icons.water, color: Colors.white,);
+        return const Icon(Icons.text_fields, color: Colors.white,);
       case 67:
-        return const Icon(Icons.gas_meter_outlined, color: Colors.white,);
+        return const Icon(Icons.settings, color: Colors.white,);
       case 68:
-        return const Icon(Icons.waves, color: Colors.white,);
+        return const Icon(Icons.code, color: Colors.white,);
       case 69:
-        return const Icon(Icons.group_work_outlined, color: Colors.white,);
-      case 70:
         return const Icon(Icons.format_list_numbered, color: Colors.white,);
+      case 70:
+        return const Icon(Icons.settings_outlined, color: Colors.white,);
       case 71:
-        return const Icon(Icons.deblur_outlined, color: Colors.white,);
+        return const Icon(Icons.group_work_outlined, color: Colors.white,);
       case 72:
-        return const Icon(Icons.filter_alt_outlined, color: Colors.white,);
+        return const Icon(Icons.power_outlined, color: Colors.white,);
       case 73:
         return const Icon(Icons.settings_outlined, color: Colors.white,);
       case 74:
-        return const Icon(Icons.settings_outlined, color: Colors.white,);
+        return const Icon(Icons.gas_meter_outlined, color: Colors.white,);
       case 75:
-        return const Icon(Icons.power_outlined, color: Colors.white,);
-      case 76:
         return const Icon(Icons.question_answer_outlined, color: Colors.white,);
+      case 76:
+        return const Icon(Icons.help_outline, color: Colors.white,);
       case 78:
-        return const Icon(Icons.settings, color: Colors.white,);
+        return const Icon(Icons.deblur_outlined, color: Colors.white,);
       case 79:
-        return const Icon(Icons.code, color: Colors.white,);
-      case 80:
-        return const Icon(Icons.text_fields, color: Colors.white,);
+        return const Icon(Icons.compass_calibration_outlined, color: Colors.white,);
       default:
         return const Icon(Icons.help_outline, color: Colors.white,);
     }
@@ -106,43 +104,33 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
     switch (id) {
       case 1:
         return ProgramLibraryScreenNew(customerId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber, userId: widget.userId, fromDealer: false, groupId: widget.groupId, categoryId: widget.categoryId,);
-      // case 66:
-      //   return watersourceUI(userId: widget.customerID, controllerId: widget.controllerID, deviceID: widget.imeiNumber,);
-      // case 67:
-      //   return VirtualMeterScreen(userId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber);
       case 66:
-        return watersourceUI(userId: widget.userId, controllerId: widget.controllerID, deviceID: widget.imeiNumber, menuId: 66,);
-      case 67:
-        return VirtualMeterScreen(userId: widget.userId, controllerId: widget.controllerID, menuId: 67, deviceId: widget.imeiNumber);
-      // case 68:
-      //   return RadiationSetUI(userId: widget.customerID, controllerId: widget.controllerID, );
-      case 69:
-        return GroupListScreen(userId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber,);
-      case 70:
-      //   return ConditionScreen(customerId: widget.customerID, controllerId: widget.controllerID, imeiNo: widget.imeiNumber, isProgram: false, serialNumber: 0,);
-      case 71:
-        return FrostMobUI(userId: widget.customerID, controllerId: widget.controllerID,deviceID: widget.imeiNumber, menuId: 71,);
-      case 72:
-        return FilterBackwashUI(userId: widget.userId, controllerId: widget.controllerID, deviceId: widget.imeiNumber, customerId: widget.customerID, fromDealer: false,);
-      case 73:
-        return FertilizerSetScreen(userData: {'userId' : widget.customerID, 'controllerId' : widget.controllerID, 'deviceId' : widget.imeiNumber});
-      case 74:
-        return GlobalLimitScreen(userData: {'userId' : widget.customerID, 'controllerId' : widget.controllerID, 'deviceId' : widget.imeiNumber});
-      case 75:
-        return SystemDefinition(userId: widget.userId, controllerId: widget.controllerID, deviceId: widget.imeiNumber, customerId: widget.customerID,);
-      // case 76:
-      //   return ProgramQueueScreen(userId: widget.customerID, controllerId: widget.controllerID, cutomerId: widget.customerID, customerId: widget.customerID, deviceId: widget.imeiNumber,);
-      case 77:
-        return WeatherScreen(userId: widget.customerID, controllerId: widget.controllerID,deviceID: widget.imeiNumber,);
-      case 78:
-        return PreferenceMainScreen(userId: widget.userId, controllerId: widget.controllerID, customerId: widget.customerID, deviceId: widget.imeiNumber, menuId: 0,);
-      case 79:
-        return ConstantInConfig(userId: widget.customerID, deviceId: widget.imeiNumber, customerId: widget.customerID, controllerId: widget.controllerID);
-      case 80:
         return Names(userID: widget.customerID, customerID: widget.customerID, controllerId: widget.controllerID, menuId: 0, imeiNo: widget.imeiNumber, );
-      // case 81:
+      case 67:
+        return PreferenceMainScreen(userId: widget.userId, controllerId: widget.controllerID, customerId: widget.customerID, deviceId: widget.imeiNumber, menuId: 0,);
+      case 68:
+        return ConstantInConfig(userId: widget.customerID, deviceId: widget.imeiNumber, customerId: widget.customerID, controllerId: widget.controllerID);
+      // case 69:
+      //   return ConditionScreen(customerId: widget.customerID, controllerId: widget.controllerID, imeiNo: widget.imeiNumber, isProgram: false, serialNumber: 0,);
+      case 70:
+        return FertilizerSetScreen(userData: {'userId' : widget.customerID, 'controllerId' : widget.controllerID, 'deviceId' : widget.imeiNumber});
+      case 71:
+        return GroupListScreen(userId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber,);
+      case 72:
+        return SystemDefinition(userId: widget.userId, controllerId: widget.controllerID, deviceId: widget.imeiNumber, customerId: widget.customerID,);
+      case 73:
+        return GlobalLimitScreen(userData: {'userId' : widget.customerID, 'controllerId' : widget.controllerID, 'deviceId' : widget.imeiNumber});
+      case 74:
+        return VirtualMeterScreen(userId: widget.userId, controllerId: widget.controllerID, menuId: 67, deviceId: widget.imeiNumber);
+      // case 75:
+      //   return ProgramQueueScreen(userId: widget.customerID, controllerId: widget.controllerID, cutomerId: widget.customerID, customerId: widget.customerID, deviceId: widget.imeiNumber,);
+      // case 76:
       //   return CustomMarkerPage(userId: widget.customerID,deviceID: widget.imeiNumber,controllerId: widget.controllerID,);
-      case 127:
+      // case 77:
+      //   return RadiationSetUI(userId: widget.customerID, controllerId: widget.controllerID, );
+      case 78:
+        return FrostMobUI(userId: widget.customerID, controllerId: widget.controllerID,deviceID: widget.imeiNumber, menuId: 71,);
+      case 79:
         return CalibrationScreen(userData: {'userId' : widget.customerID, 'controllerId' : widget.controllerID, 'deviceId' : widget.imeiNumber});
       default:
         return const Center(child: Text('id'));

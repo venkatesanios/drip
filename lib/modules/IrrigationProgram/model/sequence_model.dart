@@ -80,6 +80,7 @@ class ValveGroup {
         required this.valve});
 
   factory ValveGroup.fromJson(Map<String, dynamic> json) {
+    print("json in the ValveGroup : ${json}");
     var valveList = json['valve'] as List<dynamic>?;
 
     List<DeviceObjectModel> valves = valveList != null
