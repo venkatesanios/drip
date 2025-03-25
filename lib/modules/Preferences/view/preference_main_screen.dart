@@ -14,6 +14,7 @@ import '../../../StateManagement/overall_use.dart';
 import '../../../Widgets/custom_animated_switcher.dart';
 import '../../IrrigationProgram/view/schedule_screen.dart';
 import '../../IrrigationProgram/widgets/custom_native_time_picker.dart';
+import '../model/preference_data_model.dart';
 import '../repository/preferences_repo.dart';
 import '../state_management/preference_provider.dart';
 import '../../SystemDefinitions/widgets/custom_snack_bar.dart';
@@ -540,8 +541,14 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                             selectPumpToSend();
                           }
                         } else {
-                          List common = preferenceProvider.commonPumpSettings!.where((element) => element.settingList.any((e) => e.changed == true)).toList().map((e) =>e.deviceId).toList();
-                          List individual = preferenceProvider.individualPumpSetting!.where((element) => element.settingList.any((e) => e.changed == true)).toList().map((e) =>e.deviceId).toList();
+                          List common = preferenceProvider.commonPumpSettings!.where((element) =>
+                              element.settingList.any((e) => e.changed == true)).toList().map((e) =>e.deviceId).toList();
+                          List individual = preferenceProvider.commonPumpSettings!
+                              .where((element) => element.settingList.any((e) => e.changed == true))
+                              .where((ele) => preferenceProvider.individualPumpSetting!
+                              .any((element) => element.controllerId == ele.controllerId))
+                              .map((e) => e.deviceId)
+                              .toList();
                           if(preferenceProvider.commonPumpSettings!.any((element) => element.settingList.any((e) => e.changed == true)) || preferenceProvider.individualPumpSetting!.any((element) => element.settingList.any((e) => e.changed == true))) {
                             selectedOroPumpList.clear();
                             if(selectedOroPumpList.isEmpty) {
@@ -615,8 +622,20 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                   else
                     ...preferenceProvider.individualPumpSetting!.asMap().entries.map((entry) {
                       final element = entry.value;
+
+                      CommonPumpSetting? matchingCommonPump;
+                      try {
+                        matchingCommonPump = preferenceProvider.commonPumpSettings!
+                            .firstWhere((common) => common.controllerId == element.controllerId);
+                      } catch (e) {
+                        matchingCommonPump = null; // No matching item found
+                      }
+
                       return Tab(
-                        text: (preferenceProvider.commonPumpSettings!.length > 1 && element.deviceId != null) ? "${element.name}\n${element.deviceId}" : element.name,
+                        text: (preferenceProvider.commonPumpSettings!.length > 1 &&
+                            matchingCommonPump != null)
+                            ? "${element.name}\n${matchingCommonPump.deviceId}"
+                            : element.name,
                       );
                     })
                 ],
@@ -630,7 +649,10 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
   Widget buildSettingsCategory({required BuildContext context, required List settingList, required BoxConstraints constraints, required int pumpIndex}) {
     try {
       if(viewConfig) {
-        return ViewConfig(userId: widget.userId, isLora: preferenceProvider.commonPumpSettings![tabController1.index].interfaceTypeId == 1,);
+        return ViewConfig(
+          userId: widget.userId,
+          isLora: preferenceProvider.commonPumpSettings![tabController1.index].interfaceTypeId == 1,
+        );
       }
       return SingleChildScrollView(
         child: Column(
@@ -816,7 +838,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
           Column(
             children: [
               for (int index = 0; index < preferenceProvider.individualPumpSetting!
-                  .where((e) => e.deviceId == preferenceProvider.commonPumpSettings![pumpIndex].deviceId).length; index++)
+                  .where((e) => e.controllerId == preferenceProvider.commonPumpSettings![pumpIndex].controllerId).length; index++)
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 15),
                   child: Column(
@@ -825,7 +847,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(preferenceProvider.individualPumpSetting!
-                              .where((e) => e.deviceId == preferenceProvider.commonPumpSettings![pumpIndex].deviceId)
+                              .where((e) => e.controllerId == preferenceProvider.commonPumpSettings![pumpIndex].controllerId)
                               .elementAt(index)
                               .name),
                           Switch(
@@ -1218,9 +1240,9 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
               if(key.contains("200")) preferenceProvider.commonPumpSettings![oroPumpIndex].settingList[1].controllerReadStatus = "0";
               int pumpIndex = 0;
               for (var individualPump in preferenceProvider.individualPumpSetting ?? []) {
-                if (preferenceProvider.commonPumpSettings![oroPumpIndex].deviceId == individualPump.deviceId) {
+                if (preferenceProvider.commonPumpSettings![oroPumpIndex].controllerId == individualPump.controllerId) {
                   if(individualPump.output != null) {
-                    pumpIndex = int.parse(RegExp(r'\d+').firstMatch(individualPump.output)!.group(0)!);
+                    pumpIndex = individualPump.output;
                   } else {
                     pumpIndex++;
                   }
@@ -1336,13 +1358,13 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
         for (var individualPump in preferenceProvider.individualPumpSetting ?? []) {
           // print("individualPump deviceId ==> ${individualPump.deviceId}");
           // print("commonSetting deviceId ==> ${commonSetting.deviceId}");
-          if (commonSetting.deviceId == individualPump.deviceId) {
+          if (commonSetting.controllerId == individualPump.controllerId) {
             List<String> currentConfigList = [];
             List<String> delayConfigList = [];
             List<String> rtcConfigList = [];
             List<String> scheduleConfigList = [];
             if(individualPump.output != null) {
-              pumpIndex = int.parse(RegExp(r'\d+').firstMatch(individualPump.output)!.group(0)!);
+              pumpIndex = individualPump.output;
             } else {
               pumpIndex++;
             }
@@ -1364,7 +1386,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                   break;
                 case 205:
                   if (!sendAll ? individualPumpSetting.changed : true) {
-                    int index = preferenceProvider.individualPumpSetting!.indexWhere((e) => e.deviceId == commonSetting.deviceId);
+                    int index = preferenceProvider.individualPumpSetting!.indexWhere((e) => e.controllerId == commonSetting.controllerId);
                     final payload = jsonEncode({"600-$pumpIndex": jsonEncode({"sentSms": 'scheduleconfig,$pumpIndex,${getSettingValue(individualPumpSetting, controlToOroGem: preferenceProvider.individualPumpSetting![index].controlGem)}'})});
                     scheduleConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+$categoryId": payload);
                   }
@@ -1409,13 +1431,13 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
 
         int pumpIndex = 0;
         for (var individualPump in preferenceProvider.individualPumpSetting ?? []) {
-          if (commonSetting.deviceId == individualPump.deviceId) {
+          if (commonSetting.controllerId == individualPump.controllerId) {
             List<String> currentConfigList = [];
             List<String> delayConfigList = [];
             List<String> rtcConfigList = [];
             List<String> scheduleConfigList = [];
             if(individualPump.output != null) {
-              pumpIndex = int.parse(RegExp(r'\d+').firstMatch(individualPump.output)!.group(0)!);
+              pumpIndex = individualPump.output;
             } else {
               pumpIndex++;
             }
@@ -1437,7 +1459,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                   break;
                 case 205:
                   if (!sendAll ? (individualPumpSetting.controllerReadStatus == "0") : true) {
-                    int index = preferenceProvider.individualPumpSetting!.indexWhere((e) => e.deviceId == commonSetting.deviceId);
+                    int index = preferenceProvider.individualPumpSetting!.indexWhere((e) => e.controllerId == commonSetting.controllerId);
                     final payload = jsonEncode({"600-$pumpIndex": jsonEncode({"sentSms": 'scheduleconfig,$pumpIndex,${getSettingValue(individualPumpSetting, controlToOroGem: preferenceProvider.individualPumpSetting![index].controlGem)}'})});
                     scheduleConfigList.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+$categoryId": payload);
                   }

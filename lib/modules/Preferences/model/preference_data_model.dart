@@ -207,16 +207,18 @@ class IndividualPumpSetting {
   double sNo;
   String name;
   int pumpType;
-  dynamic deviceId;
+  int controllerId;
+  // dynamic deviceId;
   bool controlGem;
-  String? output;
+  int? output;
   List<SettingList> settingList;
 
   IndividualPumpSetting({
     required this.sNo,
     required this.name,
     required this.pumpType,
-    required this.deviceId,
+    required this.controllerId,
+    // required this.deviceId,
     required this.controlGem,
     required this.settingList,
     required this.output,
@@ -229,10 +231,11 @@ class IndividualPumpSetting {
         sNo: json["sNo"],
         name: json["name"],
         pumpType: json["pumpType"],
-        deviceId: json["deviceId"],
+        controllerId: json["controllerId"],
+        // deviceId: json["deviceId"],
         controlGem: json["controlGem"] ?? false,
         settingList: settingsList,
-        output: json['output']
+        output: json['connectionNo']
     );
   }
 
@@ -241,7 +244,7 @@ class IndividualPumpSetting {
       "sNo": sNo,
       "name": name,
       "type": pumpType,
-      "deviceId": deviceId,
+      // "deviceId": deviceId,
       "controlGem": controlGem,
       "settingList": settingList.map((e) => e.toJson()).toList(),
       "output": output

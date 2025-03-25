@@ -20,17 +20,13 @@ class ViewConfig extends StatefulWidget {
 }
 
 class _ViewConfigState extends State<ViewConfig> {
-  final List<String> viewPayloads = [
+  List<String> viewPayloads = [
     "pumpconfig", "tankconfig", "ctconfig", "calibration", "voltageconfig",
-    "currentconfig1", "currentconfig2", "currentconfig3", "delayconfig1",
-    "delayconfig2", "delayconfig3", "rtcconfig1", "rtcconfig2", "rtcconfig3",
-    "scheduleconfig1", "scheduleconfig2", "scheduleconfig3",
   ];
-
   String selectedPayload = "pumpconfig";
   bool _hasTimedOut = false;
   Timer? _timeoutTimer;
-  int _remainingTime = 20;
+  int _remainingTime = 0;
   final MqttService mqttService = MqttService();
 
   void requestViewConfig(int index) {
@@ -56,7 +52,7 @@ class _ViewConfigState extends State<ViewConfig> {
       }
     });
 
-    if ([1, 2].contains(preferenceProvider.generalData!.categoryId)) {
+    if ([1].contains(preferenceProvider.generalData!.categoryId)) {
       final pump = preferenceProvider.commonPumpSettings![preferenceProvider.selectedTabIndex];
       final payload = jsonEncode({"sentSms": "viewconfig,${index + 1}"});
       final payload2 = jsonEncode({"0": payload});
@@ -68,9 +64,31 @@ class _ViewConfigState extends State<ViewConfig> {
       };
       mqttService.topicToPublishAndItsMessage(jsonEncode(viewConfig), "${Environment.mqttPublishTopic}/${preferenceProvider.generalData!.deviceId}");
     } else {
-      mqttService.topicToPublishAndItsMessage(jsonEncode("viewconfig"), "${Environment.mqttPublishTopic}/${preferenceProvider.generalData!.deviceId}");
+      mqttService.topicToPublishAndItsMessage(jsonEncode({"sentSms": "viewconfig"}), "${Environment.mqttPublishTopic}/${preferenceProvider.generalData!.deviceId}");
     }
   }
+
+  List<String> generateDynamicConfigs(int pumpConfig) {
+    List<String> dynamicConfigs = [];
+
+    int numberOfPumps = pumpConfig;
+
+    for (int i = 1; i <= numberOfPumps; i++) {
+      dynamicConfigs.add("currentconfig$i");
+      dynamicConfigs.add("delayconfig$i");
+      dynamicConfigs.add("rtcconfig$i");
+      dynamicConfigs.add("scheduleconfig$i");
+    }
+
+    return dynamicConfigs;
+  }
+
+  void updateViewPayloads(String pumpConfigValue) {
+    int numberOfPumps = int.tryParse(pumpConfigValue) ?? 1;
+    viewPayloads.addAll(generateDynamicConfigs(numberOfPumps));
+    setState(() {});
+  }
+
 
   @override
   void initState() {
@@ -116,7 +134,7 @@ class _ViewConfigState extends State<ViewConfig> {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
-              ElevatedButton.icon(
+              FilledButton.tonalIcon(
                 onPressed: () {
                   setState(() {
                     _timeoutTimer?.cancel();
@@ -135,7 +153,7 @@ class _ViewConfigState extends State<ViewConfig> {
 
     if (widget.isLora
         ? (mqttProvider.viewSetting.isEmpty || (mqttProvider.viewSetting['cC'] != null && !mqttProvider.viewSetting['cC'].contains(deviceId)) || !_hasPayload(selectedPayload, context.read<MqttPayloadProvider>(), deviceId))
-        : (!mqttProvider.cCList.contains(deviceId) || !_hasPayload(selectedPayload, context.read<MqttPayloadProvider>(), deviceId))
+        : (!mqttProvider.cCList.contains(deviceId))
     ) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -155,7 +173,11 @@ class _ViewConfigState extends State<ViewConfig> {
         if (_hasPayload("pumpconfig", mqttProvider, deviceId))
           _buildPumpConfig(widget.isLora ? mqttProvider.viewSetting['cM'][0]["pumpconfig"] : '${jsonDecode(mqttProvider.viewSettingsList[0])[0]['pumpconfig']}', preferenceProvider)
         else if (_hasPayload("tankconfig", mqttProvider, deviceId))
-          _buildTankConfig(widget.isLora ? mqttProvider.viewSetting['cM'][0]["tankconfig"] : '${jsonDecode(mqttProvider.viewSettingsList[1])[5]['tankconfig']},${jsonDecode(mqttProvider.viewSettingsList[2])[5]['tankconfig']},${jsonDecode(mqttProvider.viewSettingsList[3])[5]['tankconfig']}', preferenceProvider)
+          _buildTankConfig(
+              widget.isLora
+                  ? mqttProvider.viewSetting['cM'][0]["tankconfig"]
+                  : _getNumberOfTankConfig(mqttProvider),
+              preferenceProvider)
         else if(_hasPayload("ctconfig", mqttProvider, deviceId) || _hasPayload("voltageconfig", mqttProvider, deviceId) || _hasPayload("calibration", mqttProvider, deviceId))
             Expanded(child: _buildCommonSettingCategory(mqttProvider, deviceId))
           else
@@ -164,34 +186,59 @@ class _ViewConfigState extends State<ViewConfig> {
     );
   }
 
+  String _getNumberOfTankConfig(MqttPayloadProvider mqttProvider) {
+    final noOfPumps = jsonDecode(mqttProvider.viewSettingsList[0])[0]['pumpconfig'];
+    List<String> tankConfig = [];
+    for(int i = 0; i < noOfPumps; i++) {
+      tankConfig.add('${jsonDecode(mqttProvider.viewSettingsList[i+1])[5]['tankconfig']}');
+    }
+
+    return tankConfig.join(',');
+  }
+
   Widget _buildDropdown() {
     return DropdownButton<String>(
       menuMaxHeight: 300,
       value: selectedPayload,
-      items: viewPayloads.map((value) => DropdownMenuItem(value: value, child: Text(value))).toList(),
-      onChanged: (value) async{
-        if(widget.isLora) {
-          await Future.delayed(Duration.zero, () {
-            setState(() {
-              _timeoutTimer?.cancel();
-              _hasTimedOut = false;
-              _remainingTime = 20;
-            });
-          });
-        }
+      items: viewPayloads.toSet().toList()
+          .map((value) => DropdownMenuItem(value: value, child: Text(value)))
+          .toList(),
+      onChanged: (value) {
         setState(() {
           selectedPayload = value!;
           if(widget.isLora) {
             requestViewConfig(viewPayloads.indexOf(value));
           }
-          // print('${context.read<MqttPayloadProvider>().viewSetting['cM[0]}');
         });
       },
     );
   }
 
+  Widget _buildPumpConfig(String payload, PreferenceProvider prefProvider) {
+    final values = payload.split(',');
+    updateViewPayloads(values[0]);
+    List<String> titles = ['Number of pumps'];
+    if (widget.isLora) {
+      final pumpNames = prefProvider.individualPumpSetting!
+          .where((e) => e.controllerId == prefProvider.commonPumpSettings![prefProvider.selectedTabIndex].controllerId)
+          .map((e) => e.name)
+          .toList();
+      titles.add('Serial id');
+      titles.addAll(pumpNames);
+    }
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      child: Column(
+        children: List.generate(
+          titles.length,
+              (i) => _buildListTile(titles[i].toUpperCase(), values[i]),
+        ),
+      ),
+    );
+  }
+
   bool _hasPayload(String key, MqttPayloadProvider provider, String deviceId) {
-    // print('view settings list :: ${jsonDecode(provider.viewSettingsList[0])[0]['pumpconfig']}');
     if(widget.isLora) {
       return provider.viewSetting.isNotEmpty && provider.viewSetting['cM'].first.containsKey(key) && provider.viewSetting['cC'].contains(deviceId) && selectedPayload.contains(key);
     } else {
@@ -219,30 +266,6 @@ class _ViewConfigState extends State<ViewConfig> {
     }
   }
 
-  Widget _buildPumpConfig(String payload, PreferenceProvider prefProvider) {
-    final values = payload.split(',');
-    List<String> titles = ['Number of pumps'];
-
-    if (widget.isLora) {
-      final pumpNames = prefProvider.individualPumpSetting!
-          .where((e) => e.deviceId == prefProvider.commonPumpSettings![prefProvider.selectedTabIndex].deviceId)
-          .map((e) => e.name)
-          .toList();
-      titles.add('Serial id');
-      titles.addAll(pumpNames);
-    }
-
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: Column(
-        children: List.generate(
-          titles.length,
-              (i) => _buildListTile(titles[i].toUpperCase(), values[i]),
-        ),
-      ),
-    );
-  }
-
   Widget _buildTankConfig(String payload, PreferenceProvider prefProvider) {
     final values = payload.split(',');
     final groups = List.generate(
@@ -260,7 +283,9 @@ class _ViewConfigState extends State<ViewConfig> {
       "Flow on off",
       "Pressure on off"
     ];
-    final pumpNames = prefProvider.individualPumpSetting!.where((e) => e.deviceId == prefProvider.commonPumpSettings![context.read<PreferenceProvider>().selectedTabIndex].deviceId).map((e) => e.name).toList();
+    final pumpNames = prefProvider.individualPumpSetting!.where((e) =>
+    e.controllerId == prefProvider.commonPumpSettings![context.read<PreferenceProvider>().selectedTabIndex].controllerId)
+        .map((e) => e.name).toList();
 
     return Expanded(
       child: ListView.builder(
@@ -320,7 +345,7 @@ class _ViewConfigState extends State<ViewConfig> {
   Widget _buildCommonSettingCategory(MqttPayloadProvider provider, deviceId) {
     final prefProvider = context.read<PreferenceProvider>();
     final settings = prefProvider.commonPumpSettings![prefProvider.selectedTabIndex].settingList;
-    final calibrationSettings = prefProvider.calibrationSetting![prefProvider.selectedTabIndex].settingList;
+    final calibrationSettings = prefProvider.calibrationSetting!.isNotEmpty ? prefProvider.calibrationSetting![prefProvider.selectedTabIndex].settingList : null;
 
     return ListView(
       children: !(_hasPayload('calibration', provider, deviceId)) ? settings.map((setting) {
@@ -336,7 +361,7 @@ class _ViewConfigState extends State<ViewConfig> {
           return _buildSettingCard(setting, values);
         }
         return Container();
-      }).toList() : calibrationSettings.map((setting) {
+      }).toList() : calibrationSettings != null ? calibrationSettings.map((setting) {
         if ([27, 28, 29, 207, 208, 209].contains(setting.type)) {
           final List<String> values = widget.isLora
               ? provider.viewSetting['cM'].first['calibration'].split(',')
@@ -351,7 +376,7 @@ class _ViewConfigState extends State<ViewConfig> {
           );
         }
         return Container();
-      }).toList(),
+      }).toList() : [Container()],
     );
   }
 
@@ -369,7 +394,7 @@ class _ViewConfigState extends State<ViewConfig> {
   Widget _buildIndividualSettingCategory(MqttPayloadProvider provider, deviceId) {
     final prefProvider = context.read<PreferenceProvider>();
     final pumps = prefProvider.individualPumpSetting!.where(
-          (e) => e.deviceId == prefProvider.commonPumpSettings![prefProvider.selectedTabIndex].deviceId,
+          (e) => e.controllerId == prefProvider.commonPumpSettings![prefProvider.selectedTabIndex].controllerId,
     ).toList();
 
     return ListView(
@@ -436,7 +461,22 @@ class _ViewConfigState extends State<ViewConfig> {
   List<String> _getConfigValues(MqttPayloadProvider provider, String configType) {
     return widget.isLora
         ? provider.viewSetting['cM'].first[configType].split(',')
-        : jsonDecode(provider.viewSettingsList[_getPayloadIndex(configType)])[configType].split(',');
+        : jsonDecode(provider.viewSettingsList[_getPayloadIndex(configType)])[_getConfigTypeIndex(configType)][configType].split(',');
+  }
+
+  int _getConfigTypeIndex(String configType) {
+    switch(configType) {
+      case 'currentconfig':
+        return 3;
+      case 'rtcconfig':
+        return 2;
+      case 'delayconfig':
+        return 1;
+      case 'scheduleconfig':
+        return 4;
+      default:
+        return 0;
+    }
   }
 
   int _getPayloadIndex(String configType) {

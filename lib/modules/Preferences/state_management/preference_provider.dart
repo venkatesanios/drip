@@ -60,6 +60,7 @@ class PreferenceProvider extends ChangeNotifier {
       "controllerId": controllerId
     };
 
+    print("userData :: $userData");
     try {
       final response = await repository.getUserPreferenceGeneral(userData);
       if(response.statusCode == 200) {
@@ -96,6 +97,7 @@ class PreferenceProvider extends ChangeNotifier {
     }
     try {
       final response = await repository.getUserPreferenceCalibration(userData);
+      print("getUserPreferenceCalibration :: ${response.body}");
       if(response.statusCode == 200) {
         final result = jsonDecode(response.body);
         try {

@@ -41,15 +41,19 @@ class MqttService {
 
   PumpControllerData? _pumpDashboardPayload;
   PumpControllerData? get pumpDashboardPayload => _pumpDashboardPayload;
-  final BehaviorSubject<PumpControllerData?> _pumpDashboardPayloadController = BehaviorSubject<PumpControllerData?>(); // Retains latest value
+  final BehaviorSubject<PumpControllerData?> _pumpDashboardPayloadController = BehaviorSubject<PumpControllerData?>();
   Stream<PumpControllerData?> get pumpDashboardPayloadStream => _pumpDashboardPayloadController.stream;
 
-  final StreamController<Map<String, dynamic>> _ackController = StreamController.broadcast();
+  final StreamController<Map<String, dynamic>?> _ackController = StreamController.broadcast();
+  Stream<Map<String, dynamic>?> get preferenceAckStream => _ackController.stream;
+  Map<String, dynamic>? _preferenceAck;
+  Map<String, dynamic>? get preferenceAck => _preferenceAck;
 
-  Stream<Map<String, dynamic>> get preferenceAck => _ackController.stream;
-
-  void onMessageReceived(Map<String, dynamic> message) {
-    _ackController.add(message);
+  set preferenceAck(Map<String, dynamic>? newPayload) {
+    if(newPayload != null) {
+      _preferenceAck = newPayload;
+      _ackController.add(_preferenceAck);
+    }
   }
 
   set pumpDashboardPayload(PumpControllerData? newPayload) {
@@ -109,7 +113,7 @@ class MqttService {
     }
   }
 
-  void connect() async {
+  Future<void> connect() async {
     assert(_client != null);
     if (!isConnected) {
       try {
@@ -155,11 +159,10 @@ class MqttService {
   void onMqttPayloadReceived(String payload) {
     try {
       Map<String, dynamic> payloadMessage = jsonDecode(payload);
-      if (payloadMessage['mC'] == '2400') {
-        providerState?.updateReceivedPayload(payload, false);
-      }
+      providerState?.updateReceivedPayload(payload, false);
       acknowledgementPayload = payloadMessage;
       if(payloadMessage['mC'] == "SMS") {
+        preferenceAck = payloadMessage;
         // onMessageReceived(payloadMessage);
       }
       if(payloadMessage['mC'] == "LD01") {
