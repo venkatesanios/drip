@@ -6,7 +6,9 @@ import 'package:oro_drip_irrigation/modules/constant/model/constant_setting_type
 import 'package:oro_drip_irrigation/modules/constant/state_management/constant_provider.dart';
 import 'package:oro_drip_irrigation/modules/constant/view/ec_ph_in_constant.dart';
 import 'package:oro_drip_irrigation/modules/constant/view/fertilizer_in_constant.dart';
+import 'package:oro_drip_irrigation/modules/constant/view/global_alarm_in_constant.dart';
 import 'package:oro_drip_irrigation/modules/constant/view/main_valve_in_constant.dart';
+import 'package:oro_drip_irrigation/modules/constant/view/normal_critical_alarm_in_constant.dart';
 import 'package:oro_drip_irrigation/modules/constant/view/pump_in_constant.dart';
 import 'package:oro_drip_irrigation/modules/constant/view/valve_in_constant.dart';
 import 'package:oro_drip_irrigation/modules/constant/view/water_meter_in_constant.dart';
@@ -21,6 +23,8 @@ import 'package:provider/provider.dart';
 import '../../../StateManagement/overall_use.dart';
 import 'channel_in_constant.dart';
 import 'general_in_constant.dart';
+import 'level_in_constant.dart';
+import 'moisture_in_constant.dart';
 
 class ConstantBasePage extends StatefulWidget {
   final Map<String, dynamic> userData;
@@ -113,6 +117,14 @@ class _ConstantBasePageState extends State<ConstantBasePage> with SingleTickerPr
         return ChannelInConstant(constPvd: constPvd, overAllPvd: overAllPvd,);
       }else if(constPvd.listOfConstantMenuModel[index].dealerDefinitionId == 90){
         return EcPhInConstant(constPvd: constPvd, overAllPvd: overAllPvd,);
+      }else if(constPvd.listOfConstantMenuModel[index].dealerDefinitionId == 91){
+        return MoistureInConstant(constPvd: constPvd, overAllPvd: overAllPvd,);
+      }else if(constPvd.listOfConstantMenuModel[index].dealerDefinitionId == 92){
+        return LevelInConstant(constPvd: constPvd, overAllPvd: overAllPvd,);
+      }else if(constPvd.listOfConstantMenuModel[index].dealerDefinitionId == 93){
+        return NormalCriticalInConstant(constPvd: constPvd, overAllPvd: overAllPvd,);
+      }else if(constPvd.listOfConstantMenuModel[index].dealerDefinitionId == 94){
+        return GlobalAlarmInConstant(constPvd: constPvd, overAllPvd: overAllPvd,);
       }else{
         return Text(constPvd.listOfConstantMenuModel[index].parameter);
       }

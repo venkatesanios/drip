@@ -511,10 +511,12 @@ class AppConstants {
   static int mainValveObjectId = 14;
   static int valveObjectId = 13;
   static int levelObjectId = 26;
+  static int irrigationLineObjectId = 2;
   static int waterMeterObjectId = 22;
   static int pressureSensorObjectId = 24;
   static int fertilizerSiteObjectId = 3;
   static int channelObjectId = 10;
   static int ecObjectId = 27;
   static int phObjectId = 28;
+  static int moistureObjectId = 25;
 }

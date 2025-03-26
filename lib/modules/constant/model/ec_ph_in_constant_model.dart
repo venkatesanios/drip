@@ -126,8 +126,8 @@ class EcPhInConstantModel{
           if(ph.isNotEmpty)
             generatePh,
         ],
-        ecPopup: ecPopUpList,
-        phPopup: phPopUpList
+        ecPopup: ec.isNotEmpty ? ecPopUpList : [],
+        phPopup: ph.isNotEmpty ? phPopUpList : []
     );
   }
 

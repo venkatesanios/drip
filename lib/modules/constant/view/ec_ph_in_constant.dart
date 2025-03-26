@@ -68,8 +68,10 @@ class _EcPhInConstantState extends State<EcPhInConstant> {
                   Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Center(child: Text('Ec Sensor', textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).primaryColorLight),)),
-                      Center(child: Text('Ph Sensor', textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).primaryColorLight),)),
+                      if(fertilizerSite.ecPopup.isNotEmpty)
+                        Center(child: Text('Ec Sensor', textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).primaryColorLight),)),
+                      if(fertilizerSite.phPopup.isNotEmpty)
+                        Center(child: Text('Ph Sensor', textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).primaryColorLight),)),
                     ],
                   )
               ),

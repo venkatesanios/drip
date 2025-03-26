@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:oro_drip_irrigation/modules/constant/model/constant_menu_model.dart';
 import 'package:oro_drip_irrigation/modules/constant/model/constant_setting_model.dart';
 import 'package:oro_drip_irrigation/modules/constant/model/ec_ph_in_constant_model.dart';
+import 'package:oro_drip_irrigation/modules/constant/model/normal_critical_alarm_model.dart';
 import 'package:oro_drip_irrigation/modules/constant/model/object_in_constant_model.dart';
 import 'package:oro_drip_irrigation/modules/constant/widget/arrow_tab.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
@@ -24,1947 +25,10 @@ class ConstantProvider extends ChangeNotifier{
       "channel": [],
       "ecPh" : [],
       "analogSensor": [],
-      "moistureSensor": [
-        {
-          "objectId": 25,
-          "objectIds": 0,
-          "sNo": 25.001,
-          "name": "Moisture Sensor 1",
-          "connectionNo": 1,
-          "objectName": "Moisture Sensor",
-          "type": "5",
-          "controllerId": 15,
-          "count": 0,
-          "connectedObject": {},
-          "siteMode": "",
-          "valves": [],
-          "highLow": "Primary",
-          "units": "Bar",
-          "base": "Current",
-          "min": 5,
-          "max": 10
-        },
-        {
-          "objectId": 25,
-          "objectIds": 0,
-          "sNo": 25.002,
-          "name": "Moisture Sensor 2",
-          "connectionNo": 2,
-          "objectName": "Moisture Sensor",
-          "type": "5",
-          "controllerId": 15,
-          "count": 0,
-          "connectedObject": {},
-          "siteMode": "",
-          "valves": [],
-          "highLow": "Secondary",
-          "units": "Bar",
-          "base": "Current",
-          "min": 5,
-          "max": 10
-        },
-        {
-          "objectId": 25,
-          "objectIds": 0,
-          "sNo": 25.003,
-          "name": "Moisture Sensor 3",
-          "connectionNo": 3,
-          "objectName": "Moisture Sensor",
-          "type": "5",
-          "controllerId": 15,
-          "count": 0,
-          "connectedObject": {},
-          "siteMode": "",
-          "valves": [],
-          "highLow": "Primary",
-          "units": "Bar",
-          "base": "Current",
-          "min": 5,
-          "max": 10
-        },
-        {
-          "objectId": 25,
-          "objectIds": 0,
-          "sNo": 25.004,
-          "name": "Moisture Sensor 4",
-          "connectionNo": 4,
-          "objectName": "Moisture Sensor",
-          "type": "5",
-          "controllerId": 15,
-          "count": 0,
-          "connectedObject": {},
-          "siteMode": "",
-          "valves": [],
-          "highLow": "Secondary",
-          "units": "Bar",
-          "base": "Current",
-          "min": 0,
-          "max": 0
-        },
-        {
-          "objectId": 25,
-          "objectIds": 0,
-          "sNo": 25.005,
-          "name": "Moisture Sensor 5",
-          "connectionNo": 1,
-          "objectName": "Moisture Sensor",
-          "type": "5",
-          "controllerId": 21,
-          "count": 0,
-          "connectedObject": {},
-          "siteMode": "",
-          "valves": [],
-          "highLow": "-",
-          "units": "Bar",
-          "base": "Current",
-          "min": 0,
-          "max": 0
-        },
-        {
-          "objectId": 25,
-          "objectIds": 0,
-          "sNo": 25.006,
-          "name": "Moisture Sensor 6",
-          "connectionNo": 2,
-          "objectName": "Moisture Sensor",
-          "type": "5",
-          "controllerId": 21,
-          "count": 0,
-          "connectedObject": {},
-          "siteMode": "",
-          "valves": [],
-          "highLow": "-",
-          "units": "Bar",
-          "base": "Current",
-          "min": 0,
-          "max": 0
-        },
-        {
-          "objectId": 25,
-          "objectIds": 0,
-          "sNo": 25.007,
-          "name": "Moisture Sensor 7",
-          "connectionNo": 3,
-          "objectName": "Moisture Sensor",
-          "type": "5",
-          "controllerId": 21,
-          "count": 0,
-          "connectedObject": {},
-          "siteMode": "",
-          "valves": [],
-          "highLow": "-",
-          "units": "Bar",
-          "base": "Current",
-          "min": 0,
-          "max": 0
-        },
-        {
-          "objectId": 25,
-          "objectIds": 0,
-          "sNo": 25.008,
-          "name": "Moisture Sensor 8",
-          "connectionNo": 4,
-          "objectName": "Moisture Sensor",
-          "type": "5",
-          "controllerId": 21,
-          "count": 0,
-          "connectedObject": {},
-          "siteMode": "",
-          "valves": [],
-          "highLow": "-",
-          "units": "Bar",
-          "base": "Current",
-          "min": 0,
-          "max": 0
-        }
-      ],
-      "levelSensor": [
-        {
-          "objectId": 26,
-          "sensorId": 0,
-          "sNo": 26.001,
-          "name": "Level Sensor 1",
-          "connectionNo": 1,
-          "objectName": "Level Sensor",
-          "type": "3",
-          "controllerId": 7,
-          "highLow": "Primary",
-          "units": "Bar",
-          "base": "Current",
-          "min": 5,
-          "max": 0,
-          "height": 5
-        },
-        {
-          "objectId": 26,
-          "sensorId": 0,
-          "sNo": 26.002,
-          "name": "Level Sensor 2",
-          "connectionNo": 2,
-          "objectName": "Level Sensor",
-          "type": "3",
-          "controllerId": 10,
-          "highLow": "Secondary",
-          "units": "ds/m",
-          "base": "Voltage",
-          "min": 10,
-          "max": 0,
-          "height": 10
-        }
-      ],
-      "normalAlarm": [],
-      "criticalAlarm": [
-        {
-          "name": "LOW FLOW",
-          "scanTime": "00:05:00",
-          "alarmOnStatus": "Skip Irrigation",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "10",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "LOW FLOW",
-          "scanTime": "00:01:00",
-          "alarmOnStatus": "Stop Irrigation",
-          "resetAfterIrrigation": "Yes",
-          "autoResetDuration": "00:00:50",
-          "threshold": "20",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "HIGH FLOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "HIGH FLOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "NO FLOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "NO FLOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "EC HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "EC HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PH LOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PH LOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PH HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PH HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PRESSURE LOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PRESSURE LOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PRESSURE HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PRESSURE HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "NO POWER SUPPLY",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "NO POWER SUPPLY",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "NO COMMUNICATION",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "NO COMMUNICATION",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "WRONG FEEDBACK",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "WRONG FEEDBACK",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "SUMP EMPTY",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "SUMP EMPTY",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "TANK FULL",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "TANK FULL",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "LOW BATTERY",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "LOW BATTERY",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "EC DIFFERENCE",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "EC DIFFERENCE",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PH DIFFERENCE",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PH DIFFERENCE",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PUMP OFF ALARM",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PUMP OFF ALARM",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PRESSURE SWITCH HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PRESSURE SWITCH HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "WIRED NO COMMUNICATION",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "WIRED NO COMMUNICATION",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "100",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "LOW FLOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "LOW FLOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "HIGH FLOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "HIGH FLOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "NO FLOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "NO FLOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "EC HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "EC HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PH LOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PH LOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PH HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PH HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PRESSURE LOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PRESSURE LOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PRESSURE HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PRESSURE HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "NO POWER SUPPLY",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "NO POWER SUPPLY",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "NO COMMUNICATION",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "NO COMMUNICATION",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "WRONG FEEDBACK",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "WRONG FEEDBACK",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "SUMP EMPTY",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "SUMP EMPTY",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "TANK FULL",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "TANK FULL",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "LOW BATTERY",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "LOW BATTERY",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "EC DIFFERENCE",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "EC DIFFERENCE",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PH DIFFERENCE",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PH DIFFERENCE",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PUMP OFF ALARM",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PUMP OFF ALARM",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PRESSURE SWITCH HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PRESSURE SWITCH HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "WIRED NO COMMUNICATION",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "WIRED NO COMMUNICATION",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "LOW FLOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "LOW FLOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "HIGH FLOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "HIGH FLOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "NO FLOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "NO FLOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "EC HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "EC HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PH LOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PH LOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PH HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PH HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PRESSURE LOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PRESSURE LOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PRESSURE HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PRESSURE HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "NO POWER SUPPLY",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "NO POWER SUPPLY",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "NO COMMUNICATION",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "NO COMMUNICATION",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "WRONG FEEDBACK",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "WRONG FEEDBACK",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "SUMP EMPTY",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "SUMP EMPTY",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "TANK FULL",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "TANK FULL",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "LOW BATTERY",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "LOW BATTERY",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "EC DIFFERENCE",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "EC DIFFERENCE",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PH DIFFERENCE",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PH DIFFERENCE",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PUMP OFF ALARM",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PUMP OFF ALARM",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PRESSURE SWITCH HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PRESSURE SWITCH HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "WIRED NO COMMUNICATION",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "WIRED NO COMMUNICATION",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "LOW FLOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "LOW FLOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "HIGH FLOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "HIGH FLOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "NO FLOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "NO FLOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "EC HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "EC HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PH LOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PH LOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PH HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PH HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PRESSURE LOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PRESSURE LOW",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PRESSURE HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PRESSURE HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "NO POWER SUPPLY",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "NO POWER SUPPLY",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "NO COMMUNICATION",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "NO COMMUNICATION",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "WRONG FEEDBACK",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "WRONG FEEDBACK",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "SUMP EMPTY",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "SUMP EMPTY",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "TANK FULL",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "TANK FULL",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "LOW BATTERY",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "LOW BATTERY",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "EC DIFFERENCE",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "EC DIFFERENCE",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PH DIFFERENCE",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PH DIFFERENCE",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PUMP OFF ALARM",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PUMP OFF ALARM",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "PRESSURE SWITCH HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "PRESSURE SWITCH HIGH",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        },
-        {
-          "name": "WIRED NO COMMUNICATION",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Normal"
-        },
-        {
-          "name": "WIRED NO COMMUNICATION",
-          "scanTime": "00:00:00",
-          "alarmOnStatus": "Do Nothing",
-          "resetAfterIrrigation": "No",
-          "autoResetDuration": "00:00:00",
-          "threshold": "0",
-          "unit": "%",
-          "type": "Critical"
-        }
-      ],
-      "globalAlarm": [
-        {
-          "name": "LOW FLOW",
-          "value": false
-        },
-        {
-          "name": "HIGH FLOW",
-          "value": false
-        },
-        {
-          "name": "NO FLOW",
-          "value": false
-        },
-        {
-          "name": "EC HIGH",
-          "value": false
-        },
-        {
-          "name": "PH LOW",
-          "value": true
-        },
-        {
-          "name": "PH HIGH",
-          "value": true
-        },
-        {
-          "name": "PRESSURE LOW",
-          "value": true
-        },
-        {
-          "name": "PRESSURE HIGH",
-          "value": false
-        },
-        {
-          "name": "NO POWER SUPPLY",
-          "value": true
-        },
-        {
-          "name": "NO COMMUNICATION",
-          "value": false
-        },
-        {
-          "name": "WRONG FEEDBACK",
-          "value": false
-        },
-        {
-          "name": "SUMP EMPTY",
-          "value": false
-        },
-        {
-          "name": "TANK FULL",
-          "value": false
-        },
-        {
-          "name": "LOW BATTERY",
-          "value": false
-        },
-        {
-          "name": "EC DIFFERENCE",
-          "value": false
-        },
-        {
-          "name": "PH DIFFERENCE",
-          "value": false
-        },
-        {
-          "name": "PUMP OFF ALARM",
-          "value": false
-        },
-        {
-          "name": "PRESSURE SWITCH HIGH",
-          "value": false
-        },
-        {
-          "name": "WIRED NO COMMUNICATION",
-          "value": false
-        },
-        {
-          "name": "LOW FLOW",
-          "value": false
-        },
-        {
-          "name": "HIGH FLOW",
-          "value": false
-        },
-        {
-          "name": "NO FLOW",
-          "value": false
-        },
-        {
-          "name": "EC HIGH",
-          "value": false
-        },
-        {
-          "name": "PH LOW",
-          "value": false
-        },
-        {
-          "name": "PH HIGH",
-          "value": false
-        },
-        {
-          "name": "PRESSURE LOW",
-          "value": false
-        },
-        {
-          "name": "PRESSURE HIGH",
-          "value": false
-        },
-        {
-          "name": "NO POWER SUPPLY",
-          "value": false
-        },
-        {
-          "name": "NO COMMUNICATION",
-          "value": false
-        },
-        {
-          "name": "WRONG FEEDBACK",
-          "value": false
-        },
-        {
-          "name": "SUMP EMPTY",
-          "value": false
-        },
-        {
-          "name": "TANK FULL",
-          "value": false
-        },
-        {
-          "name": "LOW BATTERY",
-          "value": false
-        },
-        {
-          "name": "EC DIFFERENCE",
-          "value": false
-        },
-        {
-          "name": "PH DIFFERENCE",
-          "value": false
-        },
-        {
-          "name": "PUMP OFF ALARM",
-          "value": false
-        },
-        {
-          "name": "PRESSURE SWITCH HIGH",
-          "value": false
-        },
-        {
-          "name": "WIRED NO COMMUNICATION",
-          "value": false
-        },
-        {
-          "name": "LOW FLOW",
-          "value": false
-        },
-        {
-          "name": "HIGH FLOW",
-          "value": false
-        },
-        {
-          "name": "NO FLOW",
-          "value": false
-        },
-        {
-          "name": "EC HIGH",
-          "value": false
-        },
-        {
-          "name": "PH LOW",
-          "value": false
-        },
-        {
-          "name": "PH HIGH",
-          "value": false
-        },
-        {
-          "name": "PRESSURE LOW",
-          "value": false
-        },
-        {
-          "name": "PRESSURE HIGH",
-          "value": false
-        },
-        {
-          "name": "NO POWER SUPPLY",
-          "value": false
-        },
-        {
-          "name": "NO COMMUNICATION",
-          "value": false
-        },
-        {
-          "name": "WRONG FEEDBACK",
-          "value": false
-        },
-        {
-          "name": "SUMP EMPTY",
-          "value": false
-        },
-        {
-          "name": "TANK FULL",
-          "value": false
-        },
-        {
-          "name": "LOW BATTERY",
-          "value": false
-        },
-        {
-          "name": "EC DIFFERENCE",
-          "value": false
-        },
-        {
-          "name": "PH DIFFERENCE",
-          "value": false
-        },
-        {
-          "name": "PUMP OFF ALARM",
-          "value": false
-        },
-        {
-          "name": "PRESSURE SWITCH HIGH",
-          "value": false
-        },
-        {
-          "name": "WIRED NO COMMUNICATION",
-          "value": false
-        }
-      ],
+      "moistureSensor": [],
+      "levelSensor": [],
+      "normalCriticalAlarm" : [],
+      "globalAlarm": [],
       "controllerReadStatus": "0"
     },
     "default": {
@@ -2084,6 +148,45 @@ class ConstantProvider extends ChangeNotifier{
           "value": false
         }
       ],
+      "alarmOnStatus" : [
+        {'sNo' : 1, 'title' : 'Ignore', 'color' : '0xffA5A5A5'},
+        {'sNo' : 2, 'title' : 'Stop Irrigation', 'color' : '0xff0070D8'},
+        {'sNo' : 3, 'title' : 'Stop Fertigation', 'color' : '0xffEB7C17'},
+        {'sNo' : 4, 'title' : 'Skip Schedule', 'color' : '0xffE73250'},
+      ],
+      "resetAfterIrrigation" : [
+        {'sNo' : 1, 'title' : 'Yes', 'color' : '0xff14AE5C'},
+        {'sNo' : 2, 'title' : 'No', 'color' : '0xffE73250'},
+      ],
+      "globalAlarm" : [
+        {"sNo":1,"title":"LowFlow","widgetTypeId":2,"dataType":"bool","value":false,"hidden":false,"software":true,"hardware":true},
+        {"sNo":2,"title":"HighFlow","widgetTypeId":2,"dataType":"bool","value":false,"hidden":false,"software":true,"hardware":true},
+        {"sNo":3,"title":"NoFlow","widgetTypeId":2,"dataType":"bool","value":false,"hidden":false,"software":true,"hardware":true},
+        {"sNo":4,"title":"EcHigh","widgetTypeId":2,"dataType":"bool","value":false,"hidden":false,"software":true,"hardware":true},
+        {"sNo":5,"title":"PhLow","widgetTypeId":2,"dataType":"bool","value":false,"hidden":false,"software":true,"hardware":true},
+        {"sNo":6,"title":"PhHigh","widgetTypeId":2,"dataType":"bool","value":false,"hidden":false,"software":true,"hardware":true},
+        {"sNo":7,"title":"PressureLow","widgetTypeId":2,"dataType":"bool","value":false,"hidden":false,"software":true,"hardware":true},
+        {"sNo":8,"title":"PressureHigh","widgetTypeId":2,"dataType":"bool","value":false,"hidden":false,"software":true,"hardware":true},
+        {"sNo":9,"title":"NoPowerSupply","widgetTypeId":2,"dataType":"bool","value":false,"hidden":false,"software":true,"hardware":true},
+        {"sNo":10,"title":"NoCommunication","widgetTypeId":2,"dataType":"bool","value":false,"hidden":false,"software":true,"hardware":true},
+        {"sNo":11,"title":"WrongFeedback","widgetTypeId":2,"dataType":"bool","value":false,"hidden":false,"software":true,"hardware":true},
+        {"sNo":12,"title":"SumpTankEmpty","widgetTypeId":2,"dataType":"bool","value":false,"hidden":false,"software":true,"hardware":true},
+        {"sNo":13,"title":"TopTankFull","widgetTypeId":2,"dataType":"bool","value":false,"hidden":false,"software":true,"hardware":true},
+        {"sNo":14,"title":"LowBattery","widgetTypeId":2,"dataType":"bool","value":false,"hidden":false,"software":true,"hardware":true},
+        {"sNo":15,"title":"EcDifference","widgetTypeId":2,"dataType":"bool","value":false,"hidden":false,"software":true,"hardware":true},
+        {"sNo":16,"title":"PhDifference","widgetTypeId":2,"dataType":"bool","value":false,"hidden":false,"software":true,"hardware":true},
+        {"sNo":17,"title":"PumpOffAlarm","widgetTypeId":2,"dataType":"bool","value":false,"hidden":false,"software":true,"hardware":true},
+        {"sNo":18,"title":"PressureSwitch","widgetTypeId":2,"dataType":"bool","value":false,"hidden":false,"software":true,"hardware":true},
+        {"sNo":19,"title":"WiredNoCommunication","widgetTypeId":2,"dataType":"bool","value":false,"hidden":false,"software":true,"hardware":true},
+      ],
+      "normalCriticalAlarm" : [
+        {"sNo":1,"title":"Scan Time","widgetTypeId":3,"dataType":"String","value":"00:00:00","hidden":false,"software":true,"hardware":true},
+        {"sNo":2,"title":"Alarm On Status","widgetTypeId":6,"dataType":"int","value":1,"hidden":false,"software":true,"hardware":true},
+        {"sNo":3,"title":"Reset After Irrigation","widgetTypeId":6,"dataType":"int","value":1,"hidden":false,"software":true,"hardware":true},
+        {"sNo":4,"title":"Auto Reset Duration","widgetTypeId":3,"dataType":"String","value":"00:00:00","hidden":false,"software":true,"hardware":true},
+        {"sNo":5,"title":"Threshold Value","widgetTypeId":1,"dataType":"int","value":0,"hidden":false,"software":true,"hardware":true},
+        {"sNo":6,"title":"Units","widgetTypeId":8,"dataType":"String","value":"","hidden":false,"software":true,"hardware":true}
+      ],
       "general" : [
         {"sNo":1,"title":"Number of Programs","widgetTypeId":1,"dataType":"int","value":0,"hidden":false,"software":true,"hardware":false},
         {"sNo":2,"title":"Number of Valve Groups","widgetTypeId":1,"dataType":"int","value":0,"hidden":false,"software":true,"hardware":false},
@@ -2154,7 +257,16 @@ class ConstantProvider extends ChangeNotifier{
         {"sNo":9,"title":"Average Filter Speed","widgetTypeId":1,"dataType":"int","value":0,"hidden":false,"software":true,"hardware":true},
         {"sNo":10,"title":"Extra Limit","widgetTypeId":1,"dataType":"int","value":0,"hidden":false,"software":true,"hardware":true}
       ],
-
+      "moistureSensor" : [
+        {"sNo":1,"title":"High Low","widgetTypeId":6,"dataType":"int","value":1,"hidden":false,"software":true,"hardware":false},
+      ],
+      "moistureMode" : [
+        {'sNo' : 1, 'title' : 'High', 'color' : '0xff14AE5C'},
+        {'sNo' : 2, 'title' : 'Low', 'color' : '0xffE73250'},
+      ],
+      "levelSensor" : [
+        {"sNo":1,"title":"Tank Height","widgetTypeId":1,"dataType":"double","value":0.0,"hidden":false,"software":true,"hardware":true}
+      ],
       "constantMenu": [
         {
           "dealerDefinitionId": 82,
@@ -3510,6 +1622,19 @@ class ConstantProvider extends ChangeNotifier{
       "location": 2.002
     },
     {
+      "objectId": 3,
+      "sNo": 3.002,
+      "name": "Fertilization Site 2",
+      "connectionNo": null,
+      "objectName": "Fertilization Site",
+      "type": "-",
+      "controllerId": null,
+      "count": null,
+      "connectedObject": null,
+      "siteMode": null,
+      "location": 2.002
+    },
+    {
       "objectId": 4,
       "sNo": 4.001,
       "name": "Filtration Site 1",
@@ -3926,6 +2051,32 @@ class ConstantProvider extends ChangeNotifier{
       "location": 3.001
     },
     {
+      "objectId": 27,
+      "sNo": 27.003,
+      "name": "EC Sensor 3",
+      "connectionNo": 7,
+      "objectName": "EC Sensor",
+      "type": "3",
+      "controllerId": 10,
+      "count": null,
+      "connectedObject": null,
+      "siteMode": null,
+      "location": 3.002
+    },
+    {
+      "objectId": 27,
+      "sNo": 27.004,
+      "name": "EC Sensor 4",
+      "connectionNo": 7,
+      "objectName": "EC Sensor",
+      "type": "3",
+      "controllerId": 10,
+      "count": null,
+      "connectedObject": null,
+      "siteMode": null,
+      "location": 3.002
+    },
+    {
       "objectId": 28,
       "sNo": 28.001,
       "name": "PH Sensor 1",
@@ -4202,6 +2353,8 @@ class ConstantProvider extends ChangeNotifier{
 
   List<ConstantMenuModel> listOfConstantMenuModel = [];
   List<ConstantSettingModel> general = [];
+  List<ConstantSettingModel> globalAlarm = [];
+  List<NormalCriticalAlarmModel> normalCriticalAlarm = [];
   List<ObjectInConstantModel> pump = [];
   List<ObjectInConstantModel> mainValve = [];
   List<ObjectInConstantModel> valve = [];
@@ -4209,6 +2362,8 @@ class ConstantProvider extends ChangeNotifier{
   List<ObjectInConstantModel> fertilizerSite = [];
   List<ObjectInConstantModel> channel = [];
   List<EcPhInConstantModel> ecPh = [];
+  List<ObjectInConstantModel> moisture = [];
+  List<ObjectInConstantModel> level = [];
   List<ConstantSettingModel> defaultPumpSetting = [];
   List<ConstantSettingModel> defaultMainValveSetting = [];
   List<ConstantSettingModel> defaultValveSetting = [];
@@ -4216,9 +2371,15 @@ class ConstantProvider extends ChangeNotifier{
   List<ConstantSettingModel> defaultFertilizerSiteSetting = [];
   List<ConstantSettingModel> defaultChannelSetting = [];
   List<ConstantSettingModel> defaultEcPhSetting = [];
+  List<ConstantSettingModel> defaultMoistureSetting = [];
+  List<ConstantSettingModel> defaultLevelSetting = [];
+  List<ConstantSettingModel> defaultNormalCriticalAlarmSetting = [];
   List<PopUpItemModel> mainValveMode = [];
   List<PopUpItemModel> fertilizerControlFlag = [];
   List<PopUpItemModel> channelMode = [];
+  List<PopUpItemModel> moistureMode = [];
+  List<PopUpItemModel> alarmOnStatus = [];
+  List<PopUpItemModel> resetAfterIrrigation = [];
 
   String getName(dynamic sNo){
     var name = '';
@@ -4292,6 +2453,9 @@ class ConstantProvider extends ChangeNotifier{
       List<dynamic> listOfChannelObject = [];
       List<dynamic> listOfEcObject = [];
       List<dynamic> listOfPhObject = [];
+      List<dynamic> listOfMoistureObject = [];
+      List<dynamic> listOfLevelObject = [];
+      List<dynamic> listOfIrrigationLineObject = [];
 
       for (var object in configObjectDataFromHttp) {
         if(object['objectId'] == AppConstants.pumpObjectId){
@@ -4312,6 +2476,12 @@ class ConstantProvider extends ChangeNotifier{
           listOfEcObject.add(object);
         }else if(object['objectId'] == AppConstants.phObjectId){
           listOfPhObject.add(object);
+        }else if(object['objectId'] == AppConstants.moistureObjectId){
+          listOfMoistureObject.add(object);
+        }else if(object['objectId'] == AppConstants.levelObjectId){
+          listOfLevelObject.add(object);
+        }else if(object['objectId'] == AppConstants.irrigationLineObjectId){
+          listOfIrrigationLineObject.add(object);
         }
       }
 
@@ -4324,6 +2494,41 @@ class ConstantProvider extends ChangeNotifier{
         }
         return ConstantSettingModel.fromJson(menu, oldValue);
       }).toList();
+
+      // update globalAlarm
+      globalAlarm = (defaultData['globalAlarm'] as List<dynamic>).map((menu){
+        dynamic oldValue;
+        List<dynamic> generalOldData = constantOldData['globalAlarm'] as List<dynamic>;
+        if(generalOldData.any((oldSetting) => oldSetting['sNo'] == menu['sNo'])){
+          oldValue = generalOldData.firstWhere((oldSetting) => oldSetting['sNo'] == menu['sNo'])['value'];
+        }
+        return ConstantSettingModel.fromJson(menu, oldValue);
+      }).toList();
+      if (kDebugMode) {
+        print('global Alarm updated..');
+      }
+
+      // update normal and critical
+      alarmOnStatus = generatePopUpItemModel(defaultData: defaultData, keyName: 'alarmOnStatus');
+      resetAfterIrrigation = generatePopUpItemModel(defaultData: defaultData, keyName: 'resetAfterIrrigation');
+      defaultNormalCriticalAlarmSetting = generateDefaultSetting(defaultData: defaultData, keyName: 'normalCriticalAlarm');
+      normalCriticalAlarm = listOfIrrigationLineObject.map((line){
+        List<dynamic> lineData = (constantOldData['normalCriticalAlarm'] as List<dynamic>).where((oldLine) => oldLine['sNo'] == line['sNo']).toList();
+        return NormalCriticalAlarmModel.fromJson(
+            objectData: line,
+            defaultSetting: defaultData['normalCriticalAlarm'],
+            globalAlarm: defaultData['globalAlarm'],
+            oldSetting: lineData.firstOrNull
+        );
+      }).toList();
+      if (kDebugMode) {
+        print('normalCriticalAlarm updated..');
+    }
+      // print("normalCriticalAlarm -- ${normalCriticalAlarm.map((alarm){
+      //   return alarm.toJson();
+      // }).toList()}");
+
+
 
       //update pump
       defaultPumpSetting = generateDefaultSetting(defaultData: defaultData, keyName: 'pump');
@@ -4383,8 +2588,6 @@ class ConstantProvider extends ChangeNotifier{
             return false;
           }
         }).toList();
-        print("defaultData['ecPh'] : ${defaultData['ecPh']}");
-        print("constantOldData['ecPh'] : ${constantOldData['ecPh']}");
         ecPh = fertilizerSiteWithEcPh.map((site){
           return EcPhInConstantModel.fromJson(
               objectData: site,
@@ -4395,11 +2598,26 @@ class ConstantProvider extends ChangeNotifier{
           );
         }).toList();
       }
-      var printEcPhList = ecPh.map((ecPhSetting) => ecPhSetting.toJson()).toList();
-      print('ecPh data :: ${jsonEncode(printEcPhList)}');
       if (kDebugMode) {
         print('ecPh updated..');
       }
+
+      // update moisture
+      moistureMode = generatePopUpItemModel(defaultData: defaultData, keyName: 'moistureMode');
+      defaultMoistureSetting = generateDefaultSetting(defaultData: defaultData, keyName: 'moistureSensor');
+      moisture = generateObjectInConstantModel(listOfObject: listOfMoistureObject, defaultData: defaultData, constantOldData: constantOldData, keyName: 'moistureSensor');
+      if (kDebugMode) {
+        print('moisture updated..');
+      }
+
+      // update level
+      defaultLevelSetting = generateDefaultSetting(defaultData: defaultData, keyName: 'levelSensor');
+      level = generateObjectInConstantModel(listOfObject: listOfLevelObject, defaultData: defaultData, constantOldData: constantOldData, keyName: 'levelSensor');
+      if (kDebugMode) {
+        print('level updated..');
+      }
+
+
 
 
 
