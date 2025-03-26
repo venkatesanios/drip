@@ -33,6 +33,7 @@ class PumpStationViewModel extends ChangeNotifier {
 
   PumpStationViewModel(context, this.mvWaterSource, this.mvFilterSite, this.mvFertilizerSite, this.mvIrrLineData, this.mvCurrentLineName) {
     payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
+    displaySite();
   }
 
   bool shouldUpdate(List<dynamic> newRelayStatus, List<dynamic> pumpPayload) {
@@ -45,24 +46,7 @@ class PumpStationViewModel extends ChangeNotifier {
     return false;
   }
 
-
-  void updateOutputStatus(List<String> outputStatusPayload, List<String> pumpPayload){
-    print(outputStatusPayload);
-
-    //payloadProvider.outputStatusPayload.clear();
-
-    List<String> filteredPumpStatus = outputStatusPayload
-        .where((item) => item.startsWith('5.')).toList();
-    updatePumpStatus(mvWaterSource, filteredPumpStatus, pumpPayload);
-
-    List<String> filteredValveStatus = outputStatusPayload
-        .where((item) => item.startsWith('13.')).toList();
-    updateValveStatus(mvIrrLineData!, filteredValveStatus);
-
-    List<String> filteredFilterStatus = outputStatusPayload
-        .where((item) => item.startsWith('11.')).toList();
-    updateFilterStatus(mvFilterSite, filteredFilterStatus);
-
+  void displaySite(){
     int totalWaterSources = mvWaterSource.length;
     int totalOutletPumps = mvWaterSource.fold(0, (sum, source) => sum + source.outletPump.length);
 
@@ -93,11 +77,30 @@ class PumpStationViewModel extends ChangeNotifier {
       });
 
     notifyListeners();
+  }
 
+
+  void updateOutputStatus(List<String> outputStatusPayload, List<String> pumpPayload){
+    print(outputStatusPayload);
+
+    //payloadProvider.outputStatusPayload.clear();
+
+    List<String> filteredPumpStatus = outputStatusPayload
+        .where((item) => item.startsWith('5.')).toList();
+    updatePumpStatus(mvWaterSource, filteredPumpStatus, pumpPayload);
+
+    List<String> filteredValveStatus = outputStatusPayload
+        .where((item) => item.startsWith('13.')).toList();
+    updateValveStatus(mvIrrLineData!, filteredValveStatus);
+
+    List<String> filteredFilterStatus = outputStatusPayload
+        .where((item) => item.startsWith('11.')).toList();
+    updateFilterStatus(mvFilterSite, filteredFilterStatus);
+
+    notifyListeners();
   }
 
   void updatePumpStatus(List<WaterSource> waterSource, List<dynamic> filteredPumpStatus, List<dynamic> pumpStatusList) {
-
 
     for (var source in waterSource) {
       for (var pump in source.outletPump) {

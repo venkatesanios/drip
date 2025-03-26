@@ -1,6 +1,11 @@
 
 
 
+import 'package:oro_drip_irrigation/Models/customer/site_model.dart';
+import 'package:provider/provider.dart';
+
+import '../../view_models/customer/customer_screen_controller_view_model.dart';
+
 class UserConstant {
   final ConstantData constant;
   final DefaultData defaultData;
@@ -10,7 +15,7 @@ class UserConstant {
     required this.defaultData,
   });
 
-  factory UserConstant.fromJson(Map<String, dynamic> json) {
+  factory UserConstant.fromJson(context, Map<String, dynamic> json) {
     List<Map<String, dynamic>> configObject = [];
     List<Map<String, dynamic>> alarmList = [];
 
@@ -22,7 +27,7 @@ class UserConstant {
           .map((e) => e as Map<String, dynamic>)
           .toList();
 
-      alarmList =  (json['default']['alarm']as List)
+      alarmList =  (json['default']['alarmType']as List)
           .map((e) => e as Map<String, dynamic>)
           .toList();
 
@@ -31,7 +36,7 @@ class UserConstant {
     }
 
     return UserConstant(
-      constant: ConstantData.fromJson(json['constant'], configObject, alarmList),
+      constant: ConstantData.fromJson(context, json['constant'], configObject, alarmList),
       defaultData: DefaultData.fromJson(json['default']),
     );
   }
@@ -49,8 +54,7 @@ class ConstantData {
   final List<GlobalAlarmModel>? globalAlarm;
   final List<LevelSensor>? levelSensor;
   final List<MoistureSensor>? moistureSensor;
-
-
+  final List<ConstantFertilizerSite>? fertilization;
 
 
   ConstantData({
@@ -65,9 +69,10 @@ class ConstantData {
     required this.globalAlarm,
     required this.levelSensor,
     required this.moistureSensor,
+    required this.fertilization,
   });
 
-  factory ConstantData.fromJson(Map<String, dynamic> jsonConstant, List<Map<String, dynamic>> jsonConfigObject, List<Map<String, dynamic>> alarm) {
+  factory ConstantData.fromJson(context, Map<String, dynamic> jsonConstant, List<Map<String, dynamic>> jsonConfigObject, List<Map<String, dynamic>> alarm) {
 
     List<Map<String, dynamic>> valveDataList = jsonConfigObject
         .where((obj) => obj['objectId'] == 13)
@@ -97,11 +102,12 @@ class ConstantData {
         ?.map((cAlarm) => GlobalAlarmModel.fromMap(cAlarm))
         .toList() ?? [];
 
-    if (alarm.isNotEmpty) {
+
+    if (criticalAlarm.isEmpty) {
       for (var alarmItem in alarm) {
         criticalAlarm.add(AllAlarmModel.fromMap({
           "sNo": alarmItem['sNo'],
-          "name": alarmItem['name'],
+          "name": alarmItem['title'],
           "scanTime": '00:00:00',
           "unit": "%",
           "alarmOnStatus": 'Do Nothing',
@@ -112,7 +118,7 @@ class ConstantData {
         }));
         criticalAlarm.add(AllAlarmModel.fromMap({
           "sNo": alarmItem['sNo'],
-          "name": alarmItem['name'],
+          "name": alarmItem['title'],
           "scanTime": '00:00:00',
           "unit": "%",
           "alarmOnStatus": 'Do Nothing',
@@ -123,7 +129,7 @@ class ConstantData {
         }));
 
         globalAlarm.add(GlobalAlarmModel.fromMap({
-          "name": alarmItem['name'],
+          "name": alarmItem['title'],
           "value": false,
         }));
       }
@@ -136,6 +142,27 @@ class ConstantData {
     List<Map<String, dynamic>>  moistureSensorDataList = jsonConfigObject
         .where((obj) => obj['objectId'] == 25)
         .toList();
+
+    final viewModel = Provider.of<CustomerScreenControllerViewModel>(context, listen: false);
+
+    List<Map<String, dynamic>> fertilizerData = viewModel
+        .mySiteList
+        .data[viewModel.sIndex]
+        .master[viewModel.mIndex]
+        .config
+        .fertilizerSite
+        .map((site) => site.toJson())
+        .toList();
+
+
+    List<ConstantFertilizerSite> fertilizerSite = (jsonConstant['fertilization'] != null &&
+        jsonConstant['fertilization'] is List && (jsonConstant['fertilization'] as List).isNotEmpty)
+        ? (jsonConstant['fertilization'] as List)
+        .map((frtSite) => ConstantFertilizerSite.fromJson(frtSite))
+        .toList()
+        : (fertilizerData.isNotEmpty
+        ? fertilizerData.map((site) => ConstantFertilizerSite.fromJson(site)).toList()
+        : []);
 
     return ConstantData(
       controllerReadStatus: jsonConstant['controllerReadStatus'] ?? '0',
@@ -190,6 +217,8 @@ class ConstantData {
           ? (jsonConstant['moistureSensor'] as List<dynamic>).map((pmp) => MoistureSensor.fromJson(pmp)).toList()
           : moistureSensorDataList.map((pmp) => MoistureSensor.fromJson(pmp)).toList(),
 
+      fertilization : fertilizerSite,
+
     );
   }
 
@@ -206,6 +235,7 @@ class ConstantData {
       "globalAlarm": globalAlarm?.map((e) => e.toJson()).toList() ?? [],
       "levelSensor": levelSensor?.map((e) => e.toJson()).toList() ?? [],
       "moistureSensor": moistureSensor?.map((e) => e.toJson()).toList() ?? [],
+      "fertilization": fertilization?.map((e) => e.toJson()).toList() ?? [],
     };
   }
 
@@ -807,6 +837,253 @@ class MoistureSensor {
   }
 }
 
+class ConstantFertilizerSite {
+  final int objectId;
+  final double sNo;
+  final String name;
+  final List<Channel> channel;
+  final List<Ec> ecSensor;
+  final List<Ph> phSensor;
+
+  String minimalOnTime;
+  String minimalOffTime;
+  String boosterDelay;
+
+  ConstantFertilizerSite({
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+    required this.channel,
+    required this.ecSensor,
+    required this.phSensor,
+
+    required this.minimalOnTime,
+    required this.minimalOffTime,
+    required this.boosterDelay,
+  });
+
+  factory ConstantFertilizerSite.fromJson(Map<String, dynamic> json) {
+    return ConstantFertilizerSite(
+      objectId: json['objectId'],
+      sNo: json['sNo'].toDouble(),
+      name: json['name'],
+      channel: (json['channel'] as List).map((e) => Channel.fromJson(e)).toList(),
+      ecSensor: (json['ec'] as List).map((e) => Ec.fromJson(e)).toList(),
+      phSensor: (json['ph'] as List).map((e) => Ph.fromJson(e)).toList(),
+
+      minimalOnTime: json.containsKey('minimalOnTime') ? json['minimalOnTime'] : "00:00:00",
+      minimalOffTime: json.containsKey('minimalOffTime') ? json['minimalOffTime'] : "00:00:00",
+      boosterDelay: json.containsKey('boosterDelay') ? json['boosterDelay'] : "00:00:00",
+
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'channel': channel.map((e) => e.toJson()).toList(),
+      'ec': ecSensor.map((e) => e.toJson()).toList(),
+      'ph': phSensor.map((e) => e.toJson()).toList(),
+      'minimalOnTime': minimalOnTime,
+      'minimalOffTime': minimalOffTime,
+      'boosterDelay': boosterDelay,
+    };
+  }
+
+
+}
+
+class Channel {
+  final int objectId;
+  final double sNo;
+  final String name;
+
+  String ratioTxtValue;
+  String pulseTxtValue;
+  String nmlFlowTxtValue;
+  String injectorMode;
+
+
+  Channel({
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+    required this.ratioTxtValue,
+    required this.pulseTxtValue,
+    required this.nmlFlowTxtValue,
+    required this.injectorMode,
+  });
+
+  factory Channel.fromJson(Map<String, dynamic> json) {
+    return Channel(
+      objectId: json['objectId'],
+      sNo: json['sNo'].toDouble(),
+      name: json['name'],
+      ratioTxtValue: json.containsKey('ratioTxtValue') ? json['ratioTxtValue'] : "0",
+      pulseTxtValue: json.containsKey('pulseTxtValue') ? json['pulseTxtValue'] : "0",
+      nmlFlowTxtValue: json.containsKey('nmlFlowTxtValue') ? json['nmlFlowTxtValue'] : "0",
+      injectorMode: json.containsKey('injectorMode') ? json['injectorMode'] : "Concentration",
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'ratioTxtValue': ratioTxtValue,
+      'pulseTxtValue': pulseTxtValue,
+      'nmlFlowTxtValue': nmlFlowTxtValue,
+      'injectorMode': injectorMode,
+    };
+  }
+}
+
+class Ec {
+  final int objectId;
+  final double sNo;
+  final String name;
+
+  final String controlCycle;
+  final String delta;
+  final String fineTuning;
+  final String coarseTuning;
+  final String deadband;
+  final String integ;
+  final String controlSensor;
+  final String avgFiltSpeed;
+  final String percentage;
+
+
+  Ec({
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+
+    required this.controlCycle,
+    required this.delta,
+    required this.fineTuning,
+    required this.coarseTuning,
+    required this.deadband,
+    required this.integ,
+    required this.controlSensor,
+    required this.avgFiltSpeed,
+    required this.percentage,
+
+  });
+
+  factory Ec.fromJson(Map<String, dynamic> json) {
+    return Ec(
+      objectId: json['objectId'],
+      sNo: json['sNo'].toDouble(),
+      name: json['name'],
+
+      controlCycle: json['controlCycle'],
+      delta: json['delta'],
+      fineTuning: json['fineTuning'],
+      coarseTuning: json['coarseTuning'],
+      deadband: json['deadband'],
+      integ: json['integ'],
+      controlSensor: json['controlSensor'],
+      avgFiltSpeed: json['avgFiltSpeed'],
+      percentage: json['percentage'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+
+      'controlCycle': controlCycle,
+      'delta': delta,
+      'fineTuning': fineTuning,
+      'coarseTuning': coarseTuning,
+      'deadband': deadband,
+      'integ': integ,
+      'controlSensor': controlSensor,
+      'avgFiltSpeed': avgFiltSpeed,
+      'percentage': percentage,
+    };
+  }
+
+
+}
+
+class Ph {
+  final int objectId;
+  final double sNo;
+  final String name;
+
+  final String controlCycle;
+  final String delta;
+  final String fineTuning;
+  final String coarseTuning;
+  final String deadband;
+  final String integ;
+  final String controlSensor;
+  final String avgFiltSpeed;
+  final String percentage;
+
+
+  Ph({
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+
+    required this.controlCycle,
+    required this.delta,
+    required this.fineTuning,
+    required this.coarseTuning,
+    required this.deadband,
+    required this.integ,
+    required this.controlSensor,
+    required this.avgFiltSpeed,
+    required this.percentage,
+
+  });
+
+  factory Ph.fromJson(Map<String, dynamic> json) {
+    return Ph(
+      objectId: json['objectId'],
+      sNo: json['sNo'].toDouble(),
+      name: json['name'],
+
+      controlCycle: json['controlCycle'],
+      delta: json['delta'],
+      fineTuning: json['fineTuning'],
+      coarseTuning: json['coarseTuning'],
+      deadband: json['deadband'],
+      integ: json['integ'],
+      controlSensor: json['controlSensor'],
+      avgFiltSpeed: json['avgFiltSpeed'],
+      percentage: json['percentage'],
+
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+
+      'controlCycle': controlCycle,
+      'delta': delta,
+      'fineTuning': fineTuning,
+      'coarseTuning': coarseTuning,
+      'deadband': deadband,
+      'integ': integ,
+      'controlSensor': controlSensor,
+      'avgFiltSpeed': avgFiltSpeed,
+      'percentage': percentage,
+    };
+  }
+
+}
 
 
 class DefaultData {
@@ -820,7 +1097,7 @@ class DefaultData {
 
   factory DefaultData.fromJson(Map<String, dynamic> json) {
     return DefaultData(
-      alarms: (json['alarm'] as List).map((e) => Alarm.fromJson(e)).toList(),
+      alarms: (json['alarmType'] as List).map((e) => Alarm.fromJson(e)).toList(),
       constantMenus: (json['constantMenu'] as List)
           .map((e) => ConstantMenu.fromJson(e)).toList(),
     );
@@ -831,21 +1108,18 @@ class Alarm {
   final int sNo;
   final String name;
   final String unit;
-  final bool value;
 
   Alarm({
     required this.sNo,
     required this.name,
     required this.unit,
-    required this.value,
   });
 
   factory Alarm.fromJson(Map<String, dynamic> json) {
     return Alarm(
       sNo: json['sNo'],
-      name: json['name'],
+      name: json['title'],
       unit: json['unit'],
-      value: json['value'],
     );
   }
 }
@@ -853,13 +1127,11 @@ class Alarm {
 class ConstantMenu {
   final int dealerDefinitionId;
   final String parameter;
-  final String value;
   bool isSelected;
 
   ConstantMenu({
     required this.dealerDefinitionId,
     required this.parameter,
-    required this.value,
     this.isSelected = false,
   });
 
@@ -867,7 +1139,6 @@ class ConstantMenu {
     return ConstantMenu(
       dealerDefinitionId: json['dealerDefinitionId'],
       parameter: json['parameter'],
-      value: json['value'],
     );
   }
 }

@@ -580,6 +580,7 @@ class FertilizerSite {
   List<Ec>? ec;
   List<Ph>? ph;
 
+
   FertilizerSite({
     required this.objectId,
     required this.sNo,
@@ -596,6 +597,7 @@ class FertilizerSite {
     required this.selector,
     required this.ec,
     required this.ph,
+
   });
 
   factory FertilizerSite.fromJson(Map<String, dynamic> json) {
@@ -620,6 +622,26 @@ class FertilizerSite {
           ? (json['ph'] as List).map((e) => Ph.fromJson(e)).toList()
           : [],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'connectionNo': connectionNo,
+      'objectName': objectName,
+      'type': type,
+      'controllerId': controllerId,
+      'count': count,
+      'siteMode': siteMode,
+      'channel': channel.map((e) => e.toJson()).toList(),
+      'boosterPump': boosterPump.map((e) => e.toJson()).toList(),
+      'agitator': agitator.map((e) => e.toJson()).toList(),
+      'selector': selector,
+      'ec': ec?.map((e) => e.toJson()).toList(),
+      'ph': ph?.map((e) => e.toJson()).toList(),
+    };
   }
 }
 
@@ -677,6 +699,20 @@ class Channel {
       level: json['level'].toDouble(),
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'connectionNo': connectionNo,
+      'objectName': objectName,
+      'type': type,
+      'controllerId': controllerId,
+      'count': count,
+      'level': level,
+    };
+  }
 }
 
 class Ec {
@@ -713,6 +749,19 @@ class Ec {
       controllerId: json['controllerId'],
       count: json['count'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'connectionNo': connectionNo,
+      'objectName': objectName,
+      'type': type,
+      'controllerId': controllerId,
+      'count': count,
+    };
   }
 
 
@@ -754,6 +803,18 @@ class Ph {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'connectionNo': connectionNo,
+      'objectName': objectName,
+      'type': type,
+      'controllerId': controllerId,
+      'count': count,
+    };
+  }
 
 }
 
@@ -794,6 +855,19 @@ class BoosterPump {
       count: json['count'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'connectionNo': connectionNo,
+      'objectName': objectName,
+      'type': type,
+      'controllerId': controllerId,
+      'count': count,
+    };
+  }
 }
 
 class Agitator {
@@ -833,6 +907,19 @@ class Agitator {
       count: json['count'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'connectionNo': connectionNo,
+      'objectName': objectName,
+      'type': type,
+      'controllerId': controllerId,
+      'count': count,
+    };
+  }
 }
 
 class IrrigationLineData {
@@ -868,11 +955,14 @@ class IrrigationLineData {
 
   factory IrrigationLineData.fromJson(Map<String, dynamic> json) {
     double cFilterSNo = 0.0;
-    if(json['centralFiltration'] is int){
-      cFilterSNo = (json['centralFiltration'] as num).toDouble();
-    }else{
-      cFilterSNo = json['centralFiltration']['sNo'];
+    if (json['centralFiltration'] != null && json['centralFiltration'].toString().trim().isNotEmpty) {
+      if (json['centralFiltration'] is int) {
+        cFilterSNo = (json['centralFiltration'] as num).toDouble();
+      } else if (json['centralFiltration'] is Map && json['centralFiltration'].containsKey('sNo')) {
+        cFilterSNo = json['centralFiltration']['sNo'];
+      }
     }
+
 
     return IrrigationLineData(
       objectId: json['objectId'],

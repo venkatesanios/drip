@@ -21,14 +21,15 @@ class Constant extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return ChangeNotifierProvider(
-      create: (_) => ConstantViewModel(Repository(HttpService()))
+      create: (_) => ConstantViewModel(context, Repository(HttpService()))
         ..getConstantData(customerId, controllerId),
       child: Consumer<ConstantViewModel>(
         builder: (context, vm, _) {
 
-          return vm.isLoading
-              ? Padding(
+          return vm.isLoading?
+          Padding(
                   padding: EdgeInsets.only(
                       left: MediaQuery.of(context).size.width / 2 - 95,
                       right: MediaQuery.of(context).size.width / 2 - 95),
@@ -52,35 +53,39 @@ class Constant extends StatelessWidget {
                       indicatorColor: Colors.transparent,
                       dividerColor: Colors.transparent,
                       overlayColor: WidgetStateProperty.all<Color>(Colors.transparent),
+                      //labelPadding: EdgeInsets.zero,
                       tabs: vm.filteredMenu.map((filteredItem) {
                         return Tab(
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              ColorFiltered(
-                                colorFilter: ColorFilter.mode(
-                                  filteredItem.isSelected
-                                      ? const Color(0xFF005B8D)
-                                      : const Color(0xFFFFFFFF),
-                                  BlendMode.srcIn,
-                                ),
-                                child: SvgPicture.asset(
-                                  'assets/svg_images/white_arrow.svg',
-                                  width: 250,
-                                  height: 35,
-                                ),
-                              ),
-                              Positioned(
-                                child: Text(
-                                  filteredItem.parameter, // Set tab text dynamically
-                                  style: TextStyle(
-                                    color: filteredItem.isSelected ? Colors.white : Colors.black,
-                                    fontSize: 16,
+                          child: SizedBox(
+                            width: 170,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                ColorFiltered(
+                                  colorFilter: ColorFilter.mode(
+                                    filteredItem.isSelected
+                                        ? const Color(0xFF005B8D)
+                                        : const Color(0xFFFFFFFF),
+                                    BlendMode.srcIn,
                                   ),
-                                  textAlign: TextAlign.center,
+                                  child: SvgPicture.asset(
+                                    'assets/svg_images/white_arrow.svg',
+                                    width: 250,
+                                    height: 35,
+                                  ),
                                 ),
-                              ),
-                            ],
+                                Positioned(
+                                  child: Text(
+                                    filteredItem.parameter, // Set tab text dynamically
+                                    style: TextStyle(
+                                      color: filteredItem.isSelected ? Colors.white : Colors.black,
+                                      fontSize: 16,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         );
                       }).toList(),
@@ -580,10 +585,10 @@ class Constant extends StatelessWidget {
                                             ))),
                                       ]);
                                 }),
-                              ) :
+                              ):
                               const Center(child: Text("Water Meter Data not available"));
 
-                            case "Critical Alarm":
+                            case "Alarm":
                               return vm.userConstant.constant.criticalAlarm!.isNotEmpty?
                               DataTable2(
                                 border: const TableBorder(
@@ -611,7 +616,7 @@ class Constant extends StatelessWidget {
                                   return DataRow(
                                       color: WidgetStateProperty.resolveWith<Color?>(
                                             (Set<WidgetState> states) {
-                                          return index.isEven ? Color(0xFFF6F6F6) : Color(0xFFFDFDFD) ; // Alternating row colors
+                                          return index.isEven ? const Color(0xFFF6F6F6) : const Color(0xFFFDFDFD) ; // Alternating row colors
                                         },
                                       ),
                                       cells: [
@@ -634,21 +639,21 @@ class Constant extends StatelessWidget {
                                               itemBuilder: (BuildContext context) {
                                                 return ['Do Nothing', 'Stop Irrigation', 'Stop Fertigation', 'Skip Irrigation']
                                                     .map((String value) => PopupMenuItem<String>(value: value,
-                                                    height: 30,
-                                                    child: Row(
-                                                      children: [
+                                                  height: 30,
+                                                  child: Row(
+                                                    children: [
                                                       Container(
-                                                      width: 12.29,
-                                                      height: 12.29,
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.redAccent,
-                                                        shape: BoxShape.circle,
+                                                        width: 12.29,
+                                                        height: 12.29,
+                                                        decoration: const BoxDecoration(
+                                                          color: Colors.redAccent,
+                                                          shape: BoxShape.circle,
+                                                        ),
                                                       ),
-                                                    ),
-                                                    const SizedBox(width: 8),/*userConstant.constant.criticalAlarm![index].alarmOnStatus*/
-                                                    Text(value, style: const TextStyle(fontSize: 17)),
-                                                ],
-                                                ),
+                                                      const SizedBox(width: 8),/*userConstant.constant.criticalAlarm![index].alarmOnStatus*/
+                                                      Text(value, style: const TextStyle(fontSize: 17)),
+                                                    ],
+                                                  ),
                                                 ))
                                                     .toList();
                                               },
@@ -1123,6 +1128,387 @@ class Constant extends StatelessWidget {
                                 }).toList(),
                               ):
                               const Center(child: Text("Moisture Sensor Data not available"));
+
+                            case "Fertilizer":
+                              return vm.userConstant.constant.fertilization!.isNotEmpty
+                                  ? SingleChildScrollView(
+                                scrollDirection: Axis.vertical,
+                                child: Column(
+                                  children: vm.userConstant.constant.fertilization!.map((site) {
+                                    return Container(
+                                      width: MediaQuery.sizeOf(context).width - 180,
+                                      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 10), // Adds spacing
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(10),
+                                        boxShadow: [
+                                          BoxShadow(color: Colors.grey.shade300, blurRadius: 4, spreadRadius: 2)
+                                        ],
+                                      ),
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                            flex: 1,
+                                              child: SizedBox(
+                                                height: (site.channel.length*50)+50,
+                                                child: Center(
+                                                  child: Text(
+                                                    site.name,
+                                                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                                  ),
+                                                ),
+                                              )
+                                          ),
+                                          Container(width: 0.5, height: (site.channel.length*50)+50, color:  Colors.grey,),
+                                          Expanded(
+                                            flex: 6,
+                                            child: Column(
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Expanded(
+                                                        flex: 2,
+                                                        child: SizedBox(
+                                                          height: (site.channel.length*50)+50,
+                                                          child: DataTable(
+                                                            columnSpacing: 10,
+                                                            border: const TableBorder(
+                                                              horizontalInside: BorderSide.none,
+                                                              verticalInside: BorderSide.none,
+                                                            ),
+                                                            columns: const [
+                                                              DataColumn(label: Text("Minimal On Time")),
+                                                              DataColumn(label: Text("Minimal Off Time")),
+                                                              DataColumn(label: Text("Booster Off delay")),
+                                                            ],
+                                                            rows: List.generate(1, (index) {
+                                                              return DataRow(cells: [
+                                                                DataCell(TextButton(
+                                                                    onPressed: () {
+                                                                      vm.showDurationInputDialog(
+                                                                          context,
+                                                                          vm.userConstant.constant.valveList![index].duration, index, 'minimalOnTime');
+                                                                    },
+                                                                    child: Text(site.minimalOnTime))),
+                                                                DataCell(TextButton(
+                                                                    onPressed: () {
+                                                                      vm.showDurationInputDialog(
+                                                                          context,
+                                                                          vm.userConstant.constant.valveList![index].duration, index, 'minimalOffTime');
+                                                                    },
+                                                                    child: Text(site.minimalOffTime))),
+                                                                DataCell(TextButton(
+                                                                    onPressed: () {
+                                                                      vm.showDurationInputDialog(
+                                                                          context,
+                                                                          vm.userConstant.constant.valveList![index].duration, index, 'boosterDelay');
+                                                                    },
+                                                                    child: Text(site.boosterDelay))),
+                                                              ]);
+                                                            }).toList(),
+                                                          ),
+                                                        )
+                                                    ),
+                                                    Container(width: 0.5, height: (site.channel.length*50)+50, color:  Colors.grey,),// Spacing between title and table
+                                                    Expanded(
+                                                      flex: 4,
+                                                      child: DataTable(
+                                                        columnSpacing: 10,
+                                                        border: const TableBorder(
+                                                          horizontalInside: BorderSide.none,
+                                                          verticalInside: BorderSide.none,
+                                                        ),
+                                                        columns: const [
+                                                          DataColumn(label: Text("Name")),
+                                                          DataColumn(label: Text("Ratio (I/pulse')")),
+                                                          DataColumn(label: Text("Shortest Pulse'")),
+                                                          DataColumn(label: Text("Nominal Flow (I/hr)")),
+                                                          DataColumn(label: Text("Injector Mode")),
+                                                        ],
+                                                        rows: site.channel.asMap().entries.map<DataRow>((entry) {
+                                                          int index = entry.key; // Get index
+                                                          var channel = entry.value; // Get channel data
+
+                                                          return DataRow(cells: [
+                                                            DataCell(Text(channel.name)),
+                                                            DataCell(SizedBox(
+                                                              width: 100,
+                                                              child: TextField(
+                                                                controller: vm.txtEdControllersCheRatio[index],
+                                                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                                                keyboardType: TextInputType.number,
+                                                                textAlign: TextAlign.center,
+                                                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                                                decoration: const InputDecoration(
+                                                                  border: InputBorder.none,
+                                                                  hintText: "Enter value",
+                                                                  hintStyle: TextStyle(color: Colors.grey),
+                                                                ),
+                                                                onChanged: (value) {
+                                                                  vm.updateGeneralValve(index, value, 'ratioTxtValue');
+                                                                },
+                                                              ),
+                                                            )),
+                                                            DataCell(SizedBox(
+                                                              width: 100,
+                                                              child: TextField(
+                                                                controller: vm.txtEdControllersChePulse[index],
+                                                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                                                keyboardType: TextInputType.number,
+                                                                textAlign: TextAlign.center,
+                                                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                                                decoration: const InputDecoration(
+                                                                  border: InputBorder.none,
+                                                                  hintText: "Pulse value",
+                                                                  hintStyle: TextStyle(color: Colors.grey),
+                                                                ),
+                                                                onChanged: (value) {
+                                                                  vm.updateGeneralValve(index, value, 'pulseTxtValue');
+                                                                },
+                                                              ),
+                                                            )),
+                                                            DataCell(SizedBox(
+                                                              width: 100,
+                                                              child: TextField(
+                                                                controller: vm.txtEdControllersCheNF[index],
+                                                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                                                keyboardType: TextInputType.number,
+                                                                textAlign: TextAlign.center,
+                                                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                                                decoration: const InputDecoration(
+                                                                  border: InputBorder.none,
+                                                                  hintText: "Nominal flow",
+                                                                  hintStyle: TextStyle(color: Colors.grey),
+                                                                ),
+                                                                onChanged: (value) {
+                                                                  vm.updateGeneralValve(index, value, 'nmlFlowTxtValue');
+                                                                },
+                                                              ),
+                                                            )),
+                                                            DataCell(Center(
+                                                                child: PopupMenuButton<String>(
+                                                                  onSelected: (String selectedValue) {
+                                                                    vm.ddOnChange(index, selectedValue, 'Injector Mode');
+                                                                  },
+                                                                  itemBuilder: (BuildContext context) {
+                                                                    return ['Concentration', 'Ec controlled', 'Ph controlled', 'Regular']
+                                                                        .map((String value) => PopupMenuItem<String>(
+                                                                      value: value,
+                                                                      height: 30,
+                                                                      child: Row(
+                                                                        children: [
+                                                                          const SizedBox(width: 8),
+                                                                          Text(value, style: const TextStyle(fontSize: 17)),
+                                                                        ],
+                                                                      ),
+                                                                    ))
+                                                                        .toList();
+                                                                  },
+                                                                  child: Text(
+                                                                    channel.injectorMode,
+                                                                    style: const TextStyle(fontSize: 16, color: Colors.black),
+                                                                  ),
+                                                                )
+
+                                                            )),
+                                                          ]);
+                                                        }).toList(),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                const Divider(height: 0),
+                                                Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: DataTable(
+                                                        columnSpacing: 0,
+                                                        border: const TableBorder(
+                                                          horizontalInside: BorderSide.none,
+                                                          verticalInside: BorderSide.none,
+                                                        ),
+                                                        headingRowHeight: 40,
+                                                        columns: const [
+                                                          DataColumn(label: Text("Name")),
+                                                          DataColumn(label: Center(child: Text("Control Cycle"))),
+                                                          DataColumn(label: Center(child: Text("Delta"))),
+                                                          DataColumn(label: Center(child: Text("Fine Tuning"))),
+                                                          DataColumn(label: Center(child: Text("Coarse Tuning"))),
+                                                          DataColumn(label: Center(child: Text("Deadband"))),
+                                                          DataColumn(label: Center(child: Text("Integ"))),
+                                                          DataColumn(label: Center(child: Text("Control Sensor"))),
+                                                          DataColumn(label: Center(child: Text("Avg Filt Speed"))),
+                                                          DataColumn(label: Center(child: Text("Percentage"))),
+                                                        ],
+                                                        rows: site.ecSensor.asMap().entries.map<DataRow>((entry) {
+                                                          int index = entry.key; // Get index
+                                                          var channel = entry.value; // Get channel data
+
+                                                          return DataRow(cells: [
+                                                            DataCell(Text(channel.name)),
+                                                            DataCell(SizedBox(
+                                                              width: 100,
+                                                              child: TextField(
+                                                                controller: vm.txtEdControllersCheRatio[index],
+                                                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                                                keyboardType: TextInputType.number,
+                                                                textAlign: TextAlign.center,
+                                                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                                                decoration: const InputDecoration(
+                                                                  border: InputBorder.none,
+                                                                  hintText: "Enter value",
+                                                                  hintStyle: TextStyle(color: Colors.grey),
+                                                                ),
+                                                                onChanged: (value) {
+                                                                  vm.updateGeneralValve(index, value, 'ratioTxtValue');
+                                                                },
+                                                              ),
+                                                            )),
+                                                            DataCell(SizedBox(
+                                                              width: 100,
+                                                              child: TextField(
+                                                                controller: vm.txtEdControllersChePulse[index],
+                                                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                                                keyboardType: TextInputType.number,
+                                                                textAlign: TextAlign.center,
+                                                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                                                decoration: const InputDecoration(
+                                                                  border: InputBorder.none,
+                                                                  hintText: "Pulse value",
+                                                                  hintStyle: TextStyle(color: Colors.grey),
+                                                                ),
+                                                                onChanged: (value) {
+                                                                  vm.updateGeneralValve(index, value, 'pulseTxtValue');
+                                                                },
+                                                              ),
+                                                            )),
+                                                            DataCell(SizedBox(
+                                                              width: 100,
+                                                              child: TextField(
+                                                                controller: vm.txtEdControllersCheNF[index],
+                                                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                                                keyboardType: TextInputType.number,
+                                                                textAlign: TextAlign.center,
+                                                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                                                decoration: const InputDecoration(
+                                                                  border: InputBorder.none,
+                                                                  hintText: "Nominal flow",
+                                                                  hintStyle: TextStyle(color: Colors.grey),
+                                                                ),
+                                                                onChanged: (value) {
+                                                                  vm.updateGeneralValve(index, value, 'nmlFlowTxtValue');
+                                                                },
+                                                              ),
+                                                            )),
+                                                            DataCell(SizedBox(
+                                                              width: 100,
+                                                              child: TextField(
+                                                                controller: vm.txtEdControllersCheNF[index],
+                                                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                                                keyboardType: TextInputType.number,
+                                                                textAlign: TextAlign.center,
+                                                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                                                decoration: const InputDecoration(
+                                                                  border: InputBorder.none,
+                                                                  hintText: "Nominal flow",
+                                                                  hintStyle: TextStyle(color: Colors.grey),
+                                                                ),
+                                                                onChanged: (value) {
+                                                                  vm.updateGeneralValve(index, value, 'nmlFlowTxtValue');
+                                                                },
+                                                              ),
+                                                            )),
+                                                            DataCell(Text(channel.name)),
+                                                            DataCell(SizedBox(
+                                                              width: 100,
+                                                              child: TextField(
+                                                                controller: vm.txtEdControllersCheRatio[index],
+                                                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                                                keyboardType: TextInputType.number,
+                                                                textAlign: TextAlign.center,
+                                                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                                                decoration: const InputDecoration(
+                                                                  border: InputBorder.none,
+                                                                  hintText: "Enter value",
+                                                                  hintStyle: TextStyle(color: Colors.grey),
+                                                                ),
+                                                                onChanged: (value) {
+                                                                  vm.updateGeneralValve(index, value, 'ratioTxtValue');
+                                                                },
+                                                              ),
+                                                            )),
+                                                            DataCell(SizedBox(
+                                                              width: 100,
+                                                              child: TextField(
+                                                                controller: vm.txtEdControllersChePulse[index],
+                                                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                                                keyboardType: TextInputType.number,
+                                                                textAlign: TextAlign.center,
+                                                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                                                decoration: const InputDecoration(
+                                                                  border: InputBorder.none,
+                                                                  hintText: "Pulse value",
+                                                                  hintStyle: TextStyle(color: Colors.grey),
+                                                                ),
+                                                                onChanged: (value) {
+                                                                  vm.updateGeneralValve(index, value, 'pulseTxtValue');
+                                                                },
+                                                              ),
+                                                            )),
+                                                            DataCell(SizedBox(
+                                                              width: 100,
+                                                              child: TextField(
+                                                                controller: vm.txtEdControllersCheNF[index],
+                                                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                                                keyboardType: TextInputType.number,
+                                                                textAlign: TextAlign.center,
+                                                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                                                decoration: const InputDecoration(
+                                                                  border: InputBorder.none,
+                                                                  hintText: "Nominal flow",
+                                                                  hintStyle: TextStyle(color: Colors.grey),
+                                                                ),
+                                                                onChanged: (value) {
+                                                                  vm.updateGeneralValve(index, value, 'nmlFlowTxtValue');
+                                                                },
+                                                              ),
+                                                            )),
+                                                            DataCell(SizedBox(
+                                                              width: 100,
+                                                              child: TextField(
+                                                                controller: vm.txtEdControllersCheNF[index],
+                                                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                                                keyboardType: TextInputType.number,
+                                                                textAlign: TextAlign.center,
+                                                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                                                decoration: const InputDecoration(
+                                                                  border: InputBorder.none,
+                                                                  hintText: "Nominal flow",
+                                                                  hintStyle: TextStyle(color: Colors.grey),
+                                                                ),
+                                                                onChanged: (value) {
+                                                                  vm.updateGeneralValve(index, value, 'nmlFlowTxtValue');
+                                                                },
+                                                              ),
+                                                            )),
+                                                          ]);
+                                                        }).toList(),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              ):
+                              const Center(child: Text("Fertilizer Data not available"));
 
                           }
                           return Center(child: Text("${filteredItem.parameter} Screen"));
