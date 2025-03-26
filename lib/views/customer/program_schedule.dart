@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/program_library.dart';
 import 'package:oro_drip_irrigation/Screens/planning/fiterbackwash.dart';
 import 'package:oro_drip_irrigation/modules/calibration/view/calibration_screen.dart';
+import 'package:oro_drip_irrigation/modules/constant/view/constant_base_page.dart';
 import 'package:oro_drip_irrigation/modules/fertilizer_set/view/fertilizer_Set_screen.dart';
 import 'package:oro_drip_irrigation/modules/global_limit/view/global_limit_screen.dart';
 
@@ -105,6 +106,34 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
       case 1:
         return ProgramLibraryScreenNew(customerId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber, userId: widget.userId, fromDealer: false, groupId: widget.groupId, categoryId: widget.categoryId,);
       case 66:
+        return watersourceUI(userId: widget.userId, controllerId: widget.controllerID, deviceID: widget.imeiNumber, menuId: 66,);
+      case 67:
+        return VirtualMeterScreen(userId: widget.userId, controllerId: widget.controllerID, menuId: 67, deviceId: widget.imeiNumber);
+      // case 68:
+      //   return RadiationSetUI(userId: widget.customerID, controllerId: widget.controllerID, );
+      case 69:
+        return GroupListScreen(userId: widget.userId, controllerId: widget.controllerID, deviceId: widget.imeiNumber,);
+      case 70:
+      //   return ConditionScreen(customerId: widget.customerID, controllerId: widget.controllerID, imeiNo: widget.imeiNumber, isProgram: false, serialNumber: 0,);
+      case 71:
+        return FrostMobUI(userId: widget.customerID, controllerId: widget.controllerID,deviceID: widget.imeiNumber, menuId: 71,);
+      case 72:
+        return FilterBackwashUI(userId: widget.userId, controllerId: widget.controllerID, deviceId: widget.imeiNumber, customerId: widget.customerID, fromDealer: false,);
+      case 73:
+        return FertilizerSetScreen(userData: {'userId' : widget.customerID, 'controllerId' : widget.controllerID, 'deviceId' : widget.imeiNumber});
+      case 74:
+        return GlobalLimitScreen(userData: {'userId' : widget.customerID, 'controllerId' : widget.controllerID, 'deviceId' : widget.imeiNumber});
+      case 75:
+        return SystemDefinition(userId: widget.userId, controllerId: widget.controllerID, deviceId: widget.imeiNumber, customerId: widget.customerID,);
+      // case 76:
+      //   return ProgramQueueScreen(userId: widget.customerID, controllerId: widget.controllerID, cutomerId: widget.customerID, customerId: widget.customerID, deviceId: widget.imeiNumber,);
+      // case 77:
+      //   return WeatherScreen(userId: widget.customerID, controllerId: widget.controllerID,deviceID: widget.imeiNumber,initialIndex: 0,);
+      case 78:
+        return PreferenceMainScreen(userId: widget.userId, controllerId: widget.controllerID, customerId: widget.customerID, deviceId: widget.imeiNumber, menuId: 0,);
+      case 79:
+        return ConstantBasePage(userData: {'userId' : widget.customerID, 'controllerId' : widget.controllerID, 'deviceId' : widget.imeiNumber});
+      case 80:
         return Names(userID: widget.customerID, customerID: widget.customerID, controllerId: widget.controllerID, menuId: 0, imeiNo: widget.imeiNumber, );
       case 67:
         return PreferenceMainScreen(userId: widget.userId, controllerId: widget.controllerID, customerId: widget.customerID, deviceId: widget.imeiNumber, menuId: 0,);
@@ -217,7 +246,7 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
                         width: double.infinity,
                         height: double.infinity,
                         decoration: BoxDecoration(
-                            color: const Color(0xffE6EDF5),
+                          color: Colors.white,
                             borderRadius: BorderRadius.circular(20)),
                         child: Padding(
                           padding: const EdgeInsets.all(10.0),

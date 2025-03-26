@@ -14,6 +14,7 @@ import 'StateManagement/mqtt_payload_provider.dart';
 import 'StateManagement/overall_use.dart';
 
 import 'flavors.dart';
+import 'modules/constant/state_management/constant_provider.dart';
 
 
 FutureOr<void> main() async {
@@ -30,6 +31,7 @@ FutureOr<void> main() async {
         ChangeNotifierProvider(create: (_) => OverAllUse()),
         ChangeNotifierProvider(create: (_) => PreferenceProvider()),
         ChangeNotifierProvider(create: (_) => SystemDefinitionProvider()),
+        ChangeNotifierProvider(create: (_) => ConstantProviderMani()),
         ChangeNotifierProvider(create: (_) => ConstantProvider()),
       ],
       child: MyApp(),

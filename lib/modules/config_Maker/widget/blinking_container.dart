@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../Constants/properties.dart';
+import '../../../Constants/properties.dart';
 
 class BlinkingContainer extends StatefulWidget {
   final Widget child;

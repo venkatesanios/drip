@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../modal_in_constant.dart';
 
-class ConstantProvider with ChangeNotifier {
+class ConstantProviderMani with ChangeNotifier {
   List<Map<String, dynamic>> generalUpdated = [];
   List<AlarmNew> overAllAlarm = [];
   List<Pump> pumps = [];
