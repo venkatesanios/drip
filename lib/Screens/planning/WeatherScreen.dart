@@ -308,6 +308,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                   //     // );
                                   //   }
                                   // },
+
                                 );
                               },
                             );
@@ -1162,8 +1163,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
           weathernewlive = WeatherData.fromJson(jsonData);
           // weatherdatairrigationline = IrrigationLine.fromJson(jsonData['data']['irrigationLine']);
           // weatherdatadevicelist = Device.fromJson(jsonData['data']['deviceList']);
-
-
           weatherdatairrigationline = List<IrrigationLine>.from(
             jsonData['data']['irrigationLine'].map((data) => IrrigationLine.fromJson(data)),
           );
