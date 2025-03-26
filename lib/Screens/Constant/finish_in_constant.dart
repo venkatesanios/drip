@@ -50,7 +50,7 @@ class _FinishInConstantState extends State<FinishInConstant> {
 
   Future<void> sendPumpData() async {
     var headers = {'Content-Type': 'application/json'};
-    var provider = Provider.of<ConstantProvider>(context, listen: false);
+    var provider = Provider.of<ConstantProviderMani>(context, listen: false);
 
 
 

@@ -194,7 +194,7 @@ class _HoursMinutesSecondsState extends State<HoursMinutesSeconds> {
               )
             ],
           ),
-        SizedBox(height: 10,),
+        const SizedBox(height: 10,),
         if(viewWidget == false)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -258,7 +258,7 @@ class _HoursMinutesSecondsState extends State<HoursMinutesSeconds> {
 
             ],
           ),
-        SizedBox(height: 50,),
+        const SizedBox(height: 50,),
         if(keyBoardMode == false)
           Column(
             children: [

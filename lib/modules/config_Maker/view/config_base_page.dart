@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/StateManagement/overall_use.dart';
 import 'package:provider/provider.dart';
 import '../model/device_model.dart';
 import '../state_management/config_maker_provider.dart';
@@ -29,7 +30,7 @@ class _ConfigBasePageState extends State<ConfigBasePage> {
     // TODO: implement initState
     super.initState();
     print("widget.masterData :: ${jsonEncode(widget.masterData)}");
-    // configPvd = Provider.of<ConfigMakerProvider>(context, listen: false);
+    configPvd = Provider.of<ConfigMakerProvider>(context, listen: false);
     // listOfDevices = configPvd.fetchData({"userId":3,"customerId":4,"controllerId":1,"deviceId":"E8FB1C3501D1","deviceName":"xMm","categoryId":1,"categoryName":"xMm","modelId":1,"modelName":"xMm1000_R","groupId":1,"groupName":"LK Demo","connectingObjectId":["1","2","3","4","1","2","3","4"]});
     // listOfDevices = configPvd.fetchData({"userId":3,"customerId":4,"controllerId":8,"deviceId":"223344AAEEFF","deviceName":"xMp","categoryId":2,"categoryName":"xMp","modelId":9,"modelName":"xMp2000GOOO","groupId":1,"groupName":"LK Demo","connectingObjectId":["5","22","24","26","40"],});
     // listOfDevices = configPvd.fetchData({"userId":3,"customerId":4,"controllerId":13,"deviceId":"E8EB1B04DB38","deviceName":"xMp","categoryId":2,"categoryName":"xMp","modelId":9,"modelName":"xMp2000GOOO","groupId":1,"groupName":"LK Demo","connectingObjectId":["5","22","24","26","40"]});

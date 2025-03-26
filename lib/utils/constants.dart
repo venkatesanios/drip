@@ -458,7 +458,15 @@ class AppConstants {
   static String pulseCode = '6';
   static String i2cCode = '7';
   static List<int> pumpModelList = [5, 6, 7, 8, 9, 10];
+  static int pumpObjectId = 5;
+  static int filterObjectId = 11;
+  static int mainValveObjectId = 14;
+  static int valveObjectId = 13;
   static int levelObjectId = 26;
   static int waterMeterObjectId = 22;
   static int pressureSensorObjectId = 24;
+  static int fertilizerSiteObjectId = 3;
+  static int channelObjectId = 10;
+  static int ecObjectId = 27;
+  static int phObjectId = 28;
 }

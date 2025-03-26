@@ -31,7 +31,7 @@ class _ConstantInConfigState extends State<ConstantInConfig> {
 
   Future<Map<String, dynamic>> fetchData() async {
     try {
-      var provider = Provider.of<ConstantProvider>(context, listen: false);
+      var provider = Provider.of<ConstantProviderMani>(context, listen: false);
       final response = await httpService.postRequest("/user/constant/get", {
         "userId": widget.userId,
         "controllerId": widget.controllerId,

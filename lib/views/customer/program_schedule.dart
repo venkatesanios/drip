@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/program_library.dart';
 import 'package:oro_drip_irrigation/Screens/planning/fiterbackwash.dart';
 import 'package:oro_drip_irrigation/modules/calibration/view/calibration_screen.dart';
+import 'package:oro_drip_irrigation/modules/constant/view/constant_base_page.dart';
 import 'package:oro_drip_irrigation/modules/fertilizer_set/view/fertilizer_Set_screen.dart';
 import 'package:oro_drip_irrigation/modules/global_limit/view/global_limit_screen.dart';
 
@@ -136,7 +137,7 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
       case 78:
         return PreferenceMainScreen(userId: widget.userId, controllerId: widget.controllerID, customerId: widget.customerID, deviceId: widget.imeiNumber, menuId: 0,);
       case 79:
-        return ConstantInConfig(userId: widget.customerID, deviceId: widget.imeiNumber, customerId: widget.customerID, controllerId: widget.controllerID);
+        return ConstantBasePage(userData: {'userId' : widget.customerID, 'controllerId' : widget.controllerID, 'deviceId' : widget.imeiNumber});
       case 80:
         return Names(userID: widget.customerID, customerID: widget.customerID, controllerId: widget.controllerID, menuId: 0, imeiNo: widget.imeiNumber, );
       // case 81:
@@ -228,7 +229,7 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
                         width: double.infinity,
                         height: double.infinity,
                         decoration: BoxDecoration(
-                            color: const Color(0xffE6EDF5),
+                          color: Colors.white,
                             borderRadius: BorderRadius.circular(20)),
                         child: Padding(
                           padding: const EdgeInsets.all(10.0),

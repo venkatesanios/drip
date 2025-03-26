@@ -34,7 +34,7 @@ class _CriticalAlarmInConstantState extends State<CriticalAlarmInConstant> {
     super.initState();
     onStatus = List.generate(widget.alarm.length, (index) => 'Yes');
 
-    var provider = Provider.of<ConstantProvider>(context, listen: false);
+    var provider = Provider.of<ConstantProviderMani>(context, listen: false);
 
     if (provider.overAllAlarm.isEmpty) {
       for (int i = 0; i < widget.alarm.length; i++) {
@@ -81,7 +81,7 @@ class _CriticalAlarmInConstantState extends State<CriticalAlarmInConstant> {
   @override
   Widget build(BuildContext context) {
     var overAllAlarm =
-        Provider.of<ConstantProvider>(context, listen: false).overAllAlarm;
+        Provider.of<ConstantProviderMani>(context, listen: false).overAllAlarm;
 
     return Scaffold(
       body: Padding(
@@ -121,7 +121,7 @@ class _CriticalAlarmInConstantState extends State<CriticalAlarmInConstant> {
                 PopupMenuButton<String>(
                   onSelected: (String selectedValue) {
 
-                    final provider = Provider.of<ConstantProvider>(context, listen: false);
+                    final provider = Provider.of<ConstantProviderMani>(context, listen: false);
                     provider.overAllAlarm[index].resetAfterIrrigation = selectedValue;
 
                     sourceOnChange(selectedValue, index);
@@ -153,7 +153,7 @@ class _CriticalAlarmInConstantState extends State<CriticalAlarmInConstant> {
                 PopupMenuButton<String>(
                   onSelected: (String selectedValue) {
 
-                    final provider = Provider.of<ConstantProvider>(context, listen: false);
+                    final provider = Provider.of<ConstantProviderMani>(context, listen: false);
                     provider.overAllAlarm[index].alarmOnStatus = selectedValue;
 
                     sourceOnChange(selectedValue, index);
@@ -195,7 +195,7 @@ class _CriticalAlarmInConstantState extends State<CriticalAlarmInConstant> {
   }
 
   Widget getTimePicker(int index, String field, double? initialSeconds, AlarmNew alarm) {
-    final provider = Provider.of<ConstantProvider>(context, listen: false);
+    final provider = Provider.of<ConstantProviderMani>(context, listen: false);
 
     return CustomTimePicker(
       index: index,
@@ -230,7 +230,7 @@ class _CriticalAlarmInConstantState extends State<CriticalAlarmInConstant> {
 
 
   Widget editableTableCell(int index, String field, AlarmNew alarm) {
-    final provider = Provider.of<ConstantProvider>(context, listen: false);
+    final provider = Provider.of<ConstantProviderMani>(context, listen: false);
 
     return SizedBox(
       width: 100,
