@@ -166,28 +166,30 @@ class ConstantData {
 
     return ConstantData(
       controllerReadStatus: jsonConstant['controllerReadStatus'] ?? '0',
-      generalMenu : (jsonConstant['general'] as List<dynamic>?)
-          ?.map((general) => GeneralMenu.fromJson(general))
-          .toList() ??
-          [
-            GeneralMenu.fromJson({"sNo": 1, "title": "Number of Programs", "widgetTypeId": 1, "value": "0"}),
-            GeneralMenu.fromJson({"sNo": 2, "title": "Number of Valve Groups", "widgetTypeId": 1, "value": "0"}),
-            GeneralMenu.fromJson({"sNo": 3, "title": "Number of Conditions", "widgetTypeId": 1, "value": "0"}),
-            GeneralMenu.fromJson({"sNo": 4, "title": "Run List Limit", "widgetTypeId": 1, "value": "0"}),
-            GeneralMenu.fromJson({"sNo": 5, "title": "Fertilizer Leakage Limit", "widgetTypeId": 1, "value": "0"}),
-            GeneralMenu.fromJson({"sNo": 6, "title": "Reset Time", "widgetTypeId": 3, "value": "00:00:00"}),
-            GeneralMenu.fromJson({"sNo": 7, "title": "No Pressure Delay", "widgetTypeId": 3, "value": "00:00:00"}),
-            GeneralMenu.fromJson({"sNo": 8, "title": "Common dosing coefficient", "widgetTypeId": 1, "value": "0"}),
-            GeneralMenu.fromJson({"sNo": 9, "title": "Water pulse before dosing", "widgetTypeId": 2, "value": false}),
-            GeneralMenu.fromJson({"sNo": 10, "title": "Pump on after valve on", "widgetTypeId": 2, "value": false}),
-            GeneralMenu.fromJson({"sNo": 11, "title": "Lora Key 1", "widgetTypeId": 1, "value": "0"}),
-            GeneralMenu.fromJson({"sNo": 12, "title": "Lora Key 2", "widgetTypeId": 1, "value": "0"}),
-          ],
+      generalMenu: (jsonConstant['general'] as List<dynamic>?)?.isNotEmpty == true
+          ? jsonConstant['general']!
+          .map((general) => GeneralMenu.fromJson(general))
+          .toList()
+          : [
+        GeneralMenu.fromJson({"sNo": 1, "title": "Number of Programs", "widgetTypeId": 1, "value": "0"}),
+        GeneralMenu.fromJson({"sNo": 2, "title": "Number of Valve Groups", "widgetTypeId": 1, "value": "0"}),
+        GeneralMenu.fromJson({"sNo": 3, "title": "Number of Conditions", "widgetTypeId": 1, "value": "0"}),
+        GeneralMenu.fromJson({"sNo": 4, "title": "Run List Limit", "widgetTypeId": 1, "value": "0"}),
+        GeneralMenu.fromJson({"sNo": 5, "title": "Fertilizer Leakage Limit", "widgetTypeId": 1, "value": "0"}),
+        GeneralMenu.fromJson({"sNo": 6, "title": "Reset Time", "widgetTypeId": 3, "value": "00:00:00"}),
+        GeneralMenu.fromJson({"sNo": 7, "title": "No Pressure Delay", "widgetTypeId": 3, "value": "00:00:00"}),
+        GeneralMenu.fromJson({"sNo": 8, "title": "Common dosing coefficient", "widgetTypeId": 1, "value": "0"}),
+        GeneralMenu.fromJson({"sNo": 9, "title": "Water pulse before dosing", "widgetTypeId": 2, "value": false}),
+        GeneralMenu.fromJson({"sNo": 10, "title": "Pump on after valve on", "widgetTypeId": 2, "value": false}),
+        GeneralMenu.fromJson({"sNo": 11, "title": "Lora Key 1", "widgetTypeId": 1, "value": "0"}),
+        GeneralMenu.fromJson({"sNo": 12, "title": "Lora Key 2", "widgetTypeId": 1, "value": "0"}),
+      ],
 
-      valveList: (jsonConstant['valve'] as List<dynamic>?)
-          ?.map((val) => ValveData.fromJson(val))
-          .toList() ??
-          valveDataList.map((val) => ValveData.fromJson(val)).toList(),
+      valveList: (jsonConstant['valve'] as List<dynamic>?)?.isNotEmpty == true
+          ? jsonConstant['valve']!
+          .map((val) => ValveData.fromJson(val))
+          .toList()
+          : valveDataList.map((val) => ValveData.fromJson(val)).toList(),
 
       pumpList: (jsonConstant['pump'] as List<dynamic>?)?.isNotEmpty == true
           ? (jsonConstant['pump'] as List<dynamic>).map((pmp) => Pump.fromJson(pmp)).toList()
@@ -1009,7 +1011,6 @@ class Ec {
       'percentage': percentage,
     };
   }
-
 
 }
 

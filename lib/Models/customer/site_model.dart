@@ -932,6 +932,9 @@ class IrrigationLineData {
   final int? controllerId;
   final dynamic count;
   final List<Pump> irrigationPump;
+  final List<SensorModel> prsSwitch;
+  final List<SensorModel> pressureIn;
+
   final double? centralFiltration;
   //final double? localFiltration;
   final List<Valve> valves;
@@ -948,12 +951,16 @@ class IrrigationLineData {
     required this.controllerId,
     required this.count,
     required this.irrigationPump,
+    required this.prsSwitch,
+    required this.pressureIn,
     required this.centralFiltration,
     //required this.localFiltration,
     required this.valves,
   });
 
   factory IrrigationLineData.fromJson(Map<String, dynamic> json) {
+    print(json);
+    print(json['pressureSwitch']);
     double cFilterSNo = 0.0;
     if (json['centralFiltration'] != null && json['centralFiltration'].toString().trim().isNotEmpty) {
       if (json['centralFiltration'] is int) {
@@ -962,7 +969,6 @@ class IrrigationLineData {
         cFilterSNo = json['centralFiltration']['sNo'];
       }
     }
-
 
     return IrrigationLineData(
       objectId: json['objectId'],
@@ -973,6 +979,21 @@ class IrrigationLineData {
       type: json['type'],
       controllerId: json['controllerId'],
       count: json['count'],
+      prsSwitch: (json['pressureSwitch'] == null || json['pressureSwitch'].isEmpty)
+          ? []
+          : (json['pressureSwitch'] is List)
+          ? (json['pressureSwitch'] as List)
+          .map((e) => SensorModel.fromJson(e))
+          .toList()
+          : [SensorModel.fromJson(json['pressureSwitch'])],
+      pressureIn: (json['pressureIn'] == null || json['pressureIn'].isEmpty)
+          ? []
+          : (json['pressureIn'] is List)
+          ? (json['pressureIn'] as List)
+          .map((e) => SensorModel.fromJson(e))
+          .toList()
+          : [SensorModel.fromJson(json['pressureIn'])],
+
       irrigationPump: (json['irrigationPump'] as List)
           .map((e) => Pump.fromJson(e))
           .toList(),
@@ -981,6 +1002,40 @@ class IrrigationLineData {
       valves: (json['valve'] as List).map((v) => Valve.fromJson(v))
           .toList(),
     );
+  }
+}
+
+class SensorModel {
+  final int objectId;
+  final double sNo;
+  final String name;
+  int status;
+  String value;
+
+  SensorModel({
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+    this.status = 0,
+    this.value = '0',
+  });
+
+  factory SensorModel.fromJson(Map<String, dynamic> json) {
+    return SensorModel(
+      objectId: json['objectId'],
+      sNo: (json['sNo'] as num).toDouble(),
+      name: json['name'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      "status": status,
+      "value": value,
+    };
   }
 }
 

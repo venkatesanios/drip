@@ -48,16 +48,34 @@ class PumpStation extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 5, bottom: 5),
                 child: Column(
                   children: [
-                    vm.grandTotal > 17 ?
-                    ScrollConfiguration(
-                      behavior: const ScrollBehavior(),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: buildRow(context, vm.sortedWaterSources, vm),
-                      ),
+                    ((vm.mvFertilizerSite.isEmpty && vm.grandTotal < 7) ||
+                        (vm.mvFertilizerSite.isEmpty && vm.mvIrrLineData![0].valves.length < 25)) ?
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        buildRow(context, vm.sortedWaterSources, vm),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 3.1),
+                          child: DisplayIrrigationLine(lineData:vm.mvIrrLineData, pumpStationWith:(vm.grandTotal*70)+157, currentLineName:currentLineName),
+                        ),
+                      ],
                     ):
-                    buildRow(context, vm.sortedWaterSources, vm),
-                    DisplayIrrigationLine(lineData: vm.mvIrrLineData, pumpStationWith: 0, currentLineName: currentLineName,),
+                    Column(
+                      children: [
+                        vm.grandTotal > 17 ?
+                        ScrollConfiguration(
+                          behavior: const ScrollBehavior(),
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: buildRow(context, vm.sortedWaterSources, vm),
+                          ),
+                        ):
+                        buildRow(context, vm.sortedWaterSources, vm),
+                        DisplayIrrigationLine(lineData: vm.mvIrrLineData, pumpStationWith: 0, currentLineName: currentLineName,),
+                      ],
+                    ),
+
                   ],
                 ),
               ),
