@@ -243,7 +243,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     width: 250,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
-                      color: Colors.teal.shade100,
+                      color: Colors.grey.shade100,
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -358,7 +358,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           Expanded(
                             flex: 3,
                             child: Container(
-                              color: Colors.teal.shade100,
+                              color: Colors.grey.shade100,
                               padding:
                               const EdgeInsets.only(left: 15, right: 15, bottom: 10),
                               // height: constraints.maxHeight * 0.59,
@@ -435,7 +435,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Icon(Icons.air, color: Colors.white70, size: 20),
+            const CircleAvatar(
+              backgroundColor: Colors.blueGrey,
+              radius: 20,
+                child: Icon(Icons.air, color: Colors.white, size: 20),
+             ),
             const SizedBox(width: 4),
             Expanded(
               child: Column(
