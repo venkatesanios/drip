@@ -435,7 +435,12 @@ class _WeatherScreenState extends State<WeatherScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Icon(Icons.air, color: Colors.white70, size: 20),
+            const CircleAvatar(
+              backgroundColor:Colors.blueGrey,
+              radius: 20,
+             child:  Icon(Icons.air, color: Colors.white, size: 20),
+            ),
+
             const SizedBox(width: 4),
             Expanded(
               child: Column(

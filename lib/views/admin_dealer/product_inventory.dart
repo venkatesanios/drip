@@ -16,156 +16,13 @@ class ProductInventory extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => InventoryViewModel(Repository(HttpService()))..loadInventoryData(userId, userRole, 1)
-      ..getCategoryModelList(userId, userRole),
+      create: (_) => InventoryViewModel(Repository(HttpService()),userId, userRole)
+        ..loadInventoryData(1)
+      ..getCategoryModelList(),
       child: Consumer<InventoryViewModel>(
         builder: (context, viewModel, _) {
           return Scaffold(
             backgroundColor: Theme.of(context).primaryColorDark.withAlpha(1),
-            /*appBar: AppBar(
-              automaticallyImplyLeading: false,
-              title: const Text('Product Inventory'),
-              actions: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    viewModel.totalProduct > 25 ?Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 300,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(5),
-                            boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 1)],
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  controller: viewModel.txtFldSearch,
-                                  decoration: InputDecoration(
-                                    prefixIcon: const Icon(Icons.search),
-                                    suffixIcon: viewModel.txtFldSearch.text.isNotEmpty
-                                        ? IconButton(
-                                      icon: const Icon(Icons.clear),
-                                      onPressed: () {
-                                        viewModel.txtFldSearch.clear();
-                                        viewModel.searchedChipName = '';
-                                        viewModel.filterActive = false;
-                                        viewModel.searched = false;
-                                        viewModel.filterProductInventoryList.clear();
-                                        viewModel.showSearchButton = false;
-                                      },
-                                    )
-                                        : null,
-                                    hintText: 'Search by device id / person',
-                                    border: InputBorder.none,
-                                  ),
-                                  onChanged: (value) {
-                                    viewModel.showSearchButton = value.isNotEmpty;
-                                  },
-                                  onSubmitted: (value) {
-                                    if (value.isNotEmpty) {
-                                      viewModel.filterActive = true;
-                                      viewModel.searchedChipName = value;
-                                      //viewModel.fetchFilterData(null, null, value);
-                                    }
-                                  },
-                                ),
-                              ),
-                              if (viewModel.showSearchButton)
-                                IconButton(
-                                  icon: const Icon(Icons.search, color: Colors.blue),
-                                  onPressed: () {
-                                    if (viewModel.txtFldSearch.text.isNotEmpty) {
-                                      viewModel.filterActive = true;
-                                      viewModel.searchedChipName = viewModel.txtFldSearch.text;
-                                      //viewModel.fetchFilterData(null, null, viewModel.txtFldSearch.text);
-                                    }
-                                  },
-                                ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 8,),
-                        PopupMenuButton<dynamic>(
-                          icon: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 5),
-                            height: 30,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                              border: Border.all(color: Colors.white24),
-                            ),
-                            child: const Row(
-                              children: [
-                                Icon(Icons.filter_alt_outlined),
-                                SizedBox(width: 3),
-                                Text(
-                                  'Filter',
-                                  style: TextStyle(fontSize: 13, color: Colors.white, fontWeight: FontWeight.normal),
-                                ),
-                              ],
-                            ),
-                          ),
-                          tooltip: 'filter by category or model',
-                          itemBuilder: (BuildContext context) {
-                            List<PopupMenuEntry<dynamic>> menuItems = [];
-                            menuItems.add(
-                              const PopupMenuItem<dynamic>(
-                                enabled: false,
-                                child: Text("Category"),
-                              ),
-                            );
-
-                            List<dynamic> categoryItems = viewModel.jsonDataMap['data']['category'];
-                            menuItems.addAll(
-                              categoryItems.map((dynamic item) {
-                                return PopupMenuItem<dynamic>(
-                                  value: item,
-                                  child: Text(item['categoryName']),
-                                );
-                              }),
-                            );
-                            menuItems.add(
-                              const PopupMenuItem<dynamic>(
-                                enabled: false,
-                                child: Text("Model"),
-                              ),
-                            );
-                            List<dynamic> modelItems = viewModel.jsonDataMap['data']['model'];
-                            menuItems.addAll(
-                              modelItems.map((dynamic item) {
-                                return PopupMenuItem<dynamic>(
-                                  value: item,
-                                  child: Text('${item['categoryName']} - ${item['modelName']}'),
-                                );
-                              }),
-                            );
-
-                            return menuItems;
-                          },
-                          onSelected: (dynamic selectedItem) {
-                            if (selectedItem is Map<String, dynamic>) {
-                              viewModel.filterActive = true;
-                              if (selectedItem.containsKey('categoryName') && selectedItem.containsKey('modelName')) {
-                                viewModel.searchedChipName = '${selectedItem['categoryName']} - ${selectedItem['modelName']}';
-                                //viewModel.fetchFilterData(null, selectedItem['modelId'], null);
-                              } else {
-                                viewModel.searchedChipName = '${selectedItem['categoryName']}';
-                               // viewModel.fetchFilterData(selectedItem['categoryId'], null, null);
-                              }
-                            }
-                          },
-                        ),
-                      ],
-                    ) :
-                    Container(),
-                  ],),
-                const SizedBox(width: 10)
-              ],
-            ),*/
             body: viewModel.isLoading? Center(
               child: Visibility(
                 visible: true,
@@ -178,32 +35,153 @@ class ProductInventory extends StatelessWidget {
                   ),
                 ),
               ),
-            ): Padding(
+            ):
+            Padding(
               padding: const EdgeInsets.all(8),
               child: Column(
                 children: [
-                  Column(
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      viewModel.searchedChipName != ''? Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      viewModel.totalProduct > 25 ?Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Padding(
+                          Container(
+                            width: 300,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(5),
+                              boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 1)],
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: viewModel.txtFldSearch,
+                                    decoration: InputDecoration(
+                                      prefixIcon: const Icon(Icons.search),
+                                      suffixIcon: viewModel.txtFldSearch.text.isNotEmpty
+                                          ? IconButton(
+                                        icon: const Icon(Icons.clear),
+                                        onPressed: () => viewModel.clearSearch(),
+                                      )
+                                          : null,
+                                      hintText: 'Search by device id / person',
+                                      border: InputBorder.none,
+                                    ),
+                                    onChanged: (value) {
+                                      viewModel.showSearchButton = value.isNotEmpty;
+                                    },
+                                    onSubmitted: (value) {
+                                      if (value.isNotEmpty) {
+                                        viewModel.filterActive = true;
+                                        viewModel.searchedChipName = value;
+                                        viewModel.fetchFilterData(null, null, value, userRole, userId);
+                                      }
+                                    },
+                                  ),
+                                ),
+                                if (viewModel.showSearchButton)
+                                  IconButton(
+                                    icon: const Icon(Icons.search, color: Colors.blue),
+                                    onPressed: () {
+                                      if (viewModel.txtFldSearch.text.isNotEmpty) {
+                                        viewModel.filterActive = true;
+                                        viewModel.searchedChipName = viewModel.txtFldSearch.text;
+                                        viewModel.fetchFilterData(null, null, viewModel.txtFldSearch.text, userRole, userId);
+                                      }
+                                    },
+                                  ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          PopupMenuButton<dynamic>(
+                            icon: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 5),
+                              height: 30,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                border: Border.all(color: Colors.white24),
+                              ),
+                              child: const Row(
+                                children: [
+                                  Icon(Icons.filter_alt_outlined),
+                                  SizedBox(width: 3),
+                                  Text(
+                                    'Filter by category or model',
+                                    style: TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.normal),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            tooltip: 'select category or model',
+                            itemBuilder: (BuildContext context) {
+                              List<PopupMenuEntry<dynamic>> menuItems = [];
+                              menuItems.add(
+                                const PopupMenuItem<dynamic>(
+                                  enabled: false,
+                                  child: Text("Category"),
+                                ),
+                              );
+
+                              List<dynamic> categoryItems = viewModel.jsonDataMap['data']['category'];
+                              menuItems.addAll(
+                                categoryItems.map((dynamic item) {
+                                  return PopupMenuItem<dynamic>(
+                                    value: item,
+                                    child: Text(item['categoryName']),
+                                  );
+                                }),
+                              );
+                              menuItems.add(
+                                const PopupMenuItem<dynamic>(
+                                  enabled: false,
+                                  child: Text("Model"),
+                                ),
+                              );
+                              List<dynamic> modelItems = viewModel.jsonDataMap['data']['model'];
+                              menuItems.addAll(
+                                modelItems.map((dynamic item) {
+                                  return PopupMenuItem<dynamic>(
+                                    value: item,
+                                    child: Text('${item['categoryName']} - ${item['modelName']}'),
+                                  );
+                                }),
+                              );
+
+                              return menuItems;
+                            },
+                            onSelected: (dynamic selectedItem) {
+                              if (selectedItem is Map<String, dynamic>) {
+                                viewModel.filterActive = true;
+                                if (selectedItem.containsKey('categoryName') && selectedItem.containsKey('modelName')) {
+                                  viewModel.searchedChipName = '${selectedItem['categoryName']} - ${selectedItem['modelName']}';
+                                  viewModel.fetchFilterData(null, selectedItem['modelId'], null, userRole, userId);
+                                } else {
+                                  viewModel.searchedChipName = '${selectedItem['categoryName']}';
+                                  viewModel.fetchFilterData(selectedItem['categoryId'], null, null, userRole, userId);
+                                }
+                              }
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          viewModel.searchedChipName != ''? Padding(
                             padding: const EdgeInsets.only(top: 5, left: 5),
                             child: Chip(
-                                backgroundColor: Colors.yellow,
-                                label: Text('filtered By ${viewModel.searchedChipName}'),
-                                onDeleted: (){
-                                  viewModel.searchedChipName = '';
-                                  viewModel.filterActive = false;
-                                  viewModel.searched = false;
-                                  viewModel.filterProductInventoryList.clear();
-                                }),
-                          ),
+                              backgroundColor: Colors.yellow,
+                              label: Text('filtered By ${viewModel.searchedChipName}'),
+                              onDeleted: () => viewModel.clearSearch(),
+                            ),
+                          ) :
+                          const SizedBox(),
                         ],
                       ) :
-                      const SizedBox(),
+                      Container(),
                     ],
                   ),
+
                   Expanded(
                     child: Container(
                       decoration: const BoxDecoration(
@@ -389,16 +367,16 @@ class ProductInventory extends StatelessWidget {
                               ])),
                             ),
                           ),
-                         /* isLoading ? Container(
+                          viewModel.isLoadingMore ? Container(
                             width: double.infinity,
                             height: 30,
                             color: Colors.white,
-                            padding: EdgeInsets.fromLTRB(width/2 - 60, 0, width/2 - 60, 0),
+                            padding: EdgeInsets.fromLTRB(MediaQuery.sizeOf(context).width/2 - 60, 0, MediaQuery.sizeOf(context).width/2 - 60, 0),
                             child: const LoadingIndicator(
                               indicatorType: Indicator.ballPulse,
                             ),
                           ):
-                          Container(),*/
+                          Container(),
                         ],
                       ),
                     ),

@@ -20,7 +20,7 @@ class NormalCriticalInConstant extends StatefulWidget {
 }
 
 class _NormalCriticalInConstantState extends State<NormalCriticalInConstant> {
-  double cellWidth = 200;
+  double cellWidth = 180;
   ValueNotifier<int> selectedIrrigationLine = ValueNotifier(0);
 
   @override

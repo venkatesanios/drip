@@ -208,6 +208,7 @@ class _NamesState extends State<Names> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Names'),
+          automaticallyImplyLeading: false,
           bottom: TabBar(
             labelColor: Colors.white,
               unselectedLabelColor: Colors.white54,
