@@ -16,7 +16,7 @@ class FertilizerSiteInConstant extends StatefulWidget {
 }
 
 class _FertilizerSiteInConstantState extends State<FertilizerSiteInConstant> {
-  double cellWidth = 200;
+  double cellWidth = 180;
 
   @override
   Widget build(BuildContext context) {

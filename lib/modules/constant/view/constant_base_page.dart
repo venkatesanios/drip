@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:oro_drip_irrigation/Constants/properties.dart';
+import 'package:oro_drip_irrigation/Widgets/custom_buttons.dart';
 import 'package:oro_drip_irrigation/modules/constant/model/constant_menu_model.dart';
 import 'package:oro_drip_irrigation/modules/constant/model/constant_setting_type_Model.dart';
 import 'package:oro_drip_irrigation/modules/constant/state_management/constant_provider.dart';
@@ -22,6 +23,8 @@ import 'package:provider/provider.dart';
 
 import '../../../StateManagement/overall_use.dart';
 import 'channel_in_constant.dart';
+import 'filter_in_constant.dart';
+import 'filter_site_in_constant.dart';
 import 'general_in_constant.dart';
 import 'level_in_constant.dart';
 import 'moisture_in_constant.dart';
@@ -73,7 +76,41 @@ class _ConstantBasePageState extends State<ConstantBasePage> with SingleTickerPr
             return Text('Error: ${snapshot.error}'); // Error state
           } else if (snapshot.hasData) {
             return Scaffold(
-              backgroundColor: Theme.of(context).primaryColor.withOpacity(0.02),
+              backgroundColor: Theme.of(context).primaryColor.withOpacity(0.03),
+              floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+              floatingActionButton: Row(
+                spacing: 20,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                      style: ButtonStyle(
+                          backgroundColor: WidgetStateProperty.all(tabController.index == 0 ? Colors.grey.shade500 : Theme.of(context).primaryColor)
+                      ),
+                      onPressed: (){
+                        if(tabController.index != 0){
+                          setState(() {
+                            updateTabs(tabController.index - 1);
+                          });
+                        }
+                      },
+                      icon: const Icon(Icons.arrow_back_ios_new_outlined, color: Colors.white)
+                  ),
+                  IconButton(
+                    alignment: Alignment.center,
+                      style: ButtonStyle(
+                          backgroundColor: WidgetStateProperty.all(tabController.index == (constPvd.listOfConstantMenuModel.length - 1) ? Colors.grey.shade500 : Theme.of(context).primaryColor)
+                      ),
+                      onPressed: (){
+                        if(tabController.index != constPvd.listOfConstantMenuModel.length - 1){
+                          setState(() {
+                            updateTabs(tabController.index + 1);
+                          });
+                        }
+                      },
+                      icon: const Icon(Icons.arrow_forward_ios, color: Colors.white,)
+                  ),
+                ],
+              ),
               body: SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -99,12 +136,30 @@ class _ConstantBasePageState extends State<ConstantBasePage> with SingleTickerPr
     );
   }
 
+  void updateTabs(index){
+    print('index : $index');
+    print('tabController.previousIndex : ${tabController.previousIndex}');
+    print('tabController.index : ${tabController.index}');
+    constPvd.listOfConstantMenuModel[index].arrowTabState.value = ArrowTabState.onProgress;
+    for(var i = 0; i< index;i++){
+      constPvd.listOfConstantMenuModel[i].arrowTabState.value = ArrowTabState.complete;
+    }
+    for(var i = constPvd.listOfConstantMenuModel.length - 1; i > index;i--){
+      constPvd.listOfConstantMenuModel[i].arrowTabState.value = ArrowTabState.inComplete;
+    }
+    tabController.animateTo(index);
+  }
+
   List<Widget> getTabBarView(){
     return List.generate(tabController.length, (index){
       if(constPvd.listOfConstantMenuModel[index].dealerDefinitionId == 82){
         return GeneralInConstant(constPvd: constPvd, overAllPvd: overAllPvd,);
       }else if(constPvd.listOfConstantMenuModel[index].dealerDefinitionId == 83){
         return PumpInConstant(constPvd: constPvd, overAllPvd: overAllPvd,);
+      }else if(constPvd.listOfConstantMenuModel[index].dealerDefinitionId == 70){
+        return FilterSiteInConstant(constPvd: constPvd, overAllPvd: overAllPvd,);
+      }else if(constPvd.listOfConstantMenuModel[index].dealerDefinitionId == 71){
+        return FilterInConstant(constPvd: constPvd, overAllPvd: overAllPvd,);
       }else if(constPvd.listOfConstantMenuModel[index].dealerDefinitionId == 85){
         return MainValveInConstant(constPvd: constPvd, overAllPvd: overAllPvd,);
       }else if(constPvd.listOfConstantMenuModel[index].dealerDefinitionId == 86){
@@ -161,15 +216,15 @@ class _ConstantBasePageState extends State<ConstantBasePage> with SingleTickerPr
       }),
       onTap: (value){
         constPvd.listOfConstantMenuModel[value].arrowTabState.value = ArrowTabState.onProgress;
-        if(value > tabController.previousIndex){
-          for(var i = 0; i< value;i++){
-            constPvd.listOfConstantMenuModel[i].arrowTabState.value = ArrowTabState.complete;
-          }
-        }else{
-          for(var i = constPvd.listOfConstantMenuModel.length - 1; i > value;i--){
-            constPvd.listOfConstantMenuModel[i].arrowTabState.value = ArrowTabState.inComplete;
-          }
+        for(var i = 0; i< value;i++){
+          constPvd.listOfConstantMenuModel[i].arrowTabState.value = ArrowTabState.complete;
         }
+        for(var i = constPvd.listOfConstantMenuModel.length - 1; i > value;i--){
+          constPvd.listOfConstantMenuModel[i].arrowTabState.value = ArrowTabState.inComplete;
+        }
+        setState(() {
+          tabController.animateTo(value);
+        });
       },
     );
   }

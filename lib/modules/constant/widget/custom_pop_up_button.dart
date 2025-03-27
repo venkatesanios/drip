@@ -18,7 +18,7 @@ class CustomPopUpButton extends StatelessWidget {
           return popUpItemModelList.map((item){
             return PopupMenuItem(
               value: item.sNo,
-              child: Text(item.title, style: TextStyle(fontSize: 11, color: item.color),),
+              child: Text(item.title, style: TextStyle(fontSize: 11, color: item.color,),softWrap: true,textAlign: TextAlign.center,),
             );
           }).toList();
         },
@@ -29,7 +29,7 @@ class CustomPopUpButton extends StatelessWidget {
               color: (selectedPopUpItemModel.color).withOpacity(0.1)
           ),
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          child: Text(selectedPopUpItemModel.title, style: TextStyle(fontSize: 11, color: selectedPopUpItemModel.color),),
+          child: Text(selectedPopUpItemModel.title, style: TextStyle(fontSize: 11, color: selectedPopUpItemModel.color),softWrap: true,textAlign: TextAlign.center),
         )
     );
   }

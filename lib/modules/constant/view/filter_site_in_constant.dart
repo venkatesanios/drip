@@ -12,22 +12,22 @@ import '../../../StateManagement/overall_use.dart';
 import '../state_management/constant_provider.dart';
 import '../widget/find_suitable_widget.dart';
 
-class MainValveInConstant extends StatefulWidget {
+class FilterSiteInConstant extends StatefulWidget {
   final ConstantProvider constPvd;
   final OverAllUse overAllPvd;
-  const MainValveInConstant({super.key, required this.constPvd, required this.overAllPvd});
+  const FilterSiteInConstant({super.key, required this.constPvd, required this.overAllPvd});
 
   @override
-  State<MainValveInConstant> createState() => _MainValveInConstantState();
+  State<FilterSiteInConstant> createState() => _FilterSiteInConstantState();
 }
 
-class _MainValveInConstantState extends State<MainValveInConstant> {
-  double cellWidth = 180;
+class _FilterSiteInConstantState extends State<FilterSiteInConstant> {
+  double cellWidth = 200;
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double minWidth = (cellWidth * 2) + (widget.constPvd.defaultMainValveSetting.length * cellWidth) + 50;
+    double minWidth = (cellWidth * 1) + (widget.constPvd.defaultFilterSiteSetting.length * cellWidth) + 50;
     Color borderColor = const Color(0xffE1E2E3);
     return DataTable2(
       border: TableBorder(
@@ -39,14 +39,12 @@ class _MainValveInConstantState extends State<MainValveInConstant> {
       minWidth: minWidth,
       fixedLeftColumns: minWidth < screenWidth ? 0 : 1,
       columns: [
-        ...['Main Valve', 'Location'].map((title) {
-          return DataColumn2(
-              headingRowAlignment: MainAxisAlignment.center,
-              fixedWidth: cellWidth,
-              label: Text(title, style: Theme.of(context).textTheme.labelLarge,textAlign: TextAlign.center, softWrap: true)
-          );
-        }),
-        ...widget.constPvd.defaultMainValveSetting.map((defaultSetting) {
+        DataColumn2(
+            headingRowAlignment: MainAxisAlignment.center,
+            fixedWidth: cellWidth,
+            label: Text('Filter Site', style: Theme.of(context).textTheme.labelLarge,textAlign: TextAlign.center, softWrap: true)
+        ),
+        ...widget.constPvd.defaultFilterSiteSetting.map((defaultSetting) {
           return DataColumn2(
               headingRowAlignment: MainAxisAlignment.center,
               fixedWidth: cellWidth,
@@ -54,20 +52,17 @@ class _MainValveInConstantState extends State<MainValveInConstant> {
           );
         }),
       ],
-      rows: List.generate(widget.constPvd.mainValve.length, (row){
-        ObjectInConstantModel mainValve = widget.constPvd.mainValve[row];
+      rows: List.generate(widget.constPvd.filterSite.length, (row){
+        ObjectInConstantModel filterSite = widget.constPvd.filterSite[row];
         return DataRow2(
             color: WidgetStatePropertyAll(
               row.isOdd ? Colors.white : const Color(0xffF8F8F8),
             ),
             cells: [
               DataCell(
-                  Center(child: Text(mainValve.name.toString(), textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).primaryColorLight),))
+                  Center(child: Text(filterSite.name.toString(), textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).primaryColorLight),))
               ),
-              DataCell(
-                  Center(child: Text(widget.constPvd.getName(mainValve.location),textAlign: TextAlign.center,))
-              ),
-              ...mainValve.setting.map((setting) {
+              ...filterSite.setting.map((setting) {
                 return DataCell(
                     AnimatedBuilder(
                       animation: setting.value,
@@ -81,7 +76,7 @@ class _MainValveInConstantState extends State<MainValveInConstant> {
                             setting.value.value = widget.overAllPvd.getTime();
                             Navigator.pop(context);
                           },
-                          popUpItemModelList: widget.constPvd.mainValveMode,
+                          popUpItemModelList: widget.constPvd.filterSiteWhileBackwash,
                         );
                       },
                     )

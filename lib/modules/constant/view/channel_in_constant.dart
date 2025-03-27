@@ -22,7 +22,7 @@ class ChannelInConstant extends StatefulWidget {
 }
 
 class _ChannelInConstantState extends State<ChannelInConstant> {
-  double cellWidth = 200;
+  double cellWidth = 150;
 
   @override
   Widget build(BuildContext context) {

@@ -507,6 +507,7 @@ class AppConstants {
   static String i2cCode = '7';
   static List<int> pumpModelList = [5, 6, 7, 8, 9, 10];
   static int pumpObjectId = 5;
+  static int filterSiteObjectId = 4;
   static int filterObjectId = 11;
   static int mainValveObjectId = 14;
   static int valveObjectId = 13;
