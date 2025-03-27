@@ -38,9 +38,9 @@ class _GeneralInConstantState extends State<GeneralInConstant> {
           physics: const NeverScrollableScrollPhysics(),
         ),
         children: widget.constPvd.general.map((generalSetting){
-          return ValueListenableBuilder(
-              valueListenable: hoveredSno,
-              builder: (context, value, child){
+          return AnimatedBuilder(
+              animation: hoveredSno,
+              builder: (context, child){
                 return MouseRegion(
                   onEnter: (_){
                     hoveredSno.value = generalSetting.sNo;
@@ -67,9 +67,9 @@ class _GeneralInConstantState extends State<GeneralInConstant> {
                       title: Text(generalSetting.title, style: Theme.of(context).textTheme.labelLarge,),
                       trailing: SizedBox(
                         width: 80,
-                        child: ValueListenableBuilder(
-                            valueListenable: generalSetting.value,
-                            builder: (context, value, child){
+                        child: AnimatedBuilder(
+                            animation: generalSetting.value,
+                            builder: (context, child){
                               return FindSuitableWidget(
                                 constantSettingModel: generalSetting,
                                 onUpdate: (value){
@@ -84,7 +84,7 @@ class _GeneralInConstantState extends State<GeneralInConstant> {
                                 popUpItemModelList: [],
                               );
                             }
-                        ),
+                        )
                       ),
                     ),
                   ),

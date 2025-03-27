@@ -21,107 +21,166 @@ class NormalCriticalInConstant extends StatefulWidget {
 
 class _NormalCriticalInConstantState extends State<NormalCriticalInConstant> {
   double cellWidth = 200;
-  int selectedIrrigationLine = 0;
+  ValueNotifier<int> selectedIrrigationLine = ValueNotifier(0);
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double minWidth = (cellWidth * 1) + (widget.constPvd.defaultNormalCriticalAlarmSetting.length * cellWidth) + 50;
     Color borderColor = const Color(0xffE1E2E3);
-    return DataTable2(
-      border: TableBorder(
-        top: BorderSide(color: borderColor, width: 1),
-        bottom: BorderSide(color: borderColor, width: 1),
-        left: BorderSide(color: borderColor, width: 1),
-        right: BorderSide(color: borderColor, width: 1),
-      ),
-      minWidth: minWidth,
-      fixedLeftColumns: minWidth < screenWidth ? 0 : 1,
-      columns: [
-        DataColumn2(
-            headingRowAlignment: MainAxisAlignment.center,
-            fixedWidth: cellWidth,
-            label: Text('Alarm', style: Theme.of(context).textTheme.labelLarge,textAlign: TextAlign.center, softWrap: true)
-        ),
-        ...widget.constPvd.defaultNormalCriticalAlarmSetting.map((defaultSetting) {
-          return DataColumn2(
-              headingRowAlignment: MainAxisAlignment.center,
-              fixedWidth: cellWidth,
-              label: Text(defaultSetting.title, style: Theme.of(context).textTheme.labelLarge,textAlign: TextAlign.center, softWrap: true,)
-          );
-        }),
-      ],
-      rows: List.generate(widget.constPvd.normalCriticalAlarm[selectedIrrigationLine].normal.length, (row){
-        AlarmInConstantModel normalAlarm = widget.constPvd.normalCriticalAlarm[selectedIrrigationLine].normal[row];
-        AlarmInConstantModel criticalAlarm = widget.constPvd.normalCriticalAlarm[selectedIrrigationLine].critical[row];
-        return DataRow2(
-            specificRowHeight: 100,
-            color: WidgetStatePropertyAll(
-              row.isOdd ? Colors.white : const Color(0xffF8F8F8),
-            ),
-            cells: [
-              DataCell(
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Center(child: Text(normalAlarm.title, textAlign: TextAlign.center, style: TextStyle(color: Colors.orange.shade500),)),
-                      Center(child: Text(normalAlarm.title, textAlign: TextAlign.center, style: TextStyle(color: Colors.red.shade500),)),
+    return Column(
+      children: [
+        getIrrigationLine(),
+        Expanded(
+          child: AnimatedBuilder(
+              animation: selectedIrrigationLine,
+              builder: (context, child){
+                return DataTable2(
+                    border: TableBorder(
+                      top: BorderSide(color: borderColor, width: 1),
+                      bottom: BorderSide(color: borderColor, width: 1),
+                      left: BorderSide(color: borderColor, width: 1),
+                      right: BorderSide(color: borderColor, width: 1),
+                    ),
+                    minWidth: minWidth,
+                    fixedLeftColumns: minWidth < screenWidth ? 0 : 1,
+                    columns: [
+                      DataColumn2(
+                          headingRowAlignment: MainAxisAlignment.center,
+                          fixedWidth: cellWidth,
+                          label: Text('Alarm', style: Theme.of(context).textTheme.labelLarge,textAlign: TextAlign.center, softWrap: true)
+                      ),
+                      ...widget.constPvd.defaultNormalCriticalAlarmSetting.map((defaultSetting) {
+                        return DataColumn2(
+                            headingRowAlignment: MainAxisAlignment.center,
+                            fixedWidth: cellWidth,
+                            label: Text(defaultSetting.title, style: Theme.of(context).textTheme.labelLarge,textAlign: TextAlign.center, softWrap: true,)
+                        );
+                      }),
                     ],
-                  )
-              ),
-              ...List.generate(widget.constPvd.defaultNormalCriticalAlarmSetting.length, (index){
-                return DataCell(
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        AnimatedBuilder(
-                            animation: normalAlarm.setting[index].value,
-                            builder: (context, child){
-                              return SizedBox(
-                                height: 40,
-                                width: cellWidth,
-                                child: FindSuitableWidget(
-                                  constantSettingModel: normalAlarm.setting[index],
-                                  onUpdate: (value){
-                                    normalAlarm.setting[index].value.value = value;
-                                  },
-                                  onOk: (){
-                                    normalAlarm.setting[index].value.value = widget.overAllPvd.getTime();
-                                    Navigator.pop(context);
-                                  },
-                                  popUpItemModelList: normalAlarm.setting[index].sNo == 2 ? widget.constPvd.alarmOnStatus : widget.constPvd.alarmResetAfterIrrigation,
-                                ),
+                    rows: List.generate(widget.constPvd.normalCriticalAlarm[selectedIrrigationLine.value].normal.length, (row){
+                      AlarmInConstantModel normalAlarm = widget.constPvd.normalCriticalAlarm[selectedIrrigationLine.value].normal[row];
+                      AlarmInConstantModel criticalAlarm = widget.constPvd.normalCriticalAlarm[selectedIrrigationLine.value].critical[row];
+                      return DataRow2(
+                          specificRowHeight: 100,
+                          color: WidgetStatePropertyAll(
+                            row.isOdd ? Colors.white : const Color(0xffF8F8F8),
+                          ),
+                          cells: [
+                            DataCell(
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Center(child: Text(normalAlarm.title, textAlign: TextAlign.center, style: TextStyle(color: Colors.orange.shade500),)),
+                                    Center(child: Text(normalAlarm.title, textAlign: TextAlign.center, style: TextStyle(color: Colors.red.shade500),)),
+                                  ],
+                                )
+                            ),
+                            ...List.generate(widget.constPvd.defaultNormalCriticalAlarmSetting.length, (index){
+                              return DataCell(
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      AnimatedBuilder(
+                                          animation: normalAlarm.setting[index].value,
+                                          builder: (context, child){
+                                            return SizedBox(
+                                              height: 40,
+                                              width: cellWidth,
+                                              child: FindSuitableWidget(
+                                                constantSettingModel: normalAlarm.setting[index],
+                                                onUpdate: (value){
+                                                  normalAlarm.setting[index].value.value = value;
+                                                },
+                                                onOk: (){
+                                                  normalAlarm.setting[index].value.value = widget.overAllPvd.getTime();
+                                                  Navigator.pop(context);
+                                                },
+                                                popUpItemModelList: normalAlarm.setting[index].sNo == 2 ? widget.constPvd.alarmOnStatus : widget.constPvd.alarmResetAfterIrrigation,
+                                              ),
+                                            );
+                                          }
+                                      ),
+                                      AnimatedBuilder(
+                                          animation: criticalAlarm.setting[index].value,
+                                          builder: (context, child){
+                                            return SizedBox(
+                                              height: 40,
+                                              width: cellWidth,
+                                              child: FindSuitableWidget(
+                                                constantSettingModel: criticalAlarm.setting[index],
+                                                onUpdate: (value){
+                                                  criticalAlarm.setting[index].value.value = value;
+                                                },
+                                                onOk: (){
+                                                  criticalAlarm.setting[index].value.value = widget.overAllPvd.getTime();
+                                                  Navigator.pop(context);
+                                                },
+                                                popUpItemModelList: criticalAlarm.setting[index].sNo == 2 ? widget.constPvd.alarmOnStatus : widget.constPvd.alarmResetAfterIrrigation,
+                                              ),
+                                            );
+                                          }
+                                      ),
+                                    ],
+                                  )
                               );
-                            }
-                        ),
-                        AnimatedBuilder(
-                            animation: criticalAlarm.setting[index].value,
-                            builder: (context, child){
-                              return SizedBox(
-                                height: 40,
-                                width: cellWidth,
-                                child: FindSuitableWidget(
-                                  constantSettingModel: criticalAlarm.setting[index],
-                                  onUpdate: (value){
-                                    criticalAlarm.setting[index].value.value = value;
-                                  },
-                                  onOk: (){
-                                    criticalAlarm.setting[index].value.value = widget.overAllPvd.getTime();
-                                    Navigator.pop(context);
-                                  },
-                                  popUpItemModelList: criticalAlarm.setting[index].sNo == 2 ? widget.constPvd.alarmOnStatus : widget.constPvd.alarmResetAfterIrrigation,
-                                ),
-                              );
-                            }
-                        ),
-                      ],
-                    )
+                            })
+                          ]
+                      );
+                    })
                 );
-              })
-            ]
-        );
-      })
-    );
+              }
+          ),
+        )
 
+      ],
+    );
+  }
+  Widget getIrrigationLine(){
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            spacing: 10,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              for(var line = 0;line < widget.constPvd.normalCriticalAlarm.length;line++)
+                AnimatedBuilder(
+                    animation: selectedIrrigationLine,
+                    builder: (context, child){
+                      return InkWell(
+                        onTap: (){
+                          selectedIrrigationLine.value = line;
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 500),
+                          padding: EdgeInsets.symmetric(horizontal: 15,vertical: selectedIrrigationLine.value == line ? 12 :10),
+                          decoration: BoxDecoration(
+                              border: const Border(top: BorderSide(width: 0.5), left: BorderSide(width: 0.5), right: BorderSide(width: 0.5)),
+                              borderRadius: const BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5)),
+                              color: selectedIrrigationLine.value == line ? Theme.of(context).primaryColor : Colors.grey.shade100
+                          ),
+                          child: Text(widget.constPvd.normalCriticalAlarm[line].name, style: TextStyle(color: selectedIrrigationLine.value == line ? Colors.white : Colors.black, fontSize: 13),),
+                        ),
+                      );
+                    }
+                )
+                
+            ],
+          ),
+        ),
+        Container(
+          width: double.infinity,
+          height: 3,
+          color: Theme.of(context).primaryColor,
+        ),
+        const SizedBox(height: 10,)
+      ],
+    );
   }
 }

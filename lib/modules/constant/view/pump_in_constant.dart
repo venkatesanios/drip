@@ -63,9 +63,9 @@ class _PumpInConstantState extends State<PumpInConstant> {
                 ),
                 ...pump.setting.map((setting) {
                   return DataCell(
-                    ValueListenableBuilder(
-                      valueListenable: setting.value,
-                      builder: (context, value, child){
+                    AnimatedBuilder(
+                      animation: setting.value,
+                      builder: (context, child){
                         return FindSuitableWidget(
                           constantSettingModel: setting,
                           onUpdate: (value){
