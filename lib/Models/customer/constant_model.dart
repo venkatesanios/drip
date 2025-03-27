@@ -166,9 +166,9 @@ class ConstantData {
 
     return ConstantData(
       controllerReadStatus: jsonConstant['controllerReadStatus'] ?? '0',
-      generalMenu: (jsonConstant['general'] as List<dynamic>?)?.isNotEmpty == true
-          ? jsonConstant['general']!
-          .map((general) => GeneralMenu.fromJson(general))
+      generalMenu: (jsonConstant['general'] is List && (jsonConstant['general'] as List).isNotEmpty)
+          ? (jsonConstant['general'] as List<dynamic>)
+          .map((general) => GeneralMenu.fromJson(general as Map<String, dynamic>))
           .toList()
           : [
         GeneralMenu.fromJson({"sNo": 1, "title": "Number of Programs", "widgetTypeId": 1, "value": "0"}),
@@ -185,11 +185,13 @@ class ConstantData {
         GeneralMenu.fromJson({"sNo": 12, "title": "Lora Key 2", "widgetTypeId": 1, "value": "0"}),
       ],
 
-      valveList: (jsonConstant['valve'] as List<dynamic>?)?.isNotEmpty == true
-          ? jsonConstant['valve']!
-          .map((val) => ValveData.fromJson(val))
+      valveList: (jsonConstant['valve'] is List && (jsonConstant['valve'] as List).isNotEmpty)
+          ? (jsonConstant['valve'] as List<dynamic>)
+          .map((val) => ValveData.fromJson(val as Map<String, dynamic>))
           .toList()
-          : valveDataList.map((val) => ValveData.fromJson(val)).toList(),
+          : (valveDataList.isNotEmpty
+          ? valveDataList.map((val) => ValveData.fromJson(val)).toList()
+          : []),
 
       pumpList: (jsonConstant['pump'] as List<dynamic>?)?.isNotEmpty == true
           ? (jsonConstant['pump'] as List<dynamic>).map((pmp) => Pump.fromJson(pmp)).toList()
@@ -982,15 +984,16 @@ class Ec {
       sNo: json['sNo'].toDouble(),
       name: json['name'],
 
-      controlCycle: json['controlCycle'],
-      delta: json['delta'],
-      fineTuning: json['fineTuning'],
-      coarseTuning: json['coarseTuning'],
-      deadband: json['deadband'],
-      integ: json['integ'],
-      controlSensor: json['controlSensor'],
-      avgFiltSpeed: json['avgFiltSpeed'],
-      percentage: json['percentage'],
+      controlCycle: json.containsKey('controlCycle') ? json['controlCycle'] : "00:00:00",
+      delta: json.containsKey('delta') ? json['delta'] : "0",
+      fineTuning: json.containsKey('fineTuning') ? json['fineTuning'] : "0",
+      coarseTuning: json.containsKey('coarseTuning') ? json['coarseTuning'] : "0",
+      deadband: json.containsKey('deadband') ? json['deadband'] : "0",
+      integ: json.containsKey('integ') ? json['integ'] : "00:00:00",
+      controlSensor: json.containsKey('controlSensor') ? json['controlSensor'] : "Average",
+      avgFiltSpeed: json.containsKey('avgFiltSpeed') ? json['avgFiltSpeed'] : "0",
+      percentage: json.containsKey('percentage') ? json['percentage'] : "0",
+
     );
   }
 
@@ -1053,15 +1056,15 @@ class Ph {
       sNo: json['sNo'].toDouble(),
       name: json['name'],
 
-      controlCycle: json['controlCycle'],
-      delta: json['delta'],
-      fineTuning: json['fineTuning'],
-      coarseTuning: json['coarseTuning'],
-      deadband: json['deadband'],
-      integ: json['integ'],
-      controlSensor: json['controlSensor'],
-      avgFiltSpeed: json['avgFiltSpeed'],
-      percentage: json['percentage'],
+      controlCycle: json.containsKey('controlCycle') ? json['controlCycle'] : "00:00:00",
+      delta: json.containsKey('delta') ? json['delta'] : "0",
+      fineTuning: json.containsKey('fineTuning') ? json['fineTuning'] : "0",
+      coarseTuning: json.containsKey('coarseTuning') ? json['coarseTuning'] : "0",
+      deadband: json.containsKey('deadband') ? json['deadband'] : "0",
+      integ: json.containsKey('integ') ? json['integ'] : "00:00:00",
+      controlSensor: json.containsKey('controlSensor') ? json['controlSensor'] : "Average",
+      avgFiltSpeed: json.containsKey('avgFiltSpeed') ? json['avgFiltSpeed'] : "0",
+      percentage: json.containsKey('percentage') ? json['percentage'] : "0",
 
     );
   }

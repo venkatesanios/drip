@@ -979,20 +979,31 @@ class IrrigationLineData {
       type: json['type'],
       controllerId: json['controllerId'],
       count: json['count'],
-      prsSwitch: (json['pressureSwitch'] == null || json['pressureSwitch'].isEmpty)
+      prsSwitch: (json['pressureSwitch'] == null ||
+          json['pressureSwitch'] == 0 ||
+          (json['pressureSwitch'] is List && json['pressureSwitch'].isEmpty))
           ? []
           : (json['pressureSwitch'] is List)
           ? (json['pressureSwitch'] as List)
+          .where((e) => e != null) // Ensure non-null elements
           .map((e) => SensorModel.fromJson(e))
           .toList()
-          : [SensorModel.fromJson(json['pressureSwitch'])],
-      pressureIn: (json['pressureIn'] == null || json['pressureIn'].isEmpty)
+          : (json['pressureSwitch'] is Map<String, dynamic>)
+          ? [SensorModel.fromJson(json['pressureSwitch'])]
+          : [],
+
+      pressureIn: (json['pressureIn'] == null ||
+          json['pressureIn'] == 0 ||
+          (json['pressureIn'] is List && json['pressureIn'].isEmpty))
           ? []
           : (json['pressureIn'] is List)
           ? (json['pressureIn'] as List)
+          .where((e) => e != null) // Ensure non-null elements
           .map((e) => SensorModel.fromJson(e))
           .toList()
-          : [SensorModel.fromJson(json['pressureIn'])],
+          : (json['pressureIn'] is Map<String, dynamic>)
+          ? [SensorModel.fromJson(json['pressureIn'])]
+          : [],
 
       irrigationPump: (json['irrigationPump'] as List)
           .map((e) => Pump.fromJson(e))
