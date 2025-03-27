@@ -40,6 +40,12 @@ class DisplayIrrigationLine extends StatelessWidget {
                   imagePath: 'assets/png/pressure_sensor.png',
                 )),
               for (var line in lineData!)
+                ...line.waterMeter.map((wm) => SensorWidget(
+                  sensor: wm,
+                  sensorType: 'Water Meter',
+                  imagePath: 'assets/png/water_meter.png',
+                )),
+              for (var line in lineData!)
                 ...line.valves.map((vl) => ValveWidget(
                   vl: vl,
                   status: vl.status,
@@ -58,6 +64,11 @@ class DisplayIrrigationLine extends StatelessWidget {
                     sensor: psw,
                     sensorType: 'Pressure Sensor',
                     imagePath: 'assets/png/pressure_sensor.png',
+                  )),
+                  ...line.waterMeter.map((wm) => SensorWidget(
+                    sensor: wm,
+                    sensorType: 'Water Meter',
+                    imagePath: 'assets/png/water_meter.png',
                   )),
                   ...line.valves.map((vl) => ValveWidget(
                     vl: vl,

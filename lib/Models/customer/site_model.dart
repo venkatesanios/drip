@@ -934,6 +934,8 @@ class IrrigationLineData {
   final List<Pump> irrigationPump;
   final List<SensorModel> prsSwitch;
   final List<SensorModel> pressureIn;
+  final List<SensorModel> waterMeter;
+
 
   final double? centralFiltration;
   //final double? localFiltration;
@@ -953,6 +955,8 @@ class IrrigationLineData {
     required this.irrigationPump,
     required this.prsSwitch,
     required this.pressureIn,
+    required this.waterMeter,
+
     required this.centralFiltration,
     //required this.localFiltration,
     required this.valves,
@@ -1003,6 +1007,19 @@ class IrrigationLineData {
           .toList()
           : (json['pressureIn'] is Map<String, dynamic>)
           ? [SensorModel.fromJson(json['pressureIn'])]
+          : [],
+
+      waterMeter: (json['waterMeter'] == null ||
+          json['waterMeter'] == 0 ||
+          (json['waterMeter'] is List && json['pressureIn'].isEmpty))
+          ? []
+          : (json['waterMeter'] is List)
+          ? (json['waterMeter'] as List)
+          .where((e) => e != null) // Ensure non-null elements
+          .map((e) => SensorModel.fromJson(e))
+          .toList()
+          : (json['waterMeter'] is Map<String, dynamic>)
+          ? [SensorModel.fromJson(json['waterMeter'])]
           : [],
 
       irrigationPump: (json['irrigationPump'] as List)
