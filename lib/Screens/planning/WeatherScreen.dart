@@ -130,6 +130,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   changeval(int Selectindexrow) {}
   Widget buildTab(int i) {
+  List<String> titlelist = ['SoilMoisture 1','SoilMoisture 2','SoilMoisture 3','SoilMoisture 4','Temperature','AtmospherePressure','Humidity','LeafWetness','Co2','LDR','Lux','Rainfall','WindSpeed','Wind Direction'];
+  List<String> unitlist = ['CB','CB','CB','CB','°C','°C','kPa','%','%','ppm','Lu','MM','km/h',''];
+
     String? irname = findIrrigationLine(weathernewlive.stations[i].deviceId)!;
       return Scaffold(body: Center(
       child: LayoutBuilder(
@@ -218,8 +221,10 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           child: Column(
                             children: [
+                          // String value = '${weathernewlive.stations[i].sensors[index].value}';
+                          // String errorStatus = '${weathernewlive.stations[i].sensors[index].errorStatus}';
                           for (var index = 0;index < weathernewlive.stations[i].sensors.length; index++)
-                              _buildWeatherCard('Soil Moisture ', '0.0CB', 'Dry', Colors.orange),
+                              _buildWeatherCard(titlelist[index], '${weathernewlive.stations[i].sensors[index].value} ${unitlist[index]}', '', Colors.orange),
                             ],
                           ),
                         ),
@@ -459,10 +464,10 @@ class _WeatherScreenState extends State<WeatherScreen> {
                   children: [
                     Center(
                       child: extractval! > 25 ? Image.asset(
-                        'assets/weathergraphval.png',
+                        'assets/mob_dashboard/weathergraphval.png',
                         fit: BoxFit.cover,
                       ) : Image.asset(
-                        'assets/weathergraphemtyval.png',
+                        'assets/mob_dashboard/weathergraphemtyval.png',
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -494,7 +499,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
                   ),
               ],
             ),
-
           ],
         ),
       ),
@@ -545,7 +549,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
     } else {
       bgcolor = Colors.white;
     }
-     if (index == 0) {
+
+    if (index == 0) {
       title = 'SoilMoisture 1';
       type = '1';
       Unit = 'CB';
@@ -641,6 +646,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
       Unit = '';
       imageAsserStr = 'assets/mob_dashboard/WindSpeed.png';
     }
+
+
     // type = '1';
     if (type == "1") {
       return Container(
