@@ -419,7 +419,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
             Wrap(
               children: [
                 for(var categoryIndex = 0; categoryIndex < settingList.length; categoryIndex++)
-                  if((settingList[categoryIndex].type == 210 && (preferenceProvider.generalData!.categoryId != 3 || preferenceProvider.generalData!.categoryId != 4)) ? preferenceProvider.individualPumpSetting![pumpIndex].controlGem : true)
+                  if((settingList[categoryIndex].type == 207 && (preferenceProvider.generalData!.categoryId != 3 || preferenceProvider.generalData!.categoryId != 4)) ? preferenceProvider.individualPumpSetting![pumpIndex].controlGem : true)
                     Container(
                       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       width: constraints.maxWidth < 700 ? constraints.maxWidth : (constraints.maxWidth/2) - 40,
@@ -469,7 +469,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                       ),
                     ),
                 for(var categoryIndex = 0; categoryIndex < settingList.length; categoryIndex++)
-                  if(!((settingList[categoryIndex].type == 210 && (preferenceProvider.generalData!.categoryId != 3 || preferenceProvider.generalData!.categoryId != 4)) ? preferenceProvider.individualPumpSetting![pumpIndex].controlGem : true))
+                  if(!((settingList[categoryIndex].type == 207 && (preferenceProvider.generalData!.categoryId != 3 || preferenceProvider.generalData!.categoryId != 4)) ? preferenceProvider.individualPumpSetting![pumpIndex].controlGem : true))
                     const SizedBox(height: 50,)
               ],
             ),
@@ -658,19 +658,19 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
 
   Widget _buildIcon(int categoryIndex, int settingIndex, List settingList) {
     return Icon(
-        (settingList[categoryIndex].type == 26 || settingList[categoryIndex].type == 206)
+        (settingList[categoryIndex].type == 206)
             ? otherSettingsIcons[settingIndex]
-            : (settingList[categoryIndex].type == 24 || settingList[categoryIndex].type == 204)
+            : (settingList[categoryIndex].type == 204)
             ? voltageSettingsIcons[settingIndex]
-            : (settingList[categoryIndex].type == 22 || settingList[categoryIndex].type == 202)
+            : (settingList[categoryIndex].type == 202)
             ? timerSettingsIcons[settingIndex]
-            : (settingList[categoryIndex].type == 23 || settingList[categoryIndex].type == 203)
+            : (settingList[categoryIndex].type == 203)
             ? currentSettingIcons[settingIndex]
-            : ((settingList[categoryIndex].type == 27 || settingList[categoryIndex].type == 28) || (settingList[categoryIndex].type == 207 || settingList[categoryIndex].type == 208))
+            : ((settingList[categoryIndex].type == 208 || settingList[categoryIndex].type == 209))
             ? voltageCalibrationIcons[settingIndex]
-            : (settingList[categoryIndex].type == 29 || settingList[categoryIndex].type == 209)
+            : (settingList[categoryIndex].type == 210)
             ? otherCalibrationIcons[settingIndex]
-            : settingList[categoryIndex].type == 210
+            : settingList[categoryIndex].type == 207
             ? levelSettingsIcons[settingIndex]
             : additionalSettingsIcons[settingIndex],
         color: Theme.of(context).primaryColor
@@ -678,8 +678,8 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
   }
 
   dynamic _getSubTitle(int categoryIndex, int settingIndex, List settingList, int pumpIndex) {
-    return ([1, 2].contains(preferenceProvider.generalData!.categoryId) &&
-        [27, 28, 29, 207, 208, 209].contains(settingList[categoryIndex].type))
+    return ([1].contains(preferenceProvider.generalData!.categoryId) &&
+        [208, 209, 210].contains(settingList[categoryIndex].type))
         ? "Last setting: ${(getValue(
         type: settingList[categoryIndex].type,
         categoryIndex: categoryIndex,
@@ -758,28 +758,28 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
             Map<String, dynamic> decode = element;
             decode.forEach((key, value) {
               switch (type) {
-                case 26:case 206:
+                case 206:
                 if (key == "ctconfig") valueToShow = value;
                 break;
-                case 24:case 204:
+                case 204:
                 if (key == "voltageconfig") valueToShow = value;
                 break;
-                case 22:case 202:
+                case 202:
                 if (key == "delayconfig") delayTimeTemp = value;
                 if (key == "rtcconfig") rtcTimeTemp = value;
                 final list = [...delayTimeTemp.split(','), ...rtcTimeTemp.split(',').sublist(1)];
                 valueToShow = list.join(',');
                 break;
-                case 23:case 203:
+                case 203:
                 if (key == "currentconfig") valueToShow = value;
                 break;
-                case 25:case 205:
+                case 205:
                 if (key == "scheduleconfig") valueToShow = value;
                 break;
-              // case 27:
+              //
               // if (key == "calibration") valueToShow = value;
               // break;
-              // case 28:
+              //
               // if (key == "calibration") valueToShow = value;
               // print(valueToShow.split());
               // break;
@@ -793,31 +793,31 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
           Map<String, dynamic> decode = element;
           decode.forEach((key, value) {
             switch (type) {
-              case 26:case 206:
+              case 206:
               if (key == "ctconfig") valueToShow = value;
               break;
-              case 24:case 204:
+              case 204:
               if (key == "voltageconfig") valueToShow = value;
               break;
-              case 22:case 202:
+              case 202:
               if (key == "delayconfig") delayTimeTemp = value;
               if (key == "rtcconfig") rtcTimeTemp = value;
               final list = [...delayTimeTemp.split(','), ...rtcTimeTemp.split(',').sublist(1)];
               valueToShow = list.join(',');
               break;
-              case 23:case 203:
+              case 203:
               if (key == "currentconfig") valueToShow = value;
               break;
-              case 25:case 205:
+              case 205:
               if (key == "scheduleconfig") valueToShow = value;
               break;
-              case 27:case 207:
+              case 208:
               if (key == "calibration") valueToShow = value;
               break;
-              case 28:case 208:
+              case 209:
               if (key == "calibration") valueToShow = value.split(',').skip(3).join(',');
               break;
-              case 29:case 209:
+              case 210:
               if (key == "calibration") valueToShow = value.split(',').skip(6).join(',');
               break;
             }
@@ -841,7 +841,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
           Map<String, dynamic> decode = element;
           decode.forEach((key, value) {
             switch (type) {
-              case 22:case 202:
+              case 202:
               if (key == "rtcconfig") rtcTimeTemp = value;
               valueToShow = delayTimeTemp+rtcTimeTemp;
               break;
@@ -877,7 +877,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
       conditions[key] = value;
     }
     switch (type) {
-      case 26:case 206:
+      case 206:
       if (serialNumber == 1) setCondition('phaseValue');
       if (serialNumber == 9) setCondition('light');
       if (serialNumber == 12) setCondition('peakHour');
@@ -885,7 +885,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
       if ([13,14].contains(serialNumber)) result = conditions['peakHour']!;
       break;
 
-      case 24:case 204:
+      case 204:
       if (serialNumber == 1) setCondition('lowVoltage');
       if (serialNumber == 6) setCondition('highVoltage');
       if ([2,3].contains(serialNumber)) result = conditions['lowVoltage']!;
@@ -894,7 +894,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
       if ([9,10].contains(serialNumber)) result = conditions['phaseValue']! && conditions['highVoltage']!;
       break;
 
-      case 22:case 202:
+      case 202:
       if (serialNumber == 3) setCondition('startingCapacitor');
       if (serialNumber == 4) result = conditions['startingCapacitor']!;
       if (serialNumber == 5) setCondition('starterFeedback');
@@ -907,7 +907,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
       if (serialNumber == 13) result = conditions['rtc']!;
       break;
 
-      case 23:case 203:
+      case 203:
       if (serialNumber == 1) setCondition('dryRun');
       if (serialNumber == 4) result = conditions['phaseValue']! && conditions['dryRun']!;
       if ([2, 3, 5, 6, 7, 8, 9, 10].contains(serialNumber)) result = conditions['dryRun']!;
@@ -920,7 +920,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
       if ([12, 13, 15].contains(serialNumber)) result = conditions['overLoad']!;
       break;
 
-      case 25:case 205:
+      case 205:
       if (serialNumber == 3) setCondition('schedule');
       if ([4,5].contains(serialNumber)) result = conditions['schedule']!;
 

@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import '../../Models/Weather_model.dart';
 import '../../Models/weather_modelnew.dart';
+import '../../Widgets/animated_cloud.dart';
 import '../../modules/IrrigationProgram/view/water_and_fertilizer_screen.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
@@ -27,7 +28,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
   Map<String, dynamic> weatherData = {};
   late Timer _timer;
   late DateTime _currentTime;
-   String sunrise = '06:00 AM';
+  String sunrise = '06:00 AM';
   String sunset = '06:00 PM';
   String daylight = 'Day Light Length: 12:00:00';
   List<String> weekDayList = [
@@ -44,9 +45,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
   WeatherModel weatherModelinstance = WeatherModel();
   String errorMsgstatus = '';
   WeatherData weathernewlive = WeatherData(cC: '', cT: '', cD: '', stations: []) ;
- late List<IrrigationLine>  weatherdatairrigationline ;
- late List<Device>  weatherdatadevicelist ;
- 
+  late List<IrrigationLine>  weatherdatairrigationline ;
+  late List<Device>  weatherdatadevicelist ;
+
 
   @override
   void initState() {
@@ -63,17 +64,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
     super.dispose();
   }
 
-  void _startTimer1() {
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      setState(() {
-        _currentTime = DateTime.now();
-      });
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-     if (weatherData.isNotEmpty && (weatherData != null)) {
+    if (weatherData.isNotEmpty && (weatherData != null)) {
       sunrise = '${weatherData['results']['sunrise']}';
       sunset = '${weatherData['results']['sunset']}';
       daylight = 'Day Light Length: ${weatherData['results']['day_length']}';
@@ -108,7 +101,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           Tab(
                             text:'${deviceFind(weathernewlive.stations[i].deviceId)?.deviceName ?? 'Weather Station'}',
                           ),
-                       ],
+                      ],
                       onTap: (value) {
                         setState(() {
                           tabclickindex = value;
@@ -137,187 +130,111 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   changeval(int Selectindexrow) {}
   Widget buildTab(int i) {
+    List<String> titlelist = ['SoilMoisture 1','SoilMoisture 2','SoilMoisture 3','SoilMoisture 4','Temperature','AtmospherePressure','Humidity','LeafWetness','Co2','LDR','Lux','Rainfall','WindSpeed','Wind Direction'];
+    List<String> unitlist = ['CB','CB','CB','CB','°C','°C','kPa','%','%','ppm','Lu','MM','km/h',''];
+
     String? irname = findIrrigationLine(weathernewlive.stations[i].deviceId)!;
-      return Scaffold(body: Center(
+    return Scaffold(body: Center(
       child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
             if (MediaQuery.sizeOf(context).width < 800) {
-              return SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      height: 150,
-                      // width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          gradient: const RadialGradient(
-                            center: Alignment.bottomCenter,
-                            radius: 1.5,
-                            colors: [
-                              Color.fromARGB(255, 131, 180, 237),
-                              Color.fromARGB(255, 220, 240, 247),
-                            ],
-                          )),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              //mobile view
+              return SafeArea(
+                child: Container(color: Theme.of(context).primaryColorDark,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        // Header
+                        const Padding(
+                          padding: EdgeInsets.only(left: 16.0, right: 8.0,bottom: 20.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                children: [
-                                  Image.asset(
-                                    'assets/images/w08.png',
-                                    width: 50.0,
-                                    height: 50.0,
-                                    fit: BoxFit.cover,
-                                  ),
-                                  Text(
-                                    '${weathernewlive.stations[i].sensors[6].value}',
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.normal,
-                                        fontSize: 28,
-                                        color: Colors.black),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                width: 200,
-                                height: 80,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                  children: [
-                                    Column(
-                                      children: [
-                                        Image.asset(
-                                          'assets/images/sunrise.png',
-                                          width: 30.0,
-                                          height: 30.0,
-                                          fit: BoxFit.cover,
-                                        ),
-                                        Text(
-                                          '$sunrise',
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.normal,
-                                              fontSize: 14),
-                                        ),
-                                      ],
-                                    ),
-                                    Column(
-                                      children: [
-                                        Image.asset(
-                                          'assets/images/sunset.png',
-                                          width: 30.0,
-                                          height: 30.0,
-                                          fit: BoxFit.cover,
-                                        ),
-                                        Text(
-                                          '$sunset',
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.normal,
-                                              fontSize: 14),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                              Text(
+                                'ORO Weather',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
                           ),
-                          Text(
-                            '$daylight',
-                            style: const TextStyle(
-                                fontWeight: FontWeight.normal, fontSize: 15),
-                          ),
-                           Text(
-                            'Last Sync: ${weathernewlive.cT} / ${weathernewlive.cD}',
-                            style: TextStyle(
-                                fontWeight: FontWeight.normal, fontSize: 15),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            left: 20, right: 20, bottom: 10, top: 10),
-                        child: LayoutBuilder(
-                          builder:
-                              (BuildContext context, BoxConstraints constraints) {
-                            return GridView.builder(
-                              gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 1,
-                                crossAxisSpacing: 10.0,
-                                mainAxisSpacing: 20.0,
-                                childAspectRatio: 1,
-                              ),
-                              // childAspectRatio: 1.7),
-                              itemCount: weathernewlive.stations[i].sensors.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                return InkWell(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        gradient: const RadialGradient(
-                                          center: Alignment.bottomLeft,
-                                          radius: 1.5,
-                                          colors: [
-                                            Color.fromARGB(255, 131, 180, 237),
-                                            Color.fromARGB(255, 220, 240, 247),
-                                          ],
-                                        )),
-                                    child: gaugeViewWeather(
-                                        weathernewlive.stations[i].sensors[index].value.toString(),
-                                        i,
-                                        index),
-                                  ),
-                                  // onTap: () {
-                                  //   if (_mqttPayloadProvider
-                                  //       .weatherModelinstance
-                                  //       .data![0]
-                                  //       .WeatherSensorlist![0]
-                                  //       .sensorlist[index] !=
-                                  //       'WindDirection') {
-                                  //     // Navigator.push(
-                                  //     //   context,
-                                  //     //   MaterialPageRoute(
-                                  //     //       builder: (context) => WeatherReportbar(
-                                  //     //           index: i,
-                                  //     //           Sno: _mqttPayloadProvider
-                                  //     //               .weatherModelinstance
-                                  //     //               .data![0]
-                                  //     //               .WeatherSensorlist![i]
-                                  //     //               .sNo,
-                                  //     //           userId: widget.userId,
-                                  //     //           controllerId:
-                                  //     //           widget.controllerId,
-                                  //     //           titletype: _mqttPayloadProvider
-                                  //     //               .weatherModelinstance
-                                  //     //               .data![0]
-                                  //     //               .WeatherSensorlist![i]
-                                  //     //               .sensorlist[index],
-                                  //     //           titlekeyvalue: _mqttPayloadProvider
-                                  //     //               .weatherModelinstance
-                                  //     //               .data![0]
-                                  //     //               .WeatherSensorlist![i]
-                                  //     //               .sensorlisthw[index])),
-                                  //     // );
-                                  //   }
-                                  // },
-                                );
-                              },
-                            );
-                          },
                         ),
-                      ),
+
+                        // Main Weather Display
+                        SizedBox(
+                          height: 350, // Increased height from 300 to 350 to accommodate content
+                          child: Stack(
+                            children: [
+                              AnimatedClouds(),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.sunny_snowing, // Replace with a rain icon if available
+                                    size: 100,
+                                    color: Colors.white,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  const Text(
+                                    '28°',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 80,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Text(
+                                    'Precipitations',
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const Text(
+                                    'MAX.: 31°  MIN.: 25°',
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      _buildWeatherDetail(Icons.water_drop, '6%'),
+                                      const SizedBox(width: 16),
+                                      _buildWeatherDetail(Icons.arrow_upward, '90%'),
+                                      const SizedBox(width: 16),
+                                      _buildWeatherDetail(Icons.air, '19 km/h'),
+                                    ],
+                                  ),
+                                ],
+                              )],
+                          ),
+                        ),
+
+                        // Weather Cards
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Column(
+                            children: [
+                              // String value = '${weathernewlive.stations[i].sensors[index].value}';
+                              // String errorStatus = '${weathernewlive.stations[i].sensors[index].errorStatus}';
+                              for (var index = 0;index < weathernewlive.stations[i].sensors.length; index++)
+                                _buildWeatherCard(titlelist[index], '${weathernewlive.stations[i].sensors[index].value} ${unitlist[index]}', '', Colors.orange),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               );
+
             } else {
               return Row(
                 children: [
@@ -326,7 +243,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     width: 250,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
-                      color: Colors.teal.shade100,
+                      color: Colors.grey.shade100,
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -337,19 +254,19 @@ class _WeatherScreenState extends State<WeatherScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
-                                Text('Last Sync:'),
+                                const Text('Last Sync:'),
                                 IconButton(
                                     onPressed: () {
                                       Request();
                                       fetchDataLive();
                                     },
-                                    icon: Icon(Icons.refresh)),
+                                    icon: const Icon(Icons.refresh)),
                               ],
                             ),
-                             Text(
+                            Text(
                               maxLines: 3,
                               '${weathernewlive.cT} / ${weathernewlive.cD}',
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 18),
                               textAlign: TextAlign.center,
                             ),
@@ -362,7 +279,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           fit: BoxFit.cover,
                         ),
                         Text(
-                           '${weathernewlive.stations[i].sensors[6].value}°C',
+                          '${weathernewlive.stations[i].sensors[6].value}°C',
                           style: TextStyle(
                               fontWeight: FontWeight.normal,
                               fontSize: 68,
@@ -430,20 +347,20 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           Container(
                             height: 20,
                             padding:
-                            EdgeInsets.only(left: 30, right: 30, bottom: 5),
+                            const EdgeInsets.only(left: 30, right: 30, bottom: 5),
                             alignment: Alignment.centerLeft,
                             child:  Text(
                               'Weather Sensors : $irname',
-                              style: TextStyle(fontWeight: FontWeight.w900),
+                              style: const TextStyle(fontWeight: FontWeight.w900),
                             ),
                           ),
 //${findIrrigationLine(weathernewlive.stations[i].deviceId) ?? ''}
                           Expanded(
                             flex: 3,
                             child: Container(
-                              color: Colors.teal.shade100,
+                              color: Colors.grey.shade100,
                               padding:
-                              EdgeInsets.only(left: 15, right: 15, bottom: 10),
+                              const EdgeInsets.only(left: 15, right: 15, bottom: 10),
                               // height: constraints.maxHeight * 0.59,
                               child: LayoutBuilder(
                                 builder: (BuildContext context,
@@ -478,8 +395,115 @@ class _WeatherScreenState extends State<WeatherScreen> {
           }),
     ));
   }
+  double? extractNumber(String value) {
+    RegExp regExp = RegExp(r'-?\d+(\.\d+)?');
+    Match? match = regExp.firstMatch(value);
+    if (match != null) {
+      return double.tryParse(match.group(0)!);
+    } else {
+      return 0.0;
+    }
+  }
+  Widget _buildWeatherDetail(IconData icon, String value) {
+    return Row(
+      children: [
+        Icon(icon, color: Colors.white70, size: 20),
+        const SizedBox(width: 4),
+        Text(
+          value,
+          style: const TextStyle(color: Colors.white70, fontSize: 16),
+        ),
+      ],
+    );
+  }
 
+  Widget _buildWeatherCard(String title, String value, String status, Color statusColor) {
+    double? extractval = extractNumber(value);
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: Colors.grey.withOpacity(0.2), // Adjust opacity and color
+          borderRadius: BorderRadius.circular(16), // Rounded corners
+          border: Border.all(
+            color: Colors.white.withOpacity(0.3), // Subtle border
+            width: 1,
+          ),
+        ),
 
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Icon(Icons.air, color: Colors.white70, size: 20),
+            const SizedBox(width: 4),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(color: Colors.white70, fontSize: 16),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    value,
+                    style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'MAX.: 00/00  MIN.: 00/00',
+                    style: TextStyle(color: Colors.white70, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              children: [
+                Stack(
+                  children: [
+                    Center(
+                      child: extractval! > 25 ? Image.asset(
+                        'assets/mob_dashboard/weathergraphval.png',
+                        fit: BoxFit.cover,
+                      ) : Image.asset(
+                        'assets/mob_dashboard/weathergraphemtyval.png',
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    Positioned(
+                      top: 20,
+                      left: 18,
+                      child: Text(
+                        '$extractval',
+                        style: const TextStyle(
+                          fontSize: 8,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (status.isNotEmpty)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: statusColor,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      status,
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Color Getcolor(String val) {
     if (val == '1') {
@@ -493,7 +517,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     }
   }
 
-   Device? deviceFind(int serialNumber) {
+  Device? deviceFind(int serialNumber) {
     return weatherdatadevicelist.where((device) => device.serialNumber == serialNumber).toList().isNotEmpty
         ? weatherdatadevicelist.where((device) => device.serialNumber == serialNumber).first
         : null;
@@ -502,8 +526,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
 // Find irrigation line by controllerId using .where
   String? findIrrigationLine(int controllerId) {
     int? devicctrlid = deviceFind(controllerId)?.controllerId!;
-     var irrigationLine = weatherdatairrigationline.where((line) => line.weatherStation.contains(devicctrlid)).toList();
-     return irrigationLine.isNotEmpty ? irrigationLine.first.name : 'All Line';
+    var irrigationLine = weatherdatairrigationline.where((line) => line.weatherStation.contains(devicctrlid)).toList();
+    return irrigationLine.isNotEmpty ? irrigationLine.first.name : 'All Line';
   }
 
   Widget gaugeViewWeather(String title, int i, int index) {
@@ -525,7 +549,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
     } else {
       bgcolor = Colors.white;
     }
-     if (index == 0) {
+
+    if (index == 0) {
       title = 'SoilMoisture 1';
       type = '1';
       Unit = 'CB';
@@ -550,77 +575,79 @@ class _WeatherScreenState extends State<WeatherScreen> {
       Max = 200;
       imageAsserStr = 'assets/mob_dashboard/SoilMoisture.png';
     } else if (index == 4) {
-       title = 'Temperature';
+      title = 'Temperature';
       type = '2';
       Unit = '°C';
       Max = 100;
       imageAsserStr = 'assets/mob_dashboard/SoilTemp .png';
     } else if (index == 5) {
-       title = 'AtmospherePressure';
+      title = 'AtmospherePressure';
       type = '2';
       Unit = '°C';
       Max = 100;
       imageAsserStr = 'assets/mob_dashboard/SoilTemp .png';
     } else if (index == 6) {
-       title = 'Humidity';
+      title = 'Humidity';
       type = '3';
       Unit = 'kPa';
       Max = 2000;
       imageAsserStr = 'assets/mob_dashboard/pressure.png';
     } else if (index == 7) {
-       title = 'LeafWetness';
+      title = 'LeafWetness';
       type = '2';
       Unit = '%';
       Max = 100;
       imageAsserStr = 'assets/mob_dashboard/humidity.png';
     } else if (index == 8) {
-       title = 'Co2';
+      title = 'Co2';
       type = '4';
       Unit = '%';
       Max = 100;
       imageAsserStr = 'assets/mob_dashboard/leafWetness.png';
     } else if (index == 9) {
-       title = 'LDR';
+      title = 'LDR';
       type = '2';
       Unit = 'ppm';
       Max = 1000;
       imageAsserStr = 'assets/mob_dashboard/CO-2.png';
     } else if (index == 10) {
-       title = 'Lux';
+      title = 'Lux';
       type = '5';
       Unit = 'Lu';
       Max = 100;
       imageAsserStr = 'assets/mob_dashboard/LDR.png';
     } else if (index == 11) {
-       title = 'WindDirection';
+      title = 'WindDirection';
       type = '5';
       Unit = 'Lu';
       Max = 100;
       imageAsserStr = 'assets/mob_dashboard/Lux.png';
     } else if (index == 12) {
-       title = 'Rainfall';
+      title = 'Rainfall';
       type = '7';
       Unit = 'CB';
       Max = 360;
       imageAsserStr = 'assets/mob_dashboard/WindDirection.png';
     } else if (index == 13) {
-       title = 'WindSpeed';
+      title = 'WindSpeed';
       type = '2';
       Unit = 'mm';
       Max = 100;
       imageAsserStr = 'assets/mob_dashboard/rainFall.png';
     } else if (index == 14) {
-       title = 'Wind Direction';
+      title = 'Wind Direction';
       type = '3';
       Unit = 'km/h';
       Max = 100;
       imageAsserStr = 'assets/mob_dashboard/WindSpeed.png';
     } else {
-       title = 'WindSpeed';
+      title = 'WindSpeed';
       type = '0';
       Unit = '';
       imageAsserStr = 'assets/mob_dashboard/WindSpeed.png';
     }
+
+
     // type = '1';
     if (type == "1") {
       return Container(
@@ -639,7 +666,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     // fit: BoxFit.cover,
                   ),
                 ),
-                SizedBox(height: 30, width: 150, child: Text('$title',textAlign: TextAlign.center, style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold))),
+                SizedBox(height: 30, width: 150, child: Text('$title',textAlign: TextAlign.center, style: const TextStyle(fontSize: 15,fontWeight: FontWeight.bold))),
               ],
             ),
             Container(height: 200,
@@ -714,7 +741,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     // fit: BoxFit.cover,
                   ),
                 ),
-                SizedBox(height: 30, width: 160, child: Text('$title',textAlign: TextAlign.center, style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold))),
+                SizedBox(height: 30, width: 160, child: Text('$title',textAlign: TextAlign.center, style: const TextStyle(fontSize: 15,fontWeight: FontWeight.bold))),
               ],
             ),
             Container(
@@ -783,7 +810,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     // fit: BoxFit.cover,
                   ),
                 ),
-                SizedBox(height: 30, width: 160, child: Text('$title',textAlign: TextAlign.center, style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold))),
+                SizedBox(height: 30, width: 160, child: Text('$title',textAlign: TextAlign.center, style: const TextStyle(fontSize: 15,fontWeight: FontWeight.bold))),
               ],
             ),
             Container(height: 200,
@@ -873,7 +900,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     // fit: BoxFit.cover,
                   ),
                 ),
-                SizedBox(height: 30, width: 150, child: Text('$title',textAlign: TextAlign.center, style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold))),
+                SizedBox(height: 30, width: 150, child: Text('$title',textAlign: TextAlign.center, style: const TextStyle(fontSize: 15,fontWeight: FontWeight.bold))),
               ],
             ),
             Container(
@@ -888,8 +915,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     enableLoadingAnimation: true,
                     animationDuration: 1000,
                     axes: <RadialAxis>[
-                       RadialAxis(
-                          backgroundImage: AssetImage('assets/mob_dashboard/compass.png'),
+                      RadialAxis(
+                          backgroundImage: const AssetImage('assets/mob_dashboard/compass.png'),
                           radiusFactor: 1,
                           canRotateLabels: true,
                           offsetUnit: GaugeSizeUnit.factor,
@@ -966,7 +993,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     // fit: BoxFit.cover,
                   ),
                 ),
-                SizedBox(height: 30, width: 150, child: Text('$title',textAlign: TextAlign.center, style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold))),
+                SizedBox(height: 30, width: 150, child: Text('$title',textAlign: TextAlign.center, style: const TextStyle(fontSize: 15,fontWeight: FontWeight.bold))),
               ],
             ),
             Container(
@@ -1048,11 +1075,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
             children: <TextSpan>[
               TextSpan(
                 text: '$M: ',
-                style: TextStyle(color: Colors.black, fontSize: 14),
+                style: const TextStyle(color: Colors.black, fontSize: 14),
               ),
               TextSpan(
                 text: '$Mval',
-                style: TextStyle(color: Colors.red, fontSize: 15,fontWeight: FontWeight.bold),
+                style: const TextStyle(color: Colors.red, fontSize: 15,fontWeight: FontWeight.bold),
               ),
 
               TextSpan(
@@ -1066,7 +1093,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
       ],
     );
   }
-   static String degreeToDirection(String degreestr) {
+  static String degreeToDirection(String degreestr) {
     print('degreestr$degreestr');
     String cleanedString = degreestr.replaceAll('º', '').trim();
     double degree = double.parse(degreestr);
@@ -1090,7 +1117,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
       return degreestr;
     }
   }
-   void handleAxisLabelCreated(AxisLabelCreatedArgs args) {
+  void handleAxisLabelCreated(AxisLabelCreatedArgs args) {
     if (args.text == '90') {
       args.text = 'E';
       args.labelStyle = const GaugeTextStyle(
@@ -1112,7 +1139,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
       const GaugeTextStyle(color: Color(0xFFFFFFFF), fontSize: 10);
     }
   }
-    Request() {
+  Request() {
     String payLoadFinal = jsonEncode({
       "5000": [
         {"5001": ""},
@@ -1120,7 +1147,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     });
     // MqttService().topicToPublishAndItsMessage(payLoadFinal, 'AppToFirmware/${widget.deviceID}');
   }
-   // TODO: implement widget
+  // TODO: implement widget
   Future<void> fetchDataSunRiseSet() async {
     try {
       final response = await http.get(Uri.parse(
@@ -1143,7 +1170,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
       print('Exception: $e');
     }
   }
-   void fetchDataLive() async {
+  void fetchDataLive() async {
     print("getData");
     try
     {
@@ -1162,8 +1189,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
           weathernewlive = WeatherData.fromJson(jsonData);
           // weatherdatairrigationline = IrrigationLine.fromJson(jsonData['data']['irrigationLine']);
           // weatherdatadevicelist = Device.fromJson(jsonData['data']['deviceList']);
-
-
           weatherdatairrigationline = List<IrrigationLine>.from(
             jsonData['data']['irrigationLine'].map((data) => IrrigationLine.fromJson(data)),
           );
@@ -1172,10 +1197,10 @@ class _WeatherScreenState extends State<WeatherScreen> {
           weatherdatadevicelist = List<Device>.from(
             jsonData['data']['deviceList'].map((data) => Device.fromJson(data)),
           );
-           });
+        });
       }
-     } catch (e, stackTrace) {
-       print(' trace overAll getData  => ${stackTrace}');
+    } catch (e, stackTrace) {
+      print(' trace overAll getData  => ${stackTrace}');
     }
   }
-  }
+}

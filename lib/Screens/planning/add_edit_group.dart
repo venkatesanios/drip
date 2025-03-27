@@ -1,20 +1,27 @@
 import 'dart:convert'; // For JSON encoding
 import 'package:flutter/material.dart';
 import '../../Models/valve_group_model.dart';
-import '../../modules/IrrigationProgram/view/program_library.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
-import '../../services/mqtt_service.dart';
 import '../../utils/snack_bar.dart';
+
 class AddEditValveGroup extends StatefulWidget {
   final String? selectedline;
   final int? selectedgroupindex;
   final bool editcheck;
+  final int userId;
+  final int controllerId;
   final List<ValveGroup>? valveGroupdata;
   valveGroupData groupdata;
 
-
-  AddEditValveGroup({this.selectedline,this.selectedgroupindex,required this.editcheck, this.valveGroupdata, required this.groupdata});
+  AddEditValveGroup(
+      {this.selectedline,
+      this.selectedgroupindex,
+      required this.editcheck,
+      this.valveGroupdata,
+      required this.groupdata,
+      required this.userId,
+      required this.controllerId});
 
   @override
   _AddEditValveGroupState createState() => _AddEditValveGroupState();
@@ -22,29 +29,41 @@ class AddEditValveGroup extends StatefulWidget {
 
 class _AddEditValveGroupState extends State<AddEditValveGroup> {
   final TextEditingController _controller = TextEditingController();
-  IrrigationLine? selectedIrrigationLine;  // Keep track of selected irrigation line
+  IrrigationLine?
+      selectedIrrigationLine; // Keep track of selected irrigation line
   List<Valve> selectedValves = [];
-   int selctlineindex = 0;
+  List<double> selectedvalvesno = [];
+  int selctlineindex = 0;
   @override
   void initState() {
     super.initState();
-
+    print("valvegroup init ${widget.valveGroupdata}");
     selctlineindex = getIrrigationLineIndexByName(widget.selectedline ?? '');
+    if (widget.valveGroupdata != null &&
+        widget.valveGroupdata!.isNotEmpty &&
+        widget.editcheck) {
+       selectedValves =
+          widget.valveGroupdata?[widget.selectedgroupindex!].valve ?? [];
+      selectedvalvesno = widget.valveGroupdata![widget.selectedgroupindex!].valve.map((e) => e.sNo).toList();
+      _controller.text =
+          widget.valveGroupdata?[widget.selectedgroupindex!].groupName ?? '';
+       double selectedIrrigationLinesrno = widget.valveGroupdata![widget.selectedgroupindex!].sNo;
 
-  selectedValves =  widget.valveGroupdata?[widget.selectedgroupindex!].valve ?? [];
-     // Set a default irrigation line if available
-    _controller.text = widget.valveGroupdata?[widget.selectedgroupindex!].groupName ?? '';
-    selectedIrrigationLine = widget.groupdata?.defaultData.irrigationLine[0];
-   }
+         selectedIrrigationLine = widget.groupdata?.defaultData.irrigationLine
+          .firstWhere(
+            (line) => line.sNo == selectedIrrigationLinesrno,
+       );
+     }
+    else
+      {
+        selectedIrrigationLine = widget.groupdata?.defaultData.irrigationLine[0];
+      }
+  }
 
   @override
   Widget build(BuildContext context) {
-    print('selectedValves${selectedValves.toString()}');
-    print('widget.selectedgroupindex!${widget.selectedgroupindex!}');
-    print('_controller.text${_controller.text}');
-    print('selectedIrrigationLine${selectedIrrigationLine?.toJson()}');
 
-    return Scaffold(
+     return Scaffold(
       appBar: AppBar(
         title: const Text('Add Edit Valve Group'),
       ),
@@ -60,7 +79,6 @@ class _AddEditValveGroupState extends State<AddEditValveGroup> {
             ),
             TextFormField(
               controller: _controller,
-
               decoration: const InputDecoration(
                 labelText: 'Enter text',
                 // border: OutlineInputBorder(),
@@ -86,11 +104,11 @@ class _AddEditValveGroupState extends State<AddEditValveGroup> {
                   selctlineindex = getIrrigationLineIndexByName(newValue!.name);
                   selectedIrrigationLine = newValue;
                   selectedValves.clear();
-                  print(" drop down selctlineindex  $selctlineindex");
-                  print("drop down  selectedIrrigationLine  ${selectedIrrigationLine?.toJson()}");
+
                 });
               },
-              items: widget.groupdata!.defaultData.irrigationLine.map((IrrigationLine line) {
+              items: widget.groupdata!.defaultData.irrigationLine
+                  .map((IrrigationLine line) {
                 return DropdownMenuItem<IrrigationLine>(
                   value: line,
                   child: Text(line.name),
@@ -108,15 +126,23 @@ class _AddEditValveGroupState extends State<AddEditValveGroup> {
                 spacing: 8.0,
                 runSpacing: 4.0,
                 children: selectedIrrigationLine!.valve.map((Valve valve) {
-                  return ChoiceChip(
+                  for (var e in selectedValves) {
+                    print(e.toJson());
+                  }
+                   return ChoiceChip(
                     label: Text(valve.name),
-                    selected: selectedValves.contains(valve),
+                    selected: selectedvalvesno.contains(valve.sNo),
                     onSelected: (bool selected) {
                       setState(() {
-                        if (selected) {
-                          selectedValves.add(valve); // Add valve to selection
+                         if (selected) {
+                          if (!selectedValves.contains(valve)) {
+                            selectedValves.add(valve);
+                            selectedvalvesno.add(valve.sNo);
+                          } // Add valve to selection
                         } else {
-                          selectedValves.remove(valve); // Remove valve from selection
+                          selectedValves
+                              .remove(valve); // Remove valve from selection
+                          selectedvalvesno.remove(valve.sNo);
                         }
                       });
                     },
@@ -128,16 +154,22 @@ class _AddEditValveGroupState extends State<AddEditValveGroup> {
             ElevatedButton(
               onPressed: selectedValves.isNotEmpty
                   ? () {
-                // Generate valveGroup JSON
-                generateValveGroup();
+                      // Generate valveGroup JSON
+                      generateValveGroup();
 
-                 // Display a confirmation message
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Valve group created!')),
-                );
-              }
+                      // Display a confirmation message
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Valve group created!')),
+                      );
+                    }
                   : null,
-              child:  Text('Create Valve Group',style: TextStyle(color: selectedValves.isEmpty ? Theme.of(context).primaryColorDark  : Colors.white),),
+              child: Text(
+                'Create Valve Group',
+                style: TextStyle(
+                    color: selectedValves.isEmpty
+                        ? Theme.of(context).primaryColorDark
+                        : Colors.white),
+              ),
             ),
           ],
         ),
@@ -149,7 +181,6 @@ class _AddEditValveGroupState extends State<AddEditValveGroup> {
     var defaultData = widget.groupdata!.defaultData;
     for (int i = 0; i < defaultData.irrigationLine.length; i++) {
       if (defaultData.irrigationLine[i].name == irrigationLineName) {
-        print('getIrrigationLineIndexByName  select index $i');
         return i;
       }
     }
@@ -158,36 +189,42 @@ class _AddEditValveGroupState extends State<AddEditValveGroup> {
 
   // Function to generate the valveGroup JSON
   generateValveGroup() {
-    print("widget.selectedgroupindex! ${widget.selectedgroupindex!}");
-    print("widget.ValveGrouplist! ${widget.valveGroupdata?.toString()}");
-    ValveGroup vdate = ValveGroup(objectId: widget.groupdata!.defaultData.irrigationLine[selctlineindex].objectId, groupName: _controller.text, irrigationLineName: widget.groupdata!.defaultData.irrigationLine[selctlineindex].name,  sNo: widget.groupdata!.defaultData.irrigationLine[selctlineindex].sNo, name: widget.groupdata!.defaultData.irrigationLine[selctlineindex].name, objectName: widget.groupdata!.defaultData.irrigationLine[selctlineindex].objectName, valve: selectedValves);
-    widget.editcheck ? widget.groupdata!.valveGroup![widget.selectedgroupindex!] = vdate : widget.groupdata!.valveGroup?.add(vdate);
-   widget.editcheck ? widget.valveGroupdata!.removeAt(widget.selectedgroupindex!) : null;
-    widget.valveGroupdata?.add(vdate);
+    String groupid = 'VG.${widget.valveGroupdata!.length + 1}';
+    groupid = widget.editcheck
+        ? '${widget.groupdata!.valveGroup![widget.selectedgroupindex!].groupID}'
+        : groupid;
+    ValveGroup vdate = ValveGroup(
+        groupID: groupid,
+        objectId: widget
+            .groupdata!.defaultData.irrigationLine[selctlineindex].objectId,
+        groupName: _controller.text,
+        irrigationLineName:
+            widget.groupdata!.defaultData.irrigationLine[selctlineindex].name,
+        sNo: widget.groupdata!.defaultData.irrigationLine[selctlineindex].sNo,
+        name: widget.groupdata!.defaultData.irrigationLine[selctlineindex].name,
+        objectName: widget
+            .groupdata!.defaultData.irrigationLine[selctlineindex].objectName,
+        valve: selectedValves);
+    widget.editcheck
+        ? widget.groupdata!.valveGroup![widget.selectedgroupindex!] = vdate
+        : widget.groupdata!.valveGroup?.add(vdate);
+
      createvalvegroup(vdate);
   }
 
   createvalvegroup(ValveGroup data) async {
-
     final Repository repository = Repository(HttpService());
     Map<String, dynamic> body = {
-      "userId": 4,
-      "controllerId": 1,
-      "valveGroup":  widget.valveGroupdata?.map((x) => x.toJson()).toList() ?? [],
-       "createUser": 4
+      "userId": widget.userId,
+      "controllerId": widget.controllerId,
+      "valveGroup":
+          widget.valveGroupdata?.map((x) => x.toJson()).toList() ?? [],
+      "createUser": widget.userId
     };
 
     var getUserDetails = await repository.createUserValveGroup(body);
     var jsonDataResponse = jsonDecode(getUserDetails.body);
-    print(jsonDataResponse);
-    GlobalSnackBar.show(context, jsonDataResponse['message'], jsonDataResponse.statusCode);
-
+     GlobalSnackBar.show(
+        context, jsonDataResponse['message'], jsonDataResponse['code']);
   }
 }
-
-
-
-
-
-
-

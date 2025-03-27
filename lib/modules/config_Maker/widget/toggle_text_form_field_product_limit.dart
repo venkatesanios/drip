@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
-import '../Constants/communication_codes.dart';
-import '../Constants/dialog_boxes.dart';
-import '../modules/config_Maker/model/device_object_model.dart';
-import '../modules/config_Maker/view/product_limit.dart';
-import '../modules/config_Maker/state_management/config_maker_provider.dart';
+import '../../../Constants/communication_codes.dart';
+import '../../../Constants/dialog_boxes.dart';
+import '../model/device_object_model.dart';
+import '../view/product_limit.dart';
+import '../state_management/config_maker_provider.dart';
 
 class ToggleTextFormFieldForProductLimit extends StatefulWidget {
   final ConfigMakerProvider configPvd;

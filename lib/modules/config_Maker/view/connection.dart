@@ -7,8 +7,8 @@ import '../../../Constants/properties.dart';
 import '../model/device_model.dart';
 import '../model/device_object_model.dart';
 import '../state_management/config_maker_provider.dart';
-import '../../../Widgets/connection_grid_list_tile.dart';
-import '../../../Widgets/connector_widget.dart';
+import '../widget/connection_grid_list_tile.dart';
+import '../widget/connector_widget.dart';
 import '../../../Widgets/sized_image.dart';
 
 class Connection extends StatefulWidget {

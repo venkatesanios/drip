@@ -382,6 +382,12 @@ class Pump {
   int status;
   bool selected;
   String onDelayLeft;
+  String voltage;
+  String current;
+  String reason;
+  String setValue;
+  String actualValue;
+  String phase;
 
   Pump({
     required this.objectId,
@@ -395,6 +401,12 @@ class Pump {
     this.status=0,
     this.selected=false,
     this.onDelayLeft='00:00:00',
+    this.voltage='0_0_0',
+    this.current='0_0_0',
+    this.reason='0',
+    this.setValue='0',
+    this.actualValue='0',
+    this.phase='0',
   });
 
   factory Pump.fromJson(Map<String, dynamic> json) {
@@ -568,6 +580,7 @@ class FertilizerSite {
   List<Ec>? ec;
   List<Ph>? ph;
 
+
   FertilizerSite({
     required this.objectId,
     required this.sNo,
@@ -584,6 +597,7 @@ class FertilizerSite {
     required this.selector,
     required this.ec,
     required this.ph,
+
   });
 
   factory FertilizerSite.fromJson(Map<String, dynamic> json) {
@@ -608,6 +622,26 @@ class FertilizerSite {
           ? (json['ph'] as List).map((e) => Ph.fromJson(e)).toList()
           : [],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'connectionNo': connectionNo,
+      'objectName': objectName,
+      'type': type,
+      'controllerId': controllerId,
+      'count': count,
+      'siteMode': siteMode,
+      'channel': channel.map((e) => e.toJson()).toList(),
+      'boosterPump': boosterPump.map((e) => e.toJson()).toList(),
+      'agitator': agitator.map((e) => e.toJson()).toList(),
+      'selector': selector,
+      'ec': ec?.map((e) => e.toJson()).toList(),
+      'ph': ph?.map((e) => e.toJson()).toList(),
+    };
   }
 }
 
@@ -665,6 +699,20 @@ class Channel {
       level: json['level'].toDouble(),
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'connectionNo': connectionNo,
+      'objectName': objectName,
+      'type': type,
+      'controllerId': controllerId,
+      'count': count,
+      'level': level,
+    };
+  }
 }
 
 class Ec {
@@ -701,6 +749,19 @@ class Ec {
       controllerId: json['controllerId'],
       count: json['count'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'connectionNo': connectionNo,
+      'objectName': objectName,
+      'type': type,
+      'controllerId': controllerId,
+      'count': count,
+    };
   }
 
 
@@ -742,6 +803,18 @@ class Ph {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'connectionNo': connectionNo,
+      'objectName': objectName,
+      'type': type,
+      'controllerId': controllerId,
+      'count': count,
+    };
+  }
 
 }
 
@@ -782,6 +855,19 @@ class BoosterPump {
       count: json['count'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'connectionNo': connectionNo,
+      'objectName': objectName,
+      'type': type,
+      'controllerId': controllerId,
+      'count': count,
+    };
+  }
 }
 
 class Agitator {
@@ -821,6 +907,19 @@ class Agitator {
       count: json['count'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'connectionNo': connectionNo,
+      'objectName': objectName,
+      'type': type,
+      'controllerId': controllerId,
+      'count': count,
+    };
+  }
 }
 
 class IrrigationLineData {
@@ -833,6 +932,9 @@ class IrrigationLineData {
   final int? controllerId;
   final dynamic count;
   final List<Pump> irrigationPump;
+  final List<SensorModel> prsSwitch;
+  final List<SensorModel> pressureIn;
+
   final double? centralFiltration;
   //final double? localFiltration;
   final List<Valve> valves;
@@ -849,17 +951,23 @@ class IrrigationLineData {
     required this.controllerId,
     required this.count,
     required this.irrigationPump,
+    required this.prsSwitch,
+    required this.pressureIn,
     required this.centralFiltration,
     //required this.localFiltration,
     required this.valves,
   });
 
   factory IrrigationLineData.fromJson(Map<String, dynamic> json) {
+    print(json);
+    print(json['pressureSwitch']);
     double cFilterSNo = 0.0;
-    if(json['centralFiltration'] is int){
-      cFilterSNo = (json['centralFiltration'] as num).toDouble();
-    }else{
-      cFilterSNo = json['centralFiltration']['sNo'];
+    if (json['centralFiltration'] != null && json['centralFiltration'].toString().trim().isNotEmpty) {
+      if (json['centralFiltration'] is int) {
+        cFilterSNo = (json['centralFiltration'] as num).toDouble();
+      } else if (json['centralFiltration'] is Map && json['centralFiltration'].containsKey('sNo')) {
+        cFilterSNo = json['centralFiltration']['sNo'];
+      }
     }
 
     return IrrigationLineData(
@@ -871,6 +979,32 @@ class IrrigationLineData {
       type: json['type'],
       controllerId: json['controllerId'],
       count: json['count'],
+      prsSwitch: (json['pressureSwitch'] == null ||
+          json['pressureSwitch'] == 0 ||
+          (json['pressureSwitch'] is List && json['pressureSwitch'].isEmpty))
+          ? []
+          : (json['pressureSwitch'] is List)
+          ? (json['pressureSwitch'] as List)
+          .where((e) => e != null) // Ensure non-null elements
+          .map((e) => SensorModel.fromJson(e))
+          .toList()
+          : (json['pressureSwitch'] is Map<String, dynamic>)
+          ? [SensorModel.fromJson(json['pressureSwitch'])]
+          : [],
+
+      pressureIn: (json['pressureIn'] == null ||
+          json['pressureIn'] == 0 ||
+          (json['pressureIn'] is List && json['pressureIn'].isEmpty))
+          ? []
+          : (json['pressureIn'] is List)
+          ? (json['pressureIn'] as List)
+          .where((e) => e != null) // Ensure non-null elements
+          .map((e) => SensorModel.fromJson(e))
+          .toList()
+          : (json['pressureIn'] is Map<String, dynamic>)
+          ? [SensorModel.fromJson(json['pressureIn'])]
+          : [],
+
       irrigationPump: (json['irrigationPump'] as List)
           .map((e) => Pump.fromJson(e))
           .toList(),
@@ -879,6 +1013,40 @@ class IrrigationLineData {
       valves: (json['valve'] as List).map((v) => Valve.fromJson(v))
           .toList(),
     );
+  }
+}
+
+class SensorModel {
+  final int objectId;
+  final double sNo;
+  final String name;
+  int status;
+  String value;
+
+  SensorModel({
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+    this.status = 0,
+    this.value = '0',
+  });
+
+  factory SensorModel.fromJson(Map<String, dynamic> json) {
+    return SensorModel(
+      objectId: json['objectId'],
+      sNo: (json['sNo'] as num).toDouble(),
+      name: json['name'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      "status": status,
+      "value": value,
+    };
   }
 }
 

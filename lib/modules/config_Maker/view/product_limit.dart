@@ -10,7 +10,7 @@ import '../model/device_model.dart';
 import '../model/device_object_model.dart';
 import '../state_management/config_maker_provider.dart';
 import '../../../Widgets/legend.dart';
-import '../../../Widgets/product_limit_grid_list_tile.dart';
+import '../widget/product_limit_grid_list_tile.dart';
 import '../../../Widgets/sized_image.dart';
 
 class ProductLimit extends StatefulWidget {

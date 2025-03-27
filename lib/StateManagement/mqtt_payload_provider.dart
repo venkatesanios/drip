@@ -90,6 +90,7 @@ class MqttPayloadProvider with ChangeNotifier {
   String liveDateAndTime = '';
   List<String> nodeLiveMessage = [];
   List<String> outputStatusPayload = [];
+  List<String> pumpPayload = [];
   List<String> currentSchedule = [];
   List<String> nextSchedule = [];
   List<String> scheduledProgram = [];
@@ -487,6 +488,7 @@ class MqttPayloadProvider with ChangeNotifier {
         wifiStrength = data['cM']['WifiStrength'];
         updateNodeLiveMessage(data['cM']['2401'].split(";"));
         updateOutputStatusPayload(data['cM']['2402'].split(";"));
+        updatePumpStatusPayload(data['cM']['2404'].split(";"));
         updateLineLiveMessage(data['cM']['2405'].split(";"));
         updateCurrentProgram(data['cM']['2408'].split(";"));
         updateNextProgram(data['cM']['2409'].split(";"));
@@ -831,6 +833,10 @@ class MqttPayloadProvider with ChangeNotifier {
 
   void updateOutputStatusPayload(List<String> message) {
     outputStatusPayload = message;
+  }
+
+  void updatePumpStatusPayload(List<String> message) {
+    pumpPayload = message;
   }
 
   void updateCurrentProgram(List<String> program) {

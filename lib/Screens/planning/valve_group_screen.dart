@@ -38,7 +38,7 @@ class _GroupListScreenState extends State<GroupListScreen> {
     }
   }
 
-  void deleteValveGroupAtIndex(int index) {
+   deleteValveGroupAtIndex(int index) {
     if (_groupdata.data?.valveGroup != null &&
         index >= 0 &&
         index < _groupdata.data!.valveGroup!.length) {
@@ -49,6 +49,7 @@ class _GroupListScreenState extends State<GroupListScreen> {
   }
 
   Future<void> fetchData() async {
+    print("fetch data Call");
     var overAllPvd = Provider.of<OverAllUse>(context, listen: false);
 
     Map<String, Object> body = {
@@ -69,6 +70,7 @@ class _GroupListScreenState extends State<GroupListScreen> {
 
   }
   createvalvegroup() async {
+    print("createvalvegroup call");
 
     final Repository repository = Repository(HttpService());
     Map<String, dynamic> body = {
@@ -80,9 +82,14 @@ class _GroupListScreenState extends State<GroupListScreen> {
 
     var getUserDetails = await repository.createUserValveGroup(body);
     var jsonDataResponse = jsonDecode(getUserDetails.body);
-    print(jsonDataResponse);
-    GlobalSnackBar.show(context, jsonDataResponse['message'], jsonDataResponse.statusCode);
-
+    print("jsonDataResponse$jsonDataResponse");
+    GlobalSnackBar.show(context, jsonDataResponse['message'], jsonDataResponse['code']);
+   if(jsonDataResponse['code'] == 200)
+    {
+       setState(() {
+        fetchData();
+      });
+    }
   }
 
   @override
@@ -139,18 +146,21 @@ class _GroupListScreenState extends State<GroupListScreen> {
                                     ),
                                   ),
                                   const Text("Valves List:"),
-                                  Wrap(
-                                    spacing: 5.0,
-                                    runSpacing: 10.0,
-                                    children: List.generate(
-                                        _groupdata.data?.valveGroup![index].valve.length ?? 0,
-                                            (vindex) {
-                                          return Chip(
-                                            label: Text(
-                                                '${_groupdata.data?.valveGroup![index].valve[vindex].name}'),
-                                            backgroundColor: Colors.blueAccent,
-                                          );
-                                        }),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Wrap(
+                                      spacing: 5.0,
+                                      runSpacing: 10.0,
+                                      children: List.generate(
+                                          _groupdata.data?.valveGroup![index].valve.length ?? 0,
+                                              (vindex) {
+                                            return Chip(
+                                              label: Text(
+                                                  '${_groupdata.data?.valveGroup![index].valve[vindex].name}'),
+                                              backgroundColor: Colors.blueAccent,
+                                            );
+                                          }),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -180,8 +190,9 @@ class _GroupListScreenState extends State<GroupListScreen> {
                                                 child: const Text('Cancel'),
                                               ),
                                               TextButton(
-                                                onPressed: () {
-                                                  deleteValveGroupAtIndex(index);
+                                                onPressed: () async {
+                                                  await deleteValveGroupAtIndex(index);
+                                                   createvalvegroup();
                                                   Navigator.of(context).pop();
                                                 },
                                                 child: const Text('Delete'),
@@ -204,6 +215,8 @@ class _GroupListScreenState extends State<GroupListScreen> {
                                       editcheck: true,
                                       selectedgroupindex: index,
                                       groupdata: _groupdata.data!,
+                                      userId: widget.userId,
+                                      controllerId: widget.controllerId,
                                     )));
                                     print('Icon Button Pressed');
                                   },
@@ -231,13 +244,11 @@ class _GroupListScreenState extends State<GroupListScreen> {
             // foregroundColor: Colors.white,
             child: const Icon(Icons.add,color: Colors.white,),
             onPressed: () {
-print("_groupdata.data!.defaultData.valveGroupLimit${_groupdata.data!.defaultData.valveGroupLimit}");
-print("_groupdata.data!.valveGroup!.length${_groupdata.data!.valveGroup!.length}");
-print("__groupdata.data!.defaultData.valveGroupLimit${_groupdata.data!.defaultData.valveGroupLimit}");
+
                if(_groupdata.data!.defaultData.valveGroupLimit > 0 && _groupdata.data!.valveGroup!.length < _groupdata.data!.defaultData.valveGroupLimit) {
                  Navigator.push(context, MaterialPageRoute(builder: (context) =>
                     AddEditValveGroup(
-                      editcheck: false, groupdata: _groupdata.data!,)));
+                      editcheck: false, groupdata: _groupdata.data!,userId: widget.userId,controllerId: widget.controllerId,valveGroupdata: _groupdata.data?.valveGroup,)));
               }
               else
     {

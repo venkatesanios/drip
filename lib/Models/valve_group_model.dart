@@ -54,6 +54,7 @@ class valveGroupData {
 }
 
 class ValveGroup {
+  final String groupID;
   final int objectId;
   final String groupName;
   final String irrigationLineName;
@@ -63,6 +64,7 @@ class ValveGroup {
   final List<Valve> valve;
 
   ValveGroup({
+    required this.groupID,
     required this.objectId,
     required this.groupName,
     required this.irrigationLineName,
@@ -74,6 +76,7 @@ class ValveGroup {
 
   factory ValveGroup.fromJson(Map<String, dynamic> json) {
     return ValveGroup(
+      groupID: json['groupId'],
       objectId: json['objectId'],
       groupName: json['groupName'],
       irrigationLineName: json['irrigationLineName'],
@@ -86,6 +89,7 @@ class ValveGroup {
 
   Map<String, dynamic> toJson() {
     return {
+      'groupId': groupID,
       'objectId': objectId,
       'groupName': groupName,
       'irrigationLineName': irrigationLineName,

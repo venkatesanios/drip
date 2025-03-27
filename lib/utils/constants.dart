@@ -82,6 +82,54 @@ enum GemLineSSReasonCode {
   }
 }
 
+enum PumpReasonCode {
+  reason1(1, 'Motor off due to sump empty'),
+  reason2(2, 'Motor off due to upper tank full'),
+  reason3(3, 'Motor off due to low voltage'),
+  reason4(4, 'Motor off due to high voltage'),
+  reason5(5, 'Motor off due to voltage SPP'),
+  reason6(6, 'Motor off due to reverse phase'),
+  reason7(7, 'Motor off due to starter trip'),
+  reason8(8, 'Motor off due to dry run'),
+  reason9(9, 'Motor off due to overload'),
+  reason10(10, 'Motor off due to current SPP'),
+  reason11(11, 'Motor off due to cyclic trip'),
+  reason12(12, 'Motor off due to maximum run time'),
+  reason13(13, 'Motor off due to sump empty'),
+  reason14(14, 'Motor off due to upper tank full'),
+  reason15(15, 'Motor off due to RTC 1'),
+  reason16(16, 'Motor off due to RTC 2'),
+  reason17(17, 'Motor off due to RTC 3'),
+  reason18(18, 'Motor off due to RTC 4'),
+  reason19(19, 'Motor off due to RTC 5'),
+  reason20(20, 'Motor off due to RTC 6'),
+  reason21(21, 'Motor off due to auto mobile key off'),
+  reason22(22, 'Motor on due to cyclic time'),
+  reason23(23, 'Motor on due to RTC 1'),
+  reason24(24, 'Motor on due to RTC 2'),
+  reason25(25, 'Motor on due to RTC 3'),
+  reason26(26, 'Motor on due to RTC 4'),
+  reason27(27, 'Motor on due to RTC 5'),
+  reason28(28, 'Motor on due to RTC 6'),
+  reason29(29, 'Motor on due to auto mobile key on'),
+  reason30(30, 'Motor off due to Power off'),
+  //reason31(31, 'Motor on due to Power on'),
+  unknown(0, 'Unknown content');
+
+  final int code;
+  final String content;
+  final String motorOff = "Motor off due to";
+  final String motorOn = "Motor on due to";
+
+  const PumpReasonCode(this.code, this.content);
+
+  static PumpReasonCode fromCode(int code) {
+    return PumpReasonCode.values.firstWhere((e) => e.code == code,
+      orElse: () => PumpReasonCode.unknown,
+    );
+  }
+}
+
 class AppConstants {
   static String apiUrl = Environment.apiUrl;
   static const int timeoutDuration = 30;
@@ -458,7 +506,17 @@ class AppConstants {
   static String pulseCode = '6';
   static String i2cCode = '7';
   static List<int> pumpModelList = [5, 6, 7, 8, 9, 10];
+  static int pumpObjectId = 5;
+  static int filterObjectId = 11;
+  static int mainValveObjectId = 14;
+  static int valveObjectId = 13;
   static int levelObjectId = 26;
+  static int irrigationLineObjectId = 2;
   static int waterMeterObjectId = 22;
   static int pressureSensorObjectId = 24;
+  static int fertilizerSiteObjectId = 3;
+  static int channelObjectId = 10;
+  static int ecObjectId = 27;
+  static int phObjectId = 28;
+  static int moistureObjectId = 25;
 }
