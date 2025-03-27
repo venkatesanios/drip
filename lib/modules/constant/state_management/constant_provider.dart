@@ -21,6 +21,7 @@ class ConstantProvider extends ChangeNotifier{
       "pump": [],
       "waterMeter": [],
       "filterSite": [],
+      "filter": [],
       "fertilizerSite": [],
       "fertilizerChannel": [],
       "ecPhSensor" : [],
@@ -81,7 +82,10 @@ class ConstantProvider extends ChangeNotifier{
           "color": "0xff14AE5C"
         }
       ],
-
+      "moistureMode" : [
+        {'sNo' : 1, 'title' : 'High', 'color' : '0xff14AE5C'},
+        {'sNo' : 2, 'title' : 'Low', 'color' : '0xffE73250'},
+      ],
       "globalAlarm" : [
         {"sNo":1,"title":"LowFlow","widgetTypeId":2,"dataType":"bool","value":false,"hidden":false,"software":true,"hardware":true},
         {"sNo":2,"title":"HighFlow","widgetTypeId":2,"dataType":"bool","value":false,"hidden":false,"software":true,"hardware":true},
@@ -130,6 +134,19 @@ class ConstantProvider extends ChangeNotifier{
         {"sNo":2,"title":"Flow Rate","widgetTypeId":1,"dataType":"int","value":0,"hidden":false,"software":true,"hardware":true},
         {"sNo":3,"title":"Control by Master","widgetTypeId":7,"dataType":"bool","value":false,"hidden":false,"software":true,"hardware":true}
       ],
+      "filterSite" : [
+        {"sNo":1,"title":"Backwash Off Time","widgetTypeId":3,"dataType":"String","value":"00:00:00","hidden":false,"software":true,"hardware":true},
+        {"sNo":2,"title":"Delay Between Filter","widgetTypeId":3,"dataType":"String","value":"00:00:00","hidden":false,"software":true,"hardware":true},
+        {"sNo":3,"title":"While Backwash","widgetTypeId":6,"dataType":"int","value":1,"hidden":false,"software":true,"hardware":true},
+        {"sNo":4,"title":"Number of Cycles for Backwash","widgetTypeId":1,"dataType":"int","value":0,"hidden":false,"software":true,"hardware":true},
+        {"sNo":5,"title":"Diff. Pressure Value","widgetTypeId":1,"dataType":"int","value":"0.0","hidden":false,"software":true,"hardware":true},
+        {"sNo":6,"title":"Diff. Pressure Scan Time","widgetTypeId":3,"dataType":"String","value":"00:00:00","hidden":false,"software":true,"hardware":true},
+        {"sNo":7,"title":"Backwash On Delay","widgetTypeId":3,"dataType":"String","value":"00:00:00","hidden":false,"software":true,"hardware":true},
+        {"sNo":8,"title":"Diff. Pressure Scan Delay after Backwash","widgetTypeId":3,"dataType":"String","value":"00:00:00","hidden":false,"software":true,"hardware":true}
+      ],
+      "filter" : [
+        {"sNo":1,"title":"Backwash On Time","widgetTypeId":3,"dataType":"String","value":"00:00:00","hidden":false,"software":true,"hardware":true},
+      ],
       "mainValve" : [
         {"sNo":1,"title":"Mode of Operation","widgetTypeId":6,"dataType":"int","value":1,"hidden":false,"software":true,"hardware":true},
         {"sNo":2,"title":"Delay","widgetTypeId":3,"dataType":"String","value":"00:00:00","hidden":false,"software":true,"hardware":true}
@@ -167,10 +184,6 @@ class ConstantProvider extends ChangeNotifier{
       "moistureSensor" : [
         {"sNo":1,"title":"High Low","widgetTypeId":6,"dataType":"int","value":1,"hidden":false,"software":true,"hardware":false},
       ],
-      "moistureMode" : [
-        {'sNo' : 1, 'title' : 'High', 'color' : '0xff14AE5C'},
-        {'sNo' : 2, 'title' : 'Low', 'color' : '0xffE73250'},
-      ],
       "levelSensor" : [
         {"sNo":1,"title":"Tank Height","widgetTypeId":1,"dataType":"double","value":0.0,"hidden":false,"software":true,"hardware":true}
       ],
@@ -183,6 +196,16 @@ class ConstantProvider extends ChangeNotifier{
         {
           "dealerDefinitionId": 83,
           "parameter": "Pump",
+          "value": "1"
+        },
+        {
+          "dealerDefinitionId": 70,
+          "parameter": "Filter Site",
+          "value": "1"
+        },
+        {
+          "dealerDefinitionId": 71,
+          "parameter": "Filter",
           "value": "1"
         },
         {
@@ -1436,6 +1459,7 @@ class ConstantProvider extends ChangeNotifier{
       }
     }
   };
+
   List<Map<String, dynamic>> configObjectDataFromHttp = [
     {
       "objectId": 1,
@@ -2263,6 +2287,8 @@ class ConstantProvider extends ChangeNotifier{
   List<ConstantSettingModel> globalAlarm = [];
   List<NormalCriticalAlarmModel> normalCriticalAlarm = [];
   List<ObjectInConstantModel> pump = [];
+  List<ObjectInConstantModel> filterSite = [];
+  List<ObjectInConstantModel> filter = [];
   List<ObjectInConstantModel> mainValve = [];
   List<ObjectInConstantModel> valve = [];
   List<ObjectInConstantModel> waterMeter = [];
@@ -2272,6 +2298,8 @@ class ConstantProvider extends ChangeNotifier{
   List<ObjectInConstantModel> moisture = [];
   List<ObjectInConstantModel> level = [];
   List<ConstantSettingModel> defaultPumpSetting = [];
+  List<ConstantSettingModel> defaultFilterSiteSetting = [];
+  List<ConstantSettingModel> defaultFilterSetting = [];
   List<ConstantSettingModel> defaultMainValveSetting = [];
   List<ConstantSettingModel> defaultValveSetting = [];
   List<ConstantSettingModel> defaultWaterMeterSetting = [];
@@ -2281,6 +2309,7 @@ class ConstantProvider extends ChangeNotifier{
   List<ConstantSettingModel> defaultMoistureSetting = [];
   List<ConstantSettingModel> defaultLevelSetting = [];
   List<ConstantSettingModel> defaultNormalCriticalAlarmSetting = [];
+  List<PopUpItemModel> filterSiteWhileBackwash = [];
   List<PopUpItemModel> mainValveMode = [];
   List<PopUpItemModel> fertilizerSiteControlFlag = [];
   List<PopUpItemModel> fertilizerChannelMode = [];
@@ -2352,6 +2381,7 @@ class ConstantProvider extends ChangeNotifier{
 
       //update object
       List<dynamic> listOfPumpObject = [];
+      List<dynamic> listOfFilterSiteObject = [];
       List<dynamic> listOfFilterObject = [];
       List<dynamic> listOfMainValveObject = [];
       List<dynamic> listOfValveObject = [];
@@ -2367,6 +2397,8 @@ class ConstantProvider extends ChangeNotifier{
       for (var object in configObjectDataFromHttp) {
         if(object['objectId'] == AppConstants.pumpObjectId){
           listOfPumpObject.add(object);
+        }else if(object['objectId'] == AppConstants.filterSiteObjectId){
+          listOfFilterSiteObject.add(object);
         }else if(object['objectId'] == AppConstants.filterObjectId){
           listOfFilterObject.add(object);
         }else if(object['objectId'] == AppConstants.mainValveObjectId){
@@ -2431,17 +2463,28 @@ class ConstantProvider extends ChangeNotifier{
       if (kDebugMode) {
         print('normalCriticalAlarm updated..');
     }
-      // print("normalCriticalAlarm -- ${normalCriticalAlarm.map((alarm){
-      //   return alarm.toJson();
-      // }).toList()}");
-
-
 
       //update pump
       defaultPumpSetting = generateDefaultSetting(defaultData: defaultData, keyName: 'pump');
       pump = generateObjectInConstantModel(listOfObject: listOfPumpObject, defaultData: defaultData, constantOldData: constantOldData, keyName: 'pump');
       if (kDebugMode) {
         print('pump updated..');
+      }
+
+
+      // update filterSite
+      filterSiteWhileBackwash = generatePopUpItemModel(defaultData: defaultData, keyName: 'filterSiteWhileBackwash');
+      defaultFilterSiteSetting = generateDefaultSetting(defaultData: defaultData, keyName: 'filterSite');
+      filterSite = generateObjectInConstantModel(listOfObject: listOfFilterSiteObject, defaultData: defaultData, constantOldData: constantOldData, keyName: 'filterSite');
+      if (kDebugMode) {
+        print('filterSite updated..');
+      }
+
+      // update filter
+      defaultFilterSetting = generateDefaultSetting(defaultData: defaultData, keyName: 'filter');
+      filter = generateObjectInConstantModel(listOfObject: listOfFilterObject, defaultData: defaultData, constantOldData: constantOldData, keyName: 'filter');
+      if (kDebugMode) {
+        print('filter updated..');
       }
 
       //update mainValve
@@ -2523,9 +2566,6 @@ class ConstantProvider extends ChangeNotifier{
       if (kDebugMode) {
         print('level updated..');
       }
-
-
-
 
 
     }catch(e, stackTrace){

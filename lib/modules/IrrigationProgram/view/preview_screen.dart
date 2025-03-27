@@ -1335,7 +1335,7 @@ class _SlidingSendButtonState extends State<SlidingSendButton> {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: isSent ? Colors.green : Theme.of(context).primaryColor,
+                color: isSent ? Colors.green : Theme.of(context).primaryColorLight,
                 borderRadius: BorderRadius.circular(25),
                 boxShadow: [
                   const BoxShadow(

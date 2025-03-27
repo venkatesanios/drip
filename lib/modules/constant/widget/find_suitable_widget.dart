@@ -21,7 +21,6 @@ class FindSuitableWidget extends StatefulWidget {
 class _FindSuitableWidgetState extends State<FindSuitableWidget> {
   @override
   Widget build(BuildContext context) {
-    print("widget.constantSettingModel.value : ${widget.constantSettingModel.value} - ${widget.constantSettingModel.value.runtimeType}");
     if(widget.constantSettingModel.widgetTypeId == 1){
       return CustomTextFormField(
           value: widget.constantSettingModel.value.value.toString(),
@@ -74,7 +73,7 @@ class _FindSuitableWidgetState extends State<FindSuitableWidget> {
       );
     }
     else{
-      return Center(child: const Text('N/A'));
+      return Center(child: Text(widget.constantSettingModel.value.value));
     }
   }
 }
