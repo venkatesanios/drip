@@ -31,7 +31,7 @@ class Routes {
         );
       case dashboard:
         return MaterialPageRoute(
-          builder: (_) => const ConstantBasePage(userData: {"userId" : 4, "controllerId": 1, "deviceId":"2CCF674C0F8A" },),
+          // builder: (_) => const ConstantBasePage(userData: {"userId" : 4, "controllerId": 1, "deviceId":"2CCF674C0F8A" },),
           // builder: (_) => const FertilizerSetScreen(userData: {"userId" : 4, "controllerId": 1, "deviceId":"2CCF674C0F8A" },),
           // builder: (_) => const StandaloneLog(userData: {"userId" : 4, "controllerId": 1, "deviceId":"2CCF674C0F8A" },),
           // builder: (_) => const ListOfLogConfig(userData: {"userId" : 4, "controllerId": 1, "deviceId":"2CCF674C0F8A" },),
@@ -40,7 +40,7 @@ class Routes {
           // builder: (_) => const ConfigBasePage(masterData: {}),
           // builder: (_) => ScheduleViewScreen(deviceId: "2CCF674C0F8A", userId: 4, controllerId: 1, customerId: 4, groupId: 1),
           // builder: (_) => ScheduleViewScreen(deviceId: "2CCF674C0F8A", userId: 4, controllerId: 1, customerId: 4, groupId: 1),
-          //  builder: (_) => const ScreenController(),
+           builder: (_) => const ScreenController(),
           settings: settings,
         );
       default:
