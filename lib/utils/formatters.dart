@@ -21,7 +21,7 @@ class Formatters {
       DateFormat formatter = DateFormat('MMM dd, yyyy hh:mm a');
       return formatter.format(dateTime);
     } catch (e) {
-      return "Invalid date format";
+      return "00 00, 0000, 00:00";
     }
   }
 

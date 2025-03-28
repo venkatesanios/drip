@@ -7,6 +7,7 @@ import 'package:oro_drip_irrigation/view_models/customer/controller_settings_vie
 import 'package:oro_drip_irrigation/views/customer/condition_library.dart';
 import 'package:provider/provider.dart';
 
+import '../../Models/customer/site_model.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import 'constant.dart';
@@ -397,7 +398,7 @@ class ControllerSettings extends StatelessWidget {
                           ),
                         ),
                         const Center(child: Text('Tab 2 Content')),
-                        Constant(customerId: customerId, controllerId: controllerId, userId: adDrId),
+                        Constant(customerId: customerId, controllerId: controllerId, userId: adDrId,),
                         ConditionLibrary(customerId, controllerId, adDrId),
                         const Center(child: Text('Tab 4 Content')),
                         const Center(child: Text('Tab 5 Content')),

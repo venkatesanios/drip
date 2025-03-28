@@ -54,9 +54,6 @@ class Tile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    String strInOutCount = getOutputInputCount(nodes[index].categoryName);
-    List<String> parts = strInOutCount.split('_');
-
     final List<RelayStatus> rlyStatusList = nodes[index].rlyStatus;
     //final List<SensorStatus> sensorStatusList = siteData.master[masterIndex].gemLive[0].nodeList[index].sensor;
 
@@ -100,7 +97,7 @@ class Tile extends StatelessWidget {
                 child: Column(
                   children: [
                     SizedBox(
-                      height: int.parse(parts[0])*35+30,
+                      height: rlyStatusList.length*35+30,
                       child: DataTable2(
                         columnSpacing: 12,
                         horizontalMargin: 12,
@@ -122,7 +119,7 @@ class Tile extends StatelessWidget {
                               size: ColumnSize.M
                           ),
                         ],
-                        rows: List<DataRow>.generate(int.parse(parts[0]), (index) {
+                        rows: List<DataRow>.generate(rlyStatusList.length, (index) {
 
                           final RelayStatus rly = rlyStatusList.firstWhere(
                                 (r) => r.rlyNo == (index + 1),

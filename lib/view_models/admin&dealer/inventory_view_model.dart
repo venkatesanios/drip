@@ -12,9 +12,12 @@ class InventoryViewModel extends ChangeNotifier {
 
   final Repository repository;
 
+  final int userId;
+  final UserRole userRole;
+
   List<InventoryModel> productInventoryList = [];
   List<InventoryModel> filterProductInventoryList = [];
-  bool isLoading = false;
+  bool isLoading = false, isLoadingMore = false;
   final ScrollController scrollController = ScrollController();
 
   int totalProduct = 0;
@@ -39,25 +42,43 @@ class InventoryViewModel extends ChangeNotifier {
   StockModel? selectedStock;
   int selectedProductId = 0;
 
-  InventoryViewModel(this.repository){
+  InventoryViewModel(this.repository, this.userId, this.userRole){
     scrollController.addListener(() {
       if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 100) {
-        if (totalProduct > productInventoryList.length && !isLoading) {
-          /*setState(() {
-            isLoading = true;
-          });
-          loadMoreData();*/
+        if (totalProduct > productInventoryList.length && !isLoadingMore) {
+          isLoadingMore = true;
+          notifyListeners();
+          loadMoreData();
         }
       }
     });
   }
 
-  Future<void> loadInventoryData(int userId, UserRole userRole, int set) async {
-    isLoading = true;
-    notifyListeners();
+  void loadMoreData() async {
+    try {
+      await Future.delayed(const Duration(seconds: 3), () {
+        loadInventoryData(getSetNumber(productInventoryList.length));
+      });
+    } finally {
+      isLoadingMore = false;
+      notifyListeners();
+    }
+  }
+
+  int getSetNumber(int length) {
+    int itemsPerSet = 30;
+    return (length ~/ itemsPerSet) + 1;
+  }
+
+  Future<void> loadInventoryData(int set) async {
 
     if(set==1){
+      isLoading = true;
+      notifyListeners();
       productInventoryList.clear();
+    }else{
+      isLoadingMore = true;
+      notifyListeners();
     }
 
     try {
@@ -85,11 +106,12 @@ class InventoryViewModel extends ChangeNotifier {
       debugPrint("Error: $error");
     } finally {
       isLoading = false;
+      isLoadingMore = false;
       notifyListeners();
     }
   }
 
-  Future<void> getCategoryModelList(int userId, UserRole userRole) async {
+  Future<void> getCategoryModelList() async {
     try {
       Map<String, dynamic> body = {
         "userId": userId,
@@ -522,6 +544,63 @@ class InventoryViewModel extends ChangeNotifier {
         );
       },
     );
+  }
+
+  Future<void> fetchFilterData(dynamic categoryId, dynamic modelId, dynamic value, UserRole userRole, int userId) async {
+
+    Map<String, dynamic> body = {};
+    bool isNameInput = false;
+
+    if(value!=null){
+      isNameInput = isName(value);
+    }
+
+    int userType = userRole.name == 'admin' ? 1 : userRole.name == 'dealer' ? 2:3;
+
+    if(isNameInput){
+      body = {"userId": userId, "userType": userType, "categoryId": categoryId, "modelId": modelId, "deviceId": null, "userName" : value};
+    }else{
+      body = {"userId": userId, "userType": userType, "categoryId": categoryId, "modelId": modelId, "deviceId": value, "userName" : null};
+    }
+
+    try {
+
+      var response = await repository.fetchFilteredProduct(body);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        if (responseBody["code"] == 200) {
+          searched = true;
+          if(userType==3){
+            //filterProductInventoryListCus = (jsonDecode(response.body)["data"] as List).map((data) => CustomerProductModel.fromJson(data)).toList();
+          }else{
+            filterProductInventoryList = (jsonDecode(response.body)["data"] as List).map((data) => InventoryModel.fromJson(data)).toList();
+          }
+        } else {
+          debugPrint("API Error: ${responseBody['message']}");
+        }
+      }
+    } catch (error) {
+      debugPrint("Error: $error");
+    } finally {
+      searched = true;
+      notifyListeners();
+    }
+
+  }
+
+  bool isName(String value) {
+    final nameRegex = RegExp(r'^[a-zA-Z\s]+$');
+    return nameRegex.hasMatch(value);
+  }
+
+  void clearSearch() {
+    txtFldSearch.clear();
+    searchedChipName = '';
+    filterActive = false;
+    searched = false;
+    filterProductInventoryList.clear();
+    showSearchButton = false;
+    notifyListeners();
   }
 
 }

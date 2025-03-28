@@ -848,6 +848,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         final responseJsonOfWaterAndFert = getWaterAndFert.body;
         final convertedJsonOfWaterAndFert = jsonDecode(responseJsonOfWaterAndFert);
         constantSetting = convertedJsonOfWaterAndFert['data']['default']['constant'];
+
         sequenceData = convertedJsonOfWaterAndFert['data']['waterAndFert'];
         notifyListeners();
       } else {
@@ -2323,6 +2324,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     pumpStationFlowRate = [];
 
     for (var index = 0; index < irrigationLine!.sequence.length; index++) {
+      print("constantSetting :: ${constantSetting['valve']}");
       for (var val in irrigationLine!.sequence[index]['valve']) {
         if(constantSetting['valve'] != null) {
           for (var i = 0; i < constantSetting['valve'].length; i++) {

@@ -29,11 +29,6 @@ class PreferenceProvider extends ChangeNotifier {
     });
   }
 
-  List<String> label = ["Settings"];
-  // List<String> label = ["General", "Settings", "Notifications"];
-  List<IconData> icons = [Icons.settings];
-  // List<IconData> icons = [Icons.manage_accounts, Icons.settings, Icons.notifications];
-
   GeneralData? generalData;
   GeneralData? get generalDataResult => generalData;
 
@@ -64,11 +59,10 @@ class PreferenceProvider extends ChangeNotifier {
       "userId": userId,
       "controllerId": controllerId
     };
-    print("userData ==> $userData");
 
+    print("userData :: $userData");
     try {
       final response = await repository.getUserPreferenceGeneral(userData);
-      print("response.try ${response.body}");
       if(response.statusCode == 200) {
         final result = jsonDecode(response.body);
         try {
@@ -90,7 +84,6 @@ class PreferenceProvider extends ChangeNotifier {
         try {
           individualPumpSetting = List.from(result['data']['individualPumpSetting'].map((json) => IndividualPumpSetting.fromJson(json)));
           commonPumpSettings = List.from(result['data']['commonPumpSetting'].map((json) => CommonPumpSetting.fromJson(json)));
-          // defaultSetting = List.from(result['data']['default']['settingList'].map((json) => SettingList.fromJson(json)));
         } catch(error, stackTrace) {
           print(error);
           print("stackTrace ==> $stackTrace");
@@ -104,18 +97,17 @@ class PreferenceProvider extends ChangeNotifier {
     }
     try {
       final response = await repository.getUserPreferenceCalibration(userData);
+      print("getUserPreferenceCalibration :: ${response.body}");
       if(response.statusCode == 200) {
         final result = jsonDecode(response.body);
         try {
           calibrationSetting = List.from(result['data'].map((json) => CommonPumpSetting.fromJson(json)));
-          // defaultCalibration = List.from(result['data']['default']['settingList'].map((json) => SettingList.fromJson(json)));
         } catch(error) {
           print(error);
         }
       } else {
         print("response.body ${response.body}");
       }
-      // print(calibrationSetting!.map((e) => e.toJson()));
     } catch(error, stackTrace) {
       print("Error parsing setting data: $error");
       print("Stack trace setting data: $stackTrace");
@@ -130,7 +122,6 @@ class PreferenceProvider extends ChangeNotifier {
         "password": password
       };
       final response = await repository.checkPassword(userData);
-      print(userData);
       final result = jsonDecode(response.body);
       passwordValidationCode = result['code'];
     } catch(error, stackTrace) {
@@ -143,17 +134,13 @@ class PreferenceProvider extends ChangeNotifier {
   var temp = [];
 
   void updateControllerReaStatus({required String key, required int oroPumpIndex, required bool failed}) {
-    // print("key ==> $key");
-    // print("oroPumpIndex ==> $oroPumpIndex");
     if(key.contains("100")) {
       commonPumpSettings![oroPumpIndex].settingList[0].controllerReadStatus = "1";
       individualPumpSetting![oroPumpIndex].settingList[0].changed = false;
-      // print("$key acknowledged");
     }
     if(key.contains("200")) {
       commonPumpSettings![oroPumpIndex].settingList[1].controllerReadStatus = "1";
       individualPumpSetting![oroPumpIndex].settingList[1].changed = false;
-      // print("$key acknowledged");
     }
     int pumpIndex = 0;
     for (var individualPump in individualPumpSetting ?? []) {
@@ -165,14 +152,14 @@ class PreferenceProvider extends ChangeNotifier {
         }
         for (var individualPumpSetting in individualPump.settingList) {
           switch (individualPumpSetting.pumpType) {
-            case 23:
+            case 23:case 203:
               if(key.contains("400-$pumpIndex")) {
                 individualPumpSetting.controllerReadStatus= "1";
                 individualPumpSetting.changed = false;
                 // print("$key acknowledged");
               }
               break;
-            case 22:
+            case 22:case 202:
               temp.add(key);
               // print("temp variable ==> ${temp.toSet()}");
               if(temp.toSet().contains("300-$pumpIndex") && temp.toSet().contains("500-$pumpIndex")) {
@@ -181,8 +168,8 @@ class PreferenceProvider extends ChangeNotifier {
                 // print("$key acknowledged");
               }
               break;
-            case 25:
-              if(key.contains("600-$pumpIndex")) {
+            case 25: case 205:
+            if(key.contains("600-$pumpIndex")) {
                 individualPumpSetting.controllerReadStatus = "1";
                 individualPumpSetting.changed = false;
                 // print("$key acknowledged");

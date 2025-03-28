@@ -1146,7 +1146,6 @@ Future<void> validatePayloadSent({
 
     if (isAcknowledged) {
       final decodedPayload = MqttService().acknowledgementPayload!;
-      print("decodedPayload :: $decodedPayload");
       if (decodedPayload['cM']['4201']['Code'] == "200") {
         acknowledgedFunction();
       } else {

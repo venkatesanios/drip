@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import '../../Models/customer/constant_model.dart';
 import '../../repository/repository.dart';
@@ -11,6 +10,8 @@ class ConstantViewModel extends ChangeNotifier {
   bool isLoading = false;
   String errorMessage = "";
 
+  BuildContext context;
+
   late UserConstant userConstant;
   late List<ConstantMenu> filteredMenu = [];
 
@@ -20,10 +21,28 @@ class ConstantViewModel extends ChangeNotifier {
   final TextEditingController _secondsController = TextEditingController();
 
   List<TextEditingController> txtEdControllersNF = [];
+  List<TextEditingController> txtEdControllersRatio = [];
+  List<TextEditingController> txtEdControllersThreshold = [];
+
+  List<TextEditingController> txtEdControllersMin = [];
+  List<TextEditingController> txtEdControllersMax = [];
+  List<TextEditingController> txtEdControllersHeight = [];
+
+  List<TextEditingController> txtEdControllersMinMS = [];
+  List<TextEditingController> txtEdControllersMaxMS = [];
 
 
-  ConstantViewModel(this.repository);
+  List<TextEditingController> txtEdControllersCheRatio = [];
+  List<TextEditingController> txtEdControllersChePulse = [];
+  List<TextEditingController> txtEdControllersCheNF = [];
 
+
+  ConstantViewModel(this.context, this.repository) {
+
+    txtEdControllersCheRatio = List.generate(8, (index) => TextEditingController());
+    txtEdControllersChePulse = List.generate(8, (index) => TextEditingController());
+    txtEdControllersCheNF = List.generate(8, (index) => TextEditingController());
+  }
 
   Future<void> getConstantData(int customerId, int controllerId) async
   {
@@ -35,13 +54,22 @@ class ConstantViewModel extends ChangeNotifier {
         if (response.statusCode == 200) {
           final jsonData = jsonDecode(response.body);
           if (jsonData["code"] == 200) {
-            userConstant = UserConstant.fromJson(jsonData['data']);
+            userConstant = UserConstant.fromJson(context, jsonData['data']);
             filteredMenu = userConstant.defaultData.constantMenus
-                .where((item) => item.parameter != "Normal Alarm" && item.value == '1')
+                .where((item) => item.parameter != "Normal Alarm")
                 .toList();
 
             txtEdControllers = List.generate(12, (index) => TextEditingController());
             txtEdControllersNF  = List.generate(userConstant.constant.valveList!.length, (index) => TextEditingController());
+            txtEdControllersRatio = List.generate(userConstant.constant.waterMeterList!.length, (index) => TextEditingController());
+            txtEdControllersThreshold = List.generate(userConstant.constant.criticalAlarm!.length, (index) => TextEditingController());
+
+            txtEdControllersMin = List.generate(userConstant.constant.levelSensor!.length, (index) => TextEditingController());
+            txtEdControllersMax = List.generate(userConstant.constant.levelSensor!.length, (index) => TextEditingController());
+            txtEdControllersHeight = List.generate(userConstant.constant.levelSensor!.length, (index) => TextEditingController());
+
+            txtEdControllersMinMS = List.generate(userConstant.constant.moistureSensor!.length, (index) => TextEditingController());
+            txtEdControllersMaxMS = List.generate(userConstant.constant.moistureSensor!.length, (index) => TextEditingController());
 
             for(int i=0; i < userConstant.constant.generalMenu.length; i++){
               if(userConstant.constant.generalMenu[i].widgetTypeId == 1) {
@@ -51,6 +79,29 @@ class ConstantViewModel extends ChangeNotifier {
 
             for(int i=0; i < userConstant.constant.valveList!.length; i++){
               txtEdControllersNF[i].text = userConstant.constant.valveList![i].txtValue;
+            }
+
+            for(int i=0; i < userConstant.constant.waterMeterList!.length; i++){
+              txtEdControllersNF[i].text = userConstant.constant.waterMeterList![i].radio;
+            }
+
+            for(int i=0; i < userConstant.constant.levelSensor!.length; i++){
+              txtEdControllersMin[i].text = userConstant.constant.levelSensor![i].min.toString();
+              txtEdControllersMax[i].text = userConstant.constant.levelSensor![i].max.toString();
+              txtEdControllersHeight[i].text = userConstant.constant.levelSensor![i].height.toString();
+            }
+
+            for(int i=0; i < userConstant.constant.moistureSensor!.length; i++){
+              txtEdControllersMinMS[i].text = userConstant.constant.moistureSensor![i].min.toString();
+              txtEdControllersMaxMS[i].text = userConstant.constant.moistureSensor![i].max.toString();
+            }
+
+            for (int i = 0; i < userConstant.constant.fertilization!.length; i++) {
+              for (int j = 0; j < userConstant.constant.fertilization![i].channel.length; j++) {
+                txtEdControllersCheRatio[j].text = userConstant.constant.fertilization![i].channel[j].ratioTxtValue;
+                txtEdControllersChePulse[j].text = userConstant.constant.fertilization![i].channel[j].pulseTxtValue;
+                txtEdControllersCheNF[j].text = userConstant.constant.fertilization![i].channel[j].nmlFlowTxtValue;
+              }
             }
 
             menuOnChange(0);
@@ -78,13 +129,50 @@ class ConstantViewModel extends ChangeNotifier {
     String finalVal = value.trim();
     if(type=='value'){
       userConstant.constant.valveList![index].txtValue = finalVal;
-    }else{
+    }
+    else if(type=='ratio'){
+      userConstant.constant.waterMeterList![index].radio = finalVal;
+    }
+    else if(type=='Threshold'){
+      userConstant.constant.criticalAlarm![index].threshold = finalVal;
+    }
+    else if(type=='levelSensorMin'){
+      userConstant.constant.levelSensor![index].min = double.parse(finalVal);
+    }
+    else if(type=='levelSensorMax'){
+      userConstant.constant.levelSensor![index].max = double.parse(finalVal);
+    }
+    else if(type=='levelSensorHeight'){
+      userConstant.constant.levelSensor![index].height = double.parse(finalVal);
+    }
+    else if(type=='moistureSensorMinMS'){
+      userConstant.constant.moistureSensor![index].min = double.parse(finalVal);
+    }
+    else if(type=='moistureSensorMaxMS'){
+      userConstant.constant.moistureSensor![index].max = double.parse(finalVal);
+    }
+    else if(type=='ratioTxtValue'){
+      userConstant.constant.fertilization![0].channel[index].ratioTxtValue = finalVal;
+    }
+    else if(type=='pulseTxtValue'){
+      userConstant.constant.fertilization![0].channel[index].pulseTxtValue = finalVal;
+    }
+    else if(type=='boosterDelayTxtValue'){
+      userConstant.constant.fertilization![0].channel[index].nmlFlowTxtValue = finalVal;
+    }
+
+    else{
       userConstant.constant.generalMenu[index].value = finalVal;
     }
   }
 
-  void updateGeneralSwitch(int index, bool status){
-    userConstant.constant.generalMenu[index].value = status;
+  void updateGeneralSwitch(int index, bool status, String type){
+    if(type=='globalAlarm'){
+      userConstant.constant.globalAlarm![index].value = status;
+    }else{
+      userConstant.constant.generalMenu[index].value = status;
+    }
+
     notifyListeners();
   }
 
@@ -165,13 +253,28 @@ class ConstantViewModel extends ChangeNotifier {
                   if(cnsType == 'general'){
                     userConstant.constant.generalMenu[index].value = durationValue;
                   }else if(cnsType == 'valve'){
-                    userConstant.constant.valveList![index].pickerVal = durationValue;
+                    userConstant.constant.valveList![index].duration = durationValue;
                   }else if(cnsType == 'mainValve'){
-                  userConstant.constant.mainValveList![index].pickerVal = durationValue;
-                  }else if(cnsType == 'irrigateLine') {
-                    userConstant.constant.irrigationLineList![index].pickerVal =
-                        durationValue;
+                  userConstant.constant.mainValveList![index].duration = durationValue;
+                  }else if(cnsType == 'irrigateLine_lfd') {
+                    userConstant.constant.irrigationLineList![index].lowFlowDelay = durationValue;
+                  }else if(cnsType == 'irrigateLine_hfd') {
+                    userConstant.constant.irrigationLineList![index].highFlowDelay = durationValue;
+                  }else if(cnsType == 'scanTime') {
+                    userConstant.constant.criticalAlarm![index].scanTime = durationValue;
+                  }else if(cnsType == 'autoResetDuration') {
+                    userConstant.constant.criticalAlarm![index].autoResetDuration = durationValue;
                   }
+                  else if(cnsType == 'minimalOnTime') {
+                    userConstant.constant.fertilization![index].minimalOnTime = durationValue;
+                  }
+                  else if(cnsType == 'minimalOffTime') {
+                    userConstant.constant.fertilization![index].minimalOffTime = durationValue;
+                  }
+                  else if(cnsType == 'boosterDelay') {
+                    userConstant.constant.fertilization![index].boosterDelay = durationValue;
+                  }
+
                   notifyListeners();
                   Navigator.of(context).pop();
                 }
@@ -232,14 +335,49 @@ class ConstantViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void delay(int index, String selectedValue){
-    userConstant.constant.mainValveList![index].delay = selectedValue;
+  void ddOnChange(int index, String selectedValue, String type){
+    if(type=='mainValve'){
+      userConstant.constant.mainValveList![index].delay = selectedValue;
+    }
+    else if(type=='criticalAlarm'){
+      userConstant.constant.criticalAlarm![index].alarmOnStatus = selectedValue;
+    }
+    else if(type=='resetAfterIrrigation'){
+      userConstant.constant.criticalAlarm![index].resetAfterIrrigation = selectedValue;
+    }
+    else if(type=='levelSensor'){
+      userConstant.constant.levelSensor![index].highLow = selectedValue;
+    }
+    else if(type=='units'){
+      userConstant.constant.levelSensor![index].units = selectedValue;
+    }
+    else if(type=='base'){
+      userConstant.constant.levelSensor![index].base = selectedValue;
+    }
+
+    else if(type=='highLowMS'){
+      userConstant.constant.moistureSensor![index].highLow = selectedValue;
+    }
+    else if(type=='unitsMS'){
+      userConstant.constant.moistureSensor![index].units = selectedValue;
+    }
+    else if(type=='baseMS'){
+      userConstant.constant.moistureSensor![index].base = selectedValue;
+    }
+    else if(type=='Injector Mode'){
+      userConstant.constant.fertilization![0].channel[index].injectorMode = selectedValue;
+    }
+
+
+
     notifyListeners();
   }
+
   void lowFlowAction(int index, String selectedValue){
     userConstant.constant.irrigationLineList![index].lowFlowAction = selectedValue;
     notifyListeners();
   }
+
   void highFlowAction(int index, String selectedValue){
     userConstant.constant.irrigationLineList![index].highFlowAction = selectedValue;
     notifyListeners();
@@ -255,20 +393,20 @@ class ConstantViewModel extends ChangeNotifier {
           "userId": customerId,
           "controllerId": controllerId,
           "general": cnsMenu['general'],
-          "line": cnsMenu['irrigationLineList'],
-          "mainValve": cnsMenu['mainValveList'],
+          "line": cnsMenu['irrigationLine'],
+          "mainValve": cnsMenu['mainValve'],
           "valve": cnsMenu['valveList'],
           "pump": cnsMenu['pumpList'],
-          "waterMeter": [],
+          "waterMeter": cnsMenu['waterMeter'],
           "filtration": [],
-          "fertilization": [],
+          "fertilization": cnsMenu['fertilization'],
           "ecPh": [],
           "analogSensor": [],
-          "moistureSensor": [],
-          "levelSensor": [],
+          "moistureSensor": cnsMenu['moistureSensor'],
+          "levelSensor": cnsMenu['levelSensor'],
           "normalAlarm": [],
-          "criticalAlarm": [],
-          "globalAlarm": [],
+          "criticalAlarm": cnsMenu['criticalAlarm'],
+          "globalAlarm": cnsMenu['globalAlarm'],
           "controllerReadStatus": '0',
           "createUser": createUserId,
 
@@ -288,7 +426,6 @@ class ConstantViewModel extends ChangeNotifier {
         setLoading(false);
       }
     });
-
   }
 
 
