@@ -9,14 +9,15 @@ class PumpControllerData {
   dynamic powerFactor;
   dynamic power;
   String numberOfPumps;
+  int dataFetchingStatus;
 
   PumpControllerData({required this.pumps, required this.voltage,
     required this.current, required this.batteryStrength,
     required this.signalStrength, required this.numberOfPumps,
     required this.version, required this.energyParameters,
-    required this.powerFactor, required this.power});
+    required this.powerFactor, required this.power, required this.dataFetchingStatus});
 
-  factory PumpControllerData.fromJson(Map<String, dynamic> json, String key) {
+  factory PumpControllerData.fromJson(Map<String, dynamic> json, String key, int dataFetchingStatus) {
     // print(json[key]);
     List<dynamic> pumpsJson = json[key] ?? [];
     dynamic lastElement = {};
@@ -36,6 +37,7 @@ class PumpControllerData {
       signalStrength: lastElement['SS'] ?? "",
       batteryStrength: lastElement['B'] ?? "",
       numberOfPumps: lastElement['NP'] ?? "0",
+      dataFetchingStatus: dataFetchingStatus
     );
   }
 }

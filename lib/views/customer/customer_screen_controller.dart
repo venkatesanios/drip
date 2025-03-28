@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Screens/Logs/irrigation_and_pump_log.dart';
 import 'package:oro_drip_irrigation/Screens/planning/WeatherScreen.dart';
+import 'package:oro_drip_irrigation/modules/PumpController/view/pump_dashboard_screen.dart';
 import 'package:oro_drip_irrigation/views/customer/program_schedule.dart';
 import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
 import 'package:oro_drip_irrigation/views/customer/stand_alone.dart';
@@ -11,6 +12,8 @@ import 'package:provider/provider.dart';
 import '../../Screens/Dealer/controllerverssionupdate.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../flavors.dart';
+import '../../modules/ScheduleView/view/schedule_view_screen.dart';
+import '../../modules/PumpController/view/pump_controller_home.dart';
 import '../../modules/ScheduleView/view/schedule_view_screen.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
@@ -430,10 +433,16 @@ class CustomerScreenController extends StatelessWidget {
                         const SizedBox(),
 
                         Expanded(
-                          child: mainScreen(navViewModel.selectedIndex, vm.mySiteList.data[vm.sIndex].groupId,
-                              vm.mySiteList.data[vm.sIndex].groupName, vm.mySiteList.data[vm.sIndex].master,
+                          child: mainScreen(
+                              navViewModel.selectedIndex,
+                              vm.mySiteList.data[vm.sIndex].groupId,
+                              vm.mySiteList.data[vm.sIndex].groupName,
+                              vm.mySiteList.data[vm.sIndex].master,
                               vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                              vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId),
+                              vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
+                              vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                              vm.mySiteList.data[vm.sIndex].master[vm.mIndex].live?.cM
+                          ),
                         ),
                       ],
                     ),
@@ -811,24 +820,23 @@ class CustomerScreenController extends StatelessWidget {
         selectedIcon: Icon(Icons.confirmation_num, color: Colors.white),
         label: Text(''),
       ),
-      const NavigationRailDestination(
-        icon: Tooltip(
-          message: 'Weather',
-          child: Icon(Icons.sunny_snowing),
-        ),
-        selectedIcon: Icon(Icons.sunny_snowing, color: Colors.white),
-        label: Text(''),
-      ),
     ];
 
     return destinations;
   }
 
-  Widget mainScreen(int index, groupId, groupName, List<Master> masterData, int controllerId, int categoryId) {
+  Widget mainScreen(int index, groupId, groupName, List<Master> masterData, int controllerId, int categoryId, String deviceId, liveData) {
     switch (index) {
       case 0:
         return categoryId==1? CustomerHome(customerId: userId):
-        const Text('pump dashboard');
+        PumpControllerHome(
+          deviceId: deviceId,
+          liveData: liveData,
+          masterName: groupName,
+          userId: userId,
+          customerId: customerId,
+          controllerId: controllerId,
+        );
       case 1:
         return CustomerProduct(customerId: userId);
       case 2:

@@ -21,8 +21,9 @@ class MqttPayloadProvider with ChangeNotifier {
   WeatherModel weatherModelinstance = WeatherModel();
 
   Map<String, dynamic> pumpControllerPayload = {};
-  Map<String, dynamic> preferencePayload = {};
   List viewSettingsList = [];
+  List cCList = [];
+  Map<String, dynamic> viewSetting = {};
   // bool isCommunicatable = false;
   // bool isWaiting = false;
   int dataFetchingStatus = 2;
@@ -479,7 +480,6 @@ class MqttPayloadProvider with ChangeNotifier {
       // Todo : Dashboard payload start
       Map<String, dynamic> data = jsonDecode(payload);
 
-      // print("data from controller ::: $data");
       //live payload
       if(data['mC']=='2400'){
         print(data['cM']);
@@ -499,9 +499,16 @@ class MqttPayloadProvider with ChangeNotifier {
       else if(data.containsKey('3600') && data['3600'] != null && data['3600'].isNotEmpty){
         // mySchedule.dataFromMqttConversion(payload);
         schedulePayload = payload;
-      }
-      else if(data.containsKey('5100') && data['5100'] != null && data['5100'].isNotEmpty){
+      } else if(data.containsKey('5100') && data['5100'] != null && data['5100'].isNotEmpty){
         weatherModelinstance = WeatherModel.fromJson(data);
+      } else if(data['mC'] != null && data["mC"].contains("VIEW")) {
+        print("data in the view :: $data");
+        cCList = {...cCList, data['cC']}.toList();
+        viewSetting = data;
+        if (!viewSettingsList.contains(jsonEncode(data['cM']))) {
+          viewSettingsList.add(jsonEncode(data["cM"]));
+          // print("viewSettingsList ==> $viewSettingsList");
+        }
       }
       /* if(data['liveSyncDate'] != null){
         String dateStr = data['liveSyncDate'];
@@ -782,7 +789,7 @@ class MqttPayloadProvider with ChangeNotifier {
     fertilizerSiteMobDash = _dashboardLiveInstance!.data[0].master[0].config.fertilizerSite;
     irrLineDataMobDash = _dashboardLiveInstance!.data[0].master[0].config.lineData;
 
-      sourcetype = _dashboardLiveInstance!.data[0].master[0].config.waterSource.map((element) => element).toList();
+    sourcetype = _dashboardLiveInstance!.data[0].master[0].config.waterSource.map((element) => element).toList();
     fertilizerCentral = _dashboardLiveInstance!.data[0].master[0].config.fertilizerSite.where((e) => e.siteMode == 1).toList().map((element) => element).toList();
     fertilizerLocal = _dashboardLiveInstance!.data[0].master[0].config.fertilizerSite.where((e) => e.siteMode == 2).toList().map((element) => element).toList();
     filtersCentral = _dashboardLiveInstance!.data[0].master[0].config.filterSite.where((e) => e.siteMode == 1).toList().map((element) => element).toList();

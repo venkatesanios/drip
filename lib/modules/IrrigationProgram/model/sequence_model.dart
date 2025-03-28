@@ -454,7 +454,7 @@ class NewAlarmData{
 
   factory NewAlarmData.fromJson(Map<String, dynamic> json) {
     return NewAlarmData(
-        name: json['name'],
+        name: json['title'],
         unit: json['unit'],
         value: json['value'] ?? false
     );
