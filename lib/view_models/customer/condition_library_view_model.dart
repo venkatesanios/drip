@@ -4,6 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Models/customer/condition_library_model.dart';
 import '../../repository/repository.dart';
+import '../../services/mqtt_service.dart';
+import '../../utils/constants.dart';
 import '../../utils/snack_bar.dart';
 
 class ConditionLibraryViewModel extends ChangeNotifier {
@@ -168,7 +170,7 @@ class ConditionLibraryViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> saveConditionLibrary(BuildContext context, int customerId, int controllerId, userId) async
+  Future<void> saveConditionLibrary(BuildContext context, int customerId, int controllerId, userId, deviceId) async
   {
     try {
       Map<String, dynamic> body = {
@@ -177,6 +179,34 @@ class ConditionLibraryViewModel extends ChangeNotifier {
         "condition": conditionLibraryData.conditionLibrary.toJson(),
         "createUser": userId,
       };
+
+      print(conditionLibraryData.conditionLibrary.toJson());
+
+      List<Map<String, dynamic>> payloadList = [];
+      int index = 0;
+
+      for (var condition in conditionLibraryData.conditionLibrary.condition) {
+
+        payloadList.add({
+          'sNo': index + 1,
+          'status': condition.status ? 1:0,
+          'delayTime': formatTime(condition.delayTime),
+          'notify': 1,
+          'category': condition.type,
+          'operator': condition.threshold =='Higher than'? 4: condition.threshold =='Lower than'?5:6,
+        });
+
+        index++;
+      }
+
+      String payloadString = payloadList.map((e) => e.values.join(',')).join(';');
+      print(payloadString);
+
+      String payLoadFinal = jsonEncode({
+        "1000": {"1001": payloadString}
+      });
+      MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
+
 
       var response = await repository.saveConditionLibrary(body);
       if (response.statusCode == 200) {
@@ -189,6 +219,20 @@ class ConditionLibraryViewModel extends ChangeNotifier {
       setLoading(false);
     }
   }
+
+  String formatTime(String time) {
+    if (time.contains("Sec")) {
+      int seconds = int.parse(time.replaceAll(RegExp(r'[^0-9]'), ''));
+      int hours = seconds ~/ 3600;
+      int minutes = (seconds % 3600) ~/ 60;
+      int secs = seconds % 60;
+      return '${hours.toString().padLeft(2, '0')}:'
+          '${minutes.toString().padLeft(2, '0')}:'
+          '${secs.toString().padLeft(2, '0')}';
+    }
+    return time;
+  }
+
 
   void setLoading(bool value) {
     isLoading = value;

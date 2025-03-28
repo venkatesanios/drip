@@ -181,7 +181,6 @@ class ProductInventory extends StatelessWidget {
                       Container(),
                     ],
                   ),
-
                   Expanded(
                     child: Container(
                       decoration: const BoxDecoration(

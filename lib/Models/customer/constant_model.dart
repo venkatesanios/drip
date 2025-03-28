@@ -27,7 +27,7 @@ class UserConstant {
           .map((e) => e as Map<String, dynamic>)
           .toList();
 
-      alarmList =  (json['default']['alarmType']as List)
+      alarmList =  (json['default']['globalAlarm']as List)
           .map((e) => e as Map<String, dynamic>)
           .toList();
 
@@ -74,6 +74,11 @@ class ConstantData {
 
   factory ConstantData.fromJson(context, Map<String, dynamic> jsonConstant, List<Map<String, dynamic>> jsonConfigObject, List<Map<String, dynamic>> alarm) {
 
+
+    List<Map<String, dynamic>>  irrigationLineList = jsonConfigObject
+        .where((obj) => obj['objectId'] == 2)
+        .toList();
+
     List<Map<String, dynamic>> valveDataList = jsonConfigObject
         .where((obj) => obj['objectId'] == 13)
         .toList();
@@ -84,10 +89,6 @@ class ConstantData {
 
     List<Map<String, dynamic>> mainValveDataList = jsonConfigObject
         .where((obj) => obj['objectId'] == 14)
-        .toList();
-
-    List<Map<String, dynamic>>  irrigationLineList = jsonConfigObject
-        .where((obj) => obj['objectId'] == 2)
         .toList();
 
     List<Map<String, dynamic>>  waterMeterDataList = jsonConfigObject
@@ -846,8 +847,8 @@ class ConstantFertilizerSite {
   final double sNo;
   final String name;
   final List<Channel> channel;
-  final List<Ec> ecSensor;
-  final List<Ph> phSensor;
+  List<EcPh> ecSensor;
+  List<EcPh> phSensor;
 
   String minimalOnTime;
   String minimalOffTime;
@@ -872,8 +873,8 @@ class ConstantFertilizerSite {
       sNo: json['sNo'].toDouble(),
       name: json['name'],
       channel: (json['channel'] as List).map((e) => Channel.fromJson(e)).toList(),
-      ecSensor: (json['ec'] as List).map((e) => Ec.fromJson(e)).toList(),
-      phSensor: (json['ph'] as List).map((e) => Ph.fromJson(e)).toList(),
+      ecSensor: (json['ec'] as List).map((e) => EcPh.fromJson(e)).toList(),
+      phSensor: (json['ph'] as List).map((e) => EcPh.fromJson(e)).toList(),
 
       minimalOnTime: json.containsKey('minimalOnTime') ? json['minimalOnTime'] : "00:00:00",
       minimalOffTime: json.containsKey('minimalOffTime') ? json['minimalOffTime'] : "00:00:00",
@@ -945,23 +946,23 @@ class Channel {
   }
 }
 
-class Ec {
+class EcPh {
   final int objectId;
   final double sNo;
   final String name;
 
-  final String controlCycle;
-  final String delta;
-  final String fineTuning;
-  final String coarseTuning;
-  final String deadband;
-  final String integ;
-  final String controlSensor;
-  final String avgFiltSpeed;
-  final String percentage;
+  String controlCycle;
+  String delta;
+  String fineTuning;
+  String coarseTuning;
+  String deadband;
+  String integ;
+  String controlSensor;
+  String avgFiltSpeed;
+  String percentage;
 
 
-  Ec({
+  EcPh({
     required this.objectId,
     required this.sNo,
     required this.name,
@@ -978,80 +979,8 @@ class Ec {
 
   });
 
-  factory Ec.fromJson(Map<String, dynamic> json) {
-    return Ec(
-      objectId: json['objectId'],
-      sNo: json['sNo'].toDouble(),
-      name: json['name'],
-
-      controlCycle: json.containsKey('controlCycle') ? json['controlCycle'] : "00:00:00",
-      delta: json.containsKey('delta') ? json['delta'] : "0",
-      fineTuning: json.containsKey('fineTuning') ? json['fineTuning'] : "0",
-      coarseTuning: json.containsKey('coarseTuning') ? json['coarseTuning'] : "0",
-      deadband: json.containsKey('deadband') ? json['deadband'] : "0",
-      integ: json.containsKey('integ') ? json['integ'] : "00:00:00",
-      controlSensor: json.containsKey('controlSensor') ? json['controlSensor'] : "Average",
-      avgFiltSpeed: json.containsKey('avgFiltSpeed') ? json['avgFiltSpeed'] : "0",
-      percentage: json.containsKey('percentage') ? json['percentage'] : "0",
-
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'objectId': objectId,
-      'sNo': sNo,
-      'name': name,
-
-      'controlCycle': controlCycle,
-      'delta': delta,
-      'fineTuning': fineTuning,
-      'coarseTuning': coarseTuning,
-      'deadband': deadband,
-      'integ': integ,
-      'controlSensor': controlSensor,
-      'avgFiltSpeed': avgFiltSpeed,
-      'percentage': percentage,
-    };
-  }
-
-}
-
-class Ph {
-  final int objectId;
-  final double sNo;
-  final String name;
-
-  final String controlCycle;
-  final String delta;
-  final String fineTuning;
-  final String coarseTuning;
-  final String deadband;
-  final String integ;
-  final String controlSensor;
-  final String avgFiltSpeed;
-  final String percentage;
-
-
-  Ph({
-    required this.objectId,
-    required this.sNo,
-    required this.name,
-
-    required this.controlCycle,
-    required this.delta,
-    required this.fineTuning,
-    required this.coarseTuning,
-    required this.deadband,
-    required this.integ,
-    required this.controlSensor,
-    required this.avgFiltSpeed,
-    required this.percentage,
-
-  });
-
-  factory Ph.fromJson(Map<String, dynamic> json) {
-    return Ph(
+  factory EcPh.fromJson(Map<String, dynamic> json) {
+    return EcPh(
       objectId: json['objectId'],
       sNo: json['sNo'].toDouble(),
       name: json['name'],

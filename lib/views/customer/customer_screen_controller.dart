@@ -234,7 +234,7 @@ class CustomerScreenController extends StatelessWidget {
                     const SizedBox(),
                     const SizedBox(width: 10,),
 
-                    vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData.length>1? TextButton(
+                    vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData.length>1 && iLineLiveMessage[0].isNotEmpty ? TextButton(
                       onPressed: () => vm.linePauseOrResume(iLineLiveMessage),
                       style: ButtonStyle(
                         backgroundColor: WidgetStateProperty.all<Color>(iLineLiveMessage.every((line) => line[1] == '1')?Colors.green: Colors.orange),

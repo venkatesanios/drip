@@ -416,7 +416,7 @@ class ControllerSettings extends StatelessWidget {
                         ),
                         const Center(child: Text('Tab 2 Content')),
                         Constant(customerId: customerId, controllerId: controllerId, userId: adDrId,),
-                        ConditionLibrary(customerId, controllerId, adDrId),
+                        ConditionLibrary(customerId, controllerId, adDrId, deviceId: viewModel.deviceId,),
                          const Center(child: Text('Tab 5 Content')),
                         Names(userID: userId, customerID: customerId, controllerId: controllerId, menuId: 0, imeiNo: viewModel.deviceId ),
                         FertilizerSetScreen(userData: {'userId' : userId, 'controllerId' : controllerId, 'deviceId' : viewModel.deviceId}),
@@ -429,8 +429,8 @@ class ControllerSettings extends StatelessWidget {
                         CalibrationScreen(userData: {'userId' : userId, 'controllerId' : controllerId, 'deviceId' : viewModel.deviceId}),
                          DealerDefinitionInConfig(userId: userId, customerId: customerId, controllerId: controllerId, imeiNo: viewModel.deviceId),
                         const Center(child: Text('Tab 16 Content')),
-
                       ],
+
                     ),
                   ),
                 ],

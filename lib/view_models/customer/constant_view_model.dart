@@ -36,12 +36,27 @@ class ConstantViewModel extends ChangeNotifier {
   List<TextEditingController> txtEdControllersChePulse = [];
   List<TextEditingController> txtEdControllersCheNF = [];
 
+  List<TextEditingController> txtEdControllersEcPhDelta = [];
+  List<TextEditingController> txtEdControllersEcPhFineTune = [];
+  List<TextEditingController> txtEdControllersEcPhCoarse = [];
+  List<TextEditingController> txtEdControllersEcPhDeadBand = [];
+  List<TextEditingController> txtEdControllersEcPhAvgFiltSpeed = [];
+  List<TextEditingController> txtEdControllersEcPhPercentage = [];
+
 
   ConstantViewModel(this.context, this.repository) {
 
     txtEdControllersCheRatio = List.generate(8, (index) => TextEditingController());
     txtEdControllersChePulse = List.generate(8, (index) => TextEditingController());
     txtEdControllersCheNF = List.generate(8, (index) => TextEditingController());
+
+    txtEdControllersEcPhDelta = List.generate(8, (index) => TextEditingController());
+    txtEdControllersEcPhFineTune = List.generate(8, (index) => TextEditingController());
+    txtEdControllersEcPhCoarse = List.generate(8, (index) => TextEditingController());
+    txtEdControllersEcPhDeadBand = List.generate(8, (index) => TextEditingController());
+    txtEdControllersEcPhAvgFiltSpeed = List.generate(8, (index) => TextEditingController());
+    txtEdControllersEcPhPercentage = List.generate(8, (index) => TextEditingController());
+
   }
 
   Future<void> getConstantData(int customerId, int controllerId) async
@@ -102,6 +117,27 @@ class ConstantViewModel extends ChangeNotifier {
                 txtEdControllersChePulse[j].text = userConstant.constant.fertilization![i].channel[j].pulseTxtValue;
                 txtEdControllersCheNF[j].text = userConstant.constant.fertilization![i].channel[j].nmlFlowTxtValue;
               }
+
+              for (int j = 0; j < userConstant.constant.fertilization![i].ecSensor.length; j++) {
+                txtEdControllersEcPhDelta[j].text = userConstant.constant.fertilization![i].ecSensor[j].delta;
+                txtEdControllersEcPhFineTune[j].text = userConstant.constant.fertilization![i].ecSensor[j].fineTuning;
+                txtEdControllersEcPhCoarse[j].text = userConstant.constant.fertilization![i].ecSensor[j].coarseTuning;
+                txtEdControllersEcPhDeadBand[j].text = userConstant.constant.fertilization![i].ecSensor[j].deadband;
+                txtEdControllersEcPhAvgFiltSpeed[j].text = userConstant.constant.fertilization![i].ecSensor[j].avgFiltSpeed;
+                txtEdControllersEcPhPercentage[j].text = userConstant.constant.fertilization![i].ecSensor[j].percentage;
+              }
+
+              int ecLength = userConstant.constant.fertilization![i].ecSensor.length;
+
+              for (int j = 0; j < userConstant.constant.fertilization![i].phSensor.length; j++) {
+                txtEdControllersEcPhDelta[j+ecLength].text = userConstant.constant.fertilization![i].phSensor[j].delta;
+                txtEdControllersEcPhFineTune[j+ecLength].text = userConstant.constant.fertilization![i].phSensor[j].fineTuning;
+                txtEdControllersEcPhCoarse[j+ecLength].text = userConstant.constant.fertilization![i].phSensor[j].coarseTuning;
+                txtEdControllersEcPhDeadBand[j+ecLength].text = userConstant.constant.fertilization![i].phSensor[j].deadband;
+                txtEdControllersEcPhAvgFiltSpeed[j+ecLength].text = userConstant.constant.fertilization![i].phSensor[j].avgFiltSpeed;
+                txtEdControllersEcPhPercentage[j+ecLength].text = userConstant.constant.fertilization![i].phSensor[j].percentage;
+              }
+
             }
 
             menuOnChange(0);
@@ -127,6 +163,13 @@ class ConstantViewModel extends ChangeNotifier {
 
   void updateGeneralValve(int index, String value, String type){
     String finalVal = value.trim();
+
+    int fSiteIndex = 0;
+    List<String> parts = type.split('_');
+    if(parts.length>1){
+      fSiteIndex = int.parse(parts[1]);
+    }
+
     if(type=='value'){
       userConstant.constant.valveList![index].txtValue = finalVal;
     }
@@ -160,6 +203,49 @@ class ConstantViewModel extends ChangeNotifier {
     else if(type=='boosterDelayTxtValue'){
       userConstant.constant.fertilization![0].channel[index].nmlFlowTxtValue = finalVal;
     }
+
+    else if(parts[0]=='EcDelta'){
+      userConstant.constant.fertilization![fSiteIndex].ecSensor[index].delta = finalVal;
+    }
+    else if(parts[0]=='PhDelta'){
+      userConstant.constant.fertilization![fSiteIndex].phSensor[index].delta = finalVal;
+    }
+
+    else if(parts[0]=='EcFineTune'){
+      userConstant.constant.fertilization![fSiteIndex].ecSensor[index].fineTuning = finalVal;
+    }
+    else if(parts[0]=='PhFineTune'){
+      userConstant.constant.fertilization![fSiteIndex].phSensor[index].fineTuning = finalVal;
+    }
+
+    else if(parts[0]=='EcCoarse'){
+      userConstant.constant.fertilization![fSiteIndex].ecSensor[index].coarseTuning = finalVal;
+    }
+    else if(parts[0]=='PhCoarse'){
+      userConstant.constant.fertilization![fSiteIndex].phSensor[index].coarseTuning = finalVal;
+    }
+
+    else if(parts[0]=='EcDeadBand'){
+      userConstant.constant.fertilization![fSiteIndex].ecSensor[index].deadband = finalVal;
+    }
+    else if(parts[0]=='PhDeadBand'){
+      userConstant.constant.fertilization![fSiteIndex].phSensor[index].deadband = finalVal;
+    }
+
+    else if(parts[0]=='EcAvgFiltSpeed'){
+      userConstant.constant.fertilization![fSiteIndex].ecSensor[index].avgFiltSpeed = finalVal;
+    }
+    else if(parts[0]=='PhAvgFiltSpeed'){
+      userConstant.constant.fertilization![fSiteIndex].phSensor[index].avgFiltSpeed = finalVal;
+    }
+
+    else if(parts[0]=='EcPercentage'){
+      userConstant.constant.fertilization![fSiteIndex].ecSensor[index].percentage = finalVal;
+    }
+    else if(parts[0]=='PhPercentage'){
+      userConstant.constant.fertilization![fSiteIndex].phSensor[index].percentage = finalVal;
+    }
+
 
     else{
       userConstant.constant.generalMenu[index].value = finalVal;
@@ -246,10 +332,20 @@ class ConstantViewModel extends ChangeNotifier {
               color: Colors.teal,
               textColor: Colors.white,
               onPressed:() async {
+
                 if (_validateTime(_hoursController.text, 'hours') &&
                     _validateTime(_minutesController.text, 'minutes') &&
-                    _validateTime(_secondsController.text, 'seconds')) {
+                    _validateTime(_secondsController.text, 'seconds'))
+                {
                   durationValue = '${_hoursController.text}:${_minutesController.text}:${_secondsController.text}';
+
+                  int fSiteIndex = 0;
+
+                  List<String> parts = cnsType.split('_');
+                  if(parts.length>1){
+                    fSiteIndex = int.parse(parts[1]);
+                  }
+
                   if(cnsType == 'general'){
                     userConstant.constant.generalMenu[index].value = durationValue;
                   }else if(cnsType == 'valve'){
@@ -274,6 +370,20 @@ class ConstantViewModel extends ChangeNotifier {
                   else if(cnsType == 'boosterDelay') {
                     userConstant.constant.fertilization![index].boosterDelay = durationValue;
                   }
+                  else if(parts[0]=='controlCycle1') {
+                    userConstant.constant.fertilization![fSiteIndex].ecSensor[index].controlCycle = durationValue;
+                  }
+                  else if(parts[0]=='controlCycle2') {
+                    userConstant.constant.fertilization![fSiteIndex].phSensor[index].controlCycle = durationValue;
+                  }
+
+                  else if(parts[0]=='integ1') {
+                    userConstant.constant.fertilization![fSiteIndex].ecSensor[index].integ = durationValue;
+                  }
+                  else if(parts[0]=='integ2') {
+                    userConstant.constant.fertilization![fSiteIndex].phSensor[index].integ = durationValue;
+                  }
+
 
                   notifyListeners();
                   Navigator.of(context).pop();
@@ -354,7 +464,6 @@ class ConstantViewModel extends ChangeNotifier {
     else if(type=='base'){
       userConstant.constant.levelSensor![index].base = selectedValue;
     }
-
     else if(type=='highLowMS'){
       userConstant.constant.moistureSensor![index].highLow = selectedValue;
     }
@@ -367,8 +476,6 @@ class ConstantViewModel extends ChangeNotifier {
     else if(type=='Injector Mode'){
       userConstant.constant.fertilization![0].channel[index].injectorMode = selectedValue;
     }
-
-
 
     notifyListeners();
   }
@@ -409,7 +516,12 @@ class ConstantViewModel extends ChangeNotifier {
           "globalAlarm": cnsMenu['globalAlarm'],
           "controllerReadStatus": '0',
           "createUser": createUserId,
+        };
 
+        print(body);
+
+        Map<String, String> jsonObjectGeneral = {
+          "301": "${body['general'][9]['value']}, ${body['general'][10]['value']}, ${body['general'][11]['value']}"
         };
 
         var response = await repository.saveConstantData(body);

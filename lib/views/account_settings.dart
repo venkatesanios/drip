@@ -18,9 +18,6 @@ class AccountSettings extends StatelessWidget {
       child: Consumer<UserSettingViewModel>(
         builder: (context, viewModel, _) {
           return Scaffold(
-            appBar: AppBar(
-              title: const Text('Settings'),
-            ),
             body: Container(
               color: Colors.blueGrey.shade50,
               child: Column(
