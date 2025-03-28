@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import 'package:oro_drip_irrigation/app/app.dart';
+import 'package:oro_drip_irrigation/modules/PumpController/state_management/pump_controller_provider.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:provider/provider.dart';
 import 'Screens/Constant/ConstantPageProvider/changeNotifier_constantProvider.dart';
@@ -33,6 +34,7 @@ FutureOr<void> main() async {
         ChangeNotifierProvider(create: (_) => SystemDefinitionProvider()),
         ChangeNotifierProvider(create: (_) => ConstantProviderMani()),
         ChangeNotifierProvider(create: (_) => ConstantProvider()),
+        ChangeNotifierProvider(create: (_) => PumpControllerProvider()),
       ],
       child: MyApp(),
       

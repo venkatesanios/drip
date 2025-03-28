@@ -1,112 +1,40 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:oro_drip_irrigation/Constants/properties.dart';
-import 'package:oro_drip_irrigation/modules/Logs/repository/log_repos.dart';
-import 'package:table_calendar/table_calendar.dart';
+import 'package:provider/provider.dart';
 import 'package:excel/excel.dart';
 
 import '../../../Constants/constants.dart';
-import '../../../services/http_service.dart';
 import '../../Preferences/widgets/custom_segmented_control.dart';
+import '../../PumpController/state_management/pump_controller_provider.dart';
 import '../../SystemDefinitions/widgets/custom_snack_bar.dart';
-import '../model/motor_data.dart';
 import '../model/motor_data_hourly.dart';
 import '../widgets/custom_calendar_mobile.dart';
 import '../widgets/custom_widgets.dart';
 
-class PumpHourlyLog extends StatefulWidget {
+class PowerGraphScreen extends StatefulWidget {
   final int userId;
   final int controllerId;
   final int nodeControllerId;
-  const PumpHourlyLog({super.key, required this.userId, required this.controllerId, this.nodeControllerId = 0});
+  const PowerGraphScreen({super.key, required this.userId, required this.controllerId, this.nodeControllerId = 0});
 
   @override
-  State<PumpHourlyLog> createState() => _PumpHourlyLogState();
+  State<PowerGraphScreen> createState() => _PowerGraphScreenState();
 }
 
-class _PumpHourlyLogState extends State<PumpHourlyLog> {
+class _PowerGraphScreenState extends State<PowerGraphScreen> {
   int selectedIndex = 0;
-  DateTime selectedDate = DateTime.now();
-  DateTime _focusedDay = DateTime.now();
-  CalendarFormat _calendarFormat = CalendarFormat.week;
-  List<MotorDataHourly> motorDataList = [];
-  List<PageController> pageController= [];
-  List<MotorData> chartData = [];
-  List<double> currPageValue = [];
-  double scaleFactor = 0.8;
-  List<DateTime> dates = List.generate(1, (index) => DateTime.now().subtract(Duration(days: index)));
-  final LogRepository repository = LogRepository(HttpService());
+  late PumpControllerProvider pumpControllerProvider;
 
   @override
   void initState() {
     super.initState();
-    getPumpControllerData();
-  }
-
-  Future<void> getPumpControllerData({int selectedIndex = 0}) async {
-    setState(() {
-      if (selectedIndex == 1) {
-        dates = List.generate(7, (index) => DateTime.now().subtract(Duration(days: index)));
-      } else if (selectedIndex == 2) {
-        dates = List.generate(30, (index) => DateTime.now().subtract(Duration(days: index)));
-      } else if(selectedIndex == 0){
-        dates.last = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
-      } else {
-        dates.last = DateTime.parse(dates.last.toString().split(' ')[0]);
-      }
-    });
-
-    var data = {
-      "userId": widget.userId,
-      "controllerId": widget.controllerId,
-      "nodeControllerId": widget.nodeControllerId,
-      "fromDate": DateFormat("yyyy-MM-dd").format(selectedIndex == 0 ? selectedDate : dates.last),
-      "toDate": DateFormat("yyyy-MM-dd").format(selectedIndex == 0 ? selectedDate : dates.first),
-      "needSum" : selectedIndex != 0
-    };
-    try {
-      final getPumpController = await repository.getUserPumpHourlyLog(data, widget.nodeControllerId != 0);
-      final response = jsonDecode(getPumpController.body);
-      if (getPumpController.statusCode == 200) {
-        // print(response);
-        // print(data);
-        Future.delayed(const Duration(microseconds: 1000));
-        setState(() {
-          chartData.clear();
-          if (response['data'] is List) {
-            List<dynamic> dataList = response['data'];
-            motorDataList = dataList.map((item) => MotorDataHourly.fromJson(item)).toList();
-            for (var i = 0; i < motorDataList[0].numberOfPumps; i++) {
-              List<Color> colors = [Colors.lightBlueAccent.shade100.withOpacity(0.6), Colors.lightGreenAccent.withOpacity(0.6), Colors.greenAccent.withOpacity(0.6)];
-              chartData.add(
-                  MotorData(
-                      "M${i + 1}",
-                      [motorDataList[0].motorRunTime1, motorDataList[0].motorRunTime2, motorDataList[0].motorRunTime3][i],
-                      colors[i]
-                  )
-              );
-            }
-
-          } else {
-            motorDataList = [];
-            chartData = [];
-            log('Data is not a List');
-          }
-        });
-      } else {
-        chartData.clear();
-        log('Failed to load data');
-      }
-    } catch (e, stackTrace) {
-      chartData.clear();
-      log("Error ==> $e");
-      log("StackTrace ==> $stackTrace");
-    }
+    pumpControllerProvider = Provider.of(context,listen: false);
+    pumpControllerProvider.getPumpControllerData(userId: widget.userId, controllerId: widget.controllerId, nodeControllerId: widget.nodeControllerId);
   }
 
   Future<void> showSnackBar({required String message}) async{
@@ -260,162 +188,173 @@ class _PumpHourlyLogState extends State<PumpHourlyLog> {
 
   @override
   Widget build(BuildContext context) {
+    pumpControllerProvider = Provider.of(context);
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
     ));
-    return Scaffold(
-      backgroundColor: const Color(0xffF9FEFF),
-      body: SafeArea(
-        child: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
-              return Column(
-                children: [
-                  if(selectedIndex == 0)
-                    MobileCustomCalendar(
-                      focusedDay: _focusedDay,
-                      calendarFormat: _calendarFormat,
-                      selectedDate: selectedDate,
-                      onDaySelected: (selectedDay, focusedDay) {
-                        setState(() {
-                          selectedDate = selectedDay;
-                          _focusedDay = focusedDay;
-                        });
-                        getPumpControllerData();
-                      },
-                      onFormatChanged: (format) {
-                        if (_calendarFormat != format) {
-                          setState(() {
-                            _calendarFormat = format;
-                          });
-                        }
-                      },
-                    )
-                  else
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: AppProperties.customBoxShadowLiteTheme
-                      ),
-                      margin: const EdgeInsets.only(bottom: 10),
-                      child: ListTile(
-                        title: Text(
-                          selectedIndex == 0
-                              ? "${Constants.getWeekdayName(DateTime.now().weekday)}, ${Constants.getMonthName(DateTime.now().month)} ${DateTime.now().day}"
-                              : selectedIndex == 1
-                              ? "Last 7 days"
-                              : "Last 30 days",
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        subtitle: Text(
-                          selectedIndex == 0
-                              ? "Today"
-                              : "${DateFormat('MMM d yyyy').format(dates.first)} - ${DateFormat('MMM d yyyy').format(dates.last)}",
-                          style: const TextStyle(fontWeight: FontWeight.w400),
-                        ),
-                        tileColor: Colors.white,
-                        trailing: IconButton(
-                          onPressed: (){
-                            showDateRangePicker(
-                                context: context,
-                                firstDate: DateTime(2024),
-                                lastDate: DateTime.now()
-                            ).then((pickedDateRange) {
-                              if (pickedDateRange != null) {
-                                setState(() {
-                                  dates.first = pickedDateRange.start;
-                                  dates.last = pickedDateRange.end;
-                                  dates = List.generate(pickedDateRange.end.difference(pickedDateRange.start).inDays, (index) => pickedDateRange.start.add(Duration(days: index)));
-                                });
-                              } else {
-                                print('Date range picker was canceled');
-                              }
-                            }).whenComplete(() {
-                              getPumpControllerData();
-                            });
-                          },
-                          icon: const Icon(Icons.calendar_month, color: Colors.white,),
-                          style: ButtonStyle(
-                              backgroundColor: MaterialStatePropertyAll(Theme.of(context).primaryColor)
-                          ),
-                        ),
-                      ),
-                    ),
-                  CustomSegmentedControl(
-                      segmentTitles: const {
-                        0: "Daily",
-                        1: "Weekly",
-                        2: "Monthly",
-                      },
-                      groupValue: selectedIndex,
-                      onChanged: (newValue) {
-                        setState(() {
-                          selectedIndex = newValue!;
-                        });
-                        getPumpControllerData(selectedIndex: newValue!);
-                      }
-                  ),
-                  const SizedBox(height: 10),
-                  buildDailyDataView(constraints: constraints),
-                ],
-              );
-            }
-        ),
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15)
       ),
-      floatingActionButton: MaterialButton(
-          onPressed: (){
-            showDialog(
-                context: context,
-                builder: (dialogContext){
-                  var fileName = 'Power graph';
-                  return AlertDialog(
-                    title: const Text('File name'),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextFormField(
-                          initialValue: fileName,
-                          onChanged: (value){
-                            fileName = value;
-                          },
-                          decoration: const InputDecoration(
-                              border: OutlineInputBorder()
-                          ),
-                        ),
-                      ],
+      elevation: 0,
+      child: Scaffold(
+        // backgroundColor: const Color(0xffF9FEFF),
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: Column(
+            children: [
+              if(selectedIndex == 0 && !kIsWeb)
+                MobileCustomCalendar(
+                  focusedDay: pumpControllerProvider.focusedDay,
+                  calendarFormat: pumpControllerProvider.calendarFormat,
+                  selectedDate: pumpControllerProvider.selectedDate,
+                  onDaySelected: (selectedDay, focusedDay) {
+                    setState(() {
+                      pumpControllerProvider.selectedDate = selectedDay;
+                      pumpControllerProvider.focusedDay = focusedDay;
+                    });
+                    pumpControllerProvider.getPumpControllerData(userId: widget.userId, controllerId: widget.controllerId, nodeControllerId: widget.nodeControllerId);
+                  },
+                  onFormatChanged: (format) {
+                    if (pumpControllerProvider.calendarFormat != format) {
+                      setState(() {
+                        pumpControllerProvider.calendarFormat = format;
+                      });
+                    }
+                  },
+                )
+              else
+                Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    // boxShadow: AppProperties.customBoxShadowLiteTheme
+                  ),
+                  margin: const EdgeInsets.only(bottom: 10),
+                  child: ListTile(
+                    title: Text(
+                      selectedIndex == 0
+                          ? "${Constants.getWeekdayName(DateTime.now().weekday)}, ${Constants.getMonthName(DateTime.now().month)} ${DateTime.now().day}"
+                          : selectedIndex == 1
+                          ? "Last 7 days"
+                          : "Last 30 days",
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                     ),
-                    actions: [
-                      TextButton(
-                          onPressed: () async{
-                            await exportMotorDataToExcel(motorDataList,fileName,dialogContext);
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Click to download')
-                      )
-                    ],
-                  );
-                }
-            );
-          },
-        child: const Icon(Icons.download, color: Colors.white,),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(50),
+                    subtitle: Text(
+                      selectedIndex == 0
+                          ? "Today"
+                          : "${DateFormat('MMM d yyyy').format(pumpControllerProvider.dates.first)} - ${DateFormat('MMM d yyyy').format(pumpControllerProvider.dates.last)}",
+                      style: const TextStyle(fontWeight: FontWeight.w400),
+                    ),
+                    tileColor: Colors.white,
+                    trailing: IconButton(
+                      onPressed: (){
+                        showDateRangePicker(
+                            context: context,
+                            firstDate: DateTime(2024),
+                            lastDate: DateTime.now()
+                        ).then((pickedDateRange) {
+                          if (pickedDateRange != null) {
+                            setState(() {
+                              pumpControllerProvider.dates.first = pickedDateRange.start;
+                              pumpControllerProvider.dates.last = pickedDateRange.end;
+                              pumpControllerProvider.dates = List.generate(pickedDateRange.end.difference(pickedDateRange.start).inDays, (index) => pickedDateRange.start.add(Duration(days: index)));
+                            });
+                          } else {
+                            if (kDebugMode) {
+                              print('Date range picker was canceled');
+                            }
+                          }
+                        }).whenComplete(() {
+                          pumpControllerProvider.getPumpControllerData(userId: widget.userId, controllerId: widget.controllerId, nodeControllerId: widget.nodeControllerId);
+                        });
+                      },
+                      icon: const Icon(Icons.calendar_month, color: Colors.white,),
+                      style: ButtonStyle(
+                          backgroundColor: WidgetStatePropertyAll(Theme.of(context).primaryColor)
+                      ),
+                    ),
+                  ),
+                ),
+              CustomSegmentedControl(
+                  segmentTitles: const {
+                    0: "Daily",
+                    1: "Weekly",
+                    2: "Monthly",
+                  },
+                  groupValue: selectedIndex,
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedIndex = newValue!;
+                    });
+                    pumpControllerProvider.getPumpControllerData(
+                        userId: widget.userId,
+                        controllerId: widget.controllerId,
+                        nodeControllerId: widget.nodeControllerId,
+                        selectedIndex: newValue!
+                    );
+                  }
+              ),
+              const SizedBox(height: 10),
+              buildDailyDataView(),
+            ],
+          ),
         ),
-        padding: EdgeInsets.zero,
-        minWidth: 40,
-        height: 40,
-        color: Theme.of(context).primaryColor,
+        floatingActionButton: MaterialButton(
+            onPressed: (){
+              showDialog(
+                  context: context,
+                  builder: (dialogContext){
+                    var fileName = 'Power graph';
+                    return AlertDialog(
+                      title: const Text('File name'),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextFormField(
+                            initialValue: fileName,
+                            onChanged: (value){
+                              fileName = value;
+                            },
+                            decoration: const InputDecoration(
+                                border: OutlineInputBorder()
+                            ),
+                          ),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                            onPressed: () async{
+                              await exportMotorDataToExcel(pumpControllerProvider.motorDataList,fileName,dialogContext);
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Click to download')
+                        )
+                      ],
+                    );
+                  }
+              );
+            },
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(50),
+          ),
+          padding: EdgeInsets.zero,
+          minWidth: 40,
+          height: 40,
+          color: Theme.of(context).primaryColor,
+          child: const Icon(Icons.download, color: Colors.white,),
+        ),
       ),
     );
   }
 
-  Widget buildDailyDataView({required BoxConstraints constraints}) {
+  Widget buildDailyDataView() {
     final selectedCondition = selectedIndex == 0;
     return Expanded(
-      child: motorDataList.isNotEmpty ? ListView.builder(
-          itemCount: selectedCondition ? motorDataList.length : 1,
+      child: pumpControllerProvider.motorDataList.isNotEmpty ? ListView.builder(
+          itemCount: selectedCondition ? pumpControllerProvider.motorDataList.length : 1,
           itemBuilder: (BuildContext context, int index) {
-            if(motorDataList[index].numberOfPumps != 0) {
+            if(pumpControllerProvider.motorDataList[index].numberOfPumps != 0) {
               return Column(
                 children: [
                   Container(
@@ -423,7 +362,7 @@ class _PumpHourlyLogState extends State<PumpHourlyLog> {
                     decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(5),
-                        boxShadow: AppProperties.customBoxShadowLiteTheme
+                        // boxShadow: AppProperties.customBoxShadowLiteTheme
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -434,17 +373,17 @@ class _PumpHourlyLogState extends State<PumpHourlyLog> {
                         const SizedBox(height: 10,),
                         buildScale(scale: Constants.generateScale(selectedCondition
                             ? const Duration(hours: 24)
-                            : Constants.parseTime(motorDataList[index].totalPowerOnTime.toString()))
+                            : Constants.parseTime(pumpControllerProvider.motorDataList[index].totalPowerOnTime.toString()))
                         ),
                         const SizedBox(height: 10,),
                         buildAnimatedContainer(
                             color: const Color(0xff15C0E6),
-                            value: Constants.parseTime(motorDataList[index].totalPowerOnTime.toString()),
+                            value: Constants.parseTime(pumpControllerProvider.motorDataList[index].totalPowerOnTime.toString()),
                             motor: "Total Power -",
-                            highestValue: selectedIndex == 0 ? const Duration(hours: 24) : Constants.parseTime(motorDataList[index].totalPowerOnTime.toString())
+                            highestValue: selectedIndex == 0 ? const Duration(hours: 24) : Constants.parseTime(pumpControllerProvider.motorDataList[index].totalPowerOnTime.toString())
                         ),
                         const SizedBox(height: 10,),
-                        buildMotorStatusContainers(index: index, numberOfPumps: motorDataList[index].numberOfPumps),
+                        buildMotorStatusContainers(index: index, numberOfPumps: pumpControllerProvider.motorDataList[index].numberOfPumps),
                         const SizedBox(height: 10,),
                         // buildLegend(),
                         // const SizedBox(height: 10,),
@@ -452,11 +391,11 @@ class _PumpHourlyLogState extends State<PumpHourlyLog> {
                         //   chartData: chartData,
                         //   totalPowerDuration: Constants.parseTime(motorDataList[index].totalPowerOnTime),
                         // ),
-                        buildFooter(motorDataList[index]),
+                        buildFooter(pumpControllerProvider.motorDataList[index]),
                         // if(motorDataList[index].numberOfPumps == 1)
                         //   buildMotorDetails(motorIndex: 0, dayIndex: index)
                         // else
-                        buildPageView(dayIndex: index, constraints: constraints, numberOfPumps: motorDataList[index].numberOfPumps)
+                        buildPageView(dayIndex: index, numberOfPumps: pumpControllerProvider.motorDataList[index].numberOfPumps)
                       ],
                     ),
                   ),
@@ -478,20 +417,38 @@ class _PumpHourlyLogState extends State<PumpHourlyLog> {
         buildItemContainer(
           title1: 'Motor run time',
           title2: "Motor idle time",
-          value1: [motorDataList[dayIndex].motorRunTime1, motorDataList[dayIndex].motorRunTime2, motorDataList[dayIndex].motorRunTime3][motorIndex],
-          value2: [motorDataList[dayIndex].motorIdleTime1, motorDataList[dayIndex].motorIdleTime2, motorDataList[dayIndex].motorIdleTime3][motorIndex],
+          value1: [
+            pumpControllerProvider.motorDataList[dayIndex].motorRunTime1,
+            pumpControllerProvider.motorDataList[dayIndex].motorRunTime2,
+            pumpControllerProvider.motorDataList[dayIndex].motorRunTime3][motorIndex],
+          value2: [
+            pumpControllerProvider.motorDataList[dayIndex].motorIdleTime1,
+            pumpControllerProvider.motorDataList[dayIndex].motorIdleTime2,
+            pumpControllerProvider.motorDataList[dayIndex].motorIdleTime3][motorIndex],
         ),
         buildItemContainer(
           title1: 'Dry run trip time',
           title2: 'Cyclic trip time',
-          value1: [motorDataList[dayIndex].dryRunTripTime1, motorDataList[dayIndex].dryRunTripTime2, motorDataList[dayIndex].dryRunTripTime3][motorIndex],
-          value2: [motorDataList[dayIndex].cyclicTripTime1, motorDataList[dayIndex].cyclicTripTime2, motorDataList[dayIndex].cyclicTripTime3][motorIndex],
+          value1: [
+            pumpControllerProvider.motorDataList[dayIndex].dryRunTripTime1,
+            pumpControllerProvider.motorDataList[dayIndex].dryRunTripTime2,
+            pumpControllerProvider.motorDataList[dayIndex].dryRunTripTime3][motorIndex],
+          value2: [
+            pumpControllerProvider.motorDataList[dayIndex].cyclicTripTime1,
+            pumpControllerProvider.motorDataList[dayIndex].cyclicTripTime2,
+            pumpControllerProvider.motorDataList[dayIndex].cyclicTripTime3][motorIndex],
         ),
         buildItemContainer(
           title1: 'Other trip time',
           title2: 'Total flow today',
-          value1: [motorDataList[dayIndex].dryRunTripTime1, motorDataList[dayIndex].dryRunTripTime2, motorDataList[dayIndex].dryRunTripTime3][motorIndex],
-          value2: "${[motorDataList[dayIndex].totalFlowToday1, motorDataList[dayIndex].totalFlowToday2, motorDataList[dayIndex].totalFlowToday3][motorIndex]} Litres",
+          value1: [
+            pumpControllerProvider.motorDataList[dayIndex].dryRunTripTime1,
+            pumpControllerProvider.motorDataList[dayIndex].dryRunTripTime2,
+            pumpControllerProvider.motorDataList[dayIndex].dryRunTripTime3][motorIndex],
+          value2: "${[
+            pumpControllerProvider.motorDataList[dayIndex].totalFlowToday1,
+            pumpControllerProvider.motorDataList[dayIndex].totalFlowToday2,
+            pumpControllerProvider.motorDataList[dayIndex].totalFlowToday3][motorIndex]} Litres",
         ),
       ],
     );
@@ -543,7 +500,7 @@ class _PumpHourlyLogState extends State<PumpHourlyLog> {
     );
   }
 
-  Widget buildPageView({required int dayIndex, required BoxConstraints constraints, required int numberOfPumps}) {
+  Widget buildPageView({required int dayIndex, required int numberOfPumps}) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -574,8 +531,8 @@ class _PumpHourlyLogState extends State<PumpHourlyLog> {
                   title2: "Motor idle time",
                   index: dayIndex,
                   numberOfPumps: numberOfPumps,
-                  value1: [Constants.changeFormat(motorDataList[dayIndex].motorRunTime1), Constants.changeFormat(motorDataList[dayIndex].motorRunTime2), Constants.changeFormat(motorDataList[dayIndex].motorRunTime3)],
-                  value2: [Constants.changeFormat(motorDataList[dayIndex].motorIdleTime1), Constants.changeFormat(motorDataList[dayIndex].motorIdleTime2), Constants.changeFormat(motorDataList[dayIndex].motorIdleTime3)],
+                  value1: [Constants.changeFormat(pumpControllerProvider.motorDataList[dayIndex].motorRunTime1), Constants.changeFormat(pumpControllerProvider.motorDataList[dayIndex].motorRunTime2), Constants.changeFormat(pumpControllerProvider.motorDataList[dayIndex].motorRunTime3)],
+                  value2: [Constants.changeFormat(pumpControllerProvider.motorDataList[dayIndex].motorIdleTime1), Constants.changeFormat(pumpControllerProvider.motorDataList[dayIndex].motorIdleTime2), Constants.changeFormat(pumpControllerProvider.motorDataList[dayIndex].motorIdleTime3)],
                   unit1: "HH:MM",
                   unit2: "HH:MM"
               ),
@@ -584,8 +541,8 @@ class _PumpHourlyLogState extends State<PumpHourlyLog> {
                   title2: 'Cyclic trip time',
                   index: dayIndex,
                   numberOfPumps: numberOfPumps,
-                  value1: [Constants.changeFormat(motorDataList[dayIndex].dryRunTripTime1), Constants.changeFormat(motorDataList[dayIndex].dryRunTripTime2), Constants.changeFormat(motorDataList[dayIndex].dryRunTripTime3)],
-                  value2: [Constants.changeFormat(motorDataList[dayIndex].cyclicTripTime1), Constants.changeFormat(motorDataList[dayIndex].cyclicTripTime2), Constants.changeFormat(motorDataList[dayIndex].cyclicTripTime3)],
+                  value1: [Constants.changeFormat(pumpControllerProvider.motorDataList[dayIndex].dryRunTripTime1), Constants.changeFormat(pumpControllerProvider.motorDataList[dayIndex].dryRunTripTime2), Constants.changeFormat(pumpControllerProvider.motorDataList[dayIndex].dryRunTripTime3)],
+                  value2: [Constants.changeFormat(pumpControllerProvider.motorDataList[dayIndex].cyclicTripTime1), Constants.changeFormat(pumpControllerProvider.motorDataList[dayIndex].cyclicTripTime2), Constants.changeFormat(pumpControllerProvider.motorDataList[dayIndex].cyclicTripTime3)],
                   unit1: "HH:MM",
                   unit2: "HH:MM"
               ),
@@ -594,8 +551,8 @@ class _PumpHourlyLogState extends State<PumpHourlyLog> {
                   title2: 'Total flow today',
                   index: dayIndex,
                   numberOfPumps: numberOfPumps,
-                  value1: [Constants.changeFormat(motorDataList[dayIndex].dryRunTripTime1), Constants.changeFormat(motorDataList[dayIndex].dryRunTripTime2), Constants.changeFormat(motorDataList[dayIndex].dryRunTripTime3)],
-                  value2: [motorDataList[dayIndex].totalFlowToday1, motorDataList[dayIndex].totalFlowToday2, motorDataList[dayIndex].totalFlowToday3],
+                  value1: [Constants.changeFormat(pumpControllerProvider.motorDataList[dayIndex].dryRunTripTime1), Constants.changeFormat(pumpControllerProvider.motorDataList[dayIndex].dryRunTripTime2), Constants.changeFormat(pumpControllerProvider.motorDataList[dayIndex].dryRunTripTime3)],
+                  value2: [pumpControllerProvider.motorDataList[dayIndex].totalFlowToday1, pumpControllerProvider.motorDataList[dayIndex].totalFlowToday2, pumpControllerProvider.motorDataList[dayIndex].totalFlowToday3],
                   unit1: "HH:MM",
                   unit2: "Litres"
               ),
@@ -617,7 +574,7 @@ class _PumpHourlyLogState extends State<PumpHourlyLog> {
           padding: const EdgeInsets.all(8.0),
           child: Center(
               child: Text(
-                DateFormat('MMM d yyyy').format(motorDataList[index].date != "" ? DateTime.parse(motorDataList[index].date) : DateTime.now()),
+                DateFormat('MMM d yyyy').format(pumpControllerProvider.motorDataList[index].date != "" ? DateTime.parse(pumpControllerProvider.motorDataList[index].date) : DateTime.now()),
                 style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
               )
           ),
@@ -634,9 +591,9 @@ class _PumpHourlyLogState extends State<PumpHourlyLog> {
             children: [
               buildAnimatedContainer(
                   color: [Colors.lightBlueAccent.shade100.withOpacity(0.6), Colors.lightGreenAccent.withOpacity(0.6), Colors.greenAccent.withOpacity(0.6)][i],
-                  value: [Constants.parseTime(motorDataList[index].motorRunTime1), Constants.parseTime(motorDataList[index].motorRunTime2), Constants.parseTime(motorDataList[index].motorRunTime3)][i],
+                  value: [Constants.parseTime(pumpControllerProvider.motorDataList[index].motorRunTime1), Constants.parseTime(pumpControllerProvider.motorDataList[index].motorRunTime2), Constants.parseTime(pumpControllerProvider.motorDataList[index].motorRunTime3)][i],
                   motor: "Motor ${i + 1} consumed",
-                  highestValue: selectedIndex == 0 ? const Duration(hours: 24): Constants.parseTime(motorDataList[index].totalPowerOnTime)
+                  highestValue: selectedIndex == 0 ? const Duration(hours: 24): Constants.parseTime(pumpControllerProvider.motorDataList[index].totalPowerOnTime)
               ),
               const SizedBox(height: 10,)
             ],
