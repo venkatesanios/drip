@@ -384,18 +384,19 @@ class CustomerScreenController extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  NavigationRail(
-                    selectedIndex: navViewModel.selectedIndex,
-                    labelType: NavigationRailLabelType.all,
-                    elevation: 5,
-                    onDestinationSelected: (int index) {
-                      navViewModel.onDestinationSelectingChange(index);
-                    },
-                    destinations: getNavigationDestinations(),
-                  ),
+                  if(kIsWeb)
+                    NavigationRail(
+                      selectedIndex: navViewModel.selectedIndex,
+                      labelType: NavigationRailLabelType.all,
+                      elevation: 5,
+                      onDestinationSelected: (int index) {
+                        navViewModel.onDestinationSelectingChange(index);
+                      },
+                      destinations: getNavigationDestinations(),
+                    ),
                   Container(
                     width: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId==1?
-                    MediaQuery.sizeOf(context).width-140:MediaQuery.sizeOf(context).width-80,
+                    MediaQuery.sizeOf(context).width-140: MediaQuery.sizeOf(context).width <= 600 ? MediaQuery.sizeOf(context).width : MediaQuery.sizeOf(context).width - 80,
                     height: MediaQuery.sizeOf(context).height,
                     decoration: BoxDecoration(
                       color: Theme.of(context).scaffoldBackgroundColor,
@@ -403,37 +404,39 @@ class CustomerScreenController extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        lastCommunication.inMinutes >= 10 && powerSupply == 0?Container(
-                          height: 23.0,
-                          decoration: BoxDecoration(
-                            color: Colors.red.shade300,
-                            borderRadius: const BorderRadius.only(topLeft: Radius.circular(5),topRight: Radius.circular(5)),
-                          ),
-                          child: Center(
-                            child: Text('No communication and power Supply to Controller'.toUpperCase(),
-                              style: const TextStyle(
-                                color: Colors.black87,
-                                fontSize: 12.0,
+                        if(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId==1)...[
+                          lastCommunication.inMinutes >= 10 && powerSupply == 0?Container(
+                            height: 23.0,
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade300,
+                              borderRadius: const BorderRadius.only(topLeft: Radius.circular(5),topRight: Radius.circular(5)),
+                            ),
+                            child: Center(
+                              child: Text('No communication and power Supply to Controller'.toUpperCase(),
+                                style: const TextStyle(
+                                  color: Colors.black87,
+                                  fontSize: 12.0,
+                                ),
                               ),
                             ),
-                          ),
-                        ):
-                        powerSupply == 0?Container(
-                          height: 20.0,
-                          decoration: BoxDecoration(
-                            color: Colors.red.shade300,
-                            borderRadius: const BorderRadius.only(topLeft: Radius.circular(5),topRight: Radius.circular(5)),
-                          ),
-                          child: Center(
-                            child: Text('No power Supply to Controller'.toUpperCase(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12.0,
+                          ):
+                          powerSupply == 0?Container(
+                            height: 20.0,
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade300,
+                              borderRadius: const BorderRadius.only(topLeft: Radius.circular(5),topRight: Radius.circular(5)),
+                            ),
+                            child: Center(
+                              child: Text('No power Supply to Controller'.toUpperCase(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12.0,
+                                ),
                               ),
                             ),
-                          ),
-                        ):
-                        const SizedBox(),
+                          ):
+                          const SizedBox(),
+                        ],
 
                         Expanded(
                           child: mainScreen(

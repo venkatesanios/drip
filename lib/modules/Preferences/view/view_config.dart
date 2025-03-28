@@ -63,6 +63,7 @@ class _ViewConfigState extends State<ViewConfig> {
           {"5902": "${widget.userId}"}
         ]
       };
+      print("published data ${pump.deviceId}");
       mqttService.topicToPublishAndItsMessage(jsonEncode(viewConfig), "${Environment.mqttPublishTopic}/${preferenceProvider.generalData!.deviceId}");
     } else {
       mqttService.topicToPublishAndItsMessage(jsonEncode({"sentSms": "viewconfig"}), "${Environment.mqttPublishTopic}/${preferenceProvider.generalData!.deviceId}");

@@ -64,7 +64,9 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
     _controller.addListener(() {setState(() {});});
     _controller.repeat();
     mqttService.pumpDashboardPayload = widget.liveData;
-    getLive();
+    if(mounted){
+      getLive();
+    }
   }
 
   @override
@@ -132,167 +134,175 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
     final ThemeData themeData = Theme.of(context);
     return RefreshIndicator(
       onRefresh: getLive,
-      child: Scaffold(
-        body: StreamBuilder<PumpControllerData?>(
-          stream: mqttService.pumpDashboardPayloadStream,
-          builder: (BuildContext context, AsyncSnapshot<PumpControllerData?> snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (!snapshot.hasData || snapshot.data == null) {
-              return const Center(child: Text('Data not available'));
-            }
-            return SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 10,),
-                  ConnectionErrorToast(dataFetchingStatus: snapshot.data!.dataFetchingStatus),
-                  Container(
-                    width: MediaQuery.of(context).size.width <= 500 ? MediaQuery.of(context).size.width : 400,
-                    margin: const EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: AppProperties.customBoxShadowLiteTheme
-                    ),
-                    child: ListTile(
-                      horizontalTitleGap: 10,
-                      title: Text(widget.masterName, style: themeData.textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(widget.deviceId),
-                          Row(
-                            children: [
-                              RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(text: "CVS : ", style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor)),
-                                    TextSpan(
-                                        text: getCommunicationType(snapshot.data!.version.toString().split(',').length > 1
-                                            ? snapshot.data!.version.toString().split(',')[0]
-                                            : snapshot.data!.version),
-                                        style: TextStyle(fontWeight: FontWeight.w400, color: Theme.of(context).primaryColor)
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 5,),
-                              RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(text: "MVS : ", style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor)),
-                                    TextSpan(
-                                        text: getCommunicationType(snapshot.data!.version.toString().split(',').length > 1
-                                            ? snapshot.data!.version.toString().split(',')[1]
-                                            : snapshot.data!.version),
-                                        style: TextStyle(fontWeight: FontWeight.w400, color: Theme.of(context).primaryColor)),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+      child: Card(
+        color: Colors.white,
+        surfaceTintColor: Colors.white,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15)
+        ),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: StreamBuilder<PumpControllerData?>(
+            stream: mqttService.pumpDashboardPayloadStream,
+            builder: (BuildContext context, AsyncSnapshot<PumpControllerData?> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (!snapshot.hasData || snapshot.data == null) {
+                return const Center(child: Text('Data not available'));
+              }
+              return SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 10,),
+                    ConnectionErrorToast(dataFetchingStatus: snapshot.data!.dataFetchingStatus),
+                    Container(
+                      width: MediaQuery.of(context).size.width <= 500 ? MediaQuery.of(context).size.width : 400,
+                      margin: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: const BoxDecoration(
+                          color: Colors.white,
+                          // boxShadow: AppProperties.customBoxShadowLiteTheme
                       ),
-                      leading: SizedImageMedium(imagePath: 'assets/Images/Png/${F.name.contains('oro') ? 'Oro' : 'SmartComm'}/category_${2}.png'),
-                      trailing: IntrinsicWidth(
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: Theme.of(context).primaryColor.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(5)
-                          ),
-                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                          child: Row(
-                            children: [
-                              getIcon(snapshot.data!.signalStrength),
-                              Text("${snapshot.data?.signalStrength ?? "0"}%")
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    color: Colors.white,
-                    width: MediaQuery.of(context).size.width <= 500 ? MediaQuery.of(context).size.width : 400,
-                    padding: const EdgeInsets.only(bottom: 10),
-                    margin: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      child: ListTile(
+                        horizontalTitleGap: 10,
+                        title: Text(widget.masterName, style: themeData.textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            for(var index = 0; index < 3; index++)
-                              buildContainer(
-                                title: snapshot.data!.powerFactor == null
-                                    ? ["RN", "YN", "BN"][index]
-                                    : ["RN ${double.parse(snapshot.data!.voltage.split(',')[0]).toStringAsFixed(0)}",
-                                  "YN ${double.parse(snapshot.data!.voltage.split(',')[1]).toStringAsFixed(0)}",
-                                  "BN ${double.parse(snapshot.data!.voltage.split(',')[2]).toStringAsFixed(0)}"][index],
-                                value: snapshot.data!.powerFactor == null
-                                    ? double.parse(snapshot.data!.voltage.split(',')[index]).toStringAsFixed(0)
-                                    : ["RPF ${double.parse(snapshot.data!.powerFactor.split(',')[0]).toStringAsFixed(0)}",
-                                  "YPF ${double.parse(snapshot.data!.powerFactor.split(',')[1]).toStringAsFixed(0)}",
-                                  "BPF ${double.parse(snapshot.data!.powerFactor.split(',')[2]).toStringAsFixed(0)}"][index],
-                                value2: snapshot.data!.power != null
-                                    ? ["RP ${double.parse(snapshot.data!.power.split(',')[0]).toStringAsFixed(0)}",
-                                  "YP ${double.parse(snapshot.data!.power.split(',')[1]).toStringAsFixed(0)}",
-                                  "BP ${double.parse(snapshot.data!.power.split(',')[2]).toStringAsFixed(0)}"][index]
-                                    : null,
-                                // value: snapshot.data!.voltage.split(',')[index],
-                                color1: [
-                                  Colors.redAccent.shade100,
-                                  Colors.amberAccent.shade100,
-                                  Colors.lightBlueAccent.shade100,
-                                ][index],
-                                color2: [
-                                  Colors.redAccent.shade700,
-                                  Colors.amberAccent.shade700,
-                                  Colors.lightBlueAccent.shade700,
-                                ][index],
-                              )
-                          ],
-                        ),
-                        if(snapshot.data!.energyParameters != null && snapshot.data!.energyParameters.isNotEmpty)
-                          const SizedBox(height: 8,),
-                        if(snapshot.data!.energyParameters != null && snapshot.data!.energyParameters.isNotEmpty)
-                          Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            Text(widget.deviceId),
+                            Row(
                               children: [
                                 RichText(
-                                    text: TextSpan(
-                                        children: [
-                                          TextSpan(text: "Instant Energy:", style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15, fontWeight: FontWeight.bold)),
-                                          TextSpan(text: " ${snapshot.data!.energyParameters.split(',')[0]}", style: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold)),
-                                        ]
-                                    )
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(text: "CVS : ", style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor)),
+                                      TextSpan(
+                                          text: getCommunicationType(snapshot.data!.version.toString().split(',').length > 1
+                                              ? snapshot.data!.version.toString().split(',')[0]
+                                              : snapshot.data!.version),
+                                          style: TextStyle(fontWeight: FontWeight.w400, color: Theme.of(context).primaryColor)
+                                      ),
+                                    ],
+                                  ),
                                 ),
+                                const SizedBox(width: 5,),
                                 RichText(
-                                    text: TextSpan(
-                                        children: [
-                                          TextSpan(text: "Cumulative Energy:", style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15, fontWeight: FontWeight.bold)),
-                                          TextSpan(text: " ${snapshot.data!.energyParameters.split(',')[1]}", style: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold)),
-                                        ]
-                                    )
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(text: "MVS : ", style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor)),
+                                      TextSpan(
+                                          text: getCommunicationType(snapshot.data!.version.toString().split(',').length > 1
+                                              ? snapshot.data!.version.toString().split(',')[1]
+                                              : snapshot.data!.version),
+                                          style: TextStyle(fontWeight: FontWeight.w400, color: Theme.of(context).primaryColor)),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
-                          )
-                      ],
+                          ],
+                        ),
+                        leading: SizedImageMedium(imagePath: 'assets/Images/Png/${F.name.contains('oro') ? 'Oro' : 'SmartComm'}/category_${2}.png'),
+                        trailing: IntrinsicWidth(
+                          child: Container(
+                            decoration: BoxDecoration(
+                                color: Theme.of(context).primaryColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(5)
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                            child: Row(
+                              children: [
+                                getIcon(snapshot.data!.signalStrength),
+                                Text("${snapshot.data?.signalStrength ?? "0"}%")
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 15,),
-                  for(var index = 0; index < int.parse(snapshot.data!.numberOfPumps); index++)
-                    buildNewPumpDetails(index: index, pumpData: snapshot.data!,),
-                ],
-              ),
-            );
-          },
+                    Container(
+                      color: Colors.white,
+                      width: MediaQuery.of(context).size.width <= 500 ? MediaQuery.of(context).size.width : 400,
+                      padding: const EdgeInsets.only(bottom: 10),
+                      margin: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              for(var index = 0; index < 3; index++)
+                                buildContainer(
+                                  title: snapshot.data!.powerFactor == null
+                                      ? ["RN", "YN", "BN"][index]
+                                      : ["RN ${double.parse(snapshot.data!.voltage.split(',')[0]).toStringAsFixed(0)}",
+                                    "YN ${double.parse(snapshot.data!.voltage.split(',')[1]).toStringAsFixed(0)}",
+                                    "BN ${double.parse(snapshot.data!.voltage.split(',')[2]).toStringAsFixed(0)}"][index],
+                                  value: snapshot.data!.powerFactor == null
+                                      ? double.parse(snapshot.data!.voltage.split(',')[index]).toStringAsFixed(0)
+                                      : ["RPF ${double.parse(snapshot.data!.powerFactor.split(',')[0]).toStringAsFixed(0)}",
+                                    "YPF ${double.parse(snapshot.data!.powerFactor.split(',')[1]).toStringAsFixed(0)}",
+                                    "BPF ${double.parse(snapshot.data!.powerFactor.split(',')[2]).toStringAsFixed(0)}"][index],
+                                  value2: snapshot.data!.power != null
+                                      ? ["RP ${double.parse(snapshot.data!.power.split(',')[0]).toStringAsFixed(0)}",
+                                    "YP ${double.parse(snapshot.data!.power.split(',')[1]).toStringAsFixed(0)}",
+                                    "BP ${double.parse(snapshot.data!.power.split(',')[2]).toStringAsFixed(0)}"][index]
+                                      : null,
+                                  // value: snapshot.data!.voltage.split(',')[index],
+                                  color1: [
+                                    Colors.redAccent.shade100,
+                                    Colors.amberAccent.shade100,
+                                    Colors.lightBlueAccent.shade100,
+                                  ][index],
+                                  color2: [
+                                    Colors.redAccent.shade700,
+                                    Colors.amberAccent.shade700,
+                                    Colors.lightBlueAccent.shade700,
+                                  ][index],
+                                )
+                            ],
+                          ),
+                          if(snapshot.data!.energyParameters != null && snapshot.data!.energyParameters.isNotEmpty)
+                            const SizedBox(height: 8,),
+                          if(snapshot.data!.energyParameters != null && snapshot.data!.energyParameters.isNotEmpty)
+                            Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  RichText(
+                                      text: TextSpan(
+                                          children: [
+                                            TextSpan(text: "Instant Energy:", style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15, fontWeight: FontWeight.bold)),
+                                            TextSpan(text: " ${snapshot.data!.energyParameters.split(',')[0]}", style: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold)),
+                                          ]
+                                      )
+                                  ),
+                                  RichText(
+                                      text: TextSpan(
+                                          children: [
+                                            TextSpan(text: "Cumulative Energy:", style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15, fontWeight: FontWeight.bold)),
+                                            TextSpan(text: " ${snapshot.data!.energyParameters.split(',')[1]}", style: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold)),
+                                          ]
+                                      )
+                                  ),
+                                ],
+                              ),
+                            )
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 15,),
+                    for(var index = 0; index < int.parse(snapshot.data!.numberOfPumps); index++)
+                      buildNewPumpDetails(index: index, pumpData: snapshot.data!,),
+                  ],
+                ),
+              );
+            },
+          ),
+          // bottomNavigationBar: ,
         ),
-        // bottomNavigationBar: ,
       ),
     );
   }
@@ -359,8 +369,9 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   height: 25,
                   decoration: BoxDecoration(
-                      gradient: AppProperties.linearGradientLeading,
-                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(20))
+                      // gradient: AppProperties.linearGradientLeading,
+                    color: Theme.of(context).primaryColor,
+                      borderRadius: const BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(3))
                   ),
                   child: Center(
                     child: Text(

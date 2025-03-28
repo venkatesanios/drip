@@ -39,8 +39,8 @@ class _MobileCustomCalendarState extends State<MobileCustomCalendar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        boxShadow: AppProperties.customBoxShadowLiteTheme,
+      decoration: const BoxDecoration(
+        // boxShadow: AppProperties.customBoxShadowLiteTheme,
         color: Colors.white,
       ),
       margin: const EdgeInsets.symmetric(horizontal: 10),

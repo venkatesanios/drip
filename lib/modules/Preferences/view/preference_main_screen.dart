@@ -234,339 +234,336 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
       }
     }
     if(preferenceProvider.generalData != null && preferenceProvider.commonPumpSettings != null){
-      return LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            return Scaffold(
-              appBar: PreferredSize(preferredSize: const Size(0, 0), child: Container()),
-              body: LayoutBuilder(
-                  builder: (BuildContext context, BoxConstraints constraints) {
-                    return Container(
-                      margin: EdgeInsets.symmetric(horizontal: constraints.maxWidth < 700 ? 0: 20),
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 10,),
-                          if(preferenceProvider.commonPumpSettings!.isNotEmpty) ...[
-                            Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 10),
-                              child: Row(
-                                children: [
-                                  if(preferenceProvider.commonPumpSettings!.isNotEmpty)
-                                    if(!viewConfig)
-                                      Expanded(
-                                        child: CustomSegmentedControl(
-                                          segmentTitles: const {
-                                            0: 'Common setting',
-                                            1: 'Individual setting',
-                                            2: 'Calibration'
-                                          },
-                                          groupValue: selectedSetting,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              selectedSetting = value!;
-                                              if(selectedSetting == 2) {
-                                                showDialog(
-                                                    context: context,
-                                                    builder: (BuildContext context) {
-                                                      return Consumer(
-                                                          builder: (BuildContext context, PreferenceProvider preferenceProvider, _) {
-                                                            return AlertDialog(
-                                                              content: Column(
-                                                                mainAxisSize: MainAxisSize.min,
-                                                                children: [
-                                                                  TextFormField(
-                                                                    controller: passwordController,
-                                                                    autofocus: true,
-                                                                    decoration: const InputDecoration(
-                                                                        hintText: "Enter password"
-                                                                    ),
-                                                                  ),
-                                                                  const SizedBox(height: 10,),
-                                                                  if(preferenceProvider.passwordValidationCode == 404)
-                                                                    const Text('Invalid password', style: TextStyle(color: Colors.red),)
-                                                                ],
+      return Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: PreferredSize(preferredSize: const Size(0, 0), child: Container()),
+        body: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              return Container(
+                margin: EdgeInsets.symmetric(horizontal: constraints.maxWidth < 700 ? 0: 20),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 10,),
+                    if(preferenceProvider.commonPumpSettings!.isNotEmpty) ...[
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Row(
+                          children: [
+                            if(preferenceProvider.commonPumpSettings!.isNotEmpty)
+                              if(!viewConfig)
+                                Expanded(
+                                  child: CustomSegmentedControl(
+                                    segmentTitles: const {
+                                      0: 'Common setting',
+                                      1: 'Individual setting',
+                                      2: 'Calibration'
+                                    },
+                                    groupValue: selectedSetting,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        selectedSetting = value!;
+                                        if(selectedSetting == 2) {
+                                          showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return Consumer(
+                                                    builder: (BuildContext context, PreferenceProvider preferenceProvider, _) {
+                                                      return AlertDialog(
+                                                        content: Column(
+                                                          mainAxisSize: MainAxisSize.min,
+                                                          children: [
+                                                            TextFormField(
+                                                              controller: passwordController,
+                                                              autofocus: true,
+                                                              decoration: const InputDecoration(
+                                                                  hintText: "Enter password"
                                                               ),
-                                                              actions: [
-                                                                TextButton(
-                                                                    onPressed: (){
-                                                                      passwordController.text = "";
-                                                                      preferenceProvider.updateValidationCode();
-                                                                      selectedSetting = 1;
-                                                                      Navigator.of(context).pop();
-                                                                    },
-                                                                    child: const Text("CANCEL")
-                                                                ),
-                                                                TextButton(
-                                                                    onPressed: () async {
-                                                                      await Future.delayed(Duration.zero, () {
-                                                                        preferenceProvider.updateValidationCode();
-                                                                      });
-                                                                      await preferenceProvider.checkPassword(userId: widget.userId, password: passwordController.text);
-                                                                      if(preferenceProvider.passwordValidationCode == 200) {
-                                                                        Navigator.of(context).pop();
-                                                                        passwordController.text = "";
-                                                                      }
-                                                                    },
-                                                                    child: const Text("OK")
-                                                                ),
-                                                              ],
-                                                            );
-                                                          }
+                                                            ),
+                                                            const SizedBox(height: 10,),
+                                                            if(preferenceProvider.passwordValidationCode == 404)
+                                                              const Text('Invalid password', style: TextStyle(color: Colors.red),)
+                                                          ],
+                                                        ),
+                                                        actions: [
+                                                          TextButton(
+                                                              onPressed: (){
+                                                                passwordController.text = "";
+                                                                preferenceProvider.updateValidationCode();
+                                                                selectedSetting = 1;
+                                                                Navigator.of(context).pop();
+                                                              },
+                                                              child: const Text("CANCEL")
+                                                          ),
+                                                          TextButton(
+                                                              onPressed: () async {
+                                                                await Future.delayed(Duration.zero, () {
+                                                                  preferenceProvider.updateValidationCode();
+                                                                });
+                                                                await preferenceProvider.checkPassword(userId: widget.userId, password: passwordController.text);
+                                                                if(preferenceProvider.passwordValidationCode == 200) {
+                                                                  Navigator.of(context).pop();
+                                                                  passwordController.text = "";
+                                                                }
+                                                              },
+                                                              child: const Text("OK")
+                                                          ),
+                                                        ],
                                                       );
                                                     }
                                                 );
-                                              } else {
-                                                preferenceProvider.updateValidationCode();
                                               }
-                                            });
-                                          },
-                                        ),
-                                      )
-                                    else
-                                      Expanded(child: Container()),
-                                  if(preferenceProvider.commonPumpSettings!.isNotEmpty && constraints.maxWidth >= 700)
-                                    const SizedBox(width: 50,),
-                                  IconButton(
-                                      onPressed: (){
-                                        setState(() {
-                                          viewConfig = !viewConfig;
-                                        });
-                                      },
-                                      icon: Icon(Icons.remove_red_eye_outlined, color: Theme.of(context).primaryColor,)
+                                          );
+                                        } else {
+                                          preferenceProvider.updateValidationCode();
+                                        }
+                                      });
+                                    },
                                   ),
-                                  if(constraints.maxWidth >= 700)
-                                    Expanded(
-                                      child: _getDefaultTabController(),
-                                    ),
-                                ],
+                                )
+                              else
+                                Expanded(child: Container()),
+                            if(preferenceProvider.commonPumpSettings!.isNotEmpty && constraints.maxWidth >= 700)
+                              const SizedBox(width: 50,),
+                            if(constraints.maxWidth >= 700)
+                              Expanded(
+                                child: _getDefaultTabController(),
                               ),
+                            IconButton(
+                                onPressed: (){
+                                  setState(() {
+                                    viewConfig = !viewConfig;
+                                  });
+                                },
+                                icon: Icon(Icons.remove_red_eye_outlined, color: Theme.of(context).primaryColor,)
                             ),
                           ],
-                          if(constraints.maxWidth <= 700)
-                            _getDefaultTabController(),
-                          if(selectedSetting != 2)
-                            Expanded(
-                                child: TabBarView(
-                                  controller: selectedSetting != 1 ? tabController1 : tabController2,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  children: [
-                                    if(selectedSetting == 0)
-                                      for(var commonSettingIndex = 0; commonSettingIndex < preferenceProvider.commonPumpSettings!.length; commonSettingIndex++)
-                                        buildSettingsCategory(
-                                            context: context,
-                                            settingList: preferenceProvider.commonPumpSettings![commonSettingIndex].settingList,
-                                            constraints: constraints,
-                                            pumpIndex: commonSettingIndex
-                                        )
-                                    else if(selectedSetting == 1)
-                                      for(var pumpSettingIndex = 0; pumpSettingIndex < preferenceProvider.individualPumpSetting!.length; pumpSettingIndex++)
-                                        buildSettingsCategory(
-                                            context: context,
-                                            settingList: preferenceProvider.individualPumpSetting![pumpSettingIndex].settingList,
-                                            constraints: constraints,
-                                            pumpIndex: pumpSettingIndex
-                                        )
-                                    // for(var index = 0; index < (selectedSetting == 0 ? preferenceProvider.commonPumpSettings!.length : preferenceProvider.individualPumpSetting!.length); index++)
-                                    //   Text("${index+1}")
-                                  ],
-                                )
-                            ),
-                          if(selectedSetting == 2 && (preferenceProvider.passwordValidationCode == 200))
-                            Expanded(
-                                child: TabBarView(
-                                  controller: selectedSetting != 1 ? tabController1 : tabController2,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  children: [
-                                    for(var calibrationSettingIndex = 0; calibrationSettingIndex < preferenceProvider.calibrationSetting!.length; calibrationSettingIndex++)
-                                      buildSettingsCategory(
-                                          context: context,
-                                          settingList: preferenceProvider.calibrationSetting![calibrationSettingIndex].settingList,
-                                          constraints: constraints,
-                                          pumpIndex: calibrationSettingIndex
-                                      )
-                                  ],
-                                )
-                            ),
-                        ],
+                        ),
                       ),
-                    );
-                  }
-              ),
-              floatingActionButton: !viewConfig ? Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  if(preferenceProvider.passwordValidationCode == 200 && preferenceProvider.calibrationSetting![0].settingList[1].controllerReadStatus == "0"
-                      ? getCalibrationPayload(isToGem: [1].contains(preferenceProvider.generalData!.categoryId)).split(';')[0].isNotEmpty
-                      : getFailedPayload(sendAll: false, isToGem: [1].contains(preferenceProvider.generalData!.categoryId)).split(';')[0].isNotEmpty)
-                  // if(preferenceProvider.commonPumpSettings!.isNotEmpty ? ((preferenceProvider.commonPumpSettings?.any((element) => element.settingList.any((e) => e.controllerReadStatus == "0")) ?? false) || (preferenceProvider.individualPumpSetting?.any((element) => element.settingList.any((e) => e.controllerReadStatus == "0")) ?? false)) : false)
-                    MaterialButton(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20)
+                    ],
+                    if(constraints.maxWidth <= 700)
+                      _getDefaultTabController(),
+                    if(selectedSetting != 2)
+                      Expanded(
+                          child: TabBarView(
+                            controller: selectedSetting != 1 ? tabController1 : tabController2,
+                            physics: const NeverScrollableScrollPhysics(),
+                            children: [
+                              if(selectedSetting == 0)
+                                for(var commonSettingIndex = 0; commonSettingIndex < preferenceProvider.commonPumpSettings!.length; commonSettingIndex++)
+                                  buildSettingsCategory(
+                                      context: context,
+                                      settingList: preferenceProvider.commonPumpSettings![commonSettingIndex].settingList,
+                                      constraints: constraints,
+                                      pumpIndex: commonSettingIndex
+                                  )
+                              else if(selectedSetting == 1)
+                                for(var pumpSettingIndex = 0; pumpSettingIndex < preferenceProvider.individualPumpSetting!.length; pumpSettingIndex++)
+                                  buildSettingsCategory(
+                                      context: context,
+                                      settingList: preferenceProvider.individualPumpSetting![pumpSettingIndex].settingList,
+                                      constraints: constraints,
+                                      pumpIndex: pumpSettingIndex
+                                  )
+                              // for(var index = 0; index < (selectedSetting == 0 ? preferenceProvider.commonPumpSettings!.length : preferenceProvider.individualPumpSetting!.length); index++)
+                              //   Text("${index+1}")
+                            ],
+                          )
                       ),
-                      color: Colors.orange.shade300,
-                      onPressed: () async {
-                        final failedPayload = preferenceProvider.passwordValidationCode == 200
-                            ? getCalibrationPayload(isToGem: [1].contains(preferenceProvider.generalData!.categoryId)).split(';')
-                            : getFailedPayload(sendAll: false, isToGem: [1].contains(preferenceProvider.generalData!.categoryId)).split(';');
-                        // print(failedPayload);
-                        List temp = List.from(selectedOroPumpList);
-                        preferenceProvider.temp.clear();
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return StatefulBuilder(
-                                builder: (BuildContext context, StateSetter stateSetter) {
-                                  return AlertDialog(
-                                    content: SizedBox(
-                                      height: 450,
-                                      width: 300,
-                                      // padding: EdgeInsets.all(16),
-                                      child: SingleChildScrollView(
-                                        child: Column(
-                                          children: [
-                                            for (var i = 0; i < preferenceProvider.commonPumpSettings!.length; i++)
-                                              CheckboxListTile(
-                                                  title: Text(preferenceProvider.commonPumpSettings![i].deviceName),
-                                                  subtitle: Text(preferenceProvider.commonPumpSettings![i].deviceId),
-                                                  value: temp.contains(preferenceProvider.commonPumpSettings![i].deviceId),
-                                                  onChanged: (newValue) {
-                                                    stateSetter(() {
-                                                      setState(() {
-                                                        if (temp.contains(preferenceProvider.commonPumpSettings![i].deviceId)) {
-                                                          temp.remove(preferenceProvider.commonPumpSettings![i].deviceId);
-                                                        } else {
-                                                          temp.add(preferenceProvider.commonPumpSettings![i].deviceId);
-                                                        }
-                                                      });
-                                                    });
+                    if(selectedSetting == 2 && (preferenceProvider.passwordValidationCode == 200))
+                      Expanded(
+                          child: TabBarView(
+                            controller: selectedSetting != 1 ? tabController1 : tabController2,
+                            physics: const NeverScrollableScrollPhysics(),
+                            children: [
+                              for(var calibrationSettingIndex = 0; calibrationSettingIndex < preferenceProvider.calibrationSetting!.length; calibrationSettingIndex++)
+                                buildSettingsCategory(
+                                    context: context,
+                                    settingList: preferenceProvider.calibrationSetting![calibrationSettingIndex].settingList,
+                                    constraints: constraints,
+                                    pumpIndex: calibrationSettingIndex
+                                )
+                            ],
+                          )
+                      ),
+                  ],
+                ),
+              );
+            }
+        ),
+        floatingActionButton: !viewConfig ? Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            if(preferenceProvider.passwordValidationCode == 200 && preferenceProvider.calibrationSetting![0].settingList[1].controllerReadStatus == "0"
+                ? getCalibrationPayload(isToGem: [1].contains(preferenceProvider.generalData!.categoryId)).split(';')[0].isNotEmpty
+                : getFailedPayload(sendAll: false, isToGem: [1].contains(preferenceProvider.generalData!.categoryId)).split(';')[0].isNotEmpty)
+            // if(preferenceProvider.commonPumpSettings!.isNotEmpty ? ((preferenceProvider.commonPumpSettings?.any((element) => element.settingList.any((e) => e.controllerReadStatus == "0")) ?? false) || (preferenceProvider.individualPumpSetting?.any((element) => element.settingList.any((e) => e.controllerReadStatus == "0")) ?? false)) : false)
+              MaterialButton(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)
+                ),
+                color: Colors.orange.shade300,
+                onPressed: () async {
+                  final failedPayload = preferenceProvider.passwordValidationCode == 200
+                      ? getCalibrationPayload(isToGem: [1].contains(preferenceProvider.generalData!.categoryId)).split(';')
+                      : getFailedPayload(sendAll: false, isToGem: [1].contains(preferenceProvider.generalData!.categoryId)).split(';');
+                  // print(failedPayload);
+                  List temp = List.from(selectedOroPumpList);
+                  preferenceProvider.temp.clear();
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return StatefulBuilder(
+                          builder: (BuildContext context, StateSetter stateSetter) {
+                            return AlertDialog(
+                              content: SizedBox(
+                                height: 450,
+                                width: 300,
+                                // padding: EdgeInsets.all(16),
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    children: [
+                                      for (var i = 0; i < preferenceProvider.commonPumpSettings!.length; i++)
+                                        CheckboxListTile(
+                                            title: Text(preferenceProvider.commonPumpSettings![i].deviceName),
+                                            subtitle: Text(preferenceProvider.commonPumpSettings![i].deviceId),
+                                            value: temp.contains(preferenceProvider.commonPumpSettings![i].deviceId),
+                                            onChanged: (newValue) {
+                                              stateSetter(() {
+                                                setState(() {
+                                                  if (temp.contains(preferenceProvider.commonPumpSettings![i].deviceId)) {
+                                                    temp.remove(preferenceProvider.commonPumpSettings![i].deviceId);
+                                                  } else {
+                                                    temp.add(preferenceProvider.commonPumpSettings![i].deviceId);
                                                   }
-                                              ),
-                                            ListView.builder(
-                                              shrinkWrap: true,
-                                              physics: const NeverScrollableScrollPhysics(),
-                                              itemCount: failedPayload.length,
-                                              itemBuilder: (BuildContext context, int i) {
-                                                final isToGem = [1].contains(preferenceProvider.generalData!.categoryId);
-                                                var payloadToDecode = isToGem ? failedPayload[i].split('+')[4] : failedPayload[i];
-                                                var decodedData = jsonDecode(payloadToDecode);
-                                                var key = decodedData.keys.first;
-                                                int oroPumpIndex = 0;
-                                                if (isToGem) {
-                                                  oroPumpIndex = preferenceProvider.commonPumpSettings!.indexWhere((element) => element.deviceId == failedPayload[i].split('+')[2]);
-                                                }
-                                                return temp.contains(preferenceProvider.commonPumpSettings![oroPumpIndex].deviceId) ? ListTile(
-                                                  leading: Container(
-                                                    height: 30,
-                                                    width: 30,
-                                                    decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      gradient: AppProperties.linearGradientLeading,
-                                                    ),
-                                                    child: Center(
-                                                      child: Text(
-                                                        '${i + 1}',
-                                                        style: const TextStyle(color: Colors.white),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  title: Text(
-                                                    preferenceProvider.commonPumpSettings![oroPumpIndex].deviceName,
-                                                    style: const TextStyle(fontWeight: FontWeight.w400),
-                                                  ),
-                                                  subtitle: Text(
-                                                    statusMessages[key]!,
-                                                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                                                  ),
-                                                ) : Container();
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    actions: [
-                                      FilledButton(
-                                          onPressed: temp.isNotEmpty ? () async {
-                                            await Future.delayed(Duration.zero, () {
-                                              setState(() {
-                                                shouldSendFailedPayloads = true;
-                                                selectedOroPumpList = List.from(temp);
+                                                });
                                               });
-                                            });
-                                            Navigator.pop(context);
-                                            await sendFunction();
-                                          } : null,
-                                          child: const Text("Resend")
+                                            }
+                                        ),
+                                      ListView.builder(
+                                        shrinkWrap: true,
+                                        physics: const NeverScrollableScrollPhysics(),
+                                        itemCount: failedPayload.length,
+                                        itemBuilder: (BuildContext context, int i) {
+                                          final isToGem = [1].contains(preferenceProvider.generalData!.categoryId);
+                                          var payloadToDecode = isToGem ? failedPayload[i].split('+')[4] : failedPayload[i];
+                                          var decodedData = jsonDecode(payloadToDecode);
+                                          var key = decodedData.keys.first;
+                                          int oroPumpIndex = 0;
+                                          if (isToGem) {
+                                            oroPumpIndex = preferenceProvider.commonPumpSettings!.indexWhere((element) => element.deviceId == failedPayload[i].split('+')[2]);
+                                          }
+                                          return temp.contains(preferenceProvider.commonPumpSettings![oroPumpIndex].deviceId) ? ListTile(
+                                            leading: Container(
+                                              height: 30,
+                                              width: 30,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                gradient: AppProperties.linearGradientLeading,
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  '${i + 1}',
+                                                  style: const TextStyle(color: Colors.white),
+                                                ),
+                                              ),
+                                            ),
+                                            title: Text(
+                                              preferenceProvider.commonPumpSettings![oroPumpIndex].deviceName,
+                                              style: const TextStyle(fontWeight: FontWeight.w400),
+                                            ),
+                                            subtitle: Text(
+                                              statusMessages[key]!,
+                                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                                            ),
+                                          ) : Container();
+                                        },
                                       ),
-                                      FilledButton(
-                                          onPressed: (){
-                                            Navigator.pop(context);
-                                          },
-                                          child: const Text("Cancel")
-                                      )
                                     ],
-                                  );
-                                }
+                                  ),
+                                ),
+                              ),
+                              actions: [
+                                FilledButton(
+                                    onPressed: temp.isNotEmpty ? () async {
+                                      await Future.delayed(Duration.zero, () {
+                                        setState(() {
+                                          shouldSendFailedPayloads = true;
+                                          selectedOroPumpList = List.from(temp);
+                                        });
+                                      });
+                                      Navigator.pop(context);
+                                      await sendFunction();
+                                    } : null,
+                                    child: const Text("Resend")
+                                ),
+                                FilledButton(
+                                    onPressed: (){
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text("Cancel")
+                                )
+                              ],
                             );
-                          },
-                        );
-                      },
-                      child: const Text("Failed", style: TextStyle(color: Colors.black),),
-                    ),
-                  const SizedBox(width: 20,),
-                  MaterialButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)
-                    ),
-                    color: Theme.of(context).primaryColor,
-                    onPressed: () async {
-                      await Future.delayed(Duration.zero, () {
-                        setState(() {
-                          // oroPumpList.clear();
-                          shouldSendFailedPayloads = false;
-                        });
-                      });
-                      preferenceProvider.temp.clear();
-                      if(preferenceProvider.commonPumpSettings!.isEmpty || preferenceProvider.commonPumpSettings!.length <= 1) {
-                        sendFunction();
-                      } else {
-                        if(preferenceProvider.passwordValidationCode == 200) {
-                          if(preferenceProvider.calibrationSetting!.any((element) => element.settingList.any((e) => e.changed == true))) {
-                            selectedOroPumpList.clear();
-                            if(selectedOroPumpList.isEmpty) {
-                              selectedOroPumpList.addAll(preferenceProvider.calibrationSetting!.where((element) => element.settingList.any((e) => e.changed == true)).toList().map((e) =>e.deviceId).toList());
-                            }
-                            sendFunction();
-                          } else {
-                            selectPumpToSend();
                           }
-                        } else {
-                          List common = preferenceProvider.commonPumpSettings!.where((element) =>
-                              element.settingList.any((e) => e.changed == true)).toList().map((e) =>e.deviceId).toList();
-                          List individual = preferenceProvider.commonPumpSettings!
-                              .where((element) => element.settingList.any((e) => e.changed == true))
-                              .where((ele) => preferenceProvider.individualPumpSetting!
-                              .any((element) => element.controllerId == ele.controllerId))
-                              .map((e) => e.deviceId)
-                              .toList();
-                          if(preferenceProvider.commonPumpSettings!.any((element) => element.settingList.any((e) => e.changed == true)) || preferenceProvider.individualPumpSetting!.any((element) => element.settingList.any((e) => e.changed == true))) {
-                            selectedOroPumpList.clear();
-                            if(selectedOroPumpList.isEmpty) {
-                              selectedOroPumpList.addAll(common.isNotEmpty ? common : individual);
-                            }
-                            sendFunction();
-                          } else {
-                            selectPumpToSend();
-                          }
-                        }
+                      );
+                    },
+                  );
+                },
+                child: const Text("Failed", style: TextStyle(color: Colors.black),),
+              ),
+            const SizedBox(width: 20,),
+            MaterialButton(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)
+              ),
+              color: Theme.of(context).primaryColor,
+              onPressed: () async {
+                await Future.delayed(Duration.zero, () {
+                  setState(() {
+                    // oroPumpList.clear();
+                    shouldSendFailedPayloads = false;
+                  });
+                });
+                preferenceProvider.temp.clear();
+                if(preferenceProvider.commonPumpSettings!.isEmpty || preferenceProvider.commonPumpSettings!.length <= 1) {
+                  sendFunction();
+                } else {
+                  if(preferenceProvider.passwordValidationCode == 200) {
+                    if(preferenceProvider.calibrationSetting!.any((element) => element.settingList.any((e) => e.changed == true))) {
+                      selectedOroPumpList.clear();
+                      if(selectedOroPumpList.isEmpty) {
+                        selectedOroPumpList.addAll(preferenceProvider.calibrationSetting!.where((element) => element.settingList.any((e) => e.changed == true)).toList().map((e) =>e.deviceId).toList());
                       }
-                      },
-                    child: Text(preferenceProvider.passwordValidationCode == 200 ? "Send calibration": "Send preference", style: const TextStyle(color: Colors.white),),
-                  ),
-                ],
-              ) : null,
-              floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-            );
-          }
+                      sendFunction();
+                    } else {
+                      selectPumpToSend();
+                    }
+                  } else {
+                    List common = preferenceProvider.commonPumpSettings!.where((element) =>
+                        element.settingList.any((e) => e.changed == true)).toList().map((e) =>e.deviceId).toList();
+                    List individual = preferenceProvider.commonPumpSettings!
+                        .where((element) => element.settingList.any((e) => e.changed == true))
+                        .where((ele) => preferenceProvider.individualPumpSetting!
+                        .any((element) => element.controllerId == ele.controllerId))
+                        .map((e) => e.deviceId)
+                        .toList();
+                    if(preferenceProvider.commonPumpSettings!.any((element) => element.settingList.any((e) => e.changed == true)) || preferenceProvider.individualPumpSetting!.any((element) => element.settingList.any((e) => e.changed == true))) {
+                      selectedOroPumpList.clear();
+                      if(selectedOroPumpList.isEmpty) {
+                        selectedOroPumpList.addAll(common.isNotEmpty ? common : individual);
+                      }
+                      sendFunction();
+                    } else {
+                      selectPumpToSend();
+                    }
+                  }
+                }
+              },
+              child: Text(preferenceProvider.passwordValidationCode == 200 ? "Send calibration": "Send preference", style: const TextStyle(color: Colors.white),),
+            ),
+          ],
+        ) : null,
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       );
     }
     else {
@@ -597,6 +594,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                 dividerColor: Colors.transparent,
                 isScrollable: true,
                 onTap: (value) {
+                  preferenceProvider.updateTabIndex(tabController1.index);
                   if(selectedSetting == 2 && [1].contains(preferenceProvider.generalData!.categoryId)) {
                     mqttPayloadProvider.viewSettingsList.clear();
                     final oroPumpSerialNumber = preferenceProvider.commonPumpSettings![tabController1.index].serialNumber;
@@ -641,7 +639,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
               ),
             ),
           ],
-        )
+        ),
     );
   }
 
@@ -672,7 +670,8 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
                                 color: Colors.white,
-                                boxShadow: AppProperties.customBoxShadowLiteTheme
+                                border: Border.all(color: Theme.of(context).primaryColorLight, width: 0.3)
+                                // boxShadow: AppProperties.customBoxShadowLiteTheme
                             ),
                             child: Column(
                               children: [

@@ -1,14 +1,12 @@
-import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Constants/properties.dart';
+import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:intl/intl.dart';
-import 'package:table_calendar/table_calendar.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
-import '../../../services/http_service.dart';
 import '../../Preferences/widgets/custom_segmented_control.dart';
-import '../repository/log_repos.dart';
+import '../../PumpController/state_management/pump_controller_provider.dart';
 import '../widgets/custom_calendar_mobile.dart';
 
 class PumpVoltageLogScreen extends StatefulWidget {
@@ -20,65 +18,16 @@ class PumpVoltageLogScreen extends StatefulWidget {
 }
 
 class _PumpVoltageLogScreenState extends State<PumpVoltageLogScreen> {
-  DateTime selectedDate = DateTime.now();
-  DateTime _focusedDay = DateTime.now();
-  String message = "";
-  CalendarFormat _calendarFormat = CalendarFormat.week;
   int selectedIndex = 0;
-  List<Map<String, dynamic>> voltageData = [];
-  final LogRepository repository = LogRepository(HttpService());
-
-  Future<void> getUserVoltageLog() async {
-    message = '';
-    voltageData.clear();
-    Map<String, dynamic> data = {
-      "userId": widget.userId,
-      "controllerId": widget.controllerId,
-      "nodeControllerId": widget.nodeControllerId,
-      "fromDate": DateFormat("yyyy-MM-dd").format(selectedDate),
-      "toDate": DateFormat("yyyy-MM-dd").format(selectedDate),
-    };
-
-    try {
-      final getPumpController = await repository.getUserVoltageLog(data, widget.nodeControllerId != 0);
-      final response = jsonDecode(getPumpController.body);
-      if (getPumpController.statusCode == 200) {
-        setState(() {
-          if (response['data'] is List) {
-            if(DateFormat("yyyy-MM-dd").format(selectedDate) == DateFormat("yyyy-MM-dd").format(DateTime.now())) {
-              for(var i in response['data'][0]['voltageDetails']) {
-                if(i['hour'] <= DateTime.now().hour) {
-                  voltageData.add(i);
-                }
-              }
-            } else {
-              voltageData = List<Map<String, dynamic>>.from(response['data'][0]['voltageDetails']);
-            }
-            message = "";
-          } else {
-            message = 'No data available for the selected date.';
-          }
-        });
-      } else {
-        setState(() {
-          message = 'Failed to load data: ${response['message']}';
-        });
-      }
-    } catch (e, stackTrace) {
-      setState(() {
-        message = 'Error occurred: $e';
-      });
-      print("$e");
-      print("stackTrace ==> $stackTrace");
-    }
-  }
+  late PumpControllerProvider pumpControllerProvider;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    pumpControllerProvider = Provider.of(context,listen: false);
     if(mounted) {
-      getUserVoltageLog();
+      pumpControllerProvider.getUserVoltageLog(userId: widget.userId, controllerId: widget.controllerId, nodeControllerId: widget.nodeControllerId);
     }
   }
 
@@ -90,9 +39,9 @@ class _PumpVoltageLogScreenState extends State<PumpVoltageLogScreen> {
 
   List<Map<String, dynamic>> get filteredData {
     if (selectedIndex == 0) {
-      return voltageData;
+      return pumpControllerProvider.voltageData;
     } else if(selectedIndex == 1){
-      return voltageData.map((data) {
+      return pumpControllerProvider.voltageData.map((data) {
         return {
           "hour": data['hour'],
           "currentR": data['currentR'],
@@ -101,7 +50,7 @@ class _PumpVoltageLogScreenState extends State<PumpVoltageLogScreen> {
         };
       }).toList();
     } else if(selectedIndex == 2){
-      return voltageData.map((data) {
+      return pumpControllerProvider.voltageData.map((data) {
         return {
           "hour": data['hour'],
           "powerFactorR": data['powerFactorR'],
@@ -110,7 +59,7 @@ class _PumpVoltageLogScreenState extends State<PumpVoltageLogScreen> {
         };
       }).toList();
     } else {
-      return voltageData.map((data) {
+      return pumpControllerProvider.voltageData.map((data) {
         return {
           "hour": data['hour'],
           "powerR": data['powerR'],
@@ -121,38 +70,40 @@ class _PumpVoltageLogScreenState extends State<PumpVoltageLogScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
+    pumpControllerProvider = Provider.of(context);
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: SafeArea(
-        child: (voltageData.isNotEmpty || message.isNotEmpty) ? Column(
+        child: (pumpControllerProvider.voltageData.isNotEmpty || pumpControllerProvider.message.isNotEmpty) ? Column(
           children: [
-            MobileCustomCalendar(
-              focusedDay: _focusedDay,
-              calendarFormat: _calendarFormat,
-              selectedDate: selectedDate,
-              onDaySelected: (selectedDay, focusedDay) {
-                setState(() {
-                  selectedDate = selectedDay;
-                  _focusedDay = focusedDay;
-                });
-                getUserVoltageLog();
-              },
-              onFormatChanged: (format) {
-                if (_calendarFormat != format) {
+            if(!kIsWeb)
+              MobileCustomCalendar(
+                focusedDay: pumpControllerProvider.focusedDay,
+                calendarFormat: pumpControllerProvider.calendarFormat,
+                selectedDate: pumpControllerProvider.selectedDate,
+                onDaySelected: (selectedDay, focusedDay) {
                   setState(() {
-                    _calendarFormat = format;
+                    pumpControllerProvider.selectedDate = selectedDay;
+                    pumpControllerProvider.focusedDay = focusedDay;
                   });
-                }
-              },
-            ),
+                  pumpControllerProvider.getUserVoltageLog(userId: widget.userId, controllerId: widget.controllerId, nodeControllerId: widget.nodeControllerId);
+                },
+                onFormatChanged: (format) {
+                  if (pumpControllerProvider.calendarFormat != format) {
+                    setState(() {
+                      pumpControllerProvider.calendarFormat = format;
+                    });
+                  }
+                },
+              ),
             const SizedBox(height: 10),
-            if (voltageData.isNotEmpty && message.isEmpty)
+            if (pumpControllerProvider.voltageData.isNotEmpty && pumpControllerProvider.message.isEmpty)
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 10),
                 child: CustomSegmentedControl(
-                    segmentTitles: voltageData[0]['totalInstantEnergy'] != null ? {
+                    segmentTitles: pumpControllerProvider.voltageData[0]['totalInstantEnergy'] != null ? {
                       0: "Voltage",
                       1: "Current",
                       2: "Power Factor",
@@ -173,21 +124,21 @@ class _PumpVoltageLogScreenState extends State<PumpVoltageLogScreen> {
             const SizedBox(height: 10),
             Expanded(
               child: RefreshIndicator(
-                onRefresh: getUserVoltageLog,
+                onRefresh: () => pumpControllerProvider.getUserVoltageLog(userId: widget.userId, controllerId: widget.controllerId, nodeControllerId: widget.nodeControllerId),
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      if (message.isNotEmpty)
+                      if (pumpControllerProvider.message.isNotEmpty)
                         Center(
                           child: Padding(
                             padding: const EdgeInsets.all(10),
                             child: Text(
-                              message,
+                              pumpControllerProvider.message,
                               style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
                             ),
                           ),
                         )
-                      else if (voltageData.isNotEmpty)
+                      else if (pumpControllerProvider.voltageData.isNotEmpty)
                         Container(
                           margin: const EdgeInsets.symmetric(horizontal: 10),
                           height: 250,
@@ -239,13 +190,13 @@ class _PumpVoltageLogScreenState extends State<PumpVoltageLogScreen> {
                             ],
                           ),
                         ),
-                      if (message.isEmpty)
+                      if (pumpControllerProvider.message.isEmpty)
                         ListView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: 1,
                           itemBuilder: (context, index) {
-                            return _buildVoltageLogCard(voltageData[index]);
+                            return _buildVoltageLogCard(pumpControllerProvider.voltageData[index]);
                           },
                         ),
                     ],
@@ -341,7 +292,7 @@ class _PumpVoltageLogScreenState extends State<PumpVoltageLogScreen> {
   List<TableRow> _buildDataRows() {
     List<TableRow> rows = [];
 
-    for (var entry in voltageData) {
+    for (var entry in pumpControllerProvider.voltageData) {
       rows.add(
         TableRow(
           children: [
