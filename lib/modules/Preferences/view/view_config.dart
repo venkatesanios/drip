@@ -35,6 +35,7 @@ class _ViewConfigState extends State<ViewConfig> {
 
     // mqttProvider.viewSetting.clear();
     mqttProvider.viewSettingsList.clear();
+    mqttProvider.cCList.clear();
     int waitingSeconds = 20;
     _remainingTime = waitingSeconds;
 
@@ -349,12 +350,12 @@ class _ViewConfigState extends State<ViewConfig> {
 
     return ListView(
       children: !(_hasPayload('calibration', provider, deviceId)) ? settings.map((setting) {
-        if ([26, 206].contains(setting.type) && _hasPayload('ctconfig', provider, deviceId)) {
+        if ([206].contains(setting.type) && _hasPayload('ctconfig', provider, deviceId)) {
           final values = widget.isLora
               ? provider.viewSetting['cM'].first['ctconfig'].split(',')
               : '${jsonDecode(provider.viewSettingsList[0])[1]['ctconfig']}'.split(',');
           return _buildSettingCard(setting, values);
-        } else if ([24, 204].contains(setting.type) && _hasPayload('voltageconfig', provider, deviceId)) {
+        } else if ([204].contains(setting.type) && _hasPayload('voltageconfig', provider, deviceId)) {
           final values = widget.isLora
               ? provider.viewSetting['cM'].first['voltageconfig'].split(',')
               : '${jsonDecode(provider.viewSettingsList[0])[2]['voltageconfig']}'.split(',');
@@ -362,15 +363,15 @@ class _ViewConfigState extends State<ViewConfig> {
         }
         return Container();
       }).toList() : calibrationSettings != null ? calibrationSettings.map((setting) {
-        if ([27, 28, 29, 207, 208, 209].contains(setting.type)) {
+        if ([208, 209, 210].contains(setting.type)) {
           final List<String> values = widget.isLora
               ? provider.viewSetting['cM'].first['calibration'].split(',')
               : '${jsonDecode(provider.viewSettingsList[0])[3]['calibration']}'.split(',');
           return _buildSettingCard(
             setting,
-            setting.type == 27
+            setting.type == 208
                 ? values
-                : setting.type == 28
+                : setting.type == 209
                 ? values.skip(3).toList()
                 : values.skip(6).toList(),
           );

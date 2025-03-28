@@ -4,13 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:oro_drip_irrigation/Constants/properties.dart';
-import 'package:oro_drip_irrigation/modules/Preferences/view/settings_screen.dart';
 import 'package:oro_drip_irrigation/modules/Preferences/view/view_config.dart';
 import 'package:oro_drip_irrigation/services/http_service.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:provider/provider.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
-import '../../../StateManagement/overall_use.dart';
 import '../../../Widgets/custom_animated_switcher.dart';
 import '../../IrrigationProgram/view/schedule_screen.dart';
 import '../../IrrigationProgram/widgets/custom_native_time_picker.dart';
@@ -23,8 +21,6 @@ import '../../../utils/environment.dart';
 import '../../IrrigationProgram/view/program_library.dart';
 import '../widgets/custom_segmented_control.dart';
 import '../widgets/progres_dialog.dart';
-
-const payloadTopic = "AppToFirmware";
 
 final otherSettingsIcons = [
   MdiIcons.lightbulbMultipleOutline,
@@ -255,75 +251,78 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                               child: Row(
                                 children: [
                                   if(preferenceProvider.commonPumpSettings!.isNotEmpty)
-                                    Expanded(
-                                      child: CustomSegmentedControl(
-                                        segmentTitles: const {
-                                          0: 'Common setting',
-                                          1: 'Individual setting',
-                                          2: 'Calibration'
-                                        },
-                                        groupValue: selectedSetting,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            selectedSetting = value!;
-                                            if(selectedSetting == 2) {
-                                              showDialog(
-                                                  context: context,
-                                                  builder: (BuildContext context) {
-                                                    return Consumer(
-                                                        builder: (BuildContext context, PreferenceProvider preferenceProvider, _) {
-                                                          return AlertDialog(
-                                                            content: Column(
-                                                              mainAxisSize: MainAxisSize.min,
-                                                              children: [
-                                                                TextFormField(
-                                                                  controller: passwordController,
-                                                                  autofocus: true,
-                                                                  decoration: const InputDecoration(
-                                                                      hintText: "Enter password"
+                                    if(!viewConfig)
+                                      Expanded(
+                                        child: CustomSegmentedControl(
+                                          segmentTitles: const {
+                                            0: 'Common setting',
+                                            1: 'Individual setting',
+                                            2: 'Calibration'
+                                          },
+                                          groupValue: selectedSetting,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              selectedSetting = value!;
+                                              if(selectedSetting == 2) {
+                                                showDialog(
+                                                    context: context,
+                                                    builder: (BuildContext context) {
+                                                      return Consumer(
+                                                          builder: (BuildContext context, PreferenceProvider preferenceProvider, _) {
+                                                            return AlertDialog(
+                                                              content: Column(
+                                                                mainAxisSize: MainAxisSize.min,
+                                                                children: [
+                                                                  TextFormField(
+                                                                    controller: passwordController,
+                                                                    autofocus: true,
+                                                                    decoration: const InputDecoration(
+                                                                        hintText: "Enter password"
+                                                                    ),
                                                                   ),
-                                                                ),
-                                                                const SizedBox(height: 10,),
-                                                                if(preferenceProvider.passwordValidationCode == 404)
-                                                                  const Text('Invalid password', style: TextStyle(color: Colors.red),)
-                                                              ],
-                                                            ),
-                                                            actions: [
-                                                              TextButton(
-                                                                  onPressed: (){
-                                                                    passwordController.text = "";
-                                                                    preferenceProvider.updateValidationCode();
-                                                                    selectedSetting = 1;
-                                                                    Navigator.of(context).pop();
-                                                                  },
-                                                                  child: const Text("CANCEL")
+                                                                  const SizedBox(height: 10,),
+                                                                  if(preferenceProvider.passwordValidationCode == 404)
+                                                                    const Text('Invalid password', style: TextStyle(color: Colors.red),)
+                                                                ],
                                                               ),
-                                                              TextButton(
-                                                                  onPressed: () async {
-                                                                    await Future.delayed(Duration.zero, () {
-                                                                      preferenceProvider.updateValidationCode();
-                                                                    });
-                                                                    await preferenceProvider.checkPassword(userId: widget.userId, password: passwordController.text);
-                                                                    if(preferenceProvider.passwordValidationCode == 200) {
-                                                                      Navigator.of(context).pop();
+                                                              actions: [
+                                                                TextButton(
+                                                                    onPressed: (){
                                                                       passwordController.text = "";
-                                                                    }
-                                                                  },
-                                                                  child: const Text("OK")
-                                                              ),
-                                                            ],
-                                                          );
-                                                        }
-                                                    );
-                                                  }
-                                              );
-                                            } else {
-                                              preferenceProvider.updateValidationCode();
-                                            }
-                                          });
-                                        },
-                                      ),
-                                    ),
+                                                                      preferenceProvider.updateValidationCode();
+                                                                      selectedSetting = 1;
+                                                                      Navigator.of(context).pop();
+                                                                    },
+                                                                    child: const Text("CANCEL")
+                                                                ),
+                                                                TextButton(
+                                                                    onPressed: () async {
+                                                                      await Future.delayed(Duration.zero, () {
+                                                                        preferenceProvider.updateValidationCode();
+                                                                      });
+                                                                      await preferenceProvider.checkPassword(userId: widget.userId, password: passwordController.text);
+                                                                      if(preferenceProvider.passwordValidationCode == 200) {
+                                                                        Navigator.of(context).pop();
+                                                                        passwordController.text = "";
+                                                                      }
+                                                                    },
+                                                                    child: const Text("OK")
+                                                                ),
+                                                              ],
+                                                            );
+                                                          }
+                                                      );
+                                                    }
+                                                );
+                                              } else {
+                                                preferenceProvider.updateValidationCode();
+                                              }
+                                            });
+                                          },
+                                        ),
+                                      )
+                                    else
+                                      Expanded(child: Container()),
                                   if(preferenceProvider.commonPumpSettings!.isNotEmpty && constraints.maxWidth >= 700)
                                     const SizedBox(width: 50,),
                                   IconButton(
@@ -660,7 +659,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
             Wrap(
               children: [
                 for(var categoryIndex = 0; categoryIndex < settingList.length; categoryIndex++)
-                  if((settingList[categoryIndex].type == 210 && (preferenceProvider.generalData!.categoryId != 2)) ? preferenceProvider.individualPumpSetting![pumpIndex].controlGem : true)
+                  if((settingList[categoryIndex].type == 207 && (preferenceProvider.generalData!.categoryId != 2)) ? preferenceProvider.individualPumpSetting![pumpIndex].controlGem : true)
                     Container(
                       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       width: constraints.maxWidth < 700 ? constraints.maxWidth : (constraints.maxWidth/2) - 40,
@@ -678,9 +677,9 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                             child: Column(
                               children: [
                                 for(var settingIndex = 0; settingIndex < settingList[categoryIndex].setting.length; settingIndex++)
-                                  if(settingList[categoryIndex].setting[settingIndex].title == "RTC TIMER")
+                                  if(settingList[categoryIndex].setting[settingIndex].title.toUpperCase() == "RTC TIMER")
                                     _buildRtcTimer(categoryIndex, settingIndex, pumpIndex, settingList)
-                                  else if(settingList[categoryIndex].setting[settingIndex].title == "2 PHASE" || settingList[categoryIndex].setting[settingIndex].title == "AUTO RESTART 2 PHASE")
+                                  else if(settingList[categoryIndex].setting[settingIndex].title.toUpperCase() == "2 PHASE" || settingList[categoryIndex].setting[settingIndex].title.toUpperCase() == "AUTO RESTART 2 PHASE")
                                     _buildTwoPhaseCard(categoryIndex, settingIndex, pumpIndex, settingList)
                                   else
                                     buildCustomListTileWidget(
@@ -691,7 +690,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                                         FilteringTextInputFormatter.deny(RegExp('[^0-9.]')),
                                         LengthLimitingTextInputFormatter(6),
                                       ],
-                                      dataList: settingList[categoryIndex].setting[settingIndex].title == "SENSOR HEIGHT" ? ["20", "35"] : ["10", "12"],
+                                      dataList: settingList[categoryIndex].setting[settingIndex].title.toUpperCase() == "SENSOR HEIGHT" ? ["20", "35"] : ["10", "12"],
                                       value: _getInitialValue(categoryIndex, settingIndex, settingList, pumpIndex),
                                       leading: _buildLeading(categoryIndex, settingIndex, settingList),
                                       onValueChange: (newValue) => onChangeValue(categoryIndex, settingIndex, settingList, newValue),
@@ -710,7 +709,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                       ),
                     ),
                 for(var categoryIndex = 0; categoryIndex < settingList.length; categoryIndex++)
-                  if(!((settingList[categoryIndex].type == 210 && (preferenceProvider.generalData!.categoryId != 2)) ? preferenceProvider.individualPumpSetting![pumpIndex].controlGem : true))
+                  if(!((settingList[categoryIndex].type == 207 && (preferenceProvider.generalData!.categoryId != 2)) ? preferenceProvider.individualPumpSetting![pumpIndex].controlGem : true))
                     const SizedBox(height: 50,)
               ],
             ),
@@ -872,26 +871,26 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
   }
 
   int _getWidgetType(int categoryIndex, int settingIndex, List settingList) {
-    return (settingList[categoryIndex].setting[settingIndex].title == "SENSOR HEIGHT" || settingList[categoryIndex].setting[settingIndex].title == "PRESSURE MAXIMUM VALUE")
+    return (settingList[categoryIndex].setting[settingIndex].title.toUpperCase() == "SENSOR HEIGHT" || settingList[categoryIndex].setting[settingIndex].title.toUpperCase() == "PRESSURE MAXIMUM VALUE")
         ? 7
         : settingList[categoryIndex].setting[settingIndex].widgetTypeId;
   }
 
   Widget _buildIcon(int categoryIndex, int settingIndex, List settingList) {
     return Icon(
-        (settingList[categoryIndex].type == 26 || settingList[categoryIndex].type == 206)
+        (settingList[categoryIndex].type == 206)
             ? otherSettingsIcons[settingIndex]
-            : (settingList[categoryIndex].type == 24 || settingList[categoryIndex].type == 204)
+            : (settingList[categoryIndex].type == 204)
             ? voltageSettingsIcons[settingIndex]
-            : (settingList[categoryIndex].type == 22 || settingList[categoryIndex].type == 202)
+            : (settingList[categoryIndex].type == 202)
             ? timerSettingsIcons[settingIndex]
-            : (settingList[categoryIndex].type == 23 || settingList[categoryIndex].type == 203)
+            : (settingList[categoryIndex].type == 203)
             ? currentSettingIcons[settingIndex]
-            : ((settingList[categoryIndex].type == 27 || settingList[categoryIndex].type == 28) || (settingList[categoryIndex].type == 207 || settingList[categoryIndex].type == 208))
+            : (settingList[categoryIndex].type == 208 || settingList[categoryIndex].type == 209)
             ? voltageCalibrationIcons[settingIndex]
-            : (settingList[categoryIndex].type == 29 || settingList[categoryIndex].type == 209)
+            : (settingList[categoryIndex].type == 210)
             ? otherCalibrationIcons[settingIndex]
-            : settingList[categoryIndex].type == 210
+            : settingList[categoryIndex].type == 207
             ? levelSettingsIcons[settingIndex]
             : additionalSettingsIcons[settingIndex],
         color: Theme.of(context).primaryColor
@@ -900,7 +899,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
 
   dynamic _getSubTitle(int categoryIndex, int settingIndex, List settingList, int pumpIndex) {
     return ([1].contains(preferenceProvider.generalData!.categoryId) &&
-        [27, 28, 29, 207, 208, 209].contains(settingList[categoryIndex].type))
+        [208, 209, 210].contains(settingList[categoryIndex].type))
         ? "Last setting: ${(_getValue(
         type: settingList[categoryIndex].type,
         categoryIndex: categoryIndex,
@@ -927,7 +926,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
 
   void onChangeValue(int categoryIndex, int settingIndex, List settingList, bool newValue) {
     setState(() {
-      if(settingList[categoryIndex].type == 26 || settingList[categoryIndex].type == 206) {
+      if(settingList[categoryIndex].type == 206) {
         if (settingList[categoryIndex].setting[settingIndex].serialNumber == 15 ||
             settingList[categoryIndex].setting[settingIndex].serialNumber == 16) {
 
@@ -960,13 +959,13 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
           Map<String, dynamic> decode = element;
           decode.forEach((key, value) {
             switch (type) {
-              case 27:case 207:
+              case 208:
               if (key == "calibration") valueToShow = value;
               break;
-              case 28:case 208:
+              case 209:
               if (key == "calibration") valueToShow = value.split(',').skip(3).join(',');
               break;
-              case 29:case 209:
+              case 210:
               if (key == "calibration") valueToShow = value.split(',').skip(6).join(',');
               break;
             }
@@ -990,7 +989,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
           Map<String, dynamic> decode = element;
           decode.forEach((key, value) {
             switch (type) {
-              case 22:case 202:
+              case 202:
               if (key == "rtcconfig") rtcTimeTemp = value;
               valueToShow = delayTimeTemp+rtcTimeTemp;
               break;
@@ -1026,15 +1025,15 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
       conditions[key] = value;
     }
     switch (type) {
-      case 26:case 206:
-      if (serialNumber == 1) setCondition('phaseValue');
+      case 206:
+      // if (serialNumber == 1) setCondition('phaseValue');
       if (serialNumber == 9) setCondition('light');
       if (serialNumber == 12) setCondition('peakHour');
       if ([10,11].contains(serialNumber)) result = conditions['light']!;
       if ([13,14].contains(serialNumber)) result = conditions['peakHour']!;
       break;
 
-      case 24:case 204:
+      case 204:
       if (serialNumber == 1) setCondition('lowVoltage');
       if (serialNumber == 6) setCondition('highVoltage');
       if ([2,3].contains(serialNumber)) result = conditions['lowVoltage']!;
@@ -1043,7 +1042,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
       if ([9,10].contains(serialNumber)) result = conditions['phaseValue']! && conditions['highVoltage']!;
       break;
 
-      case 22:case 202:
+      case 202:
       if (serialNumber == 3) setCondition('startingCapacitor');
       if (serialNumber == 4) result = conditions['startingCapacitor']!;
       if (serialNumber == 5) setCondition('starterFeedback');
@@ -1056,7 +1055,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
       if (serialNumber == 13) result = conditions['rtc']!;
       break;
 
-      case 23:case 203:
+      case 203:
       if (serialNumber == 1) setCondition('dryRun');
       if (serialNumber == 4) result = conditions['phaseValue']! && conditions['dryRun']!;
       if ([2, 3, 5, 6, 7, 8, 9, 10].contains(serialNumber)) result = conditions['dryRun']!;
@@ -1069,7 +1068,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
       if ([12, 13, 15].contains(serialNumber)) result = conditions['overLoad']!;
       break;
 
-      case 25:case 205:
+      case 205:
       if (serialNumber == 3) setCondition('schedule');
       if ([4,5].contains(serialNumber)) result = conditions['schedule']!;
 
@@ -1204,7 +1203,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
       if(preferenceProvider.passwordValidationCode != 200 && isToGem) {
         mqttService.topicToPublishAndItsMessage(jsonEncode(payloadForSlave), '${Environment.mqttPublishTopic}/${widget.deviceId}');
       }
-      bool isLevelSettingChanged = preferenceProvider.individualPumpSetting!.any((pump) => pump.settingList.any((setting) => setting.type == 210 && setting.changed));
+      bool isLevelSettingChanged = preferenceProvider.individualPumpSetting!.any((pump) => pump.settingList.any((setting) => setting.type == 207 && setting.changed));
 
       bool isAnyOtherChanged = preferenceProvider.commonPumpSettings!.any((pump) => pump.settingList.any((setting) => setting.changed));
 
@@ -1248,13 +1247,13 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                   }
                   for (var individualPumpSetting in individualPump.settingList) {
                     switch (individualPumpSetting.type) {
-                      case 23:case 203:
+                      case 203:
                         if(key.contains("400-$pumpIndex")) individualPumpSetting.controllerReadStatus= "0";
                         break;
-                      case 22:case 202:
+                      case 202:
                         if(key.contains("300-$pumpIndex") || key.contains("500-$pumpIndex")) individualPumpSetting.controllerReadStatus = "0";
                         break;
-                      case 25:case 205:
+                      case 205:
                         if(key.contains("600-$pumpIndex")) individualPumpSetting.controllerReadStatus = "0";
                         break;
                     }
@@ -1345,10 +1344,10 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
       int referenceNumber = commonSetting.referenceNumber;
       if(selectedOroPumpList.contains(deviceId)) {
         for (var settingCategory in commonSetting.settingList) {
-          if (!sendAll ? ([24, 204].contains(settingCategory.type) && settingCategory.changed) : [24, 204].contains(settingCategory.type)) {
+          if (!sendAll ? ([204].contains(settingCategory.type) && settingCategory.changed) : [204].contains(settingCategory.type)) {
             final payload = jsonEncode({"200": jsonEncode({"sentSms": 'voltageconfig,${getSettingValue(settingCategory)}'})});
             temp.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+$categoryId": payload);
-          } else if (!sendAll ? ([26, 206].contains(settingCategory.type) && settingCategory.changed) : [26, 206].contains(settingCategory.type)) {
+          } else if (!sendAll ? ([206].contains(settingCategory.type) && settingCategory.changed) : [206].contains(settingCategory.type)) {
             final payload = jsonEncode({"100": jsonEncode({"sentSms": 'ctconfig,${getSettingValue(settingCategory)}'})});
             temp.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+$categoryId": payload);
           }
@@ -1420,10 +1419,10 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
       int referenceNumber = commonSetting.referenceNumber;
       if(selectedOroPumpList.contains(deviceId)){
         for (var settingCategory in commonSetting.settingList) {
-          if (!sendAll ? ([24, 204].contains(settingCategory.type) && settingCategory.controllerReadStatus == "0") : [24, 204].contains(settingCategory.type)) {
+          if (!sendAll ? ([204].contains(settingCategory.type) && settingCategory.controllerReadStatus == "0") : [204].contains(settingCategory.type)) {
             final payload = jsonEncode({"200": jsonEncode({"sentSms": 'voltageconfig,${getSettingValue(settingCategory)}'})});
             temp.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+$categoryId": payload);
-          } else if (!sendAll ? ([26, 206].contains(settingCategory.type) && settingCategory.controllerReadStatus == "0") : [26, 206].contains(settingCategory.type)) {
+          } else if (!sendAll ? ([206].contains(settingCategory.type) && settingCategory.controllerReadStatus == "0") : [206].contains(settingCategory.type)) {
             final payload = jsonEncode({"100": jsonEncode({"sentSms": 'ctconfig,${getSettingValue(settingCategory)}'})});
             temp.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+$categoryId": payload);
           }
@@ -1495,7 +1494,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
 
       if(selectedOroPumpList.contains(deviceId)) {
         for (var settingCategory in commonSetting.settingList) {
-          if ([27, 207].contains(settingCategory.type)) {
+          if ([208].contains(settingCategory.type)) {
             final payload = jsonEncode({
               "900": jsonEncode({"sentSms": 'calibration,${getSettingValue(settingCategory)}'})
             });
@@ -1503,7 +1502,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                 ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+$categoryId"
                 : payload);
             // print("payload ==>$payload");
-          } else if ([28, 208].contains(settingCategory.type)) {
+          } else if ([209].contains(settingCategory.type)) {
             var splitParts = [];
             if(isToGem) {
               splitParts = temp[0].split('+');
@@ -1518,7 +1517,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
             } else {
               temp[0] = jsonEncode({"900": jsonEncode(tempMap)});
             }
-          } else if ([29, 209].contains(settingCategory.type)) {
+          } else if ([210].contains(settingCategory.type)) {
             var splitParts = [];
             if(isToGem) {
               splitParts = temp[0].split('+');
@@ -1547,10 +1546,10 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
     List listToAdd = [];
     settingCategory.setting.forEach((setting) {
       String? value;
-      if(setting.title == "RTC") {
+      if(setting.title.toUpperCase() == "RTC") {
         listToAdd.add(setting.value ? 1 : 0);
       }
-      if(setting.title == "RTC TIMER") {
+      if(setting.title.toUpperCase() == "RTC TIMER") {
         List<String> rtcTimes = [];
 
         for(var i = 0; i < setting.rtcSettings!.length; i++){
@@ -1572,18 +1571,18 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
     for (var setting in settingCategory.setting) {
       String? value;
       if (setting.value is bool) {
-        if(setting.title != 'RTC') {
+        if(setting.title.toUpperCase() != 'RTC') {
           value = setting.value ? "1" : "0";
         }
         if(controlToOroGem ?? false) {
-          if(setting.title == "TANK" || setting.title == "SUMP") {
+          if(setting.title.toUpperCase() == "TANK ON/OFF" || setting.title.toUpperCase() == "SUMP ON/OFF") {
             value = '0';
           }
         }
       } else if (setting.value is String) {
         switch (setting.widgetTypeId) {
           case 3:
-            if(setting.title.contains("LIGHT")) {
+            if(setting.title.toUpperCase().contains("LIGHT")) {
               final result = setting.value.toString().split(':');
               value = setting.value.isEmpty ? "00,00" : "${result[0]},${result[1]}";
             } else {
@@ -1598,7 +1597,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
             break;
         }
       } else {
-        if (setting.title == '2 PHASE' || setting.title == 'AUTO RESTART 2 PHASE') {
+        if (setting.title.toUpperCase() == '2 PHASE' || setting.title.toUpperCase() == 'AUTO RESTART 2 PHASE') {
           // print("setting.value ==> ${setting.value}");
 
           String valueStr = setting.value.toString();
@@ -1761,8 +1760,8 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
           child: buildPopUpMenuButton(context: context, dataList: dataList, onSelected: (newValue) {
             if(enabled) onValueChange?.call(newValue);
           }, child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 5),
-            child: Text(value, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16),), decoration: BoxDecoration(color: cardColor, borderRadius: BorderRadius.circular(5)),)),
+            padding: const EdgeInsets.symmetric(vertical: 5), decoration: BoxDecoration(color: cardColor, borderRadius: BorderRadius.circular(5)),
+            child: Text(value, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16),),)),
         );
         break;
       default:

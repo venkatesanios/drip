@@ -8,6 +8,7 @@ class SiteModel {
   SiteModel({required this.data});
 
   factory SiteModel.fromJson(Map<String, dynamic> json) {
+
     return SiteModel(
       data: List<Group>.from(json['data'].map((x) => Group.fromJson(x))),
     );
@@ -219,7 +220,7 @@ class ConfigObject {
       type: json['type'],
       controllerId: json['controllerId'],
       count: json['count'],
-      location: json['location'] ?? 0.0,
+      location: (json['location'] is! double ? 0.0 : json['location']) ?? 0.0,
     );
   }
 

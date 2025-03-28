@@ -133,6 +133,7 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
         if (mqttMessage!['cM'].contains(key) &&
             (widget.isToGem ? mqttMessage['cC'] == payload.split('+')[2] : true)) {
           isAcknowledged = true;
+          break;
         }
 
         await Future.delayed(const Duration(seconds: 1));

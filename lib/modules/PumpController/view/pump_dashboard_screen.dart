@@ -6,7 +6,6 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:oro_drip_irrigation/Constants/constants.dart';
 import 'package:oro_drip_irrigation/Constants/properties.dart';
-import 'package:oro_drip_irrigation/app.dart';
 import 'package:oro_drip_irrigation/repository/repository.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:oro_drip_irrigation/utils/environment.dart';
@@ -131,19 +130,19 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
       Future.microtask(() => handleLiveRequest()); // Schedule for post-build execution
     }
     final ThemeData themeData = Theme.of(context);
-    return Scaffold(
-      body: StreamBuilder<PumpControllerData?>(
-        stream: mqttService.pumpDashboardPayloadStream,
-        builder: (BuildContext context, AsyncSnapshot<PumpControllerData?> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (!snapshot.hasData || snapshot.data == null) {
-            return const Center(child: Text('Data not available'));
-          }
-          return RefreshIndicator(
-            onRefresh: getLive,
-            child: SingleChildScrollView(
+    return RefreshIndicator(
+      onRefresh: getLive,
+      child: Scaffold(
+        body: StreamBuilder<PumpControllerData?>(
+          stream: mqttService.pumpDashboardPayloadStream,
+          builder: (BuildContext context, AsyncSnapshot<PumpControllerData?> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (!snapshot.hasData || snapshot.data == null) {
+              return const Center(child: Text('Data not available'));
+            }
+            return SingleChildScrollView(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -290,13 +289,12 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                     buildNewPumpDetails(index: index, pumpData: snapshot.data!,),
                 ],
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
+        // bottomNavigationBar: ,
       ),
-      // bottomNavigationBar: ,
     );
-
   }
 
   Icon getIcon(int value) {

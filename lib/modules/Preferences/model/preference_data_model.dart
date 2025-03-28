@@ -96,13 +96,13 @@ class WidgetSetting {
   factory WidgetSetting.fromJson(Map<String, dynamic> json) {
     final rtcData = json['value'];
     List<RtcTimeSetting>? rtcSettings;
-    if (rtcData is List<dynamic> && json['title'] == "RTC TIMER") {
+    if (rtcData is List<dynamic> && json['title'].toString().toUpperCase() == "RTC TIMER") {
       rtcSettings = rtcData.map((rtcItem) {
         return RtcTimeSetting.fromJson(rtcItem);
       }).toList();
     }
 
-    if (json['title'] == "2 PHASE" || json['title'] == "AUTO RESTART 2 PHASE") {
+    if (json['title'].toString().toUpperCase() == "2 PHASE" || json['title'].toString().toUpperCase() == "AUTO RESTART 2 PHASE") {
       if(json['value'] is bool) {
         json['value'] = List<bool>.filled(3, false);
       }
