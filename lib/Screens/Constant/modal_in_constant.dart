@@ -234,7 +234,6 @@ class AlarmNew {
     required this.type,
   });
 
-  // ✅ Added .copyWith() method for controlled updates
   AlarmNew copyWith({
     String? name,
     String? unit,
@@ -1515,6 +1514,7 @@ class GeneralData {
     );
   }
 }
+
 class MoistureSensor {
    int objectId;
    int objectIds;

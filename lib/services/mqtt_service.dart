@@ -4,11 +4,13 @@ import 'package:flutter/foundation.dart';
 import 'package:mqtt_client/mqtt_browser_client.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
+import 'package:oro_drip_irrigation/utils/environment.dart';
 import 'package:uuid/uuid.dart';
 import '../Constants/constants.dart';
 import '../StateManagement/mqtt_payload_provider.dart';
 import '../modules/PumpController/model/pump_controller_data_model.dart';
 import '../utils/constants.dart';
+import 'package:rxdart/rxdart.dart';
 
 class MqttService {
   static MqttService? _instance;
@@ -19,11 +21,11 @@ class MqttService {
   Map<String, dynamic>? get acknowledgementPayload => _acknowledgementPayload;
 
   final StreamController<Map<String, dynamic>?> _acknowledgementPayloadController = StreamController.broadcast();
-  final StreamController<String> mqttConnectionStreamController = StreamController.broadcast();
-  final StreamController<String> connectionStatusController = StreamController.broadcast();
+  final StreamController<MqttConnectionState> mqttConnectionStreamController = StreamController.broadcast();
+  final StreamController<MqttConnectionState> connectionStatusController = StreamController.broadcast();
 
   Stream<Map<String, dynamic>?> get payloadController => _acknowledgementPayloadController.stream;
-  Stream<String> get mqttConnectionStream => mqttConnectionStreamController.stream;
+  Stream<MqttConnectionState> get mqttConnectionStream => mqttConnectionStreamController.stream;
 
   List<Map<String, dynamic>>? _schedulePayload;
   List<Map<String, dynamic>>? get schedulePayload => _schedulePayload;
@@ -31,18 +33,34 @@ class MqttService {
   Stream<List<Map<String, dynamic>>?> get schedulePayloadStream => _schedulePayloadController.stream;
 
   set schedulePayload(List<Map<String, dynamic>>? newPayload) {
-    _schedulePayload = newPayload;
-    _schedulePayloadController.add(_schedulePayload);
+    if (newPayload != null) {
+      _schedulePayload = newPayload;
+      _schedulePayloadController.add(_schedulePayload);
+    }
   }
 
   PumpControllerData? _pumpDashboardPayload;
   PumpControllerData? get pumpDashboardPayload => _pumpDashboardPayload;
-  final StreamController<PumpControllerData?> _pumpDashboardPayloadController = StreamController.broadcast();
-  Stream<PumpControllerData?> get pumpDashboardPayloadController => _pumpDashboardPayloadController.stream;
+  final BehaviorSubject<PumpControllerData?> _pumpDashboardPayloadController = BehaviorSubject<PumpControllerData?>();
+  Stream<PumpControllerData?> get pumpDashboardPayloadStream => _pumpDashboardPayloadController.stream;
+
+  final StreamController<Map<String, dynamic>?> _ackController = StreamController.broadcast();
+  Stream<Map<String, dynamic>?> get preferenceAckStream => _ackController.stream;
+  Map<String, dynamic>? _preferenceAck;
+  Map<String, dynamic>? get preferenceAck => _preferenceAck;
+
+  set preferenceAck(Map<String, dynamic>? newPayload) {
+    if(newPayload != null) {
+      _preferenceAck = newPayload;
+      _ackController.add(_preferenceAck);
+    }
+  }
 
   set pumpDashboardPayload(PumpControllerData? newPayload) {
-    _pumpDashboardPayload = newPayload;
-    _pumpDashboardPayloadController.add(_pumpDashboardPayload);
+    if (newPayload != null) {
+      _pumpDashboardPayload = newPayload;
+      _pumpDashboardPayloadController.add(_pumpDashboardPayload);
+    }
   }
 
   factory MqttService() {
@@ -67,12 +85,12 @@ class MqttService {
       providerState = state;
       if (kIsWeb) {
         debugPrint("Initializing MQTT for Web...");
-        _client = MqttBrowserClient(AppConstants.mqttUrl, uniqueId);
+        _client = MqttBrowserClient(Environment.mqttWebUrl, uniqueId);
         (_client as MqttBrowserClient).websocketProtocols = MqttClientConstants.protocolsSingleDefault;
         _client!.port = AppConstants.mqttWebPort;
       } else {
         debugPrint("Initializing MQTT for Mobile...");
-        _client = MqttServerClient(AppConstants.mqttUrlMobile, uniqueId);
+        _client = MqttServerClient(Environment.mqttMobileUrl, uniqueId);
         _client!.port = AppConstants.mqttMobilePort;
       }
 
@@ -95,7 +113,7 @@ class MqttService {
     }
   }
 
-  void connect() async {
+  Future<void> connect() async {
     assert(_client != null);
     if (!isConnected) {
       try {
@@ -129,24 +147,26 @@ class MqttService {
       onMqttPayloadReceived(pt);
     });
   }
+
   void topicToUnSubscribe(String topic) {
 
     if (currentTopic != null) {
       _client!.unsubscribe(currentTopic!);
     }
-
   }
 
 
   void onMqttPayloadReceived(String payload) {
     try {
       Map<String, dynamic> payloadMessage = jsonDecode(payload);
-      if (payloadMessage['mC'] == '2400') {
-        providerState?.updateReceivedPayload(payload, false);
-      }
+      providerState?.updateReceivedPayload(payload, false);
       acknowledgementPayload = payloadMessage;
+      if(payloadMessage['mC'] == "SMS") {
+        preferenceAck = payloadMessage;
+        // onMessageReceived(payloadMessage);
+      }
       if(payloadMessage['mC'] == "LD01") {
-        pumpDashboardPayload = PumpControllerData.fromJson(payloadMessage, "cM");
+        pumpDashboardPayload = PumpControllerData.fromJson(payloadMessage, "cM", 1);
       }
       if (acknowledgementPayload != null && acknowledgementPayload!['mC'] == '3600') {
         schedulePayload = Constants.dataConversionForScheduleView(acknowledgementPayload!['cM']['3601']);
@@ -167,6 +187,7 @@ class MqttService {
   }
 
   void onDisconnected() {
+    mqttConnectionStreamController.add(MqttConnectionState.disconnected);
     debugPrint('OnDisconnected client callback - Client disconnection');
     if (_client!.connectionStatus!.returnCode == MqttConnectReturnCode.noneSpecified) {
       debugPrint('OnDisconnected callback is solicited, this is correct');
@@ -176,7 +197,7 @@ class MqttService {
 
   void onConnected() {
     assert(isConnected);
-    mqttConnectionStreamController.add('Connected');
+    mqttConnectionStreamController.add(MqttConnectionState.connected);
     providerState?.updateMQTTConnectionState(MQTTConnectionState.connected);
     debugPrint('Mosquitto client connected....');
   }

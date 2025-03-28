@@ -70,4 +70,97 @@ class Constants {
     print("in the conversion :: $convertedListInside");
     return convertedListInside;
   }
+
+  static Duration parseTime(String timeString) {
+    List<String> parts = timeString.split(':');
+    int hours = int.parse(parts[0]);
+    int minutes = int.parse(parts[1]);
+    int seconds = int.parse(parts[2]);
+    return Duration(hours: hours, minutes: minutes, seconds: seconds);
+  }
+
+  static String formatTime(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    String twoDigitHours = twoDigits(duration.inHours.remainder(24));
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    return "$twoDigitHours:$twoDigitMinutes:$twoDigitSeconds";
+  }
+
+  static String changeFormat(String value) {
+    List<String> stringList = value.split(":");
+    stringList.removeLast();
+    String result = stringList.join(":");
+    // print("result string ==> $result");
+    return result;
+  }
+
+  static String getWeekdayName(int weekday) {
+    switch (weekday) {
+      case DateTime.monday:
+        return 'Monday';
+      case DateTime.tuesday:
+        return 'Tuesday';
+      case DateTime.wednesday:
+        return 'Wednesday';
+      case DateTime.thursday:
+        return 'Thursday';
+      case DateTime.friday:
+        return 'Friday';
+      case DateTime.saturday:
+        return 'Saturday';
+      case DateTime.sunday:
+        return 'Sunday';
+      default:
+        return '';
+    }
+  }
+
+  static String getMonthName(int month) {
+    switch (month) {
+      case DateTime.january:
+        return 'January';
+      case DateTime.february:
+        return 'February';
+      case DateTime.march:
+        return 'March';
+      case DateTime.april:
+        return 'April';
+      case DateTime.may:
+        return 'May';
+      case DateTime.june:
+        return 'June';
+      case DateTime.july:
+        return 'July';
+      case DateTime.august:
+        return 'August';
+      case DateTime.september:
+        return 'September';
+      case DateTime.october:
+        return 'October';
+      case DateTime.november:
+        return 'November';
+      case DateTime.december:
+        return 'December';
+      default:
+        return '';
+    }
+  }
+
+  static List<String> generateScale(Duration highestValue) {
+    final int highestValueInMinutes = highestValue.inMinutes;
+    const int segmentCount = 3;
+    final List<String> scale = [];
+    for (var i = 0; i <= segmentCount; i++) {
+      final valueInMinutes = (highestValueInMinutes / segmentCount * i).toInt();
+      final value = Duration(minutes: valueInMinutes);
+      scale.add("${value.inHours.toString().padLeft(2, '0')}:${(value.inMinutes % 60).toString().padLeft(2, '0')}");
+    }
+    return scale;
+  }
+
+  static String capitalizeFirstLetter(String input) {
+    if (input.isEmpty) return input;
+    return input[0].toUpperCase() + input.substring(1).toLowerCase();
+  }
 }

@@ -1,27 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:mqtt_client/mqtt_client.dart';
 
-class ConnectionErrorToast extends StatefulWidget {
+class ConnectionErrorToast extends StatelessWidget {
   final int dataFetchingStatus;
 
   const ConnectionErrorToast({super.key, required this.dataFetchingStatus});
 
   @override
-  _ConnectionErrorToastState createState() => _ConnectionErrorToastState();
-}
-
-class _ConnectionErrorToastState extends State<ConnectionErrorToast> {
-  @override
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
-      child: widget.dataFetchingStatus == 1
+      child: dataFetchingStatus == 1
           ? const SizedBox.shrink()
           : Container(
         key: const ValueKey("ConnectionError"),
         margin: const EdgeInsets.symmetric(horizontal: 10),
         padding: const EdgeInsets.all(5),
-        width: double.infinity,
+        width: MediaQuery.of(context).size.width <= 500 ? MediaQuery.of(context).size.width : 400,
         decoration: BoxDecoration(
           color: Colors.red.shade300,
           borderRadius: const BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
@@ -37,11 +33,11 @@ class _ConnectionErrorToastState extends State<ConnectionErrorToast> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(widget.dataFetchingStatus == 2 ? MdiIcons.progressAlert : MdiIcons.signalOff, color: Colors.white, size: 16,),
+              Icon(dataFetchingStatus == 2 ? MdiIcons.progressAlert : MdiIcons.signalOff, color: Colors.white, size: 16,),
               const SizedBox(width: 10),
               Text(
-                widget.dataFetchingStatus == 2 ? "Wait for communication..." : "No Communication",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                dataFetchingStatus == 2 ? "Wait for live sync..." : "Device is offline",
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ],
           ),

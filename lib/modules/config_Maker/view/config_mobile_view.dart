@@ -11,7 +11,6 @@ import 'connection.dart';
 import 'device_list.dart';
 
 
-
 class ConfigMobileView extends StatefulWidget {
   List<DeviceModel> listOfDevices;
   ConfigMobileView({super.key, required this.listOfDevices});
@@ -108,6 +107,7 @@ class _ConfigMobileViewState extends State<ConfigMobileView>
       ),
     );
   }
+
 }
 
 ConfigMakerTabs updateConfigMakerTabs({

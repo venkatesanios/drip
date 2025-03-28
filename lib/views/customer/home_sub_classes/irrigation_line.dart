@@ -1,5 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/utils/my_function.dart';
+import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
+import 'package:syncfusion_flutter_gauges/gauges.dart';
 import '../../../Models/customer/site_model.dart';
 import '../../../utils/constants.dart';
 import '../../../view_models/customer/irrigation_line_view_model.dart';
@@ -20,32 +25,66 @@ class DisplayIrrigationLine extends StatelessWidget {
       child: Consumer<IrrigationLineViewModel>(
         builder: (context, viewModel, _) {
 
-          final List<Widget> valveWidgets;
-
-          valveWidgets = [
-            if (currentLineName == 'All irrigation line')
+          final List<Widget> valveWidgets = [
+            if (currentLineName == 'All irrigation line') ...[
+              for (var line in lineData!)
+                ...line.prsSwitch.map((psw) => SensorWidget(
+                  sensor: psw,
+                  sensorType: 'Pressure Switch',
+                  imagePath: 'assets/png/pressure_switch.png',
+                )),
+              for (var line in lineData!)
+                ...line.pressureIn.map((psw) => SensorWidget(
+                  sensor: psw,
+                  sensorType: 'Pressure Sensor',
+                  imagePath: 'assets/png/pressure_sensor.png',
+                )),
+              for (var line in lineData!)
+                ...line.waterMeter.map((wm) => SensorWidget(
+                  sensor: wm,
+                  sensorType: 'Water Meter',
+                  imagePath: 'assets/png/water_meter.png',
+                )),
               for (var line in lineData!)
                 ...line.valves.map((vl) => ValveWidget(
                   vl: vl,
                   status: vl.status,
                   userId: 0,
                   controllerId: 0,
-                ))
-            else
+                )),
+            ] else ...[
               for (var line in lineData!)
-                if (line.name == currentLineName)
+                if (line.name == currentLineName) ...[
+                  ...line.prsSwitch.map((psw) => SensorWidget(
+                    sensor: psw,
+                    sensorType: 'Pressure Switch',
+                    imagePath: 'assets/png/pressure_switch.png',
+                  )),
+                  ...line.pressureIn.map((psw) => SensorWidget(
+                    sensor: psw,
+                    sensorType: 'Pressure Sensor',
+                    imagePath: 'assets/png/pressure_sensor.png',
+                  )),
+                  ...line.waterMeter.map((wm) => SensorWidget(
+                    sensor: wm,
+                    sensorType: 'Water Meter',
+                    imagePath: 'assets/png/water_meter.png',
+                  )),
                   ...line.valves.map((vl) => ValveWidget(
                     vl: vl,
                     status: vl.status,
                     userId: 0,
                     controllerId: 0,
                   )),
+                ],
+            ],
           ];
 
-          int crossAxisCount = (screenWidth / 90).floor().clamp(1, double.infinity).toInt();
+          int crossAxisCount = (screenWidth / 105).floor().clamp(1, double.infinity).toInt();
           int rowCount = (valveWidgets.length / crossAxisCount).ceil();
-          double itemHeight = 80;
+          double itemHeight = 72;
           double gridHeight = rowCount * (itemHeight + 5);
+
 
           return SizedBox(
             width: screenWidth,
@@ -53,7 +92,7 @@ class DisplayIrrigationLine extends StatelessWidget {
             child: Column(
               children: [
                 const Divider(height: 0, color: Colors.black12,),
-                const Divider(height: 5, color: Colors.black12,),
+                const Divider(height: 9, color: Colors.black12,),
                 Expanded(
                   child: GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -110,6 +149,244 @@ class DisplayIrrigationLine extends StatelessWidget {
   }
 }
 
+class SensorWidget extends StatelessWidget {
+  final SensorModel sensor;
+  final String sensorType;
+  final String imagePath;
+  //final Map<String, List<SensorHourlyData>> sensorData;
+
+  const SensorWidget({
+    super.key,
+    required this.sensor,
+    required this.sensorType,
+    required this.imagePath,
+    //required this.sensorData,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if(sensorType != 'Pressure Switch'){
+      return Container(
+        width: 150,
+        margin: const EdgeInsets.only(left: 4, right: 4),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            const SizedBox(
+              width: 10,
+              height: 3,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  VerticalDivider(width: 0),
+                  SizedBox(width: 4),
+                  VerticalDivider(width: 0),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 10, right: 10),
+              child: Container(
+                width: 150,
+                height: 17,
+                decoration: BoxDecoration(
+                  color: Colors.yellow,
+                  borderRadius: const BorderRadius.all(Radius.circular(2)),
+                  border: Border.all(
+                    color: Colors.grey,
+                    width: 0.5,
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    MyFunction().getUnitByParameter(context, sensorType, sensor.value.toString()) ?? '',
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                /*showPopover(
+                  context: context,
+                  bodyBuilder: (context) {
+                    Map<String, dynamic> jsonData = jsonDecode(jsonEncode(sensorData));
+                    Map<String, List<Map<String, dynamic>>> filteredData = {};
+
+                    jsonData.forEach((key, value) {
+                      var filteredList = (value as List)
+                          .where((item) => item['sNo']==sensor.sNo)
+                          .toList();
+                      if (filteredList.isNotEmpty) {
+                        filteredData[key] = List<Map<String, dynamic>>.from(filteredList);
+                      }
+                    });
+
+                    String input = getUnitByParameter(context, sensorType, sensor.value.toString()) ?? '';
+                    String numericValue = extractNumber(input);
+
+                    return Row(
+                      children: [
+                        SizedBox(
+                          width: 450,
+                          height: 175,
+                          child: buildLineChart(context, filteredData, sensorType, sensor.name, sensor.moistureType!),
+                        ),
+                        SizedBox(
+                          width: 100,
+                          height: 100,
+                          child: SfRadialGauge(
+                            axes: <RadialAxis>[
+                              RadialAxis(
+                                minimum: 0,
+                                maximum: sensorType=='Moisture Sensor'?200:sensorType=='Pressure Sensor'?12:100,
+                                pointers: <GaugePointer>[
+                                  NeedlePointer(
+                                      value: double.parse(numericValue),
+                                      needleEndWidth: 3, needleColor: Colors.black54),
+                                  RangePointer(
+                                    value: sensorType=='Moisture Sensor'?200.0:100.0,
+                                    width: 0.30,
+                                    sizeUnit: GaugeSizeUnit.factor,
+                                    color: const Color(0xFF494CA2),
+                                    animationDuration: 1000,
+                                    gradient: SweepGradient(
+                                      colors: sensorType == "Water Meter" ? <Color>[
+                                        Colors.teal.shade300,
+                                        Colors.teal.shade400,
+                                        Colors.teal.shade500,
+                                        Colors.teal.shade600
+                                      ]:
+                                      <Color>[
+                                        Colors.tealAccent,
+                                        Colors.orangeAccent,
+                                        Colors.redAccent,
+                                        Colors.redAccent
+                                      ],
+                                      stops: const <double>[0.15, 0.50, 0.70, 1.00],
+                                    ),
+                                    enableAnimation: true,
+                                  ),
+                                ],
+                                showFirstLabel: false,
+                                annotations: <GaugeAnnotation>[
+                                  GaugeAnnotation(
+                                    widget: Text(
+                                      numericValue,
+                                      style: const TextStyle(
+                                          fontSize: 10, fontWeight: FontWeight.bold),
+                                    ),
+                                    angle: 90,
+                                    positionFactor: 0.8,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                  onPop: () => print('Popover was popped!'),
+                  direction: PopoverDirection.bottom,
+                  width: 550,
+                  height: 175,
+                  arrowHeight: 15,
+                  arrowWidth: 30,
+                  barrierColor: Colors.black54,
+                  arrowDyOffset: -20,
+                );*/
+              },
+              style: ButtonStyle(
+                padding: WidgetStateProperty.all(EdgeInsets.zero),
+                minimumSize: WidgetStateProperty.all(Size.zero),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                backgroundColor: WidgetStateProperty.all(Colors.transparent),
+              ),
+              child: Image.asset(
+                imagePath,
+                width: 35,
+                height: 35,
+              ),
+            ),
+            Text(
+              sensor.name,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 10, color: Colors.black54),
+            ),
+          ],
+        ),
+      );
+    }
+    return Container(
+      width: 150,
+      margin: const EdgeInsets.only(left: 4, right: 4),
+      child: Column(
+        children: [
+          SizedBox(
+            width: 150,
+            height: 50,
+            child: Stack(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(left: 32),
+                  child: SizedBox(
+                    width: 10,
+                    height: 17,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        VerticalDivider(width: 0),
+                        SizedBox(width: 3),
+                        VerticalDivider(width: 0),
+                      ],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 15,
+                  left: 30,
+                  child: Image.asset(
+                    imagePath,
+                    width: 35,
+                    height: 35,
+                  ),
+                ),
+                Positioned(
+                  top: 3,
+                  left: 43,
+                  child: CircleAvatar(
+                    radius: 9,
+                    backgroundColor: Colors.black45,
+                    child: CircleAvatar(radius: 6, backgroundColor:sensor.value == '1'? Colors.redAccent:Colors.lightGreenAccent,),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            sensor.name,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 10, color: Colors.black54),
+          )
+        ],
+      ),
+    );
+  }
+
+  String extractNumber(String input) {
+    RegExp regex = RegExp(r'\d+\.?\d*');
+    Match? match = regex.firstMatch(input);
+    return match?.group(0) ?? '';
+  }
+}
+
 class ValveWidget extends StatelessWidget {
   final Valve vl;
   final int status, userId, controllerId;
@@ -137,7 +414,7 @@ class ValveWidget extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     VerticalDivider(width: 0),
-                    SizedBox(width: 3),
+                    SizedBox(width: 4),
                     VerticalDivider(width: 0),
                   ],
                 ),

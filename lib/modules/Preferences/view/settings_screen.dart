@@ -1,9 +1,11 @@
+/*
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:oro_drip_irrigation/Constants/properties.dart';
+import 'package:oro_drip_irrigation/modules/Preferences/view/view_config.dart';
 import 'package:provider/provider.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../StateManagement/overall_use.dart';
@@ -155,8 +157,8 @@ final otherCalibrationIcons = [
 class SettingsScreen extends StatefulWidget {
   final int userId;
   final dynamic value;
-  final bool viewSettings;
-  const SettingsScreen({super.key, this.value, required this.userId, required this.viewSettings});
+  final bool viewConfig;
+  const SettingsScreen({super.key, this.value, required this.userId, required this.viewConfig});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -218,23 +220,23 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
             child: Column(
               children: [
                 const SizedBox(height: 10,),
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Row(
-                    children: [
-                      if(preferenceProvider.commonPumpSettings!.isNotEmpty)
-                        Expanded(
-                          child: CustomSegmentedControl(
-                            segmentTitles: const {
-                              0: 'Common setting',
-                              1: 'Individual setting',
-                              2: 'Calibration'
-                            },
-                            groupValue: selectedSetting,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedSetting = value!;
-                                if(!widget.viewSettings) {
+                if(preferenceProvider.commonPumpSettings!.isNotEmpty) ...[
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Row(
+                      children: [
+                        if(preferenceProvider.commonPumpSettings!.isNotEmpty)
+                          Expanded(
+                            child: CustomSegmentedControl(
+                              segmentTitles: const {
+                                0: 'Common setting',
+                                1: 'Individual setting',
+                                2: 'Calibration'
+                              },
+                              groupValue: selectedSetting,
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedSetting = value!;
                                   if(selectedSetting == 2) {
                                     showDialog(
                                         context: context,
@@ -289,78 +291,30 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                                   } else {
                                     preferenceProvider.updateValidationCode();
                                   }
-                                }
+                                });
+                              },
+                            ),
+                          ),
+                        if(preferenceProvider.commonPumpSettings!.isNotEmpty && constraints.maxWidth >= 700)
+                          const SizedBox(width: 50,),
+                        IconButton(
+                            onPressed: (){
+                              setState(() {
+                                // viewConfig = !viewConfig;
                               });
                             },
+                            icon: Icon(Icons.remove_red_eye_outlined, color: Theme.of(context).primaryColor,)
+                        ),
+                        if(constraints.maxWidth >= 700)
+                          Expanded(
+                            child: _getDefaultTabController(),
                           ),
-                        ),
-                      if(preferenceProvider.commonPumpSettings!.isNotEmpty)
-                        const SizedBox(width: 50,),
-                      Expanded(
-                        child: DefaultTabController(
-                            length: selectedSetting != 1 ? preferenceProvider.commonPumpSettings!.length: preferenceProvider.individualPumpSetting!.length,
-                            child: Column(
-                              children: [
-                                const SizedBox(height: 10,),
-                                Container(
-                                  color: Theme.of(context).primaryColor,
-                                  child: TabBar(
-                                    controller: selectedSetting != 1 ? tabController1 : tabController2,
-                                    labelPadding: const EdgeInsets.symmetric(horizontal: 10.0),
-                                    indicatorColor: Colors.white,
-                                    tabAlignment: TabAlignment.start,
-                                    labelColor: Colors.white,
-                                    labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-                                    unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal,color: Colors.grey.shade400),
-                                    dividerColor: Colors.transparent,
-                                    isScrollable: true,
-                                    onTap: (value) {
-                                      if(widget.viewSettings) {
-                                        if(selectedSetting == 2 && [1,2].contains(preferenceProvider.generalData!.categoryId)) {
-                                          mqttPayloadProvider.viewSettingsList.clear();
-                                          final oroPumpSerialNumber = preferenceProvider.commonPumpSettings![tabController1.index].serialNumber;
-                                          final referenceNumber = preferenceProvider.commonPumpSettings![tabController1.index].referenceNumber;
-                                          final deviceId = preferenceProvider.commonPumpSettings![tabController1.index].deviceId;
-                                          final interfaceType = preferenceProvider.commonPumpSettings![tabController1.index].interfaceTypeId;
-                                          final categoryId = preferenceProvider.commonPumpSettings![tabController1.index].categoryId;
-                                          final payload = jsonEncode({"sentSms": "viewconfig"});
-                                          final payload2 = jsonEncode({"0": payload});
-                                          final viewConfig = {"5900": [{"5901": "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload2+${categoryId}"},{"5902": "${widget.userId}"}]};
-                                          // MQTTManager().publish(jsonEncode(viewConfig), "AppToFirmware/${preferenceProvider.generalData!.deviceId}");
-                                        }
-                                      }
-                                    },
-                                    tabs: [
-                                      if(selectedSetting != 1)
-                                        ...preferenceProvider.commonPumpSettings!.asMap().entries.map((entry) {
-                                          final index = entry.key;
-                                          final element = entry.value;
-                                          return preferenceProvider.commonPumpSettings!.length > 1 ? Tab(
-                                            text: "${element.deviceName}\n${element.deviceId}",
-                                          ) : Container();
-                                          return preferenceProvider.commonPumpSettings!.length > 1
-                                              ? buildTabItem(index: index, itemName: "${element.deviceName}\n${element.deviceId}", selectedIndex: tabController1.index)
-                                              : Container();
-                                        })
-                                      else
-                                        ...preferenceProvider.individualPumpSetting!.asMap().entries.map((entry) {
-                                          final index = entry.key;
-                                          final element = entry.value;
-                                          return Tab(
-                                            text: (preferenceProvider.commonPumpSettings!.length > 1 && element.deviceId != null) ? "${element.name}\n${element.deviceId}" : "${element.name}",
-                                          );
-                                          return buildTabItem(index: index, itemName: (preferenceProvider.commonPumpSettings!.length > 1 && element.deviceId != null) ? "${element.name}\n${element.deviceId}" : element.name, selectedIndex: tabController2.index);
-                                        })
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            )
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
+                ],
+                if(constraints.maxWidth <= 700)
+                  _getDefaultTabController(),
                 if(selectedSetting != 2)
                   Expanded(
                       child: TabBarView(
@@ -388,7 +342,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                         ],
                       )
                   ),
-                if(selectedSetting == 2 && widget.viewSettings ? true : (preferenceProvider.passwordValidationCode == 200))
+                if(selectedSetting == 2 && (preferenceProvider.passwordValidationCode == 200))
                   Expanded(
                       child: TabBarView(
                         controller: selectedSetting != 1 ? tabController1 : tabController2,
@@ -411,8 +365,67 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
     );
   }
 
+  Widget _getDefaultTabController() {
+    return DefaultTabController(
+        length: selectedSetting != 1 ? preferenceProvider.commonPumpSettings!.length: preferenceProvider.individualPumpSetting!.length,
+        child: Column(
+          children: [
+            const SizedBox(height: 10,),
+            Container(
+              color: Theme.of(context).primaryColor,
+              child: TabBar(
+                controller: selectedSetting != 1 ? tabController1 : tabController2,
+                labelPadding: const EdgeInsets.symmetric(horizontal: 10.0),
+                indicatorColor: Colors.white,
+                tabAlignment: TabAlignment.start,
+                labelColor: Colors.white,
+                labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+                unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal,color: Colors.grey.shade400),
+                dividerColor: Colors.transparent,
+                isScrollable: true,
+                onTap: (value) {
+                  if(selectedSetting == 2 && [1,2].contains(preferenceProvider.generalData!.categoryId)) {
+                    mqttPayloadProvider.viewSettingsList.clear();
+                    final oroPumpSerialNumber = preferenceProvider.commonPumpSettings![tabController1.index].serialNumber;
+                    final referenceNumber = preferenceProvider.commonPumpSettings![tabController1.index].referenceNumber;
+                    final deviceId = preferenceProvider.commonPumpSettings![tabController1.index].deviceId;
+                    final interfaceType = preferenceProvider.commonPumpSettings![tabController1.index].interfaceTypeId;
+                    final categoryId = preferenceProvider.commonPumpSettings![tabController1.index].categoryId;
+                    final payload = jsonEncode({"sentSms": "viewconfig"});
+                    final payload2 = jsonEncode({"0": payload});
+                    final viewConfig = {"5900": [{"5901": "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload2+${categoryId}"},{"5902": "${widget.userId}"}]};
+                    // MQTTManager().publish(jsonEncode(viewConfig), "AppToFirmware/${preferenceProvider.generalData!.deviceId}");
+                  }
+                },
+                tabs: [
+                  if(selectedSetting != 1)
+                    ...preferenceProvider.commonPumpSettings!.asMap().entries.map((entry) {
+                      final element = entry.value;
+                      return preferenceProvider.commonPumpSettings!.length > 1 ? Tab(
+                        text: "${element.deviceName}\n${element.deviceId}",
+                      ) : Container();
+                    })
+                  else
+                    ...preferenceProvider.individualPumpSetting!.asMap().entries.map((entry) {
+                      final element = entry.value;
+                      return Tab(
+                        text: (preferenceProvider.commonPumpSettings!.length > 1 && element.deviceId != null) ? "${element.name}\n${element.deviceId}" : element.name,
+                      );
+                    })
+                ],
+              ),
+            ),
+          ],
+        )
+    );
+  }
+
   Widget buildSettingsCategory({required BuildContext context, required List settingList, required BoxConstraints constraints, required int pumpIndex}) {
     try {
+      if(widget.viewConfig) {
+        // return Text('${preferenceProvider.selectedTabIndex}');
+        return ViewConfig(userId: widget.userId, isLora: preferenceProvider.commonPumpSettings![tabController1.index].interfaceTypeId == 1,);
+      }
       return SingleChildScrollView(
         child: Column(
           children: [
@@ -454,7 +467,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                                           value: _getInitialValue(categoryIndex, settingIndex, settingList, pumpIndex),
                                           leading: _buildLeading(categoryIndex, settingIndex, settingList),
                                           onValueChange: (newValue) => onChangeValue(categoryIndex, settingIndex, settingList, newValue),
-                                          conditionToShow: widget.viewSettings ? true : getConditionToShow(type: settingList[categoryIndex].type, serialNumber: settingList[categoryIndex].setting[settingIndex].serialNumber, value: settingList[categoryIndex].setting[settingIndex].value,),
+                                          conditionToShow: getConditionToShow(type: settingList[categoryIndex].type, serialNumber: settingList[categoryIndex].setting[settingIndex].serialNumber, value: settingList[categoryIndex].setting[settingIndex].value,),
                                           subTitle: _getSubTitle(categoryIndex, settingIndex, settingList, pumpIndex),
                                         hidden: settingList[categoryIndex].setting[settingIndex].hidden,
                                         enabled: true,
@@ -501,7 +514,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
 
   Widget _buildRtcTimer(int categoryIndex, int settingIndex, int pumpIndex, List settingList) {
     return CustomAnimatedSwitcher(
-      condition: widget.viewSettings ? true : (conditions['rtc'] ?? false),
+      condition: (conditions['rtc'] ?? false),
       child: Column(
         children: [
           Row(
@@ -519,17 +532,6 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                 ...settingList[categoryIndex].setting[settingIndex].rtcSettings!.asMap().entries.map((entry) {
                   final int rtcIndex = entry.key;
                   final rtcSetting = entry.value;
-                  List<String> value = [];
-                  if(widget.viewSettings) {
-                    String rtcSettingsValue = getValueForRtc(
-                      type: settingList[categoryIndex].type,
-                      categoryIndex: categoryIndex,
-                      pumpIndex: pumpIndex,
-                      settingIndex: settingIndex,
-                    ).split(',').skip(1).join(',');
-                    List<String> valuesList = rtcSettingsValue.split(',');
-                    value = extractValues(rtcIndex, valuesList);
-                  }
 
                   return Column(
                     children: [
@@ -546,7 +548,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                           ),
                           Expanded(
                             child: Center(
-                              child: widget.viewSettings && (rtcIndex).isOdd ? Text(value[0]) : CustomNativeTimePicker(
+                              child: CustomNativeTimePicker(
                                 initialValue: rtcSetting.onTime.isNotEmpty ? rtcSetting.onTime : "00:00:00",
                                 onChanged: (newTime) {
                                   setState(() {
@@ -561,7 +563,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                           ),
                           Expanded(
                             child: Center(
-                              child: widget.viewSettings && (rtcIndex).isEven ? Text(value[1]) : CustomNativeTimePicker(
+                              child: CustomNativeTimePicker(
                                 initialValue: rtcSetting.offTime.isNotEmpty ? rtcSetting.offTime : "00:00:00",
                                 onChanged: (newTime) {
                                   setState(() {
@@ -649,9 +651,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
   }
 
   int _getWidgetType(int categoryIndex, int settingIndex, List settingList) {
-    return widget.viewSettings
-        ? 6
-        : (settingList[categoryIndex].setting[settingIndex].title == "SENSOR HEIGHT" || settingList[categoryIndex].setting[settingIndex].title == "PRESSURE MAXIMUM VALUE")
+    return (settingList[categoryIndex].setting[settingIndex].title == "SENSOR HEIGHT" || settingList[categoryIndex].setting[settingIndex].title == "PRESSURE MAXIMUM VALUE")
         ? 7
         : settingList[categoryIndex].setting[settingIndex].widgetTypeId;
   }
@@ -680,13 +680,13 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
   dynamic _getSubTitle(int categoryIndex, int settingIndex, List settingList, int pumpIndex) {
     return ([1, 2].contains(preferenceProvider.generalData!.categoryId) &&
         [27, 28, 29, 207, 208, 209].contains(settingList[categoryIndex].type))
-        ? "Last setting: ${(getValue(
+        ? "Last setting: ${(_getValue(
         type: settingList[categoryIndex].type,
         categoryIndex: categoryIndex,
         pumpIndex: pumpIndex,
         settingIndex: settingIndex
     )).isNotEmpty
-        ? (getValue(
+        ? (_getValue(
         type: settingList[categoryIndex].type,
         categoryIndex: categoryIndex,
         pumpIndex: pumpIndex,
@@ -701,21 +701,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
   }
 
   dynamic _getInitialValue(int categoryIndex, int settingIndex, List settingList, int pumpIndex) {
-    return widget.viewSettings
-        ? settingList[categoryIndex].setting[settingIndex].title == "RTC"
-        ? getValueForRtc(
-      type: settingList[categoryIndex].type,
-      categoryIndex: categoryIndex,
-      pumpIndex: pumpIndex,
-      settingIndex: settingIndex,
-    )[0]
-        : (getValue(
-        type: settingList[categoryIndex].type,
-        categoryIndex: categoryIndex,
-        pumpIndex: pumpIndex,
-        settingIndex: settingIndex
-    ).split(',')[settingIndex])
-        : settingList[categoryIndex].setting[settingIndex].value;
+    return settingList[categoryIndex].setting[settingIndex].value;
   }
 
   void onChangeValue(int categoryIndex, int settingIndex, List settingList, bool newValue) {
@@ -743,74 +729,16 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
     return valuesList.sublist(startIndex, startIndex + 2);
   }
 
-  String getValue({required int type, required int categoryIndex, required int pumpIndex, required int settingIndex}) {
+  String _getValue({required int type, required int categoryIndex, required int pumpIndex, required int settingIndex}) {
     String valueToShow = "";
 
     for (var i = 0; i < mqttPayloadProvider.viewSettingsList.length; i++) {
-      var rtcTimeTemp = "";
-      var delayTimeTemp = "";
-      // print("pumpIndex ==> $pumpIndex");
-      // print("i ==> $i");
-      if(i != 0) {
-        if(i-1 == pumpIndex) {
-          var decodedList = jsonDecode(mqttPayloadProvider.viewSettingsList[i]);
-          for (var element in decodedList) {
-            Map<String, dynamic> decode = element;
-            decode.forEach((key, value) {
-              switch (type) {
-                case 26:case 206:
-                if (key == "ctconfig") valueToShow = value;
-                break;
-                case 24:case 204:
-                if (key == "voltageconfig") valueToShow = value;
-                break;
-                case 22:case 202:
-                if (key == "delayconfig") delayTimeTemp = value;
-                if (key == "rtcconfig") rtcTimeTemp = value;
-                final list = [...delayTimeTemp.split(','), ...rtcTimeTemp.split(',').sublist(1)];
-                valueToShow = list.join(',');
-                break;
-                case 23:case 203:
-                if (key == "currentconfig") valueToShow = value;
-                break;
-                case 25:case 205:
-                if (key == "scheduleconfig") valueToShow = value;
-                break;
-              // case 27:
-              // if (key == "calibration") valueToShow = value;
-              // break;
-              // case 28:
-              // if (key == "calibration") valueToShow = value;
-              // print(valueToShow.split());
-              // break;
-              }
-            });
-          }
-        }
-      } else {
+      if(i == 0) {
         var decodedList = jsonDecode(mqttPayloadProvider.viewSettingsList[i]);
         for (var element in decodedList) {
           Map<String, dynamic> decode = element;
           decode.forEach((key, value) {
             switch (type) {
-              case 26:case 206:
-              if (key == "ctconfig") valueToShow = value;
-              break;
-              case 24:case 204:
-              if (key == "voltageconfig") valueToShow = value;
-              break;
-              case 22:case 202:
-              if (key == "delayconfig") delayTimeTemp = value;
-              if (key == "rtcconfig") rtcTimeTemp = value;
-              final list = [...delayTimeTemp.split(','), ...rtcTimeTemp.split(',').sublist(1)];
-              valueToShow = list.join(',');
-              break;
-              case 23:case 203:
-              if (key == "currentconfig") valueToShow = value;
-              break;
-              case 25:case 205:
-              if (key == "scheduleconfig") valueToShow = value;
-              break;
               case 27:case 207:
               if (key == "calibration") valueToShow = value;
               break;
@@ -1010,7 +938,8 @@ Widget buildCustomListTileWidget({
         textAlign: TextAlign.right,
         style: const TextStyle(fontSize: 14),);
       break;
-   /* case 4:
+   */
+/* case 4:
       customWidget = SizedBox(
         width: 80,
         child: TextFormField(
@@ -1029,7 +958,8 @@ Widget buildCustomListTileWidget({
           },
         ),
       );
-      break;*/
+      break;*//*
+
     case 6:
       customWidget = SizedBox(
         width: 80,
@@ -1069,4 +999,4 @@ Widget buildCustomListTileWidget({
       ),
     ),
   );
-}
+}*/
