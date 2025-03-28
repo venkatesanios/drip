@@ -36,9 +36,10 @@ class _NamesState extends State<Names> {
       var getUserDetails = await repository.fetchAllMySite({
         "userId": widget.userID ?? 4,
       });
-
       final jsonData = jsonDecode(getUserDetails.body);
-       if (jsonData['code'] == 200) {
+      print("jsonData$jsonData");
+
+      if (jsonData['code'] == 200) {
 
         await payloadProvider.updateDashboardPayload(jsonData);
         setState(() {
@@ -206,23 +207,27 @@ class _NamesState extends State<Names> {
     return DefaultTabController(
       length: uniqueObjectNames.length,
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Names'),
-          automaticallyImplyLeading: false,
-          bottom: TabBar(
-            labelColor: Colors.white,
-              unselectedLabelColor: Colors.white54,
-            indicatorColor: Theme.of(context).primaryColorDark,
-            isScrollable: true,
-            tabs: uniqueObjectNames.map((name) => Tab(text: name)).toList(),
-          ),
-        ),
-        body: TabBarView(
-          children: uniqueObjectNames.map((name) {
-            return configObjects.any((obj) => obj["objectName"] == name)
-                ? buildTab(name)
-                : const Center(child: Text('No Record found'));
-          }).toList(),
+         body: Column(
+          children: [
+            Container(color: Theme.of(context).primaryColor,
+              child: TabBar(
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.white54,
+                indicatorColor: Colors.white,
+                isScrollable: true,
+                tabs: uniqueObjectNames.map((name) => Tab(text: name)).toList(),
+              ),
+            ),
+            Expanded(
+              child: TabBarView(
+                children: uniqueObjectNames.map((name) {
+                  return configObjects.any((obj) => obj["objectName"] == name)
+                      ? buildTab(name)
+                      : const Center(child: Text('No Record found'));
+                }).toList(),
+              ),
+            ),
+          ],
         ),
       ),
     );

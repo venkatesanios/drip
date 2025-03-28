@@ -82,8 +82,7 @@ class _ConditionUIState extends State<FrostMobUI>
               'Currently No Frost Production & Rain Delay Sets Available'));
     } else {
       return Scaffold(backgroundColor: Color(0xffE6EDF5),
-        appBar: AppBar(title: Text('Frost Production', style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold)),automaticallyImplyLeading: false,),
-        body: Padding(
+         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Form(
             key: _formKey,

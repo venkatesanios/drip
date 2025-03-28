@@ -103,14 +103,7 @@ class _GroupListScreenState extends State<GroupListScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xffE6EDF5),
-      appBar: AppBar(
-        title: const Text('Groups',
-            style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold)),
-        automaticallyImplyLeading: false,
-      ),
-      body: Padding(
+       body: Padding(
         padding: const EdgeInsets.all(5.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,

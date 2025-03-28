@@ -134,8 +134,7 @@ class _VirtualMeterScreenState extends State<VirtualMeterScreen>
     } else {
       return Scaffold(
         backgroundColor: const Color(0xffE6EDF5),
-        appBar: AppBar(title: Text('Virtual Water Meter Screen', style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold)),automaticallyImplyLeading: false,),
-         body: Column(
+          body: Column(
           children: [
             Expanded(
               child: Padding(
