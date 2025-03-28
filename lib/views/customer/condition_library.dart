@@ -11,9 +11,10 @@ import '../../view_models/customer/condition_library_view_model.dart';
 
 class ConditionLibrary extends StatelessWidget {
   const ConditionLibrary(this.customerId, this.controllerId, this.userId,
-      {super.key});
+      {super.key, required this.deviceId});
 
   final int customerId, controllerId, userId;
+  final String deviceId;
 
   @override
   Widget build(BuildContext context) {
@@ -984,7 +985,7 @@ class ConditionLibrary extends StatelessWidget {
                   color: Colors.green,
                   textColor: Colors.white,
                   onPressed: () => vm.saveConditionLibrary(
-                      context, customerId, controllerId, userId),
+                      context, customerId, controllerId, userId, deviceId),
                   child: const Text('Save'),
                 ),
               ],

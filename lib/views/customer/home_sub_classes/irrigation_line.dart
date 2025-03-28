@@ -26,58 +26,30 @@ class DisplayIrrigationLine extends StatelessWidget {
         builder: (context, viewModel, _) {
 
           final List<Widget> valveWidgets = [
-            if (currentLineName == 'All irrigation line') ...[
-              for (var line in lineData!)
+            for (var line in lineData!)
+              if (currentLineName == 'All irrigation line' || line.name == currentLineName) ...[
                 ...line.prsSwitch.map((psw) => SensorWidget(
                   sensor: psw,
                   sensorType: 'Pressure Switch',
                   imagePath: 'assets/png/pressure_switch.png',
                 )),
-              for (var line in lineData!)
                 ...line.pressureIn.map((psw) => SensorWidget(
                   sensor: psw,
                   sensorType: 'Pressure Sensor',
                   imagePath: 'assets/png/pressure_sensor.png',
                 )),
-              for (var line in lineData!)
                 ...line.waterMeter.map((wm) => SensorWidget(
                   sensor: wm,
                   sensorType: 'Water Meter',
                   imagePath: 'assets/png/water_meter.png',
                 )),
-              for (var line in lineData!)
                 ...line.valves.map((vl) => ValveWidget(
                   vl: vl,
                   status: vl.status,
                   userId: 0,
                   controllerId: 0,
                 )),
-            ] else ...[
-              for (var line in lineData!)
-                if (line.name == currentLineName) ...[
-                  ...line.prsSwitch.map((psw) => SensorWidget(
-                    sensor: psw,
-                    sensorType: 'Pressure Switch',
-                    imagePath: 'assets/png/pressure_switch.png',
-                  )),
-                  ...line.pressureIn.map((psw) => SensorWidget(
-                    sensor: psw,
-                    sensorType: 'Pressure Sensor',
-                    imagePath: 'assets/png/pressure_sensor.png',
-                  )),
-                  ...line.waterMeter.map((wm) => SensorWidget(
-                    sensor: wm,
-                    sensorType: 'Water Meter',
-                    imagePath: 'assets/png/water_meter.png',
-                  )),
-                  ...line.valves.map((vl) => ValveWidget(
-                    vl: vl,
-                    status: vl.status,
-                    userId: 0,
-                    controllerId: 0,
-                  )),
-                ],
-            ],
+              ],
           ];
 
           int crossAxisCount = (screenWidth / 105).floor().clamp(1, double.infinity).toInt();
