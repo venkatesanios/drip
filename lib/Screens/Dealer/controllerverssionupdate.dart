@@ -106,9 +106,9 @@ print('resetversion $jsondata');
     iconData = Icons.restart_alt;
     iconcolor = Colors.blue;
     Map<String, dynamic> payLoadFinal = {
-      "5700": [
+      "5700":
         {"5701": "2"},
-      ]
+
     };
     MqttService().topicToPublishAndItsMessage(jsonEncode(payLoadFinal), "${Environment.mqttPublishTopic}/${mergedList[index]["deviceId"]}");
 
@@ -122,9 +122,8 @@ print('resetversion $jsondata');
     iconData = Icons.start;
     iconcolor = Colors.blue;
     Map<String, dynamic> payLoadFinal = {
-      "5700": [
+      "5700":
         {"5701": "3"},
-      ]
     };
 
     MqttService().topicToPublishAndItsMessage(jsonEncode(payLoadFinal), "${Environment.mqttPublishTopic}/${mergedList[index]["deviceId"]}");
