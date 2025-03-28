@@ -47,7 +47,7 @@ class ControllerSettings extends StatelessWidget {
                       Tab(text: 'Names'),
                       Tab(text: 'View Settings'),
                       Tab(text: 'Dealer Definition'),
-                    ],
+                     ],
                   ),
                   Expanded(
                     child: TabBarView(
