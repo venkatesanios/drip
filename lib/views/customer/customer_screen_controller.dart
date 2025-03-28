@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/Models/servicecustomermodel.dart';
+import 'package:oro_drip_irrigation/Screens/Dealer/sevicecustomer.dart';
 import 'package:oro_drip_irrigation/Screens/Logs/irrigation_and_pump_log.dart';
 import 'package:oro_drip_irrigation/Screens/planning/WeatherScreen.dart';
 import 'package:oro_drip_irrigation/modules/PumpController/view/pump_dashboard_screen.dart';
@@ -823,6 +825,14 @@ class CustomerScreenController extends StatelessWidget {
       ),
       const NavigationRailDestination(
         icon: Tooltip(
+          message: 'Service Request',
+          child: Icon(Icons.support_agent_sharp),
+        ),
+        selectedIcon: Icon(Icons.support_agent_sharp, color: Colors.white),
+        label: Text(''),
+      ),
+      const NavigationRailDestination(
+        icon: Tooltip(
           message: 'weather',
           child: Icon(Icons.sunny_snowing),
         ),
@@ -864,6 +874,8 @@ class CustomerScreenController extends StatelessWidget {
             groupName: groupName
         );
       case 6:
+        return TicketHomePage(userId: userId, controllerId: controllerId);
+      case 7:
         return WeatherScreen(userId: userId, controllerId: controllerId, deviceID: deviceId,);
       default:
         return const SizedBox();

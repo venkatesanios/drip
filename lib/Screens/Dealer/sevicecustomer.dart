@@ -30,7 +30,7 @@ class _TicketHomePageState extends State<TicketHomePage> {
   DateFormat timeformat = DateFormat("HH:mm:ss");
   DateFormat ExceptdateFormat = DateFormat("yyyy-MM-dd");
   ServicecustomerModel _servicecustomerModel = ServicecustomerModel();
-  String dropdownvalue = 'Controller Issue';
+  String dropdownvalue = 'Controller Regarding';
 
   @override
   void initState() {
@@ -88,10 +88,10 @@ class _TicketHomePageState extends State<TicketHomePage> {
       "siteLocation": '',
       "createUser": widget.userId
     };
-    final response =
-    await HttpService().postRequest("createUserServiceRequest", body);
-    print('response    ${response.body}');
-    var jsonData = jsonDecode(response.body);
+
+    final Repository repository = Repository(HttpService());
+    var response = await repository.createUserServiceRequest(body);
+     var jsonData = jsonDecode(response.body);
     if (response.statusCode == 200) {
       setState(() {
         GlobalSnackBar.show(context, jsonData['message'], response.statusCode);
@@ -121,7 +121,7 @@ class _TicketHomePageState extends State<TicketHomePage> {
       // _categories =   _servicecustomerModel.data?.dataDefault!.requestType!.where(e) -> value
 
       return Scaffold(
-        backgroundColor: Colors.teal.shade50,
+        backgroundColor: Colors.grey.shade100,
 
         body: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -134,7 +134,7 @@ class _TicketHomePageState extends State<TicketHomePage> {
                     const SizedBox(height: 20),
                     DropdownButton(
                       iconSize: 32,
-                      dropdownColor: Colors.teal.shade100,
+                      dropdownColor: Colors.grey.shade50,
                       // Initial Value
                       value: dropdownvalue,
                       // Down Arrow Icon
@@ -204,7 +204,7 @@ class _TicketHomePageState extends State<TicketHomePage> {
 
                         }
                       },
-                      child: const Text('Raise Ticket'),
+                      child: const Text('Raise Ticket',style: TextStyle(color: Colors.white),),
                     ),
                   ],
                 ),

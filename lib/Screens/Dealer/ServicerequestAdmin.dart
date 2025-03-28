@@ -38,16 +38,14 @@ class _ServiceRequestAdminState extends State<ServiceRequestAdmin> {
   }
 
   Future<void> fetchData() async {
-    var overAllPvd = Provider.of<OverAllUse>(context,listen: false);
-    final prefs = await SharedPreferences.getInstance();
-    try{
+    print("fetchData");
+     try{
       final Repository repository = Repository(HttpService());
       var getUserDetails = await repository.getAllUserAllServiceRequestForAdmin({});
       print("getUserDetails.body ${getUserDetails.body}");
        if (getUserDetails.statusCode == 200) {
         setState(() {
           var jsonData1 = jsonDecode(getUserDetails.body);
-
           if (jsonData1 is Map<String, dynamic> && jsonData1.containsKey('data')) {
             data = List<Map<String, dynamic>>.from(jsonData1['data']);
           } else if (jsonData1 is List) {
@@ -105,10 +103,9 @@ class _ServiceRequestAdminState extends State<ServiceRequestAdmin> {
 
   @override
   Widget build(BuildContext context) {
+    print('Service Request List');
     return Scaffold(
-      appBar: AppBar(
-        title: Text('User Service Request List'),
-      ),
+
       body: Column(
         children: [
           Padding(

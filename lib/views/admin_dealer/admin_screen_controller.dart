@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/views/admin_dealer/product_entry.dart';
 import 'package:oro_drip_irrigation/views/admin_dealer/product_inventory.dart';
 import 'package:provider/provider.dart';
+import '../../Screens/Dealer/ServicerequestAdmin.dart';
 import '../../flavors.dart';
 import '../../utils/constants.dart';
 import '../../view_models/nav_rail_view_model.dart';
@@ -133,6 +134,11 @@ class AdminScreenController extends StatelessWidget {
         selectedIcon: Icon(Icons.manage_accounts_outlined, color: Colors.white),
         label: Text(''),
       ),
+      const NavigationRailDestination(
+        icon: Icon(Icons.support_agent_sharp),
+        selectedIcon: Icon(Icons.support_agent_sharp, color: Colors.white),
+        label: Text(''),
+      ),
     ];
 
     return destinations;
@@ -155,7 +161,9 @@ class AdminScreenController extends StatelessWidget {
         return ProductEntry(userId: userId);
       case 3:
         return AccountSettings(userId: userId, userName: userName, mobileNo: mobileNo, emailId: emailId, customerId: userId);
-      default:
+      case 4:
+        return ServiceRequestAdmin();
+       default:
         return const SizedBox();
     }
   }
