@@ -161,65 +161,69 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                     Container(
                       width: MediaQuery.of(context).size.width <= 500 ? MediaQuery.of(context).size.width : 400,
                       margin: const EdgeInsets.symmetric(horizontal: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
                       decoration: const BoxDecoration(
                           color: Colors.white,
                           // boxShadow: AppProperties.customBoxShadowLiteTheme
                       ),
-                      child: ListTile(
-                        horizontalTitleGap: 10,
-                        title: Text(widget.masterName, style: themeData.textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(widget.deviceId),
-                            Row(
-                              children: [
-                                RichText(
-                                  text: TextSpan(
-                                    children: [
-                                      TextSpan(text: "CVS : ", style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor)),
-                                      TextSpan(
-                                          text: getCommunicationType(snapshot.data!.version.toString().split(',').length > 1
-                                              ? snapshot.data!.version.toString().split(',')[0]
-                                              : snapshot.data!.version),
-                                          style: TextStyle(fontWeight: FontWeight.w400, color: Theme.of(context).primaryColor)
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 5,),
-                                RichText(
-                                  text: TextSpan(
-                                    children: [
-                                      TextSpan(text: "MVS : ", style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor)),
-                                      TextSpan(
-                                          text: getCommunicationType(snapshot.data!.version.toString().split(',').length > 1
-                                              ? snapshot.data!.version.toString().split(',')[1]
-                                              : snapshot.data!.version),
-                                          style: TextStyle(fontWeight: FontWeight.w400, color: Theme.of(context).primaryColor)),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        leading: SizedImageMedium(imagePath: 'assets/Images/Png/${F.name.contains('oro') ? 'Oro' : 'SmartComm'}/category_${2}.png'),
-                        trailing: IntrinsicWidth(
-                          child: Container(
-                            decoration: BoxDecoration(
-                                color: Theme.of(context).primaryColor.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(5)
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                            child: Row(
-                              children: [
-                                getIcon(snapshot.data!.signalStrength),
-                                Text("${snapshot.data?.signalStrength ?? "0"}%")
-                              ],
-                            ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              SizedImageMedium(imagePath: 'assets/Images/Png/${F.name.contains('oro') ? 'Oro' : 'SmartComm'}/category_${2}.png'),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                spacing: 5,
+                                children: [
+                                  Text(widget.masterName, style: themeData.textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),),
+                                  SelectableText(widget.deviceId, style: themeData.textTheme.titleSmall!.copyWith(fontWeight: FontWeight.normal, fontSize: 12),),
+                                ],
+                              ),
+                            ],
                           ),
-                        ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            spacing: 5,
+                            children: [
+                              Badge(
+                                alignment: const Alignment(-3.5, -1),
+                                smallSize: 0.1,
+                                backgroundColor: Colors.transparent,
+                                label: Text("${snapshot.data?.signalStrength ?? "0"}%", style: const TextStyle(fontSize: 8, color: Colors.red, fontWeight: FontWeight.bold),),
+                                child: getIcon(snapshot.data!.signalStrength),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                spacing: 5,
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                        color: const Color(0xffFFFACD),
+                                        border: Border.all(color: const Color(0xffEB7C17)),
+                                        borderRadius: BorderRadius.circular(10)
+                                    ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                    child: Text('CVS : ${getCommunicationType(snapshot.data!.version.toString().split(',').length > 1
+                                        ? snapshot.data!.version.toString().split(',')[0]
+                                        : snapshot.data!.version)}', style: const TextStyle(fontSize: 8, color: Color(0xffEB7C17)),),
+                                  ),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                        color: const Color(0xffFFFACD),
+                                        border: Border.all(color: const Color(0xffEB7C17)),
+                                        borderRadius: BorderRadius.circular(10)
+                                    ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                    child: Text('MVS : ${getCommunicationType(snapshot.data!.version.toString().split(',').length > 1
+                                        ? snapshot.data!.version.toString().split(',')[1]
+                                        : snapshot.data!.version)}', style: const TextStyle(fontSize: 8, color: Color(0xffEB7C17)),),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                     Container(
@@ -293,6 +297,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                         ],
                       ),
                     ),
+                    const Divider(),
                     const SizedBox(height: 15,),
                     for(var index = 0; index < int.parse(snapshot.data!.numberOfPumps); index++)
                       buildNewPumpDetails(index: index, pumpData: snapshot.data!,),
@@ -854,8 +859,9 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
         IntrinsicWidth(
           child: Container(
             decoration: BoxDecoration(
-              gradient: gradient,
+              // gradient: gradient,
               borderRadius: BorderRadius.circular(5),
+              border: Border.all(color: Colors.grey, width: 0.5)
             ),
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: CountdownTimerWidget(

@@ -67,7 +67,7 @@ class CustomerScreenController extends StatelessWidget {
 
           if(liveDataAndTime.isNotEmpty){
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              vm.updateLivePayload(wifiStrength, liveDataAndTime);
+              // vm.updateLivePayload(wifiStrength, liveDataAndTime);
             });
           }
 

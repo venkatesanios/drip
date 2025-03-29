@@ -28,7 +28,6 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
 
   CustomerScreenControllerViewModel(context, this.repository){
     fromWhere='init';
-    print(('CustomerScreenControllerViewModel constructor'));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
       mqttConfigureAndConnect(context);
@@ -46,6 +45,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
 
   void onSubscribeTopic(){
     Future.delayed(const Duration(milliseconds: 2000), () {
+      print("device id :: ${mySiteList.data[sIndex].master[mIndex].deviceId}");
       MqttService().topicToSubscribe('${AppConstants.subscribeTopic}/${mySiteList.data[sIndex].master[mIndex].deviceId}');
       onRefreshClicked();
     });
@@ -162,8 +162,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     String livePayload = '';
     Future.delayed(const Duration(milliseconds: 1000), () {
       //payloadProvider.liveSyncCall(true);
-      if(mySiteList.data[sIndex].master[mIndex].categoryId==1 ||
-          mySiteList.data[sIndex].master[mIndex].categoryId==2){
+      if(mySiteList.data[sIndex].master[mIndex].categoryId==1){
         livePayload = jsonEncode({"3000": {"3001": ""}});
       }else{
         livePayload = jsonEncode({"sentSMS": "#live"});

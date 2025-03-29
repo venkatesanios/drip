@@ -1,7 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
+import '../../modules/Logs/repository/log_repos.dart';
+import '../../modules/Logs/view/pump_list.dart';
 import '../../modules/irrigation_report/view/list_of_log_config.dart';
 import '../../modules/irrigation_report/view/standalone_log.dart';
+import '../../services/http_service.dart';
 
 class IrrigationAndPumpLog extends StatefulWidget {
   final Map<String, dynamic> userData;
@@ -15,31 +20,27 @@ class _IrrigationAndPumpLogState extends State<IrrigationAndPumpLog> with Ticker
   late TabController tabController;
   List pumpList = [];
   String message = '';
+  final LogRepository repository = LogRepository(HttpService());
 
   @override
   void initState() {
     // TODO: implement initState
     tabController = TabController(length: 3, vsync: this);
-    // getUserNodePumpList();
+    getUserNodePumpList();
     super.initState();
   }
 
-  // Future<void> getUserNodePumpList() async{
-  //   Map<String, dynamic> userData = {
-  //     "userId": widget.userId,
-  //     "controllerId": widget.controllerId
-  //   };
-  //
-  //   final result = await HttpService().postRequest('getUserNodePumpList', userData);
-  //   setState(() {
-  //     if(result.statusCode == 200 && jsonDecode(result.body)['data'] != null) {
-  //       pumpList = jsonDecode(result.body)['data'];
-  //     } else {
-  //       message = jsonDecode(result.body)['message'];
-  //     }
-  //   });
-  //   // print(result.body);
-  // }
+  Future<void> getUserNodePumpList() async{
+    final result = await repository.getUserNodePumpList(widget.userData);
+    setState(() {
+      if(result.statusCode == 200 && jsonDecode(result.body)['data'] != null) {
+        pumpList = jsonDecode(result.body)['data'];
+      } else {
+        message = jsonDecode(result.body)['message'];
+      }
+    });
+    // print(result.body);
+  }
 
   @override
   void dispose() {
@@ -72,11 +73,10 @@ class _IrrigationAndPumpLogState extends State<IrrigationAndPumpLog> with Ticker
                         children: [
                           ListOfLogConfig(userData: widget.userData,),
                           StandaloneLog(userData: widget.userData,),
-                          Container(),
-                          // if(pumpList.isNotEmpty)
-                          //   PumpList(pumpList: pumpList, userId: widget.userId, controllerId: widget.controllerId,)
-                          // else
-                          //   Container()
+                          if(pumpList.isNotEmpty)
+                            PumpList(pumpList: pumpList, userId: widget.userData['userId'], controllerId: widget.userData['controllerId'],)
+                          else
+                            Container()
                         ]
                     )
                 )

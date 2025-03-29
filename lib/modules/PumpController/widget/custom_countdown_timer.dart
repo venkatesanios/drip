@@ -8,7 +8,7 @@ class CountdownTimerWidget extends StatefulWidget {
   final FontWeight fontWeight;
   final int initialSeconds;
 
-  CountdownTimerWidget({Key? key, required this.initialSeconds, this.fontColor = Colors.black, this.fontSize = 12, this.fontWeight = FontWeight.bold}) : super(key: key);
+  const CountdownTimerWidget({super.key, required this.initialSeconds, this.fontColor = Colors.black, this.fontSize = 12, this.fontWeight = FontWeight.bold});
 
   @override
   _CountdownTimerWidgetState createState() => _CountdownTimerWidgetState();

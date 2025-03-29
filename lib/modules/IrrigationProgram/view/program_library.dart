@@ -784,6 +784,9 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                               deleteProgram(program, toMove);
                               // showSnackBar(message: "${mqttPayloadProvider.messageFromHw['Name']} from controller", context: context);
                             },
+                            failedFunction: () {
+                              deleteProgram(program, toMove);
+                            },
                             payload: toMove == "active" ? dataToMqtt : deleteProgramToHardware,
                             payloadCode: toMove == "active" ? "2500" : "3800",
                             deviceId: widget.deviceId
@@ -1100,12 +1103,12 @@ Future<void> validatePayloadSent({
   required BuildContext context,
   MqttPayloadProvider? mqttPayloadProvider,
   required void Function() acknowledgedFunction,
+  void Function()? failedFunction,
   required Map<String, dynamic> payload,
   required String payloadCode,
   required String deviceId,
 }) async {
   try {
-    // Reset payload to ensure we get the latest acknowledgment
     MqttService().acknowledgementPayload = null;
 
     await MqttService().topicToPublishAndItsMessage(jsonEncode(payload), '${Environment.mqttPublishTopic}/$deviceId');
@@ -1149,6 +1152,9 @@ Future<void> validatePayloadSent({
       if (decodedPayload['cM']['4201']['Code'] == "200") {
         acknowledgedFunction();
       } else {
+        if(failedFunction != null) {
+          failedFunction();
+        }
         showSnackBar(message: "${decodedPayload['cM']['4201']['Name']}", context: context,);
       }
     } else {
