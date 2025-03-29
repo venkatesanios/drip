@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -71,10 +72,10 @@ class _ResetVerssionState extends State<ResetVerssion> {
     try{
       final Repository repository = Repository(HttpService());
       var response = await repository.getUserDeviceFirmwareDetails({"userId": widget.userId});
-       if (response.statusCode == 200) {
+      if (response.statusCode == 200) {
         setState(() {
           var jsondata = jsonDecode(response.body);
-print('resetversion $jsondata');
+          print('resetversion $jsondata');
           valAssing(jsondata['data']);
 
           MqttService().connect();
@@ -107,12 +108,12 @@ print('resetversion $jsondata');
     iconcolor = Colors.blue;
     Map<String, dynamic> payLoadFinal = {
       "5700":
-        {"5701": "2"},
+      {"5701": "2"},
 
     };
     MqttService().topicToPublishAndItsMessage(jsonEncode(payLoadFinal), "${Environment.mqttPublishTopic}/${mergedList[index]["deviceId"]}");
 
-    }
+  }
 
   Update(int index) async {
 
@@ -123,7 +124,7 @@ print('resetversion $jsondata');
     iconcolor = Colors.blue;
     Map<String, dynamic> payLoadFinal = {
       "5700":
-        {"5701": "3"},
+      {"5701": "3"},
     };
 
     MqttService().topicToPublishAndItsMessage(jsonEncode(payLoadFinal), "${Environment.mqttPublishTopic}/${mergedList[index]["deviceId"]}");
@@ -205,7 +206,8 @@ print('resetversion $jsondata');
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => ControllerLog(
-                                      deviceID: mergedList[index]['deviceId']!),
+                                      deviceID: '${mergedList[index]['deviceId'
+                                      ]!}'),
                                 ),
                               );
                             });
@@ -373,10 +375,10 @@ print('resetversion $jsondata');
   }
 
   status() {
+    print("status");
     if (selectindex != null) {
       Map<String, dynamic>? ctrldata = mqttPayloadProvider.messageFromHw;
-      print("ctrldata------------>$ctrldata");
-      if ((ctrldata != null && ctrldata.isNotEmpty)) {
+       if ((ctrldata != null && ctrldata.isNotEmpty)) {
         var name = ctrldata['Name'];
         // String message = ctrldata['Message'];
         var code = ctrldata['Code'];

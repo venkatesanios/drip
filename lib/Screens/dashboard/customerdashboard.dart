@@ -1379,7 +1379,7 @@ class _DashboardState extends State<MobDashboard>
                                           scrollDirection: Axis.vertical,
                                           child: Column(
                                             children: [
-                                              mobdashboarddesign(context)
+                                              // mobdashboarddesign(context)
                                             ],
                                           ),
                                         ),
@@ -1410,7 +1410,8 @@ class _DashboardState extends State<MobDashboard>
         : const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 
-  @override
+
+/*
   Widget mobdashboarddesign(BuildContext context) {
     List<WaterSource> waterSource = payloadProvider.waterSourceMobDash;
     List<FilterSite> filterSite = payloadProvider.filterSiteMobDash;
@@ -1531,6 +1532,7 @@ class _DashboardState extends State<MobDashboard>
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
+*/
 /*
                                   SizedBox(
                                     width: 70,
@@ -1547,7 +1549,8 @@ class _DashboardState extends State<MobDashboard>
                                       ),
                                     ),
                                   ),
-*/
+*//*
+
                                   SizedBox(
                                     width: 70,
                                     height: 15,
@@ -1668,6 +1671,7 @@ class _DashboardState extends State<MobDashboard>
       ),
     );
   }
+*/
 
   Widget displayPump(Pump pump) {
     return Stack(

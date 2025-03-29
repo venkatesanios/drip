@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -36,9 +37,9 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
     overAllPvd = Provider.of<OverAllUse>(context, listen: false);
     _tabController = TabController(length: 5, vsync: this);
 
-     manager.topicToUnSubscribe('FirmwareToApp/${widget.deviceID}');
+    manager.topicToUnSubscribe('FirmwareToApp/${widget.deviceID}');
     manager.topicToSubscribe('OroGemLog/${widget.deviceID}');
-     // mqttConfigureAndConnect();
+    // mqttConfigureAndConnect();
   }
 
   Future<String> getLogFilePath() async {
@@ -61,6 +62,7 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
+    print("log file");
     mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: true);
     status();
     return Scaffold(
@@ -320,8 +322,7 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
 
   status() {
     Map<String, dynamic>? ctrldata = mqttPayloadProvider.messageFromHw;
-    print("status ctrldata---->$ctrldata");
-    if ((ctrldata != null && ctrldata.isNotEmpty)) {
+     if ((ctrldata != null && ctrldata.isNotEmpty)) {
       var name = ctrldata['Name'];
       logString = ctrldata['Name'];
 
@@ -349,16 +350,16 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
         };
         if (MqttService().isConnected == true) {
           await validatePayloadSent(
-              dialogContext: context,
-              context: context,
-              mqttPayloadProvider: mqttPayloadProvider,
-              acknowledgedFunction: () {
-                manager.topicToSubscribe('OroGemLog/${widget.deviceID}');
-              },
-              payload: payLoadFinal,
-              payloadCode: payloadCode,
-              deviceId: widget.deviceID,
-           );
+            dialogContext: context,
+            context: context,
+            mqttPayloadProvider: mqttPayloadProvider,
+            acknowledgedFunction: () {
+              manager.topicToSubscribe('OroGemLog/${widget.deviceID}');
+            },
+            payload: payLoadFinal,
+            payloadCode: payloadCode,
+            deviceId: widget.deviceID,
+          );
         } else {
           GlobalSnackBar.show(context, 'MQTT is Disconnected', 201);
         }
