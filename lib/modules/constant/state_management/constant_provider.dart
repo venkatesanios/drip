@@ -14,6 +14,7 @@ import '../model/constant_setting_type_Model.dart';
 
 class ConstantProvider extends ChangeNotifier{
   Map<String, dynamic> constantDataFromHttp = {};
+  List<dynamic> deviceList = [];
   List<dynamic> configObjectDataFromHttp = [];
   List<ConstantMenuModel> listOfConstantMenuModel = [];
   List<ConstantSettingModel> general = [];
@@ -101,8 +102,8 @@ class ConstantProvider extends ChangeNotifier{
       constantDataFromHttp = constantData['data'];
       configObjectDataFromHttp = configMakerData['data']['configObject'];
       Map<String, dynamic> defaultData = constantDataFromHttp['default'];
+      deviceList = defaultData['nodeList'];
       Map<String, dynamic> constantOldData = constantDataFromHttp['constant'];
-
       // update constant menu
       listOfConstantMenuModel = (defaultData['constantMenu'] as List<dynamic>).map((menu){
         return ConstantMenuModel(
@@ -301,6 +302,7 @@ class ConstantProvider extends ChangeNotifier{
       moistureMode = generatePopUpItemModel(defaultData: defaultData, keyName: 'moistureMode');
       defaultMoistureSetting = generateDefaultSetting(defaultData: defaultData, keyName: 'moistureSensor');
       moisture = generateObjectInConstantModel(listOfObject: listOfMoistureObject, defaultData: defaultData, constantOldData: constantOldData, keyName: 'moistureSensor');
+      notifyListeners();
       if (kDebugMode) {
         print('moisture updated..');
       }
@@ -312,6 +314,16 @@ class ConstantProvider extends ChangeNotifier{
     }
 
     notifyListeners();
+  }
+
+  String getDeviceDetails({required String key, required int controllerId}){
+    String value = '';
+    for(var device in deviceList){
+      if(device['controllerId'] == controllerId){
+        value = device[key];
+      }
+    }
+    return value;
   }
 
 
@@ -360,18 +372,26 @@ class ConstantProvider extends ChangeNotifier{
         }).map((setting){
           return payloadValidate(setting.value.value);
         }),
-        if(ecPhSensor[siteIndex].ecPopup.isNotEmpty)
-          ecPhSensor[siteIndex].setting[0].where((setting){
+        if(ecPhSensor.isNotEmpty && ecPhSensor[siteIndex].ecPopup.isNotEmpty)
+          ...ecPhSensor[siteIndex].setting[0].where((setting){
             return setting.hardware;
           }).map((setting){
             return payloadValidate(setting.value.value);
-          }).join('_'),
-        if(ecPhSensor[siteIndex].phPopup.isNotEmpty)
-          ecPhSensor[siteIndex].setting[ecPhSensor[siteIndex].ecPopup.isEmpty ? 0 : 1].where((setting){
+          })
+        else
+          ...List.generate(defaultEcPhSetting.length, (index){
+            return '';
+          }),
+        if(ecPhSensor.isNotEmpty && ecPhSensor[siteIndex].phPopup.isNotEmpty)
+          ...ecPhSensor[siteIndex].setting[ecPhSensor[siteIndex].ecPopup.isEmpty ? 0 : 1].where((setting){
             return setting.hardware;
           }).map((setting){
             return payloadValidate(setting.value.value);
-          }).join('_'),
+          })
+        else
+          ...List.generate(defaultEcPhSetting.length, (index){
+            return '';
+          }),
       ].join(',');
     }).join(';');
   }
@@ -387,16 +407,16 @@ class ConstantProvider extends ChangeNotifier{
             alarmUniqueSno,
             line.sNo,
             line.normal[alarmIndex].sNo,
-            line.normal[alarmIndex].setting.where((setting){
+            ...line.normal[alarmIndex].setting.where((setting){
               return setting.hardware;
             }).map((setting){
               return payloadValidate(setting.value.value);
-            }).join('_'),
-            line.critical[alarmIndex].setting.where((setting){
+            }),
+            ...line.critical[alarmIndex].setting.where((setting){
               return setting.hardware;
             }).map((setting){
               return payloadValidate(setting.value.value);
-            }).join('_'),
+            }),
 
           ].join(','),
         );

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Constants/constants.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/repository/irrigation_program_repo.dart';
@@ -1880,7 +1881,6 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   }
 
   int waterValueInSec(){
-    print("constantSetting : $constantSetting");
     int sec = 0;
     if(sequenceData[selectedGroup]['method'] == 'Time'){
       var splitTime = sequenceData[selectedGroup]['timeValue'].split(':');
@@ -1888,18 +1888,14 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     }else{
       var nominalFlowRate = [];
       var sno = [];
-      for(var val in sequenceData[selectedGroup]['valve']){
-        for(var i = 0;i < constantSetting['valve'].length;i++){
-          for(var j = 0;j < constantSetting['valve'][i]['valve'].length;j++){
-            if(!sno.contains(constantSetting['valve'][i]['valve'][j]['sNo'])){
-              if('${val['sNo']}' == '${constantSetting['valve'][i]['valve'][j]['sNo']}'){
-                if(constantSetting['valve'][i]['valve'][j]['nominalFlow'] != ''){
-                  sno.add(constantSetting['valve'][i]['valve'][j]['sNo']);
-                  nominalFlowRate.add(constantSetting['valve'][i]['valve'][j]['nominalFlow']);
-                }
-              }
-            }
-
+      for(var valInSeq in sequenceData[selectedGroup]['valve']){
+        for(var valveInConstant in constantSetting['valve']){
+          if (kDebugMode) {
+            print('seq val sNo : ${valInSeq['sNo']} - ${valInSeq['sNo'].runtimeType}');
+          }
+          if(!sno.contains(valveInConstant['sNo']) && valveInConstant['sNo'] == valInSeq['sNo']){
+            sno.add(valveInConstant['sNo']);
+            nominalFlowRate.add(valveInConstant['setting'][0]['value'].toString());
           }
         }
 
@@ -1927,11 +1923,10 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       sec = (int.parse(splitTime[0]) * 3600 + int.parse(splitTime[1]) * 60 + int.parse(splitTime[2]));
     }else{
       var nominalFlowRate = 0;
-      for(var site in constantSetting['fertilization']){
-        for(var fert in site['channel']){
-          if(fert['sNo'] == fertilizerData['sNo']){
-            nominalFlowRate = fert['nominalFlow'] == '' ? 0 : int.parse(fert['nominalFlow']);
-          }
+      for(var channel in constantSetting['fertilizerChannel']){
+        if(channel['sNo'] == fertilizerData['sNo']){
+          var channelFlowRate = channel['setting'][0]['value'].toString();
+          nominalFlowRate = channelFlowRate == '' ? 0 : int.parse(channelFlowRate);
         }
       }
       var fertilizerFlowRate = nominalFlowRate * 0.00027778;
@@ -1952,17 +1947,14 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     }else{
       var nominalFlowRate = [];
       var sno = [];
-      for(var val in sequenceData[selectedGroup]['valve']){
-        for(var i = 0;i < constantSetting['valve'].length;i++){
-          for(var j = 0;j < constantSetting['valve'][i]['valve'].length;j++){
-            if(!sno.contains(constantSetting['valve'][i]['valve'][j]['sNo'])){
-              if('${val['sNo']}' == '${constantSetting['valve'][i]['valve'][j]['sNo']}'){
-                if(constantSetting['valve'][i]['valve'][j]['nominalFlow'] != ''){
-                  sno.add(constantSetting['valve'][i]['valve'][j]['sNo']);
-                  nominalFlowRate.add(constantSetting['valve'][i]['valve'][j]['nominalFlow']);
-                }
-              }
-            }
+      for(var valInSeq in sequenceData[selectedGroup]['valve']){
+        for(var valveInConstant in constantSetting['valve']){
+          if (kDebugMode) {
+            print('seq val sNo : ${valInSeq['sNo']} - ${valInSeq['sNo'].runtimeType}');
+          }
+          if(!sno.contains(valveInConstant['sNo']) && valveInConstant['sNo'] == valInSeq['sNo']){
+            sno.add(valveInConstant['sNo']);
+            nominalFlowRate.add(valveInConstant['setting'][0]['value'].toString());
           }
         }
       }
@@ -1990,20 +1982,16 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     }else{
       var nominalFlowRate = [];
       var sno = [];
-      for(var val in sequenceData[selectedGroup]['valve']){
-        for(var i = 0;i < constantSetting['valve'].length;i++){
-          for(var j = 0;j < constantSetting['valve'][i]['valve'].length;j++){
-            if(!sno.contains(constantSetting['valve'][i]['valve'][j]['sNo'])){
-              if('${val['sNo']}' == '${constantSetting['valve'][i]['valve'][j]['sNo']}'){
-                if(constantSetting['valve'][i]['valve'][j]['nominalFlow'] != ''){
-                  sno.add(constantSetting['valve'][i]['valve'][j]['sNo']);
-                  nominalFlowRate.add(constantSetting['valve'][i]['valve'][j]['nominalFlow']);
-                }
-              }
-            }
+      for(var valInSeq in sequenceData[selectedGroup]['valve']){
+        for(var valveInConstant in constantSetting['valve']){
+          if (kDebugMode) {
+            print('seq val sNo : ${valInSeq['sNo']} - ${valInSeq['sNo'].runtimeType}');
+          }
+          if(!sno.contains(valveInConstant['sNo']) && valveInConstant['sNo'] == valInSeq['sNo']){
+            sno.add(valveInConstant['sNo']);
+            nominalFlowRate.add(valveInConstant['setting'][0]['value'].toString());
           }
         }
-
       }
       var totalFlowRate = 0;
       for(var flwRate in nominalFlowRate){
@@ -2022,18 +2010,14 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   double flowRate(){
     var nominalFlowRate = [];
     var sno = [];
-    for(var val in sequenceData[selectedGroup]['valve']){
-      // // print('valve >>> ${val['sNo']}');
-      for(var i = 0;i < constantSetting['valve'].length;i++){
-        for(var j = 0;j < constantSetting['valve'][i]['valve'].length;j++){
-          if(!sno.contains(constantSetting['valve'][i]['valve'][j]['sNo'])){
-            if('${val['sNo']}' == '${constantSetting['valve'][i]['valve'][j]['sNo']}'){
-              if(constantSetting['valve'][i]['valve'][j]['nominalFlow'] != ''){
-                sno.add(constantSetting['valve'][i]['valve'][j]['sNo']);
-                nominalFlowRate.add(constantSetting['valve'][i]['valve'][j]['nominalFlow']);
-              }
-            }
-          }
+    for(var valInSeq in sequenceData[selectedGroup]['valve']){
+      for(var valveInConstant in constantSetting['valve']){
+        if (kDebugMode) {
+          print('seq val sNo : ${valInSeq['sNo']} - ${valInSeq['sNo'].runtimeType}');
+        }
+        if(!sno.contains(valveInConstant['sNo']) && valveInConstant['sNo'] == valInSeq['sNo']){
+          sno.add(valveInConstant['sNo']);
+          nominalFlowRate.add(valveInConstant['setting'][0]['value'].toString());
         }
       }
 
@@ -2051,21 +2035,16 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   int getNominalFlow(){
     var nominalFlowRate = [];
     var sno = [];
-    for(var val in sequenceData[selectedGroup]['valve']){
-      // // print('valve >>> ${val['sNo']}');
-      for(var i = 0;i < constantSetting['valve'].length;i++){
-        for(var j = 0;j < constantSetting['valve'][i]['valve'].length;j++){
-          if(!sno.contains(constantSetting['valve'][i]['valve'][j]['sNo'])){
-            if('${val['sNo']}' == '${constantSetting['valve'][i]['valve'][j]['sNo']}'){
-              if(constantSetting['valve'][i]['valve'][j]['nominalFlow'] != ''){
-                sno.add(constantSetting['valve'][i]['valve'][j]['sNo']);
-                nominalFlowRate.add(constantSetting['valve'][i]['valve'][j]['nominalFlow']);
-              }
-            }
-          }
+    for(var valInSeq in sequenceData[selectedGroup]['valve']){
+      for(var valveInConstant in constantSetting['valve']){
+        if (kDebugMode) {
+          print('seq val sNo : ${valInSeq['sNo']} - ${valInSeq['sNo'].runtimeType}');
+        }
+        if(!sno.contains(valveInConstant['sNo']) && valveInConstant['sNo'] == valInSeq['sNo']){
+          sno.add(valveInConstant['sNo']);
+          nominalFlowRate.add(valveInConstant['setting'][0]['value'].toString());
         }
       }
-
     }
     var totalFlowRate = 0;
     // // print('nominalFlowRate : ${nominalFlowRate}');
@@ -2079,11 +2058,10 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   double fertilizerFlowRate(){
     var nominalFlowRate = [];
     for(var channel in sequenceData[selectedGroup][segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['fertilizer']){
-      for(var site in constantSetting['fertilization']){
-        for(var fert in site['channel']){
-          if(fert['sNo'] == channel['sNo']){
-            nominalFlowRate.add(fert['nominalFlow'] == '' ? 0 : int.parse(fert['nominalFlow']));
-          }
+      for(var channelInConstant in constantSetting['fertilizerChannel']){
+        if(channelInConstant['sNo'] == channel['sNo']){
+          var channelFlowRate = channelInConstant['setting'][0]['value'].toString();
+          nominalFlowRate.add(channelFlowRate == '' ? 0 : int.parse(channelFlowRate));
         }
       }
     }
@@ -2194,11 +2172,10 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
 
   double getFlowRate(){
     var nominalFlowRate = 0;
-    for(var site in constantSetting['fertilization']){
-      for(var fert in site['channel']){
-        if(fert['sNo'] == sequenceData[selectedGroup][segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['fertilizer'][selectedInjector]['sNo']){
-          nominalFlowRate = fert['nominalFlow'] == '' ? 0 : int.parse(fert['nominalFlow']);
-        }
+    for(var channelInConstant in constantSetting['fertilizerChannel']){
+      if(channelInConstant['sNo'] == sequenceData[selectedGroup][segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['fertilizer'][selectedInjector]['sNo']){
+        var channelFlowRate = channelInConstant['setting'][0]['value'].toString();
+        nominalFlowRate = channelFlowRate == '' ? 0 : int.parse(channelFlowRate);
       }
     }
     return nominalFlowRate * 0.0002778;
@@ -2324,15 +2301,13 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     pumpStationFlowRate = [];
 
     for (var index = 0; index < irrigationLine!.sequence.length; index++) {
-      print("constantSetting :: ${constantSetting['valve']}");
       for (var val in irrigationLine!.sequence[index]['valve']) {
         if(constantSetting['valve'] != null) {
-          for (var i = 0; i < constantSetting['valve'].length; i++) {
-            for (var j = 0; j < constantSetting['valve'][i]['valve'].length; j++) {
-              if ('${val['sNo']}' == '${constantSetting['valve'][i]['valve'][j]['sNo']}') {
-                if (constantSetting['valve'][i]['valve'][j]['nominalFlow'] != '') {
-                  valveFlowRate.add(constantSetting['valve'][i]['valve'][j]['nominalFlow']);
-                }
+          for(var valveInConstant in constantSetting['valve']){
+            if(val['sNo'] == valveInConstant['sNo']){
+              var valveFlowRateInConstant = valveInConstant['setting'][0]['value'].toString();
+              if(valveFlowRateInConstant.isNotEmpty){
+                valveFlowRate.add(valveFlowRateInConstant);
               }
             }
           }
@@ -2340,7 +2315,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       }
     }
 
-    if (constantSetting['pump'] != null && constantSetting['pump'].any((element) => element['pumpStation'] == true)) {
+    if (constantSetting['pump'] != null && constantSetting['pump'].any((element) => element['setting'][0]['value'] == true)) {
       pumpStationCanEnable = true;
     }
 

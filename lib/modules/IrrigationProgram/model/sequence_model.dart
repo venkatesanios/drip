@@ -645,15 +645,12 @@ class ChartData {
         var nominalFlowRate = <String>[];
         var sno = <String>[];
         for (var val in valves) {
-          for (var i = 0; i < constantSetting['valve'].length; i++) {
-            for (var j = 0; j < constantSetting['valve'][i]['valve'].length; j++) {
-              if (!sno.contains(constantSetting['valve'][i]['valve'][j]['sNo'])) {
-                if ('${val['sNo']}' == '${constantSetting['valve'][i]['valve'][j]['sNo']}') {
-                  if (constantSetting['valve'][i]['valve'][j]['nominalFlow'] != '') {
-                    sno.add(constantSetting['valve'][i]['valve'][j]['sNo'].toString());
-                    nominalFlowRate.add(constantSetting['valve'][i]['valve'][j]['nominalFlow']);
-                  }
-                }
+          for(var valveInConstant in constantSetting['valve']){
+            if(!sno.contains(valveInConstant['sNo']) && valveInConstant['sNo'] == val['sNo']){
+              sno.add(valveInConstant['sNo'].toString());
+              var valveFlowRate = valveInConstant['setting'][0]['value'].toString();
+              if(valveFlowRate.isNotEmpty){
+                nominalFlowRate.add(valveFlowRate);
               }
             }
           }
@@ -671,13 +668,12 @@ class ChartData {
         var sno = <String>[];
         for (var val in valves) {
           for (var i = 0; i < constantSetting['valve'].length; i++) {
-            for (var j = 0; j < constantSetting['valve'][i]['valve'].length; j++) {
-              if (!sno.contains(constantSetting['valve'][i]['valve'][j]['sNo'])) {
-                if ('${val['sNo']}' == '${constantSetting['valve'][i]['valve'][j]['sNo']}') {
-                  if (constantSetting['valve'][i]['valve'][j]['nominalFlow'] != '') {
-                    sno.add(constantSetting['valve'][i]['valve'][j]['sNo'].toString());
-                    nominalFlowRate.add(constantSetting['valve'][i]['valve'][j]['nominalFlow']);
-                  }
+            for(var valveInConstant in constantSetting['valve']){
+              if(!sno.contains(valveInConstant['sNo']) && valveInConstant['sNo'] == val['sNo']){
+                sno.add(valveInConstant['sNo'].toString());
+                var valveFlowRate = valveInConstant['setting'][0]['value'].toString();
+                if(valveFlowRate.isNotEmpty){
+                  nominalFlowRate.add(valveFlowRate);
                 }
               }
             }
@@ -724,13 +720,12 @@ class ChartData {
     var sno = <String>[];
     for (var val in valves) {
       for (var i = 0; i < constantSetting['valve'].length; i++) {
-        for (var j = 0; j < constantSetting['valve'][i]['valve'].length; j++) {
-          if (!sno.contains(constantSetting['valve'][i]['valve'][j]['sNo'])) {
-            if ('${val['sNo']}' == '${constantSetting['valve'][i]['valve'][j]['sNo']}') {
-              if (constantSetting['valve'][i]['valve'][j]['nominalFlow'] != '') {
-                sno.add(constantSetting['valve'][i]['valve'][j]['sNo'].toString());
-                nominalFlowRate.add(constantSetting['valve'][i]['valve'][j]['nominalFlow']);
-              }
+        for(var valveInConstant in constantSetting['valve']){
+          if(!sno.contains(valveInConstant['sNo']) && valveInConstant['sNo'] == val['sNo']){
+            sno.add(valveInConstant['sNo'].toString());
+            var valveFlowRate = valveInConstant['setting'][0]['value'].toString();
+            if(valveFlowRate.isNotEmpty){
+              nominalFlowRate.add(valveFlowRate);
             }
           }
         }

@@ -9,6 +9,7 @@ import 'package:oro_drip_irrigation/modules/constant/widget/find_suitable_widget
 import 'package:oro_drip_irrigation/modules/irrigation_report/model/general_parameter_model.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 
+import '../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../StateManagement/overall_use.dart';
 import '../../../Widgets/HoursMinutesSeconds.dart';
 import '../../../Widgets/custom_buttons.dart';
@@ -34,6 +35,14 @@ class _GlobalAlarmInConstantState extends State<GlobalAlarmInConstant> {
   ValueNotifier<int> hoveredSno = ValueNotifier<int>(0);
   HardwareAcknowledgementSate payloadState = HardwareAcknowledgementSate.notSent;
   MqttService mqttService = MqttService();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    mqttService.initializeMQTTClient(state: null);
+    mqttService.connect();
+  }
 
   @override
   Widget build(BuildContext context) {

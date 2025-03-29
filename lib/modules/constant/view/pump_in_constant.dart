@@ -33,7 +33,7 @@ class _PumpInConstantState extends State<PumpInConstant> {
         minWidth: minWidth,
         fixedLeftColumns: minWidth < screenWidth ? 0 : 1,
         columns: [
-          ...['Pump', 'Location'].map((title) {
+          ...['Pump', 'Location', 'Device', 'Relay No'].map((title) {
             return DataColumn2(
               headingRowAlignment: MainAxisAlignment.center,
                 fixedWidth: cellWidth,
@@ -60,6 +60,23 @@ class _PumpInConstantState extends State<PumpInConstant> {
                 ),
                 DataCell(
                     Center(child: Text(widget.constPvd.getName(pump.location),textAlign: TextAlign.center, softWrap: true))
+                ),
+                DataCell(
+                    Center(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text(widget.constPvd.getDeviceDetails(key: 'deviceName', controllerId: pump.controllerId!),textAlign: TextAlign.center, softWrap: true, style: TextStyle(color: Theme.of(context).primaryColorLight),),
+                          Text(widget.constPvd.getDeviceDetails(key: 'deviceId', controllerId: pump.controllerId!), style: TextStyle(fontWeight: FontWeight.w100, color: Colors.grey.shade700) ),
+                        ],
+                      ),
+                    )
+                ),
+                DataCell(
+                    Center(
+                      child: Text('${pump.connectionNo}',textAlign: TextAlign.center, softWrap: true, ),
+                    )
                 ),
                 ...pump.setting.map((setting) {
                   return DataCell(

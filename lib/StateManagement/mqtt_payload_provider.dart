@@ -52,7 +52,8 @@ class MqttPayloadProvider with ChangeNotifier {
   List<dynamic> filtersLocal = [];
   List<dynamic> irrigationPump = [];
   List<dynamic> sourcePump = [];
-   List<dynamic> fertilizerCentral = [];
+  List<dynamic> sourcetype = [];
+  List<dynamic> fertilizerCentral = [];
   List<dynamic> fertilizerLocal = [];
   List<dynamic> flowMeter = [];
   List<dynamic> alarmList = [];
@@ -407,9 +408,9 @@ class MqttPayloadProvider with ChangeNotifier {
     selectedSite = 0;
     selectedMaster = 0;
     upcomingProgram = [];
-     irrigationPump = [];
+    irrigationPump = [];
     sourcePump = [];
-     flowMeter = [];
+    flowMeter = [];
     alarmList = [];
     waterMeter = [];
     sensorInLines = [];
@@ -474,7 +475,7 @@ class MqttPayloadProvider with ChangeNotifier {
     try {
       // Todo : Dashboard payload start
       Map<String, dynamic> data = jsonDecode(payload);
-print("data$data");
+
       //live payload
       if(data['mC']=='2400'){
         print(data['cM']);
@@ -507,9 +508,9 @@ print("data$data");
       }
       // Check if 'mC' is 4200
       if (data['mC'] != null && data['cM'].containsKey('4201')) {
-         messageFromHw = data['cM']['4201'];
+        messageFromHw = data['cM']['4201'];
 
-       }
+      }
 
 
       /* if(data['liveSyncDate'] != null){
