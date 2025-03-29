@@ -61,6 +61,7 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
+    print("log file");
     mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: true);
     status();
     return Scaffold(

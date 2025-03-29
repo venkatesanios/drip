@@ -205,7 +205,8 @@ print('resetversion $jsondata');
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => ControllerLog(
-                                      deviceID: mergedList[index]['deviceId']!),
+                                      deviceID: '${mergedList[index]['deviceId'
+                                      ]!}'),
                                 ),
                               );
                             });
@@ -373,6 +374,7 @@ print('resetversion $jsondata');
   }
 
   status() {
+    print("status");
     if (selectindex != null) {
       Map<String, dynamic>? ctrldata = mqttPayloadProvider.messageFromHw;
       print("ctrldata------------>$ctrldata");
