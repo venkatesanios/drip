@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../Models/customer/site_model.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
+import '../../repository/repository.dart';
+import '../../services/http_service.dart';
 import '../../services/mqtt_service.dart';
 import '../../utils/constants.dart';
 
@@ -176,34 +178,45 @@ class NodeListViewModel extends ChangeNotifier {
     return true;
   }
 
-  void setSerialToAllNodes(deviceId){
+  void setSerialToAllNodes(deviceId, int customerId, int controllerId, int userId){
     Future.delayed(const Duration(milliseconds: 1000), () {
       String payLoadFinal = jsonEncode({
         "2300": {"2301": ""}
       });
       MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-      //sentToServer('Set serial for all nodes comment sent successfully', payLoadFinal);
+      sentToServer('Set serial for all nodes comment sent successfully', payLoadFinal, customerId, controllerId, userId );
     });
   }
 
-  void testCommunication(deviceId){
+  void testCommunication(deviceId, int customerId, int controllerId, int userId){
     Future.delayed(const Duration(milliseconds: 1000), () {
       String payLoadFinal = jsonEncode({
         "4500": {"4501": ""}
       });
       MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-      //sentToServer('Test Communication comment sent successfully', payLoadFinal);
+      sentToServer('Test Communication comment sent successfully', payLoadFinal, customerId, controllerId, userId);
     });
   }
 
-  void actionSerialSet(int index, deviceId){
+  void actionSerialSet(int index, deviceId, int customerId, int controllerId, int userId){
     Future.delayed(const Duration(milliseconds: 1000), () {
       String payLoadFinal = jsonEncode({
         "2300": {"2301": "${nodeList[index].serialNumber}"}
       });
       MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-      //sentToServer('Serial set for the ${nodeList[index].deviceName} all Relay', payLoadFinal);
+      sentToServer('Serial set for the ${nodeList[index].deviceName} all Relay', payLoadFinal, customerId, controllerId, userId);
     });
+  }
+
+  void sentToServer(String msg, String data, int customerId, int controllerId, int userId) async
+  {
+    Map<String, Object> body = {"userId": customerId, "controllerId": controllerId, "messageStatus": msg, "hardware": jsonDecode(data), "createUser": userId};
+    final response = await Repository(HttpService()).createUserSentAndReceivedMessageManually(body);
+    if (response.statusCode == 200) {
+      print(response.body);
+    } else {
+      throw Exception('Failed to load data');
+    }
   }
 
 }

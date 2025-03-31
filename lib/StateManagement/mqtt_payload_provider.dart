@@ -85,6 +85,7 @@ class MqttPayloadProvider with ChangeNotifier {
 
   //kamaraj
   int powerSupply = 0;
+  bool liveSync = false;
   Duration lastCommunication = Duration.zero;
   int wifiStrength = 0;
   String liveDateAndTime = '';
@@ -483,6 +484,7 @@ class MqttPayloadProvider with ChangeNotifier {
       //live payload
       if(data['mC']=='2400'){
         print(data['cM']);
+        liveSyncCall(false);
         liveDateAndTime = '${data['cD']} ${data['cT']}';
         updateLastCommunication(liveDateAndTime);
         wifiStrength = data['cM']['WifiStrength'];
@@ -503,227 +505,6 @@ class MqttPayloadProvider with ChangeNotifier {
       else if(data.containsKey('5100') && data['5100'] != null && data['5100'].isNotEmpty){
         weatherModelinstance = WeatherModel.fromJson(data);
       }
-      /* if(data['liveSyncDate'] != null){
-        String dateStr = data['liveSyncDate'];
-        String timeStr = data['liveSyncTime'];
-        // Parse date string
-        List<String> dateParts = dateStr.split("-");
-        int year = int.parse(dateParts[0]);
-        int month = int.parse(dateParts[1]);
-        int day = int.parse(dateParts[2]);
-
-        // Parse time string
-        List<String> timeParts = timeStr.split(":");
-        int hour = int.parse(timeParts[0]);
-        int minute = int.parse(timeParts[1]);
-        int second = int.parse(timeParts[2]);
-        lastUpdate = DateTime(year, month, day, hour, minute, second);
-      }
-      else if(data.containsKey('2400') && data['2400'].isNotEmpty){
-        if(data['2400'][0].containsKey('SentTime') && data['2400'][0]['SentTime'].isNotEmpty){
-          lastUpdate = DateTime.parse(data['2400'][0]['SentTime']);
-        }
-      }
-      if(data.containsKey('4200')){
-        //conformation message form gem or gem+ to every customer action
-        messageFromHw = data['4200'][0]['4201'];
-      }
-      if(data.containsKey('cM')){
-        messageFromHw = data;
-      }
-      if(data.containsKey('6600')){
-        if(data['6600'].containsKey('6601')){
-          if(!sheduleLog.contains(data['6600']['6601'])) {
-            sheduleLog += "\n";
-            sheduleLog += data['6600']['6601'];
-          }
-        }
-        if(data['6600'].containsKey('6602')){
-          if(!uardLog.contains(data['6600']['6602'])){
-            uardLog += "\n";
-            uardLog += data['6600']['6602'];
-          }
-        }
-        if(data['6600'].containsKey('6603')){
-          if(!uard0Log.contains(data['6600']['6603'])){
-            uard0Log += "\n";
-            uard0Log += data['6600']['6603'];
-          }
-        }
-        if(data['6600'].containsKey('6604')){
-          if(!uard4Log.contains(data['6600']['6604'])){
-            uard4Log += "\n";
-            uard4Log += data['6600']['6604'];
-          }
-        }
-      }
-      if (data.containsKey('2400') && data['2400'] != null && data['2400'].isNotEmpty) {
-        dashBoardPayload = payload;
-        if (data['2400'][0].containsKey('2401')) {
-          nodeDetails = data['2400'][0]['2401'];
-          for(var node in nodeDetails){
-            if(dataFromHttp){
-              for(var obj in node['RlyStatus']){
-                obj['Status'] = 0;
-              }
-            }
-          }
-        }
-        if(dataFromHttp){
-          if(data.containsKey('userPermission')){
-            userPermission = data['userPermission'];
-          }
-          if(data.containsKey('units')){
-            units = data['units'];
-          }
-        }
-        if(dataFromHttp == false){
-          /*if (data['2400'][0].containsKey('2402')) {
-            currentSchedule = data['2400'][0]['2402'];
-            if(currentSchedule.length == 0){
-              active = 1;
-            }
-            selectedCurrentSchedule = 0;
-            if(currentSchedule.isNotEmpty && currentSchedule[0].containsKey('PrsIn')){
-              PrsIn = currentSchedule[0]['PrsIn'];
-              PrsOut = currentSchedule[0]['PrsOut'];
-            }
-          }*/
-          if (data['2400'][0].containsKey('2403')) {
-            nextSchedule = data['2400'][0]['2403'];
-            selectedNextSchedule = 0;
-            // // print('nextSchedule : $nextSchedule');
-          }
-        }
-        if (data['2400'][0].containsKey('2404')) {
-          upcomingProgram = data['2400'][0]['2404'];
-          if(dataFromHttp){
-            for(var program in upcomingProgram){
-              program['ProgOnOff'] = 0;
-              program['ProgPauseResume'] = 1;
-            }
-          }
-          selectedProgram = 0;
-          // // print('upcomingProgram : $upcomingProgram');
-        }
-        if (data['2400'][0].containsKey('2405')) {
-          List<dynamic> filtersJson = data['2400'][0]['2405'];
-          filtersCentral = [];
-          filtersLocal = [];
-
-          for (var filter in filtersJson) {
-            if (filter['Type'] == 1) {
-              filtersCentral.add(filter);
-            } else if (filter['Type'] == 2) {
-              filtersLocal.add(filter);
-            }
-          }
-        }
-
-        if (data['2400'][0].containsKey('2406')) {
-          List<dynamic> fertilizerJson = data['2400'][0]['2406'];
-          fertilizerCentral = [];
-          fertilizerLocal = [];
-
-          for (var fertilizer in fertilizerJson) {
-            if (fertilizer['Type'] == 1) {
-              for(var channel in fertilizer['Fertilizer']){
-                channel['proportionalStatus'] = channel['Status'];
-              }
-              fertilizerCentral.add(fertilizer);
-            } else if (fertilizer['Type'] == 2) {
-              for(var channel in fertilizer['Fertilizer']){
-                channel['proportionalStatus'] = channel['Status'];
-              }
-              fertilizerLocal.add(fertilizer);
-            }
-          }
-        }
-
-        if (data['2400'][0].containsKey('2407')) {
-          List<dynamic> items = data['2400'][0]['2407'];
-          irrigationPump = items.where((item) => item['Type'] == 2).toList();
-          irrigationPump.sort((a,b) => a['S_No'].compareTo(b['S_No']));
-          if(dataFromHttp){
-            for(var pump in irrigationPump){
-              pump['Status'] = 0;
-              pump['Program'] = '';
-            }
-          }
-          sourcePump = items.where((item) => item['Type'] == 1).toList();
-          if(dataFromHttp){
-            for(var pump in sourcePump){
-              pump['Status'] = 0;
-            }
-          }
-          sourcePump.sort((a,b) => a['S_No'].compareTo(b['S_No']));
-        }
-
-        if (data['2400'][0].containsKey('2409')) {
-          alarmList = data['2400'][0]['2409'];
-          // // print('alarmList ==> $alarmList');
-        }
-
-        if (data['2400'][0].containsKey('Version')) {
-          version = data['2400'][0]['Version'];
-        }
-
-        if (data['2400'][0].containsKey('PowerSupply')) {
-          powerSupply = data['2400'][0]['PowerSupply'];
-        }
-        if (data['2400'][0].containsKey('2410')) {
-          waterMeter = data['2400'][0]['2410'];
-        }
-        // Todo : Dashboard pauload stop
-
-        // if (data['2400'][0].containsKey('2401')) {
-        //   final rawData = data['2400'][0]['2401'] as List;
-        //   // print("rawData ==> $rawData");
-        //
-        //   if (dataFromHttp) {
-        //     nodeData = rawData.map((item) => NodeModel.fromJson(item)).toList();
-        //   } else {
-        //     nodeData = nodeData.map((node) {
-        //       var updatedData = rawData.firstWhere(
-        //               (item) {
-        //             return item['SNo'] == node.serialNumber;
-        //           },
-        //           orElse: () => {
-        //             'Status': node.status,
-        //             'RlyStatus': node.rlyStatus.map((r) => r.toJson()).toList()
-        //           }
-        //       );
-        //       var updatedStatus = updatedData['Status'];
-        //       var rawRlyStatus = updatedData['RlyStatus'] as List;
-        //       List<RelayStatus> updatedRlyStatus = rawRlyStatus.map((r) => RelayStatus.fromJson(r)).toList();
-        //       return node.updateStatusAndRlyStatus(updatedStatus, updatedRlyStatus);
-        //     }).toList();
-        //   }
-        // }
-      }
-      else if(data.containsKey('3600') && data['3600'] != null && data['3600'].isNotEmpty){
-        // mySchedule.dataFromMqttConversion(payload);
-        schedulePayload = payload;
-      }
-      else if(data['mC'] != null && data['mC'].contains("SMS")) {
-        preferencePayload = data;
-      }
-      else if(data['mC'] != null && data['mC'].contains("LD01")) {
-        // pumpControllerData = PumpControllerData.fromJson(data, "cM");
-        if(dataFetchingStatus == 1) {
-          lastUpdate = DateTime.parse("${data['cD']} ${data['cT']}");
-        }
-        // print("pumpControllerData data from provider ==> ${pumpControllerData}");
-      }
-      else if(data['mC'] != null && data["mC"].contains("VIEW")) {
-        if (!viewSettingsList.contains(jsonEncode(data['cM']))) {
-          viewSettingsList.add(jsonEncode(data["cM"]));
-          // print("viewSettingsList ==> $viewSettingsList");
-        }
-      }
-      else if(data.containsKey('5100') && data['5100'] != null && data['5100'].isNotEmpty){
-        // weatherModelinstance = WeatherModel.fromJson(data);
-      }*/
     } catch (e, stackTrace) {
       print('Error parsing JSON: $e');
       print('Stacktrace while parsing json : $stackTrace');
@@ -821,6 +602,11 @@ class MqttPayloadProvider with ChangeNotifier {
       //   _timerForPumpController!.cancel();
       // }
     });
+  }
+
+  void liveSyncCall(ls){
+    liveSync = ls;
+    notifyListeners();
   }
 
   void updateNodeLiveMessage(List<String> message) {

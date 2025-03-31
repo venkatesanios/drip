@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/views/mobile/mobile_screen_controller.dart';
 import 'package:provider/provider.dart';
 import '../view_models/screen_controller_view_model.dart';
 import 'admin_dealer/admin_screen_controller.dart';
@@ -47,14 +49,21 @@ class ScreenController extends StatelessWidget {
           emailId: emailId,
         );
       default:
-        // return  GroupListScreen(userId: 4, controllerId: 1, deviceId: '',) ;
-         return CustomerScreenController(userId: userId,
+         return kIsWeb?
+         CustomerScreenController(userId: userId,
           customerName: userName,
           mobileNo: mobileNo,
           emailId: emailId,
           customerId: userId,
           fromLogin: true,
-        ) ;
+        ):
+         MobileScreenController(userId: userId,
+             customerName: userName,
+             mobileNo: mobileNo,
+             emailId: emailId,
+             customerId: userId,
+             fromLogin: true
+         );
     }
   }
 }

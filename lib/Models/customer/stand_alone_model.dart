@@ -6,7 +6,7 @@ class StandAloneModel
   String time, flow;
   int method;
   final List<Selection> selection;
-  final List<Sequence> sequence;
+  final List<SequenceModel> sequence;
 
   StandAloneModel({
     required this.startTogether,
@@ -27,7 +27,7 @@ class StandAloneModel
           ?.map((e) => Selection.fromJson(e as Map<String, dynamic>))
           .toList() ?? [],
       sequence: (json['sequence'] as List<dynamic>?)
-          ?.map((e) => Sequence.fromMap(e as Map<String, dynamic>))
+          ?.map((e) => SequenceModel.fromMap(e as Map<String, dynamic>))
           .toList() ?? [],
     );
   }
@@ -50,7 +50,7 @@ class Selection {
   }
 }
 
-class Sequence {
+class SequenceModel {
   String sNo;
   String id;
   String name;
@@ -61,7 +61,7 @@ class Sequence {
   List<Valve> valve;
   List<dynamic> mainValve;
 
-  Sequence({
+  SequenceModel({
     required this.sNo,
     required this.id,
     required this.name,
@@ -73,7 +73,7 @@ class Sequence {
     required this.mainValve,
   });
 
-  factory Sequence.fromMap(Map<String, dynamic> json) => Sequence(
+  factory SequenceModel.fromMap(Map<String, dynamic> json) => SequenceModel(
     sNo: json["sNo"],
     id: json["id"],
     name: json["name"],

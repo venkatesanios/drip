@@ -159,7 +159,7 @@ class NodeList extends StatelessWidget {
                                               color: Theme.of(context).primaryColor,
                                               textColor: Colors.white,
                                               onPressed: () {
-                                                vm.setSerialToAllNodes(deviceId);
+                                                vm.setSerialToAllNodes(deviceId, customerId, controllerId, userId);
                                                 GlobalSnackBar.show(context, 'Sent your comment successfully', 200);
                                                 Navigator.of(context).pop();
                                               },
@@ -178,7 +178,7 @@ class NodeList extends StatelessWidget {
                                   tooltip: 'Test Communication',
                                   icon: Icon(Icons.network_check, color: vm.getPermissionStatusBySNo(context, 8)? Theme.of(context).primaryColorDark:Colors.black26),
                                   onPressed: vm.getPermissionStatusBySNo(context, 8)? () async {
-                                    vm.testCommunication(deviceId);
+                                    vm.testCommunication(deviceId, customerId, controllerId, userId);
                                     GlobalSnackBar.show(context, 'Sent your comment successfully', 200);
                                   }:null,
                                 ),
@@ -344,7 +344,7 @@ class NodeList extends StatelessWidget {
                                                 IconButton(
                                                   tooltip: 'Serial set',
                                                   onPressed: vm.getPermissionStatusBySNo(context, 7) ? () {
-                                                    vm.actionSerialSet(index, deviceId);
+                                                    vm.actionSerialSet(index, deviceId, customerId, controllerId, userId);
                                                     GlobalSnackBar.show(context, 'Your comment sent successfully', 200);
                                                   }:null,
                                                   icon: Icon(Icons.fact_check_outlined, color: vm.getPermissionStatusBySNo(context, 7) ?

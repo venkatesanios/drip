@@ -387,8 +387,7 @@ class ControllerSettings extends StatelessWidget {
                                           ),
                                         );
                                       },
-                                    )
-                                        : const Center(
+                                    ) : const Center(
                                         child: Text(
                                             'No Sub user available for this controller')),
                                   ),

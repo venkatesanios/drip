@@ -264,28 +264,20 @@ class ConditionLibrary extends StatelessWidget {
                                                 :
                                             'Select more than one conditions',
                                             onSelected: (String selectedValue) {
-                                              vm.componentOnChange(
-                                                  selectedValue, index);
+                                              vm.componentOnChange(selectedValue, index);
                                             },
-                                            itemBuilder: (
-                                                BuildContext context) {
+                                            itemBuilder: (BuildContext context) {
                                               return vm.conditionLibraryData
                                                   .conditionLibrary
-                                                  .condition[index].type ==
-                                                  'Sensor' ?
-                                              vm.conditionLibraryData
-                                                  .defaultData.sensors.map<
-                                                  PopupMenuEntry<String>>((
-                                                  sensor) {
+                                                  .condition[index].type == 'Sensor' ?
+                                              vm.conditionLibraryData.defaultData.sensors.map<PopupMenuEntry<String>>((sensor) {
                                                 return PopupMenuItem<String>(
                                                   value: sensor.name,
                                                   height: 35,
                                                   child: Text(sensor.name),
                                                 );
                                               }).toList() :
-                                              vm.conditionLibraryData
-                                                  .defaultData.program.map<
-                                                  PopupMenuEntry<String>>((
+                                              vm.conditionLibraryData.defaultData.program.map<PopupMenuEntry<String>>((
                                                   program) {
                                                 return PopupMenuItem<String>(
                                                   value: program.name,

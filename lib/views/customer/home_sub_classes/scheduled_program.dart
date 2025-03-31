@@ -7,13 +7,15 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../Models/customer/site_model.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
+import '../../../repository/repository.dart';
+import '../../../services/http_service.dart';
 import '../../../services/mqtt_service.dart';
 import '../../../utils/constants.dart';
 import '../../../utils/snack_bar.dart';
 
 class ScheduledProgram extends StatelessWidget {
-  const ScheduledProgram({super.key, required this.userId, required this.scheduledPrograms, required this.masterInx, required this.deviceId});
-  final int userId, masterInx;
+  const ScheduledProgram({super.key, required this.userId, required this.scheduledPrograms, required this.controllerId, required this.deviceId, required this.customerId});
+  final int userId, customerId, controllerId;
   final String deviceId;
   final List<ProgramList> scheduledPrograms;
 
@@ -439,15 +441,25 @@ class ScheduledProgram extends StatelessWidget {
     return GemProgramStartStopReasonCode.fromCode(code).content;
   }
 
-  void sentUserOperationToServer(String msg, String data) async
-  {
-    /*Map<String, Object> body = {"userId": siteData.customerId, "controllerId": siteData.master[masterInx].controllerId, "messageStatus": msg, "hardware": jsonDecode(data), "createUser": userId};
-    final response = await HttpService().postRequest("createUserSentAndReceivedMessageManually", body);
+  Future<void> sentToServer(String msg, dynamic payLoad, int userId, int controllerId, int customerId) async {
+    Map<String, Object> body = {"userId": customerId, "controllerId": controllerId, "messageStatus": msg.isNotEmpty ? msg : 'Just sent without changes', "data": payLoad, "hardware": payLoad, "createUser": userId};
+    final response = await Repository(HttpService()).createUserSentAndReceivedMessageManually(body);
     if (response.statusCode == 200) {
       print(response.body);
     } else {
       throw Exception('Failed to load data');
-    }*/
+    }
+  }
+
+  void sentUserOperationToServer(String msg, String data) async
+  {
+    Map<String, Object> body = {"userId": customerId, "controllerId": controllerId, "messageStatus": msg, "hardware": jsonDecode(data), "createUser": userId};
+    final response = await Repository(HttpService()).createUserSentAndReceivedMessageManually(body);
+    if (response.statusCode == 200) {
+      print(response.body);
+    } else {
+      throw Exception('Failed to load data');
+    }
   }
 
   bool getPermissionStatusBySNo(BuildContext context, int sNo) {

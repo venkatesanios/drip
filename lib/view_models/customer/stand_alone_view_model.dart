@@ -24,7 +24,9 @@ class StandAloneViewModel extends ChangeNotifier {
   final TextEditingController _secondsController = TextEditingController();
   final TextEditingController flowLiter = TextEditingController();
 
+
   List<ProgramModel> programList = [];
+  late StandAloneModel standAloneData;
   bool visibleLoading = false;
   int ddCurrentPosition = 0;
   int serialNumber = 0;
@@ -101,6 +103,7 @@ class StandAloneViewModel extends ChangeNotifier {
       final response = await repository.fetchUserManualOperation(body);
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
+        print(response.body);
         if (jsonResponse['data'] != null){
           try{
             dynamic data = jsonResponse['data'];
@@ -159,12 +162,9 @@ class StandAloneViewModel extends ChangeNotifier {
   }
 
 
-  Future<void> fetchStandAloneSelection(int sNo, value) async {
+  Future<void> fetchStandAloneSelection(int sNo, int cIndex) async {
 
-    int newIndex = programList.indexOf(value!);
-    if (newIndex != -1) {
-      ddCurrentPosition = newIndex;
-    }
+    ddCurrentPosition = cIndex;
 
     Map<String, Object> body = {
       "userId": customerId,
@@ -173,16 +173,17 @@ class StandAloneViewModel extends ChangeNotifier {
     };
 
     try {
-      var response = await repository.fetchStandAloneData(body);
+      var response = await repository.fetchManualOperation(body);
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
         print(response.body);
         if (jsonResponse['data'] != null) {
           dynamic data = jsonResponse['data'];
-          StandAloneModel dashBoardData = StandAloneModel.fromJson(data);
+          standAloneData = StandAloneModel.fromJson(data);
+          print(standAloneData.sequence);
 
           if(ddCurrentPosition==0){
-            for (var item in dashBoardData.selection) {
+            for (var item in standAloneData.selection) {
               int serialNo = item.sNo.toInt();
 
               if (serialNo == 5) {

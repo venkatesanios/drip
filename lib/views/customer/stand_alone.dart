@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:oro_drip_irrigation/view_models/customer/stand_alone_view_model.dart';
 import 'package:provider/provider.dart';
 import '../../Models/customer/site_model.dart';
+import '../../Models/customer/stand_alone_model.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 
@@ -44,7 +45,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                 children: [
                   SizedBox(
                     width: 400,
-                    height: viewModel.programList.length > 1? 90:60,
+                    height: viewModel.ddCurrentPosition!=0 && viewModel.segmentWithFlow.index!=0 ? 133: viewModel.programList.length > 1? 90:60,
                     child: Padding(
                       padding: const EdgeInsets.only(left: 10),
                       child: Column(
@@ -77,39 +78,21 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                                     );
                                   }).toList(),
                                   onChanged: (value) {
-                                    // Your callback method here
+                                    viewModel.fetchStandAloneSelection(
+                                      value!.serialNumber,
+                                      viewModel.programList.indexOf(value),
+                                    );
                                   },
                                 ),
                               ),
                             ],
                           ) :
                           const SizedBox(height: 8),
-                           Row(
+                          viewModel.ddCurrentPosition==0 ?Row(
                             children: [
                               SizedBox(
-                                width: 250,
-                                child: viewModel.ddCurrentPosition!=0? SegmentedButton<SegmentWithFlow>(
-                                  segments: const <ButtonSegment<SegmentWithFlow>>[
-                                    ButtonSegment<SegmentWithFlow>(
-                                        value: SegmentWithFlow.manual,
-                                        label: Text('Timeless'),
-                                        icon: Icon(Icons.pan_tool_alt_outlined)),
-                                    ButtonSegment<SegmentWithFlow>(
-                                        value: SegmentWithFlow.duration,
-                                        label: Text('Duration'),
-                                        icon: Icon(Icons.timer_outlined)),
-                                    ButtonSegment<SegmentWithFlow>(
-                                        value: SegmentWithFlow.flow,
-                                        label: Text('Flow-Liters'),
-                                        icon: Icon(Icons.water_drop_outlined)),
-                                  ],
-                                  selected: <SegmentWithFlow>{viewModel.segmentWithFlow},
-                                  onSelectionChanged: (Set<SegmentWithFlow> newSelection) {
-                                    viewModel.segmentWithFlow = newSelection.first;
-                                    viewModel.segmentSelectionCallbackFunction(viewModel.segmentWithFlow.index, viewModel.durationValue, viewModel.selectedIrLine);
-                                  },
-                                ) :
-                                SegmentedButton<SegmentWithFlow>(
+                                width: 275,
+                                child: SegmentedButton<SegmentWithFlow>(
                                   segments: const <ButtonSegment<SegmentWithFlow>>[
                                     ButtonSegment<SegmentWithFlow>(
                                         value: SegmentWithFlow.manual,
@@ -163,8 +146,70 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                               ):
                               Container(),
                             ],
+                          ):
+                          Column(
+                            children: [
+                              SizedBox(
+                                width: 350,
+                                child: SegmentedButton<SegmentWithFlow>(
+                                  segments: const <ButtonSegment<SegmentWithFlow>>[
+                                    ButtonSegment<SegmentWithFlow>(
+                                        value: SegmentWithFlow.manual,
+                                        label: Text('Timeless'),
+                                        icon: Icon(Icons.pan_tool_alt_outlined)),
+                                    ButtonSegment<SegmentWithFlow>(
+                                        value: SegmentWithFlow.duration,
+                                        label: Text('Duration'),
+                                        icon: Icon(Icons.timer_outlined)),
+                                    ButtonSegment<SegmentWithFlow>(
+                                        value: SegmentWithFlow.flow,
+                                        label: Text('Flow-Liters'),
+                                        icon: Icon(Icons.water_drop_outlined)),
+                                  ],
+                                  selected: <SegmentWithFlow>{viewModel.segmentWithFlow},
+                                  onSelectionChanged: (Set<SegmentWithFlow> newSelection) {
+                                    viewModel.segmentWithFlow = newSelection.first;
+                                    viewModel.segmentSelectionCallbackFunction(viewModel.segmentWithFlow.index, viewModel.durationValue, viewModel.selectedIrLine);
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                              viewModel.segmentWithFlow.index == 1 ? SizedBox(
+                                width: 85,
+                                child: TextButton(
+                                  onPressed: () => viewModel.showDurationInputDialog(context),
+                                  style: ButtonStyle(
+                                    padding: WidgetStateProperty.all(
+                                      const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                                    ),
+                                    backgroundColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withOpacity(0.3)),
+                                    shape: WidgetStateProperty.all<OutlinedBorder>(
+                                      RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                                    ),
+                                  ),
+                                  child: Text(viewModel.durationValue, style: const TextStyle(color: Colors.black, fontSize: 17)),
+                                ),
+                              ) :
+                              Container(),
+                              viewModel.segmentWithFlow.index == 2 ? SizedBox(
+                                width: 85,
+                                child: TextField(
+                                  maxLength: 7,
+                                  controller: viewModel.flowLiter,
+                                  onChanged: (value) => viewModel.segmentSelectionCallbackFunction(viewModel.segmentWithFlow.index, value, viewModel.selectedIrLine),
+                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                                  ],
+                                  decoration: const InputDecoration(
+                                    labelText: 'Liters',
+                                    counterText: '',
+                                  ),
+                                ),
+                              ):
+                              Container(),
+                            ],
                           )
-
                         ],
                       ),
                     ),
@@ -172,7 +217,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                   const Divider(height: 0),
                   Expanded(
                     child: SingleChildScrollView(
-                      child: displayStandAloneDefault(widget.config, viewModel),
+                      child: displayLineOrSequence(widget.config, viewModel, viewModel.ddCurrentPosition),
                     ),
                   ),
                   ListTile(
@@ -205,7 +250,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
     );
   }
 
-  Widget displayStandAloneDefault(Config config, StandAloneViewModel vm){
+  Widget displayLineOrSequence(Config config, StandAloneViewModel vm, int ddPosition){
     return Column(
       children: [
         config.pump.isNotEmpty ? Padding(
@@ -620,12 +665,16 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
           ),
         ):
         Container(),
-        SizedBox(
+        ddPosition==0? SizedBox(
           height: getTotalHeight(),
           child: ListView.builder(
             itemCount: widget.config.lineData.length,
             itemBuilder: (context, index) {
               IrrigationLineData line = widget.config.lineData[index];
+              if(line.name=='All irrigation line'){
+                return const SizedBox();
+              }
+
               return Padding(
                 padding: const EdgeInsets.only(left: 5, right: 5, bottom: 5,),
                 child: Card(
@@ -726,6 +775,104 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                                 ),
                               ),
                             )),
+                          ])),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ) :
+        SizedBox(
+          height: getTotalHeight(),
+          child: ListView.builder(
+            itemCount: vm.standAloneData.sequence.length,
+            itemBuilder: (context, index) {
+              SequenceModel sequence = vm.standAloneData.sequence[index];
+              return Padding(
+                padding: const EdgeInsets.only(left: 5, right: 5, bottom: 5,),
+                child: Card(
+                  elevation: 1,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor.withOpacity(0.1),
+                          borderRadius: const BorderRadius.only(topRight: Radius.circular(5), topLeft: Radius.circular(5)),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 10, top: 10, right: 5),
+                                child: Text(sequence.name, textAlign: TextAlign.left),
+                              ),
+                            ),
+
+                            if (vm.ddCurrentPosition!=0)
+                              VerticalDivider(color: Theme.of(context).primaryColor.withOpacity(0.1)),
+
+                            if(vm.ddCurrentPosition!=0)
+                              Center(
+                                child: SizedBox(
+                                  width: 60,
+                                  child: Transform.scale(
+                                    scale: 0.7,
+                                    child: Switch(
+                                      value: sequence.selected,
+                                      hoverColor: Colors.pink.shade100,
+                                      activeColor: Colors.teal,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          sequence.selected = !sequence.selected;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: (sequence.valve.length * 40),
+                        width: MediaQuery.sizeOf(context).width,
+                        child:  DataTable2(
+                          columnSpacing: 12,
+                          horizontalMargin: 12,
+                          minWidth: 150,
+                          dataRowHeight: 40.0,
+                          headingRowHeight: 0,
+                          headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withOpacity(0.05)),
+                          columns: const [
+                            DataColumn2(
+                                label: Center(child: Text('', style: TextStyle(fontSize: 14),)),
+                                fixedWidth: 30
+                            ),
+                            DataColumn2(
+                                label: Center(
+                                  child: Text(
+                                    'Name',
+                                    style: TextStyle(fontSize: 14),
+                                    textAlign: TextAlign.right,
+                                  ),
+                                ),
+                                size: ColumnSize.M
+                            ),
+                          ],
+                          rows: List<DataRow>.generate(sequence.valve.length, (index) => DataRow(cells: [
+                            DataCell(Center(child: Image.asset('assets/png/valve_gray.png',width: 25, height: 25,))),
+                            DataCell(Text(sequence.valve[index].name, style: TextStyle(fontWeight: FontWeight.normal))),
+
                           ])),
                         ),
                       )
