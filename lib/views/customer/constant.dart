@@ -369,7 +369,7 @@ class Constant extends StatelessWidget {
                                 minWidth: 1020,
                                 headingRowColor:
                                 MaterialStateProperty.all(
-                                    const Color(0xFFFDFDFD)),
+                                    const Color(0xFF005A8B)),
                                 // White header row
                                 columns: const [
                                   DataColumn(
@@ -394,7 +394,7 @@ class Constant extends StatelessWidget {
                                         DataCell(Center(child: Text(
                                           vm.userConstant.constant.mainValveList![index].name,
                                           style: const TextStyle(
-                                              color: Color(0xFF005B8D)),))),
+                                              color: Color(0xFFFD6800)),))),
                                         DataCell(Center(
                                             child: TextButton(
                                                 onPressed: () {

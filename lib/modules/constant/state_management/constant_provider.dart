@@ -2362,7 +2362,6 @@ class ConstantProvider extends ChangeNotifier{
       );
     }).toList();
   }
-
   void updateConstant(){
     try{
       Map<String, dynamic> defaultData = constantDataFromHttp['default'];
@@ -2377,9 +2376,6 @@ class ConstantProvider extends ChangeNotifier{
             arrowTabState: ValueNotifier(menu['dealerDefinitionId'] == 82 ? ArrowTabState.onProgress : ArrowTabState.inComplete)
         );
       }).toList();
-
-
-      //update object
       List<dynamic> listOfPumpObject = [];
       List<dynamic> listOfFilterSiteObject = [];
       List<dynamic> listOfFilterObject = [];

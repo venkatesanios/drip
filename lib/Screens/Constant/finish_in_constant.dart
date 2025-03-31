@@ -52,8 +52,6 @@ class _FinishInConstantState extends State<FinishInConstant> {
     var headers = {'Content-Type': 'application/json'};
     var provider = Provider.of<ConstantProviderMani>(context, listen: false);
 
-
-
     var irrigationLinesValve = widget.irrigationLines
         .map((line) => {
               "objectId": line.objectId,

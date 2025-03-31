@@ -15,7 +15,8 @@ class Environment {
       'mqttMobilePort': 1883,
     },
     'smartComm' : {
-      'apiUrl': 'http://52.172.214.208:5000/api/v1',
+      'apiUrl': 'http://192.168.68.141:5000/api/v1',
+      // 'apiUrl': 'http://52.172.214.208:5000/api/v1',
       'apiKey': 'prod-api-key',
       'mqttWebUrl': 'ws://52.172.214.208:9001/mqtt',
       'mqttMobileUrl': '52.172.214.208',
