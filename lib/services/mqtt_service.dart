@@ -24,8 +24,8 @@ class MqttService {
   final StreamController<MqttConnectionState> mqttConnectionStreamController = StreamController.broadcast();
   final StreamController<MqttConnectionState> connectionStatusController = StreamController.broadcast();
 
-  Stream<Map<String, dynamic>?> get payloadController => _acknowledgementPayloadController.stream;
   Stream<MqttConnectionState> get mqttConnectionStream => mqttConnectionStreamController.stream;
+  Stream<Map<String, dynamic>?> get payloadController => _acknowledgementPayloadController.stream;
 
   List<Map<String, dynamic>>? _schedulePayload;
   List<Map<String, dynamic>>? get schedulePayload => _schedulePayload;
@@ -119,6 +119,7 @@ class MqttService {
       try {
         debugPrint('Mosquitto start client connecting....');
         providerState?.updateMQTTConnectionState(MQTTConnectionState.connecting);
+        mqttConnectionStreamController.add(MqttConnectionState.connecting);
         await _client!.connect();
       } on Exception catch (e, stackTrace) {
         debugPrint('Client exception - $e');
@@ -157,6 +158,7 @@ class MqttService {
 
 
   void onMqttPayloadReceived(String payload) {
+    print('MqttPayloadReceived:$payload');
     try {
       Map<String, dynamic> payloadMessage = jsonDecode(payload);
       providerState?.updateReceivedPayload(payload, false);
@@ -188,18 +190,18 @@ class MqttService {
   }
 
   void onDisconnected() {
-    mqttConnectionStreamController.add(MqttConnectionState.disconnected);
     debugPrint('OnDisconnected client callback - Client disconnection');
     if (_client!.connectionStatus!.returnCode == MqttConnectReturnCode.noneSpecified) {
       debugPrint('OnDisconnected callback is solicited, this is correct');
     }
     providerState?.updateMQTTConnectionState(MQTTConnectionState.disconnected);
+    mqttConnectionStreamController.add(MqttConnectionState.disconnected);
   }
 
   void onConnected() {
     assert(isConnected);
-    mqttConnectionStreamController.add(MqttConnectionState.connected);
     providerState?.updateMQTTConnectionState(MQTTConnectionState.connected);
+    mqttConnectionStreamController.add(MqttConnectionState.connected);
     debugPrint('Mosquitto client connected....');
   }
 

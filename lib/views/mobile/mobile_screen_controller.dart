@@ -35,15 +35,12 @@ class MobileScreenController extends StatelessWidget {
 
   void callbackFunction(message)
   {
-    /*Navigator.pop(context);
-    Future.delayed(const Duration(milliseconds: 500), () {
-      _showSnackBar(message);
-    });*/
+
   }
 
   @override
   Widget build(BuildContext context) {
-    final String _correctPassword = 'Oro@321';
+    const String correctPassword = 'Oro@321';
 
     return MultiProvider(
       providers: [
@@ -71,6 +68,413 @@ class MobileScreenController extends StatelessWidget {
           if(vm.isLoading){
             return const Scaffold(body: Center(child: Text('Site loading please waite....')));
           }
+
+          return Scaffold(
+            appBar: AppBar(
+              title: Image.asset(
+                width: 140,
+                "assets/png/lk_logo_white.png",
+                fit: BoxFit.fitWidth,
+              ),
+              actions: [
+                Stack(
+                  children: [
+                    IconButton(
+                      tooltip: 'Alarms',
+                      onPressed: vm.onAlarmClicked,
+                      icon: const Icon(Icons.notifications_none),
+                      color: Colors.white,
+                      iconSize: 28.0,
+                    ),
+                    if (vm.unreadAlarmCount > 0)
+                      Positioned(
+                        right: 10,
+                        top: 10,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            '${vm.unreadAlarmCount}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                PopupMenuButton<String>(
+                  onSelected: (String value) {
+                    switch (value) {
+                      case 'app info':
+                        //vm.onSettingsClicked();
+                        break;
+                      case 'profile':
+                        //vm.onHelpClicked();
+                        break;
+                      case 'logout':
+                        //vm.onLogoutClicked();
+                        break;
+                    }
+                  },
+                  icon: const Icon(Icons.more_vert, color: Colors.white), // 3-dot menu icon
+                  itemBuilder: (BuildContext context) => [
+                    const PopupMenuItem<String>(
+                      value: 'app info',
+                      child: Row(
+                        children: [
+                          Icon(Icons.info_outline, color: Colors.black54),
+                          SizedBox(width: 8),
+                          Text('Settings'),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'profile',
+                      child: Row(
+                        children: [
+                          Icon(Icons.person_pin_outlined, color: Colors.black54),
+                          SizedBox(width: 8),
+                          Text('Profile'),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'logout',
+                      child: Row(
+                        children: [
+                          Icon(Icons.exit_to_app, color: Colors.red),
+                          SizedBox(width: 8),
+                          Text('Logout', style: TextStyle(color: Colors.red)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(40), // Adjust height as needed
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal, // Enables horizontal scrolling
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(width: 15),
+
+                        vm.mySiteList.data.length > 1
+                            ? DropdownButton(
+                          isExpanded: false,
+                          underline: Container(),
+                          items: (vm.mySiteList.data ?? []).map((site) {
+                            return DropdownMenuItem(
+                              value: site.groupName,
+                              child: Text(
+                                site.groupName,
+                                style: const TextStyle(color: Colors.white, fontSize: 17),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (siteName) => vm.siteOnChanged(siteName!),
+                          value: vm.myCurrentSite,
+                          dropdownColor: Colors.teal,
+                          iconEnabledColor: Colors.white,
+                          iconDisabledColor: Colors.white,
+                          focusColor: Colors.transparent,
+                        )
+                            : Text(
+                          vm.mySiteList.data[vm.sIndex].groupName,
+                          style: const TextStyle(fontSize: 15, color: Colors.white54),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+
+                        const SizedBox(width: 15),
+                        Container(width: 1, height: 20, color: Colors.white54),
+                        const SizedBox(width: 5),
+
+                        vm.mySiteList.data[vm.sIndex].master.length > 1
+                            ? PopupMenuButton<String>(
+                          color: Colors.white,
+                          surfaceTintColor: Theme.of(context).primaryColorLight,
+                          tooltip: 'master controller',
+                          child: MaterialButton(
+                            onPressed: null,
+                            textColor: Colors.white,
+                            child: Row(
+                              children: [
+                                Text(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName),
+                                const SizedBox(width: 3),
+                                const Icon(Icons.arrow_drop_down, color: Colors.white),
+                              ],
+                            ),
+                          ),
+                          itemBuilder: (context) {
+                            return List.generate(vm.mySiteList.data[vm.sIndex].master.length, (index) {
+                              return PopupMenuItem<String>(
+                                value: vm.mySiteList.data[vm.sIndex].master[index].categoryName,
+                                child: Text(vm.mySiteList.data[vm.sIndex].master[index].categoryName),
+                              );
+                            });
+                          },
+                          onSelected: (selectedCategory) {
+                            vm.masterOnChanged(selectedCategory);
+                          },
+                        )
+                            : Text(
+                          vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
+                          style: const TextStyle(fontSize: 15, color: Colors.white54),
+                        ),
+
+                        const SizedBox(width: 15),
+                        Container(width: 1, height: 20, color: Colors.white54),
+                        const SizedBox(width: 5),
+
+                        vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1 &&
+                            vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData.length > 1
+                            ? DropdownButton(
+                          underline: Container(),
+                          items: (vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData ?? [])
+                              .map((line) {
+                            return DropdownMenuItem(
+                              value: line.name,
+                              child: Text(
+                                line.name,
+                                style: const TextStyle(color: Colors.white, fontSize: 17),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (lineName) => vm.lineOnChanged(lineName),
+                          value: vm.myCurrentIrrLine,
+                          dropdownColor: Theme.of(context).primaryColorLight,
+                          iconEnabledColor: Colors.white,
+                          iconDisabledColor: Colors.white,
+                          focusColor: Colors.transparent,
+                        )
+                            : vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1
+                            ? Text(
+                          vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData.isNotEmpty
+                              ? vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData[0].name
+                              : 'Line empty',
+                          style: const TextStyle(fontSize: 15),
+                        )
+                            : const SizedBox(),
+
+                        const SizedBox(width: 15),
+                        Container(width: 1, height: 20, color: Colors.white54),
+                        const SizedBox(width: 5),
+
+                        Container(
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5), color: Colors.transparent),
+                          width: 45,
+                          height: 45,
+                          child: IconButton(
+                            tooltip: 'refresh',
+                            onPressed: vm.onRefreshClicked,
+                            icon: const Icon(Icons.refresh),
+                            color: Colors.white,
+                            iconSize: 24.0,
+                            hoverColor: Theme.of(context).primaryColorLight,
+                          ),
+                        ),
+
+                        Text(
+                          'Last sync @ - ${Formatters.formatDateTime('${vm.mySiteList.data[vm.sIndex].master[vm.mIndex].live?.cD} ${vm.mySiteList.data[vm.sIndex].master[vm.mIndex].live?.cT}')}',
+                          style: const TextStyle(fontSize: 15, color: Colors.white54),
+                        ),
+
+                        const SizedBox(width: 15),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+            bottomNavigationBar: BottomNavigationBar(
+              currentIndex: vm.selectedIndex,
+              onTap: vm.onItemTapped,
+              selectedItemColor: Theme.of(context).primaryColorLight, // Change this to your desired color
+              unselectedItemColor: Colors.grey, // Unselected items color
+              type: BottomNavigationBarType.fixed, // Prevent shifting effect
+              items: const [
+                BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+                BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), label: "Settings"),
+              ],
+            ),
+            floatingActionButton: Stack(
+              alignment: Alignment.bottomRight,
+              children: [
+                FloatingActionButton(
+                  onPressed: null,
+                  backgroundColor: Colors.blue,
+                  child: PopupMenuButton<String>(
+                    onSelected: (String value) {
+                      switch (value) {
+                        case 'option1':
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => NodeList(
+                                customerId: customerId,
+                                nodes: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList,
+                                deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                                deviceName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
+                                controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                                userId: userId,
+                              ),
+                            ),
+                          );
+                          break;
+                        case 'option2':
+                          print("Option 2 selected");
+                          break;
+                        case 'option3':
+                          print("Option 3 selected");
+                          break;
+                      }
+                    },
+                    offset: const Offset(0, -180), // Move menu **above** FAB
+                    color: Colors.white,
+                    icon: const Icon(Icons.menu, color: Colors.white),
+                    itemBuilder: (BuildContext context) => [
+                      const PopupMenuItem<String>(
+                        value: 'option1',
+                        child: Row(
+                          children: [
+                            Icon(Icons.format_list_numbered, color: Colors.black54),
+                            SizedBox(width: 8),
+                            Text('Node Status'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem<String>(
+                        value: 'option2',
+                        child: Row(
+                          children: [
+                            Icon(Icons.settings_input_component_outlined, color: Colors.black54),
+                            SizedBox(width: 8),
+                            Text('Input/Output Connection details'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem<String>(
+                        value: 'option3',
+                        child: Row(
+                          children: [
+                            Icon(Icons.list_alt, color: Colors.black54),
+                            SizedBox(width: 8),
+                            Text('Program'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem<String>(
+                        value: 'option4',
+                        child: Row(
+                          children: [
+                            Icon(Icons.view_list_outlined, color: Colors.black54),
+                            SizedBox(width: 8),
+                            Text('Scheduled program details'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem<String>(
+                        value: 'option5',
+                        child: Row(
+                          children: [
+                            Icon(Icons.touch_app_outlined, color: Colors.black54),
+                            SizedBox(width: 8),
+                            Text('Manual'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem<String>(
+                        value: 'option6',
+                        child: Row(
+                          children: [
+                            Icon(Icons.question_answer_outlined, color: Colors.black54),
+                            SizedBox(width: 8),
+                            Text('Sent & Received'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem<String>(
+                        value: 'option7',
+                        child: Row(
+                          children: [
+                            Icon(Icons.devices_other, color: Colors.black54),
+                            SizedBox(width: 8),
+                            Text('All my devices'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            body: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(8),topRight: Radius.circular(8)),
+              ),
+              child: Column(
+                children: [
+                  lastCommunication.inMinutes >= 10 && powerSupply == 0?Container(
+                    height: 23.0,
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade300,
+                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(5),topRight: Radius.circular(5)),
+                    ),
+                    child: Center(
+                      child: Text('No communication and power Supply to Controller'.toUpperCase(),
+                        style: const TextStyle(
+                          color: Colors.black87,
+                          fontSize: 12.0,
+                        ),
+                      ),
+                    ),
+                  ):
+                  powerSupply == 0? Container(
+                    height: 20.0,
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade300,
+                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(5),topRight: Radius.circular(5)),
+                    ),
+                    child: Center(
+                      child: Text('No power Supply to Controller'.toUpperCase(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12.0,
+                        ),
+                      ),
+                    ),
+                  ):
+                  const SizedBox(),
+
+                  Expanded(
+                    child: mainScreen(navViewModel.selectedIndex, vm.mySiteList.data[vm.sIndex].groupId,
+                        vm.mySiteList.data[vm.sIndex].groupName, vm.mySiteList.data[vm.sIndex].master,
+                        vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                        vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId),
+                  ),
+                ],
+              ),
+            ),
+          );
+
+
           return  Scaffold(
             appBar: AppBar(
               title:  Row(
@@ -279,15 +683,6 @@ class MobileScreenController extends StatelessWidget {
                                     Navigator.pop(context);
                                   },
                                 ),
-                                ListTile(
-                                  leading: const Icon(Icons.info_outline),
-                                  title: const Text('Controller info'),
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                    showPasswordDialog(context, _correctPassword, userId, vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId, vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId);
-                                  },
-                                ),
-                                const Divider(height: 0),
                                 ListTile(
                                   leading: const Icon(Icons.feedback_outlined),
                                   title: const Text('Send feedback'),
@@ -692,73 +1087,6 @@ class MobileScreenController extends StatelessWidget {
     );
   }
 
-  void showPasswordDialog(BuildContext context, correctPassword,userId,controllerID,imeiNumber) {
-    final TextEditingController _passwordController = TextEditingController();
-
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Enter Password'),
-          content: TextField(
-            controller: _passwordController,
-            obscureText: true,
-            decoration: InputDecoration(
-              labelText: 'Password',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                final enteredPassword = _passwordController.text;
-
-                if (enteredPassword == correctPassword) {
-                  Navigator.of(context).pop(); // Close the dialog
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) =>  ResetVerssion(userId: userId, controllerId: controllerID, deviceID: imeiNumber,)),
-                  );
-                } else {
-                  Navigator.of(context).pop(); // Close the dialog
-                  showErrorDialog(context);
-                }
-              },
-              child: Text('Submit'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void showErrorDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Error'),
-          content: Text('Incorrect password. Please try again.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
 
   List<NavigationRailDestination> getNavigationDestinations() {
     final destinations = [
@@ -839,15 +1167,7 @@ class MobileScreenController extends StatelessWidget {
         return ControllerSettings(customerId: customerId, controllerId: controllerId, adDrId: fromLogin ? 1 : 0, userId: userId,);
       case 6:
         return WeatherScreen(userId: userId, controllerId: controllerId, deviceID: '',);
-    /*case 4:
-        return SiteConfig(
-            userId: userId,
-            customerId: customerId,
-            customerName: customerName,
-            masterData: masterData,
-            groupId: groupId,
-            groupName: groupName
-        );*/
+
       default:
         return const SizedBox();
     }

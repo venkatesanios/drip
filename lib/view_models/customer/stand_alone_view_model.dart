@@ -428,12 +428,20 @@ class StandAloneViewModel extends ChangeNotifier {
           strSldBoosterPumpSrlNo = '',
           strSldSelectorSrlNo = '';
 
-      /*if(config.pump.isNotEmpty){
-        strSldSourcePumpSrlNo = getSelectedRelaySrlNo(config.pump);
-      }*/
-
       if (configData.pump.isNotEmpty) {
         strSldPumpSrlNo = getSelectedRelaySrlNo(configData.pump);
+      }
+
+      if(configData.filterSite.isNotEmpty){
+        for(int i=0; i<configData.filterSite.length; i++){
+          String concatenatedString = getSelectedRelaySrlNo(configData.filterSite[i].filters);
+          if(concatenatedString.isNotEmpty){
+            strSldCtrlFilterSrlNo += '${concatenatedString}_';
+          }
+        }
+        if (strSldCtrlFilterSrlNo.isNotEmpty && strSldCtrlFilterSrlNo.endsWith('_')) {
+          strSldCtrlFilterSrlNo = strSldCtrlFilterSrlNo.replaceRange(strSldCtrlFilterSrlNo.length - 1, strSldCtrlFilterSrlNo.length, '');
+        }
       }
 
       for (var line in configData.lineData) {
