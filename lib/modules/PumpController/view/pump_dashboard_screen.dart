@@ -239,7 +239,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                               for(var index = 0; index < 3; index++)
                                 buildContainer(
                                   title: snapshot.data!.powerFactor == null
-                                      ? ["RN", "YN", "BN"][index]
+                                      ? ["RY", "YB", "BR"][index]
                                       : ["RN ${double.parse(snapshot.data!.voltage.split(',')[0]).toStringAsFixed(0)}",
                                     "YN ${double.parse(snapshot.data!.voltage.split(',')[1]).toStringAsFixed(0)}",
                                     "BN ${double.parse(snapshot.data!.voltage.split(',')[2]).toStringAsFixed(0)}"][index],
@@ -462,10 +462,10 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                                     TextSpan(
                                       text: 'SET ${voltageTripCondition
                                           ? phase == 1
-                                          ? "RN"
+                                          ? "RY"
                                           : phase == 2
-                                          ? "YN"
-                                          : "BN"
+                                          ? "YB"
+                                          : "BR"
                                           : phase == 1
                                           ? "RC"
                                           : phase == 2
@@ -504,10 +504,10 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                                     TextSpan(
                                       text: 'ACT ${voltageTripCondition
                                           ? phase == 1
-                                          ? "RN"
+                                          ? "RY"
                                           : phase == 2
-                                          ? "YN"
-                                          : "BN"
+                                          ? "YB"
+                                          : "BR"
                                           : phase == 1
                                           ? "RC"
                                           : phase == 2
