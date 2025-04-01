@@ -480,7 +480,7 @@ class MqttPayloadProvider with ChangeNotifier {
       //live payload
       if(data['mC']=='2400'){
         print(data['cM']);
-        liveSyncCall(false);
+        //liveSyncCall(false);
         liveDateAndTime = '${data['cD']} ${data['cT']}';
         updateLastCommunication(liveDateAndTime);
         wifiStrength = data['cM']['WifiStrength'];
