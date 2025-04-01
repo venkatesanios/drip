@@ -342,6 +342,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                     ],
                     if(constraints.maxWidth <= 700)
                       _getDefaultTabController(),
+                    const SizedBox(height: 10,),
                     if(selectedSetting != 2)
                       Expanded(
                           child: TabBarView(
@@ -604,7 +605,9 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                     final categoryId = preferenceProvider.commonPumpSettings![tabController1.index].categoryId;
                     final payload = jsonEncode({"sentSms": "viewconfig"});
                     final payload2 = jsonEncode({"0": payload});
-                    final viewConfig = {"5900": [{"5901": "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload2+$categoryId"},{"5902": "${widget.userId}"}]};
+                    final viewConfig = {"5900": {
+                      "5901": "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload2+$categoryId",
+                      }};
                     mqttService.topicToPublishAndItsMessage(jsonEncode(viewConfig), "${Environment.mqttPublishTopic}/${widget.deviceId}");
                   }
                 },
@@ -625,7 +628,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                         matchingCommonPump = preferenceProvider.commonPumpSettings!
                             .firstWhere((common) => common.controllerId == element.controllerId);
                       } catch (e) {
-                        matchingCommonPump = null; // No matching item found
+                        matchingCommonPump = null;
                       }
 
                       return Tab(
@@ -664,11 +667,27 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(settingList[categoryIndex].name, style: TextStyle(color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold),),
-                          const SizedBox(height: 10,),
+                          IntrinsicWidth(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 15),
+                              height: 35,
+                              decoration: BoxDecoration(
+                                  color: Theme.of(context).primaryColorLight,
+                                  borderRadius: const BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(3))
+                              ),
+                              child: Center(
+                                child: Text(
+                                  settingList[categoryIndex].name,
+                                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white,),
+                                ),
+                              ),
+                            ),
+                          ),
+                          // Text(settingList[categoryIndex].name, style: TextStyle(color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold),),
+                          // const SizedBox(height: 10,),
                           Container(
                             decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: const BorderRadius.only(topRight: Radius.circular(10), bottomLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
                                 color: Colors.white,
                                 border: Border.all(color: Theme.of(context).primaryColorLight, width: 0.3)
                                 // boxShadow: AppProperties.customBoxShadowLiteTheme
@@ -815,57 +834,71 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
   }
 
   Widget _buildTwoPhaseCard(int categoryIndex, int settingIndex, int pumpIndex, List settingList) {
-    return Card(
-      color: cardColor,
-      child: Column(
-        children: [
-          ListTile(
-            leading: Container(
-                decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white
-                  // gradient: linearGradientLeading,
-                ),
-                child: CircleAvatar(
-                    backgroundColor: cardColor,
-                    child: Icon(otherSettingsIcons[settingIndex], color: Theme.of(context).primaryColor)
-                )
-            ),
-            title: Text(settingList[categoryIndex].setting[settingIndex].title),
+    return Column(
+      children: [
+        ListTile(
+          leading: Container(
+              decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white
+                // gradient: linearGradientLeading,
+              ),
+              child: CircleAvatar(
+                  backgroundColor: cardColor,
+                  child: Icon(otherSettingsIcons[settingIndex], color: Theme.of(context).primaryColor)
+              )
           ),
-          Column(
-            children: [
-              for (int index = 0; index < preferenceProvider.individualPumpSetting!
-                  .where((e) => e.controllerId == preferenceProvider.commonPumpSettings![pumpIndex].controllerId).length; index++)
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 15),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(preferenceProvider.individualPumpSetting!
-                              .where((e) => e.controllerId == preferenceProvider.commonPumpSettings![pumpIndex].controllerId)
-                              .elementAt(index)
-                              .name),
-                          Switch(
-                              value: settingList[categoryIndex].setting[settingIndex].value[index],
-                              onChanged: (newValue) {
-                                setState(() {
-                                  settingList[categoryIndex].setting[settingIndex].value[index] = newValue;
-                                  settingList[categoryIndex].changed = true;
-                                });
-                              }
-                          )
-                        ],
-                      )
-                    ],
+          title: Text(settingList[categoryIndex].setting[settingIndex].title, style: Theme.of(context).textTheme.titleMedium!.copyWith(color: Theme.of(context).primaryColorLight, fontWeight: FontWeight.bold),),
+        ),
+        Column(
+          children: [
+            for (int index = 0; index < preferenceProvider.individualPumpSetting!
+                .where((e) => e.controllerId == preferenceProvider.commonPumpSettings![pumpIndex].controllerId).length; index++)
+              SwitchListTile(
+                  secondary: const SizedBox(
+                    width: 40,
+                    height: 40,
                   ),
-                )
-            ],
-          )
-        ],
-      ),
+                  title: Text(preferenceProvider.individualPumpSetting!
+                      .where((e) => e.controllerId == preferenceProvider.commonPumpSettings![pumpIndex].controllerId)
+                      .elementAt(index)
+                      .name),
+                  value: settingList[categoryIndex].setting[settingIndex].value[index],
+                  onChanged: (newValue) {
+                    setState(() {
+                      settingList[categoryIndex].setting[settingIndex].value[index] = newValue;
+                      settingList[categoryIndex].changed = true;
+                    });
+                  }
+              ),
+              /*Container(
+                margin: const EdgeInsets.symmetric(horizontal: 15),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(preferenceProvider.individualPumpSetting!
+                            .where((e) => e.controllerId == preferenceProvider.commonPumpSettings![pumpIndex].controllerId)
+                            .elementAt(index)
+                            .name),
+                        Switch(
+                            value: settingList[categoryIndex].setting[settingIndex].value[index],
+                            onChanged: (newValue) {
+                              setState(() {
+                                settingList[categoryIndex].setting[settingIndex].value[index] = newValue;
+                                settingList[categoryIndex].changed = true;
+                              });
+                            }
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              )*/
+          ],
+        )
+      ],
     );
   }
 

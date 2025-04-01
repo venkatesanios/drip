@@ -189,7 +189,7 @@ class SettingList {
       var value2 = setting.firstWhere((element) => element.serialNumber == 2).value == true ? 1 : 0;
       result.add("$value1");
       result.add("$value2");
-    } else if (type == 210) {
+    } else if (type == 207) {
       var value1 = setting.firstWhere((element) => element.serialNumber == 1).value;
       var value2 = setting.firstWhere((element) => element.serialNumber == 2).value;
       var value3 = setting.firstWhere((element) => element.serialNumber == 3).value;

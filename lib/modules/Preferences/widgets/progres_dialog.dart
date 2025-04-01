@@ -51,19 +51,21 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
   @override
   void initState() {
     super.initState();
-    payloadStatuses = widget.payloads.map((payload) {
-      var payloadToDecode = widget.isToGem ? payload.split('+')[4] : payload;
-      var decodedData = jsonDecode(payloadToDecode);
-      var key = decodedData.keys.first;
+    if(mounted){
+      payloadStatuses = widget.payloads.map((payload) {
+        var payloadToDecode = widget.isToGem ? payload.split('+')[4] : payload;
+        var decodedData = jsonDecode(payloadToDecode);
+        var key = decodedData.keys.first;
 
-      return {
-        'payload': payload,
-        'status': 'Pending',
-        'reference': widget.isToGem ? 'Device ${payload.split('+')[2]}' : 'Device',
-        'selected': true,
-        'key': key,
-      };
-    }).toList();
+        return {
+          'payload': payload,
+          'status': 'Pending',
+          'reference': widget.isToGem ? 'Device ${payload.split('+')[2]}' : 'Device',
+          'selected': true,
+          'key': key,
+        };
+      }).toList();
+    }
 
     // _processPayloads();
   }
@@ -109,10 +111,9 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
       Map<String, dynamic> gemPayload = {};
       if (widget.isToGem) {
         gemPayload = {
-          "5900": [
-            {"5901": payload},
-            {"5902": "userId"},
-          ]
+          "5900": {
+            "5901": payload,
+          }
         };
       }
 
