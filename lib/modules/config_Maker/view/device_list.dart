@@ -117,10 +117,11 @@ class _DeviceListState extends State<DeviceList> {
                               Text(device.deviceName, style: themeData.textTheme.headlineSmall),
                             ),
                             DataCell(
-                              Text(device.deviceId, style: TextStyle(color: themeData.primaryColorDark),),
+                              SelectableText(device.deviceId, style: TextStyle(color: themeData.primaryColorDark),),
                             ),
                             DataCell(
-                                (![44, 45, 46, 47,].contains(device.modelId) && configPvd.listOfDeviceModel.any((device) => device.categoryId == 10 && device.masterId != null)) ? CustomDropDownButton(
+                                (![44, 45, 46, 47,].contains(device.modelId) && configPvd.listOfDeviceModel.any((device) => device.categoryId == 10 && device.masterId != null))
+                                    ? CustomDropDownButton(
                                     value: getInitialExtendValue(device.extendControllerId),
                                     list: [
                                       '-',
@@ -129,12 +130,12 @@ class _DeviceListState extends State<DeviceList> {
                                           .map((device) => '${device.deviceName}\n${device.deviceId}')
                                     ],
                                     onChanged: (String? newValue) {
-                                      List<String> interface = newValue!.split('\n');
                                       setState(() {
-                                        device.extendControllerId = getExtendControllerId(newValue);
+                                        device.extendControllerId = getExtendControllerId(newValue!);
                                       });
                                     }
-                                ) : Text('N/A', style: themeData.textTheme.headlineSmall,)
+                                )
+                                    : Text('N/A', style: themeData.textTheme.headlineSmall,)
                             ),
                             DataCell(
                               CustomDropDownButton(
@@ -294,7 +295,7 @@ class _DeviceListState extends State<DeviceList> {
                                                 Text(device.deviceName,style: themeData.textTheme.headlineSmall,)
                                             ),
                                             DataCell(
-                                                Text(device.deviceId, style: TextStyle(color: themeData.primaryColor))
+                                                SelectableText(device.deviceId, style: TextStyle(color: themeData.primaryColor))
                                             ),
                                           ]
                                       );

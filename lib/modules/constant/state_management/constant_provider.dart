@@ -380,7 +380,7 @@ class ConstantProvider extends ChangeNotifier{
           })
         else
           ...List.generate(defaultEcPhSetting.length, (index){
-            return '';
+            return payloadValidate(defaultEcPhSetting[index].value.value);
           }),
         if(ecPhSensor.isNotEmpty && ecPhSensor[siteIndex].phPopup.isNotEmpty)
           ...ecPhSensor[siteIndex].setting[ecPhSensor[siteIndex].ecPopup.isEmpty ? 0 : 1].where((setting){
@@ -390,7 +390,7 @@ class ConstantProvider extends ChangeNotifier{
           })
         else
           ...List.generate(defaultEcPhSetting.length, (index){
-            return '';
+            return payloadValidate(defaultEcPhSetting[index].value.value);
           }),
       ].join(',');
     }).join(';');
@@ -408,12 +408,17 @@ class ConstantProvider extends ChangeNotifier{
             line.sNo,
             line.normal[alarmIndex].sNo,
             ...line.normal[alarmIndex].setting.where((setting){
-              return setting.hardware;
+              return (setting.hardware && setting.common == null);
             }).map((setting){
               return payloadValidate(setting.value.value);
             }),
             ...line.critical[alarmIndex].setting.where((setting){
-              return setting.hardware;
+              return (setting.hardware && setting.common == null);
+            }).map((setting){
+              return payloadValidate(setting.value.value);
+            }),
+            ...line.normal[alarmIndex].setting.where((setting){
+              return (setting.hardware && setting.common != null);
             }).map((setting){
               return payloadValidate(setting.value.value);
             }),

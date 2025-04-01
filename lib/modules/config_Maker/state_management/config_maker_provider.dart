@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
+import 'package:oro_drip_irrigation/Models/customer/constant_model.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/repository/config_maker_repository.dart';
 import '../model/device_model.dart';
 import '../model/device_object_model.dart';
@@ -860,7 +861,10 @@ class ConfigMakerProvider extends ChangeNotifier{
     int pumpCodeUnderGem = 5900;
     for(var p1000 in listOfPump1000){
       int pumpCount = listOfGeneratedObject.where((object) => (object.controllerId == p1000.controllerId && object.objectId == 5)).length;
-      var pumpPayload = {"sentSms":"pumpconfig,$pumpCount,"};
+      String findOutHowManySourceAndIrrigationPump = pump.where((pumpModel) => (pumpModel.commonDetails.controllerId == p1000.controllerId && pumpModel.commonDetails.objectId == 5))
+          .toList()
+          .map((pumpModel) => pumpModel.pumpType).join(',');
+      var pumpPayload = {"sentSms":"pumpconfig,$pumpCount,${findOutReferenceNumber(p1000)},$findOutHowManySourceAndIrrigationPump,${hardwareType == HardwareType.master ? 1 : 0}"};
       int pumpConfigCode = 700;
       var gemPayload = {
         '5900' : {
@@ -893,7 +897,10 @@ class ConfigMakerProvider extends ChangeNotifier{
     for(var p2000 in listOfPump2000){
       String deviceIdToSend = p2000.interfaceTypeId == 2 ? masterData['deviceId'] : p2000.deviceId;
       int pumpCount = listOfGeneratedObject.where((object) => (object.controllerId == p2000.controllerId && object.objectId == 5)).length;
-      var pumpPayload = {"sentSms":"pumpconfig,$pumpCount,"};
+      String findOutHowManySourceAndIrrigationPump = pump.where((pumpModel) => (pumpModel.commonDetails.controllerId == p2000.controllerId && pumpModel.commonDetails.objectId == 5))
+          .toList()
+          .map((pumpModel) => pumpModel.pumpType).join(',');
+      var pumpPayload = {"sentSms":"pumpconfig,$pumpCount,${findOutReferenceNumber(p2000)},$findOutHowManySourceAndIrrigationPump,${hardwareType == HardwareType.master ? 1 : 0}"};
       int pumpConfigCode = 700;
       var gemPayload = {
         '5900' : {

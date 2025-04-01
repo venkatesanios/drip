@@ -91,9 +91,15 @@ class _NormalCriticalInConstantState extends State<NormalCriticalInConstant> {
                                                 constantSettingModel: normalAlarm.setting[index],
                                                 onUpdate: (value){
                                                   normalAlarm.setting[index].value.value = value;
+                                                  if(normalAlarm.setting[index].common != null){
+                                                    criticalAlarm.setting[index].value.value = value;
+                                                  }
                                                 },
                                                 onOk: (){
                                                   normalAlarm.setting[index].value.value = widget.overAllPvd.getTime();
+                                                  if(normalAlarm.setting[index].common != null){
+                                                    criticalAlarm.setting[index].value.value = widget.overAllPvd.getTime();
+                                                  }
                                                   Navigator.pop(context);
                                                 },
                                                 popUpItemModelList: normalAlarm.setting[index].sNo == 2 ? widget.constPvd.alarmOnStatus : widget.constPvd.alarmResetAfterIrrigation,
@@ -101,7 +107,8 @@ class _NormalCriticalInConstantState extends State<NormalCriticalInConstant> {
                                             );
                                           }
                                       ),
-                                      AnimatedBuilder(
+                                      if(criticalAlarm.setting[index].common == null)
+                                        AnimatedBuilder(
                                           animation: criticalAlarm.setting[index].value,
                                           builder: (context, child){
                                             return SizedBox(
