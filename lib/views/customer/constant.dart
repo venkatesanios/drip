@@ -274,7 +274,6 @@ class Constant extends StatelessWidget {
                                           },
                                         ),
                                       ))),
-
                                       DataCell(Center(
                                           child: TextButton(
                                               onPressed: () {

@@ -31,11 +31,9 @@ class ConstantViewModel extends ChangeNotifier {
   List<TextEditingController> txtEdControllersMinMS = [];
   List<TextEditingController> txtEdControllersMaxMS = [];
 
-
   List<TextEditingController> txtEdControllersCheRatio = [];
   List<TextEditingController> txtEdControllersChePulse = [];
   List<TextEditingController> txtEdControllersCheNF = [];
-
 
   ConstantViewModel(this.context, this.repository) {
 
