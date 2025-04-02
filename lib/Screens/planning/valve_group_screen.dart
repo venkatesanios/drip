@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
   import 'package:provider/provider.dart';
+import '../../Constants/properties.dart';
 import '../../Models/valve_group_model.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../StateManagement/overall_use.dart';
@@ -118,7 +119,7 @@ class _GroupListScreenState extends State<GroupListScreen> {
                       child: Container(
                         decoration: BoxDecoration(
                             color: Colors.white,
-                            boxShadow: customBoxShadow,
+                            boxShadow: AppProperties.customBoxShadowLiteTheme,
                             borderRadius: BorderRadius.circular(10)),
                         child: Row(
                           children: [

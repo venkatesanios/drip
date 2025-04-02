@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:oro_drip_irrigation/Constants/properties.dart';
@@ -690,16 +688,28 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
             ? conditionsLibraryIsNotEmpty
             ? WaterAndFertilizerScreen(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram,)
             : const AlarmScreen()
-            : AdditionalDataScreen(userId: widget.customerId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, isIrrigationProgram: isIrrigationProgram, customerId: widget.customerId);
+            : AdditionalDataScreen(
+            userId: widget.customerId, controllerId: widget.controllerId, deviceId: widget.deviceId,
+            serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer,
+            programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,
+            isIrrigationProgram: isIrrigationProgram, customerId: widget.customerId, groupId: widget.groupId, categoryId: widget.categoryId,);
       case 5:
         return isIrrigationProgram
             ? conditionsLibraryIsNotEmpty
             ? const AlarmScreen()
-            : AdditionalDataScreen(userId: widget.userId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, isIrrigationProgram: isIrrigationProgram, customerId: widget.customerId,)
+            : AdditionalDataScreen(
+          userId: widget.customerId, controllerId: widget.controllerId, deviceId: widget.deviceId,
+          serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer,
+          programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,
+          isIrrigationProgram: isIrrigationProgram, customerId: widget.customerId, groupId: widget.groupId, categoryId: widget.categoryId,)
             : PreviewScreen(userId: widget.userId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,customerId: widget.customerId, groupId: widget.groupId, categoryId: widget.categoryId,);
       case 6:
         return conditionsLibraryIsNotEmpty
-            ? AdditionalDataScreen(userId: widget.userId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, isIrrigationProgram: isIrrigationProgram,customerId: widget.customerId)
+            ? AdditionalDataScreen(
+          userId: widget.customerId, controllerId: widget.controllerId, deviceId: widget.deviceId,
+          serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer,
+          programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,
+          isIrrigationProgram: isIrrigationProgram, customerId: widget.customerId, groupId: widget.groupId, categoryId: widget.categoryId,)
             : PreviewScreen(userId: widget.userId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, customerId: widget.customerId, groupId: widget.groupId, categoryId: widget.categoryId,);
       case 7:
         return conditionsLibraryIsNotEmpty

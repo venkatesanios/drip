@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:oro_drip_irrigation/Constants/properties.dart';
 import 'package:provider/provider.dart';
 
 import '../../IrrigationProgram/widgets/custom_tile.dart';
 import '../state_management/preference_provider.dart';
-import '../../IrrigationProgram/view/preview_screen.dart';
 import '../../IrrigationProgram/view/schedule_screen.dart';
 
 class GeneralScreen extends StatefulWidget {
@@ -50,7 +50,7 @@ class _GeneralScreenState extends State<GeneralScreen> {
                 decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(15),
-                    boxShadow: customBoxShadow
+                    boxShadow: AppProperties.customBoxShadowLiteTheme
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 5,vertical: 5),
                 margin: EdgeInsets.symmetric(horizontal: constraints.maxWidth < 700 ? 20 : 200, vertical: 10),

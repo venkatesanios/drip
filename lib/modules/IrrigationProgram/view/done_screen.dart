@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/preview_screen.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/schedule_screen.dart';
 import 'package:provider/provider.dart';
+import '../../../views/customer/program_schedule.dart';
 import '../repository/irrigation_program_repo.dart';
 import '../state_management/irrigation_program_provider.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
@@ -12,8 +12,8 @@ import '../../../StateManagement/overall_use.dart';
 import '../widgets/custom_alert_dialog.dart';
 import '../widgets/custom_native_time_picker.dart';
 import '../../SystemDefinitions/widgets/custom_snack_bar.dart';
-import '../../../repository/repository.dart';
 import '../../../services/http_service.dart';
+import '../widgets/custom_sliding_button.dart';
 import 'conditions_screen.dart';
 
 class AdditionalDataScreen extends StatefulWidget {
@@ -27,7 +27,11 @@ class AdditionalDataScreen extends StatefulWidget {
   final String? programType;
   final bool? conditionsLibraryIsNotEmpty;
   final bool fromDealer;
-  const AdditionalDataScreen({super.key, required this.serialNumber, required this.isIrrigationProgram, required this.userId, required this.controllerId, required this.deviceId, required this.toDashboard, this.programType, this.conditionsLibraryIsNotEmpty, required this.fromDealer, required this.customerId});
+  final int groupId, categoryId;
+  const AdditionalDataScreen({super.key, required this.serialNumber,
+    required this.isIrrigationProgram, required this.userId, required this.controllerId,
+    required this.deviceId, required this.toDashboard, this.programType, this.conditionsLibraryIsNotEmpty,
+    required this.fromDealer, required this.customerId, required this.groupId, required this.categoryId});
 
   @override
   State<AdditionalDataScreen> createState() => _AdditionalDataScreenState();
@@ -282,26 +286,19 @@ class _AdditionalDataScreenState extends State<AdditionalDataScreen> {
           final createUserProgram = await repository.createUserProgram(userData);
           final response = jsonDecode(createUserProgram.body);
           if(createUserProgram.statusCode == 200) {
-            // await irrigationProvider.programLibraryData(widget.userId, widget.controllerId);
+            await mainProvider.programLibraryData(widget.userId, widget.controllerId);
             ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: response['message']));
-            /* if(widget.toDashboard) {
-              irrigationProvider.updateBottomNavigation(0);
+            if(widget.toDashboard) {
               Navigator.of(context).pop();
-              print(irrigationProvider.selectedIndex);
-              // Navigator.push(
-              //   context,
-              //   // MaterialPageRoute(builder: (context) => HomeScreen(userId: widget.userId, fromDealer: widget.fromDealer,)),
-              // );
             } else {
+              // Navigator.of(context).pop();
               Navigator.of(context).pop();
-              irrigationProvider.updateBottomNavigation(1);
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => HomeScreen(userId: widget.userId, fromDealer: widget.fromDealer,)),
-              // );
-            }*/
-          }
-        });
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProgramSchedule(customerID: widget.userId, controllerID: widget.controllerId, siteName: "", imeiNumber: widget.deviceId, userId: widget.userId, groupId: widget.groupId, categoryId: widget.categoryId,))
+              );
+            }
+        }});
       } catch (error) {
         ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: 'Failed to update because of $error'));
         print("Error: $error");

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:oro_drip_irrigation/Constants/properties.dart';
 import 'package:oro_drip_irrigation/Screens/dashboard/mobileschedule_program.dart';
 import 'package:oro_drip_irrigation/Screens/dashboard/sidedrawer.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
@@ -2631,7 +2632,7 @@ class _DashboardState extends State<MobDashboard>
                       child: Container(
                         decoration: BoxDecoration(
                             color: Colors.white,
-                            boxShadow: customBoxShadow
+                            boxShadow: AppProperties.customBoxShadowLiteTheme
                         ),
                         height: 60,
                         child: const Row(

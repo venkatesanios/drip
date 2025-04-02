@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math.dart' as vector;
 
+import '../../Constants/properties.dart';
 import '../../modules/IrrigationProgram/view/preview_screen.dart';
 
 
@@ -88,7 +89,7 @@ class _WaveViewState extends State<WaveView> with TickerProviderStateMixin {
                 borderRadius: BorderRadius.circular(widget.borderRadius),
                 border: Border.all(color: Colors.blue.shade100, width: 0.3),
                 color: Colors.white,
-                boxShadow: customBoxShadow
+                boxShadow: AppProperties.customBoxShadowLiteTheme
             ),
             child: AnimatedBuilder(
               animation: CurvedAnimation(

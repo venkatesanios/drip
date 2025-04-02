@@ -1,23 +1,17 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/preview_screen.dart';
 import 'package:oro_drip_irrigation/modules/constant/state_management/constant_provider.dart';
-import 'package:oro_drip_irrigation/modules/constant/widget/custom_switch.dart';
-import 'package:oro_drip_irrigation/modules/constant/widget/custom_text_form_field.dart';
 import 'package:oro_drip_irrigation/modules/constant/widget/find_suitable_widget.dart';
-import 'package:oro_drip_irrigation/modules/irrigation_report/model/general_parameter_model.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 
-import '../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../StateManagement/overall_use.dart';
-import '../../../Widgets/HoursMinutesSeconds.dart';
 import '../../../Widgets/custom_buttons.dart';
 import '../../../Widgets/status_box.dart';
 import '../../../services/mqtt_service.dart';
 import '../../../utils/environment.dart';
+import '../../IrrigationProgram/widgets/custom_sliding_button.dart';
 import '../../config_Maker/view/config_web_view.dart';
-import '../model/constant_setting_model.dart';
 import '../repository/constant_repository.dart';
 
 

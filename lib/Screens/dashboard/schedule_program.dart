@@ -7,6 +7,7 @@ import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:provider/provider.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
+import '../../Constants/properties.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../StateManagement/overall_use.dart';
 import '../../modules/config_Maker/widget/blinking_container.dart';
@@ -65,7 +66,7 @@ class _ScheduleProgramForMobileState extends State<ScheduleProgramForMobile> {
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
                     color: Colors.white,
-                    boxShadow: customBoxShadow
+                    boxShadow: AppProperties.customBoxShadowLiteTheme
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
