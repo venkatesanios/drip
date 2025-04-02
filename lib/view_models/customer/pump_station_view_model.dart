@@ -85,17 +85,21 @@ class PumpStationViewModel extends ChangeNotifier {
 
     //payloadProvider.outputStatusPayload.clear();
 
-    List<String> filteredPumpStatus = outputStatusPayload
+    List<String> pumpLivePayload = outputStatusPayload
         .where((item) => item.startsWith('5.')).toList();
-    updatePumpStatus(mvWaterSource, filteredPumpStatus, pumpPayload);
+    updatePumpStatus(mvWaterSource, pumpLivePayload, pumpPayload);
 
-    List<String> filteredValveStatus = outputStatusPayload
+    List<String> valvePayload = outputStatusPayload
         .where((item) => item.startsWith('13.')).toList();
-    updateValveStatus(mvIrrLineData!, filteredValveStatus);
+    updateValveStatus(mvIrrLineData!, valvePayload);
 
-    List<String> filteredFilterStatus = outputStatusPayload
+    List<String> filterPayload = outputStatusPayload
         .where((item) => item.startsWith('11.')).toList();
-    updateFilterStatus(mvFilterSite, filteredFilterStatus);
+    updateFilterStatus(mvFilterSite, filterPayload);
+
+    List<String> frtChannelPayload = outputStatusPayload
+        .where((item) => item.startsWith('10.')).toList();
+    updateFertilizerChannelStatus(mvFertilizerSite, frtChannelPayload);
 
     notifyListeners();
   }
@@ -112,12 +116,11 @@ class PumpStationViewModel extends ChangeNotifier {
 
         if (matchedEntry.isNotEmpty) {
           List<String> statusData = matchedEntry.split(',');
-
           if (statusData.length >= 8) {
-            pump.status = int.tryParse(statusData[1]) ?? 0;
-            pump.reason = statusData[2];
-            pump.setValue = statusData[3];
-            pump.actualValue = statusData[4];
+            pump.reason = statusData[1];
+            pump.setValue = statusData[2];
+            pump.actualValue = statusData[3];
+            pump.phase = statusData[4];
             pump.voltage = statusData[5];
             pump.current = statusData[6];
             pump.onDelayLeft = statusData[7];
@@ -144,6 +147,19 @@ class PumpStationViewModel extends ChangeNotifier {
           filter.status = status;
         } else {
           print("Serial Number ${filter.sNo} not found");
+        }
+      }
+    }
+  }
+
+  void updateFertilizerChannelStatus(List<FertilizerSite> mvFertilizerSite, List<dynamic> fertilizerStatus) {
+    for (var fertilizer in mvFertilizerSite) {
+      for (var channel in fertilizer.channel) {
+        int? status = getStatus(fertilizerStatus, channel.sNo);
+        if (status != null) {
+          channel.status = status;
+        } else {
+          print("Serial Number ${channel.sNo} not found");
         }
       }
     }
