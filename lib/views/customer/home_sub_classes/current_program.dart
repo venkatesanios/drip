@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -48,8 +49,10 @@ class CurrentProgram extends StatelessWidget {
                       ),
                       borderRadius: const BorderRadius.all(Radius.circular(5)),
                     ),
-                    height: (vm.currentSchedule.length * 45) + 45,
-                    child: DataTable2(
+                    height: kIsWeb?(vm.currentSchedule.length * 45) + 45:
+                    vm.currentSchedule.length * 150,
+                    child: kIsWeb?
+                    DataTable2(
                       columnSpacing: 12,
                       horizontalMargin: 12,
                       minWidth: 1100,
@@ -187,7 +190,41 @@ class CurrentProgram extends StatelessWidget {
                           )),
                         ]);
                       }),
-                    ),
+                    ):
+                    Column(
+                      children: [
+                        SizedBox(height: 10),
+                        ...vm.currentSchedule.expand((cs) => [
+                          Row(
+                            children: [
+                              SizedBox(width: 8),
+                              SizedBox(
+                                width: 200,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Program name : '),
+                                    Text('Current Zone'),
+                                    Text('Zone Name'),
+                                    Text('RTC'),
+                                    Text('Cyclic'),
+                                    Text('Start Time'),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                  child: Column(
+                                    children: [
+
+                                    ],
+                                  )
+                              )
+                            ],
+                          )
+                        ]),
+                      ],
+                    )
                   ),
                 ),
                 Positioned(
