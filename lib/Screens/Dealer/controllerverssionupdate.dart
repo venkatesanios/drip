@@ -5,15 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:oro_drip_irrigation/utils/environment.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../StateManagement/mqtt_payload_provider.dart';
-import '../../StateManagement/overall_use.dart';
-import '../../modules/IrrigationProgram/view/program_library.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../services/mqtt_service.dart';
-import '../../utils/snack_bar.dart';
 import 'controllerlogfile.dart';
 
 class ResetVerssion extends StatefulWidget {

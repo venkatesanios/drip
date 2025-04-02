@@ -8,6 +8,7 @@ import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../StateManagement/overall_use.dart';
 import '../../modules/IrrigationProgram/view/program_library.dart';
 import '../../services/mqtt_service.dart';
+import '../../utils/environment.dart';
 import '../../utils/snack_bar.dart';
 
 
@@ -37,8 +38,8 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
     overAllPvd = Provider.of<OverAllUse>(context, listen: false);
     _tabController = TabController(length: 5, vsync: this);
 
-    manager.topicToUnSubscribe('FirmwareToApp/${widget.deviceID}');
-    manager.topicToSubscribe('OroGemLog/${widget.deviceID}');
+    manager.topicToUnSubscribe('${Environment.mqttSubscribeTopic}/${widget.deviceID}');
+    manager.topicToSubscribe('${Environment.mqttLogTopic}/${widget.deviceID}');
     // mqttConfigureAndConnect();
   }
 
@@ -332,13 +333,13 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
   }
 
   Future<void> getlog(int data) async {
-    manager.topicToUnSubscribe('OroGemLog/${widget.deviceID}');
-    manager.topicToSubscribe('FirmwareToApp/${widget.deviceID}');
+    manager.topicToUnSubscribe('${Environment.mqttLogTopic}/${widget.deviceID}');
+    manager.topicToSubscribe('${Environment.mqttSubscribeTopic}/${widget.deviceID}');
 
     await Future.delayed(Duration(seconds: 1), () async{
       if (data == 7 || data == 8 || data == 9 || data == 10 || data == 11)
       {
-        String payloadCode = "4202";
+        String payloadCode = "5700";
         if (data == 7 || data == 8 || data == 9 || data == 10 || data == 11) {
           payloadCode = "5700";
         }
@@ -347,13 +348,13 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
           "5700":
             {"5701": "$data"},
         };
-        if (MqttService().isConnected == true) {
+          if (MqttService().isConnected == true) {
           await validatePayloadSent(
             dialogContext: context,
             context: context,
             mqttPayloadProvider: mqttPayloadProvider,
             acknowledgedFunction: () {
-              manager.topicToSubscribe('OroGemLog/${widget.deviceID}');
+              manager.topicToSubscribe('${Environment.mqttLogTopic}/${widget.deviceID}');
             },
             payload: payLoadFinal,
             payloadCode: payloadCode,
@@ -371,9 +372,9 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
           "5700":
             {"5701": "$data"},
         });
+        MqttService().topicToPublishAndItsMessage(payLoadFinal1, '${Environment.mqttPublishTopic}/${widget.deviceID}');
 
-        MqttService().topicToPublishAndItsMessage('AppToFirmware/${widget.deviceID}', payLoadFinal1);
-        await ftpstatus(context);
+         await ftpstatus(context);
       }
     });
 
@@ -385,7 +386,7 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
     getlog(11);
     _tabController.dispose();
     // _scrollController.dispose();
-    manager.topicToUnSubscribe('OroGemLog/${widget.deviceID}');
+    manager.topicToUnSubscribe('${Environment.mqttLogTopic}/${widget.deviceID}');
     super.dispose();
   }
 }

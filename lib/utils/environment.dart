@@ -47,4 +47,6 @@ class Environment {
 
   static String get mqttSubscribeTopic => config[F.name]?['subscribeTopic'] ?? '';
   static String get mqttPublishTopic => config[F.name]?['publishTopic'] ?? '';
+  static String get mqttLogTopic => 'OroGemLog';
+
 }

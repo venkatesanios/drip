@@ -289,8 +289,14 @@ class CustomerScreenController extends StatelessWidget {
                         leading: const Icon(Icons.info_outline),
                         title: const Text('Controller info'),
                         onTap: () {
+                       // showPasswordDialog(context, _correctPassword, userId, vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId, vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId);
                       Navigator.pop(context);
-                      showPasswordDialog(context, _correctPassword, userId, vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId, vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId);
+                       Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ResetVerssion(userId: userId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId, deviceID: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,),
+                        ),
+                      );
                         },
                         ),
                         const Divider(height: 0),
