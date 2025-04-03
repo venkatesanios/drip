@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../Screens/planning/test.dart';
 import '../flavors.dart';
 import '../utils/Theme/smart_comm_theme.dart';
 import '../utils/routes.dart';
@@ -52,9 +53,9 @@ Widget navigateToInitialScreen(String route) {
       // return ProgramLibraryScreenNew(userId: 4, controllerId: 1, deviceId: '2CCF674C0F8A', fromDealer: false, customerId: 4,);
       return const LoginScreen();
     case Routes.dashboard:
+       return MyGifPage();
        // return GroupListScreen(userId: 8, controllerId: 23, deviceId: '2CCF6773D07D',);
-      // return ProgramLibraryScreenNew(userId: 4, controllerId: 1, deviceId: '2CCF674C0F8A', fromDealer: false, customerId: 4,);
-     return const ScreenController();
+      return const ScreenController();
 
     default:
       return const SplashScreen();

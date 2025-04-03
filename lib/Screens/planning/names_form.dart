@@ -76,14 +76,11 @@ class _NamesState extends State<Names> {
     return "Not found";
   }
 
-
   void _updateName(int index, String newName) {
     setState(() {
       configObjects[index]["name"] = newName;
     });
   }
-
-
 
   Widget buildTab(String objectName) {
     final filteredData = configObjects.where((obj) => obj["objectName"] == objectName).toList();
