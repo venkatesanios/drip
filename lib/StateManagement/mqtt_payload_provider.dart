@@ -485,6 +485,7 @@ class MqttPayloadProvider with ChangeNotifier {
         liveDateAndTime = '${data['cD']} ${data['cT']}';
         updateLastCommunication(liveDateAndTime);
         wifiStrength = data['cM']['WifiStrength'];
+        powerSupply = data['cM']['PowerSupply'];
         updateNodeLiveMessage(data['cM']['2401'].split(";"));
         updateOutputStatusPayload(data['cM']['2402'].split(";"));
         updatePumpStatusPayload(data['cM']['2404'].split(";"));
