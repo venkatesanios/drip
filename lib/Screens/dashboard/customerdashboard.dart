@@ -22,8 +22,6 @@ import '../../utils/constants.dart';
 import '../../utils/shared_preferences_helper.dart';
 import '../../utils/snack_bar.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
-import '../../views/customer/home_sub_classes/irrigation_line.dart';
-import '../../modules/IrrigationProgram/view/preview_screen.dart';
 import '../../modules/IrrigationProgram/view/schedule_screen.dart';
 import 'mobilecurrentprogram.dart';
 import 'mobilenext_schedule.dart';
@@ -1550,7 +1548,8 @@ class _DashboardState extends State<MobDashboard>
                                       ),
                                     ),
                                   ),
-*//*
+*/
+/*
 
                                   SizedBox(
                                     width: 70,
