@@ -420,7 +420,7 @@ class CustomerScreenController extends StatelessWidget {
                               ),
                             ),
                           ):
-                          powerSupply == 0?Container(
+                          powerSupply == 0? Container(
                             height: 20.0,
                             decoration: BoxDecoration(
                               color: Colors.red.shade300,

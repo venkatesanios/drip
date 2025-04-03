@@ -9,14 +9,17 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../Models/customer/site_model.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
+import '../../../repository/repository.dart';
+import '../../../services/http_service.dart';
 import '../../../services/mqtt_service.dart';
 import '../../../utils/constants.dart';
 import '../../../view_models/customer/current_program_view_model.dart';
 
 class CurrentProgram extends StatelessWidget {
-  const CurrentProgram({super.key, required this.scheduledPrograms, required this.deviceId});
+  const CurrentProgram({super.key, required this.scheduledPrograms, required this.deviceId, required this.customerId, required this.controllerId});
   final List<ProgramList> scheduledPrograms;
   final String deviceId;
+  final int customerId, controllerId;
 
   @override
   Widget build(BuildContext context) {
@@ -160,12 +163,11 @@ class CurrentProgram extends StatelessWidget {
                               textColor: Colors.white,
                               onPressed: () async {
 
-                                /*String payLoadFinal = jsonEncode({
-                            "3900": {"3901": '0,${widget.currentSchedule[index].programCategory},${widget.currentSchedule[index].programSno},'
-                                '${widget.currentSchedule[index].zoneSNo},,,,,,,,,0,'}
-                          });
-
-                          MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');*/
+                                String payLoadFinal = jsonEncode({
+                                  "3900": {"3901": '0,${values[3]},${values[0]},'
+                                      '${values[1]},,,,,,,,,0,'}
+                                });
+                                MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
 
                                 /*sendToServer(widget.currentSchedule[index].programSno,widget.currentSchedule[index].programName,
                               widget.currentSchedule[index].zoneName,
@@ -183,7 +185,7 @@ class CurrentProgram extends StatelessWidget {
                                   "3700": {"3701": payload}
                                 });
                                 MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-                                /*sendSkipOperationToServer('${widget.currentSchedule[index].programName} - ${widget.currentSchedule[index].zoneName} skipped manually', payLoadFinal);*/
+                                sentUserOperationToServer('${getProgramNameById(int.parse(values[0]))} - ${getSequenceName(int.parse(values[0]), values[1])} skipped manually', payLoadFinal);
                               } : null,
                               child: const Text('Skip'),
                             ),
@@ -307,6 +309,17 @@ class CurrentProgram extends StatelessWidget {
 
   String getContentByCode(int code) {
     return GemProgramStartStopReasonCode.fromCode(code).content;
+  }
+
+  void sentUserOperationToServer(String msg, String data) async
+  {
+    Map<String, Object> body = {"userId": customerId, "controllerId": controllerId, "messageStatus": msg, "hardware": jsonDecode(data), "createUser": customerId};
+    final response = await Repository(HttpService()).createUserSentAndReceivedMessageManually(body);
+    if (response.statusCode == 200) {
+      print(response.body);
+    } else {
+      throw Exception('Failed to load data');
+    }
   }
 
 }
