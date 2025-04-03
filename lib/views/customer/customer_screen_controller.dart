@@ -13,6 +13,7 @@ import 'package:oro_drip_irrigation/views/customer/stand_alone.dart';
 import '../../Models/customer/site_model.dart';
 import 'package:provider/provider.dart';
 import '../../Screens/Dealer/controllerverssionupdate.dart';
+import '../../Screens/planning/FactoryReset.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../flavors.dart';
 import '../../modules/ScheduleView/view/schedule_view_screen.dart';
@@ -295,6 +296,20 @@ class CustomerScreenController extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) => ResetVerssion(userId: userId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId, deviceID: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,),
+                        ),
+                      );
+                        },
+                        ),
+                        ListTile(
+                        leading: const Icon(Icons.restore),
+                        title: const Text('Factory Reset'),
+                        onTap: () {
+                       // showPasswordDialog(context, _correctPassword, userId, vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId, vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId);
+                      Navigator.pop(context);
+                       Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Reset_Accumalation(userId: userId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId, deviceID: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,),
                         ),
                       );
                         },

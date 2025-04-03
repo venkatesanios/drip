@@ -377,7 +377,11 @@ class Repository{
   Future<http.Response> updateUserDeviceFirmwareDetails(body) async {
     return await apiService.putRequest('/user/deviceList/updateFirmwareDetails', body);
   }
-
-
-}
+  Future<http.Response> getresetAccumulation(body) async {
+    return await apiService.postRequest('/api/v1/user/resetAccumulation/get', body);
+  }
+  Future<http.Response> updateresetAccumulation(body) async {
+    return await apiService.putRequest('/api/v1/user/resetAccumulation/update', body);
+  }
+  }
 
