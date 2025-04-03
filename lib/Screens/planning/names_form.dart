@@ -147,7 +147,8 @@ class _NamesState extends State<Names> {
                       height: 50, // Set the height of the row
                       alignment: Alignment.center,
                       child: Text(
-                        filteredData[index]["sNo"].toString(),
+                        // "${index+1}",
+                       filteredData[index]["sNo"].toString(),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -219,10 +220,16 @@ class _NamesState extends State<Names> {
                 unselectedLabelColor: Theme.of(context).primaryColor,
                 indicatorColor: Colors.white,
                 isScrollable: true,
-                indicatorPadding: const EdgeInsets.only(left: -10, top: 0, right: -10, bottom: 0),
-                indicator: BoxDecoration(color: Theme.of(context).primaryColor ,border: Border.all(),) ,
-                dividerColor: Colors.grey,
-                 tabs: uniqueObjectNames.map((name) => Tab(text: name)).toList(),
+                // indicatorPadding: const EdgeInsets.only(left: -10, top: 0, right: -10, bottom: 0),
+                indicator: BoxDecoration(color: Theme.of(context).primaryColor ,border: Border.all(),
+                  borderRadius: BorderRadius.circular(5),) ,
+                // dividerColor: Colors.grey,
+                 tabs: uniqueObjectNames.map((name) => Container(height: 40,
+                     padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
+                     decoration: BoxDecoration(
+                     borderRadius: BorderRadius.circular(5),
+                   border: Border.all()
+                  ),child: Tab(text: name))).toList(),
               ),
             ),
             Expanded(
