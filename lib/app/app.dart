@@ -32,7 +32,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     bool isDarkMode = false;
     return FutureBuilder<String>(
       future: getInitialRoute(),
