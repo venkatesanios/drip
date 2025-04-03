@@ -53,7 +53,7 @@ Widget navigateToInitialScreen(String route) {
       // return ProgramLibraryScreenNew(userId: 4, controllerId: 1, deviceId: '2CCF674C0F8A', fromDealer: false, customerId: 4,);
       return const LoginScreen();
     case Routes.dashboard:
-       return MyGifPage();
+       // return MyGifPage();
        // return GroupListScreen(userId: 8, controllerId: 23, deviceId: '2CCF6773D07D',);
       return const ScreenController();
 

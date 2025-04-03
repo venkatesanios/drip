@@ -218,9 +218,9 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                   sideNavigationWidget(screenWidth, screenHeight),
                   Expanded(
                     child: Container(
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                             color: Colors.white,
-                            borderRadius: const BorderRadius.only(topLeft: Radius.circular(10))
+                            borderRadius: BorderRadius.only(topLeft: Radius.circular(10))
                         ),
                         child: configPvd.selectedTab == ConfigMakerTabs.deviceList
                             ? DeviceList(listOfDevices: widget.listOfDevices)

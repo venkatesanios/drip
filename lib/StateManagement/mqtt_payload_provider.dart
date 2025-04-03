@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
 import '../Constants/data_convertion.dart';
 import '../Models/Weather_model.dart';
 import '../Models/customer/site_model.dart';

@@ -89,7 +89,7 @@ class _NamesState extends State<Names> {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Table(
-          border: TableBorder.all(color: Colors.grey),
+          // border: TableBorder.all(color: Colors.grey),
           columnWidths: const {
             0: FixedColumnWidth(80),
             1: FixedColumnWidth(120),
@@ -97,14 +97,14 @@ class _NamesState extends State<Names> {
           },
           children: [
             const TableRow(
-              decoration: BoxDecoration(color: Colors.blueGrey),
+              decoration: BoxDecoration(color: Colors.white),
               children: [
                 Padding(
                   padding: EdgeInsets.all(8.0),
                   child: Center(
                     child: Text(
                       'S.No',
-                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -114,7 +114,7 @@ class _NamesState extends State<Names> {
                   child: Center(
                     child: Text(
                       'Location',
-                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -124,7 +124,7 @@ class _NamesState extends State<Names> {
                   child: Center(
                     child: Text(
                       'Name',
-                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -133,28 +133,35 @@ class _NamesState extends State<Names> {
             ),
             ...List<TableRow>.generate(
               filteredData.length,
-                  (index) => TableRow(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Center( // Center the S.No text vertically
+                  (index) {
+                // Determine the row background color
+                Color rowColor = (index % 2 == 0) ? Colors.grey[100]! : Colors.white;
+
+                return TableRow(
+                  decoration: BoxDecoration(
+                    color: rowColor, // Set background color for the row
+                  ),
+                  children: [
+                    // Adjust row height by using Container with fixed height
+                    Container(
+                      height: 50, // Set the height of the row
+                      alignment: Alignment.center,
                       child: Text(
                         filteredData[index]["sNo"].toString(),
                         textAlign: TextAlign.center,
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Center( // Center the Location text vertically
-                      child: Text( getNameBySNo(filteredData[index]["location"]),
-                         textAlign: TextAlign.center,
+                    Container(
+                      height: 50, // Set the height of the row
+                      alignment: Alignment.center,
+                      child: Text(
+                        getNameBySNo(filteredData[index]["location"]),
+                        textAlign: TextAlign.center,
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Center( // Center the TextFormField vertically
+                    Container(
+                      height: 50, // Set the height of the row
+                      alignment: Alignment.center,
                       child: TextFormField(
                         inputFormatters: [
                           LengthLimitingTextInputFormatter(15),
@@ -166,39 +173,39 @@ class _NamesState extends State<Names> {
                             bool nameExists = false;
                             for (var element in configObjects) {
                               if (element["name"] == val && element != filteredData[index]) {
-                                showSnackBar(
-                                    message: 'Name Already Exists', context: context);
+                                showSnackBar(message: 'Name Already Exists', context: context);
                                 nameExists = true;
                                 break;
                               }
                             }
                             if (val.length > 15) {
-                              showSnackBar(
-                                  message: 'Name length Maximum reached', context: context);
+                              showSnackBar(message: 'Name length Maximum reached', context: context);
                             }
 
                             if (!nameExists && val.isNotEmpty) {
                               filteredData[index]["name"] = val;
                             }
 
-                            _updateName(index,val);
+                            _updateName(index, val);
                           });
                         },
                         decoration: const InputDecoration(
                           border: InputBorder.none,
                         ),
+                        style: TextStyle(color: Colors.blue),
                         textAlign: TextAlign.center,
                       ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                );
+              },
             ),
           ],
         ),
       ),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -206,13 +213,16 @@ class _NamesState extends State<Names> {
       child: Scaffold(
          body: Column(
           children: [
-            Container(color: Theme.of(context).primaryColor,
+            Container(
               child: TabBar(
                 labelColor: Colors.white,
-                unselectedLabelColor: Colors.white54,
+                unselectedLabelColor: Theme.of(context).primaryColor,
                 indicatorColor: Colors.white,
                 isScrollable: true,
-                tabs: uniqueObjectNames.map((name) => Tab(text: name)).toList(),
+                indicatorPadding: const EdgeInsets.only(left: -10, top: 0, right: -10, bottom: 0),
+                indicator: BoxDecoration(color: Theme.of(context).primaryColor ,border: Border.all(),) ,
+                dividerColor: Colors.grey,
+                 tabs: uniqueObjectNames.map((name) => Tab(text: name)).toList(),
               ),
             ),
             Expanded(

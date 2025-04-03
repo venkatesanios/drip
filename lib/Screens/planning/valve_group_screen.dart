@@ -117,41 +117,50 @@ class _GroupListScreenState extends State<GroupListScreen> {
         return StatefulBuilder(
           builder: (context, setStateDialog) {
             return AlertDialog(
-              title: Text(editCheck ? 'Edit Valve Group' : 'Add Valve Group'),
+              title: Text(editCheck ? 'Edit Valve Group' : 'Add Valve Group',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18),),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextFormField(
-                      controller: _controller,
-                      decoration: const InputDecoration(labelText: 'Group Name:'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter some text';
-                        }
-                        return null;
-                      },
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextFormField(
+                          controller: _controller,
+                          decoration: const InputDecoration(labelText: 'Group Name:'),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter some text';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 8),
-                    DropdownButton<IrrigationLine>(
-                      hint: const Text('Choose an irrigation line'),
-                      value: selectedIrrigationLine,
-                      onChanged: (IrrigationLine? newValue) {
-                        setStateDialog(() {
-                          selectLineIndex = _groupdata.data!.defaultData.irrigationLine
-                              .indexWhere((line) => line.name == newValue!.name);
-                          selectedIrrigationLine = newValue;
-                          selectedValves.clear();
-                          selectedValveSnos.clear();
-                        });
-                      },
-                      items: _groupdata.data!.defaultData.irrigationLine.map((IrrigationLine line) {
-                        return DropdownMenuItem<IrrigationLine>(
-                          value: line,
-                          child: Text(line.name),
-                        );
-                      }).toList(),
+                    const SizedBox(height: 8), Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: DropdownButton<IrrigationLine>(
+                          hint: const Text('Choose an irrigation line'),
+                          value: selectedIrrigationLine,
+                          onChanged: (IrrigationLine? newValue) {
+                            setStateDialog(() {
+                              selectLineIndex = _groupdata.data!.defaultData.irrigationLine
+                                  .indexWhere((line) => line.name == newValue!.name);
+                              selectedIrrigationLine = newValue;
+                              selectedValves.clear();
+                              selectedValveSnos.clear();
+                            });
+                          },
+                          items: _groupdata.data!.defaultData.irrigationLine.map((IrrigationLine line) {
+                            return DropdownMenuItem<IrrigationLine>(
+                              value: line,
+                              child: Text(line.name),
+                            );
+                          }).toList(),
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 16),
                     if (selectedIrrigationLine != null) ...[
@@ -282,13 +291,15 @@ class _GroupListScreenState extends State<GroupListScreen> {
                         spacing: 5,
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          SizedBox.shrink(),
+                          SizedBox(width: 10,),
                           CircleAvatar(
                             backgroundColor: Theme.of(context).primaryColor,
                             foregroundColor: Colors.white,
                             child: Text('${index + 1}'),
                           ),
                           Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 "${_groupdata.data?.valveGroup?[index].groupName}",
