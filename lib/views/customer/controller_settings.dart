@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:oro_drip_irrigation/Models/admin&dealer/dealer_definition_model.dart';
+import 'package:oro_drip_irrigation/Models/customer/constant_model.dart';
 import 'package:oro_drip_irrigation/Screens/Dealer/dealer_definition.dart';
 import 'package:oro_drip_irrigation/view_models/customer/controller_settings_view_model.dart';
 import 'package:oro_drip_irrigation/views/customer/condition_library.dart';
@@ -19,6 +20,7 @@ import '../../modules/fertilizer_set/view/fertilizer_Set_screen.dart';
 import '../../modules/global_limit/view/global_limit_screen.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
+import '../mobile/general.dart';
 import 'constant.dart';
 
 class ControllerSettings extends StatelessWidget {
@@ -436,19 +438,34 @@ class ControllerSettings extends StatelessWidget {
                 ],
               ),
             ),
-          ):
-          ListView.builder(
-            itemCount: viewModel.settings.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                leading: Icon(viewModel.settings[index]['icon'], color: Colors.blue),
-                title: Text(viewModel.settings[index]['title'], style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                onTap: () {
-                  // Handle navigation or action
-                },
-              );
-            },
+          ) :
+          Scaffold(
+            body: ListView.builder(
+              itemCount: viewModel.settings.length,
+              itemBuilder: (context, index) {
+                return Column(
+                  children: [
+                    ListTile(
+                      leading: Icon(viewModel.settings[index]['icon'], color: Theme.of(context).primaryColor),
+                      title: Text(
+                        viewModel.settings[index]['title'],
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      onTap: () {
+                        if(index==0){
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => General(customerId: customerId, controllerId: controllerId, adDrId: adDrId, userId: adDrId,)));
+                        }
+                      },
+                    ),
+                    if (index < viewModel.settings.length - 1) const Padding(
+                      padding: EdgeInsets.only(left: 40, right: 8),
+                      child: Divider(height: 0),
+                    ),
+                  ],
+                );
+              },
+            ),
           );
         },
       ),

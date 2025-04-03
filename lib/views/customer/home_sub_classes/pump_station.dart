@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:popover/popover.dart';
@@ -5,8 +7,12 @@ import 'package:provider/provider.dart';
 import '../../../Models/customer/site_model.dart';
 import '../../../StateManagement/duration_notifier.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
+import '../../../repository/repository.dart';
+import '../../../services/http_service.dart';
+import '../../../services/mqtt_service.dart';
 import '../../../utils/constants.dart';
 import '../../../utils/formatters.dart';
+import '../../../utils/snack_bar.dart';
 import '../../../view_models/customer/pump_station_view_model.dart';
 import 'irrigation_line.dart';
 
@@ -43,11 +49,11 @@ class PumpStation extends StatelessWidget {
             child: Container(
               width: MediaQuery.sizeOf(context).width,
               decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(
+                color: kIsWeb? Colors.white : Colors.white54,
+                border: kIsWeb? Border.all(
                   color: Colors.grey.shade400,
                   width: 0.5,
-                ),
+                ) : null,
                 borderRadius: const BorderRadius.all(Radius.circular(5)),
               ),
               child: kIsWeb? Padding(
@@ -113,6 +119,7 @@ class PumpStation extends StatelessWidget {
       vm.mvFilterSite.expand((filterSite) => [
         if (filterSite.pressureIn != null)
           PressureSensorWidget(pressureSensor: filterSite.pressureIn!),
+
         ...filterSite.filters.map((filter) => FilterWidget(filter: filter)),
 
         if (filterSite.pressureOut != null)
@@ -162,7 +169,36 @@ class PumpStation extends StatelessWidget {
                 children: [
                   SizedBox(
                     width: 70,
-                    child: Column(
+                    child: isLastIndex? Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Row(
+                            children: [
+                              Container(width: 32, height: 2, color: Colors.grey.shade300),
+                              const SizedBox(width: 7,),
+                              Container(width: 31, height: 2, color: Colors.grey.shade300),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2.9),
+                          child: Row(
+                            children: [
+                              Container(width: 27, height: 2, color: Colors.grey.shade300),
+                              const SizedBox(width: 10,),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 5),
+                                child: Container(width: 28, height: 2, color: Colors.grey.shade300),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ):
+                    Column(
                       children: [
                         Padding(
                           padding: EdgeInsets.only(left: index == 0 ? 33 : 0),
@@ -192,6 +228,9 @@ class PumpStation extends StatelessWidget {
                               children: [
                                 VerticalDivider(thickness: 1, color: Colors.grey.shade400, width: 3),
                                 VerticalDivider(thickness: 1, color: Colors.grey.shade400, width: 5),
+                                isLastIndex? const SizedBox(width: 3,):const SizedBox(),
+                                isLastIndex? VerticalDivider(thickness: 1, color: Colors.grey.shade400, width: 3):const SizedBox(),
+                                isLastIndex? VerticalDivider(thickness: 1, color: Colors.grey.shade400, width: 5):const SizedBox(),
                               ],
                             ),
                           ),
@@ -267,7 +306,7 @@ class PumpStation extends StatelessWidget {
               children: source.outletPump.map((pump) {
                 return Padding(
                   padding: EdgeInsets.only(top: vm.mvFertilizerSite.isNotEmpty ? 38.4 : 0),
-                  child: displayPump(context, pump, vm),
+                  child: displayPump(context, pump, vm, source.inletPump.isEmpty? true : false),
                 );
               }).toList(),
             ),
@@ -336,7 +375,7 @@ class PumpStation extends StatelessWidget {
   }
 
 
-  Widget displayPump(BuildContext context, Pump pump, PumpStationViewModel vm){
+  Widget displayPump(BuildContext context, Pump pump, PumpStationViewModel vm, bool isSourcePump){
     return Stack(
       children: [
         SizedBox(
@@ -1197,6 +1236,83 @@ class PumpStation extends StatelessWidget {
                                 );
                               },
                             ),
+                            isSourcePump? Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  const Spacer(),
+                                  MaterialButton(
+                                    color: Colors.green,
+                                    textColor: Colors.white,
+                                    onPressed: () {
+                                      String payload = '${pump.sNo},1,1';
+                                      String payLoadFinal = jsonEncode({
+                                        "6200": {"6201": payload}
+                                      });
+                                      MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
+                                      sentUserOperationToServer('${pump.name} Start Manually', payLoadFinal);
+                                      GlobalSnackBar.show(context, 'Pump start comment sent successfully', 200);
+                                      Navigator.pop(context);
+
+                                      /*if(getPermissionStatusBySNo(context, 4)){
+                                        String payload = '${filteredPumps[index].sNo},1,1';
+                                        String payLoadFinal = jsonEncode({
+                                          "6200": [{"6201": payload}]
+                                        });
+                                        MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.deviceId}');
+                                        sentUserOperationToServer('${pump.swName ?? pump.name} Start Manually', payLoadFinal);
+                                        showSnakeBar('Pump of comment sent successfully');
+                                        Navigator.pop(context);
+                                      }else{
+                                        Navigator.pop(context);
+                                        GlobalSnackBar.show(context, 'Permission denied', 400);
+                                      }*/
+                                    },
+                                    child: const Text('Start Manually',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8,),
+                                  MaterialButton(
+                                    color: Colors.redAccent,
+                                    textColor: Colors.white,
+                                    onPressed: () {
+
+                                      String payload = '${pump.sNo},0,1';
+                                      String payLoadFinal = jsonEncode({
+                                        "6200": {"6201": payload}
+                                      });
+                                      MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
+                                      sentUserOperationToServer('${pump.name} Stop Manually', payLoadFinal);
+                                      GlobalSnackBar.show(context, 'Pump stop comment sent successfully', 200);
+                                      Navigator.pop(context);
+
+                                      /*if(getPermissionStatusBySNo(context, 4)){
+                                            String payload = '${filteredPumps[index].sNo},0,1';
+                                            String payLoadFinal = jsonEncode({
+                                              "6200": [{"6201": payload}]
+                                            });
+                                            MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.deviceId}');
+                                            sentUserOperationToServer('${pump.swName ?? pump.name} Stop Manually', payLoadFinal);
+                                            showSnakeBar('Pump of comment sent successfully');
+                                            Navigator.pop(context);
+                                          }else{
+                                            Navigator.pop(context);
+                                            GlobalSnackBar.show(context, 'Permission denied', 400);
+                                          }*/
+
+                                    },
+                                    child: const Text('Stop Manually',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8,),
+                                ],
+                              ),
+                            ):
+                            const SizedBox(),
                           ],
                         );
                       },
@@ -1301,52 +1417,6 @@ class PumpStation extends StatelessWidget {
           ),
         ):
         const SizedBox(),
-
-       /* pump.onDelayLeft != '00:00:00'? Positioned(
-          top: 40,
-          left: 7.5,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.greenAccent,
-              borderRadius: const BorderRadius.all(Radius.circular(2)),
-              border: Border.all(color: Colors.green, width: .50),
-            ),
-            width: 55,
-            child: Center(
-              child: Column(
-                children: [
-                  const Text(
-                    "On delay",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 10,
-                      fontWeight: FontWeight.normal,
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(left: 3, right: 3),
-                    child: Divider(
-                      height: 0,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  ChangeNotifierProvider(
-                    create: (_) => DurationNotifierPump(pump.onDelayLeft),
-                    child: Text(
-                      pump.onDelayLeft,
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ):
-        const SizedBox(),*/
 
         int.tryParse(pump.reason) != null && int.parse(pump.reason) > 0 && int.parse(pump.reason)!=31
             ? Positioned(
@@ -2153,6 +2223,18 @@ class PumpStation extends StatelessWidget {
     }
     return null;
   }
+
+  void sentUserOperationToServer(String msg, String data) async
+  {
+    Map<String, Object> body = {"userId": customerId, "controllerId": controllerId, "messageStatus": msg, "hardware": jsonDecode(data), "createUser": customerId};
+    final response = await Repository(HttpService()).createUserSentAndReceivedMessageManually(body);
+    if (response.statusCode == 200) {
+      print(response.body);
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+
 }
 
 class SourceWidget extends StatelessWidget {
@@ -3531,4 +3613,24 @@ class ValveWidget extends StatelessWidget {
       },
     );
   }
+}
+
+class PipelineBendPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.black
+      ..strokeWidth = 4
+      ..style = PaintingStyle.stroke;
+
+    Path path1 = Path();
+    path1.moveTo(20, 30);
+    path1.lineTo(size.width - 20, 30);
+    path1.relativeLineTo(0, 5);
+
+    canvas.drawPath(path1, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

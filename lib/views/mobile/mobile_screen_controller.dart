@@ -163,153 +163,157 @@ class MobileScreenController extends StatelessWidget {
                 ),
               ],
               bottom: PreferredSize(
-                preferredSize: const Size.fromHeight(40), // Adjust height as needed
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal, // Enables horizontal scrolling
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const SizedBox(width: 15),
+                preferredSize: const Size.fromHeight(50),
+                child: Container(
+                  color: Colors.black54,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 7.0),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal, // Enables horizontal scrolling
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(width: 15),
 
-                        vm.mySiteList.data.length > 1
-                            ? DropdownButton(
-                          isExpanded: false,
-                          underline: Container(),
-                          items: (vm.mySiteList.data ?? []).map((site) {
-                            return DropdownMenuItem(
-                              value: site.groupName,
-                              child: Text(
-                                site.groupName,
-                                style: const TextStyle(color: Colors.white, fontSize: 17),
+                          vm.mySiteList.data.length > 1
+                              ? DropdownButton(
+                            isExpanded: false,
+                            underline: Container(),
+                            items: (vm.mySiteList.data ?? []).map((site) {
+                              return DropdownMenuItem(
+                                value: site.groupName,
+                                child: Text(
+                                  site.groupName,
+                                  style: const TextStyle(color: Colors.white, fontSize: 17),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (siteName) => vm.siteOnChanged(siteName!),
+                            value: vm.myCurrentSite,
+                            dropdownColor: Colors.teal,
+                            iconEnabledColor: Colors.white,
+                            iconDisabledColor: Colors.white,
+                            focusColor: Colors.transparent,
+                          )
+                              : Text(
+                            vm.mySiteList.data[vm.sIndex].groupName,
+                            style: const TextStyle(fontSize: 15, color: Colors.white54),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+
+                          const SizedBox(width: 15),
+                          Container(width: 1, height: 20, color: Colors.white54),
+                          const SizedBox(width: 5),
+
+                          vm.mySiteList.data[vm.sIndex].master.length > 1
+                              ? PopupMenuButton<String>(
+                            color: Colors.white,
+                            surfaceTintColor: Theme.of(context).primaryColorLight,
+                            tooltip: 'master controller',
+                            child: MaterialButton(
+                              onPressed: null,
+                              textColor: Colors.white,
+                              child: Row(
+                                children: [
+                                  Text(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName),
+                                  const SizedBox(width: 3),
+                                  const Icon(Icons.arrow_drop_down, color: Colors.white),
+                                ],
                               ),
-                            );
-                          }).toList(),
-                          onChanged: (siteName) => vm.siteOnChanged(siteName!),
-                          value: vm.myCurrentSite,
-                          dropdownColor: Colors.teal,
-                          iconEnabledColor: Colors.white,
-                          iconDisabledColor: Colors.white,
-                          focusColor: Colors.transparent,
-                        )
-                            : Text(
-                          vm.mySiteList.data[vm.sIndex].groupName,
-                          style: const TextStyle(fontSize: 15, color: Colors.white54),
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                            ),
+                            itemBuilder: (context) {
+                              return List.generate(vm.mySiteList.data[vm.sIndex].master.length, (index) {
+                                return PopupMenuItem<String>(
+                                  value: vm.mySiteList.data[vm.sIndex].master[index].categoryName,
+                                  child: Text(vm.mySiteList.data[vm.sIndex].master[index].categoryName),
+                                );
+                              });
+                            },
+                            onSelected: (selectedCategory) {
+                              vm.masterOnChanged(selectedCategory);
+                            },
+                          )
+                              : Text(
+                            vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
+                            style: const TextStyle(fontSize: 15, color: Colors.white54),
+                          ),
 
-                        const SizedBox(width: 15),
-                        Container(width: 1, height: 20, color: Colors.white54),
-                        const SizedBox(width: 5),
+                          const SizedBox(width: 15),
+                          Container(width: 1, height: 20, color: Colors.white54),
+                          const SizedBox(width: 5),
 
-                        vm.mySiteList.data[vm.sIndex].master.length > 1
-                            ? PopupMenuButton<String>(
-                          color: Colors.white,
-                          surfaceTintColor: Theme.of(context).primaryColorLight,
-                          tooltip: 'master controller',
-                          child: MaterialButton(
-                            onPressed: null,
-                            textColor: Colors.white,
-                            child: Row(
-                              children: [
-                                Text(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName),
-                                const SizedBox(width: 3),
-                                const Icon(Icons.arrow_drop_down, color: Colors.white),
-                              ],
+                          vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1 &&
+                              vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData.length > 1
+                              ? DropdownButton(
+                            underline: Container(),
+                            items: (vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData ?? [])
+                                .map((line) {
+                              return DropdownMenuItem(
+                                value: line.name,
+                                child: Text(
+                                  line.name,
+                                  style: const TextStyle(color: Colors.white, fontSize: 17),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (lineName) => vm.lineOnChanged(lineName),
+                            value: vm.myCurrentIrrLine,
+                            dropdownColor: Theme.of(context).primaryColorLight,
+                            iconEnabledColor: Colors.white,
+                            iconDisabledColor: Colors.white,
+                            focusColor: Colors.transparent,
+                          )
+                              : vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1
+                              ? Text(
+                            vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData.isNotEmpty
+                                ? vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData[0].name
+                                : 'Line empty',
+                            style: const TextStyle(fontSize: 15),
+                          )
+                              : const SizedBox(),
+
+                          const SizedBox(width: 15),
+                          Container(width: 1, height: 20, color: Colors.white54),
+                          const SizedBox(width: 5),
+
+                          Container(
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5), color: Colors.transparent),
+                            width: 45,
+                            height: 45,
+                            child: IconButton(
+                              tooltip: 'refresh',
+                              onPressed: vm.onRefreshClicked,
+                              icon: const Icon(Icons.refresh),
+                              color: Colors.white,
+                              iconSize: 24.0,
+                              hoverColor: Theme.of(context).primaryColorLight,
                             ),
                           ),
-                          itemBuilder: (context) {
-                            return List.generate(vm.mySiteList.data[vm.sIndex].master.length, (index) {
-                              return PopupMenuItem<String>(
-                                value: vm.mySiteList.data[vm.sIndex].master[index].categoryName,
-                                child: Text(vm.mySiteList.data[vm.sIndex].master[index].categoryName),
-                              );
-                            });
-                          },
-                          onSelected: (selectedCategory) {
-                            vm.masterOnChanged(selectedCategory);
-                          },
-                        )
-                            : Text(
-                          vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
-                          style: const TextStyle(fontSize: 15, color: Colors.white54),
-                        ),
 
-                        const SizedBox(width: 15),
-                        Container(width: 1, height: 20, color: Colors.white54),
-                        const SizedBox(width: 5),
-
-                        vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1 &&
-                            vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData.length > 1
-                            ? DropdownButton(
-                          underline: Container(),
-                          items: (vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData ?? [])
-                              .map((line) {
-                            return DropdownMenuItem(
-                              value: line.name,
-                              child: Text(
-                                line.name,
-                                style: const TextStyle(color: Colors.white, fontSize: 17),
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (lineName) => vm.lineOnChanged(lineName),
-                          value: vm.myCurrentIrrLine,
-                          dropdownColor: Theme.of(context).primaryColorLight,
-                          iconEnabledColor: Colors.white,
-                          iconDisabledColor: Colors.white,
-                          focusColor: Colors.transparent,
-                        )
-                            : vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1
-                            ? Text(
-                          vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData.isNotEmpty
-                              ? vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData[0].name
-                              : 'Line empty',
-                          style: const TextStyle(fontSize: 15),
-                        )
-                            : const SizedBox(),
-
-                        const SizedBox(width: 15),
-                        Container(width: 1, height: 20, color: Colors.white54),
-                        const SizedBox(width: 5),
-
-                        Container(
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5), color: Colors.transparent),
-                          width: 45,
-                          height: 45,
-                          child: IconButton(
-                            tooltip: 'refresh',
-                            onPressed: vm.onRefreshClicked,
-                            icon: const Icon(Icons.refresh),
-                            color: Colors.white,
-                            iconSize: 24.0,
-                            hoverColor: Theme.of(context).primaryColorLight,
+                          Text(
+                            'Last sync @ - ${Formatters.formatDateTime('${vm.mySiteList.data[vm.sIndex].master[vm.mIndex].live?.cD} ${vm.mySiteList.data[vm.sIndex].master[vm.mIndex].live?.cT}')}',
+                            style: const TextStyle(fontSize: 15, color: Colors.white54),
                           ),
-                        ),
 
-                        Text(
-                          'Last sync @ - ${Formatters.formatDateTime('${vm.mySiteList.data[vm.sIndex].master[vm.mIndex].live?.cD} ${vm.mySiteList.data[vm.sIndex].master[vm.mIndex].live?.cT}')}',
-                          style: const TextStyle(fontSize: 15, color: Colors.white54),
-                        ),
-
-                        const SizedBox(width: 15),
-                      ],
+                          const SizedBox(width: 15),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-            floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+            floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
             bottomNavigationBar: BottomNavigationBar(
               currentIndex: vm.selectedIndex,
               onTap: vm.onItemTapped,
-              selectedItemColor: Theme.of(context).primaryColorLight, // Change this to your desired color
+              selectedItemColor: Theme.of(context).primaryColorLight,
               unselectedItemColor: Colors.grey,
               type: BottomNavigationBarType.fixed,
               items: const [
                 BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+                BottomNavigationBarItem(icon: Icon(Icons.list), label: "Scheduled Program"),
                 BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), label: "Settings"),
               ],
             ),
@@ -464,625 +468,19 @@ class MobileScreenController extends StatelessWidget {
                   const SizedBox(),
 
                   Expanded(
-                    child: vm.selectedIndex==0? mainScreen(navViewModel.selectedIndex, vm.mySiteList.data[vm.sIndex].groupId,
+                    child: vm.selectedIndex==0? 
+                    mainScreen(navViewModel.selectedIndex, vm.mySiteList.data[vm.sIndex].groupId,
                         vm.mySiteList.data[vm.sIndex].groupName, vm.mySiteList.data[vm.sIndex].master,
                         vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
                         vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId):
+                    vm.selectedIndex==1? const Center(child: Text('program'),):
                     ControllerSettings(customerId: customerId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId, adDrId: fromLogin ? 1 : 0, userId: userId,),
                   ),
                 ],
               ),
             ),
           );
-
-
-          return  Scaffold(
-            appBar: AppBar(
-              title:  Row(
-                children: [
-                  fromLogin ?const SizedBox():
-                  const SizedBox(width: 10),
-                  fromLogin ? Image(
-                    image: F.appFlavor!.name.contains('oro')?const AssetImage("assets/png/oro_logo_white.png"):
-                    const AssetImage("assets/png/company_logo.png"),
-                    width: 110,
-                    fit: BoxFit.fitWidth,
-                  ):
-                  const SizedBox(),
-
-                  fromLogin ?const SizedBox(width: 20,):
-                  const SizedBox(width: 0),
-
-                  Container(width: 1, height: 20, color: Colors.white54,),
-                  const SizedBox(width: 5,),
-
-                  vm.mySiteList.data.length>1? DropdownButton(
-                    isExpanded: false,
-                    underline: Container(),
-                    items: (vm.mySiteList.data ?? []).map((site) {
-                      return DropdownMenuItem(
-                        value: site.groupName,
-                        child: Text(
-                          site.groupName,
-                          style: const TextStyle(color: Colors.white, fontSize: 17),
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (siteName) => vm.siteOnChanged(siteName!),
-                    value: vm.myCurrentSite,
-                    dropdownColor: Colors.teal,
-                    iconEnabledColor: Colors.white,
-                    iconDisabledColor: Colors.white,
-                    focusColor: Colors.transparent,
-                  ):
-                  Text(vm.mySiteList.data[vm.sIndex].groupName,
-                    style: const TextStyle(fontSize: 17), overflow: TextOverflow.ellipsis,),
-
-                  const SizedBox(width: 15,),
-                  Container(width: 1,height: 20, color: Colors.white54,),
-                  const SizedBox(width: 5,),
-
-                  vm.mySiteList.data[vm.sIndex].master.length>1? PopupMenuButton<String>(
-                    color: Colors.white,
-                    surfaceTintColor: Theme.of(context).primaryColorLight,
-                    tooltip: 'master controller',
-                    child: MaterialButton(
-                      onPressed: null,
-                      textColor: Colors.white,
-                      child: Row(
-                        children: [
-                          Text(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName),
-                          const SizedBox(width: 3),
-                          const Icon(Icons.arrow_drop_down, color: Colors.white),
-                        ],
-                      ),
-                    ),
-                    itemBuilder: (context) {
-                      return List.generate(vm.mySiteList.data[vm.sIndex].master.length, (index) {
-                        return PopupMenuItem<String>(
-                          value: vm.mySiteList.data[vm.sIndex].master[index].categoryName,
-                          child: Text(vm.mySiteList.data[vm.sIndex].master[index].categoryName),
-                        );
-                      });
-                    },
-                    onSelected: (selectedCategory) {
-                      vm.masterOnChanged(selectedCategory);
-                    },
-                  ):
-                  Text(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
-                    style: const TextStyle(fontSize: 17),),
-
-                  vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1?
-                  const SizedBox(width: 15,): const SizedBox(),
-
-                  vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1?
-                  Container(width: 1,height: 20, color: Colors.white54,): const SizedBox(),
-
-                  vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1?
-                  const SizedBox(width: 5,): const SizedBox(),
-
-                  vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1 &&
-                      vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData.length>1?
-                  DropdownButton(
-                    underline: Container(),
-                    items: (vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData ?? []).map((line) {
-                      return DropdownMenuItem(
-                        value: line.name,
-                        child: Text(line.name, style: const TextStyle(color: Colors.white, fontSize: 17),),
-                      );
-                    }).toList(),
-                    onChanged: (lineName) => vm.lineOnChanged(lineName),
-                    value: vm.myCurrentIrrLine,
-                    dropdownColor: Theme.of(context).primaryColorLight,
-                    iconEnabledColor: Colors.white,
-                    iconDisabledColor: Colors.white,
-                    focusColor: Colors.transparent,
-                  ) :
-                  vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1?
-                  Text(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData.isNotEmpty?
-                  vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData[0].name:
-                  'Line empty', style: const TextStyle(fontSize: 17),):
-                  const SizedBox(),
-
-                  const SizedBox(width: 15,),
-                  Container(width: 1, height: 20, color: Colors.white54,),
-                  const SizedBox(width: 5,),
-                  Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.transparent
-                    ),
-                    width: 45,
-                    height: 45,
-                    child: IconButton(
-                      tooltip: 'refresh',
-                      onPressed: vm.onRefreshClicked,
-                      icon: const Icon(Icons.refresh),
-                      color: Colors.white,
-                      iconSize: 24.0,
-                      hoverColor: Theme.of(context).primaryColorLight,
-                    ),
-                  ),
-                  Text(
-                    'Last sync @ - ${Formatters.formatDateTime('${vm.mySiteList.data[vm.sIndex].master[vm.mIndex].live?.cD} ${vm.mySiteList.data[vm.sIndex].master[vm.mIndex].live?.cT}')}',
-                    style: const TextStyle(fontSize: 15, color: Colors.white70),
-                  ),
-                ],
-              ),
-              leadingWidth: 75,
-              flexibleSpace: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    tileMode: TileMode.clamp,
-                    colors: [Theme.of(context).primaryColor, Theme.of(context).primaryColor],
-                  ),
-                ),
-              ),
-              actions: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    currentSchedule.isNotEmpty?
-                    CircleAvatar(
-                      radius: 15,
-                      backgroundImage: const AssetImage('assets/gif/water_drop_ani.gif'),
-                      backgroundColor: Colors.blue.shade100,
-                    ):
-                    const SizedBox(),
-                    const SizedBox(width: 10,),
-
-                    vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData.length>1 && iLineLiveMessage[0].isNotEmpty ? TextButton(
-                      onPressed: () => vm.linePauseOrResume(iLineLiveMessage),
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all<Color>(iLineLiveMessage.every((line) => line[1] == '1')?Colors.green: Colors.orange),
-                        shape: WidgetStateProperty.all<OutlinedBorder>(
-                          RoundedRectangleBorder(borderRadius: BorderRadius.circular(5),),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          iLineLiveMessage.every((line) => line[1] == '1')
-                              ? const Icon(Icons.play_arrow_outlined, color: Colors.black)
-                              : const Icon(Icons.pause, color: Colors.black),
-                          const SizedBox(width: 5),
-                          Text(iLineLiveMessage.every((line) => line[1] == '1') ? 'RESUME ALL LINE' : 'PAUSE ALL LINE',
-                              style: const TextStyle(color: Colors.black)),
-                        ],
-                      ),
-                    ):
-                    const SizedBox(),
-
-                    const SizedBox(width: 10),
-                    const IconButton(color: Colors.transparent, onPressed: null, icon: CircleAvatar(
-                      radius: 17,
-                      backgroundColor: Colors.black12,
-                      child: Icon(Icons.mic, color: Colors.black26,),
-                    )),
-                    IconButton(tooltip : 'Help & Support', onPressed: (){
-                      showMenu(
-                        context: context,
-                        color: Colors.white,
-                        position: const RelativeRect.fromLTRB(100, 0, 50, 0),
-                        items: <PopupMenuEntry>[
-                          PopupMenuItem(
-                            child: Column(
-                              children: [
-                                ListTile(
-                                  leading: const Icon(Icons.info_outline),
-                                  title: const Text('App info'),
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                                ListTile(
-                                  leading: const Icon(Icons.help_outline),
-                                  title: const Text('Help'),
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                                ListTile(
-                                  leading: const Icon(Icons.feedback_outlined),
-                                  title: const Text('Send feedback'),
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      );
-                    }, icon: const CircleAvatar(
-                      radius: 17,
-                      backgroundColor: Colors.white,
-                      child: Icon(Icons.live_help_outlined),
-                    )),
-                    IconButton(tooltip : 'Your Account\n$customerName\n $mobileNo', onPressed: (){
-                      showMenu(
-                        context: context,
-                        position: const RelativeRect.fromLTRB(100, 0, 10, 0),
-                        color: Colors.white,
-                        items: <PopupMenuEntry>[
-                          PopupMenuItem(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Center(
-                                  child: CircleAvatar(radius: 30, backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
-                                    child: Text(customerName.substring(0, 1).toUpperCase(),
-                                        style: const TextStyle(fontSize: 25)),),
-                                ),
-                                Text('Hi, $customerName!',style: const TextStyle(fontSize: 20)),
-                                Text(mobileNo, style: const TextStyle(fontSize: 13)),
-                                const SizedBox(height: 8),
-                                MaterialButton(
-                                  color: Theme.of(context).primaryColor,
-                                  textColor: Colors.white,
-                                  child: const Text('Manage Your Account'),
-                                  onPressed: () async {
-                                    Navigator.pop(context);
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => AccountSettings(userId: customerId, customerId: customerId, userName: customerName, mobileNo: mobileNo, emailId: emailId),
-                                      ),
-                                    );
-                                  },
-                                ),
-                                const SizedBox(height: 8),
-                                TextButton(onPressed: () async {
-                                  await PreferenceHelper.clearAll();
-                                  Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false,);
-                                },
-                                  child: const SizedBox(
-                                    width:100,
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Icon(Icons.exit_to_app, color: Colors.red),
-                                        SizedBox(width: 7),
-                                        Text('Logout', style: TextStyle(color: Colors.red),),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                        icon: CircleAvatar(
-                          radius: 17,
-                          backgroundColor: Colors.white,
-                          child: Text(customerName.substring(0, 1).toUpperCase()),
-                        )
-                    ),
-                  ],),
-                const SizedBox(width: 05),
-              ],
-            ),
-            extendBody: true,
-            body: Container(
-              color: Theme.of(context).primaryColor,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  NavigationRail(
-                    selectedIndex: navViewModel.selectedIndex,
-                    labelType: NavigationRailLabelType.all,
-                    elevation: 5,
-                    onDestinationSelected: (int index) {
-                      navViewModel.onDestinationSelectingChange(index);
-                    },
-                    destinations: getNavigationDestinations(),
-                  ),
-                  Container(
-                    width: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId==1?
-                    MediaQuery.sizeOf(context).width-140:MediaQuery.sizeOf(context).width-80,
-                    height: MediaQuery.sizeOf(context).height,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).scaffoldBackgroundColor,
-                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(8),topRight: Radius.circular(8)),
-                    ),
-                    child: Column(
-                      children: [
-                        lastCommunication.inMinutes >= 10 && powerSupply == 0?Container(
-                          height: 23.0,
-                          decoration: BoxDecoration(
-                            color: Colors.red.shade300,
-                            borderRadius: const BorderRadius.only(topLeft: Radius.circular(5),topRight: Radius.circular(5)),
-                          ),
-                          child: Center(
-                            child: Text('No communication and power Supply to Controller'.toUpperCase(),
-                              style: const TextStyle(
-                                color: Colors.black87,
-                                fontSize: 12.0,
-                              ),
-                            ),
-                          ),
-                        ):
-                        powerSupply == 0?Container(
-                          height: 20.0,
-                          decoration: BoxDecoration(
-                            color: Colors.red.shade300,
-                            borderRadius: const BorderRadius.only(topLeft: Radius.circular(5),topRight: Radius.circular(5)),
-                          ),
-                          child: Center(
-                            child: Text('No power Supply to Controller'.toUpperCase(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12.0,
-                              ),
-                            ),
-                          ),
-                        ):
-                        const SizedBox(),
-
-                        Expanded(
-                          child: mainScreen(navViewModel.selectedIndex, vm.mySiteList.data[vm.sIndex].groupId,
-                              vm.mySiteList.data[vm.sIndex].groupName, vm.mySiteList.data[vm.sIndex].master,
-                              vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                              vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId),
-                        ),
-                      ],
-                    ),
-                  ),
-                  vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId==1?
-                  Container(
-                    width: 60,
-                    height: MediaQuery.sizeOf(context).height,
-                    color: Theme.of(context).primaryColor,
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 10),
-                          Container(
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5),
-                                color: Colors.transparent
-                            ),
-                            width: 45,
-                            height: 45,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(vm.wifiStrength == 0? Icons.wifi_off:
-                                vm.wifiStrength >= 1 && vm.wifiStrength <= 20 ? Icons.network_wifi_1_bar_outlined:
-                                vm.wifiStrength >= 21 && vm.wifiStrength <= 40 ? Icons.network_wifi_2_bar_outlined:
-                                vm.wifiStrength >= 41 && vm.wifiStrength <= 60 ? Icons.network_wifi_3_bar_outlined:
-                                vm.wifiStrength >= 61 && vm.wifiStrength <= 80 ? Icons.network_wifi_3_bar_outlined:
-                                Icons.wifi, color: Colors.white,),
-                                Text('${vm.wifiStrength} %',style: const TextStyle(fontSize: 11.0, color: Colors.white70),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 15),
-                          Container(
-                            width: 45,
-                            height: 45,
-                            decoration: const BoxDecoration(
-                              color: Colors.transparent,
-                              borderRadius: BorderRadius.all(Radius.circular(5)),
-                            ),
-                            child: BadgeButton(
-                              onPressed: (){
-                                /*showPopover(
-                                context: context,
-                                bodyBuilder: (context) => AlarmListItems(payload:payload, deviceID:deviceID, customerId: customerId, controllerId: controllerId,),
-                                onPop: () => print('Popover was popped!'),
-                                direction: PopoverDirection.left,
-                                width: payload.alarmList.isNotEmpty?600:250,
-                                height: payload.alarmList.isNotEmpty?(payload.alarmList.length*45)+20:50,
-                                arrowHeight: 15,
-                                arrowWidth: 30,
-                              );*/
-                              },
-                              icon: Icons.alarm,
-                              badgeNumber: 0,
-                            ),
-                          ),
-                          const SizedBox(height: 15),
-                          CircleAvatar(
-                            radius: 20,
-                            backgroundColor: Colors.transparent,
-                            child: SizedBox(
-                              height: 45,
-                              width: 45,
-                              child: IconButton(
-                                tooltip: 'Node status',
-                                onPressed: () {
-                                  showGeneralDialog(
-                                    barrierLabel: "Side sheet",
-                                    barrierDismissible: true,
-                                    barrierColor: const Color(0xff66000000),
-                                    transitionDuration: const Duration(milliseconds: 300),
-                                    context: context,
-                                    pageBuilder: (context, animation1, animation2) {
-                                      return Align(
-                                        alignment: Alignment.centerRight,
-                                        child: Material(
-                                          elevation: 15,
-                                          color: Colors.transparent,
-                                          borderRadius: BorderRadius.zero,
-                                          child: StatefulBuilder(
-                                            builder: (BuildContext context, StateSetter stateSetter) {
-                                              return NodeList(customerId: customerId, nodes: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList,
-                                                deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                                                deviceName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
-                                                controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId, userId: userId,);
-                                            },
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    transitionBuilder: (context, animation1, animation2, child) {
-                                      return SlideTransition(
-                                        position: Tween(begin: const Offset(1, 0), end: const Offset(0, 0)).animate(animation1),
-                                        child: child,
-                                      );
-                                    },
-                                  );
-                                },
-                                icon: const Icon(Icons.format_list_numbered),
-                                color: Colors.white,
-                                iconSize: 24.0,
-                                hoverColor: Theme.of(context).primaryColorLight,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 15),
-                          Container(
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5),
-                                color: Colors.transparent
-                            ),
-                            width: 45,
-                            height: 45,
-                            child: IconButton(
-                              tooltip: 'Input/Output Connection details',
-                              onPressed: () {
-                                Navigator.push(context,
-                                  MaterialPageRoute(
-                                    builder: (context) => InputOutputConnectionDetails(masterInx: vm.mIndex, nodes: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList),
-                                  ),
-                                );
-                              },
-                              icon: const Icon(Icons.settings_input_component_outlined),
-                              color: Colors.white,
-                              iconSize: 24.0,
-                              hoverColor: Theme.of(context).primaryColorLight,
-                            ),
-                          ),
-                          const SizedBox(height: 15),
-                          Container(
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5),
-                                color: Colors.transparent
-                            ),
-                            width: 45,
-                            height: 45,
-                            child: IconButton(
-                              tooltip: 'Program',
-                              onPressed: vm.getPermissionStatusBySNo(context, 10) ? () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ProgramSchedule(
-                                      customerID: customerId,
-                                      controllerID: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                                      siteName: vm.mySiteList.data[vm.sIndex].groupName,
-                                      imeiNumber: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                                      userId: userId, groupId: vm.mySiteList.data[vm.sIndex].groupId,
-                                      categoryId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
-                                    ),
-                                  ),
-                                );
-                              }:null,
-                              icon: const Icon(Icons.list_alt),
-                              color: Colors.white,
-                              iconSize: 24.0,
-                              hoverColor: Theme.of(context).primaryColorLight,
-                            ),
-                          ),
-                          const SizedBox(height: 15),
-                          Container(
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5),
-                                color: Colors.transparent
-                            ),
-                            width: 45,
-                            height: 45,
-                            child: IconButton(
-                              tooltip: 'Scheduled Program details',
-                              // onPressed: (){},
-                              onPressed:  () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ScheduleViewScreen(
-                                      deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                                      userId: userId,
-                                      controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                                      customerId: customerId,
-                                      groupId: vm.mySiteList.data[vm.sIndex].groupId,
-                                    ),
-                                  ),
-                                );
-                              },
-                              icon: const Icon(Icons.view_list_outlined),
-                              color: Colors.white,
-                              iconSize: 24.0,
-                              hoverColor: Theme.of(context).primaryColorLight,
-                            ),
-                          ),
-                          const SizedBox(height: 15),
-                          Container(
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5),
-                                color: Colors.transparent
-                            ),
-                            width: 45,
-                            height: 45,
-                            child: IconButton(
-                              tooltip: 'Manual',
-                              onPressed:  () {
-                                showGeneralDialog(
-                                  barrierLabel: "Side sheet",
-                                  barrierDismissible: true,
-                                  barrierColor: const Color(0xff66000000),
-                                  transitionDuration: const Duration(milliseconds: 300),
-                                  context: context,
-                                  pageBuilder: (context, animation1, animation2) {
-                                    return Align(
-                                      alignment: Alignment.centerRight,
-                                      child: Material(
-                                        elevation: 15,
-                                        color: Colors.transparent,
-                                        borderRadius: BorderRadius.zero,
-                                        child: StatefulBuilder(
-                                          builder: (BuildContext context, StateSetter stateSetter) {
-                                            return StandAlone(siteId: vm.mySiteList.data[vm.sIndex].groupId,
-                                              controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                                              customerId: customerId,
-                                              deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                                              callbackFunction: callbackFunction, userId: userId, config: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config,);
-                                          },
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  transitionBuilder: (context, animation1, animation2, child) {
-                                    return SlideTransition(
-                                      position: Tween(begin: const Offset(1, 0), end: const Offset(0, 0)).animate(animation1),
-                                      child: child,
-                                    );
-                                  },
-                                );
-                              },
-                              icon: const Icon(Icons.touch_app_outlined),
-                              color: Colors.white,
-                              iconSize: 24.0,
-                              hoverColor: Theme.of(context).primaryColorLight,
-                            ),
-                          ),
-                        ]),
-                  ):
-                  SizedBox()
-                ],
-              ),
-            ),
-          ) ;
+        
         },
       ),
     );

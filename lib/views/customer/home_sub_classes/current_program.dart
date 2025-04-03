@@ -196,37 +196,77 @@ class CurrentProgram extends StatelessWidget {
                     Column(
                       children: [
                         const SizedBox(height: 10),
-                        ...vm.currentSchedule.expand((cs) => [
-                          Row(
+                        ...vm.currentSchedule.asMap().entries.map((entry) {
+                          List<String> values = entry.value.split(","); // Split values
+
+                          return Row(
                             children: [
-                              SizedBox(width: 8),
-                              SizedBox(
-                                width: 200,
+                              const SizedBox(width: 8),
+                              const SizedBox(
+                                width: 120,
                                 child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('Program name : '),
-                                    Text('Current Zone'),
-                                    Text('Zone Name'),
-                                    Text('RTC'),
-                                    Text('Cyclic'),
-                                    Text('Start Time'),
+                                    Text('Program name', style: TextStyle(color: Colors.black54)),
+                                    SizedBox(height: 6),
+                                    Text('Current Zone', style: TextStyle(color: Colors.black54)),
+                                    SizedBox(height: 3),
+                                    Text('Zone Name', style: TextStyle(color: Colors.black54)),
+                                    SizedBox(height: 3),
+                                    Text('RTC', style: TextStyle(color: Colors.black54)),
+                                    SizedBox(height: 3),
+                                    Text('Cyclic', style: TextStyle(color: Colors.black54)),
+                                    SizedBox(height: 3),
+                                    Text('Start Time', style: TextStyle(color: Colors.black54)),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 10,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(':'),
+                                    SizedBox(height: 6),
+                                    Text(':'),
+                                    SizedBox(height: 3),
+                                    Text(':'),
+                                    SizedBox(height: 3),
+                                    Text(':'),
+                                    SizedBox(height: 3),
+                                    Text(':'),
+                                    SizedBox(height: 3),
+                                    Text(':'),
                                   ],
                                 ),
                               ),
                               Expanded(
-                                  child: Column(
-                                    children: [
-
-                                    ],
-                                  )
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('${getProgramNameById(int.parse(values[0]))} - ${getContentByCode(int.parse(values[17]))}'),
+                                    const SizedBox(height: 6),
+                                    Text('${values[10]}/${values[9]}'),
+                                    const SizedBox(height: 3),
+                                    Text(
+                                      getProgramNameById(int.parse(values[0])) == 'StandAlone - Manual'
+                                          ? '--'
+                                          : getSequenceName(int.parse(values[0]), values[1]) ?? '--',
+                                    ),
+                                    const SizedBox(height: 3),
+                                    Text(formatRtcValues(values[6], values[5])),
+                                    const SizedBox(height: 3),
+                                    Text(formatRtcValues(values[8],values[7])),
+                                    const SizedBox(height: 3),
+                                    Text(convert24HourTo12Hour(values[11])),
+                                  ], // Use values
+                                ),
                               )
                             ],
-                          ),
-                        ]),
+                          );
+                        }),
                       ],
-                    )
+                    ),
                   ),
                 ),
                 Positioned(
