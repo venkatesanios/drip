@@ -37,4 +37,9 @@ class Formatters {
     });
   }
 
+  bool isValidTimeFormat(String input) {
+    final RegExp timeRegex = RegExp(r'^\d{2}:\d{2}:\d{2}$');
+    return timeRegex.hasMatch(input);
+  }
+
 }

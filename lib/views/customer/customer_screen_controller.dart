@@ -850,7 +850,8 @@ class CustomerScreenController extends StatelessWidget {
   Widget mainScreen(int index, groupId, groupName, List<Master> masterData, int controllerId, int categoryId, String deviceId, liveData) {
     switch (index) {
       case 0:
-        return categoryId==1? CustomerHome(customerId: userId):
+        return categoryId==1?
+        CustomerHome(customerId: userId, controllerId: controllerId):
         PumpControllerHome(
           deviceId: deviceId,
           liveData: liveData,

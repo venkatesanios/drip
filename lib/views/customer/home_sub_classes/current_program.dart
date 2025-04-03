@@ -193,7 +193,7 @@ class CurrentProgram extends StatelessWidget {
                     ):
                     Column(
                       children: [
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         ...vm.currentSchedule.expand((cs) => [
                           Row(
                             children: [
@@ -221,7 +221,7 @@ class CurrentProgram extends StatelessWidget {
                                   )
                               )
                             ],
-                          )
+                          ),
                         ]),
                       ],
                     )

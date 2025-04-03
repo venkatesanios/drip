@@ -306,8 +306,8 @@ class MobileScreenController extends StatelessWidget {
               currentIndex: vm.selectedIndex,
               onTap: vm.onItemTapped,
               selectedItemColor: Theme.of(context).primaryColorLight, // Change this to your desired color
-              unselectedItemColor: Colors.grey, // Unselected items color
-              type: BottomNavigationBarType.fixed, // Prevent shifting effect
+              unselectedItemColor: Colors.grey,
+              type: BottomNavigationBarType.fixed,
               items: const [
                 BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
                 BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), label: "Settings"),
@@ -464,10 +464,11 @@ class MobileScreenController extends StatelessWidget {
                   const SizedBox(),
 
                   Expanded(
-                    child: mainScreen(navViewModel.selectedIndex, vm.mySiteList.data[vm.sIndex].groupId,
+                    child: vm.selectedIndex==0? mainScreen(navViewModel.selectedIndex, vm.mySiteList.data[vm.sIndex].groupId,
                         vm.mySiteList.data[vm.sIndex].groupName, vm.mySiteList.data[vm.sIndex].master,
                         vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                        vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId),
+                        vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId):
+                    ControllerSettings(customerId: customerId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId, adDrId: fromLogin ? 1 : 0, userId: userId,),
                   ),
                 ],
               ),
@@ -1155,7 +1156,8 @@ class MobileScreenController extends StatelessWidget {
   Widget mainScreen(int index, groupId, groupName, List<Master> masterData, int controllerId, int categoryId) {
     switch (index) {
       case 0:
-        return categoryId==1? CustomerHome(customerId: userId):
+        return categoryId==1?
+        CustomerHome(customerId: userId, controllerId: controllerId):
         const Text('pump dashboard');
       case 1:
         return CustomerProduct(customerId: userId);

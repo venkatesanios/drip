@@ -159,7 +159,7 @@ class AppConstants {
   static const nameValidationError = 'Name must not contain numbers or special characters';
 
   static const String pngPath = "assets/png/";
-  static const String gifPath = "assets/gif_images/";
+  static const String gifPath = "assets/gif/";
 
   static const String pumpOFF = "dp_irr_pump.png";
   static const String pumpON = "dp_irr_pump_g.gif";

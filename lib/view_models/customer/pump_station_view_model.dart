@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import '../../Models/customer/site_model.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
+import '../../repository/repository.dart';
+import '../../services/http_service.dart';
 import '../../services/mqtt_service.dart';
 import '../../utils/constants.dart';
 import '../../utils/snack_bar.dart';
@@ -25,6 +27,7 @@ class PumpStationViewModel extends ChangeNotifier {
 
   List<dynamic> _previousRelayStatus = [];
   List<dynamic> _previousPumpStatus = [];
+  List<dynamic> _previousFilterStatus = [];
 
   static const excludedReasons = [
     '3', '4', '5', '6', '21', '22', '23', '24',
@@ -36,11 +39,13 @@ class PumpStationViewModel extends ChangeNotifier {
     displaySite();
   }
 
-  bool shouldUpdate(List<dynamic> newRelayStatus, List<dynamic> pumpPayload) {
+  bool shouldUpdate(List<dynamic> newRelayStatus, List<dynamic> pumpPayload, List<dynamic> filterPayload) {
     if (!listEquals(_previousRelayStatus, newRelayStatus)
-    ||!listEquals(_previousPumpStatus, pumpPayload)) {
+    ||!listEquals(_previousPumpStatus, pumpPayload)
+        ||!listEquals(_previousFilterStatus, filterPayload)) {
       _previousRelayStatus = List.from(newRelayStatus);
       _previousPumpStatus = List.from(pumpPayload);
+      _previousFilterStatus = List.from(filterPayload);
       return true;
     }
     return false;
@@ -80,22 +85,22 @@ class PumpStationViewModel extends ChangeNotifier {
   }
 
 
-  void updateOutputStatus(List<String> outputStatusPayload, List<String> pumpPayload){
+  void updateOutputStatus(List<String> outputStatusPayload, List<String> pumpPayload, List<String> filterPayload){
     print(outputStatusPayload);
 
     //payloadProvider.outputStatusPayload.clear();
 
-    List<String> pumpLivePayload = outputStatusPayload
+    List<String> pumpStatus = outputStatusPayload
         .where((item) => item.startsWith('5.')).toList();
-    updatePumpStatus(mvWaterSource, pumpLivePayload, pumpPayload);
+    updatePumpStatus(mvWaterSource, pumpStatus, pumpPayload);
 
     List<String> valvePayload = outputStatusPayload
         .where((item) => item.startsWith('13.')).toList();
     updateValveStatus(mvIrrLineData!, valvePayload);
 
-    List<String> filterPayload = outputStatusPayload
+    List<String> filterStatus = outputStatusPayload
         .where((item) => item.startsWith('11.')).toList();
-    updateFilterStatus(mvFilterSite, filterPayload);
+    updateFilterStatus(mvFilterSite, filterStatus, filterPayload);
 
     List<String> frtChannelPayload = outputStatusPayload
         .where((item) => item.startsWith('10.')).toList();
@@ -139,9 +144,29 @@ class PumpStationViewModel extends ChangeNotifier {
     }
   }
 
-  void updateFilterStatus(List<FilterSite> mvFilterSite, List<dynamic> filterStatus) {
+  void updateFilterStatus(List<FilterSite> mvFilterSite, List<dynamic> filterStatus, List<dynamic> filterPayload) {
+
+    print('kamaraj');
     for (var filters in mvFilterSite) {
       for (var filter in filters.filters) {
+
+        var matchedEntry = filterPayload.firstWhere(
+              (entry) => entry.split(',')[0] == filter.sNo.toString(),
+          orElse: () => '',
+        );
+
+        if (matchedEntry.isNotEmpty) {
+          print('kamaraj match');
+          List<String> statusData = matchedEntry.split(',');
+          print(statusData.length);
+          if (statusData.length >= 4) {
+            print('kamaraj match1');
+            filter.onDelayLeft = statusData[2];
+          }
+        } else {
+          print("Serial Number ${filter.sNo} not found in pumpStatusList");
+        }
+
         int? status = getStatus(filterStatus, filter.sNo);
         if (status != null) {
           filter.status = status;
@@ -201,14 +226,14 @@ class PumpStationViewModel extends ChangeNotifier {
     return PumpReasonCode.fromCode(code).content;
   }
 
-  void resetPump(context, String deviceId, double pumpSno) {
+  void resetPump(context, String deviceId, double pumpSno, String pumpName, int customerId, int controllerId, int userId) {
 
     String payload = '$pumpSno,1';
     String payLoadFinal = jsonEncode({
       "6300": {"6301": payload}
     });
     MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-    //sentUserOperationToServer('${pump.swName ?? pump.name} Reset Manually', payLoadFinal);
+    sentUserOperationToServer('$pumpName Reset Manually', payLoadFinal, customerId, controllerId, userId);
     GlobalSnackBar.show(context, 'Reset comment sent successfully', 200);
     Navigator.pop(context);
 
@@ -227,6 +252,17 @@ class PumpStationViewModel extends ChangeNotifier {
     }*/
 
 
+  }
+
+  void sentUserOperationToServer(String msg, String data, int customerId, int controllerId, int userId) async
+  {
+    Map<String, Object> body = {"userId": customerId, "controllerId": controllerId, "messageStatus": msg, "hardware": jsonDecode(data), "createUser": userId};
+    final response = await Repository(HttpService()).createUserSentAndReceivedMessageManually(body);
+    if (response.statusCode == 200) {
+      print(response.body);
+    } else {
+      throw Exception('Failed to load data');
+    }
   }
 
 }

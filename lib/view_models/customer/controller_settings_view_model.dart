@@ -15,7 +15,6 @@ class ControllerSettingsViewModel extends ChangeNotifier {
   bool isLoading = false;
   String errorMessage = "";
 
-
   final List<LanguageList> languageList = <LanguageList>[];
   String _mySelection = 'English';
 
@@ -44,6 +43,26 @@ class ControllerSettingsViewModel extends ChangeNotifier {
   List<NotificationListModel> notifications = [];
 
   final List<String> timeZones = tz.timeZoneDatabase.locations.keys.toList();
+
+  final List<Map<String, dynamic>> settings = [
+    {'title': 'General', 'icon': Icons.settings_outlined},
+    {'title': 'Preference', 'icon': Icons.settings_applications_outlined},
+    {'title': 'Constant', 'icon': Icons.private_connectivity_sharp},
+    {'title': 'Condition Library', 'icon': Icons.library_books_outlined},
+    {'title': 'Notification', 'icon': Icons.notifications_none},
+    {'title': 'Names', 'icon': Icons.text_fields},
+    {'title': 'Fertilizer Set', 'icon': Icons.format_textdirection_r_to_l},
+    {'title': 'Valve Group', 'icon': Icons.group_work_outlined},
+    {'title': 'System Definitions', 'icon': Icons.settings_system_daydream_outlined},
+    {'title': 'Global Limit', 'icon': Icons.production_quantity_limits},
+    {'title': 'Virtual Water Meter', 'icon': Icons.gas_meter_outlined},
+    {'title': 'Program Queue', 'icon': Icons.query_stats},
+    {'title': 'Frost Protection', 'icon': Icons.fort_outlined},
+    {'title': 'Calibration', 'icon': Icons.compass_calibration_outlined},
+    {'title': 'Dealer Definition', 'icon': Icons.person_outline},
+    {'title': 'View Settings', 'icon': Icons.remove_red_eye_outlined},
+  ];
+
 
   ControllerSettingsViewModel(this.repository);
 

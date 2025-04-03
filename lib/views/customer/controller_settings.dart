@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:oro_drip_irrigation/Models/admin&dealer/dealer_definition_model.dart';
@@ -35,8 +36,8 @@ class ControllerSettings extends StatelessWidget {
       child: Consumer<ControllerSettingsViewModel>(
         builder: (context, viewModel, _) {
           return viewModel.isLoading?
-          buildLoadingIndicator(true, MediaQuery.sizeOf(context).width)
-              : Scaffold(
+          buildLoadingIndicator(true, MediaQuery.sizeOf(context).width):
+          kIsWeb? Scaffold(
             backgroundColor: Colors.white,
             body: DefaultTabController(
               length: 16,
@@ -435,6 +436,19 @@ class ControllerSettings extends StatelessWidget {
                 ],
               ),
             ),
+          ):
+          ListView.builder(
+            itemCount: viewModel.settings.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                leading: Icon(viewModel.settings[index]['icon'], color: Colors.blue),
+                title: Text(viewModel.settings[index]['title'], style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: () {
+                  // Handle navigation or action
+                },
+              );
+            },
           );
         },
       ),

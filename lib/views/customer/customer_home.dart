@@ -10,8 +10,8 @@ import 'home_sub_classes/pump_station.dart';
 import 'home_sub_classes/scheduled_program.dart';
 
 class CustomerHome extends StatelessWidget {
-  const CustomerHome({super.key, required this.customerId});
-  final int customerId;
+  const CustomerHome({super.key, required this.customerId, required this.controllerId});
+  final int customerId, controllerId;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +59,7 @@ class CustomerHome extends StatelessWidget {
             filterSite: filteredFilterSite,
             fertilizerSite: fertilizerSite,
             currentLineName: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.lineData[viewModel.lIndex].name,
-            deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,
+            deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId, customerId: customerId, controllerId: controllerId,
           ),
           CurrentProgram(scheduledPrograms: scheduledProgram, deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,),
           NextSchedule(scheduledPrograms: scheduledProgram),

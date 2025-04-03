@@ -553,8 +553,15 @@ class Filters {
   String name;
   int status;
   bool selected;
+  String onDelayLeft;
 
-  Filters({required this.sNo, required this.name, this.status = 0, this.selected=false});
+  Filters({
+    required this.sNo,
+    required this.name,
+    this.status = 0,
+    this.selected=false,
+    this.onDelayLeft='00:00:00',
+  });
 
   factory Filters.fromJson(Map<String, dynamic> json) {
     return Filters(

@@ -6,18 +6,20 @@ import '../../../Models/customer/site_model.dart';
 import '../../../StateManagement/duration_notifier.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../utils/constants.dart';
+import '../../../utils/formatters.dart';
 import '../../../view_models/customer/pump_station_view_model.dart';
 import 'irrigation_line.dart';
 
 
 class PumpStation extends StatelessWidget {
-  const PumpStation({super.key, required this.waterSource, required this.filterSite, required this.fertilizerSite, this.irrLineData, required this.currentLineName, required this.deviceId});
+  const PumpStation({super.key, required this.waterSource, required this.filterSite, required this.fertilizerSite, this.irrLineData, required this.currentLineName, required this.deviceId, required this.customerId, required this.controllerId});
 
   final List<WaterSource> waterSource;
   final List<FilterSite> filterSite;
   final List<FertilizerSite> fertilizerSite;
   final List<IrrigationLineData>? irrLineData;
   final String currentLineName, deviceId;
+  final int customerId, controllerId;
 
   @override
   Widget build(BuildContext context) {
@@ -28,10 +30,11 @@ class PumpStation extends StatelessWidget {
 
           var outputStatusPayload = Provider.of<MqttPayloadProvider>(context).outputStatusPayload;
           var pumpPayload = Provider.of<MqttPayloadProvider>(context).pumpPayload;
+          var filterPayload = Provider.of<MqttPayloadProvider>(context).filterPayload;
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (vm.shouldUpdate(outputStatusPayload, pumpPayload)) {
-              vm.updateOutputStatus(outputStatusPayload.toList(), pumpPayload.toList());
+            if (vm.shouldUpdate(outputStatusPayload, pumpPayload, filterPayload)) {
+              vm.updateOutputStatus(outputStatusPayload.toList(), pumpPayload.toList(), filterPayload.toList());
             }
           });
 
@@ -101,7 +104,7 @@ class PumpStation extends StatelessWidget {
         var source = entry.value;
         return [
           SourceWidget(source: source, index: i),
-          ...source.outletPump.map((pump) => PumpWidget(pump: pump, vm: vm))
+          ...source.outletPump.map((pump) => PumpWidget(pump: pump, vm: vm, customerId: customerId, controllerId: controllerId))
         ];
       }),
     );
@@ -117,14 +120,27 @@ class PumpStation extends StatelessWidget {
       ]),
     );
 
+    gridItems.addAll(
+      vm.mvFertilizerSite.expand((fertilizerSite) => [
+        /*if (fertilizerSite.boosterPump.isNotEmpty)
+          PressureSensorWidget(pressureSensor: filterSite.pressureIn!),*/
+
+        ...fertilizerSite.channel.map((channel) => FertilizerWidget(channel: channel)),
+
+      ]),
+    );
+
     /*return Row(
       children: gridItems.asMap().entries.map((entry) {
         int index = entry.key;
-        return SizedBox(
-          width: 70,
-          height: 100,
-          child: GridTile(
-            child: gridItems[index],
+        return Padding(
+          padding: EdgeInsets.only(top: vm.mvFertilizerSite.isNotEmpty ? 38.4 : 0),
+          child: SizedBox(
+            width: 70,
+            height: 100,
+            child: GridTile(
+              child: gridItems[index],
+            ),
           ),
         );
       }).toList(),
@@ -278,7 +294,7 @@ class PumpStation extends StatelessWidget {
         var source = entry.value;
         return [
           SourceWidget(source: source, index: i),
-          ...source.outletPump.map((pump) => PumpWidget(pump: pump, vm: vm))
+          ...source.outletPump.map((pump) => PumpWidget(pump: pump, vm: vm, customerId: customerId, controllerId: controllerId))
         ];
       }),
     );
@@ -463,7 +479,7 @@ class PumpStation extends StatelessWidget {
                                                   backgroundColor: Colors.redAccent.shade200,
                                                   textStyle: const TextStyle(color: Colors.white),
                                                 ),
-                                                onPressed: () => vm.resetPump(context, deviceId, pump.sNo),
+                                                onPressed: () => vm.resetPump(context, deviceId, pump.sNo, pump.name, customerId, controllerId, customerId),
                                                 child: const Text('Reset', style: TextStyle(fontSize: 12, color: Colors.white),),
                                               ),
                                             ):const SizedBox(),
@@ -1231,7 +1247,62 @@ class PumpStation extends StatelessWidget {
           ),
         ),
 
-        pump.onDelayLeft != '00:00:00'? Positioned(
+        pump.onDelayLeft != '00:00:00' && Formatters().isValidTimeFormat(pump.onDelayLeft)?
+        Positioned(
+          top: 40,
+          left: 7.5,
+          child: Container(
+            width: 55,
+            decoration: BoxDecoration(
+              color: Colors.greenAccent,
+              borderRadius: const BorderRadius.all(Radius.circular(2)),
+              border: Border.all(color: Colors.green, width: .50),
+            ),
+            child: ChangeNotifierProvider(
+              create: (_) => DurationNotifierPump(pump.onDelayLeft),
+              child: Stack(
+                children: [
+                  Consumer<DurationNotifierPump>(
+                    builder: (context, durationNotifier, _) {
+                      return Center(
+                        child: Column(
+                          children: [
+                            const Text(
+                              "On delay",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 10,
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.only(left: 3, right: 3),
+                              child: Divider(
+                                height: 0,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            Text(
+                              durationNotifier.onDelayLeft, // Updates every second
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ):
+        const SizedBox(),
+
+       /* pump.onDelayLeft != '00:00:00'? Positioned(
           top: 40,
           left: 7.5,
           child: Container(
@@ -1259,12 +1330,15 @@ class PumpStation extends StatelessWidget {
                       color: Colors.grey,
                     ),
                   ),
-                  Text(
-                    pump.onDelayLeft,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
+                  ChangeNotifierProvider(
+                    create: (_) => DurationNotifierPump(pump.onDelayLeft),
+                    child: Text(
+                      pump.onDelayLeft,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],
@@ -1272,7 +1346,7 @@ class PumpStation extends StatelessWidget {
             ),
           ),
         ):
-        const SizedBox(),
+        const SizedBox(),*/
 
         int.tryParse(pump.reason) != null && int.parse(pump.reason) > 0 && int.parse(pump.reason)!=31
             ? Positioned(
@@ -1492,10 +1566,46 @@ class PumpStation extends StatelessWidget {
                                       height: 70,
                                       child: AppConstants.getAsset('filter', filterSite[i].filters[flIndex].status,''),
                                     ),
+                                    filterSite[i].filters[flIndex].onDelayLeft != '00:00:00' &&
+                                        Formatters().isValidTimeFormat(filterSite[i].filters[flIndex].onDelayLeft)?
+                                    Positioned(
+                                      top: 55,
+                                      left: 7.5,
+                                      child: Container(
+                                        width: 55,
+                                        decoration: BoxDecoration(
+                                          color:Colors.greenAccent,
+                                          borderRadius: const BorderRadius.all(Radius.circular(2)),
+                                          border: Border.all(color: Colors.grey, width: .50,),
+                                        ),
+                                        child: ChangeNotifierProvider(
+                                          create: (_) => DurationNotifierPump(filterSite[i].filters[flIndex].onDelayLeft),
+                                          child: Stack(
+                                            children: [
+                                              Consumer<DurationNotifierPump>(
+                                                builder: (context, durationNotifier, _) {
+                                                  return Center(
+                                                    child: Text(filterSite[i].filters[flIndex].onDelayLeft,
+                                                      style: const TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 10,
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ):
+                                    const SizedBox(),
+
                                     /*Positioned(
                                       top: 55,
                                       left: 7.5,
-                                      child: filterSite[i]['DurationLeft']!='00:00:00'? filterSite[i]['Status'] == (flIndex+1) ?
+                                      child: filterSite[i].filters[flIndex].onDelayLeft!='00:00:00'? filterSite[i].filters[flIndex].status == (flIndex+1) ?
                                       Container(
                                         decoration: BoxDecoration(
                                           color:Colors.greenAccent,
@@ -1504,7 +1614,7 @@ class PumpStation extends StatelessWidget {
                                         ),
                                         width: 55,
                                         child: Center(
-                                          child: Text(filterSite[i]['DurationLeft'],
+                                          child: Text(filterSite[i].filters[flIndex].onDelayLeft,
                                             style: const TextStyle(
                                               color: Colors.black,
                                               fontSize: 10,
@@ -1514,8 +1624,8 @@ class PumpStation extends StatelessWidget {
                                         ),
                                       ) :
                                       const SizedBox(): const SizedBox(),
-                                    ),
-                                    Positioned(
+                                    ),*/
+                                    /*Positioned(
                                       top: 0,
                                       left: 45,
                                       child: filterSite[i].pressureIn!=0 && filterSite[i].filters.length-1==flIndex? Container(
@@ -2066,7 +2176,7 @@ class SourceWidget extends StatelessWidget {
                     child: Divider(thickness: 2, color: Colors.grey.shade300, height: 5.5),
                   ),
                   Padding(
-                    padding: EdgeInsets.only(left: index == 0 ? 37 : 0, top: 1),
+                    padding: EdgeInsets.only(left: index == 0 ? 37 : 0),
                     child: Divider(thickness: 2, color: Colors.grey.shade300, height: 4.5),
                   ),
                 ],
@@ -2167,7 +2277,8 @@ class SourceWidget extends StatelessWidget {
 class PumpWidget extends StatelessWidget {
   final Pump pump;
   final PumpStationViewModel vm;
-  const PumpWidget({super.key, required this.pump, required this.vm});
+  final int customerId, controllerId;
+  const PumpWidget({super.key, required this.pump, required this.vm, required this.customerId, required this.controllerId});
 
   @override
   Widget build(BuildContext context) {
@@ -2314,7 +2425,7 @@ class PumpWidget extends StatelessWidget {
                                                     backgroundColor: Colors.redAccent.shade200,
                                                     textStyle: const TextStyle(color: Colors.white),
                                                   ),
-                                                  onPressed: () => vm.resetPump(context, 'deviceId', pump.sNo),
+                                                  onPressed: () => vm.resetPump(context, 'deviceId', pump.sNo, pump.name, customerId, controllerId, customerId),
                                                   child: const Text('Reset', style: TextStyle(fontSize: 12, color: Colors.white),),
                                                 ),
                                               ):const SizedBox(),
@@ -3257,7 +3368,6 @@ class FilterWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return LayoutBuilder(
       builder: (context, constraints) {
         double gridWidth = constraints.maxWidth;
@@ -3316,6 +3426,39 @@ class PressureSensorWidget extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                   ),
+                ),
+              ),
+            ),
+          ],
+        );
+
+      },
+    );
+  }
+}
+
+class FertilizerWidget extends StatelessWidget {
+  final Channel channel;
+  const FertilizerWidget({super.key, required this.channel});
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double gridWidth = constraints.maxWidth;
+
+        return Stack(
+          children: [
+            AppConstants.getAsset('channel', channel.status, ''),
+            Positioned(
+              top: 85,
+              left: 0,
+              child: SizedBox(
+                width: gridWidth,
+                child: Text(
+                  channel.name,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 10, color: Colors.black54),
                 ),
               ),
             ),
