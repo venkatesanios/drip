@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/calibration/view/calibration_screen.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/view/config_base_page.dart';
-import 'package:oro_drip_irrigation/modules/config_Maker/view/table_demo.dart';
 import 'package:oro_drip_irrigation/modules/fertilizer_set/view/fertilizer_Set_screen.dart';
 import 'package:oro_drip_irrigation/modules/global_limit/view/global_limit_screen.dart';
 import '../modules/ScheduleView/view/schedule_view_screen.dart';

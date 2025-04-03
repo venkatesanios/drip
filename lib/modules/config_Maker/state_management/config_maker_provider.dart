@@ -46,7 +46,7 @@ class ConfigMakerProvider extends ChangeNotifier{
   List<double> listOfSelectedSno = [];
   double selectedSno = 0.0;
   List<DeviceModel> listOfDeviceModel = [];
-  int serialNumberIncrement = 0;
+  int serialNumber = 0;
   Map<String, dynamic> masterData = {};
 
   List<DeviceObjectModel> listOfSampleObjectModel = [];
@@ -67,6 +67,7 @@ class ConfigMakerProvider extends ChangeNotifier{
       i.serialNumber = null;
       i.extendControllerId = null;
     }
+    serialNumber = 0;
     listOfGeneratedObject.clear();
     filtration.clear();
     fertilization.clear();

@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:loading_indicator/loading_indicator.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/view/product_limit.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/view/site_configure.dart';
@@ -10,9 +8,7 @@ import 'package:oro_drip_irrigation/Widgets/sized_image.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:oro_drip_irrigation/utils/environment.dart';
 import 'package:provider/provider.dart';
-import '../../../Constants/properties.dart';
 import '../model/device_model.dart';
-import '../model/device_object_model.dart';
 import '../model/fertigation_model.dart';
 import '../model/filtration_model.dart';
 import '../model/irrigationLine_model.dart';
@@ -218,9 +214,9 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                   sideNavigationWidget(screenWidth, screenHeight),
                   Expanded(
                     child: Container(
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                             color: Colors.white,
-                            borderRadius: const BorderRadius.only(topLeft: Radius.circular(10))
+                            borderRadius: BorderRadius.only(topLeft: Radius.circular(10))
                         ),
                         child: configPvd.selectedTab == ConfigMakerTabs.deviceList
                             ? DeviceList(listOfDevices: widget.listOfDevices)
@@ -483,7 +479,6 @@ class _ConfigWebViewState extends State<ConfigWebView> {
     var line = configPvd.line.cast<IrrigationLineModel>().map((object){
       return object.toJson();
     }).toList();
-
     var body = {
       "userId" : configPvd.masterData['customerId'],
       "controllerId" : configPvd.masterData['controllerId'],
@@ -510,8 +505,14 @@ class _ConfigWebViewState extends State<ConfigWebView> {
           'extendControllerId' : device.extendControllerId,
         };
       }).toList(),
-      "hardware" : listOfPayload,
+      "hardware" : listOfPayload.map((payload) {
+        return {
+          'title' : payload['title'],
+          'payload' : payload['payload']
+        };
+      }).toList(),
       "controllerReadStatus" : '0',
+      "serialNumber" : configPvd.serialNumber,
       "createUser" : configPvd.masterData['userId']
     };
     body['configObject'] = configPvd.listOfGeneratedObject.map((object){
@@ -604,10 +605,3 @@ bool validatePayloadFromHardware(Map<String, dynamic>? payload, List<String> key
 enum HardwareAcknowledgementSate{notSent, sending, failed, success, errorOnPayload, hardwareUnknownError, programRunning}
 enum PayloadSendState{idle, start, stop}
 enum HardwareType{master, pump, economic}
-
-
-
-
-
-
-
