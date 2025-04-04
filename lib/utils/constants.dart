@@ -505,7 +505,6 @@ class AppConstants {
   static String moistureCode = '5';
   static String pulseCode = '6';
   static String i2cCode = '7';
-  static List<int> pumpModelList = [5, 6, 7, 8, 9, 10];
   static int generalInConstant = 80;
   static int waterSourceInConstant = 81;
   static int levelSensorInConstant = 82;
@@ -537,4 +536,8 @@ class AppConstants {
   static int ecObjectId = 27;
   static int phObjectId = 28;
   static int moistureObjectId = 25;
+
+  static List<int> pumpWithValveModelList = [48, 49, 50, 51];
+  static List<int> pumpModelList = [5, 6, 7, 8, 9, 10];
+
 }

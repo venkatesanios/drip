@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/modules/config_Maker/view/config_base_page.dart';
 import '../Screens/planning/test.dart';
 import '../flavors.dart';
 import '../utils/Theme/smart_comm_theme.dart';
@@ -32,7 +33,6 @@ class MyApp extends StatelessWidget {
       future: getInitialRoute(),
       builder: (context, snapshot) {
         return MaterialApp(
-
           debugShowCheckedModeBanner: false,
           theme: F.appFlavor!.name.contains('oro') ? OroTheme.lightTheme : SmartCommTheme.lightTheme,
           darkTheme: F.appFlavor!.name.contains('oro') ? OroTheme.darkTheme : SmartCommTheme.darkTheme,
@@ -53,8 +53,9 @@ Widget navigateToInitialScreen(String route) {
       return const LoginScreen();
     case Routes.dashboard:
        // return MyGifPage();
+       // return const ConfigBasePage(masterData: {});
        // return GroupListScreen(userId: 8, controllerId: 23, deviceId: '2CCF6773D07D',);
-      return const ScreenController();
+      // return const ScreenController();
 
     default:
       return const SplashScreen();

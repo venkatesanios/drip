@@ -141,34 +141,45 @@ class _ProductLimitGridListTileState extends State<ProductLimitGridListTile> wit
   }
 
   bool dependentObjectByCommonObject(int objectId){
+    print('objectId ::: $objectId');
     bool visible = true;
-    if(objectIdDependsOnDosing.contains(objectId)){
-      //filter object by dosing site
-      DeviceObjectModel dosingObject = widget.configPvd.listOfSampleObjectModel.firstWhere((object) => object.objectId == 3);
-      if(dosingObject.count == '0'){
-        visible = false;
+    /*hide waterSource for pump with valve model*/
+    if(AppConstants.pumpWithValveModelList.contains(widget.configPvd.masterData['modelId'])){
+
+    }else{
+      if(objectIdDependsOnDosing.contains(objectId)){
+        //filter object by dosing site
+        DeviceObjectModel dosingObject = widget.configPvd.listOfSampleObjectModel.firstWhere((object) => object.objectId == 3);
+        if(dosingObject.count == '0'){
+          visible = false;
+        }
       }
-    }else if(objectIdDependsOnFiltration.contains(objectId)){
-      DeviceObjectModel filtrationObject = widget.configPvd.listOfSampleObjectModel.firstWhere((object) => object.objectId == 4);
-      if(filtrationObject.count == '0'){
-        visible = false;
+      else if(objectIdDependsOnFiltration.contains(objectId)){
+        DeviceObjectModel filtrationObject = widget.configPvd.listOfSampleObjectModel.firstWhere((object) => object.objectId == 4);
+        if(filtrationObject.count == '0'){
+          visible = false;
+        }
       }
-    }else if(objectIdDependsOnTank.contains(objectId)){
-      DeviceObjectModel tankObject = widget.configPvd.listOfSampleObjectModel.firstWhere((object) => object.objectId == 1);
-      if(tankObject.count == '0'){
-        visible = false;
+      else if(objectIdDependsOnTank.contains(objectId)){
+        DeviceObjectModel tankObject = widget.configPvd.listOfSampleObjectModel.firstWhere((object) => object.objectId == 1);
+        if(tankObject.count == '0'){
+          visible = false;
+        }
       }
-    }else if([31, 32, 34, 35, 37, 38].contains(objectId)){
-      bool weatherDeviceAvailable = widget.configPvd.listOfDeviceModel.any((device) => device.categoryId == 4);
-      if(!weatherDeviceAvailable){
-        visible = false;
+      else if([31, 32, 34, 35, 37, 38].contains(objectId)){
+        bool weatherDeviceAvailable = widget.configPvd.listOfDeviceModel.any((device) => device.categoryId == 4);
+        if(!weatherDeviceAvailable){
+          visible = false;
+        }
       }
-    }else if([15, 16, 17, 18, 19, 20, 21].contains(objectId)){
-      bool gemModel3Available = widget.configPvd.listOfDeviceModel.any((device) => (device.categoryId == 4 && device.modelId == 3));
-      if(!gemModel3Available){
-        visible = false;
+      else if([15, 16, 17, 18, 19, 20, 21].contains(objectId)){
+        bool gemModel3Available = widget.configPvd.listOfDeviceModel.any((device) => (device.categoryId == 4 && device.modelId == 3));
+        if(!gemModel3Available){
+          visible = false;
+        }
       }
     }
+
     print('objectId ($objectId) - $visible');
 
     return visible;

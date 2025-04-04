@@ -46,7 +46,7 @@ class ConfigMakerProvider extends ChangeNotifier{
   List<double> listOfSelectedSno = [];
   double selectedSno = 0.0;
   List<DeviceModel> listOfDeviceModel = [];
-  int serialNumberIncrement = 0;
+  int serialNumber = 0;
   Map<String, dynamic> masterData = {};
 
   List<DeviceObjectModel> listOfSampleObjectModel = [];
@@ -67,6 +67,7 @@ class ConfigMakerProvider extends ChangeNotifier{
       i.serialNumber = null;
       i.extendControllerId = null;
     }
+    serialNumber = 0;
     listOfGeneratedObject.clear();
     filtration.clear();
     fertilization.clear();
@@ -191,6 +192,7 @@ class ConfigMakerProvider extends ChangeNotifier{
   }
 
   void updateObjectCount(int objectId, String count){
+    print('objectId : $objectId count : $count');
     for(var object in listOfSampleObjectModel){
       if(object.objectId == objectId){
         int oldCount = object.count == '' ? 0 : int.parse(object.count!);
@@ -199,13 +201,13 @@ class ConfigMakerProvider extends ChangeNotifier{
         if(oldCount <= newCount){
           for(var start = oldCount;start < newCount;start++){
             int increment = start+1;
-            String StringDecimalNo = '${object.objectId}.${increment < 100 ? '0' : ''}${increment < 10 ? '0' : ''}${start+1}';
+            String stringDecimalNo = '${object.objectId}.${increment < 100 ? '0' : ''}${increment < 10 ? '0' : ''}${start+1}';
             DeviceObjectModel deviceObjectModel = DeviceObjectModel(
               objectId: object.objectId,
               objectName: object.objectName,
               type: object.type,
               name: '${object.objectName} ${start+1}',
-              sNo: double.parse(StringDecimalNo),
+              sNo: double.parse(stringDecimalNo),
               controllerId: null,
             );
             listOfGeneratedObject.add(

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:oro_drip_irrigation/app.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 
@@ -45,7 +46,8 @@ class _ProductLimitState extends State<ProductLimit> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 ...colorLegendBox(screenWidth,screenHeight),
-                  commonObject(),
+                  if(!AppConstants.pumpWithValveModelList.contains(widget.configPvd.masterData['modelId']))
+                    commonObject(),
                   outputObject(),
                 if(getInputCount(3, widget.listOfDevices) != 0)
                   analogObject(),
@@ -76,7 +78,13 @@ class _ProductLimitState extends State<ProductLimit> {
   }
 
   Widget outputObject(){
-    List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => (widget.configPvd.masterData['categoryId'] != 2 ? object.type == '1,2' : [5].contains(object.objectId))).toList();
+    List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) {
+      /* filter output object for pump with valve model*/
+      if(AppConstants.pumpWithValveModelList.contains(widget.configPvd.masterData['modelId'])){
+        return  (widget.configPvd.masterData['categoryId'] != 2 ? object.type == '1,2' : [5, 13].contains(object.objectId));
+      }
+      return  (widget.configPvd.masterData['categoryId'] != 2 ? object.type == '1,2' : [5].contains(object.objectId));
+    }).toList();
     return ProductLimitGridListTile(
       listOfObjectModel: filteredList,
       title: 'Output Object',
@@ -84,6 +92,7 @@ class _ProductLimitState extends State<ProductLimit> {
       configPvd: widget.configPvd,
     );
   }
+
   Widget analogObject(){
     List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => (widget.configPvd.masterData['categoryId'] != 2 ? object.type == '3' : [22, 24, 26, 40].contains(object.objectId))).toList();
     return ProductLimitGridListTile(

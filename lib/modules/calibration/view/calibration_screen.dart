@@ -14,7 +14,6 @@ import '../../../utils/constants.dart';
 import '../../../utils/environment.dart';
 import '../model/sensor_category_model.dart';
 
-
 class CalibrationScreen extends StatefulWidget {
   final Map<String, dynamic> userData;
   const CalibrationScreen({super.key, required this.userData,});
@@ -53,7 +52,6 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
       setState(() {
         defaultData = jsonData['data']['default'];
       });
-
     } catch (e, stackTrace) {
       print('error :: $e');
       print('stackTrace :: $stackTrace');
@@ -368,6 +366,3 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
     }
   }
 }
-
-
-

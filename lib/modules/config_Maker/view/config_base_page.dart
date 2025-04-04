@@ -10,7 +10,6 @@ import 'config_web_view.dart';
 
 enum ConfigMakerTabs {deviceList, productLimit, connection, siteConfigure}
 
-
 class ConfigBasePage extends StatefulWidget {
   final Map<String, dynamic> masterData;
   const ConfigBasePage({super.key, required this.masterData});
@@ -22,7 +21,6 @@ class ConfigBasePage extends StatefulWidget {
 class _ConfigBasePageState extends State<ConfigBasePage> {
   late ConfigMakerProvider configPvd;
   late Future<List<DeviceModel>> listOfDevices;
-
 
 
   @override
@@ -38,6 +36,7 @@ class _ConfigBasePageState extends State<ConfigBasePage> {
 
     // Testing purpose
     // listOfDevices = configPvd.fetchData({"userId":3,"customerId":8,"controllerId":23,"deviceId":"2CCF6773D07D","deviceName":"xMm","categoryId":1,"categoryName":"xMm","modelId":4,"modelName":"xMm2000ROOL","groupId":4,"groupName":"TESTING PURPOSE","connectingObjectId":["1","2","3","4","-"]});
+    // listOfDevices = configPvd.fetchData({"userId":3,"customerId":8,"controllerId":75,"deviceId":"AACCEEAAEEDD","deviceName":"xMp","categoryId":2,"categoryName":"xMp","modelId":48,"modelName":"xMp1000GO3O","groupId":4,"groupName":"TESTING PURPOSE","connectingObjectId":["5","13","22","24","26","40"]});
 
     listOfDevices = configPvd.fetchData(widget.masterData);
   }
@@ -65,6 +64,7 @@ class _ConfigBasePageState extends State<ConfigBasePage> {
       },
     );
   }
+
 }
 
 String getTabName(ConfigMakerTabs configMakerTabs) {

@@ -36,51 +36,63 @@ class _ToggleTextFormFieldForProductLimitState extends State<ToggleTextFormField
           if(!myFocus.hasFocus){
             toggleEditing();
             var integerValue = myController.text == '' ? 0 : int.parse(myController.text);
-            if(widget.object.type != '-'){
+
+
+            if(widget.object.type == '-'){
+              /* there is no validation for places eg: source, line, site. */
+              widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
+            }else{
+              /* do validate expect source, line, site. */
               int availableCount = widget.object.type == '1,2'
                   ? balanceCountForRelayLatch(widget.configPvd)
-                  : balanceCountForInputType(int.parse(widget.object.type), widget.configPvd);
-              availableCount += widget.initialValue == '' ? 0 : int.parse(widget.initialValue);
-              if(integerValue > availableCount){
-                simpleDialogBox(context: context, title: 'Alert', message: 'The maximum allowable value is $availableCount. Please enter a value less than or equal to $availableCount.');
-                widget.configPvd.updateObjectCount(widget.object.objectId, availableCount.toString());
-              }else{
-                if(AppConstants.pumpModelList.contains(widget.configPvd.masterData['modelId'])){
-                  if([AppConstants.levelObjectId, AppConstants.waterMeterObjectId, AppConstants.pressureSensorObjectId].contains(widget.object.objectId)){
-                    if(integerValue > 1){ // level, pressure, water meter -- oro pump
-                      simpleDialogBox(context: context, title: 'Alert', message: 'Only one ${widget.object.objectName} should be connect with ${widget.configPvd.masterData['deviceName']}.');
-                      widget.configPvd.updateObjectCount(widget.object.objectId, '1');
-                    }else{
-                      widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
-                    }
-                  }else{ // float -- oro pump
-                    if(integerValue > availableCount){
-                      simpleDialogBox(context: context, title: 'Alert', message: 'The maximum allowable value is $availableCount. Please enter a value less than or equal to $availableCount.');
-                      widget.configPvd.updateObjectCount(widget.object.objectId, availableCount.toString());
-                    }else{
-                      widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
-                    }
+                  : balanceCountForInputType(int.parse(widget.object.type ), widget.configPvd);
+
+              /* filter output object for pump with valve model*/
+              if(AppConstants.pumpWithValveModelList.contains(widget.configPvd.masterData['modelId'])){
+                if(widget.object.objectId == AppConstants.pumpObjectId){
+                  /*only one pump allowed to config*/
+                  int maxAllowablePumpCount = 1;
+                  if(integerValue > maxAllowablePumpCount){
+                    simpleDialogBox(context: context, title: 'Alert', message: 'Only one ${widget.object.objectName} should be connect with ${widget.configPvd.masterData['deviceName']}.');
+                    integerValue = maxAllowablePumpCount;
                   }
-                }else{
                   widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
                 }
               }
+
+              /*gem and pump validation*/
+              if(widget.object.type != '-'){
+                availableCount += widget.initialValue == '' ? 0 : int.parse(widget.initialValue);
+                if(integerValue > availableCount){
+                  simpleDialogBox(context: context, title: 'Alert', message: 'The maximum allowable value is $availableCount. Please enter a value less than or equal to $availableCount.');
+                  widget.configPvd.updateObjectCount(widget.object.objectId, availableCount.toString());
+                }else{
+                  if(AppConstants.pumpModelList.contains(widget.configPvd.masterData['modelId'])){
+                    if([AppConstants.levelObjectId, AppConstants.waterMeterObjectId, AppConstants.pressureSensorObjectId].contains(widget.object.objectId)){
+                      if(integerValue > 1){ // level, pressure, water meter -- oro pump
+                        simpleDialogBox(context: context, title: 'Alert', message: 'Only one ${widget.object.objectName} should be connect with ${widget.configPvd.masterData['deviceName']}.');
+                        widget.configPvd.updateObjectCount(widget.object.objectId, '1');
+                      }else{
+                        widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
+                      }
+                    }else{ // float -- oro pump
+                      if(integerValue > availableCount){
+                        simpleDialogBox(context: context, title: 'Alert', message: 'The maximum allowable value is $availableCount. Please enter a value less than or equal to $availableCount.');
+                        widget.configPvd.updateObjectCount(widget.object.objectId, availableCount.toString());
+                      }else{
+                        widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
+                      }
+                    }
+                  }else{
+                    widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
+                  }
+                }
+              }
+              else{
+                widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
+              }
             }
-            else{
-              widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
-            }
-            // else{
-            //   if([1, 2].contains(widget.object.objectId)){
-            //     if(integerValue == 0){  //Validating tank and line at least 1 count.
-            //       widget.configPvd.updateObjectCount(widget.object.objectId, '1');
-            //       simpleDialogBox(context: context, title: 'Alert', message: 'You need to specify at least one ${widget.object.objectName}.');
-            //     }else{   // update value if more than 0
-            //       widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
-            //     }
-            //   }else{
-            //     widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
-            //   }
-            // }
+
             setState(() {
               focus = false;
             });

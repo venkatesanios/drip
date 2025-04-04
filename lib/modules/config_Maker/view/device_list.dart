@@ -321,10 +321,10 @@ class _DeviceListState extends State<DeviceList> {
                                         stateSetter(() {
                                           setState(() {
                                             if (node.select) {
-                                              configPvd.serialNumberIncrement += 1;
+                                              configPvd.serialNumber += 1;
                                               node.masterId = configPvd.masterData['controllerId'];
                                               node.select = false;
-                                              node.serialNumber = configPvd.serialNumberIncrement;
+                                              node.serialNumber = configPvd.serialNumber;
                                             }
                                           });
                                         });
