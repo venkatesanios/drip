@@ -668,11 +668,13 @@ class Channel {
   int status;
   String qty;
   String qtyLeft;
-  String fertMethod;
+  String frtMethod;
   String duration;
-  String durationLeft;
-  String flowRate_LpH;
+  String durationCompleted;
+  String flowRateLpH;
 
+  String onTime;
+  String offTime;
 
 
   Channel({
@@ -689,10 +691,13 @@ class Channel {
     this.selected=false,
     this.qty = '0',
     this.qtyLeft = '0',
-    this.fertMethod = '0',
+    this.frtMethod = '0',
     this.duration = '00:00:00',
-    this.durationLeft = '00:00:00',
-    this.flowRate_LpH = '-',
+    this.durationCompleted = '00:00:00',
+    this.flowRateLpH = '-',
+
+    this.onTime = '0',
+    this.offTime = '0',
   });
 
   factory Channel.fromJson(Map<String, dynamic> json) {

@@ -94,6 +94,7 @@ class MqttPayloadProvider with ChangeNotifier {
   List<String> outputStatusPayload = [];
   List<String> pumpPayload = [];
   List<String> filterPayload = [];
+  List<String> fertilizerPayload = [];
   List<String> currentSchedule = [];
   List<String> nextSchedule = [];
   List<String> scheduledProgram = [];
@@ -490,6 +491,7 @@ class MqttPayloadProvider with ChangeNotifier {
         updateOutputStatusPayload(data['cM']['2402'].split(";"));
         updatePumpStatusPayload(data['cM']['2404'].split(";"));
         updateFilterStatusPayload(data['cM']['2406'].split(";"));
+        updateFertilizerStatusPayload(data['cM']['2407'].split(";"));
         updateLineLiveMessage(data['cM']['2405'].split(";"));
         updateCurrentProgram(data['cM']['2408'].split(";"));
         updateNextProgram(data['cM']['2409'].split(";"));
@@ -640,6 +642,12 @@ class MqttPayloadProvider with ChangeNotifier {
   void updateFilterStatusPayload(List<String> message) {
     filterPayload = message;
   }
+
+  void updateFertilizerStatusPayload(List<String> message) {
+    fertilizerPayload = message;
+  }
+
+
 
 
 

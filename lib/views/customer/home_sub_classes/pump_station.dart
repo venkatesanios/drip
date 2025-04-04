@@ -37,10 +37,11 @@ class PumpStation extends StatelessWidget {
           var outputStatusPayload = Provider.of<MqttPayloadProvider>(context).outputStatusPayload;
           var pumpPayload = Provider.of<MqttPayloadProvider>(context).pumpPayload;
           var filterPayload = Provider.of<MqttPayloadProvider>(context).filterPayload;
+          var fertilizerPayload = Provider.of<MqttPayloadProvider>(context).fertilizerPayload;
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (vm.shouldUpdate(outputStatusPayload, pumpPayload, filterPayload)) {
-              vm.updateOutputStatus(outputStatusPayload.toList(), pumpPayload.toList(), filterPayload.toList());
+            if (vm.shouldUpdate(outputStatusPayload, pumpPayload, filterPayload, fertilizerPayload)) {
+              vm.updateOutputStatus(outputStatusPayload.toList(), pumpPayload.toList(), filterPayload.toList(), fertilizerPayload.toList());
             }
           });
 
@@ -1374,10 +1375,10 @@ class PumpStation extends StatelessWidget {
               border: Border.all(color: Colors.green, width: .50),
             ),
             child: ChangeNotifierProvider(
-              create: (_) => DurationNotifierPump(pump.onDelayLeft),
+              create: (_) => DecreaseDurationNotifier(pump.onDelayLeft),
               child: Stack(
                 children: [
-                  Consumer<DurationNotifierPump>(
+                  Consumer<DecreaseDurationNotifier>(
                     builder: (context, durationNotifier, _) {
                       return Center(
                         child: Column(
@@ -1649,10 +1650,10 @@ class PumpStation extends StatelessWidget {
                                           border: Border.all(color: Colors.grey, width: .50,),
                                         ),
                                         child: ChangeNotifierProvider(
-                                          create: (_) => DurationNotifierPump(filterSite[i].filters[flIndex].onDelayLeft),
+                                          create: (_) => DecreaseDurationNotifier(filterSite[i].filters[flIndex].onDelayLeft),
                                           child: Stack(
                                             children: [
-                                              Consumer<DurationNotifierPump>(
+                                              Consumer<DecreaseDurationNotifier>(
                                                 builder: (context, durationNotifier, _) {
                                                   return Center(
                                                     child: Text(durationNotifier.onDelayLeft,
@@ -1915,7 +1916,7 @@ class PumpStation extends StatelessWidget {
                                       ),
                                       width: 60,
                                       child: Center(
-                                        child: Text(channel.fertMethod=='1' || channel.fertMethod=='3'? channel.duration :
+                                        child: Text(channel.frtMethod=='1' || channel.frtMethod=='3'? channel.duration :
                                         '${fertilizerQty.toStringAsFixed(2)} L', style: const TextStyle(
                                           color: Colors.black,
                                           fontSize: 10,
@@ -1935,7 +1936,7 @@ class PumpStation extends StatelessWidget {
                                       ),
                                       width: 60,
                                       child: Center(
-                                        child: Text('${channel.flowRate_LpH}-lph', style: const TextStyle(
+                                        child: Text('${channel.flowRateLpH}-lph', style: const TextStyle(
                                           color: Colors.black,
                                           fontSize: 9,
                                           fontWeight: FontWeight.bold,
@@ -1944,15 +1945,46 @@ class PumpStation extends StatelessWidget {
                                       ),
                                     ),
                                   ),
+
+                                  channel.status !=0 && channel.durationCompleted !='00:00:00' ?
                                   Positioned(
                                     top: 103,
                                     left: 0,
-                                    child: channel.status !=0
-                                        &&
-                                        channel.selected!='_'
-                                        &&
-                                        channel.durationLeft !='00:00:00'
-                                        ?
+                                    child: Container(
+                                      width: 55,
+                                      decoration: BoxDecoration(
+                                        color:Colors.greenAccent,
+                                        borderRadius: const BorderRadius.all(Radius.circular(2)),
+                                        border: Border.all(color: Colors.grey, width: .50,),
+                                      ),
+                                      child: ChangeNotifierProvider(
+                                        create: (_) => IncreaseDurationNotifier(channel.durationCompleted),
+                                        child: Stack(
+                                          children: [
+                                            Consumer<IncreaseDurationNotifier>(
+                                              builder: (context, durationNotifier, _) {
+                                                return Center(
+                                                  child: Text(durationNotifier.onCompletedDrQ,
+                                                    style: const TextStyle(
+                                                      color: Colors.black,
+                                                      fontSize: 10,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ):
+                                  const SizedBox(),
+
+                                  /*Positioned(
+                                    top: 103,
+                                    left: 0,
+                                    child: channel.status !=0 && channel.durationCompleted !='00:00:00' ?
                                     Container(
                                       decoration: BoxDecoration(
                                         color: Colors.greenAccent,
@@ -1960,9 +1992,9 @@ class PumpStation extends StatelessWidget {
                                       ),
                                       width: 50,
                                       child: Center(
-                                        child: Text(channel.fertMethod=='1' || channel.fertMethod=='3'
-                                            ? channel.durationLeft
-                                            : '${channel.qtyLeft} L' , style: const TextStyle(
+                                        child: Text(channel.frtMethod=='1' || channel.frtMethod=='3'?
+                                        channel.durationCompleted :
+                                        '${channel.qtyLeft} L' , style: const TextStyle(
                                           color: Colors.black,
                                           fontSize: 10,
                                           fontWeight: FontWeight.bold,
@@ -1971,7 +2003,7 @@ class PumpStation extends StatelessWidget {
                                       ),
                                     ) :
                                     const SizedBox(),
-                                  ),
+                                  ),*/
                                 ],
                               ),
                             );
