@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:oro_drip_irrigation/Models/customer/constant_model.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/repository/config_maker_repository.dart';
+import 'package:oro_drip_irrigation/utils/constants.dart';
 import '../model/device_model.dart';
 import '../model/device_object_model.dart';
 import '../model/fertigation_model.dart';
@@ -28,12 +29,12 @@ class ConfigMakerProvider extends ChangeNotifier{
     5 : 'Line Configuration',
   };
   Map<int, int> configurationTabObjectId = {
-    0 : 1,
-    1 : 5,
-    2 : 4,
-    3 : 3,
-    4 : 25,
-    5 : 2,
+    0 : AppConstants.sourceObjectId,
+    1 : AppConstants.pumpObjectId,
+    2 : AppConstants.filterSiteObjectId,
+    3 : AppConstants.fertilizerSiteObjectId,
+    4 : AppConstants.moistureObjectId,
+    5 : AppConstants.irrigationLineObjectId,
   };
   int selectedConfigurationTab = 0;
   SelectionMode selectedSelectionMode = SelectionMode.auto;
@@ -621,8 +622,8 @@ class ConfigMakerProvider extends ChangeNotifier{
         "PressureIn" : serialNoOrEmpty(pumpModelObject.pressureIn),
         "PressureOut" : serialNoOrEmpty(pumpModelObject.pressureOut),
         "WaterMeter": serialNoOrEmpty(pumpModelObject.waterMeter),
-        "SumpTankLevel" : sumpTankLevel == null ? '' : sumpTankLevel.level,
-        "TopTankLevel" : topTankLevel == null ? '' : topTankLevel.level,
+        "SumpTankLevel" : sumpTankLevel == null ? '' : serialNoOrEmpty(sumpTankLevel.level),
+        "TopTankLevel" : topTankLevel == null ? '' : serialNoOrEmpty(topTankLevel.level),
         "TopTankFloatHigh" : topTankLevel == null ? '' : topTankLevel.topFloat,
         "TopTankFloatLow" : topTankLevel == null ? '' : topTankLevel.bottomFloat,
         "SumpTankFloatHigh" : sumpTankLevel == null ? '' : sumpTankLevel.topFloat,
@@ -662,6 +663,7 @@ class ConfigMakerProvider extends ChangeNotifier{
           "DeviceId": device.deviceId,
           "InterfaceType": device.interfaceTypeId,
           "ExtendNode": device.extendControllerId ?? '',
+          "Name" : device.deviceName
         }.entries.map((e) => e.value).join(","));
       }
     }
@@ -751,6 +753,7 @@ class ConfigMakerProvider extends ChangeNotifier{
           "DeviceRunningNumber": findOutReferenceNumber(controller),
           "Output_InputNumber": object.connectionNo,
           "IO_Mode": controller.categoryId ==  4 ? 8 : getObjectTypeCodeToHardware(object.type),
+          "Name" : object.name
         }.entries.map((e) => e.value).join(","));
       }
     }
@@ -1014,8 +1017,30 @@ class ConfigMakerProvider extends ChangeNotifier{
       });
     }
 
-
     print('listOfPumpPayload :: $listOfPumpPayload');
+    return listOfPumpPayload;
+  }
+
+  List<Map<String, dynamic>> getPumpWithValvePayload(){
+    List<DeviceModel> listOfPumpWithValve = listOfDeviceModel.where((device) => AppConstants.pumpWithValveModelList.contains(device.modelId) && device.masterId != null).toList();
+    List<Map<String, dynamic>> listOfPumpPayload = [];
+    int pumpConfigCode = 50;
+    for(var device in listOfPumpWithValve){
+      int pumpCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.pumpObjectId).length;
+      int valveCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.valveObjectId).length;
+      var payload = {"sentSms":"echoconfig,$pumpCount,$valveCount"};
+      print('device name : ${device.deviceName}');
+      listOfPumpPayload.add({
+        'title' : '${device.deviceName}(pump and valve)',
+        'deviceIdToSend' : device.deviceId,
+        'deviceId' : device.deviceId,
+        'payload' : jsonEncode(payload),
+        'acknowledgementState' : HardwareAcknowledgementSate.notSent,
+        'selected' : true,
+        'checkingCode' : pumpConfigCode,
+        'hardwareType' : HardwareType.pumpWithValve
+      });
+    }
     return listOfPumpPayload;
   }
 

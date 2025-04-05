@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
 import '../../../Constants/communication_codes.dart';
 import '../../../Constants/dialog_boxes.dart';
@@ -101,6 +102,7 @@ class _DeviceListState extends State<DeviceList> {
                     ],
                     rows: widget.listOfDevices
                         .where((node) => node.masterId == configPvd.masterData['controllerId'])
+                        .where((node) => configPvd.masterData['controllerId'] != node.controllerId)
                         .toList()
                         .asMap()
                         .entries
@@ -248,70 +250,85 @@ class _DeviceListState extends State<DeviceList> {
                                     borderRadius: BorderRadius.circular(0)
                                 ),
                                 title: const Text('Choose Node for Configuration Under Master',),
-                                content: SizedBox(
-                                  width: MediaQuery.of(context).size.width >= 400 ? 400 : MediaQuery.of(context).size.width,
-                                  child: DataTable(
-                                    headingRowColor: WidgetStatePropertyAll(themeData.colorScheme.onBackground),
-                                    dataRowColor: WidgetStatePropertyAll(themeData.colorScheme.onBackground),
-                                    columns: [
-                                      DataColumn(
-                                          label: Checkbox(
-                                              value: selectAllNode,
-                                              onChanged: (value){
-                                                stateSetter((){
-                                                  setState(() {
-                                                    selectAllNode = !selectAllNode;
-                                                    for(var device in configPvd.listOfDeviceModel){
-                                                      device.select = selectAllNode;
-                                                    }
-                                                  });
-                                                });
-                                              }
-                                          )
-                                      ),
-                                      DataColumn(
-                                        label: Text('MODEL NAME', style: themeData.textTheme.headlineLarge,),
-                                      ),
-                                      DataColumn(
-                                        label: Text('DEVICE ID',style: themeData.textTheme.headlineLarge,),
-                                      )
-                                    ],
-                                    rows: listOfDevices
-                                        .where((node) => node.masterId == null)
-                                        .toList()
-                                        .asMap()
-                                        .entries.map((entry){
-                                      int index = entry.key;
-                                      DeviceModel device = entry.value;
-                                      return DataRow(
-                                          cells: [
-                                            DataCell(
-                                              Checkbox(
-                                                value: device.select,
+                                content: SingleChildScrollView(
+                                  child: SizedBox(
+                                    width: MediaQuery.of(context).size.width >= 400 ? 400 : MediaQuery.of(context).size.width,
+                                    child: DataTable(
+                                      headingRowColor: WidgetStatePropertyAll(themeData.colorScheme.onBackground),
+                                      dataRowColor: WidgetStatePropertyAll(themeData.colorScheme.onBackground),
+                                      columns: [
+                                        DataColumn(
+                                            label: Checkbox(
+                                                value: selectAllNode,
                                                 onChanged: (value){
                                                   stateSetter((){
                                                     setState(() {
-                                                      device.select = value!;
+                                                      selectAllNode = !selectAllNode;
+                                                      for(var device in configPvd.listOfDeviceModel){
+                                                        device.select = selectAllNode;
+                                                      }
                                                     });
                                                   });
-                                                },
+                                                }
+                                            )
+                                        ),
+                                        DataColumn(
+                                          label: Text('MODEL NAME', style: themeData.textTheme.headlineLarge,),
+                                        ),
+                                        DataColumn(
+                                          label: Text('DEVICE ID',style: themeData.textTheme.headlineLarge,),
+                                        )
+                                      ],
+                                      rows: listOfDevices
+                                          .where((node) => node.masterId == null)
+                                          .where((node) {
+                                            List<int> nodeUnderPumpWithValveModel = [15, 17, 23, 25, 42];
+                                            List<int> nodeNotUnderGemModel = [48, 49];
+                                            if(AppConstants.pumpWithValveModelList.contains(configPvd.masterData['modelId']) && nodeUnderPumpWithValveModel.contains(node.modelId)){
+                                              /* this condition filter node for pump with valve model */
+                                              return true;
+                                            }else if(AppConstants.gemModelList.contains(configPvd.masterData['modelId']) && !nodeNotUnderGemModel.contains(node.modelId)){
+                                              /* this condition filter node for pump with valve model */
+                                              return true;
+                                            }else{
+                                              return false;
+                                            }
+                                          })
+                                          .toList()
+                                          .asMap()
+                                          .entries.map((entry){
+                                        int index = entry.key;
+                                        DeviceModel device = entry.value;
+                                        return DataRow(
+                                            cells: [
+                                              DataCell(
+                                                Checkbox(
+                                                  value: device.select,
+                                                  onChanged: (value){
+                                                    stateSetter((){
+                                                      setState(() {
+                                                        device.select = value!;
+                                                      });
+                                                    });
+                                                  },
+                                                ),
                                               ),
-                                            ),
-                                            DataCell(
-                                                Column(
-                                                  children: [
-                                                    Text(device.deviceName,style: themeData.textTheme.headlineSmall,),
-                                                    Text(device.modelName, style: const TextStyle(fontWeight: FontWeight.normal, color: Colors.black54)),
-                                                  ],
-                                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                )
-                                            ),
-                                            DataCell(
-                                                SelectableText(device.deviceId, style: TextStyle(color: themeData.primaryColor))
-                                            ),
-                                          ]
-                                      );
-                                    }).toList(),
+                                              DataCell(
+                                                  Column(
+                                                    children: [
+                                                      Text(device.deviceName,style: themeData.textTheme.headlineSmall,),
+                                                      Text(device.modelName, style: const TextStyle(fontWeight: FontWeight.normal, color: Colors.black54)),
+                                                    ],
+                                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                  )
+                                              ),
+                                              DataCell(
+                                                  SelectableText(device.deviceId, style: TextStyle(color: themeData.primaryColor))
+                                              ),
+                                            ]
+                                        );
+                                      }).toList(),
+                                    ),
                                   ),
                                 ),
                                 actions: [

@@ -1,12 +1,10 @@
- import 'dart:convert';
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/StateManagement/overall_use.dart';
 import 'package:provider/provider.dart';
 import '../model/device_model.dart';
 import '../state_management/config_maker_provider.dart';
 import 'config_mobile_view.dart';
 import 'config_web_view.dart';
-
 
 enum ConfigMakerTabs {deviceList, productLimit, connection, siteConfigure}
 
@@ -37,7 +35,6 @@ class _ConfigBasePageState extends State<ConfigBasePage> {
     // Testing purpose
     // listOfDevices = configPvd.fetchData({"userId":3,"customerId":8,"controllerId":23,"deviceId":"2CCF6773D07D","deviceName":"xMm","categoryId":1,"categoryName":"xMm","modelId":4,"modelName":"xMm2000ROOL","groupId":4,"groupName":"TESTING PURPOSE","connectingObjectId":["1","2","3","4","-"]});
     // listOfDevices = configPvd.fetchData({"userId":3,"customerId":8,"controllerId":75,"deviceId":"AACCEEAAEEDD","deviceName":"xMp","categoryId":2,"categoryName":"xMp","modelId":48,"modelName":"xMp1000GO3O","groupId":4,"groupName":"TESTING PURPOSE","connectingObjectId":["5","13","22","24","26","40"]});
-
     listOfDevices = configPvd.fetchData(widget.masterData);
   }
 
@@ -55,9 +52,14 @@ class _ConfigBasePageState extends State<ConfigBasePage> {
           return Text('Error: ${snapshot.error}');
         } else if (snapshot.hasData) {
           List<DeviceModel> listOfDevices = snapshot.data!;
-          return screenWidth > 500 ? Material(
-            child: ConfigWebView(listOfDevices: listOfDevices),
-          ) : ConfigMobileView(listOfDevices: listOfDevices,);
+          return screenWidth > 500 ?
+          Material(
+            child: ConfigWebView(
+                listOfDevices: listOfDevices
+            ),
+          ) : ConfigMobileView(
+              listOfDevices: listOfDevices
+          );
         } else {
           return const Text('No data');
         }

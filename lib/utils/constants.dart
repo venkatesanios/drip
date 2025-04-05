@@ -522,6 +522,7 @@ class AppConstants {
   static int analogSensorInConstant = 94;
   static int normalCriticalInConstant = 95;
   static int globalAlarmInConstant = 96;
+  static int sourceObjectId = 1;
   static int pumpObjectId = 5;
   static int filterSiteObjectId = 4;
   static int filterObjectId = 11;
@@ -537,7 +538,8 @@ class AppConstants {
   static int phObjectId = 28;
   static int moistureObjectId = 25;
 
-  static List<int> pumpWithValveModelList = [48, 49, 50, 51];
+  static List<int> pumpWithValveModelList = [48, 49];
+  static List<int> gemModelList = [1, 2, 4];
   static List<int> pumpModelList = [5, 6, 7, 8, 9, 10];
 
 }

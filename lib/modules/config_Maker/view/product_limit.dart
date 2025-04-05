@@ -112,7 +112,7 @@ class _ProductLimitState extends State<ProductLimit> {
   }
 
   Widget moistureObject(){
-    List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => (widget.configPvd.masterData['categoryId'] != 2 ? object.type == '5' : [22, 24, 26, 40].contains(object.objectId))).toList();
+    List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => object.objectId == AppConstants.moistureObjectId).toList();
     return ProductLimitGridListTile(
       listOfObjectModel: filteredList,
       title: 'Moisture Input',

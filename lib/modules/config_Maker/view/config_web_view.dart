@@ -20,8 +20,6 @@ import '../state_management/config_maker_provider.dart';
 import '../../../Widgets/custom_buttons.dart';
 import '../../../Widgets/custom_side_tab.dart';
 import '../../../Widgets/title_with_back_button.dart';
-import '../../../services/http_service.dart';
-import '../../../utils/Theme/oro_theme.dart';
 import '../../../utils/constants.dart';
 import 'config_base_page.dart';
 import 'config_mobile_view.dart';
@@ -240,6 +238,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
     setState(() {
       listOfPayload.clear();
       listOfPayload.addAll(configPvd.getOroPumpPayload());
+      listOfPayload.addAll(configPvd.getPumpWithValvePayload());
     });
 
     if([1, 2, 4].contains(configPvd.masterData['modelId'])){
@@ -406,7 +405,6 @@ class _ConfigWebViewState extends State<ConfigWebView> {
     );
   }
 
-
   Widget payloadAcknowledgementWidget(HardwareAcknowledgementSate state){
     print('state : ${state.name}');
     late Color color;
@@ -562,7 +560,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
   bool validateTab(ConfigMakerTabs tab){
     bool display = false;
     if(AppConstants.pumpWithValveModelList.contains(configPvd.masterData['modelId'])){
-      if(tab.name == ConfigMakerTabs.productLimit.name){
+      if([ConfigMakerTabs.deviceList.name, ConfigMakerTabs.productLimit.name].contains(tab.name)){
         display = true;
       }
     }else if(AppConstants.pumpModelList.contains(configPvd.masterData['modelId'])){
@@ -620,4 +618,4 @@ bool validatePayloadFromHardware(Map<String, dynamic>? payload, List<String> key
 
 enum HardwareAcknowledgementSate{notSent, sending, failed, success, errorOnPayload, hardwareUnknownError, programRunning}
 enum PayloadSendState{idle, start, stop}
-enum HardwareType{master, pump, economic}
+enum HardwareType{master, pump, economic, pumpWithValve}
