@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-import '../view/time_data_model.dart';
+import '../model/time_data_model.dart';
 class TimeGraph extends StatelessWidget {
   final List<TimeData> data;
 

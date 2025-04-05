@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-import '../view/chart_data_model.dart';
-import '../view/event_log_model.dart';
+import '../model/chart_data_model.dart';
+import '../model/event_log_model.dart';
 
 class MotorLogChart extends StatelessWidget {
   final List<EventLog> motor1Logs;

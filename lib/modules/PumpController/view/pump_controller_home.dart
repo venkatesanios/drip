@@ -1,7 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:oro_drip_irrigation/Constants/properties.dart';
 import 'package:oro_drip_irrigation/modules/Preferences/view/preference_main_screen.dart';
 import 'package:oro_drip_irrigation/modules/PumpController/view/pump_dashboard_screen.dart';
 import 'package:oro_drip_irrigation/modules/PumpController/widget/custom_outline_button.dart';
@@ -82,9 +80,9 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
             BottomNavigationBarItem(icon: Icon(Icons.assessment_outlined), activeIcon: Icon(Icons.assessment), label: 'Logs'),
           ],
           currentIndex: _selectedIndex,
-          backgroundColor: Theme.of(context).primaryColorDark,
+          backgroundColor: Colors.white,
           unselectedItemColor: Colors.grey,
-          selectedItemColor: Colors.white,
+          selectedItemColor: Theme.of(context).primaryColorLight,
           type: BottomNavigationBarType.fixed,
           elevation: 8.0,
           onTap: _onItemTapped,

@@ -247,7 +247,7 @@ class _PowerGraphScreenState extends State<PowerGraphScreen> {
                       style: const TextStyle(fontWeight: FontWeight.w400),
                     ),
                     tileColor: Colors.white,
-                    trailing: IconButton(
+                    /*trailing: IconButton(
                       onPressed: (){
                         showDateRangePicker(
                             context: context,
@@ -273,7 +273,7 @@ class _PowerGraphScreenState extends State<PowerGraphScreen> {
                       style: ButtonStyle(
                           backgroundColor: WidgetStatePropertyAll(Theme.of(context).primaryColor)
                       ),
-                    ),
+                    ),*/
                   ),
                 ),
               CustomSegmentedControl(

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Screens/Logs/irrigation_and_pump_log.dart';
 import 'package:oro_drip_irrigation/Screens/planning/WeatherScreen.dart';
+import 'package:oro_drip_irrigation/modules/PumpController/model/pump_controller_data_model.dart';
 import 'package:oro_drip_irrigation/views/customer/program_schedule.dart';
 import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
 import 'package:oro_drip_irrigation/views/customer/stand_alone.dart';
@@ -11,6 +12,7 @@ import 'package:provider/provider.dart';
 import '../../Screens/Dealer/controllerverssionupdate.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../flavors.dart';
+import '../../modules/PumpController/view/pump_controller_home.dart';
 import '../../modules/ScheduleView/view/schedule_view_screen.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
@@ -302,7 +304,7 @@ class MobileScreenController extends StatelessWidget {
               ),
             ),
             floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-            bottomNavigationBar: BottomNavigationBar(
+            bottomNavigationBar: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1 ? BottomNavigationBar(
               currentIndex: vm.selectedIndex,
               onTap: vm.onItemTapped,
               selectedItemColor: Theme.of(context).primaryColorLight, // Change this to your desired color
@@ -312,8 +314,8 @@ class MobileScreenController extends StatelessWidget {
                 BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
                 BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), label: "Settings"),
               ],
-            ),
-            floatingActionButton: Stack(
+            ) : null,
+            floatingActionButton: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1 ? Stack(
               alignment: Alignment.bottomRight,
               children: [
                 FloatingActionButton(
@@ -423,7 +425,7 @@ class MobileScreenController extends StatelessWidget {
                   ),
                 ),
               ],
-            ),
+            ) : null,
             body: Container(
               decoration: BoxDecoration(
                 color: Theme.of(context).scaffoldBackgroundColor,
@@ -431,7 +433,7 @@ class MobileScreenController extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  lastCommunication.inMinutes >= 10 && powerSupply == 0?Container(
+                  (lastCommunication.inMinutes >= 10 && powerSupply == 0 && vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1)?Container(
                     height: 23.0,
                     decoration: BoxDecoration(
                       color: Colors.red.shade300,
@@ -446,7 +448,7 @@ class MobileScreenController extends StatelessWidget {
                       ),
                     ),
                   ):
-                  powerSupply == 0? Container(
+                  (powerSupply == 0 && vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1)? Container(
                     height: 20.0,
                     decoration: BoxDecoration(
                       color: Colors.red.shade300,
@@ -467,8 +469,11 @@ class MobileScreenController extends StatelessWidget {
                     child: mainScreen(navViewModel.selectedIndex, vm.mySiteList.data[vm.sIndex].groupId,
                         vm.mySiteList.data[vm.sIndex].groupName, vm.mySiteList.data[vm.sIndex].master,
                         vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                        vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId),
-                  ),
+                        vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
+                        vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                        vm.mySiteList.data[vm.sIndex].master[vm.mIndex].live?.cM
+                    ),
+                  )
                 ],
               ),
             ),
@@ -824,12 +829,12 @@ class MobileScreenController extends StatelessWidget {
                         ):
                         const SizedBox(),
 
-                        Expanded(
+                      /*  Expanded(
                           child: mainScreen(navViewModel.selectedIndex, vm.mySiteList.data[vm.sIndex].groupId,
                               vm.mySiteList.data[vm.sIndex].groupName, vm.mySiteList.data[vm.sIndex].master,
                               vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
                               vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId),
-                        ),
+                        ),*/
                       ],
                     ),
                   ),
@@ -1152,11 +1157,18 @@ class MobileScreenController extends StatelessWidget {
     return destinations;
   }
 
-  Widget mainScreen(int index, groupId, groupName, List<Master> masterData, int controllerId, int categoryId) {
+  Widget mainScreen(int index, groupId, groupName, List<Master> masterData, int controllerId, int categoryId, String deviceId, PumpControllerData liveData) {
     switch (index) {
       case 0:
         return categoryId==1? CustomerHome(customerId: userId):
-        const Text('pump dashboard');
+        PumpControllerHome(
+          deviceId: deviceId,
+          liveData: liveData,
+          masterName: groupName,
+          userId: userId,
+          customerId: customerId,
+          controllerId: controllerId,
+        );
       case 1:
         return CustomerProduct(customerId: userId);
       case 2:

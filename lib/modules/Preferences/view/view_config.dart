@@ -36,7 +36,7 @@ class _ViewConfigState extends State<ViewConfig> {
     // mqttProvider.viewSetting.clear();
     mqttProvider.viewSettingsList.clear();
     mqttProvider.cCList.clear();
-    int waitingSeconds = 20;
+    int waitingSeconds = 90;
     _remainingTime = waitingSeconds;
 
     _timeoutTimer?.cancel();
@@ -63,7 +63,7 @@ class _ViewConfigState extends State<ViewConfig> {
           {"5902": "${widget.userId}"}
         ]
       };
-      print("published data ${pump.deviceId}");
+      // print("published data ${pump.deviceId}");
       mqttService.topicToPublishAndItsMessage(jsonEncode(viewConfig), "${Environment.mqttPublishTopic}/${preferenceProvider.generalData!.deviceId}");
     } else {
       mqttService.topicToPublishAndItsMessage(jsonEncode({"sentSms": "viewconfig"}), "${Environment.mqttPublishTopic}/${preferenceProvider.generalData!.deviceId}");
@@ -90,7 +90,6 @@ class _ViewConfigState extends State<ViewConfig> {
     viewPayloads.addAll(generateDynamicConfigs(numberOfPumps));
     setState(() {});
   }
-
 
   @override
   void initState() {
@@ -127,7 +126,7 @@ class _ViewConfigState extends State<ViewConfig> {
     if (_hasTimedOut) {
       return Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               _buildDropdown(),
               const SizedBox(height: 10),
@@ -169,22 +168,25 @@ class _ViewConfigState extends State<ViewConfig> {
       );
     }
 
-    return Column(
-      children: [
-        _buildDropdown(),
-        if (_hasPayload("pumpconfig", mqttProvider, deviceId))
-          _buildPumpConfig(widget.isLora ? mqttProvider.viewSetting['cM'][0]["pumpconfig"] : '${jsonDecode(mqttProvider.viewSettingsList[0])[0]['pumpconfig']}', preferenceProvider)
-        else if (_hasPayload("tankconfig", mqttProvider, deviceId))
-          _buildTankConfig(
-              widget.isLora
-                  ? mqttProvider.viewSetting['cM'][0]["tankconfig"]
-                  : _getNumberOfTankConfig(mqttProvider),
-              preferenceProvider)
-        else if(_hasPayload("ctconfig", mqttProvider, deviceId) || _hasPayload("voltageconfig", mqttProvider, deviceId) || _hasPayload("calibration", mqttProvider, deviceId))
-            Expanded(child: _buildCommonSettingCategory(mqttProvider, deviceId))
-          else
-            Expanded(child: _buildIndividualSettingCategory(mqttProvider, deviceId))
-      ],
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 10),
+      child: Column(
+        children: [
+          _buildDropdown(),
+          if (_hasPayload("pumpconfig", mqttProvider, deviceId))
+            _buildPumpConfig(widget.isLora ? mqttProvider.viewSetting['cM'][0]["pumpconfig"] : '${jsonDecode(mqttProvider.viewSettingsList[0])[0]['pumpconfig']}', preferenceProvider)
+          else if (_hasPayload("tankconfig", mqttProvider, deviceId))
+            _buildTankConfig(
+                widget.isLora
+                    ? mqttProvider.viewSetting['cM'][0]["tankconfig"]
+                    : _getNumberOfTankConfig(mqttProvider),
+                preferenceProvider)
+          else if(_hasPayload("ctconfig", mqttProvider, deviceId) || _hasPayload("voltageconfig", mqttProvider, deviceId) || _hasPayload("calibration", mqttProvider, deviceId))
+              Expanded(child: _buildCommonSettingCategory(mqttProvider, deviceId))
+            else
+              Expanded(child: _buildIndividualSettingCategory(mqttProvider, deviceId))
+        ],
+      ),
     );
   }
 
@@ -199,20 +201,35 @@ class _ViewConfigState extends State<ViewConfig> {
   }
 
   Widget _buildDropdown() {
-    return DropdownButton<String>(
-      menuMaxHeight: 300,
-      value: selectedPayload,
-      items: viewPayloads.toSet().toList()
-          .map((value) => DropdownMenuItem(value: value, child: Text(value)))
-          .toList(),
-      onChanged: (value) {
-        setState(() {
-          selectedPayload = value!;
-          if(widget.isLora) {
-            requestViewConfig(viewPayloads.indexOf(value));
-          }
-        });
-      },
+    return Align(
+      alignment: AlignmentDirectional.centerEnd,
+      child: Container(
+        height: 40,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(25),
+          color: const Color(0xffF5F5F5)
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        child: DropdownButton<String>(
+          menuMaxHeight: 300,
+          padding: const EdgeInsets.symmetric(vertical: 0),
+          value: selectedPayload,
+            underline: Container(),
+          borderRadius: BorderRadius.circular(5),
+          items: viewPayloads.toSet().toList()
+              .map((value) => DropdownMenuItem(value: value, child: Text(value)))
+              .toList(),
+          onChanged: (value) {
+            setState(() {
+              selectedPayload = value!;
+              if(widget.isLora) {
+                requestViewConfig(viewPayloads.indexOf(value));
+              }
+            });
+          },
+        ),
+      ),
     );
   }
 
@@ -230,8 +247,20 @@ class _ViewConfigState extends State<ViewConfig> {
     }
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      shape: RoundedRectangleBorder(
+        side: BorderSide(
+          color: Theme.of(context).primaryColorLight,
+          width: 0.5,
+        ),
+        borderRadius: const BorderRadius.only(bottomRight: Radius.circular(10), bottomLeft: Radius.circular(10), topRight: Radius.circular(10)),
+      ),
+      margin: const EdgeInsets.only(left: 0, right: 0, bottom: 15),
+      elevation: 4,
+      color: Colors.white,
+      surfaceTintColor: Colors.white,
+      shadowColor: Theme.of(context).primaryColorLight.withAlpha(100),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: List.generate(
           titles.length,
               (i) => _buildListTile(titles[i].toUpperCase(), values[i]),
@@ -290,55 +319,86 @@ class _ViewConfigState extends State<ViewConfig> {
         .map((e) => e.name).toList();
 
     return Expanded(
-      child: ListView.builder(
-        itemCount: pumpNames.length,
-        itemBuilder: (context, i) {
-          return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Wrap(
+              alignment: WrapAlignment.spaceEvenly,
+              spacing: 50,
+              runAlignment: WrapAlignment.spaceBetween,
               children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  child: Text(
-                    pumpNames[i],
-                    style: Theme.of(context).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
-                  ),
-                ),
-                ...groups[i].asMap().entries.map(
-                      (entry) => _buildListTile(titles[entry.key].toUpperCase(), entry.value,),
-                ),
+                for(int i = 0; i < pumpNames.length; i++)
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width <= 500 ? MediaQuery.of(context).size.width : 400,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        IntrinsicWidth(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            height: 25,
+                            decoration: BoxDecoration(
+                              // gradient: AppProperties.linearGradientLeading,
+                                color: Theme.of(context).primaryColorLight,
+                                borderRadius: const BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(3))
+                            ),
+                            child: Center(
+                              child: Text(
+                                // '${Provider.of<PreferenceProvider>(context).individualPumpSetting![index].name}',
+                                pumpNames[i],
+                                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white,),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Card(
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                              color: Theme.of(context).primaryColorLight,
+                              width: 0.5,
+                            ),
+                            borderRadius: const BorderRadius.only(bottomRight: Radius.circular(10), bottomLeft: Radius.circular(10), topRight: Radius.circular(10)),
+                          ),
+                          margin: const EdgeInsets.only(left: 0, right: 0, bottom: 15),
+                          elevation: 4,
+                          color: Colors.white,
+                          surfaceTintColor: Colors.white,
+                          shadowColor: Theme.of(context).primaryColorLight.withAlpha(100),
+                          child: Column(
+                            children: [
+                              ...groups[i].asMap().entries.map(
+                                    (entry) => _buildListTile(titles[entry.key].toUpperCase(), entry.value,),
+                              )
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
               ],
             ),
-          );
-        },
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildListTile(String title, String value, {String value2 = ''}) {
+  Widget _buildListTile(String title, String value,) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(
-            flex: value2.isEmpty ? 2 : 1,
+          Flexible(
+            // flex: 1,
             child: Text(title, style: Theme.of(context).textTheme.bodyLarge),
           ),
-          Expanded(
+          Flexible(
             child: Text(
               value,
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
-          if (value2.isNotEmpty)
-            Expanded(
-              child: Text(
-                value2,
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.bold),
-              ),
-            ),
         ],
       ),
     );
@@ -349,46 +409,92 @@ class _ViewConfigState extends State<ViewConfig> {
     final settings = prefProvider.commonPumpSettings![prefProvider.selectedTabIndex].settingList;
     final calibrationSettings = prefProvider.calibrationSetting!.isNotEmpty ? prefProvider.calibrationSetting![prefProvider.selectedTabIndex].settingList : null;
 
-    return ListView(
-      children: !(_hasPayload('calibration', provider, deviceId)) ? settings.map((setting) {
-        if ([206].contains(setting.type) && _hasPayload('ctconfig', provider, deviceId)) {
-          final values = widget.isLora
-              ? provider.viewSetting['cM'].first['ctconfig'].split(',')
-              : '${jsonDecode(provider.viewSettingsList[0])[1]['ctconfig']}'.split(',');
-          return _buildSettingCard(setting, values);
-        } else if ([204].contains(setting.type) && _hasPayload('voltageconfig', provider, deviceId)) {
-          final values = widget.isLora
-              ? provider.viewSetting['cM'].first['voltageconfig'].split(',')
-              : '${jsonDecode(provider.viewSettingsList[0])[2]['voltageconfig']}'.split(',');
-          return _buildSettingCard(setting, values);
-        }
-        return Container();
-      }).toList() : calibrationSettings != null ? calibrationSettings.map((setting) {
-        if ([208, 209, 210].contains(setting.type)) {
-          final List<String> values = widget.isLora
-              ? provider.viewSetting['cM'].first['calibration'].split(',')
-              : '${jsonDecode(provider.viewSettingsList[0])[3]['calibration']}'.split(',');
-          return _buildSettingCard(
-            setting,
-            setting.type == 208
-                ? values
-                : setting.type == 209
-                ? values.skip(3).toList()
-                : values.skip(6).toList(),
-          );
-        }
-        return Container();
-      }).toList() : [Container()],
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Wrap(
+            alignment: WrapAlignment.start,
+            spacing: 50,
+            runAlignment: WrapAlignment.spaceBetween,
+            children: !(_hasPayload('calibration', provider, deviceId)) ? settings.map((setting) {
+              if ([206].contains(setting.type) && _hasPayload('ctconfig', provider, deviceId)) {
+                final values = widget.isLora
+                    ? provider.viewSetting['cM'].first['ctconfig'].split(',')
+                    : '${jsonDecode(provider.viewSettingsList[0])[1]['ctconfig']}'.split(',');
+                return _buildSettingCard(setting, values);
+              } else if ([204].contains(setting.type) && _hasPayload('voltageconfig', provider, deviceId)) {
+                final values = widget.isLora
+                    ? provider.viewSetting['cM'].first['voltageconfig'].split(',')
+                    : '${jsonDecode(provider.viewSettingsList[0])[2]['voltageconfig']}'.split(',');
+                return _buildSettingCard(setting, values);
+              }
+              return Container();
+            }).toList() : calibrationSettings != null ? calibrationSettings.map((setting) {
+              if ([208, 209, 210].contains(setting.type)) {
+                final List<String> values = widget.isLora
+                    ? provider.viewSetting['cM'].first['calibration'].split(',')
+                    : '${jsonDecode(provider.viewSettingsList[0])[3]['calibration']}'.split(',');
+                return _buildSettingCard(
+                  setting,
+                  setting.type == 208
+                      ? values
+                      : setting.type == 209
+                      ? values.skip(3).toList()
+                      : values.skip(6).toList(),
+                );
+              }
+              return Container();
+            }).toList() : [Container()],
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildSettingCard(SettingList setting, List<String> values) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+    return SizedBox(
+      width: MediaQuery.of(context).size.width <= 500 ? MediaQuery.of(context).size.width : 400,
       child: Column(
-        children: List.generate(
-          setting.setting.length, (i) => _buildListTile(setting.setting[i].title, values[i]),
-        ),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          IntrinsicWidth(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              height: 25,
+              decoration: BoxDecoration(
+                // gradient: AppProperties.linearGradientLeading,
+                  color: Theme.of(context).primaryColorLight,
+                  borderRadius: const BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(3))
+              ),
+              child: Center(
+                child: Text(
+                  // '${Provider.of<PreferenceProvider>(context).individualPumpSetting![index].name}',
+                  setting.name,
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white,),
+                ),
+              ),
+            ),
+          ),
+          Card(
+            shape: RoundedRectangleBorder(
+              side: BorderSide(
+                color: Theme.of(context).primaryColorLight,
+                width: 0.5,
+              ),
+              borderRadius: const BorderRadius.only(bottomRight: Radius.circular(10), bottomLeft: Radius.circular(10), topRight: Radius.circular(10)),
+            ),
+            margin: const EdgeInsets.only(left: 0, right: 0, bottom: 15),
+            elevation: 4,
+            color: Colors.white,
+            surfaceTintColor: Colors.white,
+            shadowColor: Theme.of(context).primaryColorLight.withAlpha(100),
+            child: Column(
+              children: List.generate(
+                setting.setting.length, (i) => _buildListTile(setting.setting[i].title, values[i]),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -399,21 +505,30 @@ class _ViewConfigState extends State<ViewConfig> {
           (e) => e.controllerId == prefProvider.commonPumpSettings![prefProvider.selectedTabIndex].controllerId,
     ).toList();
 
-    return ListView(
-      children: pumps.isNotEmpty ? pumps[0].settingList.map((setting) {
-        if ([23, 203].contains(setting.type) && _hasPayload('currentconfig', provider, deviceId)) {
-          return _buildConfigCard(provider, setting, pumps, 'currentconfig');
-        }
-        if ([22, 202].contains(setting.type) && (_hasPayload('rtcconfig', provider, deviceId) || _hasPayload('delayconfig', provider, deviceId))) {
-          return _hasPayload('rtcconfig', provider, deviceId)
-              ? _buildRTCConfigCard(provider, setting, pumps)
-              : _buildDelayConfigCard(provider, setting, pumps);
-        }
-        if ([25, 205].contains(setting.type) && _hasPayload('scheduleconfig', provider, deviceId)) {
-          return _buildConfigCard(provider, setting, pumps, 'scheduleconfig');
-        }
-        return Container();
-      }).toList() : [],
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Wrap(
+            alignment: WrapAlignment.start,
+            spacing: 50,
+            runAlignment: WrapAlignment.spaceBetween,
+            children: pumps.isNotEmpty ? pumps[0].settingList.map((setting) {
+              if ([23, 203].contains(setting.type) && _hasPayload('currentconfig', provider, deviceId)) {
+                return _buildConfigCard(provider, setting, pumps, 'currentconfig');
+              }
+              if ([22, 202].contains(setting.type) && (_hasPayload('rtcconfig', provider, deviceId) || _hasPayload('delayconfig', provider, deviceId))) {
+                return _hasPayload('rtcconfig', provider, deviceId)
+                    ? _buildRTCConfigCard(provider, setting, pumps)
+                    : _buildDelayConfigCard(provider, setting, pumps);
+              }
+              if ([25, 205].contains(setting.type) && _hasPayload('scheduleconfig', provider, deviceId)) {
+                return _buildConfigCard(provider, setting, pumps, 'scheduleconfig');
+              }
+              return Container();
+            }).toList() : [],
+          ),
+        ],
+      ),
     );
   }
 
@@ -427,12 +542,51 @@ class _ViewConfigState extends State<ViewConfig> {
     final rtcValues = _getConfigValues(provider, 'rtcconfig');
     final pumpName = _getPumpName(pumps, 'rtcconfig');
 
-    return Column(
-      children: [
-        _buildTitle(pumpName),
-        _buildListTile(setting.setting[11].title, widget.isLora ? rtcValues[1] : rtcValues[0]),
-        _buildRTCTable(setting, rtcValues),
-      ],
+    return SizedBox(
+      width: MediaQuery.of(context).size.width <= 500 ? MediaQuery.of(context).size.width : 400,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          IntrinsicWidth(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              height: 25,
+              decoration: BoxDecoration(
+                // gradient: AppProperties.linearGradientLeading,
+                  color: Theme.of(context).primaryColorLight,
+                  borderRadius: const BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(3))
+              ),
+              child: Center(
+                child: Text(
+                  // '${Provider.of<PreferenceProvider>(context).individualPumpSetting![index].name}',
+                  pumpName,
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white,),
+                ),
+              ),
+            ),
+          ),
+          Card(
+            shape: RoundedRectangleBorder(
+              side: BorderSide(
+                color: Theme.of(context).primaryColorLight,
+                width: 0.5,
+              ),
+              borderRadius: const BorderRadius.only(bottomRight: Radius.circular(10), bottomLeft: Radius.circular(10), topRight: Radius.circular(10)),
+            ),
+            margin: const EdgeInsets.only(left: 0, right: 0, bottom: 15),
+            elevation: 4,
+            color: Colors.white,
+            surfaceTintColor: Colors.white,
+            shadowColor: Theme.of(context).primaryColorLight.withAlpha(100),
+            child: Column(
+              children: [
+                _buildListTile(setting.setting[11].title, widget.isLora ? rtcValues[1] : rtcValues[0]),
+                _buildRTCTable(setting, rtcValues),
+              ],
+            ),
+          )
+        ],
+      ),
     );
   }
 
@@ -440,23 +594,49 @@ class _ViewConfigState extends State<ViewConfig> {
     final delayValues = _getConfigValues(provider, 'delayconfig');
     final pumpName = _getPumpName(pumps, 'delayconfig');
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: Column(
-        children: [
-          _buildTitle(pumpName),
-          ...List.generate(setting.setting.length, (i) {
-            return (i == 11 || i == 12) ? Container() : _buildListTile(setting.setting[i].title, widget.isLora ? delayValues[i + 1] : delayValues[i]);
-          }),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTitle(String pumpName) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Text(pumpName, style: Theme.of(context).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor)),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        IntrinsicWidth(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            height: 25,
+            decoration: BoxDecoration(
+              // gradient: AppProperties.linearGradientLeading,
+                color: Theme.of(context).primaryColorLight,
+                borderRadius: const BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(3))
+            ),
+            child: Center(
+              child: Text(
+                // '${Provider.of<PreferenceProvider>(context).individualPumpSetting![index].name}',
+                pumpName,
+                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white,),
+              ),
+            ),
+          ),
+        ),
+        Card(
+          shape: RoundedRectangleBorder(
+            side: BorderSide(
+              color: Theme.of(context).primaryColorLight,
+              width: 0.5,
+            ),
+            borderRadius: const BorderRadius.only(bottomRight: Radius.circular(10), bottomLeft: Radius.circular(10), topRight: Radius.circular(10)),
+          ),
+          margin: const EdgeInsets.only(left: 0, right: 0, bottom: 15),
+          elevation: 4,
+          color: Colors.white,
+          surfaceTintColor: Colors.white,
+          shadowColor: Theme.of(context).primaryColorLight.withAlpha(100),
+          child: Column(
+            children: [
+              ...List.generate(setting.setting.length, (i) {
+                return (i == 11 || i == 12) ? Container() : _buildListTile(setting.setting[i].title, widget.isLora ? delayValues[i + 1] : delayValues[i]);
+              }),
+            ],
+          ),
+        )
+      ],
     );
   }
 
@@ -527,20 +707,50 @@ class _ViewConfigState extends State<ViewConfig> {
 
   Widget _buildSettingCardWithTitle(String title, setting, List<String> values,
       {int offset = 0}) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+    return SizedBox(
+      width: MediaQuery.of(context).size.width <= 500 ? MediaQuery.of(context).size.width : 400,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Text(
-              title,
-              style: Theme.of(context).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+          IntrinsicWidth(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              height: 25,
+              decoration: BoxDecoration(
+                // gradient: AppProperties.linearGradientLeading,
+                  color: Theme.of(context).primaryColorLight,
+                  borderRadius: const BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(3))
+              ),
+              child: Center(
+                child: Text(
+                  // '${Provider.of<PreferenceProvider>(context).individualPumpSetting![index].name}',
+                  title,
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white,),
+                ),
+              ),
             ),
           ),
-          ...List.generate(
-            setting.setting.length, (i) => _buildListTile(setting.setting[i].title, values[i + offset]),
-          ),
+          Card(
+            shape: RoundedRectangleBorder(
+              side: BorderSide(
+                color: Theme.of(context).primaryColorLight,
+                width: 0.5,
+              ),
+              borderRadius: const BorderRadius.only(bottomRight: Radius.circular(10), bottomLeft: Radius.circular(10), topRight: Radius.circular(10)),
+            ),
+            margin: const EdgeInsets.only(left: 0, right: 0, bottom: 15),
+            elevation: 4,
+            color: Colors.white,
+            surfaceTintColor: Colors.white,
+            shadowColor: Theme.of(context).primaryColorLight.withAlpha(100),
+            child: Column(
+              children: [
+                ...List.generate(
+                  setting.setting.length, (i) => _buildListTile(setting.setting[i].title, values[i + offset]),
+                ),
+              ],
+            ),
+          )
         ],
       ),
     );

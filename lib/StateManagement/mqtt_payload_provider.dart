@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -467,7 +468,9 @@ class MqttPayloadProvider with ChangeNotifier {
 
 
   void updateReceivedPayload(String payload,bool dataFromHttp) async{
-    // print("updateReceivedPayload ====$payload");
+    if (kDebugMode) {
+      print("updateReceivedPayload ====$payload");
+    }
     if(!dataFromHttp) {
       dataFetchingStatus = 1;
     } else {
@@ -509,33 +512,35 @@ class MqttPayloadProvider with ChangeNotifier {
         }
       }
       // Check if 'mC' is 4200
-      if (data['mC'] != null && data['cM'].containsKey('4201')) {
-        messageFromHw = data['cM']['4201'];
+      if(data['cM'] is! List<dynamic>) {
+        if (data['mC'] != null && data['cM'].containsKey('4201')) {
+          messageFromHw = data['cM']['4201'];
 
-      }
-      if(data.containsKey('6600')){
-        if(data['6600'].containsKey('6601')){
-          if(!sheduleLog.contains(data['6600']['6601'])) {
-            sheduleLog += "\n";
-            sheduleLog += data['6600']['6601'];
-          }
         }
-        if(data['6600'].containsKey('6602')){
-          if(!uardLog.contains(data['6600']['6602'])){
-            uardLog += "\n";
-            uardLog += data['6600']['6602'];
+        if(data.containsKey('6600')){
+          if(data['6600'].containsKey('6601')){
+            if(!sheduleLog.contains(data['6600']['6601'])) {
+              sheduleLog += "\n";
+              sheduleLog += data['6600']['6601'];
+            }
           }
-        }
-        if(data['6600'].containsKey('6603')){
-          if(!uard0Log.contains(data['6600']['6603'])){
-            uard0Log += "\n";
-            uard0Log += data['6600']['6603'];
+          if(data['6600'].containsKey('6602')){
+            if(!uardLog.contains(data['6600']['6602'])){
+              uardLog += "\n";
+              uardLog += data['6600']['6602'];
+            }
           }
-        }
-        if(data['6600'].containsKey('6604')){
-          if(!uard4Log.contains(data['6600']['6604'])){
-            uard4Log += "\n";
-            uard4Log += data['6600']['6604'];
+          if(data['6600'].containsKey('6603')){
+            if(!uard0Log.contains(data['6600']['6603'])){
+              uard0Log += "\n";
+              uard0Log += data['6600']['6603'];
+            }
+          }
+          if(data['6600'].containsKey('6604')){
+            if(!uard4Log.contains(data['6600']['6604'])){
+              uard4Log += "\n";
+              uard4Log += data['6600']['6604'];
+            }
           }
         }
       }

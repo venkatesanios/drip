@@ -1,4 +1,4 @@
-import '../view/event_log_model.dart';
+import 'event_log_model.dart';
 
 class PumpLogData {
   final String date;

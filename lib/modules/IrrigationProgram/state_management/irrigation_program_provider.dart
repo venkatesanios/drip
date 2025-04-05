@@ -1457,7 +1457,8 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         'LocalPhBasedOnOff' : localPhActive,
         'LocalPhSetValue' : localPhValue == '' ? 0.0 : double.parse(localPhValue),
         'ZoneCondition' : sq['moistureSno'],
-        'ImmediateStopByCondition' : sq['levelSno']
+        'ImmediateStopByCondition' : sq['levelSno'],
+        'Name' : sq['seqName'],
       };
       print('jsonPayload :: $jsonPayload');
       payload += jsonPayload.values.toList().join(',');
@@ -3053,6 +3054,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
                 List valveSerialNumbers = e['valve'].map((valve) => valve['sNo']).toList();
                 return valveSerialNumbers.join('_');
               }).toList().join("+")}',/*HeadUnitToPause*/
+              "Name": programName,/*Name*/
             }.entries.map((e) => e.value).join(",")
         };",
       }

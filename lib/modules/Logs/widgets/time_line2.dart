@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/Logs/widgets/time_line_event_card.dart';
 
-import '../view/event_log_model.dart';
+import '../model/event_log_model.dart';
 class Timeline2 extends StatelessWidget {
   final List<EventLog> events;
 
@@ -11,7 +11,7 @@ class Timeline2 extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        ...events.map((event) => TimelineEventCard(event: event)).toList()
+        ...events.map((event) => TimelineEventCard(event: event))
       ],
     );
   }
