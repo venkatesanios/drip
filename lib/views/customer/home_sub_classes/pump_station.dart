@@ -1946,7 +1946,7 @@ class PumpStation extends StatelessWidget {
                                     ),
                                   ),
 
-                                  channel.status !=0 && channel.durationCompleted !='00:00:00' ?
+                                  channel.status ==1 && channel.durationCompleted !='00:00:00' ?
                                   Positioned(
                                     top: 103,
                                     left: 0,

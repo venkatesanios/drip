@@ -1,0 +1,2 @@
+D:/FlutterProjects/drip/android/app/.cxx/Debug/a2q6kh3a/x86/CMakeFiles/edit_cache.dir
+D:/FlutterProjects/drip/android/app/.cxx/Debug/a2q6kh3a/x86/CMakeFiles/rebuild_cache.dir
