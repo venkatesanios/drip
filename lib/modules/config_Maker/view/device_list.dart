@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/app.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
 import '../../../Constants/communication_codes.dart';
@@ -109,7 +110,6 @@ class _DeviceListState extends State<DeviceList> {
                         .map((entry) {
                       DeviceModel device = entry.value;
                       int index = entry.key;
-                      var node = entry.value;
                       return DataRow(
                           cells: [
                             DataCell(
@@ -161,8 +161,20 @@ class _DeviceListState extends State<DeviceList> {
                                 icon: const Icon(Icons.delete, color: Colors.red,),
                                 onPressed: (){
                                   bool configured = configPvd.listOfGeneratedObject.any((object) => object.controllerId == device.controllerId);
+                                  int valveCount = configPvd.listOfGeneratedObject.where((object) => object.objectId == AppConstants.valveObjectId).length;
+                                  int moistureCount = configPvd.listOfGeneratedObject.where((object) => object.objectId == AppConstants.moistureObjectId).length;
+
                                   if(configured){
                                     simpleDialogBox(context: context, title: 'Alert', message: '${device.deviceName} cannot be removed. Please detach all connected objects first.');
+                                  }else if(
+                                      AppConstants.pumpWithValveModelList.contains(configPvd.masterData['modelId'])
+                                      &&
+                                      ((AppConstants.senseModelList.contains(device.modelId) && moistureCount != 0) || (![...AppConstants.pumpWithValveModelList, ...AppConstants.senseModelList].contains(device.modelId) && valveCount > 2))){
+                                    if(AppConstants.senseModelList.contains(device.modelId) && moistureCount != 0){
+                                      simpleDialogBox(context: context, title: 'Alert', message: '${device.deviceName} cannot be removed. Because Moisture connected to ${device.deviceName}.');
+                                    }else if(valveCount > 2){
+                                      simpleDialogBox(context: context, title: 'Alert', message: '${device.deviceName} cannot be removed. Because valve connected to ${device.deviceName}');
+                                    }
                                   }else{
                                     setState(() {
                                       device.masterId = null;
@@ -237,7 +249,23 @@ class _DeviceListState extends State<DeviceList> {
                 setState(() {
                   selectAllNode = false;
                 });
-                bool isThereNodeToConfigure = listOfDevices.any((node) => node.masterId == null);
+                List<DeviceModel> possibleNodeToConfigUnderMaster = listOfDevices.where((node) {
+                  List<int> nodeUnderPumpWithValveModel = [15, 17, 23, 25, 42];
+                  List<int> nodeNotUnderGemModel = [48, 49];
+                  if(AppConstants.pumpWithValveModelList.contains(configPvd.masterData['modelId']) && nodeUnderPumpWithValveModel.contains(node.modelId)){
+                    /* this condition filter node for pump with valve model */
+                    return true;
+                  }else if(AppConstants.gemModelList.contains(configPvd.masterData['modelId']) && !nodeNotUnderGemModel.contains(node.modelId)){
+                    /* this condition filter node for gem model */
+                    return true;
+                  }else if(AppConstants.ecoGemModelList.contains(configPvd.masterData['modelId'])){
+                    /* this condition filter node for eco gem */
+                    return true;
+                  }else{
+                    return false;
+                  }
+                }).toList();
+                bool isThereNodeToConfigure = possibleNodeToConfigUnderMaster.any((node) => node.masterId == null);
                 if(isThereNodeToConfigure){
                   showDialog(
                       context: context,
@@ -265,6 +293,14 @@ class _DeviceListState extends State<DeviceList> {
                                                     setState(() {
                                                       selectAllNode = !selectAllNode;
                                                       for(var device in configPvd.listOfDeviceModel){
+                                                        List<int> nodeUnderPumpWithValveModel = [15, 17, 23, 25, 42];
+                                                        List<int> nodeNotUnderGemModel = [48, 49];
+                                                        if(AppConstants.pumpWithValveModelList.contains(configPvd.masterData['modelId']) && nodeUnderPumpWithValveModel.contains(device.modelId)){
+                                                          /* this condition filter node for pump with valve model */
+                                                          device.select = selectAllNode;
+                                                        }else if(AppConstants.gemModelList.contains(configPvd.masterData['modelId']) && !nodeNotUnderGemModel.contains(device.modelId)){
+                                                          /* this condition filter node for pump with valve model */
+                                                          device.select = selectAllNode;                                                        }
                                                         device.select = selectAllNode;
                                                       }
                                                     });
@@ -283,8 +319,13 @@ class _DeviceListState extends State<DeviceList> {
                                           .where((node) => node.masterId == null)
                                           .where((node) {
                                             List<int> nodeUnderPumpWithValveModel = [15, 17, 23, 25, 42];
+                                            List<int> nodeUnderEcoGemModel = [36, 50, 51];
                                             List<int> nodeNotUnderGemModel = [48, 49];
+                                            print('modelId : ${node.modelId}');
                                             if(AppConstants.pumpWithValveModelList.contains(configPvd.masterData['modelId']) && nodeUnderPumpWithValveModel.contains(node.modelId)){
+                                              /* this condition filter node for pump with valve model */
+                                              return true;
+                                            }else if(AppConstants.ecoGemModelList.contains(configPvd.masterData['modelId']) && nodeUnderEcoGemModel.contains(node.modelId)){
                                               /* this condition filter node for pump with valve model */
                                               return true;
                                             }else if(AppConstants.gemModelList.contains(configPvd.masterData['modelId']) && !nodeNotUnderGemModel.contains(node.modelId)){
@@ -297,7 +338,6 @@ class _DeviceListState extends State<DeviceList> {
                                           .toList()
                                           .asMap()
                                           .entries.map((entry){
-                                        int index = entry.key;
                                         DeviceModel device = entry.value;
                                         return DataRow(
                                             cells: [
@@ -305,6 +345,10 @@ class _DeviceListState extends State<DeviceList> {
                                                 Checkbox(
                                                   value: device.select,
                                                   onChanged: (value){
+                                                    bool update = true;
+                                                    if(AppConstants.pumpWithValveModelList.contains(configPvd.masterData['modelId'])){
+
+                                                    }
                                                     stateSetter((){
                                                       setState(() {
                                                         device.select = value!;

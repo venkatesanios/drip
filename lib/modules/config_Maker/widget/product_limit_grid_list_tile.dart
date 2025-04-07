@@ -141,11 +141,17 @@ class _ProductLimitGridListTileState extends State<ProductLimitGridListTile> wit
   }
 
   bool dependentObjectByCommonObject(int objectId){
-    print('objectId ::: $objectId');
     bool visible = true;
     /*hide waterSource for pump with valve model*/
     if(AppConstants.pumpWithValveModelList.contains(widget.configPvd.masterData['modelId'])){
 
+    }else if(AppConstants.ecoGemModelList.contains(widget.configPvd.masterData['modelId'])){
+      List<int> objectThatConfigureToEcoGemModel = [1, 2, 3, 4, 5, 7, 10, 11, 13, 22, 24, 26, 40];
+      if(objectThatConfigureToEcoGemModel.contains(objectId)){
+        visible = true;
+      }else{
+        visible = false;
+      }
     }else{
       if(objectIdDependsOnDosing.contains(objectId)){
         //filter object by dosing site

@@ -457,7 +457,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
       return object.toJson();
     }).toList();
     var listOfGeneratedObject = configPvd.listOfGeneratedObject.map((object){
-      return object.toJson();
+      return object.toJson(data: configPvd.configMakerDataFromHttp);
     }).toList();
     var filtration = configPvd.filtration.cast<FiltrationModel>().map((object){
       return object.toJson();
@@ -491,7 +491,9 @@ class _ConfigWebViewState extends State<ConfigWebView> {
       "fertilizerSite" : fertilization,
       "moistureSensor" : moisture,
       "irrigationLine" : line,
-      "deviceList" : ![1, 2, 4].contains(configPvd.masterData['modelId']) ? [] : configPvd.listOfDeviceModel.map((device) {
+      "deviceList" : configPvd.listOfDeviceModel
+          .where((device) => device.controllerId != configPvd.masterData['controllerId'])
+          .map((device) {
         return {
           'productId' : device.productId,
           'controllerId' : device.controllerId,

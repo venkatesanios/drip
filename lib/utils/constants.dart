@@ -497,7 +497,6 @@ class AppConstants {
     }
   }
 
-
   static Color outputColor = const Color(0xff14AE5C);
   static Color commonObjectColor = const Color(0xff0070D8);
   static String analogCode = '3';
@@ -539,8 +538,10 @@ class AppConstants {
   static int moistureObjectId = 25;
 
   static List<int> pumpWithValveModelList = [48, 49];
+  static List<int> ecoGemModelList = [3];
   static List<int> gemModelList = [1, 2, 4];
   static List<int> pumpModelList = [5, 6, 7, 8, 9, 10];
-  static List<int> senseModelList = [31, 32, 33, 34, 35];
+  static List<int> senseModelList = [41, 42, 43, 44, 45];
+  static List<int> ecoNodeList = [36];
 
 }

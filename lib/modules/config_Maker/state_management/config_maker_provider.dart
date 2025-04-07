@@ -104,6 +104,11 @@ class ConfigMakerProvider extends ChangeNotifier{
       print('jsonData : $jsonData');
       Map<String, dynamic> defaultData = jsonData['data']['default'];
       Map<String, dynamic> configMakerData = jsonData['data']['configMaker'];
+      configMakerDataFromHttp = configMakerData;
+      defaultDataFromHttp = defaultData;
+      masterData = masterDataFromSiteConfigure;
+
+      /* hardcoded for pushing master to deviceList*/
       if(![1, 2, 4].contains(masterDataFromSiteConfigure['modelId'])){
         selectedTab = ConfigMakerTabs.productLimit;
         defaultData['deviceList'].add(
@@ -128,11 +133,11 @@ class ConfigMakerProvider extends ChangeNotifier{
             }
         );
       }
-      configMakerDataFromHttp = configMakerData;
-      defaultDataFromHttp = defaultData;
-      masterData = masterDataFromSiteConfigure;
+
       List<int> senseNodeNotToAddInDeviceList = [44, 45];
-      listOfDeviceModel = (defaultData['deviceList'] as List<dynamic>).where((device) => !senseNodeNotToAddInDeviceList.contains(device['modelId'])).map((devices) {
+
+      listOfDeviceModel = (defaultData['deviceList'] as List<dynamic>).where((device) => !senseNodeNotToAddInDeviceList.contains(device['modelId']))
+          .map((devices) {
         Map<String, dynamic> deviceProperty = defaultData['productModel'].firstWhere((product) => devices['modelId'] == product['modelId']);
           var inputObjectId = deviceProperty['inputObjectId'] == '-' ? [] : deviceProperty['inputObjectId'].split(',').map((e) => int.parse(e.toString())).toList();
         var outputObjectId = deviceProperty['outputObjectId'] == '-' ? [] : deviceProperty['outputObjectId'].split(',').map((e) => int.parse(e.toString())).toList();
@@ -164,11 +169,13 @@ class ConfigMakerProvider extends ChangeNotifier{
           ],
         );
       }).toList();
+
       listOfDeviceModel.sort((a, b) {
         if(a.serialNumber == null) return 1;
         if(b.serialNumber == null) return -1;
         return a.serialNumber!.compareTo(b.serialNumber!);
       });
+      print("listOfDeviceModel : ${listOfDeviceModel.length}");
 
       listOfSampleObjectModel = configMakerData['productLimit'].isNotEmpty
           ? (configMakerData['productLimit'] as List<dynamic>).map((object) => DeviceObjectModel.fromJson(object)).toList()
@@ -856,24 +863,8 @@ class ConfigMakerProvider extends ChangeNotifier{
     }
   }
 
-  String formDevicePayloadIfThere(DeviceModel deviceModel){
-    return {
-      "S_No": deviceModel.serialNumber,
-      "DeviceTypeNumber": deviceModel.categoryId,
-      "DeviceRunningNumber": findOutReferenceNumber(deviceModel),
-      "DeviceId": deviceModel.deviceId,
-      "InterfaceType": deviceModel.interfaceTypeId,
-      "ExtendNode": deviceModel.extendControllerId ?? '',
-    }.entries.map((e) => e.value).join(",");
-  }
 
-  String formDevicePayloadIfThereNot(){
-    return List.generate(6, (index){
-      return '';
-    }).join(',');
-  }
 
-  //Todo : getOroPumpPayload
   List<Map<String, dynamic>> getOroPumpPayload() {
     HardwareType hardwareType = [1, 2, 4].contains(masterData['modelId']) ? HardwareType.master : HardwareType.pump;
     List<Map<String, dynamic>> listOfPumpPayload = [];
@@ -1040,6 +1031,23 @@ class ConfigMakerProvider extends ChangeNotifier{
     return listOfPumpPayload;
   }
 
+  String formDevicePayloadIfThere(DeviceModel deviceModel){
+    return {
+      "S_No": deviceModel.serialNumber,
+      "DeviceTypeNumber": deviceModel.categoryId,
+      "DeviceRunningNumber": findOutReferenceNumber(deviceModel),
+      "DeviceId": deviceModel.deviceId,
+      "InterfaceType": deviceModel.interfaceTypeId,
+      "ExtendNode": deviceModel.extendControllerId ?? '',
+    }.entries.map((e) => e.value).join(",");
+  }
+
+  String formDevicePayloadIfThereNot(){
+    return List.generate(6, (index){
+      return '';
+    }).join(',');
+  }
+
   List<Map<String, dynamic>> getPumpWithValvePayload(){
     List<DeviceModel> listOfPumpWithValve = listOfDeviceModel.where((device) => AppConstants.pumpWithValveModelList.contains(device.modelId) && device.masterId != null).toList();
     List<Map<String, dynamic>> listOfPumpPayload = [];
@@ -1048,12 +1056,16 @@ class ConfigMakerProvider extends ChangeNotifier{
     for(var device in listOfPumpWithValve){
       int pumpCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.pumpObjectId).length;
       int valveCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.valveObjectId).length;
+      int moistureCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.moistureObjectId).length;
       List<DeviceModel> nodeForValve = listOfDeviceModel.where((device) => ![...AppConstants.pumpWithValveModelList, ...AppConstants.senseModelList].contains(device.modelId)).toList();
       List<DeviceModel> nodeForMoisture = listOfDeviceModel.where((device) => AppConstants.senseModelList.contains(device.modelId)).toList();
-      String nodeForValvePayload = '';
-
-      var payload = {"sentSms":"ecoconfig,$pumpCount,$valveCount"};
-      print('device name : ${device.deviceName}');
+      var payload = {
+        "sentSms":"ecoconfig,"
+            "$pumpCount,"
+            "$valveCount,"
+            "$moistureCount,"
+            "${nodeForValve.isNotEmpty ? formDevicePayloadIfThere(nodeForValve[0]) : formDevicePayloadIfThereNot()},"
+            "${nodeForMoisture.isNotEmpty ? formDevicePayloadIfThere(nodeForMoisture[0]) : formDevicePayloadIfThereNot()}"};
       listOfPumpPayload.add({
         'title' : '${device.deviceName}(pump and valve)',
         'deviceIdToSend' : device.deviceId,
@@ -1065,7 +1077,6 @@ class ConfigMakerProvider extends ChangeNotifier{
         'hardwareType' : HardwareType.pumpWithValve
       });
     }
-
     return listOfPumpPayload;
   }
 }

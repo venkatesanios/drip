@@ -37,7 +37,6 @@ class _ToggleTextFormFieldForProductLimitState extends State<ToggleTextFormField
             toggleEditing();
             var integerValue = myController.text == '' ? 0 : int.parse(myController.text);
 
-
             if(widget.object.type == '-'){
               /* there is no validation for places eg: source, line, site. */
               widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
@@ -45,7 +44,7 @@ class _ToggleTextFormFieldForProductLimitState extends State<ToggleTextFormField
               /* do validate expect source, line, site. */
               int availableCount = widget.object.type == '1,2'
                   ? balanceCountForRelayLatch(widget.configPvd)
-                  : balanceCountForInputType(int.parse(widget.object.type ), widget.configPvd);
+                  : balanceCountForInputType(int.parse(widget.object.type), widget.configPvd);
 
               /* filter output object for pump with valve model*/
               if(AppConstants.pumpWithValveModelList.contains(widget.configPvd.masterData['modelId'])){
@@ -60,7 +59,7 @@ class _ToggleTextFormFieldForProductLimitState extends State<ToggleTextFormField
                 }
               }
 
-              /*gem and pump validation*/
+              /* gem and pump validation */
               if(widget.object.type != '-'){
                 availableCount += widget.initialValue == '' ? 0 : int.parse(widget.initialValue);
                 if(integerValue > availableCount){
@@ -84,6 +83,14 @@ class _ToggleTextFormFieldForProductLimitState extends State<ToggleTextFormField
                       }
                     }
                   }else{
+                    if(AppConstants.ecoGemModelList.contains(widget.configPvd.masterData['modelId'])){
+                      /*only two pump allowed to config*/
+                      if(widget.object.objectId == AppConstants.pumpObjectId){
+                        int maxAllowablePumpCount = 2;
+                        validateObjectForEcoGem(integerValue: integerValue, maxAllowablePumpCount: maxAllowablePumpCount);
+                      }
+                    }
+
                     widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
                   }
                 }
@@ -105,6 +112,14 @@ class _ToggleTextFormFieldForProductLimitState extends State<ToggleTextFormField
         });
       });
     }
+  }
+
+  void validateObjectForEcoGem({required int integerValue, required int maxAllowablePumpCount}){
+    if(integerValue > maxAllowablePumpCount){
+      simpleDialogBox(context: context, title: 'Alert', message: 'Only two ${widget.object.objectName} should be connect with ${widget.configPvd.masterData['deviceName']}.');
+      integerValue = maxAllowablePumpCount;
+    }
+    widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
   }
 
   void validateAndUpdateObjectCount(DeviceObjectModel object,int newCount){
