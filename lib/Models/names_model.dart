@@ -53,8 +53,8 @@ class NamesConfigModel {
   };
 
   String getNameBySNo(double sNo) {
-    for (var obj in configObject ?? []) {
-      if (obj.sNo == sNo) {
+     for (var obj in configObject ?? []) {
+       if (obj.sNo == sNo) {
         return obj.name ?? "Not found";
       }
     }

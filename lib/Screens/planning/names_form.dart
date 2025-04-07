@@ -1,14 +1,13 @@
 import 'dart:convert';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-
-import '../../StateManagement/mqtt_payload_provider.dart';
+import '../../Models/names_model.dart';
 import '../../StateManagement/overall_use.dart';
 import '../../modules/IrrigationProgram/view/program_library.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
+import '../../utils/snack_bar.dart';
 
 class Names extends StatefulWidget {
   final int userID, customerID, controllerId, menuId;
@@ -28,22 +27,45 @@ class Names extends StatefulWidget {
 }
 
 class _NamesState extends State<Names> {
-  late List<Map<String, dynamic>> configObjects;
+  NamesConfigModel configModel = NamesConfigModel();
   List<String> uniqueObjectNames = [];
-  Map<String, dynamic> configData = {};
-  late MqttPayloadProvider payloadProvider;
-  late OverAllUse overAllPvd;
   var liveData;
   int selectedCategory = 0;
   late List<TextEditingController> _controllers;
 
+  void getData() async {
+    try {
+      final Repository repository = Repository(HttpService());
+      var getUserDetails = await repository.getUserConfigMaker({
+        "userId": widget.userID,
+        "controllerId": widget.controllerId,
+      });
+
+      final jsonData = jsonDecode(getUserDetails.body);
+      if (jsonData['code'] == 200) {
+        setState(() {
+          configModel = NamesConfigModel.fromJson(jsonData['data']);
+          uniqueObjectNames = (configModel.configObject ?? [])
+              .map((obj) => obj.objectName ?? '')
+              .toSet()
+              .toList();
+
+          _controllers = (configModel.configObject ?? [])
+              .map((obj) => TextEditingController(text: obj.name ?? ""))
+              .toList();
+        });
+      }
+    } catch (e, stackTrace) {
+      print('Error overAll getData => ${e.toString()}');
+      print('trace overAll getData  => ${stackTrace}');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
-    overAllPvd = Provider.of<OverAllUse>(context, listen: false);
-    configObjects = [];
     _controllers = [];
+
     getData();
   }
 
@@ -54,102 +76,57 @@ class _NamesState extends State<Names> {
     }
     super.dispose();
   }
-
-  Future<void> getData() async {
-    print("getData");
-    try {
-      final Repository repository = Repository(HttpService());
-      var getUserDetails = await repository.fetchAllMySite({
-        "userId": widget.userID,
-      });
-      final jsonData = jsonDecode(getUserDetails.body);
-      print("jsonData$jsonData");
-
-      if (jsonData['code'] == 200) {
-        await payloadProvider.updateDashboardPayload(jsonData);
-        setState(() {
-          liveData = payloadProvider.dashboardLiveInstance!.data;
-          configObjects = List<Map<String, dynamic>>.from(
-              jsonData['data'][0]['master'][0]["config"]["configObject"]);
-          uniqueObjectNames = configObjects
-              .map((obj) => obj["objectName"] as String)
-              .toSet()
-              .toList();
-          _controllers = configObjects
-              .map((obj) => TextEditingController(text: obj["name"]?.toString() ?? ""))
-              .toList();
-        });
-      }
-      payloadProvider.httpError = false;
-    } catch (e, stackTrace) {
-      payloadProvider.httpError = true;
-      print('Error overAll getData => ${e.toString()}');
-      print('trace overAll getData  => $stackTrace');
-    }
-  }
-
-  String getNameBySNo(double sNo) {
-    for (var obj in configObjects) {
-      if (obj['sNo'] == sNo) {
-        return obj['name'] ?? "Not found";
-      }
-    }
-    return "Not found";
-  }
-
-  void _updateName(int index, String newName) {
-    setState(() {
-      configObjects[index]["name"] = newName;
-      _controllers[index].text = newName;
-    });
-  }
-
   Widget getTabBarViewWidget() {
     List<String> listOfCategory = uniqueObjectNames;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            for (int i = 0; i < listOfCategory.length; i++)
-              InkWell(
-                onTap: () {
-                  setState(() {
-                    selectedCategory = i;
-                  });
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 15,
-                    vertical: selectedCategory == i ? 12 : 10,
-                  ),
-                  decoration: BoxDecoration(
-                    border: const Border(
-                      top: BorderSide(width: 0.5),
-                      left: BorderSide(width: 0.5),
-                      right: BorderSide(width: 0.5),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+
+          child: Row(
+            spacing: 5,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              for (int i = 0; i < listOfCategory.length; i++)
+                InkWell(
+                  onTap: () {
+                     setState(() {
+                      selectedCategory = i;
+                    });
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 500),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 15,
+                      vertical: selectedCategory == i ? 12 : 10,
                     ),
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(5),
-                      topRight: Radius.circular(5),
+                    decoration: BoxDecoration(
+                      border: const Border(
+                        top: BorderSide(width: 0.5),
+                        left: BorderSide(width: 0.5),
+                        right: BorderSide(width: 0.5),
+                      ),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(5),
+                        topRight: Radius.circular(5),
+                      ),
+                      color: selectedCategory == i
+                          ? Theme.of(context).primaryColor
+                          : Colors.grey.shade300,
                     ),
-                    color: selectedCategory == i
-                        ? Theme.of(context).primaryColor
-                        : Colors.grey.shade300,
-                  ),
-                  child: Text(
-                    listOfCategory[i],
-                    style: TextStyle(
-                      color: selectedCategory == i ? Colors.white : Colors.black,
-                      fontSize: 13,
+                    child: Text(
+                      listOfCategory[i],
+                      style: TextStyle(
+                        color: selectedCategory == i ? Colors.white : Colors.black,
+                        fontSize: 13,
+                      ),
                     ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
         Container(
           width: double.infinity,
@@ -165,8 +142,8 @@ class _NamesState extends State<Names> {
       return const Center(child: Text('No category selected'));
     }
 
-    final filteredData = configObjects
-        .where((obj) => obj["objectName"] == uniqueObjectNames[selectedTabIndex])
+    final filteredData = (configModel.configObject ?? [])
+        .where((obj) => obj.objectName == uniqueObjectNames[selectedTabIndex])
         .toList();
 
     return SingleChildScrollView(
@@ -179,7 +156,7 @@ class _NamesState extends State<Names> {
             2: FlexColumnWidth(),
           },
           children: [
-            const TableRow(
+             TableRow(
               decoration: BoxDecoration(color: Colors.white),
               children: [
                 Padding(
@@ -187,7 +164,7 @@ class _NamesState extends State<Names> {
                   child: Center(
                     child: Text(
                       'S.No',
-                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+                      style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorDark),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -197,7 +174,7 @@ class _NamesState extends State<Names> {
                   child: Center(
                     child: Text(
                       'Location',
-                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+                      style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorDark),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -207,75 +184,75 @@ class _NamesState extends State<Names> {
                   child: Center(
                     child: Text(
                       'Name',
-                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+                      style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorDark),
                       textAlign: TextAlign.center,
                     ),
                   ),
                 ),
               ],
             ),
-            if (filteredData.isNotEmpty)
-              ...filteredData.asMap().entries.map((entry) {
-                int index = entry.key;
-                var data = entry.value;
-                Color rowColor = (index % 2 == 0) ? Colors.grey[100]! : Colors.white;
-                int originalIndex = configObjects.indexOf(data);
+            ...filteredData.asMap().entries.map((entry) {
+              int index = entry.key;
+              var data = entry.value;
+              Color rowColor = (index % 2 == 0) ? Colors.grey[100]! : Colors.white;
+              int originalIndex = (configModel.configObject ?? []).indexOf(data);
 
-                return TableRow(
-                  decoration: BoxDecoration(color: rowColor),
-                  children: [
-                    Container(
-                      height: 50,
-                      alignment: Alignment.center,
-                      child: Text(
-                        data["sNo"].toString(),
-                        textAlign: TextAlign.center,
-                      ),
+              return TableRow(
+                decoration: BoxDecoration(color: rowColor),
+                children: [
+                  Container(
+                    height: 50,
+                    alignment: Alignment.center,
+                    child: Text(
+                      data.sNo.toString(),
+                      textAlign: TextAlign.center,
                     ),
-                    Container(
-                      height: 50,
-                      alignment: Alignment.center,
-                      child: Text(
-                        getNameBySNo(data["location"]),
-                        textAlign: TextAlign.center,
-                      ),
+                  ),
+                  Container(
+                    height: 50,
+                    alignment: Alignment.center,
+                    child: Text(
+                      configModel.getNameBySNo(data.location ?? 0.0),
+                      textAlign: TextAlign.center,
                     ),
-                    Container(
-                      height: 50,
-                      alignment: Alignment.center,
-                      child: TextFormField(
-                        controller: _controllers[originalIndex],
-                        inputFormatters: [
-                          LengthLimitingTextInputFormatter(15),
-                          FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s.]')),
-                        ],
-                        onChanged: (val) {
-                          setState(() {
-                            bool nameExists = configObjects.any((element) =>
-                            element["name"] == val && element != data);
-                            if (nameExists) {
-                              showSnackBar(
-                                  message: 'Name Already Exists', context: context);
-                              _controllers[originalIndex].text = data["name"] ?? "";
-                            } else if (val.length > 15) {
-                              showSnackBar(
-                                  message: 'Name length Maximum reached',
-                                  context: context);
-                            } else if (val.isNotEmpty) {
-                              data["name"] = val;
-                            }
-                          });
-                        },
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                        ),
-                        style: const TextStyle(color: Colors.blue),
-                        textAlign: TextAlign.center,
+                  ),
+                  Container(
+                    height: 50,
+                    alignment: Alignment.center,
+                    child: TextFormField(
+                      controller: _controllers[originalIndex],
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(15),
+                        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s.]')),
+                      ],
+                      onChanged: (val) {
+                        setState(() {
+                          bool nameExists = (configModel.configObject ?? []).any(
+                                  (element) => element.name == val && element != data);
+                          if (nameExists) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Name Already Exists')),
+                            );
+                            _controllers[originalIndex].text = data.name ?? "";
+                          } else if (val.length > 15) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Name length Maximum reached')),
+                            );
+                          } else if (val.isNotEmpty) {
+                            data.name = val;
+                          }
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
                       ),
+                      style: const TextStyle(color: Colors.blue),
+                      textAlign: TextAlign.center,
                     ),
-                  ],
-                );
-              }).toList(),
+                  ),
+                ],
+              );
+            }).toList(),
           ],
         ),
       ),
@@ -284,6 +261,12 @@ class _NamesState extends State<Names> {
 
   @override
   Widget build(BuildContext context) {
+    if (configModel.configObject == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       body: Column(
         children: [
@@ -293,17 +276,89 @@ class _NamesState extends State<Names> {
           ),
         ],
       ),
-
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Theme.of(context).primaryColorDark,
+        foregroundColor: Colors.white,
+        onPressed: () {
+          setState(() {
+            updateAllNames();
+            updateUserNames();
+          });
+        },
+        tooltip: 'Send',
+        child: const Icon(Icons.send),
+      ),
     );
   }
-}
 
-// Utility function for showing snackbar (implement as needed)
-void showSnackBar({required String message, required BuildContext context}) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(message),
-      duration: const Duration(seconds: 2),
-    ),
-  );
+  updateUserNames() async {
+    var overAllPvd = Provider.of<OverAllUse>(context, listen: false);
+    Map<String, dynamic> namesModelData = configModel.toJson();
+
+    final Repository repository = Repository(HttpService());
+
+    Map<String, dynamic> body = {
+      "userId": overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : widget.userID,
+      "controllerId": widget.controllerId,
+      "configObject": namesModelData['configObject'],
+      "waterSource": namesModelData['waterSource'],
+      "pump": namesModelData['pump'],
+      "filterSite": namesModelData['filterSite'],
+      "fertilizerSite": namesModelData['fertilizerSite'],
+      "irrigationLine": namesModelData['irrigationLine'],
+      "moistureSensor": namesModelData['moistureSensor'],
+      "createUser": widget.userID,
+    };
+    var getUserDetails = await repository.updateUserNames(body);
+    final jsonDataResponsePut = json.decode(getUserDetails.body);
+    GlobalSnackBar.show(context, jsonDataResponsePut['message'], jsonDataResponsePut['code']);
+  }
+
+  void updateAllNames() {
+    print("configNames");
+    Map<double, String> configNames = {};
+    for (var obj in configModel.configObject ?? []) {
+      if (obj.sNo != null && obj.name != null) {
+        configNames[obj.sNo!] = obj.name!;
+      }
+    }
+    print("waterSource");
+    for (var src in configModel.waterSource ?? []) {
+      if (configNames.containsKey(src.commonDetails?.sNo)) {
+        src.commonDetails?.name = configNames[src.commonDetails!.sNo];
+      }
+    }
+    print("pump");
+    for (var pump in configModel.pump ?? []) {
+      if (configNames.containsKey(pump.commonDetails?.sNo)) {
+        pump.commonDetails?.name = configNames[pump.commonDetails!.sNo];
+      }
+    }
+    print("filterSite");
+    for (var filterSite in configModel.filterSite ?? []) {
+      if (configNames.containsKey(filterSite.commonDetails?.sNo)) {
+        filterSite.commonDetails?.name = configNames[filterSite.commonDetails!.sNo];
+      }
+    }
+    print("fertilizerSite");
+    for (var fertSite in configModel.fertilizerSite ?? []) {
+      if (configNames.containsKey(fertSite.commonDetails?.sNo)) {
+        fertSite.commonDetails?.name = configNames[fertSite.commonDetails!.sNo];
+      }
+    }
+    print("moistureSensor");
+    for (var moisture in configModel.moistureSensor ?? []) {
+      if (configNames.containsKey(moisture.commonDetails?.sNo)) {
+        moisture.commonDetails?.name = configNames[moisture.commonDetails!.sNo];
+      }
+    }
+    print("irrigationLine");
+    for (var line in configModel.irrigationLine ?? []) {
+      if (configNames.containsKey(line.commonDetails?.sNo)) {
+        line.commonDetails?.name = configNames[line.commonDetails!.sNo];
+      }
+    }
+
+    setState(() {});
+  }
 }
