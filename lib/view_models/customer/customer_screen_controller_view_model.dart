@@ -78,8 +78,17 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
           updateMaster(sIndex, mIndex, 0);
           payloadProvider.saveUnits(Unit.toJsonList(mySiteList.data[0].master[0].units));
 
-          String liveJson = jsonEncode(mySiteList.data[sIndex].master[mIndex].live);
-          payloadProvider.updateReceivedPayload(liveJson, true);
+          var live = mySiteList.data[sIndex].master[mIndex].live;
+
+          if (live != null) {
+            String liveJson = jsonEncode(live);
+            payloadProvider.updateReceivedPayload(liveJson, true);
+          } else {
+            payloadProvider.updateReceivedPayload('''{  "cC": "00000000",
+  "cM": {"2401": "","2402": "","2403": "","2404": "", "2405": "", "2406": "", "2407": "", "2408": "",  "2409": "",
+    "2410": "",  "2411": "",  "2412": "",  "WifiStrength": 0, "Version": "",  "PowerSupply": 0 },
+  "cD": "0000-00-00", "cT": "00:00:00",  "mC": "2400" }''', true);
+          }
 
           wifiStrength = mySiteList.data[sIndex].master[mIndex].live?.cM['WifiStrength'];
 

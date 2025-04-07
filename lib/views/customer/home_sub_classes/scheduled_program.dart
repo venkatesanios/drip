@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:data_table_2/data_table_2.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:intl/intl.dart';
@@ -41,7 +42,7 @@ class ScheduledProgram extends StatelessWidget {
 
       }
     }
-    return Padding(
+    return kIsWeb? Padding(
       padding: const EdgeInsets.only(left: 8, right: 8, top: 3, bottom: 3),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -346,6 +347,229 @@ class ScheduledProgram extends StatelessWidget {
           ),
         ],
       ),
+    ) :
+    Padding(
+      padding: const EdgeInsets.all(5.0),
+      child: scheduledPrograms.isNotEmpty? ListView.builder(
+        itemCount: scheduledPrograms.length,
+        itemBuilder: (context, index) {
+          final program = scheduledPrograms[index];
+          final buttonName = getButtonName(int.parse(program.prgOnOff));
+          final isStop = buttonName.contains('Stop');
+          final isBypass = buttonName.contains('Bypass');
+
+          return  Card(
+            color: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      const Flexible(
+                        flex: 1,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Name & progress', style: TextStyle(fontSize: 13, color: Colors.black54),),
+                            SizedBox(height: 10,),
+                            Text('Method', style: TextStyle(fontSize: 13, color: Colors.black54)),
+                            SizedBox(height: 5,),
+                            Text('Status or Reason', style: TextStyle(fontSize: 13, color: Colors.black54)),
+                            SizedBox(height: 5,),
+                            Text('Zone', style: TextStyle(fontSize: 13, color: Colors.black54),),
+                            SizedBox(height: 5,),
+                            Text('Start Date & Time', style: TextStyle(fontSize: 13, color: Colors.black54),),
+                            SizedBox(height: 5,),
+                            Text('End Date', style: TextStyle(fontSize: 13, color: Colors.black54),),
+                          ],
+                        ),
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.only(left: 10, right: 10),
+                        child: SizedBox(
+                          width: 10,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(':'),
+                              SizedBox(height: 10,),
+                              Text(':'),
+                              SizedBox(height: 5,),
+                              Text(':'),
+                              SizedBox(height: 5,),
+                              Text(':'),
+                              SizedBox(height: 5,),
+                              Text(':'),
+                              SizedBox(height: 5,),
+                              Text(':'),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Flexible(
+                        flex: 2,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(program.programName),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: LinearProgressIndicator(
+                                        value: program.programStatusPercentage / 100.0,
+                                        borderRadius: const BorderRadius.all(Radius.circular(3)),
+                                        color: Colors.blue.shade300,
+                                        backgroundColor: Colors.grey.shade200,
+                                        minHeight: 3,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 7),
+                                    Text(
+                                      '${program.programStatusPercentage}%',
+                                      style: const TextStyle(fontSize: 12, color: Colors.black45),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            Text(getSchedulingMethodName(program.schedulingMethod)),
+                            const SizedBox(height: 5,),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                RichText(
+                                  text: TextSpan(
+                                    style: const TextStyle(fontSize: 12, color: Colors.black),
+                                    children: [
+                                      const TextSpan(text: 'Start Stop: ', style: TextStyle(color: Colors.black54)),
+                                      TextSpan(text: getContentByCode(program.startStopReason)),
+                                    ],
+                                  ),
+                                ),
+                                if (program.pauseResumeReason != 30)
+                                  RichText(
+                                    text: TextSpan(
+                                      style: const TextStyle(fontSize: 12, color: Colors.black),
+                                      children: [
+                                        const TextSpan(text: 'Pause Resume: ', style: TextStyle(color: Colors.black54)),
+                                        TextSpan(text: getContentByCode(program.pauseResumeReason)),
+                                      ],
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 5,),
+                            SizedBox(width: 50, child: Center(child: Text('${program.sequence.length}'))),
+                            const SizedBox(height: 5,),
+                            Text('${changeDateFormat(program.startDate)} : ${convert24HourTo12Hour(program.startTime)}'),
+                            const SizedBox(height: 5,),
+                            Text(changeDateFormat(program.endDate)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    width: MediaQuery.sizeOf(context).width,
+                    child: program.status == 1? Row(
+                      children: [
+                        const Spacer(),
+                        Tooltip(
+                          message: getDescription(int.parse(program.prgOnOff)),
+                          child: MaterialButton(
+                            color: int.parse(program.prgOnOff) >= 0
+                                ? isStop
+                                ? Colors.red
+                                : isBypass
+                                ? Colors.orange
+                                : Colors.green
+                                : Colors.grey.shade300,
+                            textColor: Colors.white,
+                            onPressed: () {
+                              if (getPermissionStatusBySNo(context, 3)) {
+                                String payload = '${program.serialNumber},${program.prgOnOff}';
+                                String payLoadFinal = jsonEncode({
+                                  "2900": {"2901": payload}
+                                });
+                                MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
+                                sentUserOperationToServer('${program.programName} ${getDescription(int.parse(program.prgOnOff))}', payLoadFinal);
+                              } else {
+                                GlobalSnackBar.show(context, 'Permission denied', 400);
+                              }
+                            },
+                            child: Text(buttonName),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        MaterialButton(
+                          color: getButtonName(int.parse(program.prgPauseResume)) == 'Pause' ? Colors.orange : Colors.yellow,
+                          textColor: getButtonName(int.parse(program.prgPauseResume)) == 'Pause' ? Colors.white : Colors.black,
+                          onPressed: () {
+                            if (getPermissionStatusBySNo(context, 3)) {
+                              String payload = '${program.serialNumber},${program.prgPauseResume}';
+                              String payLoadFinal = jsonEncode({
+                                "2900": {"2901": payload}
+                              });
+                              MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
+                              sentUserOperationToServer('${program.programName} ${getDescription(int.parse(program.prgPauseResume))}', payLoadFinal);
+                            } else {
+                              GlobalSnackBar.show(context, 'Permission denied', 400);
+                            }
+                          },
+                          child: Text(getButtonName(int.parse(program.prgPauseResume))),
+                        ),
+                        const SizedBox(width: 5),
+                        getPermissionStatusBySNo(context, 3)
+                            ? PopupMenuButton<String>(
+                          icon: const Icon(Icons.more_vert),
+                          onSelected: (String result) {
+                            if (result == 'Edit program') {
+                              // Navigate to edit screen
+                            }
+                          },
+                          itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                            const PopupMenuItem<String>(
+                              value: 'Edit program',
+                              child: Text('Edit program'),
+                            ),
+                            PopupMenuItem<String>(
+                              value: 'Change to',
+                              child: ClickableSubmenu(
+                                title: 'Change to',
+                                submenuItems: program.sequence,
+                                onItemSelected: (selectedItem, selectedIndex) {
+                                  String payload = '${program.serialNumber},${selectedIndex + 1}';
+                                  String payLoadFinal = jsonEncode({
+                                    "6700": {"6701": payload}
+                                  });
+                                  MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
+                                  sentUserOperationToServer('${program.programName} Changed to $selectedItem', payLoadFinal);
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            ),
+                          ],
+                        )
+                            : const Icon(Icons.more_vert, color: Colors.grey),
+                      ],
+                    ):
+                    const Center(child: Text('The program is not ready', style: TextStyle(color: Colors.red))),
+                  ),
+                ],
+              ),
+            ),
+          );
+
+        },
+      ):
+      const Center(child: Text('Program not found')),
     );
   }
 

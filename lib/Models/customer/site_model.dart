@@ -109,8 +109,7 @@ class Master {
           .map((item) => NodeListModel.fromJson(item, configObjects))
           .toList()
           : [],
-      programList: json['program'] != null
-          ? (json['program'] as List)
+      programList: json['program'] != null ? (json['program'] as List)
           .map((prgList) => ProgramList.fromJson(prgList))
           .toList()
           : [],
@@ -380,7 +379,6 @@ class Pump {
   final String objectName;
   final String type;
   final int? controllerId;
-  final dynamic count;
   int status;
   bool selected;
   String onDelayLeft;
@@ -399,7 +397,6 @@ class Pump {
     required this.objectName,
     required this.type,
     required this.controllerId,
-    required this.count,
     this.status=0,
     this.selected=false,
     this.onDelayLeft='00:00:00',
@@ -420,7 +417,6 @@ class Pump {
       objectName: json['objectName'],
       type: json['type'],
       controllerId: json['controllerId'],
-      count: json['count'],
     );
   }
 }
@@ -778,7 +774,6 @@ class Ec {
     };
   }
 
-
 }
 
 class Ph {
@@ -940,7 +935,6 @@ class IrrigationLineData {
   final int objectId;
   final double sNo;
   final String name;
-  final int? connectionNo;
   final String objectName;
   final String type;
   final int? controllerId;
@@ -961,7 +955,6 @@ class IrrigationLineData {
     required this.objectId,
     required this.sNo,
     required this.name,
-    required this.connectionNo,
     required this.objectName,
     required this.type,
     required this.controllerId,
@@ -978,7 +971,6 @@ class IrrigationLineData {
 
   factory IrrigationLineData.fromJson(Map<String, dynamic> json) {
     print(json);
-    print(json['pressureSwitch']);
     double cFilterSNo = 0.0;
     if (json['centralFiltration'] != null && json['centralFiltration'].toString().trim().isNotEmpty) {
       if (json['centralFiltration'] is int) {
@@ -992,7 +984,6 @@ class IrrigationLineData {
       objectId: json['objectId'],
       sNo: json['sNo'].toDouble(),
       name: json['name'],
-      connectionNo: json['connectionNo'],
       objectName: json['objectName'],
       type: json['type'],
       controllerId: json['controllerId'],
@@ -1085,11 +1076,6 @@ class Valve {
   final int objectId;
   final double sNo;
   final String name;
-  final int connectionNo;
-  final String objectName;
-  final String type;
-  final int? controllerId;
-  final int? count;
   int status;
   bool isOn;
 
@@ -1097,11 +1083,6 @@ class Valve {
     required this.objectId,
     required this.sNo,
     required this.name,
-    required this.connectionNo,
-    required this.objectName,
-    required this.type,
-    required this.controllerId,
-    this.count,
     this.status = 0,
     this.isOn = false,
   });
@@ -1111,11 +1092,6 @@ class Valve {
       objectId: json['objectId'],
       sNo: (json['sNo'] as num).toDouble(),
       name: json['name'],
-      connectionNo: json['connectionNo'],
-      objectName: json['objectName'],
-      type: json['type'],
-      controllerId: json['controllerId']??0,
-      count: json['count']??0,
     );
   }
 
@@ -1124,11 +1100,6 @@ class Valve {
       'objectId': objectId,
       'sNo': sNo,
       'name': name,
-      'connectionNo': connectionNo,
-      'objectName': objectName,
-      'type': type,
-      'controllerId': controllerId,
-      'count': count,
       "status": status,
     };
   }

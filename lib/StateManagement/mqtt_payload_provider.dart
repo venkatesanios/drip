@@ -477,7 +477,7 @@ class MqttPayloadProvider with ChangeNotifier {
     }
     try {
       // Todo : Dashboard payload start
-      Map<String, dynamic> data = jsonDecode(payload);
+      Map<String, dynamic> data = payload.isNotEmpty? jsonDecode(payload) : {};
 
       //live payload
       if(data['mC']=='2400'){

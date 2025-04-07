@@ -708,7 +708,7 @@ class CustomerScreenController extends StatelessWidget {
   }
 
   void showPasswordDialog(BuildContext context, correctPassword,userId,controllerID,imeiNumber) {
-    final TextEditingController _passwordController = TextEditingController();
+    final TextEditingController passwordController = TextEditingController();
 
 
     showDialog(
@@ -717,7 +717,7 @@ class CustomerScreenController extends StatelessWidget {
         return AlertDialog(
           title: Text('Enter Password'),
           content: TextField(
-            controller: _passwordController,
+            controller: passwordController,
             obscureText: true,
             decoration: InputDecoration(
               labelText: 'Password',
@@ -733,7 +733,7 @@ class CustomerScreenController extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                final enteredPassword = _passwordController.text;
+                final enteredPassword = passwordController.text;
 
                 if (enteredPassword == correctPassword) {
                   Navigator.of(context).pop(); // Close the dialog

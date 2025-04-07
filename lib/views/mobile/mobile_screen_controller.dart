@@ -1,29 +1,19 @@
-import 'package:flutter/foundation.dart';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Screens/Logs/irrigation_and_pump_log.dart';
 import 'package:oro_drip_irrigation/Screens/planning/WeatherScreen.dart';
-import 'package:oro_drip_irrigation/views/customer/program_schedule.dart';
 import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
-import 'package:oro_drip_irrigation/views/customer/stand_alone.dart';
 import '../../Models/customer/site_model.dart';
 import 'package:provider/provider.dart';
-import '../../Screens/Dealer/controllerverssionupdate.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
-import '../../flavors.dart';
-import '../../modules/ScheduleView/view/schedule_view_screen.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/formatters.dart';
-import '../../utils/routes.dart';
-import '../../utils/shared_preferences_helper.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../../view_models/nav_rail_view_model.dart';
-import '../account_settings.dart';
 import '../customer/controller_settings.dart';
 import '../customer/customer_home.dart';
 import '../customer/customer_product.dart';
-import '../customer/input_output_connection_details.dart';
+import '../customer/home_sub_classes/scheduled_program.dart';
 import '../customer/node_list.dart';
 
 
@@ -54,10 +44,9 @@ class MobileScreenController extends StatelessWidget {
 
           int wifiStrength = Provider.of<MqttPayloadProvider>(context).wifiStrength;
           String liveDataAndTime = Provider.of<MqttPayloadProvider>(context).liveDateAndTime;
-          var iLineLiveMessage = Provider.of<MqttPayloadProvider>(context).lineLiveMessage;
           Duration lastCommunication = Provider.of<MqttPayloadProvider>(context).lastCommunication;
           int powerSupply = Provider.of<MqttPayloadProvider>(context).powerSupply;
-          var currentSchedule = Provider.of<MqttPayloadProvider>(context).currentSchedule;
+
 
           if(liveDataAndTime.isNotEmpty){
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -70,6 +59,7 @@ class MobileScreenController extends StatelessWidget {
           }
 
           return Scaffold(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             appBar: AppBar(
               title: Image.asset(
                 width: 140,
@@ -402,11 +392,11 @@ class MobileScreenController extends StatelessWidget {
               children: [
                 FloatingActionButton(
                   onPressed: null,
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Theme.of(context).primaryColor,
                   child: PopupMenuButton<String>(
                     onSelected: (String value) {
                       switch (value) {
-                        case 'option1':
+                        case 'Node Status':
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -433,74 +423,88 @@ class MobileScreenController extends StatelessWidget {
                     color: Colors.white,
                     icon: const Icon(Icons.menu, color: Colors.white),
                     itemBuilder: (BuildContext context) => [
-                      const PopupMenuItem<String>(
-                        value: 'option1',
-                        child: Row(
-                          children: [
-                            Icon(Icons.format_list_numbered, color: Colors.black54),
-                            SizedBox(width: 8),
-                            Text('Node Status'),
-                          ],
+                      PopupMenuItem<String>(
+                        value: 'Node Status',
+                        child: Center(
+                          child: Column(
+                            children: [
+                              CircleAvatar(backgroundColor: Theme.of(context).primaryColor,
+                                  child: const Icon(Icons.format_list_numbered,
+                                  color: Colors.white)),
+                              const SizedBox(height: 5),
+                              const Text('Node Status',textAlign: TextAlign.center),
+                              const SizedBox(height: 8),
+                            ],
+                          ),
                         ),
                       ),
-                      const PopupMenuItem<String>(
+                       PopupMenuItem<String>(
                         value: 'option2',
-                        child: Row(
-                          children: [
-                            Icon(Icons.settings_input_component_outlined, color: Colors.black54),
-                            SizedBox(width: 8),
-                            Text('Input/Output Connection details'),
-                          ],
+                        child: Center(
+                          child: Column(children: [
+                              CircleAvatar(backgroundColor: Theme.of(context).primaryColor,
+                                  child: const Icon(Icons.settings_input_component_outlined, color: Colors.white)),
+                              const SizedBox(height: 5),
+                              const Center(child: Text('I/O\nConnection',textAlign: TextAlign.center)),
+                              const SizedBox(height: 8),
+                            ],
+                          ),
                         ),
                       ),
-                      const PopupMenuItem<String>(
+                       PopupMenuItem<String>(
                         value: 'option3',
-                        child: Row(
-                          children: [
-                            Icon(Icons.list_alt, color: Colors.black54),
-                            SizedBox(width: 8),
-                            Text('Program'),
-                          ],
+                        child: Center(
+                          child: Column(
+                            children: [
+                              CircleAvatar(backgroundColor: Theme.of(context).primaryColor,
+                                  child: const Icon(Icons.list_alt, color: Colors.white)),
+                              const SizedBox(height: 5),
+                              const Text('Program',textAlign: TextAlign.center),
+                              const SizedBox(height: 8),
+                            ],
+                          ),
                         ),
                       ),
-                      const PopupMenuItem<String>(
+                       PopupMenuItem<String>(
                         value: 'option4',
-                        child: Row(
-                          children: [
-                            Icon(Icons.view_list_outlined, color: Colors.black54),
-                            SizedBox(width: 8),
-                            Text('Scheduled program details'),
-                          ],
+                        child: Center(
+                          child: Column(
+                            children: [
+                              CircleAvatar(backgroundColor: Theme.of(context).primaryColor,
+                                  child: const Icon(Icons.view_list_outlined, color: Colors.white)),
+                              const SizedBox(height: 5),
+                              const Text('Scheduled\nprogram\ndetails',textAlign: TextAlign.center),
+                              const SizedBox(height: 8),
+                            ],
+                          ),
                         ),
                       ),
-                      const PopupMenuItem<String>(
+                       PopupMenuItem<String>(
                         value: 'option5',
-                        child: Row(
-                          children: [
-                            Icon(Icons.touch_app_outlined, color: Colors.black54),
-                            SizedBox(width: 8),
-                            Text('Manual'),
-                          ],
+                        child: Center(
+                          child: Column(
+                            children: [
+                              CircleAvatar(backgroundColor: Theme.of(context).primaryColor,
+                                  child: const Icon(Icons.touch_app_outlined, color: Colors.white)),
+                              const SizedBox(height: 5),
+                              const Text('Manual',textAlign: TextAlign.center),
+                              const SizedBox(height: 8),
+                            ],
+                          ),
                         ),
                       ),
-                      const PopupMenuItem<String>(
+                      PopupMenuItem<String>(
                         value: 'option6',
-                        child: Row(
-                          children: [
-                            Icon(Icons.question_answer_outlined, color: Colors.black54),
-                            SizedBox(width: 8),
-                            Text('Sent & Received'),
-                          ],
-                        ),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'option7',
-                        child: Row(
-                          children: [
-                            Icon(Icons.devices_other, color: Colors.black54),
-                            SizedBox(width: 8),
-                            Text('All my devices'),
-                          ],
+                        child: Center(
+                          child: Column(
+                            children: [
+                              CircleAvatar(backgroundColor: Theme.of(context).primaryColor,
+                                  child: const Icon(Icons.question_answer_outlined, color: Colors.white)),
+                              const SizedBox(height: 5),
+                              const Text('Sent &\nReceived',textAlign: TextAlign.center),
+                              const SizedBox(height: 8),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -508,60 +512,60 @@ class MobileScreenController extends StatelessWidget {
                 ),
               ],
             ),
-            body: Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).scaffoldBackgroundColor,
-                borderRadius: const BorderRadius.only(topLeft: Radius.circular(8),topRight: Radius.circular(8)),
-              ),
-              child: Column(
-                children: [
-                  lastCommunication.inMinutes >= 10 && powerSupply == 0?Container(
-                    height: 23.0,
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade300,
-                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(5),topRight: Radius.circular(5)),
-                    ),
-                    child: Center(
-                      child: Text('No communication and power Supply to Controller'.toUpperCase(),
-                        style: const TextStyle(
-                          color: Colors.black87,
-                          fontSize: 12.0,
-                        ),
-                      ),
-                    ),
-                  ):
-                  powerSupply == 0? Container(
-                    height: 20.0,
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade300,
-                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(5),topRight: Radius.circular(5)),
-                    ),
-                    child: Center(
-                      child: Text('No power Supply to Controller'.toUpperCase(),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12.0,
-                        ),
-                      ),
-                    ),
-                  ):
-                  const SizedBox(),
-
-                  Expanded(
-                    child: vm.selectedIndex==0? 
-                    mainScreen(navViewModel.selectedIndex, vm.mySiteList.data[vm.sIndex].groupId,
-                        vm.mySiteList.data[vm.sIndex].groupName, vm.mySiteList.data[vm.sIndex].master,
-                        vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                        vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId):
-                    vm.selectedIndex==1? const Center(child: Text('program'),):
-                    ControllerSettings(customerId: customerId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId, adDrId: fromLogin ? 1 : 0, userId: userId,),
+            body: Column(
+              children: [
+                lastCommunication.inMinutes >= 10 && powerSupply == 0?Container(
+                  height: 23.0,
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade300,
+                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(5),topRight: Radius.circular(5)),
                   ),
-                ],
-              ),
+                  child: Center(
+                    child: Text('No communication and power Supply to Controller'.toUpperCase(),
+                      style: const TextStyle(
+                        color: Colors.black87,
+                        fontSize: 12.0,
+                      ),
+                    ),
+                  ),
+                ):
+                powerSupply == 0? Container(
+                  height: 20.0,
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade300,
+                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(5),topRight: Radius.circular(5)),
+                  ),
+                  child: Center(
+                    child: Text('No power Supply to Controller'.toUpperCase(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12.0,
+                      ),
+                    ),
+                  ),
+                ):
+                const SizedBox(),
+
+                Expanded(
+                  child: vm.selectedIndex==0 ?
+                  mainScreen(navViewModel.selectedIndex, vm.mySiteList.data[vm.sIndex].groupId,
+                      vm.mySiteList.data[vm.sIndex].groupName, vm.mySiteList.data[vm.sIndex].master,
+                      vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                      vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId):
+                  vm.selectedIndex==1?
+                  ScheduledProgram(
+                    userId: customerId,
+                    scheduledPrograms: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].programList,
+                    controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                    deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                    customerId: customerId,
+                  ):
+                  ControllerSettings(customerId: customerId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId, adDrId: fromLogin ? 1 : 0, userId: userId,),
+                ),
+              ],
             ),
 
           );
-        
         },
       ),
     );

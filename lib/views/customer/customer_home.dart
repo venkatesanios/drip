@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/views/customer/home_sub_classes/current_program.dart';
 import 'package:provider/provider.dart';
@@ -51,21 +52,43 @@ class CustomerHome extends StatelessWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,  // Change this as per need
+        mainAxisAlignment: MainAxisAlignment.start,    // Adjust alignment
         children: [
-          liveSync? displayLinearProgressIndicator(): const SizedBox(),
+          liveSync ? displayLinearProgressIndicator() : const SizedBox(),
+          if (!kIsWeb)
+            CurrentProgram(
+              scheduledPrograms: scheduledProgram,
+              deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,
+              customerId: customerId,
+              controllerId: controllerId,
+            ),
           PumpStation(
             waterSource: waterSources,
             irrLineData: lineData,
             filterSite: filteredFilterSite,
             fertilizerSite: fertilizerSite,
             currentLineName: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.lineData[viewModel.lIndex].name,
-            deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId, customerId: customerId, controllerId: controllerId,
+            deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,
+            customerId: customerId,
+            controllerId: controllerId,
           ),
-          CurrentProgram(scheduledPrograms: scheduledProgram, deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId, customerId: customerId, controllerId: controllerId,),
+          if (kIsWeb)
+            CurrentProgram(
+              scheduledPrograms: scheduledProgram,
+              deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,
+              customerId: customerId,
+              controllerId: controllerId,
+            ),
           NextSchedule(scheduledPrograms: scheduledProgram),
-          scheduledProgram.isNotEmpty? ScheduledProgram(userId: customerId, scheduledPrograms: scheduledProgram,
-            controllerId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].controllerId, deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId, customerId: customerId,):
-          const SizedBox(),
+          if (kIsWeb && scheduledProgram.isNotEmpty)
+            ScheduledProgram(
+              userId: customerId,
+              scheduledPrograms: scheduledProgram,
+              controllerId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].controllerId,
+              deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,
+              customerId: customerId,
+            ),
           const SizedBox(height: 8),
         ],
       ),

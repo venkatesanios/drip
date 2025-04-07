@@ -91,7 +91,6 @@ class PumpStationViewModel extends ChangeNotifier {
 
   void updateOutputStatus(List<String> outputStatusPayload, List<String> pumpPayload,
       List<String> filterPayload, List<String> fertilizerPayload){
-    print(outputStatusPayload);
 
     List<String> pumpStatus = outputStatusPayload
         .where((item) => item.startsWith('5.')).toList();
@@ -194,8 +193,6 @@ class PumpStationViewModel extends ChangeNotifier {
   void updateFertilizerChannelStatus(List<FertilizerSite> mvFertilizerSite,
       List<dynamic> fertilizerStatus, List<dynamic> fertilizerPayload) {
 
-    print(fertilizerPayload);
-
     for (var fertilizer in mvFertilizerSite) {
       for (var channel in fertilizer.channel) {
 
@@ -208,9 +205,10 @@ class PumpStationViewModel extends ChangeNotifier {
           List<String> statusData = matchedEntry.split(',');
 
           channel.frtMethod = statusData[1];
-          channel.durationCompleted = statusData[2];
-          channel.onTime = statusData[3];
-          channel.offTime = statusData[4];
+          channel.duration = statusData[2];
+          channel.durationCompleted = statusData[3];
+          channel.onTime = statusData[4];
+          channel.offTime = statusData[5];
 
         } else {
           print("Serial Number ${channel.sNo} not found in pumpStatusList");
