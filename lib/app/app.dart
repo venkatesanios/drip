@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../Screens/Map/MapAddObject.dart';
+import '../Screens/Map/valvectrlMap.dart';
 import '../Screens/planning/test.dart';
 import '../flavors.dart';
 import '../utils/Theme/smart_comm_theme.dart';
@@ -15,6 +17,7 @@ class MyApp extends StatelessWidget {
   Future<String> getInitialRoute() async {
     try {
       final token = await PreferenceHelper.getToken();
+      print("token--->$token");
       if (token!.isNotEmpty) {
         return Routes.dashboard;
       }else{
@@ -46,13 +49,14 @@ class MyApp extends StatelessWidget {
 }
 
 Widget navigateToInitialScreen(String route) {
+  print("route:-->$route");
   switch (route) {
     case Routes.login:
       // return ScheduleViewScreen(deviceId: "2CCF674C0F8A", userId: 4, controllerId: 1, customerId: 4, groupId: 1);
       // return ProgramLibraryScreenNew(userId: 4, controllerId: 1, deviceId: '2CCF674C0F8A', fromDealer: false, customerId: 4,);
       return const LoginScreen();
     case Routes.dashboard:
-       // return MyGifPage();
+       // return ValveControllerMap();
        // return GroupListScreen(userId: 8, controllerId: 23, deviceId: '2CCF6773D07D',);
       return const ScreenController();
 
