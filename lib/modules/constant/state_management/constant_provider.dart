@@ -422,6 +422,7 @@ class ConstantProvider extends ChangeNotifier{
             }).map((setting){
               return payloadValidate(setting.value.value);
             }),
+            line.normal[alarmIndex].title,
 
           ].join(','),
         );
