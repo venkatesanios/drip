@@ -624,10 +624,10 @@ class ConfigMakerProvider extends ChangeNotifier{
         "WaterMeter": serialNoOrEmpty(pumpModelObject.waterMeter),
         "SumpTankLevel" : sumpTankLevel == null ? '' : serialNoOrEmpty(sumpTankLevel.level),
         "TopTankLevel" : topTankLevel == null ? '' : serialNoOrEmpty(topTankLevel.level),
-        "TopTankFloatHigh" : topTankLevel == null ? '' : topTankLevel.topFloat,
-        "TopTankFloatLow" : topTankLevel == null ? '' : topTankLevel.bottomFloat,
-        "SumpTankFloatHigh" : sumpTankLevel == null ? '' : sumpTankLevel.topFloat,
-        "SumpTankFloatLow" : sumpTankLevel == null ? '' : sumpTankLevel.bottomFloat,
+        "TopTankFloatHigh" : topTankLevel == null ? '' : serialNoOrEmpty(topTankLevel.topFloat),
+        "TopTankFloatLow" : topTankLevel == null ? '' : serialNoOrEmpty(topTankLevel.bottomFloat),
+        "SumpTankFloatHigh" : sumpTankLevel == null ? '' : serialNoOrEmpty(sumpTankLevel.topFloat),
+        "SumpTankFloatLow" : sumpTankLevel == null ? '' : serialNoOrEmpty(sumpTankLevel.bottomFloat),
         "IrrigationLine" : line.where((line) => (line.sourcePump.contains(pumpModelObject.commonDetails.sNo) || line.irrigationPump.contains(pumpModelObject.commonDetails.sNo))).map((line) => line.commonDetails.sNo).join('_'),
       };
 
