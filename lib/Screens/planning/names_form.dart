@@ -309,6 +309,7 @@ class _NamesState extends State<Names> {
       "moistureSensor": namesModelData['moistureSensor'],
       "createUser": widget.userID,
     };
+    print('body:$body');
     var getUserDetails = await repository.updateUserNames(body);
     final jsonDataResponsePut = json.decode(getUserDetails.body);
     GlobalSnackBar.show(context, jsonDataResponsePut['message'], jsonDataResponsePut['code']);

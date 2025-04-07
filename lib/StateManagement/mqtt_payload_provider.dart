@@ -471,6 +471,7 @@ class MqttPayloadProvider with ChangeNotifier {
   void updateReceivedPayload(String payload,bool dataFromHttp) async{
     if (kDebugMode) {
       print("updateReceivedPayload ====$payload");
+
     }
     if(!dataFromHttp) {
       dataFetchingStatus = 1;
@@ -480,7 +481,7 @@ class MqttPayloadProvider with ChangeNotifier {
     try {
       // Todo : Dashboard payload start
       Map<String, dynamic> data = payload.isNotEmpty? jsonDecode(payload) : {};
-
+      print('\ncheck contain ${data.containsKey('6603')}');
       //live payload
       if(data['mC']=='2400'){
         print(data['cM']);
@@ -519,35 +520,35 @@ class MqttPayloadProvider with ChangeNotifier {
       if(data['cM'] is! List<dynamic>) {
         if (data['mC'] != null && data['cM'].containsKey('4201')) {
           messageFromHw = data['cM']['4201'];
+        }
+        }
+           if(data.containsKey("cM") && (data["cM"] as Map).containsKey("6601")){
+             print('6601');
+               sheduleLog += "\n";
+              sheduleLog += data['cM']['6601'];
 
-        }
-        if(data.containsKey('6600')){
-          if(data['6600'].containsKey('6601')){
-            if(!sheduleLog.contains(data['6600']['6601'])) {
-              sheduleLog += "\n";
-              sheduleLog += data['6600']['6601'];
-            }
           }
-          if(data['6600'].containsKey('6602')){
-            if(!uardLog.contains(data['6600']['6602'])){
-              uardLog += "\n";
-              uardLog += data['6600']['6602'];
-            }
+          if(data.containsKey("cM") && (data["cM"] as Map).containsKey("6602")){
+            print('6602');
+               uardLog += "\n";
+              uardLog += data['cM']['6602'];
+
           }
-          if(data['6600'].containsKey('6603')){
-            if(!uard0Log.contains(data['6600']['6603'])){
-              uard0Log += "\n";
-              uard0Log += data['6600']['6603'];
-            }
+          if(data.containsKey("cM") && (data["cM"] as Map).containsKey("6603")){
+            print('6603');
+               uard0Log += "\n";
+              uard0Log += data['cM']['6603'];
+
           }
-          if(data['6600'].containsKey('6604')){
-            if(!uard4Log.contains(data['6600']['6604'])){
+          if(data.containsKey("cM") && (data["cM"] as Map).containsKey("6604")){
+            print('6604');
+
               uard4Log += "\n";
-              uard4Log += data['6600']['6604'];
-            }
+              uard4Log += data['cM']['6604'];
+
           }
-        }
-      }
+
+
 
 
     } catch (e, stackTrace) {
