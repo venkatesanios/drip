@@ -208,12 +208,15 @@ class Repository{
   Future<http.Response> getdealerDefinition(body) async {
     return await apiService.postRequest('/user/dealerDefinition/get', body);
   }
+
   Future<http.Response> createdealerDefinition(body) async {
     return await apiService.postRequest('/user/dealerDefinition/create', body);
   }
+
   Future<http.Response> updateUserNames(body) async {
      return await apiService.putRequest('/user/configMaker/name/update', body);
   }
+
   Future<http.Response> getUserProgramWaterAndFert(body) async {
     return await apiService.postRequest('/user/program/waterAndFert/get', body);
   }
@@ -351,19 +354,22 @@ class Repository{
   Future<http.Response> getUserServiceRequestForDealer(body) async {
     return await apiService.postRequest('/user/serviceRequest/getForDealer', body);
   }
+
   Future<http.Response> getUserAllServiceRequestForDealer(body) async {
     return await apiService.postRequest('/user/serviceRequest/getAllForDealer', body);
   }
+
   Future<http.Response> getAllUserAllServiceRequestForAdmin(body) async {
      return await apiService.postRequest('/user/serviceRequest/getAllForAdmin', body);
   }
+
   Future<http.Response> createUserServiceRequest(body) async {
     return await apiService.postRequest('/user/serviceRequest/create', body);
   }
+
   Future<http.Response> updateUserServiceRequest(body) async {
     return await apiService.postRequest('/user/serviceRequest/update', body);
   }
-
 
   Future<http.Response> getUserDeviceFirmwareDetails(body) async {
     return await apiService.postRequest('/user/deviceList/getFirmwareDetails', body);
@@ -377,7 +383,6 @@ class Repository{
   Future<http.Response> updateUserDeviceFirmwareDetails(body) async {
     return await apiService.putRequest('/user/deviceList/updateFirmwareDetails', body);
   }
-
 
 }
 

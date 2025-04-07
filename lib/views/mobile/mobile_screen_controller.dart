@@ -560,7 +560,8 @@ class MobileScreenController extends StatelessWidget {
                     deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
                     customerId: customerId,
                   ):
-                  ControllerSettings(customerId: customerId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId, adDrId: fromLogin ? 1 : 0, userId: userId,),
+                  ControllerSettings(customerId: customerId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                    adDrId: fromLogin ? 1 : 0, userId: userId, deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,),
                 ),
               ],
             ),
@@ -649,7 +650,8 @@ class MobileScreenController extends StatelessWidget {
       case 3:
         return IrrigationAndPumpLog(userData: {'userId' : userId, 'controllerId' : controllerId});
       case 4:
-        return ControllerSettings(customerId: customerId, controllerId: controllerId, adDrId: fromLogin ? 1 : 0, userId: userId,);
+        return ControllerSettings(customerId: customerId, controllerId: controllerId,
+          adDrId: fromLogin ? 1 : 0, userId: userId, deviceId: '',);
       case 6:
         return WeatherScreen(userId: userId, controllerId: controllerId, deviceID: '',);
 

@@ -206,9 +206,10 @@ class PumpStationViewModel extends ChangeNotifier {
 
           channel.frtMethod = statusData[1];
           channel.duration = statusData[2];
-          channel.durationCompleted = statusData[3];
+          channel.completedDrQ = statusData[3];
           channel.onTime = statusData[4];
           channel.offTime = statusData[5];
+          channel.flowRateLpH = statusData[6];
 
         } else {
           print("Serial Number ${channel.sNo} not found in pumpStatusList");

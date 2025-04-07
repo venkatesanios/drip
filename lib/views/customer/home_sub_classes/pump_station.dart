@@ -1885,11 +1885,6 @@ class PumpStation extends StatelessWidget {
                           itemBuilder: (BuildContext context, int index) {
                             var channel = fertilizerSite[fIndex].channel[index];
                             double fertilizerQty = 0.0;
-                            var qtyValue = channel.qty;
-                            fertilizerQty = double.parse(qtyValue);
-
-                            var fertilizerLeftVal = channel.qtyLeft;
-                            channel.qtyLeft = fertilizerLeftVal;
 
                             return SizedBox(
                               width: 70,
@@ -1946,7 +1941,7 @@ class PumpStation extends StatelessWidget {
                                     ),
                                   ),
 
-                                  channel.status ==1 && channel.durationCompleted !='00:00:00' ?
+                                  channel.status ==1 && channel.completedDrQ !='00:00:00' ?
                                   Positioned(
                                     top: 103,
                                     left: 0,
@@ -1958,7 +1953,7 @@ class PumpStation extends StatelessWidget {
                                         border: Border.all(color: Colors.grey, width: .50,),
                                       ),
                                       child: ChangeNotifierProvider(
-                                        create: (_) => IncreaseDurationNotifier(channel.durationCompleted),
+                                        create: (_) => IncreaseDurationNotifier(channel.completedDrQ),
                                         child: Stack(
                                           children: [
                                             Consumer<IncreaseDurationNotifier>(
