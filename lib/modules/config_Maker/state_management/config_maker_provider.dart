@@ -681,7 +681,8 @@ class ConfigMakerProvider extends ChangeNotifier{
         "PressureIn": serialNoOrEmpty(filterSite.pressureIn),
         "PressureOut": serialNoOrEmpty(filterSite.pressureOut),
         "IrrigationLine": line.where((irrigationLine) => [irrigationLine.centralFiltration, irrigationLine.localFiltration].contains(filterSite.commonDetails.sNo)).map((filteredLine) => filteredLine.commonDetails.sNo).toList().join('_'),
-        "SiteType" : filterSite.siteMode
+        "SiteType" : filterSite.siteMode,
+        "Name" : filterSite.commonDetails.name
       }.entries.map((e) => e.value).join(","));
     }
     return filterPayload.join(";");
@@ -699,7 +700,8 @@ class ConfigMakerProvider extends ChangeNotifier{
         "IrrigationLine": line.where((irrigationLine) => [irrigationLine.centralFertilization, irrigationLine.localFertilization].contains(fertilizer.commonDetails.sNo)).map((filteredLine) => filteredLine.commonDetails.sNo).toList().join('_'),
         "Agitator": fertilizer.agitator.join('_'),
         "TankSelector": fertilizer.selector.join('_'),
-        "SiteType" : fertilizer.siteMode
+        "SiteType" : fertilizer.siteMode,
+        "Name" : fertilizer.commonDetails.name
       }.entries.map((e) => e.value).join(","));
     }
 
@@ -828,6 +830,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         "WaterMeter": serialNoOrEmpty(lineModelObject.waterMeter),
         "Agitator" : '',
         "PowerSupplyFeedbackInput" : serialNoOrEmpty(lineModelObject.powerSupply),
+        "Name" : lineModelObject.commonDetails.name
       }.entries.map((e) => e.value).toList().join(','));
     }
 
@@ -853,6 +856,22 @@ class ConfigMakerProvider extends ChangeNotifier{
     }
   }
 
+  String formDevicePayloadIfThere(DeviceModel deviceModel){
+    return {
+      "S_No": deviceModel.serialNumber,
+      "DeviceTypeNumber": deviceModel.categoryId,
+      "DeviceRunningNumber": findOutReferenceNumber(deviceModel),
+      "DeviceId": deviceModel.deviceId,
+      "InterfaceType": deviceModel.interfaceTypeId,
+      "ExtendNode": deviceModel.extendControllerId ?? '',
+    }.entries.map((e) => e.value).join(",");
+  }
+
+  String formDevicePayloadIfThereNot(){
+    return List.generate(6, (index){
+      return '';
+    }).join(',');
+  }
 
   //Todo : getOroPumpPayload
   List<Map<String, dynamic>> getOroPumpPayload() {
@@ -883,7 +902,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         }
       };
       String deviceIdToSend = hardwareType == HardwareType.master ? masterData['deviceId'] : p1000.deviceId;
-      Map<String, dynamic> payloadToSend = p1000.interfaceTypeId == 2 ? gemPayload : pumpPayload;
+      Map<String, dynamic> payloadToSend = hardwareType == HardwareType.master ? gemPayload : pumpPayload;
 
       listOfPumpPayload.add({
         'title' : '${p1000.deviceName}(pumpconfig)',
@@ -1025,10 +1044,15 @@ class ConfigMakerProvider extends ChangeNotifier{
     List<DeviceModel> listOfPumpWithValve = listOfDeviceModel.where((device) => AppConstants.pumpWithValveModelList.contains(device.modelId) && device.masterId != null).toList();
     List<Map<String, dynamic>> listOfPumpPayload = [];
     int pumpConfigCode = 50;
+
     for(var device in listOfPumpWithValve){
       int pumpCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.pumpObjectId).length;
       int valveCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.valveObjectId).length;
-      var payload = {"sentSms":"echoconfig,$pumpCount,$valveCount"};
+      List<DeviceModel> nodeForValve = listOfDeviceModel.where((device) => ![...AppConstants.pumpWithValveModelList, ...AppConstants.senseModelList].contains(device.modelId)).toList();
+      List<DeviceModel> nodeForMoisture = listOfDeviceModel.where((device) => AppConstants.senseModelList.contains(device.modelId)).toList();
+      String nodeForValvePayload = '';
+
+      var payload = {"sentSms":"ecoconfig,$pumpCount,$valveCount"};
       print('device name : ${device.deviceName}');
       listOfPumpPayload.add({
         'title' : '${device.deviceName}(pump and valve)',
@@ -1041,7 +1065,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         'hardwareType' : HardwareType.pumpWithValve
       });
     }
+
     return listOfPumpPayload;
   }
-
 }

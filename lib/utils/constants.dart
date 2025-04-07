@@ -541,5 +541,6 @@ class AppConstants {
   static List<int> pumpWithValveModelList = [48, 49];
   static List<int> gemModelList = [1, 2, 4];
   static List<int> pumpModelList = [5, 6, 7, 8, 9, 10];
+  static List<int> senseModelList = [31, 32, 33, 34, 35];
 
 }
