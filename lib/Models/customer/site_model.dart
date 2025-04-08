@@ -998,9 +998,15 @@ class IrrigationLineData {
       }
     }
 
-    final Map<double, MoistureSensorModel> moistureMap = {
-      for (var sensor in moistureSensors) sensor.valveSNo: sensor
-    };
+    final Map<double, List<MoistureSensorModel>> moistureMap = {};
+
+    for (var sensor in moistureSensors) {
+      final key = sensor.valveSNo;
+      if (!moistureMap.containsKey(key)) {
+        moistureMap[key] = [];
+      }
+      moistureMap[key]!.add(sensor);
+    }
 
 
     return IrrigationLineData(
@@ -1061,8 +1067,8 @@ class IrrigationLineData {
       valves: (json['valve'] as List).map((v) {
         final valve = v as Map<String, dynamic>;
         final double valveSNo = (valve['sNo'] as num).toDouble();
-        final moistureSensor = moistureMap[valveSNo];
-        return Valve.fromJson(valve, moistureSensor: moistureSensor);
+        final moistureSensors = moistureMap[valveSNo] ?? [];
+        return Valve.fromJson(valve, moistureSensors: moistureSensors);
       }).toList(),
     );
   }
@@ -1134,7 +1140,7 @@ class Valve {
   final String name;
   int status;
   bool isOn;
-  final MoistureSensorModel? moistureSensor;
+  List<MoistureSensorModel>? moistureSensor;
 
   Valve({
     required this.objectId,
@@ -1145,12 +1151,12 @@ class Valve {
     this.moistureSensor,
   });
 
-  factory Valve.fromJson(Map<String, dynamic> json, {MoistureSensorModel? moistureSensor}) {
+  factory Valve.fromJson(Map<String, dynamic> json, {List<MoistureSensorModel> moistureSensors = const []}) {
     return Valve(
       objectId: json['objectId'],
       sNo: (json['sNo'] as num).toDouble(),
       name: json['name'],
-      moistureSensor: moistureSensor,
+      moistureSensor: moistureSensors,
     );
   }
 
@@ -1160,7 +1166,7 @@ class Valve {
       'sNo': sNo,
       'name': name,
       "status": status,
-      'moistureSensor': moistureSensor?.toJson(),
+      'moistureSensor': moistureSensor?.map((e) => e.toJson()).toList(),
     };
   }
 }
@@ -1230,21 +1236,33 @@ class LiveMessage {
   });
 
   factory LiveMessage.fromJson(Map<String, dynamic> json) {
+
+    final mCValue = json['mC'];
+    final cMRaw = json['cM'];
+
+    dynamic parsedCM;
+
+    if (cMRaw is Map<String, dynamic>) {
+      parsedCM = Map<String, dynamic>.from(cMRaw);
+    } else if (cMRaw is List && mCValue == 'LD01') {
+      parsedCM = PumpControllerData.fromJson(json, "cM", 2);
+    } else {
+      parsedCM = cMRaw;
+    }
+
     return LiveMessage(
       cC: json['cC'],
-      cM: json['cM'] is Map<String, dynamic>
-          ? Map<String, dynamic>.from(json['cM'])
-          : (json['cM'] is List ? json['mC'] == 'LD01' ? PumpControllerData.fromJson(json, "cM", 2) : <String, dynamic>{} : <String, dynamic>{}),
+      cM: parsedCM,
       cD: json['cD'],
       cT: json['cT'],
-      mC: json['mC'],
+      mC: mCValue,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'cC': cC,
-      'cM': cM,
+      'cM': cM is Map ? cM : (cM is PumpControllerData ? cM.toJson() : cM),
       'cD': cD,
       'cT': cT,
       'mC': mC,

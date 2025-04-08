@@ -133,7 +133,7 @@ class CurrentProgram extends StatelessWidget {
                         DataCell(Center(child: Text(getProgramNameById(int.parse(values[0]))=='StandAlone - Manual' &&
                             (values[3]=='00:00:00'||values[3]=='0')?
                         'Timeless': values[3]))),
-                        const DataCell(Center(child: Text('${'0'}/hr'))),
+                        DataCell(Center(child: Text('${values[18]}-lit/hr'))),
                         DataCell(Center(child: Text(getProgramNameById(int.parse(values[0]))=='StandAlone - Manual' &&
                             (values[3]=='00:00:00'||values[3]=='0')? '----': values[4],
                             style:  const TextStyle(fontSize: 20)))),

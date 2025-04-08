@@ -36,13 +36,13 @@ class NodeList extends StatelessWidget {
     return Consumer2<NodeListViewModel, MqttPayloadProvider>(
       builder: (context, vm, mqttProvider, _) {
         final nodeLiveMessage = mqttProvider.nodeLiveMessage;
-        final relayOnOffStatus = mqttProvider.outputStatusPayload;
+        final outputOnOffPayload = mqttProvider.outputOnOffPayload;
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (vm.shouldUpdate(nodeLiveMessage, relayOnOffStatus)) {
+          if (vm.shouldUpdate(nodeLiveMessage, outputOnOffPayload)) {
             vm.onLivePayloadReceived(
               List.from(nodeLiveMessage),
-              List.from(relayOnOffStatus),
+              List.from(outputOnOffPayload),
             );
           }
         });

@@ -91,7 +91,8 @@ class MqttPayloadProvider with ChangeNotifier {
   int wifiStrength = 0;
   String liveDateAndTime = '';
   List<String> nodeLiveMessage = [];
-  List<String> outputStatusPayload = [];
+  List<String> outputOnOffPayload = [];
+  List<String> inputPayload = [];
   List<String> pumpPayload = [];
   List<String> filterPayload = [];
   List<String> fertilizerPayload = [];
@@ -489,6 +490,7 @@ class MqttPayloadProvider with ChangeNotifier {
         powerSupply = data['cM']['PowerSupply'];
         updateNodeLiveMessage(data['cM']['2401'].split(";"));
         updateOutputStatusPayload(data['cM']['2402'].split(";"));
+        updateInputPayload(data['cM']['2403'].split(";"));
         updatePumpStatusPayload(data['cM']['2404'].split(";"));
         updateFilterStatusPayload(data['cM']['2406'].split(";"));
         updateFertilizerStatusPayload(data['cM']['2407'].split(";"));
@@ -632,7 +634,11 @@ class MqttPayloadProvider with ChangeNotifier {
   }
 
   void updateOutputStatusPayload(List<String> message) {
-    outputStatusPayload = message;
+    outputOnOffPayload = message;
+  }
+
+  void updateInputPayload(List<String> message) {
+    inputPayload = message;
   }
 
   void updatePumpStatusPayload(List<String> message) {

@@ -34,14 +34,21 @@ class PumpStation extends StatelessWidget {
       child: Consumer<PumpStationViewModel>(
         builder: (context, vm, _) {
 
-          var outputStatusPayload = Provider.of<MqttPayloadProvider>(context).outputStatusPayload;
+          var outputStatusPayload = Provider.of<MqttPayloadProvider>(context).outputOnOffPayload;
+          var inputPayload = Provider.of<MqttPayloadProvider>(context).inputPayload;
           var pumpPayload = Provider.of<MqttPayloadProvider>(context).pumpPayload;
           var filterPayload = Provider.of<MqttPayloadProvider>(context).filterPayload;
           var fertilizerPayload = Provider.of<MqttPayloadProvider>(context).fertilizerPayload;
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (vm.shouldUpdate(outputStatusPayload, pumpPayload, filterPayload, fertilizerPayload)) {
-              vm.updateOutputStatus(outputStatusPayload.toList(), pumpPayload.toList(), filterPayload.toList(), fertilizerPayload.toList());
+            if (vm.shouldUpdate(outputStatusPayload)) {
+              vm.updateOutputStatus(outputStatusPayload.toList(), pumpPayload.toList(),
+                  filterPayload.toList(), fertilizerPayload.toList());
+
+              if(inputPayload.isNotEmpty){
+                vm.updateInputStatus(inputPayload.toList());
+              }
+
             }
           });
 

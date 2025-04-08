@@ -48,6 +48,7 @@ class DisplayIrrigationLine extends StatelessWidget {
                   status: vl.status,
                   userId: 0,
                   controllerId: 0,
+                  moistureSensor: vl.moistureSensor!,
                 )),
               ],
           ];
@@ -362,13 +363,13 @@ class SensorWidget extends StatelessWidget {
 class ValveWidget extends StatelessWidget {
   final Valve vl;
   final int status, userId, controllerId;
-  //final List<SensorModel> moistureSensor;
+  final List<MoistureSensorModel> moistureSensor;
   //final Map<String, List<SensorHourlyData>> sensorData;
-  const ValveWidget({super.key, required this.vl, required this.status, required this.userId, required this.controllerId});
+  const ValveWidget({super.key, required this.vl, required this.status, required this.userId, required this.controllerId, required this.moistureSensor});
 
   @override
   Widget build(BuildContext context) {
-    bool hasMoisture = false;
+    bool hasMoisture = moistureSensor.isNotEmpty;
     return Stack(
       children: [
         Container(
@@ -411,6 +412,121 @@ class ValveWidget extends StatelessWidget {
             ],
           ),
         ),
+        if (hasMoisture)
+          Positioned(
+            top: 2,
+            right: 15,
+            child: TextButton(
+              onPressed: () {
+                showPopover(
+                  context: context,
+                  bodyBuilder: (context) {
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: moistureSensor.map((ms) {
+
+                        return Container();
+
+                        /*Map<String, dynamic> jsonData = jsonDecode(jsonEncode(sensorData));
+                        Map<String, List<Map<String, dynamic>>> filteredData = {};
+
+                        jsonData.forEach((key, value) {
+                          var filteredList = (value as List)
+                              .where((item) => item['sNo']==ms.sNo)
+                              .toList();
+                          if (filteredList.isNotEmpty) {
+                            filteredData[key] = List<Map<String, dynamic>>.from(filteredList);
+                          }
+                        });
+
+                        return Row(
+                          children: [
+                            SizedBox(
+                              width: 450,
+                              height: 175,
+                              child: buildLineChart(context, filteredData, 'Moisture Sensor', ms.name, ms.moistureType!),
+                            ),
+                            SizedBox(
+                              width: 100,
+                              height: 100,
+                              child: SfRadialGauge(
+                                axes: <RadialAxis>[
+                                  RadialAxis(
+                                    minimum: 0,
+                                    maximum: 200,
+                                    pointers: <GaugePointer>[
+                                      NeedlePointer(
+                                          value: double.parse(ms.value),
+                                          needleEndWidth: 3, needleColor: Colors.black54),
+                                      RangePointer(
+                                        value: 200.0,
+                                        width: 0.30,
+                                        sizeUnit: GaugeSizeUnit.factor,
+                                        color: const Color(0xFF494CA2),
+                                        animationDuration: 1000,
+                                        gradient: const SweepGradient(
+                                          colors: <Color>[
+                                            Colors.greenAccent,
+                                            Colors.orangeAccent,
+                                            Colors.redAccent,
+                                            Colors.redAccent
+                                          ],
+                                          stops: <double>[0.15, 0.50, 0.70, 1.00],
+                                        ),
+                                        enableAnimation: true,
+                                      ),
+                                    ],
+                                    showFirstLabel: false,
+                                    annotations: <GaugeAnnotation>[
+                                      GaugeAnnotation(
+                                        widget: Text(
+                                          '${ms.value} CB',
+                                          style: const TextStyle(
+                                              fontSize: 10, fontWeight: FontWeight.bold),
+                                        ),
+                                        angle: 90,
+                                        positionFactor: 0.8,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );*/
+                      }).toList(),
+                    );
+                  },
+                  onPop: () => print('Popover was popped!'),
+                  direction: PopoverDirection.bottom,
+                  width: 550,
+                  height: moistureSensor.length * 175,
+                  arrowHeight: 15,
+                  arrowWidth: 30,
+                  barrierColor: Colors.black54,
+                  arrowDxOffset: 20,
+                  arrowDyOffset: -43,
+                );
+              },
+              style: ButtonStyle(
+                padding: WidgetStateProperty.all(EdgeInsets.zero),
+                minimumSize: WidgetStateProperty.all(Size.zero),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                backgroundColor: WidgetStateProperty.all(Colors.transparent),
+              ),
+              child: CircleAvatar(
+                radius: 15,
+                backgroundColor: _getMoistureColor(moistureSensor
+                    .map((sensor) => {'name': 'sensor.valveSNo', 'value': '0'})
+                    .toList()),
+                child: Image.asset(
+                  'assets/png/moisture_sensor.png',
+                  width: 25,
+                  height: 25,
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }

@@ -68,13 +68,20 @@ class CurrentProgramViewModel extends ChangeNotifier {
                 if (remainFlow > 0) {
                   double flowRate = double.parse(values[16]);
                   remainFlow -= flowRate;
+
+                  if (remainFlow < 0) {
+                    remainFlow = 0;
+                  }
+
                   String formattedFlow = remainFlow.toStringAsFixed(2);
 
-                  currentSchedule[i] = values.join(",");
                   values[4] = formattedFlow;
+                  currentSchedule[i] = values.join(",");
                   notifyListeners();
                 } else {
                   values[4] = '0.00';
+                  currentSchedule[i] = values.join(",");
+                  notifyListeners();
                 }
               }
               allOnDelayLeftZero = false;

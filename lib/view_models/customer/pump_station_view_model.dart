@@ -25,10 +25,8 @@ class PumpStationViewModel extends ChangeNotifier {
   late List<WaterSource> sortedWaterSources = [];
   final ValueNotifier<int> popoverUpdateNotifier = ValueNotifier<int>(0);
 
-  List<dynamic> _previousRelayStatus = [];
-  List<dynamic> _previousPumpStatus = [];
-  List<dynamic> _previousFilterStatus = [];
-  List<dynamic> _previousFertilizerStatus = [];
+  List<dynamic> _previousInputPayload = [];
+
 
   static const excludedReasons = [
     '3', '4', '5', '6', '21', '22', '23', '24',
@@ -40,16 +38,9 @@ class PumpStationViewModel extends ChangeNotifier {
     displaySite();
   }
 
-  bool shouldUpdate(List<dynamic> newRelayStatus, List<dynamic> pumpPayload,
-      List<dynamic> filterPayload, List<dynamic> fertilizerPayload) {
-    if (!listEquals(_previousRelayStatus, newRelayStatus)
-    ||!listEquals(_previousPumpStatus, pumpPayload) ||
-        !listEquals(_previousFilterStatus, filterPayload) ||
-        !listEquals(_previousFertilizerStatus, fertilizerPayload) ) {
-      _previousRelayStatus = List.from(newRelayStatus);
-      _previousPumpStatus = List.from(pumpPayload);
-      _previousFilterStatus = List.from(filterPayload);
-      _previousFertilizerStatus = List.from(fertilizerPayload);
+  bool shouldUpdate(List<dynamic> newRelayStatus) {
+    if (!listEquals(_previousInputPayload, newRelayStatus)) {
+      _previousInputPayload = List.from(newRelayStatus);
       return true;
     }
     return false;
@@ -116,6 +107,50 @@ class PumpStationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateInputStatus(List<String> inputPayload){
+
+    print(inputPayload);
+
+    List<String> prsSensor = inputPayload
+        .where((item) => item.startsWith('24.')).toList();
+
+    List<String> waterMeter = inputPayload
+        .where((item) => item.startsWith('22.')).toList();
+
+    for (var filterSite in mvFilterSite) {
+
+      var matchedInPrsIN = prsSensor.firstWhere(
+            (entry) => entry.split(',')[0] == filterSite.pressureIn!.sNo.toString(),
+        orElse: () => '',
+      );
+
+      var matchedInPrsOUT = prsSensor.firstWhere(
+            (entry) => entry.split(',')[0] == filterSite.pressureOut!.sNo.toString(),
+        orElse: () => '',
+      );
+
+      print(filterSite.pressureIn!.sNo);
+      print(filterSite.pressureOut!.sNo);
+
+    }
+
+    for (var line in mvIrrLineData!) {
+
+      for (var pIN in line.pressureIn) {
+        print(pIN.sNo);
+      }
+
+      for (var wm in line.waterMeter) {
+        print(wm.sNo);
+      }
+
+    }
+
+
+
+    notifyListeners();
+  }
+
 
   void updatePumpStatus(List<WaterSource> waterSource, List<dynamic> filteredPumpStatus, List<dynamic> pumpStatusList) {
 
@@ -151,6 +186,7 @@ class PumpStationViewModel extends ChangeNotifier {
       }
     }
   }
+
 
   void updateFilterStatus(List<FilterSite> mvFilterSite, List<dynamic> filterStatus, List<dynamic> filterPayload) {
 
