@@ -296,9 +296,9 @@ class _NamesState extends State<Names> {
     Map<String, dynamic> namesModelData = configModel.toJson();
 
     final Repository repository = Repository(HttpService());
-
+    print(namesModelData['configObject']);
     Map<String, dynamic> body = {
-      "userId": overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : widget.userID,
+      "userId": widget.userID,
       "controllerId": widget.controllerId,
       "configObject": namesModelData['configObject'],
       "waterSource": namesModelData['waterSource'],
@@ -310,9 +310,10 @@ class _NamesState extends State<Names> {
       "createUser": widget.userID,
     };
     print('body:$body');
-    var getUserDetails = await repository.updateUserNames(body);
-    final jsonDataResponsePut = json.decode(getUserDetails.body);
-    GlobalSnackBar.show(context, jsonDataResponsePut['message'], jsonDataResponsePut['code']);
+      var getUserDetails = await repository.updateUserNames(body);
+      final jsonDataResponsePut = json.decode(getUserDetails.body);
+      GlobalSnackBar.show(context, jsonDataResponsePut['message'], jsonDataResponsePut['code']);
+
   }
 
   void updateAllNames() {
