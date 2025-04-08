@@ -59,6 +59,8 @@ class DeviceObjectModel {
       'siteMode': siteMode,
       if(data != null)
         'location' : AppConstants.findLocation(data: data, objectSno: sNo!, key: 'sNo')
+      else
+        'location' : location
     };
   }
 }

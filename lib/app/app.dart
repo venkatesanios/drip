@@ -52,9 +52,9 @@ Widget navigateToInitialScreen(String route) {
       return const LoginScreen();
     case Routes.dashboard:
        // return MyGifPage();
-       // return const ConfigBasePage(masterData: {});
+       return const ConfigBasePage(masterData: {});
        // return GroupListScreen(userId: 8, controllerId: 23, deviceId: '2CCF6773D07D',);
-      return const ScreenController();
+      // return const ScreenController();
 
     default:
       return const SplashScreen();
