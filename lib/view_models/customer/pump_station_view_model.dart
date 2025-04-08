@@ -107,121 +107,122 @@ class PumpStationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateInputStatus(List<String> inputPayload){
+  void updateInputStatus(List<String> inputPayload) {
+    final prsSensor = inputPayload.where((item) => item.startsWith('24.')).toList();
+    final waterMeter = inputPayload.where((item) => item.startsWith('22.')).toList();
 
-    print(inputPayload);
-
-    List<String> prsSensor = inputPayload
-        .where((item) => item.startsWith('24.')).toList();
-
-    List<String> waterMeter = inputPayload
-        .where((item) => item.startsWith('22.')).toList();
-
-    for (var filterSite in mvFilterSite) {
-
-      var matchedInPrsIN = prsSensor.firstWhere(
-            (entry) => entry.split(',')[0] == filterSite.pressureIn!.sNo.toString(),
+    String? getValueFromPayload(List<String> payload, String sNo) {
+      final match = payload.firstWhere(
+            (entry) => entry.split(',')[0] == sNo,
         orElse: () => '',
       );
-
-      var matchedInPrsOUT = prsSensor.firstWhere(
-            (entry) => entry.split(',')[0] == filterSite.pressureOut!.sNo.toString(),
-        orElse: () => '',
-      );
-
-      print(filterSite.pressureIn!.sNo);
-      print(filterSite.pressureOut!.sNo);
-
+      if (match.isEmpty) return null;
+      final parts = match.split(',');
+      return parts.length > 1 ? parts[1] : null;
     }
 
-    for (var line in mvIrrLineData!) {
+    for (var filterSite in mvFilterSite) {
+      final inValue = getValueFromPayload(prsSensor, filterSite.pressureIn?.sNo.toString() ?? '');
+      final outValue = getValueFromPayload(prsSensor, filterSite.pressureOut?.sNo.toString() ?? '');
 
+      if (inValue != null) filterSite.pressureIn?.value = inValue;
+      if (outValue != null) filterSite.pressureOut?.value = outValue;
+    }
+
+    for (var line in mvIrrLineData ?? []) {
       for (var pIN in line.pressureIn) {
-        print(pIN.sNo);
+        final value = getValueFromPayload(prsSensor, pIN.sNo.toString());
+        if (value != null) pIN.value = value;
       }
 
       for (var wm in line.waterMeter) {
-        print(wm.sNo);
+        final value = getValueFromPayload(waterMeter, wm.sNo.toString());
+        if (value != null) wm.value = value;
       }
-
     }
-
-
 
     notifyListeners();
   }
 
 
-  void updatePumpStatus(List<WaterSource> waterSource, List<dynamic> filteredPumpStatus, List<dynamic> pumpStatusList) {
+  void updatePumpStatus(List<WaterSource> waterSource, List<dynamic> filteredPumpStatus, List<dynamic> pumpStatusList, )
+  {
+    String? getMatchedEntry(List<dynamic> list, String sNo) {
+      return list.firstWhere(
+            (entry) => entry.split(',')[0] == sNo,
+        orElse: () => '',
+      );
+    }
 
     for (var source in waterSource) {
       for (var pump in source.outletPump) {
+        final sNo = pump.sNo.toString();
 
-        var matchedEntry = pumpStatusList.firstWhere(
-              (entry) => entry.split(',')[0] == pump.sNo.toString(),
-          orElse: () => '',
-        );
-
-        if (matchedEntry.isNotEmpty) {
-          List<String> statusData = matchedEntry.split(',');
-          if (statusData.length >= 8) {
-            pump.reason = statusData[1];
-            pump.setValue = statusData[2];
-            pump.actualValue = statusData[3];
-            pump.phase = statusData[4];
-            pump.voltage = statusData[5];
-            pump.current = statusData[6];
-            pump.onDelayLeft = statusData[7];
+        final matchedPumpData = getMatchedEntry(pumpStatusList, sNo);
+        if (matchedPumpData!.isNotEmpty) {
+          final parts = matchedPumpData.split(',');
+          if (parts.length >= 8) {
+            pump.reason = parts[1];
+            pump.setValue = parts[2];
+            pump.actualValue = parts[3];
+            pump.phase = parts[4];
+            pump.voltage = parts[5];
+            pump.current = parts[6];
+            pump.onDelayLeft = parts[7];
+          } else {
+            print("Invalid data for pump sNo: $sNo. Expected at least 8 parts.");
           }
         } else {
-          print("Serial Number ${pump.sNo} not found in pumpStatusList");
+          print("Pump data not found in pumpStatusList for sNo: $sNo");
         }
 
-        int? status = getStatus(filteredPumpStatus, pump.sNo);
+        final status = getStatus(filteredPumpStatus, pump.sNo);
         if (status != null) {
           pump.status = status;
         } else {
-          print("Serial Number ${pump.sNo} not found");
+          print("Pump status not found for sNo: $sNo");
         }
       }
     }
   }
 
 
-  void updateFilterStatus(List<FilterSite> mvFilterSite, List<dynamic> filterStatus, List<dynamic> filterPayload) {
-
+  void updateFilterStatus(List<FilterSite> mvFilterSite, List<dynamic> filterStatus,  List<dynamic> filterPayload,)
+  {
     for (var filterSite in mvFilterSite) {
-
-      var matchedEntry = filterPayload.firstWhere(
+      final matchedEntry = filterPayload.firstWhere(
             (entry) => entry.split(',')[0] == filterSite.sNo.toString(),
         orElse: () => '',
       );
 
-      if (matchedEntry.isNotEmpty) {
-        List<String> filterData = matchedEntry.split(',');
-        if(filterData[1]!='0' && filterData[1]!='-1' && filterData[1]!='-2'){
-          filterSite.filters[int.parse(filterData[1])-1].onDelayLeft = filterData[2];
+      if (matchedEntry.isEmpty) continue;
+
+      final filterData = matchedEntry.split(',');
+      final filterIndexStr = filterData[1];
+
+      if (filterIndexStr == '0') {
+        for (var filter in filterSite.filters) {
+          filter.status = 0;
+          filter.onDelayLeft = '00:00:00';
         }
+        continue;
+      }
 
-        if(filterData[1]!='0' && filterData[1]!='-1' && filterData[1]!='-2'){
-          int? status = getStatus(filterStatus, filterSite.filters[int.parse(filterData[1])-1].sNo);
-          if (status != null) {
-            filterSite.filters[int.parse(filterData[1])-1].status = status;
-          } else {
-            print("Serial Number ${filterSite.filters[int.parse(filterData[1])-1].sNo} not found");
-          }
-        }else{
-          if(filterData[1]=='0'){
-            for (var filter in filterSite.filters) {
-              filter.status = 0;
-              filter.onDelayLeft = '00:00:00';
-            }
-          }
+      // Ignore invalid indexes like -1, -2
+      final index = int.tryParse(filterIndexStr);
+      if (index == null || index <= 0 || index > filterSite.filters.length) continue;
 
-          //filterSite.filters[int.parse(filterData[1])-1].status = 0;
-          //filterSite.filters[int.parse(filterData[1])-1].onDelayLeft = '00:00:00';
-        }
+      final targetFilter = filterSite.filters[index - 1];
 
+      if (filterData.length > 2) {
+        targetFilter.onDelayLeft = filterData[2];
+      }
+
+      final status = getStatus(filterStatus, targetFilter.sNo);
+      if (status != null) {
+        targetFilter.status = status;
+      } else {
+        print("Filter status not found for sNo: ${targetFilter.sNo}");
       }
     }
   }

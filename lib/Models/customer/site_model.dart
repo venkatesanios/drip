@@ -1245,7 +1245,7 @@ class LiveMessage {
     if (cMRaw is Map<String, dynamic>) {
       parsedCM = Map<String, dynamic>.from(cMRaw);
     } else if (cMRaw is List && mCValue == 'LD01') {
-      parsedCM = PumpControllerData.fromJson(json, "cM", 2);
+      /*parsedCM = PumpControllerData.fromJson(json, "cM", 2);*/
     } else {
       parsedCM = cMRaw;
     }
