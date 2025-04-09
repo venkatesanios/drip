@@ -125,21 +125,23 @@ class ConstantProvider extends ChangeNotifier{
         );
       }).toList();
 
-      listOfConstantMenuModel = listOfConstantMenuModel.where((menuModel){
-        if(menuModel.dealerDefinitionId == AppConstants.levelSensorInConstant){
-          return checkAnySettingAvailable(defaultSetting: defaultLevelSetting);
-        }else if(menuModel.dealerDefinitionId == AppConstants.fertilizerSiteInConstant){
-          return checkAnySettingAvailable(defaultSetting: defaultFertilizerSiteSetting);
-        }else if(menuModel.dealerDefinitionId == AppConstants.ecPhInConstant){
-          return checkAnySettingAvailable(defaultSetting: defaultEcPhSetting);
-        }else if(menuModel.dealerDefinitionId == AppConstants.mainValveInConstant){
-          return checkAnySettingAvailable(defaultSetting: defaultMainValveSetting);
-        }else if(menuModel.dealerDefinitionId == AppConstants.normalCriticalInConstant){
-          return checkAnySettingAvailable(defaultSetting: defaultNormalCriticalAlarmSetting);
-        }else{
-          return true;
-        }
-      }).toList();
+      if(AppConstants.ecoGemModelList.contains(userData['modelId'])){
+        listOfConstantMenuModel = listOfConstantMenuModel.where((menuModel){
+          if(menuModel.dealerDefinitionId == AppConstants.levelSensorInConstant){
+            return checkAnySettingAvailable(defaultSetting: defaultLevelSetting);
+          }else if(menuModel.dealerDefinitionId == AppConstants.fertilizerSiteInConstant){
+            return checkAnySettingAvailable(defaultSetting: defaultFertilizerSiteSetting);
+          }else if(menuModel.dealerDefinitionId == AppConstants.ecPhInConstant){
+            return checkAnySettingAvailable(defaultSetting: defaultEcPhSetting);
+          }else if(menuModel.dealerDefinitionId == AppConstants.mainValveInConstant){
+            return checkAnySettingAvailable(defaultSetting: defaultMainValveSetting);
+          }else if(menuModel.dealerDefinitionId == AppConstants.normalCriticalInConstant){
+            return checkAnySettingAvailable(defaultSetting: defaultNormalCriticalAlarmSetting);
+          }else{
+            return true;
+          }
+        }).toList();
+      }
 
       //update object
       List<dynamic> listOfPumpObject = [];

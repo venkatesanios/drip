@@ -25,11 +25,14 @@ class ProgramSchedule extends StatefulWidget {
     required this.controllerID,
     required this.siteName,
     required this.imeiNumber,
+    required this.modelId,
+    required this.deviceName,
+    required this.categoryName,
     required this.userId, required this.groupId, required this.categoryId,
   });
 
-  final int userId, customerID, controllerID, groupId, categoryId;
-  final String siteName, imeiNumber;
+  final int userId, customerID, controllerID, groupId, categoryId, modelId;
+  final String siteName, imeiNumber, categoryName, deviceName;
 
   @override
   State<ProgramSchedule> createState() => _ProgramScheduleState();
@@ -101,7 +104,7 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
   Widget getViewForParameter(int id) {
     switch (id) {
       case 1:
-        return ProgramLibraryScreenNew(customerId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber, userId: widget.userId, fromDealer: false, groupId: widget.groupId, categoryId: widget.categoryId,);
+        return ProgramLibraryScreenNew(customerId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber, userId: widget.userId, fromDealer: false, groupId: widget.groupId, categoryId: widget.categoryId,modelId: widget.modelId, deviceName: widget.deviceName, categoryName: widget.categoryName,);
       case 66:
         return Names(userID: widget.customerID, customerID: widget.customerID, controllerId: widget.controllerID, menuId: 0, imeiNo: widget.imeiNumber, );
       case 67:
@@ -109,7 +112,8 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
       // case 68:
       //   return ConstantInConfig(userId: widget.customerID, deviceId: widget.imeiNumber, customerId: widget.customerID, controllerId: widget.controllerID);
       case 68:
-        return ConstantBasePage(userData: {'userId' : widget.customerID, 'controllerId' : widget.controllerID, 'deviceId' : widget.imeiNumber});
+        // return ConstantBasePage(userData: {'userId' : widget.customerID, 'controllerId' : widget.controllerID, 'deviceId' : widget.imeiNumber});
+        return ConstantBasePage(userData: {"userId" : widget.customerID, "controllerId": widget.controllerID, "deviceId":widget.imeiNumber, "modelId":widget.modelId, "deviceName": widget.deviceName,"categoryId":widget.categoryId,"categoryName":widget.categoryName});
     // case 69:
     //   return ConditionScreen(customerId: widget.customerID, controllerId: widget.controllerID, imeiNo: widget.imeiNumber, isProgram: false, serialNumber: 0,);
       case 70:

@@ -28,10 +28,16 @@ class AdditionalDataScreen extends StatefulWidget {
   final bool? conditionsLibraryIsNotEmpty;
   final bool fromDealer;
   final int groupId, categoryId;
+  final int modelId;
+  final String deviceName;
+  final String categoryName;
   const AdditionalDataScreen({super.key, required this.serialNumber,
     required this.isIrrigationProgram, required this.userId, required this.controllerId,
     required this.deviceId, required this.toDashboard, this.programType, this.conditionsLibraryIsNotEmpty,
-    required this.fromDealer, required this.customerId, required this.groupId, required this.categoryId});
+    required this.fromDealer, required this.customerId, required this.groupId, required this.categoryId,
+    required this.modelId,
+    required this.deviceName,
+    required this.categoryName,});
 
   @override
   State<AdditionalDataScreen> createState() => _AdditionalDataScreenState();
@@ -295,7 +301,7 @@ class _AdditionalDataScreenState extends State<AdditionalDataScreen> {
               Navigator.of(context).pop();
               Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => ProgramSchedule(customerID: widget.userId, controllerID: widget.controllerId, siteName: "", imeiNumber: widget.deviceId, userId: widget.userId, groupId: widget.groupId, categoryId: widget.categoryId,))
+                  MaterialPageRoute(builder: (context) => ProgramSchedule(customerID: widget.userId, controllerID: widget.controllerId, siteName: "", imeiNumber: widget.deviceId, userId: widget.userId, groupId: widget.groupId, categoryId: widget.categoryId, modelId: widget.modelId, deviceName: widget.deviceName, categoryName: widget.categoryName,))
               );
             }
         }});
