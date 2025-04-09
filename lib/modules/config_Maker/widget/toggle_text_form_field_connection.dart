@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../model/device_model.dart';
 import '../model/device_object_model.dart';
-import '../view/product_limit.dart';
 import '../state_management/config_maker_provider.dart';
 import 'connection_grid_list_tile.dart';
 

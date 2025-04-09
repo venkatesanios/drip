@@ -30,8 +30,6 @@ class MobileScreenController extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const String correctPassword = 'Oro@321';
-
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => NavRailViewModel()),

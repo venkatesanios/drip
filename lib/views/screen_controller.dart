@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/views/mobile/mobile_screen_controller.dart';
 import 'package:provider/provider.dart';
-import '../Screens/planning/WeatherScreen.dart';
 import '../view_models/screen_controller_view_model.dart';
 import 'admin_dealer/admin_screen_controller.dart';
 import 'admin_dealer/dealer_screen_controller.dart';

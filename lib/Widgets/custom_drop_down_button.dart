@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-
-import '../Constants/properties.dart';
-import '../modules/config_Maker/view/device_list.dart';
-
 class CustomDropDownButton extends StatelessWidget {
   final String value;
   TextStyle? style;

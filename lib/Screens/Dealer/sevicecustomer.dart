@@ -177,7 +177,7 @@ class _TicketHomePageState extends State<TicketHomePage> {
                         controller: otherstextctrl,
                         maxLines: null,
                         decoration: InputDecoration(
-                          border: OutlineInputBorder(),
+                          border: const OutlineInputBorder(),
                           labelText: _selectedCategory.requestType,
                           hintText: 'Explain here',
                         ),
@@ -197,7 +197,7 @@ class _TicketHomePageState extends State<TicketHomePage> {
                                   timeformat.format(DateTime.now()),
                                   _servicecustomerModel.data!.dataDefault!.dealer![0].userId!,
                                   ExceptdateFormat.format(
-                                      DateTime.now().add(Duration(days: 2))));
+                                      DateTime.now().add(const Duration(days: 2))));
                             }
                           }
                         } catch(error, stackTrace) {
@@ -238,7 +238,7 @@ class _TicketHomePageState extends State<TicketHomePage> {
                                         child: Center(
                                             child: Text(
                                               '${_servicecustomerModel.data!.serviceRequest![index].requestType}',
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                   fontWeight: FontWeight.bold, fontSize: 21),
                                             ))),
                                     Container(
@@ -249,35 +249,35 @@ class _TicketHomePageState extends State<TicketHomePage> {
                                             child: Text(
                                                 '${_servicecustomerModel.data!.serviceRequest![index].requestDescription}',
                                                 textAlign: TextAlign.center,
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                     fontWeight: FontWeight.normal)))),
                                     Text(
                                       '${_servicecustomerModel.data!.serviceRequest![index].requestDate} ${_servicecustomerModel.data!.serviceRequest![index].requestTime}',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                    Text(
+                                    const Text(
                                       'Exceptation Date:',
                                       style: TextStyle(
                                         fontWeight: FontWeight.normal,
-                                        color: const Color(0xff15C0E6),
+                                        color: Color(0xff15C0E6),
                                       ),
                                     ),
                                     Text(
                                       '${_servicecustomerModel.data!.serviceRequest![index].estimatedDate}',
-                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                      style: const TextStyle(fontWeight: FontWeight.bold),
                                     ),
-                                    Text(
+                                    const Text(
                                       'Responsiplity:',
                                       style: TextStyle(
                                         fontWeight: FontWeight.normal,
-                                        color: const Color(0xff15C0E6),
+                                        color: Color(0xff15C0E6),
                                       ),
                                     ),
                                     Text(
                                       '${_servicecustomerModel.data!.serviceRequest![index].responsibleUserName}',
-                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                      style: const TextStyle(fontWeight: FontWeight.bold),
                                     ),
                                     Text(
                                         '${_servicecustomerModel.data!.serviceRequest![index].status}',
@@ -286,11 +286,11 @@ class _TicketHomePageState extends State<TicketHomePage> {
                                             fontSize: 21,
                                             color: '${_servicecustomerModel.data!.serviceRequest![index].responsibleUserName}' ==
                                                 'Waiting'
-                                                ? Color(0xfff3bf21)
+                                                ? const Color(0xfff3bf21)
                                                 : '${_servicecustomerModel.data!.serviceRequest![index].responsibleUserName}' ==
                                                 'Completed'
-                                                ? Color(0xff21f33d)
-                                                : Color(0xff1c7b89))),
+                                                ? const Color(0xff21f33d)
+                                                : const Color(0xff1c7b89))),
                                   ],
                                 ))
                         ],

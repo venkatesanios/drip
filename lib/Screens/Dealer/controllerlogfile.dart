@@ -69,7 +69,7 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
-        title: Text('Controller Log'),
+        title: const Text('Controller Log'),
       ),
       body: Column(
         children: [
@@ -102,7 +102,7 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
               ],
             ),
           ),
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
           Center(
             child:  Wrap(
               alignment: WrapAlignment.center,
@@ -114,18 +114,18 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
                     _showSnackBar("Start sending to Controller log...");
                     getlog(valueForTab);
                   },
-                  child: Text('Start'),
-                ) : SizedBox(),
-                SizedBox(width: 10),
+                  child: const Text('Start'),
+                ) : const SizedBox(),
+                const SizedBox(width: 10),
                 valueForTab != 11 ? FilledButton(
                   style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
                   onPressed: () {
                     _showSnackBar("Stop sending to Controller log...");
                     getlog(11);
                   },
-                  child: Text('Stop'),
-                ) : SizedBox(),
-                valueForTab != 11 ? SizedBox(width: 10) : SizedBox(),
+                  child: const Text('Stop'),
+                ) : const SizedBox(),
+                valueForTab != 11 ? const SizedBox(width: 10) : const SizedBox(),
                 valueForTab != 11 ? FilledButton(
                   style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.grey)),
                   onPressed: () {
@@ -148,44 +148,44 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
                       });
                     }
                   },
-                  child: Text('Clear'),
-                ) : SizedBox(),
-                valueForTab != 11 ? SizedBox(width: 10) : SizedBox(),
+                  child: const Text('Clear'),
+                ) : const SizedBox(),
+                valueForTab != 11 ? const SizedBox(width: 10) : const SizedBox(),
                 valueForTab != 11 ? TextButton(
                   style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.blue),foregroundColor: MaterialStateProperty.all(Colors.white)),
                   onPressed: () {
                     _showSnackBar("Today log send FTP...");
                     getlog(valueForTab + 5);
                   },
-                  child: Text('Today log send FTP'),
-                ) : SizedBox(),
-                valueForTab != 11 ? SizedBox(width: 10) : SizedBox(),
+                  child: const Text('Today log send FTP'),
+                ) : const SizedBox(),
+                valueForTab != 11 ? const SizedBox(width: 10) : const SizedBox(),
                 valueForTab != 11 ?  TextButton(
                   style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.blue),foregroundColor: MaterialStateProperty.all(Colors.white)),
                   onPressed: () {
                     _showSnackBar("Yesterday log send FTP...");
                     getlog(valueForTab + 10);
                   },
-                  child: Text('Yesterday log send FTP'),
-                ) : SizedBox(),
-                valueForTab != 11 ?  SizedBox(width: 10) : SizedBox(),
+                  child: const Text('Yesterday log send FTP'),
+                ) : const SizedBox(),
+                valueForTab != 11 ?  const SizedBox(width: 10) : const SizedBox(),
                 valueForTab == 11 ? TextButton(
                   style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.cyan),foregroundColor: MaterialStateProperty.all(Colors.white)),
                   onPressed: () {
                     _showSnackBar("Today Mqtt log send FTP...");
                     getlog(16);
                   },
-                  child: Text('Today Mqtt log FTP'),
-                ) : SizedBox(),
-                SizedBox(width: 10),
+                  child: const Text('Today Mqtt log FTP'),
+                ) : const SizedBox(),
+                const SizedBox(width: 10),
                 valueForTab == 11 ?  TextButton(
                   style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.cyan),foregroundColor: MaterialStateProperty.all(Colors.white)),
                   onPressed: () {
                     _showSnackBar("Yesterday Mqtt log  FTP...");
                     getlog(21);
                   },
-                  child: Text('Yesterday log send FTP'),
-                ) : SizedBox(),
+                  child: const Text('Yesterday log send FTP'),
+                ) : const SizedBox(),
 
               ],
             ),
@@ -218,22 +218,22 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
       builder: (BuildContext context) {
         return Dialog(
           child: Padding(
-            padding: EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16.0),
             child: Consumer<MqttPayloadProvider>(
               builder: (context, mqttPayloadProvider, child) {
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    logString.contains("LogFileDetailsUpdated - Success") ? Icon(Icons.check_circle, color: Colors.green, size: 50) : CircularProgressIndicator(),
-                    SizedBox(height: 16),
-                    logString.contains("LogFileDetailsUpdated - Success") ? Text("Success...") : Text("Please wait..."),
-                    SizedBox(height: 16),
+                    logString.contains("LogFileDetailsUpdated - Success") ? const Icon(Icons.check_circle, color: Colors.green, size: 50) : const CircularProgressIndicator(),
+                    const SizedBox(height: 16),
+                    logString.contains("LogFileDetailsUpdated - Success") ? const Text("Success...") : const Text("Please wait..."),
+                    const SizedBox(height: 16),
                     Text(logString), //
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      child: logString.contains("LogFileDetailsUpdated - Success") ? Text("Ok") : Text("Cancel"),
+                      child: logString.contains("LogFileDetailsUpdated - Success") ? const Text("Ok") : const Text("Cancel"),
                     ),
                   ],
                 );
@@ -247,7 +247,7 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
     bool dialogOpen = true;
 
     while (dialogOpen) {
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(const Duration(seconds: 1));
       if (logString.contains("Success") || logString.contains("Won")) {
         // setState(() {
         //   checksucess = true;
@@ -336,7 +336,7 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
     manager.topicToUnSubscribe('${Environment.mqttLogTopic}/${widget.deviceID}');
     manager.topicToSubscribe('${Environment.mqttSubscribeTopic}/${widget.deviceID}');
 
-    await Future.delayed(Duration(seconds: 1), () async{
+    await Future.delayed(const Duration(seconds: 1), () async{
       if (data == 7 || data == 8 || data == 9 || data == 10 || data == 11)
       {
         String payloadCode = "5700";
@@ -445,7 +445,7 @@ class _ScrollableTextWithSearchState extends State<ScrollableTextWithSearch> {
       }
       children.add(TextSpan(
         text: text.substring(matchPositions[i], matchPositions[i] + _searchQuery.length),
-        style: TextStyle(backgroundColor: Colors.yellow), // Highlight color
+        style: const TextStyle(backgroundColor: Colors.yellow), // Highlight color
       ));
       start = matchPositions[i] + _searchQuery.length;
     }
@@ -498,9 +498,9 @@ class _ScrollableTextWithSearchState extends State<ScrollableTextWithSearch> {
             controller: _searchController,  // Use passed controller
             decoration: InputDecoration(
               labelText: 'Search',
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
               suffixIcon: IconButton(
-                icon: Icon(Icons.search),
+                icon: const Icon(Icons.search),
                 onPressed: () {
                   setState(() {
                     _searchQuery = _searchController.text;
@@ -513,7 +513,7 @@ class _ScrollableTextWithSearchState extends State<ScrollableTextWithSearch> {
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text('Matches found: $_matchCount', style: TextStyle(fontSize: 16)),
+          child: Text('Matches found: $_matchCount', style: const TextStyle(fontSize: 16)),
         ),
         Expanded(
           child: SingleChildScrollView(

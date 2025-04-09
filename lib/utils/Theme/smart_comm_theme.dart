@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'oro_theme.dart';
-
 Color primaryDark = const Color(0xFF004265);
 Color primary = const Color(0xFF004265);
 Color primaryLight = const Color(0xFF008CD7);

@@ -2,14 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
-import 'package:oro_drip_irrigation/Models/admin&dealer/dealer_definition_model.dart';
-import 'package:oro_drip_irrigation/Models/customer/constant_model.dart';
 import 'package:oro_drip_irrigation/Screens/Dealer/dealer_definition.dart';
 import 'package:oro_drip_irrigation/view_models/customer/controller_settings_view_model.dart';
 import 'package:oro_drip_irrigation/views/customer/condition_library.dart';
 import 'package:provider/provider.dart';
-
-import '../../Models/customer/site_model.dart';
 import '../../Screens/planning/frost_productionScreen.dart';
 import '../../Screens/planning/names_form.dart';
 import '../../Screens/planning/valve_group_screen.dart';

@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:oro_drip_irrigation/Constants/properties.dart';
 import 'package:provider/provider.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
@@ -70,11 +69,11 @@ class _HoursMinutesSecondsState extends State<HoursMinutesSeconds> {
     if(widget.validation == 'pre'){
       duration1 = parseTimeString(widget.waterTime!);
       duration2 = parseTimeString(widget.postTime!);
-      duration3 = parseTimeString('${overAllPvd.hrs!}:${overAllPvd.min!}:${overAllPvd.sec!}');
+      duration3 = parseTimeString('${overAllPvd.hrs}:${overAllPvd.min}:${overAllPvd.sec}');
     }else{
       duration1 = parseTimeString(widget.waterTime!);
       duration2 = parseTimeString(widget.preTime!);
-      duration3 = parseTimeString('${overAllPvd.hrs!}:${overAllPvd.min!}:${overAllPvd.sec!}');
+      duration3 = parseTimeString('${overAllPvd.hrs}:${overAllPvd.min}:${overAllPvd.sec}');
     }
     var result = duration1 - (duration2 + duration3);
     print(result);
@@ -725,7 +724,7 @@ class _HoursMinutesSecondsState extends State<HoursMinutesSeconds> {
                       color: Colors.blue.shade50,
                       child: ListTile(
                         title: Text('Water'),
-                        trailing: Text(widget.validation == 'water' ? '${overAllPvd.hrs! < 10 ? '0' :''}${overAllPvd.hrs!}:${overAllPvd.min! < 10 ? '0' :''}${overAllPvd.min!}:${overAllPvd.sec! < 10 ? '0' :''}${overAllPvd.sec!}' : '${widget.waterTime}'),
+                        trailing: Text(widget.validation == 'water' ? '${overAllPvd.hrs < 10 ? '0' :''}${overAllPvd.hrs}:${overAllPvd.min < 10 ? '0' :''}${overAllPvd.min}:${overAllPvd.sec < 10 ? '0' :''}${overAllPvd.sec}' : '${widget.waterTime}'),
                       ),
                     ),
                   if(viewWidget == true)
@@ -733,7 +732,7 @@ class _HoursMinutesSecondsState extends State<HoursMinutesSeconds> {
                       color: Colors.brown.shade50,
                       child: ListTile(
                         title: Text('Pre time'),
-                        trailing: Text(widget.validation == 'pre' ? '${overAllPvd.hrs! < 10 ? '0' :''}${overAllPvd.hrs!}:${overAllPvd.min! < 10 ? '0' :''}${overAllPvd.min!}:${overAllPvd.sec! < 10 ? '0' :''}${overAllPvd.sec!}' : '${widget.preTime}'),
+                        trailing: Text(widget.validation == 'pre' ? '${overAllPvd.hrs < 10 ? '0' :''}${overAllPvd.hrs}:${overAllPvd.min < 10 ? '0' :''}${overAllPvd.min}:${overAllPvd.sec < 10 ? '0' :''}${overAllPvd.sec}' : '${widget.preTime}'),
                       ),
                     ),
                   if(viewWidget == true)
@@ -741,7 +740,7 @@ class _HoursMinutesSecondsState extends State<HoursMinutesSeconds> {
                       color: Colors.brown.shade50,
                       child: ListTile(
                         title: Text('Post time'),
-                        trailing: Text(widget.validation == 'post' ? '${overAllPvd.hrs! < 10 ? '0' :''}${overAllPvd.hrs!}:${overAllPvd.min! < 10 ? '0' :''}${overAllPvd.min!}:${overAllPvd.sec! < 10 ? '0' :''}${overAllPvd.sec!}' : '${widget.postTime}'),
+                        trailing: Text(widget.validation == 'post' ? '${overAllPvd.hrs < 10 ? '0' :''}${overAllPvd.hrs}:${overAllPvd.min < 10 ? '0' :''}${overAllPvd.min}:${overAllPvd.sec < 10 ? '0' :''}${overAllPvd.sec}' : '${widget.postTime}'),
                       ),
                     ),
                   if(viewWidget == true)
@@ -751,7 +750,7 @@ class _HoursMinutesSecondsState extends State<HoursMinutesSeconds> {
                           color: Colors.brown.shade50,
                           child: ListTile(
                             title: Text('channel - ${i+1}'),
-                            trailing: Text(widget.validation == 'fertilizer-${i}' ? '${overAllPvd.hrs! < 10 ? '0' :''}${overAllPvd.hrs!}:${overAllPvd.min! < 10 ? '0' :''}${overAllPvd.min!}:${overAllPvd.sec! < 10 ? '0' :''}${overAllPvd.sec!}' : '${widget.fertilizerTime!['list'][i]}'),
+                            trailing: Text(widget.validation == 'fertilizer-${i}' ? '${overAllPvd.hrs < 10 ? '0' :''}${overAllPvd.hrs}:${overAllPvd.min < 10 ? '0' :''}${overAllPvd.min}:${overAllPvd.sec < 10 ? '0' :''}${overAllPvd.sec}' : '${widget.fertilizerTime!['list'][i]}'),
                           ),
                         ),
                 ],
@@ -785,25 +784,25 @@ class _HoursMinutesSecondsState extends State<HoursMinutesSeconds> {
                     print('ok for prepost');
                     checkCondition(overAllPvd);
                     if(widget.validation == 'pre' && releaseTimeForPrePost){
-                      programPvd.editPrePostMethod('preValue', programPvd.selectedGroup,'${overAllPvd.hrs! < 10 ? '0' :''}${overAllPvd.hrs!}:${overAllPvd.min! < 10 ? '0' :''}${overAllPvd.min!}:${overAllPvd.sec! < 10 ? '0' :''}${overAllPvd.sec!}');
+                      programPvd.editPrePostMethod('preValue', programPvd.selectedGroup,'${overAllPvd.hrs < 10 ? '0' :''}${overAllPvd.hrs}:${overAllPvd.min < 10 ? '0' :''}${overAllPvd.min}:${overAllPvd.sec < 10 ? '0' :''}${overAllPvd.sec}');
                       Navigator.pop(context);
                     }
                     if(widget.validation == 'post' && releaseTimeForPrePost){
-                      programPvd.editPrePostMethod('postValue', programPvd.selectedGroup,'${overAllPvd.hrs! < 10 ? '0' :''}${overAllPvd.hrs!}:${overAllPvd.min! < 10 ? '0' :''}${overAllPvd.min!}:${overAllPvd.sec! < 10 ? '0' :''}${overAllPvd.sec!}');
+                      programPvd.editPrePostMethod('postValue', programPvd.selectedGroup,'${overAllPvd.hrs < 10 ? '0' :''}${overAllPvd.hrs}:${overAllPvd.min < 10 ? '0' :''}${overAllPvd.min}:${overAllPvd.sec < 10 ? '0' :''}${overAllPvd.sec}');
                       Navigator.pop(context);
                     }
                   }else if(widget.validation == 'water'){
                     print('ok for water');
                     checkCondition1(overAllPvd);
                     if(widget.validation == 'water' && releaseTimeForWater){
-                      programPvd.editWaterSetting('timeValue', '${overAllPvd.hrs! < 10 ? '0' :''}${overAllPvd.hrs!}:${overAllPvd.min! < 10 ? '0' :''}${overAllPvd.min!}:${overAllPvd.sec! < 10 ? '0' :''}${overAllPvd.sec!}');
+                      programPvd.editWaterSetting('timeValue', '${overAllPvd.hrs < 10 ? '0' :''}${overAllPvd.hrs}:${overAllPvd.min < 10 ? '0' :''}${overAllPvd.min}:${overAllPvd.sec < 10 ? '0' :''}${overAllPvd.sec}');
                       Navigator.pop(context);
                     }
                   }else if(widget.validation!.contains('fertilizer')){
                     print('widget1 : ${widget.validation}');
                     checkCondition2(overAllPvd);
                     if(widget.validation!.contains('fertilizer') && releaseTimeForFertilizer){
-                      programPvd.editParticularChannelDetails('timeValue', programPvd.segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing','${overAllPvd.hrs! < 10 ? '0' :''}${overAllPvd.hrs!}:${overAllPvd.min! < 10 ? '0' :''}${overAllPvd.min!}:${overAllPvd.sec! < 10 ? '0' :''}${overAllPvd.sec!}',widget.index);
+                      programPvd.editParticularChannelDetails('timeValue', programPvd.segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing','${overAllPvd.hrs < 10 ? '0' :''}${overAllPvd.hrs}:${overAllPvd.min < 10 ? '0' :''}${overAllPvd.min}:${overAllPvd.sec < 10 ? '0' :''}${overAllPvd.sec}',widget.index);
                       Navigator.pop(context);
                     }
                   }else{

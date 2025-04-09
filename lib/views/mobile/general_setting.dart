@@ -180,7 +180,7 @@ class GeneralSetting extends StatelessWidget {
                     if(index==8)
                       ListTile(
                         title: const Text('Current Date'),
-                        leading: Icon(Icons.date_range),
+                        leading: const Icon(Icons.date_range),
                         trailing: Text(
                           viewModel.currentDate,
                           style: const TextStyle(
@@ -421,7 +421,7 @@ class GeneralSetting extends StatelessWidget {
                           Divider(color: Colors.grey.shade200,),
                           ListTile(
                             title: const Text('Current Date'),
-                            leading: Icon(Icons.date_range),
+                            leading: const Icon(Icons.date_range),
                             trailing: Text(
                               viewModel.currentDate,
                               style: const TextStyle(

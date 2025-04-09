@@ -456,8 +456,6 @@ class FilterSite {
   });
 
   factory FilterSite.fromJson(Map<String, dynamic> json) {
-    print(json);
-
     var filterList = json['filters'] as List;
     List<Filters> filters = filterList.map((filter) => Filters.fromJson(filter)).toList();
 

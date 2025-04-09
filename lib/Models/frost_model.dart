@@ -15,11 +15,8 @@ class FrostProtectionModel {
   });
 
   factory FrostProtectionModel.fromJson(Map<String, dynamic> json) {
-    // Check if the 'data' is a list or a map
-    print("runtimeType${json["data"].runtimeType}");
     if (json["data"]["frostProtection"] is List) {
-      print("runtimeType list");
-      // Old format, where 'data' is a list
+       // Old format, where 'data' is a list
       return FrostProtectionModel(
         frostProtection: json['data']["frostProtection"] == null
             ? []

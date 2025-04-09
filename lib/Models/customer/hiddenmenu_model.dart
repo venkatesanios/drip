@@ -24,7 +24,6 @@ class HiddenMenu {
           : List<Datum>.from(json["data"]!.map((x) => Datum.fromJson(x))),
     );
 
-    print("menu list ==> ${json['data']}");
     hiddenMenu.sortData();
 
     return hiddenMenu;

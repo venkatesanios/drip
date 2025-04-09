@@ -108,8 +108,7 @@ class _MapScreenState extends State<MapScreen> {
 
   void _searchLocation() {
     try {
-      // Expecting input in format "lat, long" (e.g., "11.1326952, 76.9767822")
-      final input = _searchController.text.trim();
+       final input = _searchController.text.trim();
      final inoutextract =  extractCoordinates(input);
       final coords = inoutextract.split(',');
       if (coords.length == 2) {
@@ -136,36 +135,30 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
   String extractCoordinates(String input) {
-    // Regular expression to extract coordinates from the Google Maps URL
-    RegExp regExp = RegExp(r"@(-?\d+\.\d+),(-?\d+\.\d+)");
+     RegExp regExp = RegExp(r"@(-?\d+\.\d+),(-?\d+\.\d+)");
 
-    // Check if the input is a Google Maps URL
-    var match = regExp.firstMatch(input);
+     var match = regExp.firstMatch(input);
     if (match != null) {
-      // Extract latitude and longitude from the URL
-      String latitude = match.group(1)!;
+       String latitude = match.group(1)!;
       String longitude = match.group(2)!;
-      return '$latitude,$longitude'; // Return coordinates as a string
+      return '$latitude,$longitude';
     }
 
-    // If the input is not a URL, check if it's a direct latitude,longitude string
-    var coords = input.split(",");
+     var coords = input.split(",");
     if (coords.length == 2) {
       String latitude = coords[0].trim();
       String longitude = coords[1].trim();
-      return '$latitude,$longitude'; // Return coordinates as a string
+      return '$latitude,$longitude';
     }
 
-    // Return an error message if input is invalid
-    return "Invalid coordinates format.";
+     return "Invalid coordinates format.";
   }
   int getValueOfSerial(Map<String, dynamic> liveMessage, String serialNumber)
   {
     try {
       Map<String, dynamic> cM = liveMessage['cM'] as Map<String, dynamic>;
 
-      // Iterate through all fields (2401 to 2412)
-      for (String key in cM.keys) {
+       for (String key in cM.keys) {
         if (key.startsWith('24')) {
           String data = cM[key] as String;
           List<String> values = data.split(';');
@@ -178,8 +171,7 @@ class _MapScreenState extends State<MapScreen> {
 
         }
       }
-      // Return -1 if serial number not found
-      return -1;
+       return -1;
     } catch (e) {
       print('Error parsing data: $e');
       return -1;

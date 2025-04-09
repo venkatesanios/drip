@@ -23,7 +23,6 @@ class _ValveControllerMapState extends State<ValveControllerMap> {
       'long': 77.5946,
       'status': 0,
     },
-    // You can add more entries here
   ];
 
   @override

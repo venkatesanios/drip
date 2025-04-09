@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
-import '../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../../view_models/customer/sent_and_received_view_model.dart';
 
 class SentAndReceived extends StatelessWidget {

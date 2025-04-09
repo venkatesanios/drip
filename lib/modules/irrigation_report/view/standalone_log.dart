@@ -7,7 +7,6 @@ import 'package:intl/intl.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'package:oro_drip_irrigation/Widgets/custom_buttons.dart';
 import 'package:oro_drip_irrigation/modules/irrigation_report/view/scrollingTable.dart';
-import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import '../repository/irrigation_repository.dart';
 import 'log_home.dart';

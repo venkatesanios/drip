@@ -871,7 +871,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                           ],
                           rows: List<DataRow>.generate(sequence.valve.length, (index) => DataRow(cells: [
                             DataCell(Center(child: Image.asset('assets/png/valve_gray.png',width: 25, height: 25,))),
-                            DataCell(Text(sequence.valve[index].name, style: TextStyle(fontWeight: FontWeight.normal))),
+                            DataCell(Text(sequence.valve[index].name, style: const TextStyle(fontWeight: FontWeight.normal))),
 
                           ])),
                         ),

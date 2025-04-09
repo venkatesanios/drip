@@ -161,7 +161,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
     return Scaffold(
       backgroundColor: Colors.teal.shade100,
       appBar: AppBar(
-        title: Text('Controller Info'),
+        title: const Text('Controller Info'),
       ),
       body: RefreshIndicator(
         onRefresh: fetchData,
@@ -173,7 +173,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
               crossAxisSpacing: 5,
               mainAxisSpacing: 40,
             ),
-            padding: EdgeInsets.all(5),
+            padding: const EdgeInsets.all(5),
             itemCount: mergedList.length,
             itemBuilder: (context, index) {
               return Card(
@@ -181,16 +181,16 @@ class _ResetVerssionState extends State<ResetVerssion> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SizedBox(
+                        const SizedBox(
                           width: 10,
                         ),
                         Text(
                           mergedList[index]['categoryName']!,
-                          style: TextStyle(
+                          style: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         IconButton(
@@ -209,7 +209,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
                               );
                             });
                           },
-                          icon: Icon(Icons.arrow_circle_right_outlined),
+                          icon: const Icon(Icons.arrow_circle_right_outlined),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -223,7 +223,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
 
                               });
                             },
-                            icon: Icon(Icons.settings_applications),
+                            icon: const Icon(Icons.settings_applications),
                           ),
                         ),
                       ],
@@ -232,39 +232,39 @@ class _ResetVerssionState extends State<ResetVerssion> {
                       height: 1,
                       color: Colors.black,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 20,
                     ),
                     SelectableText(mergedList[index]['deviceId']!,
                       style:
-                      TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+                      const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
 
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Text(
                       'SiteName:${mergedList[index]['groupName'] ?? ''}',
                       style:
-                      TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
 
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Text(
                       'Model:${mergedList[index]['modelName'] ?? ''}',
                       style:
-                      TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Text(
                       'Controller version:${mergedList[index]['currentVersion'] ?? ''}',
                       style:
-                      TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Text(
                       'Server version:${mergedList[index]['latestVersion']!}',
                       style:
-                      TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     imeicheck != mergedList[index]['deviceId']!
                         ? mergedList[index]['status'] != 'Status'
                         ? Container(
@@ -280,10 +280,10 @@ class _ResetVerssionState extends State<ResetVerssion> {
                     imeicheck != mergedList[index]['deviceId']!
                         ? Text(
                       '${mergedList[index]['status']}',
-                      style: TextStyle(
+                      style: const TextStyle(
                           fontSize: 14, fontWeight: FontWeight.bold),
                     )
-                        : Text('Status'),
+                        : const Text('Status'),
 
                     // Center(child: Text('${mqttPayloadProvider.messageFromHw ?? 'Status'} ',style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),)),
                     Container(
@@ -306,9 +306,9 @@ class _ResetVerssionState extends State<ResetVerssion> {
                                   ? resetItem(index)
                                   : _showSnackBar("Please wait ....");
                             },
-                            child: Text('Restart'),
+                            child: const Text('Restart'),
                           ),
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
                           FilledButton(
                             style: ButtonStyle(
                                 backgroundColor: checkupdatediable == 0
@@ -329,8 +329,8 @@ class _ResetVerssionState extends State<ResetVerssion> {
                               blinkDuration:
                               Duration(milliseconds: 500),
                             )
-                                : Text("Update")
-                                : Text("Update"),
+                                : const Text("Update")
+                                : const Text("Update"),
                           ),
                         ],
                       ),
@@ -529,7 +529,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Warning'),
+          title: const Text('Warning'),
           content: Text(
               "Are you sure you want to $update?\n First, stop. If you confirm that you want to stop, then update your controller by clicking the 'Sure' button."),
           actions: [
@@ -538,13 +538,13 @@ class _ResetVerssionState extends State<ResetVerssion> {
                 update == "Update" ? Update(index) : ResetAll(index);
                 Navigator.of(context).pop();
               },
-              child: Text('Sure'),
+              child: const Text('Sure'),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
           ],
         );
@@ -609,8 +609,8 @@ class _ResetVerssionState extends State<ResetVerssion> {
                           )),
                         ],
                       ),
-                      SizedBox(),
-                      Row(children: [ Spacer(),TextButton(
+                      const SizedBox(),
+                      Row(children: [ const Spacer(),TextButton(
                         onPressed: () {
 
                           Navigator.of(context).pop();

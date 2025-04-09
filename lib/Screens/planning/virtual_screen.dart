@@ -363,8 +363,7 @@ class _VirtualMeterScreenState extends State<VirtualMeterScreen>
                                                     .digitsOnly
                                               ],
                                               initialValue:
-                                                  '${formulajson[index]['protectionLimit']}' ??
-                                                      '0',
+                                                  '${formulajson[index]['protectionLimit']}' ?? '0',
                                             ),
                                           )),
                                     )))

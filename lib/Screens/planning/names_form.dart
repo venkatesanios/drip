@@ -1,10 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 import '../../Models/names_model.dart';
-import '../../StateManagement/overall_use.dart';
-import '../../modules/IrrigationProgram/view/program_library.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/snack_bar.dart';
@@ -292,8 +289,7 @@ class _NamesState extends State<Names> {
   }
 
   updateUserNames() async {
-    var overAllPvd = Provider.of<OverAllUse>(context, listen: false);
-    Map<String, dynamic> namesModelData = configModel.toJson();
+     Map<String, dynamic> namesModelData = configModel.toJson();
 
     final Repository repository = Repository(HttpService());
     print(namesModelData['configObject']);
@@ -309,53 +305,45 @@ class _NamesState extends State<Names> {
       "moistureSensor": namesModelData['moistureSensor'],
       "createUser": widget.userID,
     };
-    print('body:$body');
-      var getUserDetails = await repository.updateUserNames(body);
+       var getUserDetails = await repository.updateUserNames(body);
       final jsonDataResponsePut = json.decode(getUserDetails.body);
       GlobalSnackBar.show(context, jsonDataResponsePut['message'], jsonDataResponsePut['code']);
 
   }
 
   void updateAllNames() {
-    print("configNames");
-    Map<double, String> configNames = {};
+     Map<double, String> configNames = {};
     for (var obj in configModel.configObject ?? []) {
       if (obj.sNo != null && obj.name != null) {
         configNames[obj.sNo!] = obj.name!;
       }
     }
-    print("waterSource");
-    for (var src in configModel.waterSource ?? []) {
+     for (var src in configModel.waterSource ?? []) {
       if (configNames.containsKey(src.commonDetails?.sNo)) {
         src.commonDetails?.name = configNames[src.commonDetails!.sNo];
       }
     }
-    print("pump");
-    for (var pump in configModel.pump ?? []) {
+     for (var pump in configModel.pump ?? []) {
       if (configNames.containsKey(pump.commonDetails?.sNo)) {
         pump.commonDetails?.name = configNames[pump.commonDetails!.sNo];
       }
     }
-    print("filterSite");
-    for (var filterSite in configModel.filterSite ?? []) {
+     for (var filterSite in configModel.filterSite ?? []) {
       if (configNames.containsKey(filterSite.commonDetails?.sNo)) {
         filterSite.commonDetails?.name = configNames[filterSite.commonDetails!.sNo];
       }
     }
-    print("fertilizerSite");
-    for (var fertSite in configModel.fertilizerSite ?? []) {
+     for (var fertSite in configModel.fertilizerSite ?? []) {
       if (configNames.containsKey(fertSite.commonDetails?.sNo)) {
         fertSite.commonDetails?.name = configNames[fertSite.commonDetails!.sNo];
       }
     }
-    print("moistureSensor");
-    for (var moisture in configModel.moistureSensor ?? []) {
+     for (var moisture in configModel.moistureSensor ?? []) {
       if (configNames.containsKey(moisture.commonDetails?.sNo)) {
         moisture.commonDetails?.name = configNames[moisture.commonDetails!.sNo];
       }
     }
-    print("irrigationLine");
-    for (var line in configModel.irrigationLine ?? []) {
+     for (var line in configModel.irrigationLine ?? []) {
       if (configNames.containsKey(line.commonDetails?.sNo)) {
         line.commonDetails?.name = configNames[line.commonDetails!.sNo];
       }

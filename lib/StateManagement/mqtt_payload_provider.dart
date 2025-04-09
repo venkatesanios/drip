@@ -8,7 +8,6 @@ import '../Constants/data_convertion.dart';
 import '../Models/Weather_model.dart';
 import '../Models/customer/site_model.dart';
 
-
 enum MQTTConnectionState { connected, disconnected, connecting }
 
 class MqttPayloadProvider with ChangeNotifier {
@@ -44,21 +43,13 @@ class MqttPayloadProvider with ChangeNotifier {
   List<dynamic> nodeDetails = [];
   dynamic messageFromHw;
   //List<dynamic> currentSchedule = [];
-  List<dynamic> PrsIn = [];
-  List<dynamic> PrsOut = [];
-  List<dynamic> nextScheduleA = [];
-  List<dynamic> upcomingProgram = [];
-  List<dynamic> filtersCentral = [];
+    List<dynamic> filtersCentral = [];
   List<dynamic> filtersLocal = [];
   List<dynamic> irrigationPump = [];
   List<dynamic> sourcePump = [];
-  List<dynamic> sourcetype = [];
-  List<dynamic> fertilizerCentral = [];
+   List<dynamic> fertilizerCentral = [];
   List<dynamic> fertilizerLocal = [];
-  List<dynamic> flowMeter = [];
-  List<dynamic> alarmList = [];
-  List<dynamic> waterMeter = [];
-  List<dynamic> sensorInLines = [];
+   List<dynamic> sensorInLines = [];
   List<dynamic> lineData = [];
   String subscribeTopic = '';
   String publishTopic = '';
@@ -404,19 +395,13 @@ class MqttPayloadProvider with ChangeNotifier {
     listOfSite = [];
     listOfSharedUser = {};
     currentSchedule = [];
-    PrsIn = [];
-    PrsOut = [];
-    nextSchedule = [];
+      nextSchedule = [];
     selectedLine = 0;
     selectedSite = 0;
     selectedMaster = 0;
-    upcomingProgram = [];
-    irrigationPump = [];
+     irrigationPump = [];
     sourcePump = [];
-    flowMeter = [];
-    alarmList = [];
-    waterMeter = [];
-    sensorInLines = [];
+     sensorInLines = [];
     lineData = [];
     loading = false;
     active = 1;
@@ -563,34 +548,7 @@ class MqttPayloadProvider with ChangeNotifier {
     tryingToGetPayload = 0;
     notifyListeners();
 
-    /*for(var i in currentSchedule){
-      for(var centralFilteration in filtersCentral){
-        if(i['CentralFilterSite'] == centralFilteration['FilterSite']){
-          centralFilteration['Program'] = i['ProgName'];
-          for(var filter in centralFilteration['FilterStatus']){
-            if(![1,2].contains(filter['Status'])){
-              filter['Status'] = 0;
-            }
-          }
-        }
-      }
-      for(var localFilteration in filtersLocal){
-        if(i['LocalFilterSite'] == localFilteration['FilterSite']){
-          localFilteration['Program'] = i['ProgName'];
-          for(var filter in localFilteration['FilterStatus']){
-            if(![1,2].contains(filter['Status'])){
-              filter['Status'] = 0;
-            }
-          }
-        }
-      }
-      for(var line in sensorInLines){
-        if(i['ProgCategory'].split('_').contains(line['Line'])){
-          line['Program'] = i['ProgName'];
-        }
-      }
-    }*/
-    updateSourcePump();
+     updateSourcePump();
     updateIrrigationPump();
     updateLocalFertigationSite();
     updateCentralFertigationSite();
@@ -604,17 +562,7 @@ class MqttPayloadProvider with ChangeNotifier {
 
   Future<void> updateDashboardPayload(Map<String, dynamic> payload) async{
     _dashboardLiveInstance = SiteModel.fromJson(payload);
-    // waterSourceMobDash = _dashboardLiveInstance!.data[0].master[0].config.waterSource;
-    // filterSiteMobDash = _dashboardLiveInstance!.data[0].master[0].config.filterSite;
-    // fertilizerSiteMobDash = _dashboardLiveInstance!.data[0].master[0].config.fertilizerSite;
-    // irrLineDataMobDash = _dashboardLiveInstance!.data[0].master[0].config.lineData;
 
-    // sourcetype = _dashboardLiveInstance!.data[0].master[0].config.waterSource.map((element) => element).toList();
-    // fertilizerCentral = _dashboardLiveInstance!.data[0].master[0].config.fertilizerSite.where((e) => e.siteMode == 1).toList().map((element) => element).toList();
-    // fertilizerLocal = _dashboardLiveInstance!.data[0].master[0].config.fertilizerSite.where((e) => e.siteMode == 2).toList().map((element) => element).toList();
-    // filtersCentral = _dashboardLiveInstance!.data[0].master[0].config.filterSite.where((e) => e.siteMode == 1).toList().map((element) => element).toList();
-    // filtersLocal = _dashboardLiveInstance!.data[0].master[0].config.filterSite.where((e) => e.siteMode == 2).toList().map((element) => element).toList();
-    //  print("sourcePump :::: $sourcePump");
     notifyListeners();
   }
 
@@ -625,29 +573,7 @@ class MqttPayloadProvider with ChangeNotifier {
       _timerForPumpController!.cancel();
     }
     _timerForPumpController = Timer.periodic(const Duration(seconds: 1), (Timer timer){
-      // // print('seconds');
-      // for(var i in pumpControllerData!.pumps){
-      //   // // print('pumps => ${i}');
-      //   if(i.status == 0){
-      //     if(i.onDelayComplete != '00:00:00' && i.onDelayLeft != '00:00:00'){
-      //
-      //       int onDelay = DataConvert().parseTimeString(i.onDelayTimer);
-      //       int onDelayCompleted = DataConvert().parseTimeString(i.onDelayComplete);
-      //       int leftDelay = onDelay - onDelayCompleted;
-      //       i.onDelayLeft = DataConvert().formatTime(leftDelay);
-      //       if(leftDelay > 0){
-      //         onDelayCompleted += 1;
-      //         i.onDelayComplete = DataConvert().formatTime(onDelayCompleted);
-      //       }else{
-      //         i.onDelayComplete = '00:00:00';
-      //       }
-      //     }
-      //   }
-      // }
-      // if(pumpControllerData!.pumps.every((element) => element.onDelayComplete == '00:00:00')){
-      //   _timerForPumpController!.cancel();
-      // }
-    });
+     });
   }
 
   void liveSyncCall(ls){
@@ -678,10 +604,6 @@ class MqttPayloadProvider with ChangeNotifier {
   void updateFertilizerStatusPayload(List<String> message) {
     fertilizerPayload = message;
   }
-
-
-
-
 
   void updateCurrentProgram(List<String> program) {
     currentSchedule = program;

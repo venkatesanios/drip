@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:oro_drip_irrigation/modules/SystemDefinitions/repository/system_definitions_repo.dart';
 
 import '../model/system_definition_model.dart';
-import '../../../repository/repository.dart';
 import '../../../services/http_service.dart';
 
 class SystemDefinitionProvider extends ChangeNotifier{

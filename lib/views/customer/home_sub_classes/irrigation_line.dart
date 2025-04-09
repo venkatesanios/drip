@@ -1,10 +1,6 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/utils/my_function.dart';
-import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
-import 'package:syncfusion_flutter_gauges/gauges.dart';
 import '../../../Models/customer/site_model.dart';
 import '../../../utils/constants.dart';
 import '../../../view_models/customer/irrigation_line_view_model.dart';

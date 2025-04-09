@@ -452,7 +452,6 @@ class Weatherdata {
   };
 
   static List<String> _buildsensorlist(Map<String, dynamic> json) {
-    print('_buildsensorlist');
     List<String> sensorlist = [];
 
     if (json["1- Value"] != '-') {
@@ -504,7 +503,6 @@ class Weatherdata {
   }
 
   static List<String> _buildsensorhwlist(Map<String, dynamic> json) {
-    print('_buildsensorlist');
     List<String> sensorlist = [];
 
     if (json["1- Value"] != '-') {
