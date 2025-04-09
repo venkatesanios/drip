@@ -39,7 +39,9 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
     _tabController = TabController(length: 5, vsync: this);
 
     manager.topicToUnSubscribe('${Environment.mqttSubscribeTopic}/${widget.deviceID}');
+    manager.topicToUnSubscribe('${Environment.mqttLogTopic}/${widget.deviceID}');
     manager.topicToSubscribe('${Environment.mqttLogTopic}/${widget.deviceID}');
+
     // mqttConfigureAndConnect();
   }
 
@@ -348,12 +350,13 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
           "5700":
             {"5701": "$data"},
         };
-          if (MqttService().isConnected == true) {
+          if (manager.isConnected == true) {
           await validatePayloadSent(
             dialogContext: context,
             context: context,
             mqttPayloadProvider: mqttPayloadProvider,
             acknowledgedFunction: () {
+              manager.topicToUnSubscribe('${Environment.mqttLogTopic}/${widget.deviceID}');
               manager.topicToSubscribe('${Environment.mqttLogTopic}/${widget.deviceID}');
             },
             payload: payLoadFinal,
@@ -372,7 +375,7 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
           "5700":
             {"5701": "$data"},
         });
-        MqttService().topicToPublishAndItsMessage(payLoadFinal1, '${Environment.mqttPublishTopic}/${widget.deviceID}');
+        manager.topicToPublishAndItsMessage(payLoadFinal1, '${Environment.mqttPublishTopic}/${widget.deviceID}');
 
          await ftpstatus(context);
       }

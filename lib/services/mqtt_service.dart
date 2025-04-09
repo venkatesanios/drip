@@ -149,9 +149,12 @@ class MqttService {
   }
 
   void topicToUnSubscribe(String topic) {
-
-    if (currentTopic != null) {
+     if (currentTopic != null) {
       _client!.unsubscribe(currentTopic!);
+      currentTopic = null;
+    }
+    else{
+      _client!.unsubscribe(topic);
     }
   }
 

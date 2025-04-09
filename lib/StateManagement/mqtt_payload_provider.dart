@@ -81,6 +81,7 @@ class MqttPayloadProvider with ChangeNotifier {
   String uardLog = '';
   String uard0Log = '';
   String uard4Log = '';
+  String ctrllogtimecheck = '';
   List<dynamic> userPermission = [];
   List<dynamic> units = [];
 
@@ -483,11 +484,11 @@ class MqttPayloadProvider with ChangeNotifier {
     try {
       // Todo : Dashboard payload start
       Map<String, dynamic> data = payload.isNotEmpty? jsonDecode(payload) : {};
-      print('\ncheck contain ${data.containsKey('6603')}');
+
+
       //live payload
       if(data['mC']=='2400'){
-        print(data['cM']);
-        //liveSyncCall(false);
+         //liveSyncCall(false);
         isLiveSynced = true;
         liveDateAndTime = '${data['cD']} ${data['cT']}';
         updateLastCommunication(liveDateAndTime);
@@ -512,8 +513,7 @@ class MqttPayloadProvider with ChangeNotifier {
       } else if(data.containsKey('5100') && data['5100'] != null && data['5100'].isNotEmpty){
         weatherModelinstance = WeatherModel.fromJson(data);
       } else if(data['mC'] != null && data["mC"].contains("VIEW")) {
-        print("data in the view :: $data");
-        cCList = {...cCList, data['cC']}.toList();
+         cCList = {...cCList, data['cC']}.toList();
         viewSetting = data;
         if (!viewSettingsList.contains(jsonEncode(data['cM']))) {
           viewSettingsList.add(jsonEncode(data["cM"]));
@@ -526,32 +526,39 @@ class MqttPayloadProvider with ChangeNotifier {
           messageFromHw = data['cM']['4201'];
         }
         }
+
            if(data.containsKey("cM") && (data["cM"] as Map).containsKey("6601")){
-             print('6601');
+              if(ctrllogtimecheck != data['cT']){
                sheduleLog += "\n";
-              sheduleLog += data['cM']['6601'];
+               sheduleLog += data['cM']['6601'];
+               ctrllogtimecheck = data['cT'];
+             }
 
-          }
+           }
           if(data.containsKey("cM") && (data["cM"] as Map).containsKey("6602")){
-            print('6602');
-               uardLog += "\n";
-              uardLog += data['cM']['6602'];
 
+            if(ctrllogtimecheck != data['cT']) {
+              uardLog += "\n";
+              uardLog += data['cM']['6602'];
+              ctrllogtimecheck = data['cT'];
+            }
           }
           if(data.containsKey("cM") && (data["cM"] as Map).containsKey("6603")){
-            print('6603');
-               uard0Log += "\n";
+             if(ctrllogtimecheck != data['cT']) {
+              uard0Log += "\n";
               uard0Log += data['cM']['6603'];
+              ctrllogtimecheck = data['cT'];
+            }
 
           }
           if(data.containsKey("cM") && (data["cM"] as Map).containsKey("6604")){
-            print('6604');
-
+             if(ctrllogtimecheck != data['cT']) {
               uard4Log += "\n";
               uard4Log += data['cM']['6604'];
+              ctrllogtimecheck = data['cT'];
+            }
 
           }
-
 
 
 
@@ -567,33 +574,7 @@ class MqttPayloadProvider with ChangeNotifier {
     tryingToGetPayload = 0;
     notifyListeners();
 
-    /*for(var i in currentSchedule){
-      for(var centralFilteration in filtersCentral){
-        if(i['CentralFilterSite'] == centralFilteration['FilterSite']){
-          centralFilteration['Program'] = i['ProgName'];
-          for(var filter in centralFilteration['FilterStatus']){
-            if(![1,2].contains(filter['Status'])){
-              filter['Status'] = 0;
-            }
-          }
-        }
-      }
-      for(var localFilteration in filtersLocal){
-        if(i['LocalFilterSite'] == localFilteration['FilterSite']){
-          localFilteration['Program'] = i['ProgName'];
-          for(var filter in localFilteration['FilterStatus']){
-            if(![1,2].contains(filter['Status'])){
-              filter['Status'] = 0;
-            }
-          }
-        }
-      }
-      for(var line in sensorInLines){
-        if(i['ProgCategory'].split('_').contains(line['Line'])){
-          line['Program'] = i['ProgName'];
-        }
-      }
-    }*/
+
     updateSourcePump();
     updateIrrigationPump();
     updateLocalFertigationSite();
@@ -608,17 +589,7 @@ class MqttPayloadProvider with ChangeNotifier {
 
   Future<void> updateDashboardPayload(Map<String, dynamic> payload) async{
     _dashboardLiveInstance = SiteModel.fromJson(payload);
-    // waterSourceMobDash = _dashboardLiveInstance!.data[0].master[0].config.waterSource;
-    // filterSiteMobDash = _dashboardLiveInstance!.data[0].master[0].config.filterSite;
-    // fertilizerSiteMobDash = _dashboardLiveInstance!.data[0].master[0].config.fertilizerSite;
-    // irrLineDataMobDash = _dashboardLiveInstance!.data[0].master[0].config.lineData;
 
-    // sourcetype = _dashboardLiveInstance!.data[0].master[0].config.waterSource.map((element) => element).toList();
-    // fertilizerCentral = _dashboardLiveInstance!.data[0].master[0].config.fertilizerSite.where((e) => e.siteMode == 1).toList().map((element) => element).toList();
-    // fertilizerLocal = _dashboardLiveInstance!.data[0].master[0].config.fertilizerSite.where((e) => e.siteMode == 2).toList().map((element) => element).toList();
-    // filtersCentral = _dashboardLiveInstance!.data[0].master[0].config.filterSite.where((e) => e.siteMode == 1).toList().map((element) => element).toList();
-    // filtersLocal = _dashboardLiveInstance!.data[0].master[0].config.filterSite.where((e) => e.siteMode == 2).toList().map((element) => element).toList();
-    //  print("sourcePump :::: $sourcePump");
     notifyListeners();
   }
 
@@ -629,28 +600,7 @@ class MqttPayloadProvider with ChangeNotifier {
       _timerForPumpController!.cancel();
     }
     _timerForPumpController = Timer.periodic(const Duration(seconds: 1), (Timer timer){
-      // // print('seconds');
-      // for(var i in pumpControllerData!.pumps){
-      //   // // print('pumps => ${i}');
-      //   if(i.status == 0){
-      //     if(i.onDelayComplete != '00:00:00' && i.onDelayLeft != '00:00:00'){
-      //
-      //       int onDelay = DataConvert().parseTimeString(i.onDelayTimer);
-      //       int onDelayCompleted = DataConvert().parseTimeString(i.onDelayComplete);
-      //       int leftDelay = onDelay - onDelayCompleted;
-      //       i.onDelayLeft = DataConvert().formatTime(leftDelay);
-      //       if(leftDelay > 0){
-      //         onDelayCompleted += 1;
-      //         i.onDelayComplete = DataConvert().formatTime(onDelayCompleted);
-      //       }else{
-      //         i.onDelayComplete = '00:00:00';
-      //       }
-      //     }
-      //   }
-      // }
-      // if(pumpControllerData!.pumps.every((element) => element.onDelayComplete == '00:00:00')){
-      //   _timerForPumpController!.cancel();
-      // }
+
     });
   }
 
