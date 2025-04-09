@@ -26,7 +26,7 @@ class CustomerHome extends StatelessWidget {
     final lineData = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.lineData;
     final scheduledProgram = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].programList;
 
-    var liveSync = Provider.of<MqttPayloadProvider>(context).liveSync;
+    var onRefresh = Provider.of<MqttPayloadProvider>(context).onRefresh;
 
     if(viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.lineData[viewModel.lIndex].name=='All irrigation line'){
       filteredFilterSite = allFilterSite;
@@ -55,7 +55,7 @@ class CustomerHome extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,  // Change this as per need
         mainAxisAlignment: MainAxisAlignment.start,    // Adjust alignment
         children: [
-          liveSync ? displayLinearProgressIndicator() : const SizedBox(),
+          onRefresh ? displayLinearProgressIndicator() : const SizedBox(),
           if (!kIsWeb)
             CurrentProgram(
               scheduledPrograms: scheduledProgram,

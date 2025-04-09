@@ -86,7 +86,8 @@ class MqttPayloadProvider with ChangeNotifier {
 
   //kamaraj
   int powerSupply = 0;
-  bool liveSync = false;
+  bool onRefresh = false;
+  bool isLiveSynced = false;
   Duration lastCommunication = Duration.zero;
   int wifiStrength = 0;
   String liveDateAndTime = '';
@@ -487,6 +488,7 @@ class MqttPayloadProvider with ChangeNotifier {
       if(data['mC']=='2400'){
         print(data['cM']);
         //liveSyncCall(false);
+        isLiveSynced = true;
         liveDateAndTime = '${data['cD']} ${data['cT']}';
         updateLastCommunication(liveDateAndTime);
         wifiStrength = data['cM']['WifiStrength'];
@@ -652,8 +654,8 @@ class MqttPayloadProvider with ChangeNotifier {
     });
   }
 
-  void liveSyncCall(ls){
-    liveSync = ls;
+  void liveSyncCall(status){
+    onRefresh = status;
     notifyListeners();
   }
 
