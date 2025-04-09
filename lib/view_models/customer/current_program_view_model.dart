@@ -84,6 +84,7 @@ class CurrentProgramViewModel extends ChangeNotifier {
                   notifyListeners();
                 }
               }
+
               allOnDelayLeftZero = false;
             }
             else{
