@@ -35,7 +35,21 @@ class ProgramLibraryScreenNew extends StatefulWidget {
   final int categoryId;
   final String deviceId;
   final bool fromDealer;
-  const ProgramLibraryScreenNew({super.key, required this.userId, required this.controllerId, required this.deviceId, required this.fromDealer, required this.customerId, required this.groupId, required this.categoryId});
+  final int modelId;
+  final String deviceName;
+  final String categoryName;
+  const ProgramLibraryScreenNew({
+    super.key,
+    required this.userId,
+    required this.controllerId,
+    required this.deviceId, required this.fromDealer,
+    required this.customerId,
+    required this.groupId,
+    required this.categoryId,
+    required this.modelId,
+    required this.deviceName,
+    required this.categoryName,
+  });
 
   @override
   State<ProgramLibraryScreenNew> createState() => _ProgramLibraryScreenNewState();
@@ -241,6 +255,9 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                                   customerId: kIsWeb ? widget.customerId : context.read<OverAllUse>().customerId,
                                   groupId: kIsWeb ? widget.groupId : context.read<OverAllUse>().userGroupId,
                                   categoryId: kIsWeb ? widget.categoryId : context.read<OverAllUse>().controllerType,
+                                  modelId: widget.modelId,
+                                  deviceName: widget.deviceName,
+                                  categoryName: widget.categoryName,
                                 ),
                               ),
                             );
@@ -262,6 +279,9 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                                   customerId: kIsWeb ? widget.customerId : context.read<OverAllUse>().customerId,
                                   groupId: kIsWeb ? widget.groupId : context.read<OverAllUse>().userGroupId,
                                   categoryId: kIsWeb ? widget.categoryId : context.read<OverAllUse>().controllerType,
+                                  modelId: widget.modelId,
+                                  deviceName: widget.deviceName,
+                                  categoryName: widget.categoryName,
                                 ),
                               ),
                             );
@@ -988,6 +1008,9 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
           customerId: kIsWeb ? widget.customerId : context.read<OverAllUse>().customerId,
           groupId: kIsWeb ? widget.groupId : context.read<OverAllUse>().userGroupId,
           categoryId: kIsWeb ? widget.categoryId : context.read<OverAllUse>().controllerType,
+          modelId: widget.modelId,
+          deviceName: widget.deviceName,
+          categoryName: widget.categoryName,
         ),
       ),
     );

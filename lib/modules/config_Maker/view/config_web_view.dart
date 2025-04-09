@@ -241,16 +241,22 @@ class _ConfigWebViewState extends State<ConfigWebView> {
       listOfPayload.addAll(configPvd.getPumpWithValvePayload());
     });
 
-    if([1, 2, 4].contains(configPvd.masterData['modelId'])){
+    if([...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(configPvd.masterData['modelId'])){
+      bool gem = AppConstants.gemModelList.contains(configPvd.masterData['modelId']);
       final Map<String, dynamic> configMakerPayload = {
         '100' : {
           '101' : configPvd.getDeviceListPayload(),
           '102' : configPvd.getObjectPayload(),
-          '103' : configPvd.getPumpPayload(),
-          '104' : configPvd.getFilterPayload(),
-          '105' : configPvd.getFertilizerPayload(),
-          '106' : configPvd.getFertilizerInjectorPayload(),
-          '107' : configPvd.getIrrigationLinePayload(),
+          if(gem)
+            '103' : configPvd.getPumpPayload(),
+          if(gem)
+            '104' : configPvd.getFilterPayload(),
+          if(gem)
+            '105' : configPvd.getFertilizerPayload(),
+          if(gem)
+            '106' : configPvd.getFertilizerInjectorPayload(),
+          if(gem)
+            '107' : configPvd.getIrrigationLinePayload(),
         }
       };
       setState(() {

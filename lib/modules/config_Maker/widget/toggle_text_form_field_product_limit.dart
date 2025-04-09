@@ -46,8 +46,27 @@ class _ToggleTextFormFieldForProductLimitState extends State<ToggleTextFormField
                   ? balanceCountForRelayLatch(widget.configPvd)
                   : balanceCountForInputType(int.parse(widget.object.type), widget.configPvd);
 
-              /* filter output object for pump with valve model*/
-              if(AppConstants.pumpWithValveModelList.contains(widget.configPvd.masterData['modelId'])){
+              /* gem, eco gem, pump and pump with valve model validation */
+              availableCount += widget.initialValue == '' ? 0 : int.parse(widget.initialValue);
+
+              /*-----------     pump    ---------------*/
+              if(AppConstants.pumpModelList.contains(widget.configPvd.masterData['modelId'])){
+                if([AppConstants.levelObjectId, AppConstants.waterMeterObjectId].contains(widget.object.objectId)){
+                  // level , water meter -- oro pump
+                  int maxAllowableCount = 1;
+                  validateObjectForEcoGem(integerValue: integerValue, maxAllowableCount: maxAllowableCount);
+                }else if(AppConstants.pressureSensorObjectId == widget.object.objectId){
+                  // float -- oro pump
+                  int maxAllowableCount = 2;
+                  validateObjectForEcoGem(integerValue: integerValue, maxAllowableCount: maxAllowableCount);
+                }else{
+                  doAvailableCountValidate(integerValue: integerValue, availableCount: availableCount);
+                }
+              }
+
+              /*-----------     pump with valve    ---------------*/
+              else if(AppConstants.pumpWithValveModelList.contains(widget.configPvd.masterData['modelId'])){
+                /* filter output object for pump with valve model*/
                 if(widget.object.objectId == AppConstants.pumpObjectId){
                   /*only one pump allowed to config*/
                   int maxAllowablePumpCount = 1;
@@ -56,50 +75,33 @@ class _ToggleTextFormFieldForProductLimitState extends State<ToggleTextFormField
                     integerValue = maxAllowablePumpCount;
                   }
                   widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
-                }
-              }
-
-              /* gem and pump validation */
-              if(widget.object.type != '-'){
-                availableCount += widget.initialValue == '' ? 0 : int.parse(widget.initialValue);
-                if(integerValue > availableCount){
-                  simpleDialogBox(context: context, title: 'Alert', message: 'The maximum allowable value is $availableCount. Please enter a value less than or equal to $availableCount.');
-                  widget.configPvd.updateObjectCount(widget.object.objectId, availableCount.toString());
                 }else{
-                  if(AppConstants.pumpModelList.contains(widget.configPvd.masterData['modelId'])){
-                    if([AppConstants.levelObjectId, AppConstants.waterMeterObjectId, AppConstants.pressureSensorObjectId].contains(widget.object.objectId)){
-                      if(integerValue > 1){ // level, pressure, water meter -- oro pump
-                        simpleDialogBox(context: context, title: 'Alert', message: 'Only one ${widget.object.objectName} should be connect with ${widget.configPvd.masterData['deviceName']}.');
-                        widget.configPvd.updateObjectCount(widget.object.objectId, '1');
-                      }else{
-                        widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
-                      }
-                    }else{ // float -- oro pump
-                      if(integerValue > availableCount){
-                        simpleDialogBox(context: context, title: 'Alert', message: 'The maximum allowable value is $availableCount. Please enter a value less than or equal to $availableCount.');
-                        widget.configPvd.updateObjectCount(widget.object.objectId, availableCount.toString());
-                      }else{
-                        widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
-                      }
-                    }
-                  }else{
-                    if(AppConstants.ecoGemModelList.contains(widget.configPvd.masterData['modelId'])){
-                      /*only two pump allowed to config*/
-                      if(widget.object.objectId == AppConstants.pumpObjectId){
-                        int maxAllowablePumpCount = 2;
-                        validateObjectForEcoGem(integerValue: integerValue, maxAllowablePumpCount: maxAllowablePumpCount);
-                      }
-                    }
-
-                    widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
-                  }
+                  doAvailableCountValidate(integerValue: integerValue, availableCount: availableCount);
                 }
               }
+
+              /*-----------     eco gem    ---------------*/
+              else if(AppConstants.ecoGemModelList.contains(widget.configPvd.masterData['modelId'])){
+                /*only two pump allowed to config*/
+                if([AppConstants.pumpObjectId].contains(widget.object.objectId)){
+                  int maxAllowableCount = 2;
+                  validateObjectForEcoGem(integerValue: integerValue, maxAllowableCount: maxAllowableCount);
+                }else if([AppConstants.filterObjectId, AppConstants.pressureSensorObjectId].contains(widget.object.objectId)){
+                  int maxAllowableCount = 2;
+                  validateObjectForEcoGem(integerValue: integerValue, maxAllowableCount: maxAllowableCount);
+                }else if([AppConstants.channelObjectId, AppConstants.boosterObjectId, AppConstants.levelObjectId].contains(widget.object.objectId)){
+                  int maxAllowableCount = 1;
+                  validateObjectForEcoGem(integerValue: integerValue, maxAllowableCount: maxAllowableCount);
+                }else{
+                  doAvailableCountValidate(integerValue: integerValue, availableCount: availableCount);
+                }
+              }
+
+              /*-----------     gem    ---------------*/
               else{
-                widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
+                doAvailableCountValidate(integerValue: integerValue, availableCount: availableCount);
               }
             }
-
             setState(() {
               focus = false;
             });
@@ -114,12 +116,23 @@ class _ToggleTextFormFieldForProductLimitState extends State<ToggleTextFormField
     }
   }
 
-  void validateObjectForEcoGem({required int integerValue, required int maxAllowablePumpCount}){
-    if(integerValue > maxAllowablePumpCount){
-      simpleDialogBox(context: context, title: 'Alert', message: 'Only two ${widget.object.objectName} should be connect with ${widget.configPvd.masterData['deviceName']}.');
-      integerValue = maxAllowablePumpCount;
+  void doAvailableCountValidate({required int integerValue, required int availableCount}){
+    if(integerValue > availableCount){
+      print('integerValue : $integerValue || availableCount : $availableCount');
+      simpleDialogBox(context: context, title: 'Alert', message: 'The maximum allowable value is $availableCount. Please enter a value less than or equal to $availableCount.');
+      widget.configPvd.updateObjectCount(widget.object.objectId, availableCount.toString());
+    }else{
+      widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
     }
-    widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
+  }
+
+  void validateObjectForEcoGem({required int integerValue, required int maxAllowableCount}){
+    if(integerValue > maxAllowableCount){
+      simpleDialogBox(context: context, title: 'Alert', message: 'Only $maxAllowableCount ${widget.object.objectName} should be connect with ${widget.configPvd.masterData['deviceName']}.');
+      widget.configPvd.updateObjectCount(widget.object.objectId, maxAllowableCount.toString());
+    }else{
+      widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
+    }
   }
 
   void validateAndUpdateObjectCount(DeviceObjectModel object,int newCount){

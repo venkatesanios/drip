@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/constant/model/object_in_constant_model.dart';
 
 import '../../../StateManagement/overall_use.dart';
+import '../../../utils/constants.dart';
 import '../state_management/constant_provider.dart';
 import '../widget/find_suitable_widget.dart';
 
@@ -21,7 +22,14 @@ class _WaterMeterInConstantState extends State<WaterMeterInConstant> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double minWidth = (cellWidth * 4) + (widget.constPvd.defaultWaterMeterSetting.length * cellWidth) + 50;
+    int settingLength = widget.constPvd.defaultWaterMeterSetting.where((setting) {
+      if(AppConstants.gemModelList.contains(widget.constPvd.userData['modelId'])){
+        return setting.gemDisplay;
+      }else{
+        return setting.ecoGemDisplay;
+      }
+    }).length;
+    double minWidth = (cellWidth * 4) + (settingLength * cellWidth) + 50;
     Color borderColor = const Color(0xffE1E2E3);
     return DataTable2(
       border: TableBorder(
@@ -40,7 +48,9 @@ class _WaterMeterInConstantState extends State<WaterMeterInConstant> {
               label: Text(title, style: Theme.of(context).textTheme.labelLarge,textAlign: TextAlign.center, softWrap: true)
           );
         }),
-        ...widget.constPvd.defaultWaterMeterSetting.map((defaultSetting) {
+        ...widget.constPvd.defaultWaterMeterSetting
+            .where((defaultSetting) => AppConstants.gemModelList.contains(widget.constPvd.userData['modelId']) ? defaultSetting.gemDisplay : defaultSetting.ecoGemDisplay)
+            .map((defaultSetting) {
           return DataColumn2(
               headingRowAlignment: MainAxisAlignment.center,
               fixedWidth: cellWidth,
@@ -78,24 +88,26 @@ class _WaterMeterInConstantState extends State<WaterMeterInConstant> {
                     child: Text('${waterMeter.connectionNo}',textAlign: TextAlign.center, softWrap: true, ),
                   )
               ),
-              ...waterMeter.setting.map((setting) {
+              ...waterMeter.setting
+                  .where((defaultSetting) => AppConstants.gemModelList.contains(widget.constPvd.userData['modelId']) ? defaultSetting.gemDisplay : defaultSetting.ecoGemDisplay)
+                  .map((setting) {
                 return DataCell(
-                  AnimatedBuilder(
-                    animation: setting.value,
-                    builder: (context, child){
-                      return FindSuitableWidget(
-                        constantSettingModel: setting,
-                        onUpdate: (value){
-                          setting.value.value = value;
-                        },
-                        onOk: (){
-                          setting.value.value = widget.overAllPvd.getTime();
-                          Navigator.pop(context);
-                        },
-                        popUpItemModelList: [],
-                      );
-                    },
-                  )
+                    AnimatedBuilder(
+                      animation: setting.value,
+                      builder: (context, child){
+                        return FindSuitableWidget(
+                          constantSettingModel: setting,
+                          onUpdate: (value){
+                            setting.value.value = value;
+                          },
+                          onOk: (){
+                            setting.value.value = widget.overAllPvd.getTime();
+                            Navigator.pop(context);
+                          },
+                          popUpItemModelList: [],
+                        );
+                      },
+                    )
 
                 );
               }),

@@ -528,11 +528,13 @@ class AppConstants {
   static int mainValveObjectId = 14;
   static int valveObjectId = 13;
   static int levelObjectId = 26;
+  static int floatObjectId = 40;
   static int irrigationLineObjectId = 2;
   static int waterMeterObjectId = 22;
   static int pressureSensorObjectId = 24;
   static int fertilizerSiteObjectId = 3;
   static int channelObjectId = 10;
+  static int boosterObjectId = 7;
   static int ecObjectId = 27;
   static int phObjectId = 28;
   static int moistureObjectId = 25;
@@ -540,6 +542,7 @@ class AppConstants {
   static List<int> pumpWithValveModelList = [48, 49];
   static List<int> ecoGemModelList = [3];
   static List<int> gemModelList = [1, 2, 4];
+  static List<int> weatherModelList = [13, 14];
   static List<int> pumpModelList = [5, 6, 7, 8, 9, 10];
   static List<int> senseModelList = [41, 42, 43, 44, 45];
   static List<int> ecoNodeList = [36];

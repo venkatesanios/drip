@@ -68,7 +68,7 @@ class _ConstantBasePageState extends State<ConstantBasePage> with SingleTickerPr
       Map<String, dynamic> constantJsonData = jsonDecode(constantResponse.body);
       var configMakerResponse = await ConstantRepository().getUserDefaultConfigMaker(body);
       Map<String, dynamic> configMakerJsonData = jsonDecode(configMakerResponse.body);
-      constPvd.updateConstant(constantData: constantJsonData,configMakerData: configMakerJsonData);
+      constPvd.updateConstant(constantData: constantJsonData,configMakerData: configMakerJsonData, userDataAndMasterData: userData);
       setState(() {
         tabController = TabController(length: constPvd.listOfConstantMenuModel.length, vsync: this);
       });

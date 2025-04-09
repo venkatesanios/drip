@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/app.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 import '../../../Constants/communication_codes.dart';
@@ -10,6 +11,7 @@ import '../state_management/config_maker_provider.dart';
 import '../widget/connection_grid_list_tile.dart';
 import '../widget/connector_widget.dart';
 import '../../../Widgets/sized_image.dart';
+import '../widget/weather_grid_list_tile.dart';
 
 class Connection extends StatefulWidget {
   final ConfigMakerProvider configPvd;
@@ -37,7 +39,7 @@ class _ConnectionState extends State<Connection> {
       List<int> listOfCategory = [];
 
       for (var device in widget.configPvd.listOfDeviceModel) {
-        if (![1, 10].contains(device.categoryId) &&
+        if (![10].contains(device.categoryId) && ![1, 2, 4].contains(device.modelId) &&
             device.masterId != null &&
             !listOfCategory.contains(device.categoryId)) {
           listOfCategory.add(device.categoryId);
@@ -95,9 +97,8 @@ class _ConnectionState extends State<Connection> {
                         getModelBySelectedCategory(),
                         const SizedBox(height: 5,),
                         Text(selectedDevice.modelName),
-                        // if(selectedDevice.categoryId == 4)
-                        //   WeatherGridListTile( configPvd: widget.configPvd, device: selectedDevice)
-                        SingleChildScrollView(
+                        if(!AppConstants.weatherModelList.contains(selectedDevice.categoryId))
+                          SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Row(
                             spacing: 20,
@@ -167,12 +168,12 @@ class _ConnectionState extends State<Connection> {
                           ),
                         ),
                         const SizedBox(height: 20,),
-                        Center(child: getSelectionCategory()),
+                        if(AppConstants.gemModelList.contains(widget.configPvd.masterData['modelId']))
+                          Center(child: getSelectionCategory()),
                         if(widget.configPvd.selectedSelectionMode == SelectionMode.auto)
                           ...getAutoSelection(selectedDevice)
                         else
                           ...getManualSelection(selectedDevice),
-
                       ],
                     ),
                   ),
@@ -397,9 +398,17 @@ class _ConnectionState extends State<Connection> {
   Widget outputObject(DeviceModel selectedDevice){
     DeviceModel selectedDevice = widget.configPvd.listOfDeviceModel.firstWhere((device) => device.controllerId == widget.configPvd.selectedModelControllerId);
     List<int> filteredObjectList = widget.configPvd.listOfSampleObjectModel
+        .where((object) {
+          if(object.objectId == AppConstants.pumpObjectId && AppConstants.ecoGemModelList.contains(widget.configPvd.masterData['modelId'])){
+            return false;
+          }else{
+            return true;
+          }
+        })
         .where((object) => (object.type == '1,2' && !['', '0', null].contains(object.count)))
         .toList().where((object) => selectedDevice.connectingObjectId.contains(object.objectId)).toList().map((object) => object.objectId)
         .toList();
+
     List<DeviceObjectModel> filteredList = widget.configPvd.listOfObjectModelConnection.where((object)=> filteredObjectList.contains(object.objectId)).toList();
     filteredList = filteredList.where((object) {
       if(['', '0', null].contains(object.count) && getNotConfiguredObjectByObjectId(object.objectId, widget.configPvd) == 0){
@@ -461,7 +470,7 @@ class _ConnectionState extends State<Connection> {
   Widget getAvailableDeviceCategory(){
     List<int> listOfCategory = [];
     for(var device in widget.configPvd.listOfDeviceModel){
-      if(![1, 10].contains(device.categoryId) && device.masterId != null && !listOfCategory.contains(device.categoryId)){
+      if(![10].contains(device.categoryId) && ![1, 2, 4].contains(device.modelId) &&device.masterId != null && !listOfCategory.contains(device.categoryId)){
         listOfCategory.add(device.categoryId);
       }
     }

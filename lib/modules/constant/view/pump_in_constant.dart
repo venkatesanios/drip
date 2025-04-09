@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/constant/model/object_in_constant_model.dart';
 
 import '../../../StateManagement/overall_use.dart';
+import '../../../utils/constants.dart';
 import '../state_management/constant_provider.dart';
 import '../widget/find_suitable_widget.dart';
 
@@ -21,7 +22,14 @@ class _PumpInConstantState extends State<PumpInConstant> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double minWidth = (cellWidth * 4) + (widget.constPvd.defaultPumpSetting.length * cellWidth) + 50;
+    int settingLength = widget.constPvd.defaultPumpSetting.where((setting) {
+      if(AppConstants.gemModelList.contains(widget.constPvd.userData['modelId'])){
+        return setting.gemDisplay;
+      }else{
+        return setting.ecoGemDisplay;
+      }
+    }).length;
+    double minWidth = (cellWidth * 4) + (settingLength * cellWidth) + 50;
     Color borderColor = const Color(0xffE1E2E3);
     return DataTable2(
       border: TableBorder(
@@ -40,7 +48,9 @@ class _PumpInConstantState extends State<PumpInConstant> {
                 label: Text(title, style: Theme.of(context).textTheme.labelLarge, softWrap: true)
             );
           }),
-          ...widget.constPvd.defaultPumpSetting.map((defaultSetting) {
+          ...widget.constPvd.defaultPumpSetting
+              .where((defaultSetting) => AppConstants.gemModelList.contains(widget.constPvd.userData['modelId']) ? defaultSetting.gemDisplay : defaultSetting.ecoGemDisplay)
+              .map((defaultSetting) {
             return DataColumn2(
                 headingRowAlignment: MainAxisAlignment.center,
                 fixedWidth: cellWidth,
@@ -67,18 +77,34 @@ class _PumpInConstantState extends State<PumpInConstant> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Text(widget.constPvd.getDeviceDetails(key: 'deviceName', controllerId: pump.controllerId!),textAlign: TextAlign.center, softWrap: true, style: TextStyle(color: Theme.of(context).primaryColorLight),),
-                          Text(widget.constPvd.getDeviceDetails(key: 'deviceId', controllerId: pump.controllerId!), style: TextStyle(fontWeight: FontWeight.w100, color: Colors.grey.shade700) ),
+                          if(AppConstants.gemModelList.contains(widget.constPvd.userData['modelId']))
+                            ...[
+                              Text(widget.constPvd.getDeviceDetails(key: 'deviceName', controllerId: pump.controllerId),textAlign: TextAlign.center, softWrap: true, style: TextStyle(color: Theme.of(context).primaryColorLight),),
+                              Text(widget.constPvd.getDeviceDetails(key: 'deviceId', controllerId: pump.controllerId), style: TextStyle(fontWeight: FontWeight.w100, color: Colors.grey.shade700) ),
+                            ]
+                          else
+                            ...[
+                              Text(widget.constPvd.userData['deviceName'],textAlign: TextAlign.center, softWrap: true, style: TextStyle(color: Theme.of(context).primaryColorLight),),
+                              Text(widget.constPvd.userData['deviceId'], style: TextStyle(fontWeight: FontWeight.w100, color: Colors.grey.shade700) ),
+                            ]
+
                         ],
                       ),
                     )
                 ),
                 DataCell(
                     Center(
-                      child: Text('${pump.connectionNo}',textAlign: TextAlign.center, softWrap: true, ),
+                      child: Text(
+                        AppConstants.ecoGemModelList.contains(widget.constPvd.userData['modelId'])
+                            ?
+                        'M ${row + 1}'
+                            :
+                        '${pump.connectionNo}',textAlign: TextAlign.center, softWrap: true, ),
                     )
                 ),
-                ...pump.setting.map((setting) {
+                ...pump.setting
+                    .where((defaultSetting) => AppConstants.gemModelList.contains(widget.constPvd.userData['modelId']) ? defaultSetting.gemDisplay : defaultSetting.ecoGemDisplay)
+                    .map((setting) {
                   return DataCell(
                     AnimatedBuilder(
                       animation: setting.value,
@@ -102,8 +128,6 @@ class _PumpInConstantState extends State<PumpInConstant> {
               ]
           );
         }),
-
     );
-
   }
 }

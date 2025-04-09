@@ -109,25 +109,25 @@ class _NormalCriticalInConstantState extends State<NormalCriticalInConstant> {
                                       ),
                                       if(criticalAlarm.setting[index].common == null)
                                         AnimatedBuilder(
-                                          animation: criticalAlarm.setting[index].value,
-                                          builder: (context, child){
-                                            return SizedBox(
-                                              height: 40,
-                                              width: cellWidth,
-                                              child: FindSuitableWidget(
-                                                constantSettingModel: criticalAlarm.setting[index],
-                                                onUpdate: (value){
-                                                  criticalAlarm.setting[index].value.value = value;
-                                                },
-                                                onOk: (){
-                                                  criticalAlarm.setting[index].value.value = widget.overAllPvd.getTime();
-                                                  Navigator.pop(context);
-                                                },
-                                                popUpItemModelList: criticalAlarm.setting[index].sNo == 2 ? widget.constPvd.alarmOnStatus : widget.constPvd.alarmResetAfterIrrigation,
-                                              ),
-                                            );
-                                          }
-                                      ),
+                                            animation: criticalAlarm.setting[index].value,
+                                            builder: (context, child){
+                                              return SizedBox(
+                                                height: 40,
+                                                width: cellWidth,
+                                                child: FindSuitableWidget(
+                                                  constantSettingModel: criticalAlarm.setting[index],
+                                                  onUpdate: (value){
+                                                    criticalAlarm.setting[index].value.value = value;
+                                                  },
+                                                  onOk: (){
+                                                    criticalAlarm.setting[index].value.value = widget.overAllPvd.getTime();
+                                                    Navigator.pop(context);
+                                                  },
+                                                  popUpItemModelList: criticalAlarm.setting[index].sNo == 2 ? widget.constPvd.alarmOnStatus : widget.constPvd.alarmResetAfterIrrigation,
+                                                ),
+                                              );
+                                            }
+                                        ),
                                     ],
                                   )
                               );
@@ -177,7 +177,7 @@ class _NormalCriticalInConstantState extends State<NormalCriticalInConstant> {
                       );
                     }
                 )
-                
+
             ],
           ),
         ),

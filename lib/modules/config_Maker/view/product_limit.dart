@@ -207,7 +207,8 @@ int balanceCountForRelayLatch(ConfigMakerProvider configPvd){
   for(var object in configPvd.listOfSampleObjectModel){
     if(object.type == '1,2'){
       int objectCount = [null, ''].contains(object.count) ? 0 : int.parse(object.count!);
-      totalCount -= objectCount;
+      // update 0 when pump under eco gem. otherwise update
+      totalCount -= object.objectId == AppConstants.pumpObjectId && AppConstants.ecoGemModelList.contains(configPvd.masterData['modelId'])  ? 0 : objectCount;
     }
   }
   return totalCount;

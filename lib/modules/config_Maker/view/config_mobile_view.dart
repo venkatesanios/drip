@@ -117,7 +117,7 @@ ConfigMakerTabs updateConfigMakerTabs({
   required ConfigMakerTabs selectedTab,
 }){
   bool update = true;
-  if(selectedTab == ConfigMakerTabs.connection){
+  if([ConfigMakerTabs.connection, ConfigMakerTabs.siteConfigure].contains(selectedTab)){
     final List<DeviceObjectModel> deviceObjects = configPvd.listOfSampleObjectModel;
     final pumpObject = getObjectById(deviceObjects, 5);
     final valveObject = getObjectById(deviceObjects, 13);

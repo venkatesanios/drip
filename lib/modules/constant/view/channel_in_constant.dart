@@ -7,6 +7,7 @@ import 'package:oro_drip_irrigation/Screens/Constant/main_valve_in_constant.dart
 import 'package:oro_drip_irrigation/Screens/Constant/main_valve_in_constant.dart';
 import 'package:oro_drip_irrigation/Screens/Constant/main_valve_in_constant.dart';
 import 'package:oro_drip_irrigation/modules/constant/model/object_in_constant_model.dart';
+import 'package:oro_drip_irrigation/utils/constants.dart';
 
 import '../../../StateManagement/overall_use.dart';
 import '../state_management/constant_provider.dart';
@@ -27,7 +28,14 @@ class _ChannelInConstantState extends State<ChannelInConstant> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double minWidth = (cellWidth * 4) + (widget.constPvd.defaultChannelSetting.length * cellWidth) + 50;
+    int settingLength = widget.constPvd.defaultChannelSetting.where((setting) {
+      if(AppConstants.gemModelList.contains(widget.constPvd.userData['modelId'])){
+        return setting.gemDisplay;
+      }else{
+        return setting.ecoGemDisplay;
+      }
+    }).length;
+    double minWidth = (cellWidth * 4) + (settingLength * cellWidth) + 50;
     Color borderColor = const Color(0xffE1E2E3);
     return DataTable2(
       border: TableBorder(
@@ -46,7 +54,9 @@ class _ChannelInConstantState extends State<ChannelInConstant> {
               label: Text(title, style: Theme.of(context).textTheme.labelLarge,textAlign: TextAlign.center, softWrap: true)
           );
         }),
-        ...widget.constPvd.defaultChannelSetting.map((defaultSetting) {
+        ...widget.constPvd.defaultChannelSetting
+            .where((defaultSetting) => AppConstants.gemModelList.contains(widget.constPvd.userData['modelId']) ? defaultSetting.gemDisplay : defaultSetting.ecoGemPayload)
+            .map((defaultSetting) {
           return DataColumn2(
               headingRowAlignment: MainAxisAlignment.center,
               fixedWidth: cellWidth,
@@ -84,7 +94,9 @@ class _ChannelInConstantState extends State<ChannelInConstant> {
                     child: Text('${channel.connectionNo}',textAlign: TextAlign.center, softWrap: true, ),
                   )
               ),
-              ...channel.setting.map((setting) {
+              ...channel.setting
+                  .where((defaultSetting) => AppConstants.gemModelList.contains(widget.constPvd.userData['modelId']) ? defaultSetting.gemDisplay : defaultSetting.ecoGemPayload)
+                  .map((setting) {
                 return DataCell(
                     AnimatedBuilder(
                       animation: setting.value,

@@ -21,6 +21,7 @@ class IrrigationProgram extends StatefulWidget {
   final int customerId;
   final int groupId;
   final int categoryId;
+
   final int controllerId;
   final String deviceId;
   final int serialNumber;
@@ -28,6 +29,9 @@ class IrrigationProgram extends StatefulWidget {
   final bool? conditionsLibraryIsNotEmpty;
   final bool fromDealer;
   final bool toDashboard;
+  final int modelId;
+  final String deviceName;
+  final String categoryName;
   const IrrigationProgram({Key? irrigationProgramKey,
     required this.userId,
     required this.controllerId,
@@ -37,7 +41,10 @@ class IrrigationProgram extends StatefulWidget {
     required this.deviceId,
     required this.fromDealer, required this.groupId,
     required this.categoryId,
-    this.toDashboard = false, required this.customerId
+    this.toDashboard = false, required this.customerId,
+    required this.modelId,
+    required this.deviceName,
+    required this.categoryName,
   }) :super(key: irrigationProgramKey);
 
   @override
@@ -692,7 +699,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
             userId: widget.customerId, controllerId: widget.controllerId, deviceId: widget.deviceId,
             serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer,
             programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,
-            isIrrigationProgram: isIrrigationProgram, customerId: widget.customerId, groupId: widget.groupId, categoryId: widget.categoryId,);
+            isIrrigationProgram: isIrrigationProgram, customerId: widget.customerId, groupId: widget.groupId, categoryId: widget.categoryId, modelId: widget.modelId, deviceName: widget.deviceName, categoryName: widget.categoryName,);
       case 5:
         return isIrrigationProgram
             ? conditionsLibraryIsNotEmpty
@@ -701,19 +708,19 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
           userId: widget.customerId, controllerId: widget.controllerId, deviceId: widget.deviceId,
           serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer,
           programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,
-          isIrrigationProgram: isIrrigationProgram, customerId: widget.customerId, groupId: widget.groupId, categoryId: widget.categoryId,)
-            : PreviewScreen(userId: widget.userId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,customerId: widget.customerId, groupId: widget.groupId, categoryId: widget.categoryId,);
+          isIrrigationProgram: isIrrigationProgram, customerId: widget.customerId, groupId: widget.groupId, categoryId: widget.categoryId,modelId: widget.modelId, deviceName: widget.deviceName, categoryName: widget.categoryName)
+            : PreviewScreen(userId: widget.userId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,customerId: widget.customerId, groupId: widget.groupId, categoryId: widget.categoryId,modelId: widget.modelId, deviceName: widget.deviceName, categoryName: widget.categoryName,);
       case 6:
         return conditionsLibraryIsNotEmpty
             ? AdditionalDataScreen(
           userId: widget.customerId, controllerId: widget.controllerId, deviceId: widget.deviceId,
           serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer,
           programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,
-          isIrrigationProgram: isIrrigationProgram, customerId: widget.customerId, groupId: widget.groupId, categoryId: widget.categoryId,)
-            : PreviewScreen(userId: widget.userId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, customerId: widget.customerId, groupId: widget.groupId, categoryId: widget.categoryId,);
+          isIrrigationProgram: isIrrigationProgram, customerId: widget.customerId, groupId: widget.groupId, categoryId: widget.categoryId,modelId: widget.modelId, deviceName: widget.deviceName, categoryName: widget.categoryName)
+            : PreviewScreen(userId: widget.userId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty, customerId: widget.customerId, groupId: widget.groupId, categoryId: widget.categoryId,modelId: widget.modelId, deviceName: widget.deviceName, categoryName: widget.categoryName);
       case 7:
         return conditionsLibraryIsNotEmpty
-            ? PreviewScreen(userId: widget.userId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,customerId: widget.customerId, groupId: widget.groupId, categoryId: widget.categoryId,)
+            ? PreviewScreen(userId: widget.userId, controllerId: widget.controllerId, deviceId: widget.deviceId, serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer, programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,customerId: widget.customerId, groupId: widget.groupId, categoryId: widget.categoryId,modelId: widget.modelId, deviceName: widget.deviceName, categoryName: widget.categoryName)
             : Container();
       default:
         return Container();

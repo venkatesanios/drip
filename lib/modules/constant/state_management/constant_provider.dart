@@ -14,6 +14,7 @@ import '../model/constant_setting_type_Model.dart';
 
 class ConstantProvider extends ChangeNotifier{
   Map<String, dynamic> constantDataFromHttp = {};
+  Map<String, dynamic> userData = {};
   List<dynamic> deviceList = [];
   List<dynamic> configObjectDataFromHttp = [];
   List<ConstantMenuModel> listOfConstantMenuModel = [];
@@ -58,7 +59,8 @@ class ConstantProvider extends ChangeNotifier{
         name = n['name'];
       }
     }
-    return name.isEmpty ? sNo : name;
+    print("name : $name");
+    return name.isEmpty ? 'Location N/A' : name;
   }
 
 
@@ -97,12 +99,22 @@ class ConstantProvider extends ChangeNotifier{
     }).toList();
   }
 
-  void updateConstant({required constantData, required configMakerData}){
+  bool checkAnySettingAvailable({
+    required List<ConstantSettingModel> defaultSetting,
+  }){
+    return defaultSetting.any((setting) => setting.ecoGemDisplay == true);
+  }
+
+  void updateConstant({required constantData, required configMakerData, required userDataAndMasterData}){
     try{
       constantDataFromHttp = constantData['data'];
+      userData = userDataAndMasterData;
       configObjectDataFromHttp = configMakerData['data']['configObject'];
       Map<String, dynamic> defaultData = constantDataFromHttp['default'];
       deviceList = defaultData['nodeList'];
+      if(AppConstants.ecoGemModelList.contains(userData['modelId'])){
+        deviceList.insert(1, userData);
+      }
       Map<String, dynamic> constantOldData = constantDataFromHttp['constant'];
       // update constant menu
       listOfConstantMenuModel = (defaultData['constantMenu'] as List<dynamic>).map((menu){
@@ -113,6 +125,23 @@ class ConstantProvider extends ChangeNotifier{
         );
       }).toList();
 
+      if(AppConstants.ecoGemModelList.contains(userData['modelId'])){
+        listOfConstantMenuModel = listOfConstantMenuModel.where((menuModel){
+          if(menuModel.dealerDefinitionId == AppConstants.levelSensorInConstant){
+            return checkAnySettingAvailable(defaultSetting: defaultLevelSetting);
+          }else if(menuModel.dealerDefinitionId == AppConstants.fertilizerSiteInConstant){
+            return checkAnySettingAvailable(defaultSetting: defaultFertilizerSiteSetting);
+          }else if(menuModel.dealerDefinitionId == AppConstants.ecPhInConstant){
+            return checkAnySettingAvailable(defaultSetting: defaultEcPhSetting);
+          }else if(menuModel.dealerDefinitionId == AppConstants.mainValveInConstant){
+            return checkAnySettingAvailable(defaultSetting: defaultMainValveSetting);
+          }else if(menuModel.dealerDefinitionId == AppConstants.normalCriticalInConstant){
+            return checkAnySettingAvailable(defaultSetting: defaultNormalCriticalAlarmSetting);
+          }else{
+            return true;
+          }
+        }).toList();
+      }
 
       //update object
       List<dynamic> listOfPumpObject = [];
@@ -132,9 +161,11 @@ class ConstantProvider extends ChangeNotifier{
       for (var object in configObjectDataFromHttp) {
         if(object['objectId'] == AppConstants.pumpObjectId){
           listOfPumpObject.add(object);
-        }else if(object['objectId'] == AppConstants.filterSiteObjectId){
+        }
+        else if(object['objectId'] == AppConstants.filterSiteObjectId){
           listOfFilterSiteObject.add(object);
-        }else if(object['objectId'] == AppConstants.filterObjectId){
+        }
+        else if(object['objectId'] == AppConstants.filterObjectId){
           listOfFilterObject.add(object);
         }else if(object['objectId'] == AppConstants.mainValveObjectId){
           listOfMainValveObject.add(object);
@@ -160,7 +191,8 @@ class ConstantProvider extends ChangeNotifier{
       }
 
       // update general
-      general = (defaultData['general'] as List<dynamic>).map((menu){
+      general = (defaultData['general'] as List<dynamic>)
+          .map((menu){
         List<dynamic> oldValue = [];
         List<dynamic> generalOldData = constantOldData['general'] as List<dynamic>;
         if(generalOldData.any((oldSetting) => oldSetting['sNo'] == menu['sNo'])){
@@ -316,10 +348,11 @@ class ConstantProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  String getDeviceDetails({required String key, required int controllerId}){
+  String getDeviceDetails({required String key, required int? controllerId}){
+
     String value = '';
     for(var device in deviceList){
-      if(device['controllerId'] == controllerId){
+      if(controllerId != null && device['controllerId'] == controllerId){
         value = device[key];
       }
     }
@@ -340,13 +373,13 @@ class ConstantProvider extends ChangeNotifier{
 
   String getGeneralPayload(){
     return general.where((setting) {
-      return setting.hardware;
+      return AppConstants.gemModelList.contains(userData['modelId']) ?  setting.gemPayload : setting.ecoGemPayload;
     }).map((setting) => payloadValidate(setting.value.value)).join(',');
   }
 
   String getGlobalAlarmPayload(){
     return globalAlarm.where((setting) {
-      return setting.hardware;
+      return AppConstants.gemModelList.contains(userData['modelId']) ?  setting.gemPayload : setting.ecoGemPayload;
     }).map((setting) => payloadValidate(setting.value.value)).join(',');
   }
 
@@ -355,7 +388,7 @@ class ConstantProvider extends ChangeNotifier{
       return [
         object.sNo,
         ...object.setting.where((setting){
-          return setting.hardware;
+          return AppConstants.gemModelList.contains(userData['modelId']) ?  setting.gemPayload : setting.ecoGemPayload;
         }).map((setting){
           return payloadValidate(setting.value.value);
         })
@@ -368,13 +401,13 @@ class ConstantProvider extends ChangeNotifier{
       return [
         fertilizerSite[siteIndex].sNo,
         ...fertilizerSite[siteIndex].setting.where((setting){
-          return setting.hardware;
+          return AppConstants.gemModelList.contains(userData['modelId']) ?  setting.gemPayload : setting.ecoGemPayload;
         }).map((setting){
           return payloadValidate(setting.value.value);
         }),
         if(ecPhSensor.isNotEmpty && ecPhSensor[siteIndex].ecPopup.isNotEmpty)
           ...ecPhSensor[siteIndex].setting[0].where((setting){
-            return setting.hardware;
+            return AppConstants.gemModelList.contains(userData['modelId']) ?  setting.gemPayload : setting.ecoGemPayload;
           }).map((setting){
             return payloadValidate(setting.value.value);
           })
@@ -384,7 +417,7 @@ class ConstantProvider extends ChangeNotifier{
           }),
         if(ecPhSensor.isNotEmpty && ecPhSensor[siteIndex].phPopup.isNotEmpty)
           ...ecPhSensor[siteIndex].setting[ecPhSensor[siteIndex].ecPopup.isEmpty ? 0 : 1].where((setting){
-            return setting.hardware;
+            return AppConstants.gemModelList.contains(userData['modelId']) ?  setting.gemPayload : setting.ecoGemPayload;
           }).map((setting){
             return payloadValidate(setting.value.value);
           })
@@ -408,17 +441,17 @@ class ConstantProvider extends ChangeNotifier{
             line.sNo,
             line.normal[alarmIndex].sNo,
             ...line.normal[alarmIndex].setting.where((setting){
-              return (setting.hardware && setting.common == null);
+              return ((AppConstants.gemModelList.contains(userData['modelId']) ?  setting.gemPayload : setting.ecoGemPayload) && setting.common == null);
             }).map((setting){
               return payloadValidate(setting.value.value);
             }),
             ...line.critical[alarmIndex].setting.where((setting){
-              return (setting.hardware && setting.common == null);
+              return ((AppConstants.gemModelList.contains(userData['modelId']) ?  setting.gemPayload : setting.ecoGemPayload) && setting.common == null);
             }).map((setting){
               return payloadValidate(setting.value.value);
             }),
             ...line.normal[alarmIndex].setting.where((setting){
-              return (setting.hardware && setting.common != null);
+              return ((AppConstants.gemModelList.contains(userData['modelId']) ?  setting.gemPayload : setting.ecoGemPayload) && setting.common != null);
             }).map((setting){
               return payloadValidate(setting.value.value);
             }),
@@ -443,7 +476,7 @@ class ConstantProvider extends ChangeNotifier{
           }).first;
         }).join('_'),
         ...site.setting.where((setting){
-          return setting.hardware;
+          return AppConstants.gemModelList.contains(userData['modelId']) ?  setting.gemPayload : setting.ecoGemPayload;
         }).map((setting){
           return payloadValidate(setting.value.value);
         })

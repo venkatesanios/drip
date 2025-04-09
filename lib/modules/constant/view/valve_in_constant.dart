@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/constant/model/object_in_constant_model.dart';
 
 import '../../../StateManagement/overall_use.dart';
+import '../../../utils/constants.dart';
 import '../state_management/constant_provider.dart';
 import '../widget/find_suitable_widget.dart';
 
@@ -21,7 +22,14 @@ class _ValveInConstantState extends State<ValveInConstant> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double minWidth = (cellWidth * 4) + (widget.constPvd.defaultValveSetting.length * cellWidth) + 50;
+    int settingLength = widget.constPvd.defaultValveSetting.where((setting) {
+      if(AppConstants.gemModelList.contains(widget.constPvd.userData['modelId'])){
+        return setting.gemDisplay;
+      }else{
+        return setting.ecoGemDisplay;
+      }
+    }).length;
+    double minWidth = (cellWidth * 4) + (settingLength * cellWidth) + 50;
     Color borderColor = const Color(0xffE1E2E3);
     return DataTable2(
       border: TableBorder(
@@ -40,7 +48,9 @@ class _ValveInConstantState extends State<ValveInConstant> {
               label: Text(title, style: Theme.of(context).textTheme.labelLarge,textAlign: TextAlign.center, softWrap: true)
           );
         }),
-        ...widget.constPvd.defaultValveSetting.map((defaultSetting) {
+        ...widget.constPvd.defaultValveSetting
+            .where((defaultSetting) => AppConstants.gemModelList.contains(widget.constPvd.userData['modelId']) ? defaultSetting.gemDisplay : defaultSetting.ecoGemDisplay)
+            .map((defaultSetting) {
           return DataColumn2(
               headingRowAlignment: MainAxisAlignment.center,
               fixedWidth: cellWidth,
@@ -78,7 +88,9 @@ class _ValveInConstantState extends State<ValveInConstant> {
                     child: Text('${valve.connectionNo}',textAlign: TextAlign.center, softWrap: true, ),
                   )
               ),
-              ...valve.setting.map((setting) {
+              ...valve.setting
+                  .where((defaultSetting) => AppConstants.gemModelList.contains(widget.constPvd.userData['modelId']) ? defaultSetting.gemDisplay : defaultSetting.ecoGemDisplay)
+                  .map((setting) {
                 return DataCell(
                     AnimatedBuilder(
                       animation: setting.value,

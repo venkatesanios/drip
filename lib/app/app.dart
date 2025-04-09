@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/modules/config_Maker/view/config_base_page.dart';
 import '../flavors.dart';
+import '../modules/constant/view/constant_base_page.dart';
 import '../utils/Theme/smart_comm_theme.dart';
 import '../utils/routes.dart';
 import '../utils/shared_preferences_helper.dart';
@@ -55,6 +57,11 @@ Widget navigateToInitialScreen(String route) {
     case Routes.dashboard:
        // return ValveControllerMap();
        // return GroupListScreen(userId: 8, controllerId: 23, deviceId: '2CCF6773D07D',);
+      /* gem constant */
+      // return const ConstantBasePage(userData: {"userId" : 4, "controllerId": 1, "deviceId":"2CCF674C0F8A", "modelId":4, },);
+      /* eco gem constant */
+      // return const ConstantBasePage(userData: {"userId" : 8, "controllerId": 115, "deviceId":"AAEEAADDAA11", "modelId":3, "deviceName":"xMm","categoryId":1,"categoryName":"xMm"},);
+      // return const ConfigBasePage(masterData: {});
       return const ScreenController();
 
     default:

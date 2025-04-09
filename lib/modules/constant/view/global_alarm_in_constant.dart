@@ -9,6 +9,7 @@ import '../../../StateManagement/overall_use.dart';
 import '../../../Widgets/custom_buttons.dart';
 import '../../../Widgets/status_box.dart';
 import '../../../services/mqtt_service.dart';
+import '../../../utils/constants.dart';
 import '../../../utils/environment.dart';
 import '../../IrrigationProgram/widgets/custom_sliding_button.dart';
 import '../../config_Maker/view/config_web_view.dart';
@@ -56,7 +57,9 @@ class _GlobalAlarmInConstantState extends State<GlobalAlarmInConstant> {
               listViewBuilderOptions: ListViewBuilderOptions(
                 physics: const NeverScrollableScrollPhysics(),
               ),
-              children: widget.constPvd.globalAlarm.map((globalSetting){
+              children: widget.constPvd.globalAlarm
+                  .where((defaultSetting) => AppConstants.gemModelList.contains(widget.constPvd.userData['modelId']) ? defaultSetting.gemDisplay : defaultSetting.ecoGemDisplay)
+                  .map((globalSetting){
                 return AnimatedBuilder(
                     animation: hoveredSno,
                     builder: (context, child){

@@ -625,6 +625,9 @@ class CustomerScreenController extends StatelessWidget {
                                 imeiNumber: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
                                 userId: userId, groupId: vm.mySiteList.data[vm.sIndex].groupId,
                                 categoryId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
+                                modelId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId,
+                                deviceName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceName,
+                                categoryName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
                               ),
                             ),
                           );

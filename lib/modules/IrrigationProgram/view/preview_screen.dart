@@ -35,7 +35,26 @@ class PreviewScreen extends StatefulWidget {
   final String? programType;
   final bool? conditionsLibraryIsNotEmpty;
   final bool fromDealer;
-  const PreviewScreen({super.key, required this.userId, required this.controllerId, required this.deviceId, required this.serialNumber, required this.toDashboard, this.programType, this.conditionsLibraryIsNotEmpty, required this.fromDealer, required this.customerId, required this.groupId, required this.categoryId});
+  final int modelId;
+  final String deviceName;
+  final String categoryName;
+  const PreviewScreen({
+    super.key,
+    required this.userId,
+    required this.controllerId,
+    required this.deviceId,
+    required this.serialNumber,
+    required this.toDashboard,
+    this.programType,
+    this.conditionsLibraryIsNotEmpty,
+    required this.fromDealer,
+    required this.customerId,
+    required this.groupId,
+    required this.categoryId,
+    required this.modelId,
+    required this.deviceName,
+    required this.categoryName,
+  });
 
   @override
   State<PreviewScreen> createState() => _PreviewScreenState();
@@ -510,7 +529,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
                 Navigator.of(context).pop();
                 Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => ProgramSchedule(customerID: widget.userId, controllerID: widget.controllerId, siteName: "", imeiNumber: widget.deviceId, userId: widget.userId, groupId: widget.groupId, categoryId: widget.categoryId,))
+                    MaterialPageRoute(builder: (context) => ProgramSchedule(customerID: widget.userId, controllerID: widget.controllerId, siteName: "", imeiNumber: widget.deviceId, userId: widget.userId, groupId: widget.groupId, categoryId: widget.categoryId,modelId: widget.modelId, deviceName: widget.deviceName, categoryName: widget.categoryName,))
                 );
               }
              /* if(widget.toDashboard) {

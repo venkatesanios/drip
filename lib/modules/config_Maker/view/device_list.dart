@@ -249,6 +249,14 @@ class _DeviceListState extends State<DeviceList> {
                 setState(() {
                   selectAllNode = false;
                 });
+                for(var device in listOfDevices){
+                  if(device.serialNumber != null && device.masterId != null && configPvd.serialNumber < device.serialNumber!){
+                    setState(() {
+                      configPvd.serialNumber = device.serialNumber!;
+                    });
+                  }
+                }
+
                 List<DeviceModel> possibleNodeToConfigUnderMaster = listOfDevices.where((node) {
                   List<int> nodeUnderPumpWithValveModel = [15, 17, 23, 25, 42];
                   List<int> nodeNotUnderGemModel = [48, 49];

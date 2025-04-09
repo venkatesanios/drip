@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:oro_drip_irrigation/Models/customer/constant_model.dart';
+import 'package:oro_drip_irrigation/app.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/repository/config_maker_repository.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import '../model/device_model.dart';
@@ -49,7 +50,6 @@ class ConfigMakerProvider extends ChangeNotifier{
   List<DeviceModel> listOfDeviceModel = [];
   int serialNumber = 0;
   Map<String, dynamic> masterData = {};
-
   List<DeviceObjectModel> listOfSampleObjectModel = [];
   List<DeviceObjectModel> listOfObjectModelConnection = [];
   List<DeviceObjectModel> listOfGeneratedObject = [];
@@ -669,12 +669,13 @@ class ConfigMakerProvider extends ChangeNotifier{
           "DeviceRunningNumber": findOutReferenceNumber(device),
           "DeviceId": device.deviceId,
           "InterfaceType": device.interfaceTypeId,
-          "ExtendNode": device.extendControllerId ?? '',
-          "Name" : device.deviceName
+          if(AppConstants.gemModelList.contains(masterData['modelId']))
+            "ExtendNode": device.extendControllerId ?? '',
+          if(AppConstants.gemModelList.contains(masterData['modelId']))
+            "Name" : device.deviceName
         }.entries.map((e) => e.value).join(","));
       }
     }
-
     return devicePayload.join(";");
   }
 
@@ -756,13 +757,14 @@ class ConfigMakerProvider extends ChangeNotifier{
         print(object.toJson());
         var controller = listOfDeviceModel.firstWhere((e) => e.controllerId == object.controllerId);
         objectPayload.add({
-          "S_No": object.sNo,
+          "S_No": AppConstants.gemModelList.contains(masterData['modelId']) ? object.sNo : object.sNo.toString().split('.').join(','),
           "ObjectType": object.objectId,
           "DeviceTypeNumber": controller.categoryId,
           "DeviceRunningNumber": findOutReferenceNumber(controller),
           "Output_InputNumber": object.connectionNo,
           "IO_Mode": controller.categoryId ==  4 ? 8 : getObjectTypeCodeToHardware(object.type),
-          "Name" : object.name
+          if(AppConstants.gemModelList.contains(masterData['modelId']))
+            "Name" : object.name
         }.entries.map((e) => e.value).join(","));
       }
     }
@@ -863,13 +865,11 @@ class ConfigMakerProvider extends ChangeNotifier{
     }
   }
 
-
-
   List<Map<String, dynamic>> getOroPumpPayload() {
-    HardwareType hardwareType = [1, 2, 4].contains(masterData['modelId']) ? HardwareType.master : HardwareType.pump;
+    HardwareType hardwareType = AppConstants.gemModelList.contains(masterData['modelId']) ? HardwareType.master : HardwareType.pump;
     List<Map<String, dynamic>> listOfPumpPayload = [];
     List<int> modelIdForPump1000 = [5, 6, 7];
-    List<int> modelIdForPump2000 = [8, 9, 10];
+    List<int> modelIdForPump2000 = [8, 9, 10, ...AppConstants.ecoGemModelList];
     List<DeviceModel> listOfPump1000 = listOfDeviceModel.where((device) => modelIdForPump1000.contains(device.modelId) && device.masterId != null).toList();
     List<DeviceModel> listOfPump2000 = listOfDeviceModel.where((device) => modelIdForPump2000.contains(device.modelId) && device.masterId != null).toList();
     int pumpCodeUnderGem = 5900;
@@ -888,7 +888,7 @@ class ConfigMakerProvider extends ChangeNotifier{
             'DeviceId' : p1000.deviceId,
             'InterfaceTypeId' : p1000.interfaceTypeId,
             'Payload' : jsonEncode({'700' : jsonEncode(pumpPayload)}),
-            'SomeThing' : '4'
+            'SomeThing' : '3'
           }.entries.map((e) => e.value).join('+')
         }
       };
@@ -911,7 +911,13 @@ class ConfigMakerProvider extends ChangeNotifier{
     for(var p2000 in listOfPump2000){
       String deviceIdToSend = p2000.interfaceTypeId == 2 ? masterData['deviceId'] : p2000.deviceId;
       int pumpCount = listOfGeneratedObject.where((object) => (object.controllerId == p2000.controllerId && object.objectId == 5)).length;
-      String findOutHowManySourceAndIrrigationPump = pump.where((pumpModel) => (pumpModel.commonDetails.controllerId == p2000.controllerId && pumpModel.commonDetails.objectId == 5))
+
+      // update pump count when eco gem
+      if(AppConstants.ecoGemModelList.contains(masterData['modelId'])){
+        pumpCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.pumpObjectId).length;
+      }
+
+      String findOutHowManySourceAndIrrigationPump = pump.where((pumpModel) => ((pumpModel.commonDetails.controllerId == p2000.controllerId || AppConstants.ecoGemModelList.contains(masterData['modelId'])) && pumpModel.commonDetails.objectId == 5))
           .toList()
           .map((pumpModel) => pumpModel.pumpType).join(',');
       var pumpPayload = {"sentSms":"pumpconfig,$pumpCount,${findOutReferenceNumber(p2000)},$findOutHowManySourceAndIrrigationPump,${hardwareType == HardwareType.master ? 1 : 0}"};
@@ -939,11 +945,11 @@ class ConfigMakerProvider extends ChangeNotifier{
         'checkingCode' : '$pumpConfigCode',
         'hardwareType' : HardwareType.pump
       });
-      List<DeviceObjectModel> listOfFloat = listOfGeneratedObject.where((object) => (object.controllerId == p2000.controllerId && object.objectId == 40)).toList();
-      List<DeviceObjectModel> listOfPump = listOfGeneratedObject.where((object) => (object.controllerId == p2000.controllerId && object.objectId == 5)).toList();
-      List<DeviceObjectModel> listOfLevel = listOfGeneratedObject.where((object) => (object.controllerId == p2000.controllerId && object.objectId == 26)).toList();
-      List<DeviceObjectModel> listOfPressure = listOfGeneratedObject.where((object) => (object.controllerId == p2000.controllerId && object.objectId == 24)).toList();
-      List<DeviceObjectModel> listOfWaterMeter = listOfGeneratedObject.where((object) => (object.controllerId == p2000.controllerId && object.objectId == 22)).toList();
+      List<DeviceObjectModel> listOfFloat = listOfGeneratedObject.where((object) => ((AppConstants.ecoGemModelList.contains(masterData['modelId']) || object.controllerId == p2000.controllerId) && object.objectId == AppConstants.floatObjectId)).toList();
+      List<DeviceObjectModel> listOfPump = listOfGeneratedObject.where((object) => ((AppConstants.ecoGemModelList.contains(masterData['modelId']) || object.controllerId == p2000.controllerId) && object.objectId == AppConstants.pumpObjectId)).toList();
+      List<DeviceObjectModel> listOfLevel = listOfGeneratedObject.where((object) => ((AppConstants.ecoGemModelList.contains(masterData['modelId']) || object.controllerId == p2000.controllerId) && object.objectId == AppConstants.levelObjectId)).toList();
+      List<DeviceObjectModel> listOfPressure = listOfGeneratedObject.where((object) => ((AppConstants.ecoGemModelList.contains(masterData['modelId']) || object.controllerId == p2000.controllerId) && object.objectId == AppConstants.pressureSensorObjectId)).toList();
+      List<DeviceObjectModel> listOfWaterMeter = listOfGeneratedObject.where((object) => ((AppConstants.ecoGemModelList.contains(masterData['modelId']) || object.controllerId == p2000.controllerId) && object.objectId == AppConstants.waterMeterObjectId)).toList();
       var listOfTankPayload = [];
       for(var p in listOfPump){
         PumpModel pumpModel = pump.firstWhere((pump) => pump.commonDetails.sNo == p.sNo);
@@ -974,7 +980,7 @@ class ConfigMakerProvider extends ChangeNotifier{
                 levelConnectionNo = level.connectionNo!;
               }
             }
-            if(src.sourceType == 2){
+            if([2, 3].contains(src.sourceType)){
               if(src.topFloat != 0.0 && listOfFloat.any((floatObject) => floatObject.sNo == src.topFloat)){
                 DeviceObjectModel float = listOfFloat.firstWhere((floatObject) => floatObject.sNo == src.topFloat);
                 sumpPinCount += 1;
@@ -984,6 +990,10 @@ class ConfigMakerProvider extends ChangeNotifier{
                 DeviceObjectModel float = listOfFloat.firstWhere((floatObject) => floatObject.sNo == src.bottomFloat);
                 sumpPinCount += 1;
                 sumpLowConnectionNo = float.connectionNo!;
+              }
+              if(src.level != 0.0 && listOfLevel.any((levelObject) => levelObject.sNo == src.level)){
+                DeviceObjectModel level = listOfLevel.firstWhere((levelObject) => levelObject.sNo == src.level);
+                levelConnectionNo = level.connectionNo!;
               }
             }
           }
