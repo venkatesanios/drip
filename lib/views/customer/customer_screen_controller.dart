@@ -120,9 +120,8 @@ class CustomerScreenController extends StatelessWidget {
                   Container(width: 1,height: 20, color: Colors.white54,),
                   const SizedBox(width: 5,),
 
-                  vm.mySiteList.data[vm.sIndex].master.length>1? PopupMenuButton<String>(
-                    color: Colors.white,
-                    surfaceTintColor: Theme.of(context).primaryColorLight,
+                  vm.mySiteList.data[vm.sIndex].master.length>1? PopupMenuButton<Map<String, String>>(
+                    color: Theme.of(context).primaryColorLight,
                     tooltip: 'master controller',
                     child: MaterialButton(
                       onPressed: null,
@@ -137,14 +136,40 @@ class CustomerScreenController extends StatelessWidget {
                     ),
                     itemBuilder: (context) {
                       return List.generate(vm.mySiteList.data[vm.sIndex].master.length, (index) {
-                        return PopupMenuItem<String>(
-                          value: vm.mySiteList.data[vm.sIndex].master[index].categoryName,
-                          child: Text(vm.mySiteList.data[vm.sIndex].master[index].categoryName),
+                        final master = vm.mySiteList.data[vm.sIndex].master[index];
+                        return PopupMenuItem<Map<String, String>>(
+                          value: {
+                            'category': master.categoryName,
+                            'model': master.modelName,
+                          },
+                          child: Row(
+                            children: [
+                              const Icon(Icons.home_max_sharp, size: 20, color: Colors.white),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      master.categoryName,
+                                      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                                    ),
+                                    Text(
+                                      master.modelName,
+                                      style: const TextStyle(fontSize: 12, color: Colors.white54),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         );
                       });
                     },
-                    onSelected: (selectedCategory) {
-                      vm.masterOnChanged(selectedCategory);
+                    onSelected: (selected) {
+                      final category = selected['category']!;
+                      final model = selected['model']!;
+                      vm.masterOnChanged(category, model);
                     },
                   ):
                   Text(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
