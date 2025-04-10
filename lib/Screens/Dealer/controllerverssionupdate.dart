@@ -497,7 +497,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
     }
 
 
-    MqttService().topicToPublishAndItsMessage('${frequency1Controller.text},${sf1Controller.text},${frequency2Controller.text},${sf2Controller.text}', 'AppToFirmware/${mergedList[selectindex ?? 0]["deviceId"]}');
+    MqttService().topicToPublishAndItsMessage('${frequency1Controller.text},${sf1Controller.text},${frequency2Controller.text},${sf2Controller.text}', '${Environment.mqttPublishTopic}/${mergedList[selectindex ?? 0]["deviceId"]}');
      fetchData();
   }
   bool _isValidFrequency(String freq) {

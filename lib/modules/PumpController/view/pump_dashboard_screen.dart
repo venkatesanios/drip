@@ -87,16 +87,20 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
 
   Future<void> getLive() async{
     liveRequest();
-    setState(() {
-      mqttService.pumpDashboardPayload!.dataFetchingStatus = 2;
-    });
-    Future.delayed(const Duration(seconds: 10), () {
-      if(mqttService.pumpDashboardPayload!.dataFetchingStatus != 1) {
-        setState(() {
-          mqttService.pumpDashboardPayload!.dataFetchingStatus = 3;
-        });
-      }
-    });
+    if(mounted){
+      setState(() {
+        mqttService.pumpDashboardPayload!.dataFetchingStatus = 2;
+      });
+      Future.delayed(const Duration(seconds: 10), () {
+        if(mqttService.pumpDashboardPayload!.dataFetchingStatus != 1) {
+          if(mounted){
+            setState(() {
+              mqttService.pumpDashboardPayload!.dataFetchingStatus = 3;
+            });
+          }
+        }
+      });
+    }
   }
 
   void handleLiveRequest() async {

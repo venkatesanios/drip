@@ -8,6 +8,7 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
+import 'package:oro_drip_irrigation/utils/environment.dart';
 import 'package:provider/provider.dart';
  import 'package:shared_preferences/shared_preferences.dart';
 
@@ -1074,7 +1075,7 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
       ]
     });
     if (MqttService().isConnected == true) {
-      MqttService().topicToPublishAndItsMessage(payLoadFinal, 'AppToFirmware/${overAllPvd.imeiNo}');
+      MqttService().topicToPublishAndItsMessage(payLoadFinal, '${Environment.mqttPublishTopic}/${overAllPvd.imeiNo}');
       GlobalSnackBar.show(context, 'Manual ON/OFF Send', 200);
     } else {
       GlobalSnackBar.show(context, 'MQTT is Disconnected', 201);
