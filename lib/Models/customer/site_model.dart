@@ -1199,6 +1199,7 @@ class LiveMessage {
   });
 
   factory LiveMessage.fromJson(Map<String, dynamic> json) {
+    print("json in the Live message model :: $json");
     return LiveMessage(
       cC: json['cC'],
       cM: json['cM'] is Map<String, dynamic>

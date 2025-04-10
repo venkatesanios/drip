@@ -640,7 +640,7 @@ class MobileScreenController extends StatelessWidget {
     return destinations;
   }
 
-  Widget mainScreen(int index, groupId, groupName, List<Master> masterData, int controllerId, int categoryId, String deviceId, PumpControllerData liveData) {
+  Widget mainScreen(int index, groupId, groupName, List<Master> masterData, int controllerId, int categoryId, String deviceId, liveData) {
     switch (index) {
       case 0:
         return categoryId==1? CustomerHome(customerId: userId, controllerId: controllerId):

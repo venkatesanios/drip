@@ -46,6 +46,7 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
     "500-3": "RTC settings for pump 3",
     "600-3": "Schedule config for pump 3",
     "900": "Calibration settings",
+    "51": "Valve settings",
   };
 
   @override
