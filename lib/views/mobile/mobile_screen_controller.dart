@@ -5,6 +5,8 @@ import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
 import '../../Models/customer/site_model.dart';
 import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
+import '../../modules/PumpController/model/pump_controller_data_model.dart';
+import '../../modules/PumpController/view/pump_controller_home.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/formatters.dart';
@@ -371,7 +373,7 @@ class MobileScreenController extends StatelessWidget {
               ),
             ),
             floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
-            bottomNavigationBar: BottomNavigationBar(
+            bottomNavigationBar: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1 ? BottomNavigationBar(
               backgroundColor: Colors.white,
               type: BottomNavigationBarType.fixed,
               elevation: 10,
@@ -386,17 +388,17 @@ class MobileScreenController extends StatelessWidget {
                 BottomNavigationBarItem(icon: Icon(Icons.list), label: "Scheduled Program"),
                 BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), label: "Settings"),
               ],
-            ),
-            floatingActionButton: Stack(
+            ) : null,
+            floatingActionButton: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1 ? Stack(
               alignment: Alignment.bottomRight,
               children: [
                 FloatingActionButton(
                   onPressed: null,
-                  backgroundColor: Theme.of(context).primaryColor,
+                  backgroundColor: Colors.blue,
                   child: PopupMenuButton<String>(
                     onSelected: (String value) {
                       switch (value) {
-                        case 'Node Status':
+                        case 'option1':
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -423,150 +425,149 @@ class MobileScreenController extends StatelessWidget {
                     color: Colors.white,
                     icon: const Icon(Icons.menu, color: Colors.white),
                     itemBuilder: (BuildContext context) => [
-                      PopupMenuItem<String>(
-                        value: 'Node Status',
-                        child: Center(
-                          child: Column(
-                            children: [
-                              CircleAvatar(backgroundColor: Theme.of(context).primaryColor,
-                                  child: const Icon(Icons.format_list_numbered,
-                                      color: Colors.white)),
-                              const SizedBox(height: 5),
-                              const Text('Node Status',textAlign: TextAlign.center),
-                              const SizedBox(height: 8),
-                            ],
-                          ),
-                        ),
-                      ),
-                      PopupMenuItem<String>(
-                        value: 'option2',
-                        child: Center(
-                          child: Column(children: [
-                            CircleAvatar(backgroundColor: Theme.of(context).primaryColor,
-                                child: const Icon(Icons.settings_input_component_outlined, color: Colors.white)),
-                            const SizedBox(height: 5),
-                            const Center(child: Text('I/O\nConnection',textAlign: TextAlign.center)),
-                            const SizedBox(height: 8),
+                      const PopupMenuItem<String>(
+                        value: 'option1',
+                        child: Row(
+                          children: [
+                            Icon(Icons.format_list_numbered, color: Colors.black54),
+                            SizedBox(width: 8),
+                            Text('Node Status'),
                           ],
-                          ),
                         ),
                       ),
-                      PopupMenuItem<String>(
+                      const PopupMenuItem<String>(
+                        value: 'option2',
+                        child: Row(
+                          children: [
+                            Icon(Icons.settings_input_component_outlined, color: Colors.black54),
+                            SizedBox(width: 8),
+                            Text('Input/Output Connection details'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem<String>(
                         value: 'option3',
-                        child: Center(
-                          child: Column(
-                            children: [
-                              CircleAvatar(backgroundColor: Theme.of(context).primaryColor,
-                                  child: const Icon(Icons.list_alt, color: Colors.white)),
-                              const SizedBox(height: 5),
-                              const Text('Program',textAlign: TextAlign.center),
-                              const SizedBox(height: 8),
-                            ],
-                          ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.list_alt, color: Colors.black54),
+                            SizedBox(width: 8),
+                            Text('Program'),
+                          ],
                         ),
                       ),
-                      PopupMenuItem<String>(
+                      const PopupMenuItem<String>(
                         value: 'option4',
-                        child: Center(
-                          child: Column(
-                            children: [
-                              CircleAvatar(backgroundColor: Theme.of(context).primaryColor,
-                                  child: const Icon(Icons.view_list_outlined, color: Colors.white)),
-                              const SizedBox(height: 5),
-                              const Text('Scheduled\nprogram\ndetails',textAlign: TextAlign.center),
-                              const SizedBox(height: 8),
-                            ],
-                          ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.view_list_outlined, color: Colors.black54),
+                            SizedBox(width: 8),
+                            Text('Scheduled program details'),
+                          ],
                         ),
                       ),
-                      PopupMenuItem<String>(
+                      const PopupMenuItem<String>(
                         value: 'option5',
-                        child: Center(
-                          child: Column(
-                            children: [
-                              CircleAvatar(backgroundColor: Theme.of(context).primaryColor,
-                                  child: const Icon(Icons.touch_app_outlined, color: Colors.white)),
-                              const SizedBox(height: 5),
-                              const Text('Manual',textAlign: TextAlign.center),
-                              const SizedBox(height: 8),
-                            ],
-                          ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.touch_app_outlined, color: Colors.black54),
+                            SizedBox(width: 8),
+                            Text('Manual'),
+                          ],
                         ),
                       ),
-                      PopupMenuItem<String>(
+                      const PopupMenuItem<String>(
                         value: 'option6',
-                        child: Center(
-                          child: Column(
-                            children: [
-                              CircleAvatar(backgroundColor: Theme.of(context).primaryColor,
-                                  child: const Icon(Icons.question_answer_outlined, color: Colors.white)),
-                              const SizedBox(height: 5),
-                              const Text('Sent &\nReceived',textAlign: TextAlign.center),
-                              const SizedBox(height: 8),
-                            ],
-                          ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.question_answer_outlined, color: Colors.black54),
+                            SizedBox(width: 8),
+                            Text('Sent & Received'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem<String>(
+                        value: 'option7',
+                        child: Row(
+                          children: [
+                            Icon(Icons.devices_other, color: Colors.black54),
+                            SizedBox(width: 8),
+                            Text('All my devices'),
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
               ],
-            ),
-            body: Column(
-              children: [
-                lastCommunication.inMinutes >= 10 && powerSupply == 0?Container(
-                  height: 23.0,
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade300,
-                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(5),topRight: Radius.circular(5)),
-                  ),
-                  child: Center(
-                    child: Text('No communication and power Supply to Controller'.toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.black87,
-                        fontSize: 12.0,
+            ) : null,
+            body: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(8),topRight: Radius.circular(8)),
+              ),
+              child: Column(
+                children: [
+                  lastCommunication.inMinutes >= 10 && powerSupply == 0?Container(
+                    height: 23.0,
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade300,
+                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(5),topRight: Radius.circular(5)),
+                    ),
+                    child: Center(
+                      child: Text('No communication and power Supply to Controller'.toUpperCase(),
+                        style: const TextStyle(
+                          color: Colors.black87,
+                          fontSize: 12.0,
+                        ),
                       ),
                     ),
-                  ),
-                ):
-                powerSupply == 0? Container(
-                  height: 20.0,
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade300,
-                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(5),topRight: Radius.circular(5)),
-                  ),
-                  child: Center(
-                    child: Text('No power Supply to Controller'.toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12.0,
-                      ),
-                    ),
-                  ),
-                ):
-                const SizedBox(),
-
-                Expanded(
-                  child: vm.selectedIndex==0 ?
-                  mainScreen(navViewModel.selectedIndex, vm.mySiteList.data[vm.sIndex].groupId,
-                      vm.mySiteList.data[vm.sIndex].groupName, vm.mySiteList.data[vm.sIndex].master,
-                      vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                      vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId):
-                  vm.selectedIndex==1?
-                  ScheduledProgram(
-                    userId: customerId,
-                    scheduledPrograms: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].programList,
-                    controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                    deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                    customerId: customerId,
                   ):
-                  ControllerSettings(customerId: customerId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                    adDrId: fromLogin ? 1 : 0, userId: userId, deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,),
-                ),
-              ],
+                  (powerSupply == 0 && vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1)? Container(
+                    height: 20.0,
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade300,
+                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(5),topRight: Radius.circular(5)),
+                    ),
+                    child: Center(
+                      child: Text('No power Supply to Controller'.toUpperCase(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12.0,
+                        ),
+                      ),
+                    ),
+                  ):
+                  const SizedBox(),
+
+                  Expanded(
+                    child: vm.selectedIndex==0?
+                    mainScreen(
+                        navViewModel.selectedIndex,
+                        vm.mySiteList.data[vm.sIndex].groupId,
+                        vm.mySiteList.data[vm.sIndex].groupName,
+                        vm.mySiteList.data[vm.sIndex].master,
+                        vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                        vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
+                        vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                        vm.mySiteList.data[vm.sIndex].master[vm.mIndex].live?.cM
+                    ):
+                    vm.selectedIndex==1?
+                    ScheduledProgram(
+                      userId: customerId,
+                      scheduledPrograms: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].programList,
+                      controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                      deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                      customerId: customerId,
+                    ):
+                    ControllerSettings(customerId: customerId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                      adDrId: fromLogin ? 1 : 0, userId: userId, deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,),
+                  ),
+                ],
+              ),
             ),
 
           );
+
         },
       ),
     );
@@ -637,12 +638,18 @@ class MobileScreenController extends StatelessWidget {
     return destinations;
   }
 
-  Widget mainScreen(int index, groupId, groupName, List<Master> masterData, int controllerId, int categoryId) {
+  Widget mainScreen(int index, groupId, groupName, List<Master> masterData, int controllerId, int categoryId, String deviceId, liveData) {
     switch (index) {
       case 0:
-        return categoryId==1?
-        CustomerHome(customerId: userId, controllerId: controllerId):
-        const Text('pump dashboard');
+        return categoryId==1? CustomerHome(customerId: userId, controllerId: controllerId):
+        PumpControllerHome(
+          deviceId: deviceId,
+          liveData: liveData,
+          masterName: groupName,
+          userId: userId,
+          customerId: customerId,
+          controllerId: controllerId,
+        );
       case 1:
         return CustomerProduct(customerId: userId);
       case 2:

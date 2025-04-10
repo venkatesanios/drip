@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
@@ -10,11 +11,12 @@ import '../../services/http_service.dart';
 import '../../view_models/customer/condition_library_view_model.dart';
 
 class ConditionLibrary extends StatelessWidget {
-  const ConditionLibrary(this.customerId, this.controllerId, this.userId,
-      {super.key, required this.deviceId});
+   const ConditionLibrary( {super.key, required this.customerId, required this.controllerId, required this.userId,required this.deviceId});
 
-  final int customerId, controllerId, userId;
-  final String deviceId;
+  final int customerId;
+   final int controllerId;
+   final int userId;
+   final String deviceId;
 
   @override
   Widget build(BuildContext context) {
@@ -25,18 +27,19 @@ class ConditionLibrary extends StatelessWidget {
       child: Consumer<ConditionLibraryViewModel>(
         builder: (context, vm, _) {
           return vm.isLoading ?
-          Padding(
-            padding: EdgeInsets.only(left: MediaQuery.of(context).size.width/2-95,
-                right: MediaQuery.of(context).size.width/2-95),
-            child: const LoadingIndicator(
-              indicatorType: Indicator.ballPulse,
-              strokeWidth: 100,
+          Container(
+            color: Colors.white,
+            child: Padding(
+              padding: EdgeInsets.only(left: MediaQuery.of(context).size.width/2-95,
+                  right: MediaQuery.of(context).size.width/2-95),
+              child: const LoadingIndicator(
+                indicatorType: Indicator.ballPulse,
+                strokeWidth: 100,
+              ),
             ),
           ) :
           Scaffold(
-            backgroundColor: Theme
-                .of(context)
-                .scaffoldBackgroundColor,
+            appBar: !kIsWeb? AppBar(title: const Text('Condition Library')) : null,
             body: Padding(
               padding: const EdgeInsets.only(left: 8, right: 8, top: 8),
               child: vm.conditionLibraryData.conditionLibrary.condition
@@ -45,19 +48,19 @@ class ConditionLibrary extends StatelessWidget {
                 itemCount: vm.conditionLibraryData.conditionLibrary.condition
                     .length,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: MediaQuery
+                  crossAxisCount: kIsWeb? MediaQuery
                       .sizeOf(context)
-                      .width > 1350 ? 3 : 2,
+                      .width > 1350 ? 3 : 2:1,
                   crossAxisSpacing: 3.0,
                   mainAxisSpacing: 3.0,
-                  childAspectRatio: MediaQuery
+                  childAspectRatio: kIsWeb? MediaQuery
                       .sizeOf(context)
                       .width > 1350 ? MediaQuery
                       .sizeOf(context)
                       .width / 1200 :
                   MediaQuery
                       .sizeOf(context)
-                      .width / 750,
+                      .width / 750: 1.15,
                 ),
                 itemBuilder: (BuildContext context, int index) {
                   return Card(
@@ -952,9 +955,7 @@ class ConditionLibrary extends StatelessWidget {
             ),
             floatingActionButton: Row(
               mainAxisAlignment: MainAxisAlignment.end,
-              // Align to the bottom right
               mainAxisSize: MainAxisSize.min,
-              // Prevents stretching across the screen
               children: [
                 Text('Total : ${vm.conditionLibraryData.conditionLibrary
                     .condition.length} of '

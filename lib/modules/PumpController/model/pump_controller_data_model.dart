@@ -11,23 +11,46 @@ class PumpControllerData {
   String numberOfPumps;
   int dataFetchingStatus;
 
-  PumpControllerData({required this.pumps, required this.voltage,
-    required this.current, required this.batteryStrength,
-    required this.signalStrength, required this.numberOfPumps,
-    required this.version, required this.energyParameters,
-    required this.powerFactor, required this.power, required this.dataFetchingStatus});
+  PumpControllerData({
+    required this.pumps,
+    required this.voltage,
+    required this.current,
+    required this.batteryStrength,
+    required this.signalStrength,
+    required this.numberOfPumps,
+    required this.version,
+    required this.energyParameters,
+    required this.powerFactor,
+    required this.power,
+    required this.dataFetchingStatus,
+  });
 
   factory PumpControllerData.fromJson(Map<String, dynamic> json, String key, int dataFetchingStatus) {
-    // print(json[key]);
     List<dynamic> pumpsJson = json[key] ?? [];
     dynamic lastElement = {};
-    if(pumpsJson.isNotEmpty) {
+
+    if (pumpsJson.isNotEmpty) {
       lastElement = pumpsJson.last;
       pumpsJson.removeLast();
     }
 
+    List<IndividualPumpData> pumps = [];
+
+    if (pumpsJson.isNotEmpty) {
+      pumps.add(IndividualPumpData.fromJson(pumpsJson[0]));
+      pumps.addAll(
+        pumpsJson
+            .skip(1)
+            .whereType<Map<String, dynamic>>()
+            .map((x) => x.containsKey("VOM")
+            ? PumpValveModel.fromJson(x)
+            : IndividualPumpData.fromJson(x))
+            .cast<IndividualPumpData>(),
+      );
+    }
+
     return PumpControllerData(
-      pumps: List<IndividualPumpData>.from(pumpsJson.map((x) => IndividualPumpData.fromJson(x))),
+      pumps: pumps,
       voltage: lastElement['V'] ?? "",
       current: lastElement['C'] ?? "",
       version: lastElement['VS'],
@@ -37,7 +60,7 @@ class PumpControllerData {
       signalStrength: lastElement['SS'] ?? "",
       batteryStrength: lastElement['B'] ?? "",
       numberOfPumps: lastElement['NP'] ?? "0",
-      dataFetchingStatus: dataFetchingStatus
+      dataFetchingStatus: dataFetchingStatus,
     );
   }
 }
@@ -84,105 +107,164 @@ class IndividualPumpData {
   });
 
   factory IndividualPumpData.fromJson(Map<String, dynamic> json) {
-    final value = json["CF"];
-    // print(value);
+    final value = json["CF"] ?? "-";
     int firstIndex = 0;
-    if(value != "-") {
+    if (value != "-") {
       for (int i = 0; i < value.length; i++) {
-        if (int.parse(value[i]) > 0) {
-          // print(i);
+        if (int.tryParse(value[i]) != null && int.parse(value[i]) > 0) {
           firstIndex = i;
           break;
         }
       }
     }
+
     final reason = json["RN"];
     final status = json["ST"];
     const String motorOff = "Motor off due to";
     const String motorOn = "Motor on due to";
+
     return IndividualPumpData(
-      reasonCode: json["RN"] ?? 0,
+      reasonCode: reason ?? 0,
       status: status ?? 0,
-      reason: reason == 1
-          ? "$motorOff sump empty"
-          : reason == 2
-          ? "$motorOff upper tank full"
-          : reason == 3
-          ? "$motorOff low voltage"
-          : reason == 4
-          ? "$motorOff high voltage"
-          : reason == 5
-          ? "$motorOff voltage SPP"
-          : reason == 6
-          ? "$motorOff reverse phase"
-          : reason == 7
-          ? "$motorOff starter trip"
-          : reason == 8
-          ? "$motorOff dry run"
-          : reason == 9
-          ? "$motorOff overload"
-          : reason == 10
-          ? "$motorOff current SPP"
-          : reason == 11
-          ? "$motorOff cyclic trip"
-          : reason == 12
-          ? "$motorOff maximum run time"
-          : reason == 13
-          ? "$motorOff sump empty"
-          : reason == 14
-          ? "$motorOff upper tank full"
-          : reason == 15
-          ? "$motorOff RTC 1"
-          : reason == 16
-          ? "$motorOff RTC 2"
-          : reason == 17
-          ? "$motorOff RTC 3"
-          : reason == 18
-          ? "$motorOff RTC 4"
-          : reason == 19
-          ? "$motorOff RTC 5"
-          : reason == 20
-          ? "$motorOff RTC 6"
-          : reason == 21
-          ? "$motorOff auto mobile key off"
-          : reason == 22
-          ? "$motorOn cyclic time"
-          : reason == 23
-          ? "$motorOn RTC 1"
-          : reason == 24
-          ? "$motorOn RTC 2"
-          : reason == 25
-          ? "$motorOn RTC 3"
-          : reason == 26
-          ? "$motorOn RTC 4"
-          : reason == 27
-          ? "$motorOn RTC 5"
-          : reason == 28
-          ? "$motorOn RTC 6"
-          : reason == 29
-          ? "$motorOn auto mobile key on"
-          : reason == 30
-          ? "Power off"
-          : reason == 31
-          ? "Power on"
-          : reason == 100
-          ? "No communication"
+      reason: reason == 1 ? "$motorOff sump empty"
+          : reason == 2 ? "$motorOff upper tank full"
+          : reason == 3 ? "$motorOff low voltage"
+          : reason == 4 ? "$motorOff high voltage"
+          : reason == 5 ? "$motorOff voltage SPP"
+          : reason == 6 ? "$motorOff reverse phase"
+          : reason == 7 ? "$motorOff starter trip"
+          : reason == 8 ? "$motorOff dry run"
+          : reason == 9 ? "$motorOff overload"
+          : reason == 10 ? "$motorOff current SPP"
+          : reason == 11 ? "$motorOff cyclic trip"
+          : reason == 12 ? "$motorOff maximum run time"
+          : reason == 13 ? "$motorOff sump empty"
+          : reason == 14 ? "$motorOff upper tank full"
+          : reason == 15 ? "$motorOff RTC 1"
+          : reason == 16 ? "$motorOff RTC 2"
+          : reason == 17 ? "$motorOff RTC 3"
+          : reason == 18 ? "$motorOff RTC 4"
+          : reason == 19 ? "$motorOff RTC 5"
+          : reason == 20 ? "$motorOff RTC 6"
+          : reason == 21 ? "$motorOff auto mobile key off"
+          : reason == 22 ? "$motorOn cyclic time"
+          : reason == 23 ? "$motorOn RTC 1"
+          : reason == 24 ? "$motorOn RTC 2"
+          : reason == 25 ? "$motorOn RTC 3"
+          : reason == 26 ? "$motorOn RTC 4"
+          : reason == 27 ? "$motorOn RTC 5"
+          : reason == 28 ? "$motorOn RTC 6"
+          : reason == 29 ? "$motorOn auto mobile key on"
+          : reason == 30 ? "Power off"
+          : reason == 31 ? "Power on"
+          : reason == 100 ? "No communication"
           : "Unknown",
-      waterMeter: json["WM"],
-      cumulativeFlow: value.substring(firstIndex),
+      waterMeter: json["WM"] ?? "",
+      cumulativeFlow: value != "-" ? value.substring(firstIndex) : "-",
       phase: json['PH'],
       pressure: json["PR"],
       actual: json["AT"],
       set: json["SE"],
-      level: json["LV"],
-      float: json["FT"],
-      onDelayTimer: json["OD"],
-      onDelayComplete: json["ODC"],
-      onDelayLeft: json["ODL"],
-      cyclicOffDelay: json["CFDL"],
-      cyclicOnDelay: json["CNDL"],
+      level: json["LV"] ?? "",
+      float: json["FT"] ?? "",
+      onDelayTimer: json["OD"] ?? "",
+      onDelayComplete: json["ODC"] ?? "",
+      onDelayLeft: json["ODL"] ?? "",
+      cyclicOffDelay: json["CFDL"] ?? "",
+      cyclicOnDelay: json["CNDL"] ?? "",
       maximumRunTimeRemaining: json["MR"] ?? "",
       dryRunRestartTimeRemaining: json["DRST"] ?? "",
     );
+  }
+}
+
+class ValveData {
+  final String duration;
+  final String status;
+
+  ValveData({required this.duration, required this.status});
+
+  factory ValveData.fromRaw(String raw) {
+    final parts = raw.split(',');
+    final duration = '${parts[0]}:${parts[1]}';
+    final status = parts[2];
+    return ValveData(duration: duration, status: status);
+  }
+
+  Map<String, dynamic> toJson() {
+    final timeParts = duration.split(':');
+    return {
+      'raw': '${timeParts[0]},${timeParts[1]},$status',
+    };
+  }
+}
+
+class PumpValveModel extends IndividualPumpData {
+  final String valveOnMode;
+  final Map<String, ValveData> valves;
+  final String remainingTime;
+  final String cyclicRestartFlag;
+  final String cyclicRestartInterval;
+  final String cyclicRestartLimit;
+
+  PumpValveModel({
+    required this.valveOnMode,
+    required this.valves,
+    required this.remainingTime,
+    required this.cyclicRestartFlag,
+    required this.cyclicRestartInterval,
+    required this.cyclicRestartLimit,
+  }) : super(
+    status: 0,
+    reason: '',
+    reasonCode: 0,
+    waterMeter: '',
+    cumulativeFlow: '',
+    pressure: '',
+    actual: '',
+    set: '',
+    level: '',
+    phase: '',
+    float: '',
+    onDelayTimer: '',
+    onDelayComplete: '',
+    onDelayLeft: '',
+    cyclicOffDelay: '',
+    cyclicOnDelay: '',
+    maximumRunTimeRemaining: '',
+    dryRunRestartTimeRemaining: '',
+  );
+
+  factory PumpValveModel.fromJson(Map<String, dynamic> json) {
+    final Map<String, ValveData> valveMap = {};
+    for (int i = 1; i <= 10; i++) {
+      final key = 'V$i';
+      if (json[key] != null) {
+        valveMap[key] = ValveData.fromRaw(json[key]);
+      }
+    }
+
+    return PumpValveModel(
+      valveOnMode: json['VOM'] ?? '',
+      valves: valveMap,
+      remainingTime: json['RT'] ?? '',
+      cyclicRestartFlag: json['CRSF'] ?? '',
+      cyclicRestartInterval: json['CRST'] ?? '',
+      cyclicRestartLimit: json['CRSL'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = {
+      'VOM': valveOnMode,
+      'RT': remainingTime,
+      'CRSF': cyclicRestartFlag,
+      'CRST': cyclicRestartInterval,
+      'CRSL': cyclicRestartLimit,
+    };
+    valves.forEach((key, value) {
+      data[key] = '${value.duration.split(':')[0]},${value.duration.split(':')[1]},${value.status}';
+    });
+    return data;
   }
 }

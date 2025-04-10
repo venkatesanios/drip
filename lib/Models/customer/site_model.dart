@@ -1236,33 +1236,21 @@ class LiveMessage {
   });
 
   factory LiveMessage.fromJson(Map<String, dynamic> json) {
-
-    final mCValue = json['mC'];
-    final cMRaw = json['cM'];
-
-    dynamic parsedCM;
-
-    if (cMRaw is Map<String, dynamic>) {
-      parsedCM = Map<String, dynamic>.from(cMRaw);
-    } else if (cMRaw is List && mCValue == 'LD01') {
-      /*parsedCM = PumpControllerData.fromJson(json, "cM", 2);*/
-    } else {
-      parsedCM = cMRaw;
-    }
-
     return LiveMessage(
       cC: json['cC'],
-      cM: parsedCM,
+      cM: json['cM'] is Map<String, dynamic>
+          ? Map<String, dynamic>.from(json['cM'])
+          : (json['cM'] is List ? json['mC'] == 'LD01' ? PumpControllerData.fromJson(json, "cM", 2) : <String, dynamic>{} : <String, dynamic>{}),
       cD: json['cD'],
       cT: json['cT'],
-      mC: mCValue,
+      mC: json['mC'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'cC': cC,
-      'cM': cM is Map ? cM : (cM is PumpControllerData ? cM.toJson() : cM),
+      'cM': cM,
       'cD': cD,
       'cT': cT,
       'mC': mC,

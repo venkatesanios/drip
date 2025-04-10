@@ -1,6 +1,4 @@
 
-
-
 import 'package:oro_drip_irrigation/Models/customer/site_model.dart';
 import 'package:provider/provider.dart';
 

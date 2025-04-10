@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../../Models/customer/sensor_hourly_data_model.dart';
 import '../../Models/customer/site_model.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../repository/repository.dart';
@@ -12,6 +14,8 @@ import '../../utils/constants.dart';
 import '../../utils/snack_bar.dart';
 
 class PumpStationViewModel extends ChangeNotifier {
+
+  final Repository repository;
 
   late MqttPayloadProvider payloadProvider;
 
@@ -33,9 +37,60 @@ class PumpStationViewModel extends ChangeNotifier {
     '25', '26', '27', '28', '29', '30', '31'
   ];
 
-  PumpStationViewModel(context, this.mvWaterSource, this.mvFilterSite, this.mvFertilizerSite, this.mvIrrLineData, this.mvCurrentLineName) {
+
+  List<SensorHourlyDataModel> sensors = [];
+
+
+  PumpStationViewModel(context, this.repository, this.mvWaterSource, this.mvFilterSite, this.mvFertilizerSite, this.mvIrrLineData, this.mvCurrentLineName) {
     payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
     displaySite();
+  }
+
+
+  Future<void> getSensorHourlyData(customerId, controllerId) async {
+    try {
+      DateTime selectedDate = DateTime.now();
+      String date = DateFormat('yyyy-MM-dd').format(selectedDate);
+
+      Map<String, Object> body = {
+        "userId": customerId,
+        "controllerId": controllerId,
+        "fromDate": '2025-04-09',
+        "toDate": '2025-04-09',
+      };
+
+      final response = await repository.fetchSensorHourlyData(body);
+      if (response.statusCode == 200) {
+        sensors.clear();
+        final jsonData = jsonDecode(response.body);
+
+        if (jsonData["code"] == 200) {
+          sensors = (jsonData['data'] as List).map((item) {
+            final Map<String, List<SensorHourlyData>> hourlyDataMap = {};
+
+            item.forEach((key, value) {
+              if (key == 'date') return;
+
+              if (value is String && value.isNotEmpty) {
+                final entries = value.split(';');
+                hourlyDataMap[key] = entries.map((entry) {
+                  return SensorHourlyData.fromCsv(entry, key);
+                }).toList();
+              } else {
+                hourlyDataMap[key] = [];
+              }
+            });
+
+            return SensorHourlyDataModel(
+              date: item['date'],
+              data: hourlyDataMap,
+            );
+          }).toList();
+        }
+      }
+    } catch (error) {
+      debugPrint('Error fetching sensor hourly data: $error');
+    }
   }
 
   bool shouldUpdate(List<dynamic> newRelayStatus) {
@@ -340,7 +395,7 @@ class PumpStationViewModel extends ChangeNotifier {
   void sentUserOperationToServer(String msg, String data, int customerId, int controllerId, int userId) async
   {
     Map<String, Object> body = {"userId": customerId, "controllerId": controllerId, "messageStatus": msg, "hardware": jsonDecode(data), "createUser": userId};
-    final response = await Repository(HttpService()).createUserSentAndReceivedMessageManually(body);
+    final response = await repository.createUserSentAndReceivedMessageManually(body);
     if (response.statusCode == 200) {
       print(response.body);
     } else {

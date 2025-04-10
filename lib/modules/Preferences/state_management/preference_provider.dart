@@ -218,4 +218,54 @@ class PreferenceProvider extends ChangeNotifier {
     calibrationSetting = null;
     passwordValidationCode = 0;
   }
+
+  String _mode = "Duration";
+
+  String get mode => _mode;
+
+  void updateMode(String newMode) {
+    _mode = newMode;
+    notifyListeners();
+  }
+  void updateSettingValue(String title, String newValue) {
+    final setting = valveSettings?.setting.firstWhere((e) => e.title == title);
+    if (setting != null) {
+      if (setting.value.toString().contains(',')) {
+        final parts = setting.value.split(',');
+        setting.value = '$newValue,${parts[1]}';
+      } else {
+        setting.value = newValue;
+      }
+      notifyListeners();
+    }
+  }
+
+  void updateSwitchValue(String title, bool newValue) {
+    final setting = valveSettings?.setting.firstWhere((e) => e.title == title);
+    if (setting != null) {
+      if (setting.value.toString().contains(',')) {
+        final parts = setting.value.split(',');
+        setting.value = '${parts[0]},${newValue ? "1" : "0"}';
+      } else {
+        setting.value = newValue;
+
+        if(setting.serialNumber == 5) {
+          if(setting.value) {
+            _mode = "Manual";
+          } else {
+            _mode = "Duration";
+          }
+        }
+      }
+      notifyListeners();
+    }
+  }
+
+  String getDuration(String value) {
+    return value.toString().contains(',') ? value.split(',')[0] : value;
+  }
+
+  bool getSwitchState(String value) {
+    return value.toString().contains(',') ? value.split(',')[1] == '1' : value == 'true';
+  }
 }

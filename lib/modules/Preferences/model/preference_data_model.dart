@@ -231,7 +231,7 @@ class IndividualPumpSetting {
         sNo: json["sNo"],
         name: json["name"],
         pumpType: json["pumpType"],
-        controllerId: json["controllerId"],
+        controllerId: json["controllerId"] ?? 0,
         deviceId: json["deviceId"],
         controlGem: json["controlGem"] ?? false,
         settingList: settingsList,
@@ -244,7 +244,7 @@ class IndividualPumpSetting {
       "sNo": sNo,
       "name": name,
       "type": pumpType,
-      // "deviceId": deviceId,
+      "deviceId": deviceId,
       "controlGem": controlGem,
       "settingList": settingList.map((e) => e.toJson()).toList(),
       "output": output
@@ -275,6 +275,7 @@ class IndividualPumpSetting {
 class CommonPumpSetting {
   int controllerId;
   int categoryId;
+  int modelId;
   String deviceName;
   String deviceId;
   int serialNumber;
@@ -285,6 +286,7 @@ class CommonPumpSetting {
   CommonPumpSetting({
     required this.controllerId,
     required this.categoryId,
+    required this.modelId,
     required this.deviceId,
     required this.deviceName,
     required this.serialNumber,
@@ -300,6 +302,7 @@ class CommonPumpSetting {
     return CommonPumpSetting(
         controllerId: json["controllerId"],
         categoryId: json["categoryId"] ?? 0,
+        modelId: json["modelId"] ?? 0,
         deviceId: json["deviceId"],
         deviceName: json["deviceName"],
         serialNumber: json['serialNumber'] ?? 0,
@@ -313,6 +316,7 @@ class CommonPumpSetting {
     return {
       "controllerId": controllerId,
       "deviceId": deviceId,
+      "modelId": modelId,
       "deviceName": deviceName,
       "serialNumber": serialNumber,
       "referenceNumber": referenceNumber,

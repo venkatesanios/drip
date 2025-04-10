@@ -81,9 +81,9 @@ class ControllerSettings extends StatelessWidget {
                             );
                           case 'Condition Library':
                             return ConditionLibrary(
-                              customerId,
-                              controllerId,
-                              adDrId,
+                              customerId: customerId,
+                              controllerId: controllerId,
+                              userId: adDrId,
                               deviceId: deviceId,
                             );
                           case 'Name':
@@ -174,11 +174,16 @@ class ControllerSettings extends StatelessWidget {
                         viewModel.filteredSettingList[index]['title'],
                         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
+                      subtitle: Text(getSubTitle(viewModel.filteredSettingList[index]['title']),
+                        style: const TextStyle(color: Colors.black54),),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                       onTap: () {
                         if(viewModel.filteredSettingList[index]['title']=='General'){
                           Navigator.push(context, MaterialPageRoute(builder: (context) => GeneralSetting(customerId: customerId, controllerId: controllerId, adDrId: adDrId, userId: adDrId,)));
+                        }else if(viewModel.filteredSettingList[index]['title']=='Condition Library'){
+                          Navigator.push(context, MaterialPageRoute(builder: (context) =>  ConditionLibrary(deviceId: deviceId, customerId: customerId, controllerId: controllerId, userId: adDrId,)));
                         }
+
                       },
                     ),
                     if (index < viewModel.filteredSettingList.length - 1) const Padding(
@@ -207,6 +212,21 @@ class ControllerSettings extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String getSubTitle(String title) {
+    switch (title) {
+      case 'General':
+        return 'Includes controller name, category, model, version, and UTC time settings.';
+      case 'Preference':
+        return 'Configure pump settings, voltage, current limits, timers, and calibration.';
+      case 'Name':
+        return 'Change names of pumps, sensors, filters, and other components.';
+      case 'Condition Library':
+        return 'Sensor-based conditions such as moisture, pressure, time-based triggers, and program ON/OFF logic.';
+      default:
+        return 'No additional information available.';
+    }
   }
 
 }

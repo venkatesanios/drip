@@ -13,6 +13,7 @@ import '../../Models/frost_model.dart';
 import '../../StateManagement/overall_use.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
+import '../../utils/environment.dart';
 import '../../utils/snack_bar.dart';
 
 
@@ -664,7 +665,7 @@ class _ConditionUIState extends State<FrostMobUI>
       ]
     });
 
-    MqttService().topicToPublishAndItsMessage(payLoadFinal, 'AppToFirmware/${overAllPvd.imeiNo}');
+    MqttService().topicToPublishAndItsMessage(payLoadFinal, '${Environment.mqttPublishTopic}/${overAllPvd.imeiNo}');
 
     List<Map<String, dynamic>> frostProtection = _frostProtectionModel
         .frostProtection!

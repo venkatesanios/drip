@@ -62,6 +62,10 @@ class Repository{
     return await apiService.postRequest('/user/sentAndReceivedMessage/getStatus', body);
   }
 
+  Future<http.Response> fetchSensorHourlyData(body) async {
+    return await apiService.postRequest('/user/log/sensorHourly/get', body);
+  }
+
   Future<http.Response> fetchSentAndReceivedHardwarePayload(body) async {
     return await apiService.postRequest('/user/sentAndReceivedMessage/getHardwarePayload', body);
   }

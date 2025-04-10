@@ -1,11 +1,8 @@
 import 'package:flutter/foundation.dart';
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/Models/servicecustomermodel.dart';
 import 'package:oro_drip_irrigation/Screens/Dealer/sevicecustomer.dart';
 import 'package:oro_drip_irrigation/Screens/Logs/irrigation_and_pump_log.dart';
 import 'package:oro_drip_irrigation/Screens/planning/WeatherScreen.dart';
-import 'package:oro_drip_irrigation/modules/PumpController/view/pump_dashboard_screen.dart';
 import 'package:oro_drip_irrigation/views/customer/program_schedule.dart';
 import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
 import 'package:oro_drip_irrigation/views/customer/site_config.dart';
@@ -18,7 +15,6 @@ import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../flavors.dart';
 import '../../modules/ScheduleView/view/schedule_view_screen.dart';
 import '../../modules/PumpController/view/pump_controller_home.dart';
-import '../../modules/ScheduleView/view/schedule_view_screen.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/formatters.dart';
@@ -721,7 +717,7 @@ class CustomerScreenController extends StatelessWidget {
                     ),
                   ]),
                   ):
-                  SizedBox()
+                  const SizedBox()
                 ],
               ),
             ),
