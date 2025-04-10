@@ -120,9 +120,9 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     }
   }
 
-  void masterOnChanged(categoryName){
+  void masterOnChanged(categoryName, model){
     int masterIdx = mySiteList.data[sIndex].master.indexWhere((master)=>
-    master.categoryName == categoryName);
+    master.categoryName == categoryName && master.modelName == model);
     if (masterIdx != -1 && mySiteList.data[sIndex].master.length > 1) {
       mIndex = masterIdx;
       lIndex = 0;
