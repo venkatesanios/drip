@@ -1,11 +1,14 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
+import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/Screens/Map/MapAddObject.dart';
+import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
-import 'MapAddObject.dart';
+import '../../utils/snack_bar.dart';
+import 'CustomerMap.dart';
+import 'devicelocationchange.dart';
 import 'googlemap_model.dart';
 
 class DeviceListScreen extends StatefulWidget {
@@ -48,6 +51,25 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
               "object name": "Valve",
               "location": "Irrigation Line 2",
               "lat": 11.0168,
+              "long": 76.9518,
+              "status": null
+            }, {
+              "objectId": 2,
+              "sNo": 1.002,
+              "name": "Valve 2",
+              "object name": "Valve",
+              "location": "Irrigation Line 2",
+              "lat": 10.0168,
+              "long": 76.9518,
+              "status": null
+            },
+            {
+              "objectId": 3,
+              "sNo": 1.003,
+              "name": "Valve 3",
+              "object name": "Valve",
+              "location": "Irrigation Line 2",
+              "lat": 10.0168,
               "long": 76.9518,
               "status": null
             }
@@ -622,64 +644,133 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
              body: const Center(child: Text('Map Device list is empty')),
            );
          }
-
-         return Scaffold(
+          return Scaffold(
            appBar: AppBar(title: const Text('Device List')),
-           body: Padding(
-             padding: const EdgeInsets.all(10.0),
-             child: Wrap(
-               spacing: 10.0,
-               runSpacing: 10.0,
-               children: List.generate(deviceList.length, (index) {
-                 final device = deviceList[index];
+           body: SingleChildScrollView(
+             child: Padding(
+               padding: const EdgeInsets.all(10.0),
+               child: Column(
+                 children: [
+                    Row(
+                      children: [
+                        ///MapScreenall
+                        TextButton.icon(
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => MapScreenall(),
+                            ));
+                          },
 
-                 return InkWell(
-                   onTap: () {
-                     Navigator.of(context).push(MaterialPageRoute(
-                       builder: (context) => MapScreen(index: index),
-                     ));
-                   },
-                   child: Card(
-                     margin: const EdgeInsets.all(8.0),
-                     elevation: 8,
-                     shadowColor: Colors.blue,
-                     shape: RoundedRectangleBorder(
-                       borderRadius: BorderRadius.circular(10.0),
-                     ),
-                     child: Padding(
-                       padding: const EdgeInsets.all(16.0),
-                       child: Row(
-                         children: [
-                           IconButton(
-                             icon: Image.asset('assets/png/map.png'),
-                             onPressed: () {},
+                          icon: Icon(Icons.edit_location_alt,color: Colors.white,),
+                          label: Text('all'),
+                        ),
+                        Spacer(),
+                        TextButton.icon(
+                         onPressed: () {
+                           Navigator.of(context).push(MaterialPageRoute(
+                             builder: (context) => MapScreendevice(),
+                           ));
+                         },
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Theme.of(context).primaryColor,// text color
+                            padding: EdgeInsets.symmetric(horizontal: 16.0),
+                            textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                          ),
+                         icon: Icon(Icons.edit_location_alt,color: Colors.white,),
+                         label: Text('Edit Node location'),
+                                           ),
+                      ],
+                    ),
+                   Wrap(
+                     spacing: 10.0,
+                     runSpacing: 10.0,
+                     children: List.generate(deviceList.length, (index) {
+                       final device = deviceList[index];
+
+                       return InkWell(
+                         onTap: () {
+                           Navigator.of(context).push(MaterialPageRoute(
+                             builder: (context) => MapScreen(index: index),
+                           ));
+                         },
+                         child: Card(
+                           margin: const EdgeInsets.all(8.0),
+                           elevation: 8,
+                           shadowColor: Colors.blue,
+                           shape: RoundedRectangleBorder(
+                             borderRadius: BorderRadius.circular(10.0),
                            ),
-                           Column(
-                             crossAxisAlignment: CrossAxisAlignment.start,
-                             children: [
-                               Text(
-                                 '${device.deviceName ?? "Unknown"} (${device.connectedObject?.length ?? 0})',
-                                 style: const TextStyle(
-                                   fontSize: 18.0,
-                                   fontWeight: FontWeight.bold,
+                           child: Padding(
+                             padding: const EdgeInsets.all(16.0),
+                             child: Row(
+                               children: [
+                                 IconButton(
+                                   icon: Image.asset('assets/png/map.png'),
+                                   onPressed: () {},
                                  ),
-                               ),
-                               const SizedBox(height: 8.0),
-                               Text('Device ID: ${device.deviceId ?? "-"}'),
-                               Text('Model: ${device.modelName ?? "-"}'),
-                               Text('Category: ${device.categoryName ?? "-"}'),
-                             ],
+                                 Column(
+                                   crossAxisAlignment: CrossAxisAlignment.start,
+                                   children: [
+                                     Text(
+                                       '${device.deviceName ?? "Unknown"} (${device.connectedObject?.length ?? 0})',
+                                       style: const TextStyle(
+                                         fontSize: 18.0,
+                                         fontWeight: FontWeight.bold,
+                                       ),
+                                     ),
+                                     const SizedBox(height: 8.0),
+                                     Text('Device ID: ${device.deviceId ?? "-"}'),
+                                     Text('Location: ${device.geography!.lat },${device.geography!.lat }'),
+                                     Text('Model: ${device.modelName ?? "-"}'),
+                                     Text('Category: ${device.categoryName ?? "-"}'),
+                                   ],
+                                 ),
+                                ],
+                             ),
                            ),
-                         ],
-                       ),
-                     ),
+                         ),
+                       );
+                     }),
                    ),
-                 );
-               }),
+                 ],
+               ),
              ),
+           ),
+           floatingActionButton: FloatingActionButton(
+             backgroundColor: Theme.of(context).primaryColorDark,
+             foregroundColor: Colors.white,
+             onPressed: () async {
+               setState(() {
+                 updateMapLocation();
+               });
+             },
+             tooltip: 'Send',
+             child: const Icon(Icons.send),
            ),
          );
        },
      );
+   }
+   updateMapLocation() async {
+      Map<String, dynamic> filterBackWash = {};
+      Map<String, dynamic> filterBackWashserverSenddata = {
+       "filterBackwashing" : filterBackWash["data"]['filterBackwashing'],
+       "controllerReadStatus" : "0",
+     };
+
+     final Repository repository = Repository(HttpService());
+
+     Map<String, dynamic> body = {
+       // "userId": 04,
+       // "controllerId": 28,
+       // "filterBackwash": filterBackWashserverSenddata,
+       //  "createUser": 04
+     };
+     var getUserDetails = await repository.UpdateFilterBackwasing(body);
+     var jsonDataResponse = jsonDecode(getUserDetails.body);
+
+      GlobalSnackBar.show(context, jsonDataResponse['message'], jsonDataResponse.statusCode);
+
    }
 }

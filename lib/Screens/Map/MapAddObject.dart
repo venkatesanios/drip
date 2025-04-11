@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../../StateManagement/mqtt_payload_provider.dart';
+import 'googlemap_model.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key, required this.index}) : super(key: key);
@@ -19,6 +20,7 @@ class _MapScreenState extends State<MapScreen> {
   LatLng? _valvePosition;
 
   late MqttPayloadProvider mqttPayloadProvider;
+  ConnectedObject? _selectedObject;
 
   @override
   void initState() {
@@ -35,15 +37,18 @@ class _MapScreenState extends State<MapScreen> {
 
   void _updateValveMarker() {
     final device = mqttPayloadProvider.mapModelInstance.data?.deviceList?[widget.index];
-    final connectedObj = device?.connectedObject?.isNotEmpty == true
-        ? device?.connectedObject!.first
-        : null;
+    final connectedObj = device?.connectedObject?.firstWhere(
+          (obj) => (obj.name?.toLowerCase().contains('valve') ?? false) ||
+          (obj.objectName?.toLowerCase().contains('valve') ?? false),
+      orElse: () => ConnectedObject(),
+    );
 
     if (connectedObj != null && connectedObj.lat != null && connectedObj.long != null) {
       final position = LatLng(connectedObj.lat!, connectedObj.long!);
 
       setState(() {
         _valvePosition = position;
+        _selectedObject = connectedObj;
         _markers.clear();
         _markers.add(
           Marker(
@@ -68,32 +73,6 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  void _showConnectedObjects() {
-    final connectedObjects = mqttPayloadProvider
-        .mapModelInstance.data?.deviceList?[widget.index].connectedObject;
-    print('connectedObjects---> ${widget.index} $connectedObjects');
-
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return ListView.builder(
-          itemCount: connectedObjects?.length ?? 0,
-          itemBuilder: (context, index) {
-            final object = connectedObjects![index];
-            return ListTile(
-              title: Text(object.name ?? ''),
-              subtitle: Text('Lat: ${object.lat}, Long: ${object.long}'),
-              onTap: () {
-                _updateMarker(object.lat!, object.long!);
-                Navigator.of(context).pop();
-              },
-            );
-          },
-        );
-      },
-    );
-  }
-
   void _updateMarker(double lat, double long) {
     final position = LatLng(lat, long);
 
@@ -113,11 +92,10 @@ class _MapScreenState extends State<MapScreen> {
       );
     });
 
-    final device = mqttPayloadProvider.mapModelInstance.data?.deviceList?[widget.index];
-    if (device != null && device.connectedObject?.isNotEmpty == true) {
-      device.connectedObject![0].lat = lat;
-      device.connectedObject![0].long = long;
-      device.connectedObject![0].status = 1;
+    if (_selectedObject != null) {
+      _selectedObject!.lat = lat;
+      _selectedObject!.long = long;
+      _selectedObject!.status = 1;
       mqttPayloadProvider.notifyListeners();
     }
 
@@ -165,15 +143,7 @@ class _MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Valve Controller Map'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.list),
-            onPressed: _showConnectedObjects,
-          ),
-        ],
-      ),
+      appBar:  AppBar( title: const Text('Set Location')), // Removed AppBar
       body: Column(
         children: [
           Padding(
@@ -189,11 +159,42 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.search),
+                TextButton(
                   onPressed: _searchLocation,
+                  child: Text(
+                    'Search',
+                    style: TextStyle(color: Colors.blue),
+                  ),
                 ),
               ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: DropdownButton<ConnectedObject>(
+              value: _selectedObject,
+              hint: const Text('Select Valve Object'),
+              onChanged: (ConnectedObject? newObject) {
+                setState(() {
+                  _selectedObject = newObject;
+                });
+                if (newObject != null) {
+                  _updateMarker(newObject.lat!, newObject.long!);
+                }
+              },
+              items: mqttPayloadProvider
+                  .mapModelInstance.data?.deviceList?[widget.index].connectedObject
+                  ?.where((obj) =>
+              (obj.name?.toLowerCase().contains('valve') ?? false) ||
+                  (obj.objectName?.toLowerCase().contains('valve') ?? false))
+                  .map<DropdownMenuItem<ConnectedObject>>((ConnectedObject object) {
+                return DropdownMenuItem<ConnectedObject>(
+                  value: object,
+                  child: Text(
+                    '${object.name ?? 'Valve'} (Lat: ${object.lat}, Long: ${object.long})',
+                  ),
+                );
+              }).toList(),
             ),
           ),
           Expanded(
