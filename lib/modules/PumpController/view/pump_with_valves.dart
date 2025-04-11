@@ -5,10 +5,15 @@ import '../../../Constants/constants.dart';
 import '../model/pump_controller_data_model.dart';
 import '../widget/custom_countdown_timer.dart';
 
-class PumpWithValves extends StatelessWidget {
+class PumpWithValves extends StatefulWidget {
   final PumpValveModel valveData;
   const PumpWithValves({super.key, required this.valveData});
 
+  @override
+  State<PumpWithValves> createState() => _PumpWithValvesState();
+}
+
+class _PumpWithValvesState extends State<PumpWithValves> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -56,12 +61,12 @@ class PumpWithValves extends StatelessWidget {
               spacing: 20,
               runSpacing: 20,
               children: [
-                for(int i = 0; i < valveData.valves.length; i++)
+                for(int i = 0; i < widget.valveData.valves.length; i++)
                   Column(
                     children: [
                       Builder(
                         builder: (valveContext) {
-                          final valveItem = valveData.valves['V${i+1}']!;
+                          final valveItem = widget.valveData.valves['V${i+1}']!;
                           return InkWell(
                             onTap: () => _showDetails(i, valveContext),
                             child: Image.asset(
@@ -81,7 +86,7 @@ class PumpWithValves extends StatelessWidget {
                         },
                       ),
                       Text('Valve ${i+1}', style: Theme.of(context).textTheme.titleSmall,),
-                      if(valveData.valves['V${i+1}']!.status == '1')
+                      if(widget.valveData.valves['V${i+1}']!.status == '1')
                         IntrinsicWidth(
                             child: Container(
                                 decoration: BoxDecoration(
@@ -89,7 +94,7 @@ class PumpWithValves extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(4)
                                 ),
                                 padding: const EdgeInsets.symmetric(horizontal: 5),
-                                child: CountdownTimerWidget(initialSeconds: Constants.parseTime(valveData.remainingTime).inSeconds)
+                                child: CountdownTimerWidget(initialSeconds: Constants.parseTime(widget.valveData.remainingTime).inSeconds)
                             )
                         )
                     ],
@@ -121,13 +126,12 @@ class PumpWithValves extends StatelessWidget {
     );
   }
 
-
   Widget _buildValveContent(int i, BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Text('Valve ${i+1}'),
-        Text('Set : ${valveData.valves['V${i+1}']!.duration}'),
+        Text('Set : ${widget.valveData.valves['V${i+1}']!.duration}'),
         // Text('Actual : 00:00:10')
       ],
     );

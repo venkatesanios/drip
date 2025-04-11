@@ -195,7 +195,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
       if (mySiteList.data[sIndex].master[mIndex].categoryId == 1) {
         livePayload = jsonEncode({"3000": {"3001": ""}});
       } else {
-        livePayload = jsonEncode({"sentSMS": "#live"});
+        livePayload = jsonEncode({"sentSms": "#live"});
       }
 
       final deviceId = mySiteList.data[sIndex].master[mIndex].deviceId;
