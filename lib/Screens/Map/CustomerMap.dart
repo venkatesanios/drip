@@ -95,13 +95,13 @@ class _MapScreenallState extends State<MapScreenall> {
   }
 
   BitmapDescriptor _getMarkerIcon(int? status) {
-    // switch (status) {
-      // case 1:
-      //   return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen);
-      // case 0:
+    switch (status) {
+      case 1:
+        return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen);
+      case 0:
         return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed);
-      // default:
-      //   return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue);
-    // }
+      default:
+        return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue);
+    }
   }
 }
