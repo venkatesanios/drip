@@ -1,7 +1,4 @@
-
-import 'package:oro_drip_irrigation/Models/customer/site_model.dart';
 import 'package:provider/provider.dart';
-
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
 
 class UserConstant {

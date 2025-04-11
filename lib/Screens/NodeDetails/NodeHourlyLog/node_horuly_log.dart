@@ -102,7 +102,7 @@ class _NodeHrsLogState extends State<NodeHrsLog> {
       appBar: AppBar(
         title: const Text('Node hourly logs', style: TextStyle(color: Colors.white),),
         backgroundColor: Theme.of(context).primaryColor,
-        leading: BackButton(
+        leading: const BackButton(
             color: Colors.white
         ),
         actions: [
@@ -130,11 +130,11 @@ class _NodeHrsLogState extends State<NodeHrsLog> {
             String nodeId = entry.key;
             List<ChartData> chartData = entry.value;
             return SfCartesianChart(
-              primaryXAxis: CategoryAxis(),
+              primaryXAxis: const CategoryAxis(),
               title: ChartTitle(text: 'Device Name: ${chartData.elementAt(0).deviceName}  -  ID: $nodeId'),
               legend: const Legend(isVisible: true),
               //tooltipBehavior: TooltipBehavior(enable: true),
-              primaryYAxis: NumericAxis(
+              primaryYAxis: const NumericAxis(
                 title: AxisTitle(text: 'Percentage'),
               ),
               series: <LineSeries<ChartData, String>>[

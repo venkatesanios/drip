@@ -109,7 +109,7 @@ class _ServiceRequestAdminState extends State<ServiceRequestAdmin> {
                 searchQuery = value;
                 updateFilters();
               },
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Search',
                 border: OutlineInputBorder(),
               ),
@@ -118,8 +118,8 @@ class _ServiceRequestAdminState extends State<ServiceRequestAdmin> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("Status:"),
-              SizedBox(width: 5,),
+              const Text("Status:"),
+              const SizedBox(width: 5,),
               DropdownButton<String>(
                 value: filterStatus,
                 items: ['All', 'Waiting', 'In-Progress', 'Closed']
@@ -134,11 +134,11 @@ class _ServiceRequestAdminState extends State<ServiceRequestAdmin> {
                     updateFilters();
                   });
                 },
-                hint: Text('Filter by Status'),
+                hint: const Text('Filter by Status'),
               ),
-              SizedBox(width: 10,),
-              Text("Request Type:"),
-              SizedBox(width: 5,),
+              const SizedBox(width: 10,),
+              const Text("Request Type:"),
+              const SizedBox(width: 5,),
               DropdownButton<String>(
                 value: filterRequestType,
                 items: ['All', 'Valve Issue', 'Other Issue', 'Hardware Issue', 'Software Issue']
@@ -153,7 +153,7 @@ class _ServiceRequestAdminState extends State<ServiceRequestAdmin> {
                     updateFilters();
                   });
                 },
-                hint: Text('Filter by Request Type'),
+                hint: const Text('Filter by Request Type'),
               ),
             ],
           ),
@@ -161,18 +161,18 @@ class _ServiceRequestAdminState extends State<ServiceRequestAdmin> {
             padding: const EdgeInsets.all(8.0),
             child: Text(
               'Total Records: ${filteredData.length}',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
           Expanded(
             child: SingleChildScrollView(
               scrollDirection: Axis.vertical,
-              physics: BouncingScrollPhysics(),
+              physics: const BouncingScrollPhysics(),
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  physics: ScrollPhysics(),
+                  physics: const ScrollPhysics(),
                   child: DataTable(
                     columns: const [
                       DataColumn(label: Text('Request ID',style: TextStyle(fontWeight: FontWeight.bold),)),

@@ -1,9 +1,6 @@
 import 'dart:convert';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'dart:async';
-
 import 'package:intl/intl.dart';
 import 'package:oro_drip_irrigation/Constants/properties.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/repository/irrigation_program_repo.dart';
@@ -14,7 +11,6 @@ import '../../../services/mqtt_service.dart';
 import '../../SystemDefinitions/widgets/custom_snack_bar.dart';
 import '../widgets/custom_timeline_widget.dart';
 import '../../../flavors.dart';
-import '../../../repository/repository.dart';
 import '../../../services/http_service.dart';
 import '../../../utils/environment.dart';
 import '../../IrrigationProgram/view/program_library.dart';

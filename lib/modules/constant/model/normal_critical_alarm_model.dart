@@ -1,7 +1,5 @@
-import 'package:oro_drip_irrigation/modules/constant/model/constant_setting_type_Model.dart';
 
 import 'alarm_in_constant_model.dart';
-import 'object_in_constant_model.dart';
 
 class NormalCriticalAlarmModel{
   final int objectId;

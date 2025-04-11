@@ -1,6 +1,4 @@
 
-import 'dart:convert';
-
 class ConstantDataModel {
   final Constant constant;
   final Default fetchUserDataDefault;

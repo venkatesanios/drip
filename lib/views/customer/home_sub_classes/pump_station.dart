@@ -78,7 +78,7 @@ class PumpStation extends StatelessWidget {
                         buildRow(context, vm.sortedWaterSources, vm),
                         Padding(
                           padding: const EdgeInsets.only(top: 3.1),
-                          child: DisplayIrrigationLine(lineData:vm.mvIrrLineData, pumpStationWith:(vm.grandTotal*70)+157, currentLineName:currentLineName, sensorsHourlyLog: vm.sensors,),
+                          child: DisplayIrrigationLine(lineData:vm.mvIrrLineData, pumpStationWith:(vm.grandTotal*70)+157, currentLineName:currentLineName,),
                         ),
                       ],
                     ):
@@ -93,7 +93,7 @@ class PumpStation extends StatelessWidget {
                           ),
                         ):
                         buildRow(context, vm.sortedWaterSources, vm),
-                        DisplayIrrigationLine(lineData: vm.mvIrrLineData, pumpStationWith: 0, currentLineName: currentLineName, sensorsHourlyLog: vm.sensors),
+                        DisplayIrrigationLine(lineData: vm.mvIrrLineData, pumpStationWith: 0, currentLineName: currentLineName,),
                       ],
                     ),
                   ],

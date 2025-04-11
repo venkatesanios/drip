@@ -7,12 +7,9 @@ import 'package:oro_drip_irrigation/Constants/constants.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/repository/irrigation_program_repo.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/model/device_object_model.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/model/LineDataModel.dart';
-
 import '../../../Constants/dart_convertion.dart';
 import '../model/sequence_model.dart';
 import 'package:intl/intl.dart';
-
-import '../../../repository/repository.dart';
 import '../../../services/http_service.dart';
 
 class IrrigationProgramMainProvider extends ChangeNotifier {

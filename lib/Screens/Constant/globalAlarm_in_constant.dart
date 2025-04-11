@@ -44,7 +44,7 @@ class _GlobalAlarmInConstantState extends State<GlobalAlarmInConstant> {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
                               color: Colors.white,
-                              boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 5)],
+                              boxShadow: [const BoxShadow(color: Colors.grey, blurRadius: 5)],
                             ),
                             padding: const EdgeInsets.all(10),
                             child: ListTile(
@@ -62,7 +62,7 @@ class _GlobalAlarmInConstantState extends State<GlobalAlarmInConstant> {
                         ),
                       // Add placeholders for uniform alignment
                       for (var j = 0; j < (3 - (widget.alarm.length % 3)) % 3; j++)
-                        SizedBox(width: 300, height: 80),
+                        const SizedBox(width: 300, height: 80),
                     ],
                   ),
                   const SizedBox(height: 150),

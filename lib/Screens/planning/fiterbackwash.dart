@@ -1,16 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:oro_drip_irrigation/utils/environment.dart';
 import 'package:provider/provider.dart';
- import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Models/back_wash_model.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
@@ -40,10 +34,8 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
   late MqttPayloadProvider mqttPayloadProvider;
 
   // late TabController _tabController;
-  TimeOfDay _selectedTime = const TimeOfDay(hour: 0, minute: 0);
-  Filterbackwash _filterbackwash = Filterbackwash();
+   Filterbackwash _filterbackwash = Filterbackwash();
   int tabclickindex = 0;
-  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -55,16 +47,13 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
   }
 
   Future<void> fetchData() async {
-    var overAllPvd = Provider.of<OverAllUse>(context,listen: false);
-    final prefs = await SharedPreferences.getInstance();
-       try{
+        try{
       final Repository repository = Repository(HttpService());
       var getUserDetails = await repository.getUserFilterBackwasing({
         "userId": widget.fromDealer ? widget.customerId : widget.userId,
         "controllerId": widget.controllerId
       });
-      print("getUserDetails.body ${getUserDetails.body}");
-      // final jsonData = jsonDecode(getUserDetails.body);
+       // final jsonData = jsonDecode(getUserDetails.body);
         if (getUserDetails.statusCode == 200) {
         setState(() {
           var jsonData = jsonDecode(getUserDetails.body);
@@ -106,10 +95,10 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
           height: constaint.maxHeight,
           child: DefaultTabController(
             animationDuration: const Duration(milliseconds: 888),
-            length: _filterbackwash.data!.filterBackwashing!.length ?? 0,
+            length: _filterbackwash.data!.filterBackwashing!.length,
             child: Scaffold(
               backgroundColor: const Color(0xffE6EDF5),
-              appBar: AppBar(title: Text('Filter BackWash', style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold)),automaticallyImplyLeading: false,),
+              appBar: AppBar(title: const Text('Filter BackWash', style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold)),automaticallyImplyLeading: false,),
               body: SizedBox(
                 child: Column(
                   children: [
@@ -201,8 +190,7 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
   Widget buildTab(List<Filter>? Listofvalue, int i, String? name, double? srno,
       double width, double height) {
     var overAllPvd = Provider.of<OverAllUse>(context, listen: true);
-    final RegExp _regex = RegExp(r'^([0-9]|[1-9][0-9])(\.[0-9])?$');
-    return Row(
+     return Row(
       children: [
         Container(
           width: width,
@@ -235,7 +223,7 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
                           elevation: 7,
                           child: ListTile(
                             title: Text(
-                              '${Listofvalue?[0].value[j]['name']} ON TIME',
+                              '${Listofvalue[0].value[j]['name']} ON TIME',
                               style: const TextStyle(
                                 fontSize:
                                 14,
@@ -249,9 +237,9 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
                                 child: Center(
                                   child: InkWell(
                                     child: Text(
-                                      '${Listofvalue?[0].value![j]['value']}' !=
+                                      '${Listofvalue[0].value![j]['value']}' !=
                                           ''
-                                          ? '${Listofvalue?[0].value![j]['value']}'
+                                          ? '${Listofvalue[0].value![j]['value']}'
                                           : '00:00:00',
                                       style: const TextStyle(fontSize: 16),
                                     ),
@@ -262,13 +250,13 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
                                           return AlertDialog(
                                             title: HoursMinutesSeconds(
                                               initialTime:
-                                              '${Listofvalue?[0].value![j]['value']}' !=
+                                              '${Listofvalue[0].value![j]['value']}' !=
                                                   ''
-                                                  ? '${Listofvalue?[0].value![j]['value']}'
+                                                  ? '${Listofvalue[0].value![j]['value']}'
                                                   : '00:00:00',
                                               onPressed: () {
                                                 setState(() {
-                                                  Listofvalue?[0].value![j]
+                                                  Listofvalue[0].value![j]
                                                   ['value'] =
                                                   '${overAllPvd.hrs.toString().padLeft(2, '0')}:${overAllPvd.min.toString().padLeft(2, '0')}:${overAllPvd.sec.toString().padLeft(2, '0')}';
                                                 });

@@ -153,7 +153,6 @@ class Filterbackwash {
   });
 
   factory Filterbackwash.fromJson(Map<String, dynamic> json) {
-    print("\n\n Filterbackwash > $json");
     return Filterbackwash(
      code: json["code"],
     message: json["message"],
@@ -180,7 +179,6 @@ class Data {
   });
 
   factory Data.fromJson(Map<String, dynamic> json) {
-    print("Data$json");
     return Data(
     filterBackwashing: json["filterBackwashing"] == null ? [] : List<FilterBackwashing>.from(json["filterBackwashing"]!.map((x) => FilterBackwashing.fromJson(x))),
     controllerReadStatus: json["controllerReadStatus"],
@@ -215,7 +213,6 @@ class Filter {
   });
 
   factory Filter.fromJson(Map<String, dynamic> json) {
-    print("Filter $json");
     return Filter(
     sNo: json["sNo"],
     title: json["title"],
@@ -254,7 +251,6 @@ class FilterBackwashing {
    });
 
   factory FilterBackwashing.fromJson(Map<String, dynamic> json) {
-    print("FilterBackwashing $json");
     return FilterBackwashing(
     objectId: json["objectId"],
     sNo: json["sNo"],

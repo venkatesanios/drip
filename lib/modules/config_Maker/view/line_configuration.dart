@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -12,11 +11,9 @@ import '../../../Constants/properties.dart';
 import '../model/device_object_model.dart';
 import '../model/filtration_model.dart';
 import '../model/irrigationLine_model.dart';
-import '../model/moisture_model.dart';
 import '../model/source_model.dart';
 import '../state_management/config_maker_provider.dart';
 import '../../../Widgets/sized_image.dart';
-import '../../../services/http_service.dart';
 import '../../../utils/constants.dart';
 import 'config_object_name_editing.dart';
 import 'fertilization_configuration.dart';

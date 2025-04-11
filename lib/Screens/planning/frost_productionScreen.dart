@@ -49,9 +49,7 @@ class _ConditionUIState extends State<FrostMobUI>
 
 
   Future<void> fetchData() async {
-    var overAllPvd = Provider.of<OverAllUse>(context,listen: false);
-    final prefs = await SharedPreferences.getInstance();
-    try{
+     try{
       final Repository repository = Repository(HttpService());
       var getUserDetails = await repository.getUserfrostProtection({
         "userId":  widget.userId,

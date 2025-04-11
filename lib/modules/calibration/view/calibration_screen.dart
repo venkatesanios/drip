@@ -1,7 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:mqtt_client/mqtt_client.dart';
 import 'package:oro_drip_irrigation/Widgets/sized_image.dart';
 import 'package:oro_drip_irrigation/modules/calibration/repository/calibration_repository.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';

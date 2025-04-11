@@ -3,7 +3,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:oro_drip_irrigation/Screens/Constant/pump_in_constant.dart';
 import 'package:oro_drip_irrigation/Screens/Constant/valve_in_constant.dart';
 import 'package:oro_drip_irrigation/Screens/Constant/watermeter_in_constant.dart';
-import 'package:provider/provider.dart';
 import 'criticalAlarm_in_constant.dart';
 import 'ec_ph_in_constant.dart';
 import 'fertilizer_in_constant.dart';

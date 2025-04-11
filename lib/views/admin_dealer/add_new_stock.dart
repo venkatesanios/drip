@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/selection_screen.dart';
-import 'package:oro_drip_irrigation/utils/Theme/smart_comm_theme.dart';
 import 'package:provider/provider.dart';
-
 import '../../models/admin&dealer/new_stock_model.dart';
 import '../../models/admin&dealer/simple_category.dart';
 import '../../repository/repository.dart';

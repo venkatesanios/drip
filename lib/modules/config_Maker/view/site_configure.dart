@@ -1,14 +1,10 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/view/pump_configuration.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/view/source_configuration.dart';
-import 'package:responsive_grid_list/responsive_grid_list.dart';
 
 import '../model/device_object_model.dart';
 import '../state_management/config_maker_provider.dart';
-import 'config_web_view.dart';
 import 'fertilization_configuration.dart';
 import 'filtration_configuration.dart';
 import 'line_configuration.dart';

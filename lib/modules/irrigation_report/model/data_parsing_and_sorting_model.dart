@@ -100,70 +100,70 @@ class IrrigationLogModel {
       '<L - CH8>' : {},
     };
 
-    for(var i in generalParameterList!){
+    for(var i in generalParameterList){
       serverData['general'][i.payloadKey] = [i.uiKey,i.show];
     }
-    for(var i in waterParameterList!){
+    for(var i in waterParameterList){
       serverData['irrigation'][i.payloadKey] = [i.uiKey,i.show];
     }
-    for(var i in filterParameterList!){
+    for(var i in filterParameterList){
       serverData['filter'][i.payloadKey] = [i.uiKey,i.show];
     }
-    for(var i in prePostParameterList!){
+    for(var i in prePostParameterList){
       serverData['prePost'][i.payloadKey] = [i.uiKey,i.show];
     }
-    for(var i in centralEcPhParameterList!){
+    for(var i in centralEcPhParameterList){
       serverData['centralEcPh'][i.payloadKey] = [i.uiKey,i.show];
     }
-    for(var i in centralChannel1ParameterList!){
+    for(var i in centralChannel1ParameterList){
       serverData['<C - CH1>'][i.payloadKey] = [i.uiKey,i.show];
     }
-    for(var i in centralChannel2ParameterList!){
+    for(var i in centralChannel2ParameterList){
       serverData['<C - CH2>'][i.payloadKey] = [i.uiKey,i.show];
     }
-    for(var i in centralChannel3ParameterList!){
+    for(var i in centralChannel3ParameterList){
       serverData['<C - CH3>'][i.payloadKey] = [i.uiKey,i.show];
     }
-    for(var i in centralChannel4ParameterList!){
+    for(var i in centralChannel4ParameterList){
       serverData['<C - CH4>'][i.payloadKey] = [i.uiKey,i.show];
     }
-    for(var i in centralChannel5ParameterList!){
+    for(var i in centralChannel5ParameterList){
       serverData['<C - CH5>'][i.payloadKey] = [i.uiKey,i.show];
     }
-    for(var i in centralChannel6ParameterList!){
+    for(var i in centralChannel6ParameterList){
       serverData['<C - CH6>'][i.payloadKey] = [i.uiKey,i.show];
     }
-    for(var i in centralChannel7ParameterList!){
+    for(var i in centralChannel7ParameterList){
       serverData['<C - CH7>'][i.payloadKey] = [i.uiKey,i.show];
     }
-    for(var i in centralChannel8ParameterList!){
+    for(var i in centralChannel8ParameterList){
       serverData['<C - CH8>'][i.payloadKey] = [i.uiKey,i.show];
     }
-    for(var i in localEcPhParameterList!){
+    for(var i in localEcPhParameterList){
       serverData['localEcPh'][i.payloadKey] = [i.uiKey,i.show];
     }
-    for(var i in localChannel1ParameterList!){
+    for(var i in localChannel1ParameterList){
       serverData['<L - CH1>'][i.payloadKey] = [i.uiKey,i.show];
     }
-    for(var i in localChannel2ParameterList!){
+    for(var i in localChannel2ParameterList){
       serverData['<L - CH2>'][i.payloadKey] = [i.uiKey,i.show];
     }
-    for(var i in localChannel3ParameterList!){
+    for(var i in localChannel3ParameterList){
       serverData['<L - CH3>'][i.payloadKey] = [i.uiKey,i.show];
     }
-    for(var i in localChannel4ParameterList!){
+    for(var i in localChannel4ParameterList){
       serverData['<L - CH4>'][i.payloadKey] = [i.uiKey,i.show];
     }
-    for(var i in localChannel5ParameterList!){
+    for(var i in localChannel5ParameterList){
       serverData['<L - CH5>'][i.payloadKey] = [i.uiKey,i.show];
     }
-    for(var i in localChannel6ParameterList!){
+    for(var i in localChannel6ParameterList){
       serverData['<L - CH6>'][i.payloadKey] = [i.uiKey,i.show];
     }
-    for(var i in localChannel7ParameterList!){
+    for(var i in localChannel7ParameterList){
       serverData['<L - CH7>'][i.payloadKey] = [i.uiKey,i.show];
     }
-    for(var i in localChannel8ParameterList!){
+    for(var i in localChannel8ParameterList){
       serverData['<L - CH8>'][i.payloadKey] = [i.uiKey,i.show];
     }
     return serverData;

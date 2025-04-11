@@ -7,18 +7,19 @@ import 'package:intl/intl.dart';
 import '../Constants/data_convertion.dart';
 import '../Models/Weather_model.dart';
 import '../Models/customer/site_model.dart';
-
+import '../Screens/Map/googlemap_model.dart';
 
 enum MQTTConnectionState { connected, disconnected, connecting }
 
 class MqttPayloadProvider with ChangeNotifier {
-  MQTTConnectionState _appConnectionState = MQTTConnectionState.disconnected;
+   MQTTConnectionState _appConnectionState = MQTTConnectionState.disconnected;
   // SiteModel dashboardLiveInstance = SiteModel(data: data);
   SiteModel? _dashboardLiveInstance;
   SiteModel? get dashboardLiveInstance => _dashboardLiveInstance;
   dynamic spa = '';
   String dashBoardPayload = '', schedulePayload = '';
   WeatherModel weatherModelinstance = WeatherModel();
+  MapConfigModel mapModelInstance = MapConfigModel();
 
   Map<String, dynamic> pumpControllerPayload = {};
   List viewSettingsList = [];
@@ -108,6 +109,12 @@ class MqttPayloadProvider with ChangeNotifier {
   // List<FertilizerSite> fertilizerSiteMobDash = [];
   // List<IrrigationLineData>? irrLineDataMobDash = [];
 
+
+  void updateMapData(data){
+    print("updateMapData $data");
+     mapModelInstance = MapConfigModel.fromJson(data);
+    notifyListeners();
+  }
 
   void editSensorLogData(data){
     sensorLogData = data;
@@ -407,19 +414,13 @@ class MqttPayloadProvider with ChangeNotifier {
     listOfSite = [];
     listOfSharedUser = {};
     currentSchedule = [];
-    PrsIn = [];
-    PrsOut = [];
-    nextSchedule = [];
+      nextSchedule = [];
     selectedLine = 0;
     selectedSite = 0;
     selectedMaster = 0;
-    upcomingProgram = [];
-    irrigationPump = [];
+     irrigationPump = [];
     sourcePump = [];
-    flowMeter = [];
-    alarmList = [];
-    waterMeter = [];
-    sensorInLines = [];
+     sensorInLines = [];
     lineData = [];
     loading = false;
     active = 1;
@@ -473,7 +474,7 @@ class MqttPayloadProvider with ChangeNotifier {
 
   void updateReceivedPayload(String payload,bool dataFromHttp) async{
     if (kDebugMode) {
-      // print("updateReceivedPayload ====$payload");
+      print("updateReceivedPayload ====$payload");
 
     }
     if(!dataFromHttp) {
@@ -484,8 +485,7 @@ class MqttPayloadProvider with ChangeNotifier {
     try {
       // Todo : Dashboard payload start
       Map<String, dynamic> data = payload.isNotEmpty? jsonDecode(payload) : {};
-
-
+      print('\ncheck contain ${data.containsKey('6603')}');
       //live payload
       if(data['mC']=='2400'){
          //liveSyncCall(false);
@@ -600,8 +600,7 @@ class MqttPayloadProvider with ChangeNotifier {
       _timerForPumpController!.cancel();
     }
     _timerForPumpController = Timer.periodic(const Duration(seconds: 1), (Timer timer){
-
-    });
+     });
   }
 
   void liveSyncCall(status){
@@ -636,10 +635,6 @@ class MqttPayloadProvider with ChangeNotifier {
   void updateFertilizerStatusPayload(List<String> message) {
     fertilizerPayload = message;
   }
-
-
-
-
 
   void updateCurrentProgram(List<String> program) {
     currentSchedule = program;

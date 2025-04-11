@@ -1,9 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../services/http_service.dart';
-import 'ConstantPageProvider/changeNotifier_constantProvider.dart';
-import 'home_page_constant.dart';
+ import '../../services/http_service.dart';
+ import 'home_page_constant.dart';
 import 'modal_in_constant.dart';
 
 class ConstantInConfig extends StatefulWidget {
@@ -30,17 +28,13 @@ class _ConstantInConfigState extends State<ConstantInConfig> {
 
   Future<Map<String, dynamic>> fetchData() async {
     try {
-      var provider = Provider.of<ConstantProviderMani>(context, listen: false);
-      final response = await httpService.postRequest("/user/constant/get", {
+       final response = await httpService.postRequest("/user/constant/get", {
         "userId": widget.userId,
         "controllerId": widget.controllerId,
       });
 
       if (response.statusCode == 200) {
         final dynamic decodedJson = json.decode(response.body);
-        print('Controller ID: ${widget.controllerId}');
-        print('User ID: ${widget.userId}');
-        print(response.body);
 
         if (decodedJson is Map<String, dynamic>) {
           if (decodedJson.containsKey('data') && decodedJson['data'] is Map<String, dynamic>) {

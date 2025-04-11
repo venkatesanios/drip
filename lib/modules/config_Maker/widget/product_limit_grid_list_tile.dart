@@ -3,7 +3,6 @@ import 'package:oro_drip_irrigation/Widgets/sized_image.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/widget/toggle_text_form_field_product_limit.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 import '../../../Constants/communication_codes.dart';
-import '../../../Constants/properties.dart';
 import '../model/device_object_model.dart';
 import '../view/product_limit.dart';
 import '../state_management/config_maker_provider.dart';

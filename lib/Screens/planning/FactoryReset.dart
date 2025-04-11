@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:data_table_2/data_table_2.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../Models/reset_AccumalationModel.dart';
@@ -42,9 +41,7 @@ class _Reset_AccumalationState extends State<Reset_Accumalation>
         "userId": widget.userId,
         "controllerId": widget.controllerId
       });
-      print("getUserDetails.body ${getUserDetails.body}");
-      // final jsonData = jsonDecode(getUserDetails.body);
-      if (getUserDetails.statusCode == 200) {
+       if (getUserDetails.statusCode == 200) {
         setState(() {
           var jsonData = jsonDecode(getUserDetails.body);
           _resetModel = ResetModel.fromJson(jsonData);
@@ -82,13 +79,13 @@ class _Reset_AccumalationState extends State<Reset_Accumalation>
   @override
   Widget build(BuildContext context) {
       return Scaffold(
-        appBar: AppBar(title: Text('Factory Reset'),),
+        appBar: AppBar(title: const Text('Factory Reset'),),
         body: Column(
           children: [
             _resetModel.code == 200 ? _resetModel.data!.accumulation!.isEmpty ? DefaultTabController(
-              length: _resetModel.data!.accumulation!.length ?? 0,
+              length: _resetModel.data!.accumulation!.length,
               child: Padding(
-                  padding: EdgeInsets.only(left: 8, bottom: 80, right: 8, top: 8),
+                  padding: const EdgeInsets.only(left: 8, bottom: 80, right: 8, top: 8),
                   child: Form(
                     key: _formKey,
                     child: Column(
@@ -101,7 +98,7 @@ class _Reset_AccumalationState extends State<Reset_Accumalation>
                             isScrollable: true,
                             unselectedLabelColor: Colors.grey,
                             labelColor: Theme.of(context).primaryColor,
-                            labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                            labelStyle: const TextStyle(fontWeight: FontWeight.bold),
                             tabs: [
                               for (var i = 0; i < _resetModel.data!.accumulation!.length; i++)
                                 Tab(
@@ -151,17 +148,17 @@ class _Reset_AccumalationState extends State<Reset_Accumalation>
                             });
                           },
                         ),
-                        SizedBox(height: 10,),
+                        const SizedBox(height: 10,),
         
                       ],
                     ),
                   ),
                 ),
               
-            ) :   Center(child: Text('Currently No data Available')): Center(child: Text('Currently No data Available')),
+            ) :   const Center(child: Text('Currently No data Available')): const Center(child: Text('Currently No data Available')),
             ElevatedButton(
               style: ButtonStyle(  backgroundColor: WidgetStateProperty.all(Colors.redAccent),),
-              child: Text("Factory Reset",style: TextStyle(color: Colors.white),),
+              child: const Text("Factory Reset",style: TextStyle(color: Colors.white),),
               onPressed: () async {
                 setState(() {
                   _showMyDialog(context);
@@ -180,8 +177,8 @@ class _Reset_AccumalationState extends State<Reset_Accumalation>
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirmation'),
-          content: SingleChildScrollView(
+          title: const Text('Confirmation'),
+          content: const SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
                 Text('Do you want to Reset All data?'),
@@ -190,13 +187,13 @@ class _Reset_AccumalationState extends State<Reset_Accumalation>
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop(); // Close the alert dialog
               },
             ),
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 FResetAll();
                 Navigator.of(context).pop(); // Close the alert dialog
@@ -214,11 +211,9 @@ class _Reset_AccumalationState extends State<Reset_Accumalation>
   }
   changeval(int Selectindexrow) {}
   Widget buildTab(List<ListElement>? Listofvalue,){
-    // List<Source>? Listofvalue, int i, String sourceid, String sourcename) {
-    // if (MediaQuery.of(context).size.width > 600) {
     return Container(
       child: DataTable2(
-          headingRowColor: MaterialStateProperty.all<Color>(
+          headingRowColor: WidgetStateProperty.all<Color>(
               Theme.of(context).primaryColorDark.withOpacity(0.2)),
           // fixedCornerColor: myTheme.primaryColor,
           columnSpacing: 12,
@@ -227,7 +222,7 @@ class _Reset_AccumalationState extends State<Reset_Accumalation>
           // border: TableBorder.all(width: 0.5),
           // fixedColumnsColor: Colors.amber,
           headingRowHeight: 50,
-          columns: [
+          columns: const [
             DataColumn2(
               fixedWidth: 70,
               label: Center(
@@ -294,12 +289,12 @@ class _Reset_AccumalationState extends State<Reset_Accumalation>
             ),
           ],
           rows: List<DataRow>.generate(Listofvalue!.length, (index) => DataRow(cells: [
-            DataCell(Center(child: Text('${Listofvalue![index].sNo}'))),
+            DataCell(Center(child: Text('${Listofvalue[index].sNo}'))),
             DataCell(Center(
               child: Text(
-                '${Listofvalue![index].name}',
+                '${Listofvalue[index].name}',
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -307,9 +302,9 @@ class _Reset_AccumalationState extends State<Reset_Accumalation>
             )),
             DataCell(Center(
               child: Text(
-                '${Listofvalue![index].todayCumulativeFlow}',
+                '${Listofvalue[index].todayCumulativeFlow}',
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -317,9 +312,9 @@ class _Reset_AccumalationState extends State<Reset_Accumalation>
             )),
             DataCell(Center(
               child: Text(
-                '${Listofvalue![index].totalCumulativeFlow}',
+                '${Listofvalue[index].totalCumulativeFlow}',
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -329,7 +324,7 @@ class _Reset_AccumalationState extends State<Reset_Accumalation>
               Center(
                 child: ElevatedButton(
                   style:  ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 18)),
-                  onPressed: () { Reset(Listofvalue![index].sNo!);},
+                  onPressed: () { Reset(Listofvalue[index].sNo!);},
                   child: const Text('Reset'),
                 ),
               ),

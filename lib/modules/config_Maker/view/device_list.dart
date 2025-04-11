@@ -1,8 +1,5 @@
-import 'dart:convert';
-
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/app.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
 import '../../../Constants/communication_codes.dart';
@@ -10,16 +7,10 @@ import '../../../Constants/dialog_boxes.dart';
 import '../../../Constants/properties.dart';
 import '../model/device_model.dart';
 import '../state_management/config_maker_provider.dart';
-import 'package:linked_scroll_controller/linked_scroll_controller.dart';
-
 import '../../../Widgets/custom_buttons.dart';
 import '../../../Widgets/custom_drop_down_button.dart';
-import '../../../Widgets/custom_side_tab.dart';
-import '../../../Widgets/custom_table.dart';
 import '../../../Widgets/sized_image.dart';
-import '../../../Widgets/title_with_back_button.dart';
 import '../../../flavors.dart';
-import '../../../utils/environment.dart';
 import 'config_base_page.dart';
 
 class DeviceList extends StatefulWidget {

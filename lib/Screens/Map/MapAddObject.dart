@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:timezone/browser.dart'as tz;
-import 'package:geocoding/geocoding.dart';
+import 'package:provider/provider.dart';
+
+import '../../StateManagement/mqtt_payload_provider.dart';
+import 'googlemap_model.dart';
 
 class MapScreen extends StatefulWidget {
+  const MapScreen({Key? key, required this.index}) : super(key: key);
+  final int index;
+
   @override
   _MapScreenState createState() => _MapScreenState();
 }
@@ -14,17 +19,16 @@ class _MapScreenState extends State<MapScreen> {
   Set<Marker> _markers = {};
   LatLng? _valvePosition;
 
-  // Sample valve data
-  Map<String, dynamic> valveData = {
-    'lat': null,
-    'long': null,
-    'status': null, // null, 0, or 1
-  };
+  late MqttPayloadProvider mqttPayloadProvider;
+  ConnectedObject? _selectedObject;
 
   @override
   void initState() {
     super.initState();
-    _updateValveMarker();
+    mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateValveMarker();
+    });
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -32,166 +36,114 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   void _updateValveMarker() {
-    setState(() {
-      _markers.clear();
-      if (valveData['lat'] != null && valveData['long'] != null) {
+    final device = mqttPayloadProvider.mapModelInstance.data?.deviceList?[widget.index];
+    final connectedObj = device?.connectedObject?.firstWhere(
+          (obj) => (obj.name?.toLowerCase().contains('valve') ?? false) ||
+          (obj.objectName?.toLowerCase().contains('valve') ?? false),
+      orElse: () => ConnectedObject(),
+    );
+
+    if (connectedObj != null && connectedObj.lat != null && connectedObj.long != null) {
+      final position = LatLng(connectedObj.lat!, connectedObj.long!);
+
+      setState(() {
+        _valvePosition = position;
+        _selectedObject = connectedObj;
+        _markers.clear();
         _markers.add(
           Marker(
             markerId: const MarkerId('valve'),
-            position: LatLng(valveData['lat'], valveData['long']),
+            position: position,
             icon: BitmapDescriptor.defaultMarkerWithHue(
-              valveData['status'] == null
+              connectedObj.status == null
                   ? BitmapDescriptor.hueOrange
-                  : valveData['status'] == 1
+                  : connectedObj.status == 1
                   ? BitmapDescriptor.hueGreen
                   : BitmapDescriptor.hueRed,
             ),
             infoWindow: InfoWindow(
               title: 'Valve Controller',
-              snippet: 'Status: ${valveData['status'] ?? 'Unknown'}',
+              snippet: 'Status: ${connectedObj.status ?? 'Unknown'}',
             ),
           ),
         );
-      }
-    });
+      });
+
+      _mapController?.animateCamera(CameraUpdate.newLatLngZoom(position, 15));
+    }
   }
-  // Future<void> _searchLocation() async {
-  //   final query = _searchController.text.trim();
-  //   print("query:$query");
-  //   if (query.isEmpty) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('Please enter a city name')),
-  //     );
-  //     return;
-  //   }
-  //
-  //   try {
-  //     print('try');
-  //     // List<Location> locations = await locationFromAddress(query);
-  //     List<Location> locations = await locationFromAddress("Gronausestraat 710, Enschede");
-  //
-  //     print("locations:$locations");
-  //     if (locations.isNotEmpty) {
-  //       final location = locations.first;
-  //       _valvePosition = LatLng(location.latitude, location.longitude);
-  //
-  //       // Update the valveData safely
-  //       valveData['lat'] = location.latitude;
-  //       valveData['long'] = location.longitude;
-  //
-  //       // Default the status to 0 if null
-  //       if (valveData['status'] == null) valveData['status'] = 0;
-  //
-  //       _updateValveMarker();
-  //
-  //       _mapController?.animateCamera(
-  //         CameraUpdate.newLatLngZoom(_valvePosition!, 15),
-  //       );
-  //     } else {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text('No location found for "$query"')),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     String errorMessage;
-  //     if (e.toString().contains('null')) {
-  //       errorMessage = 'Geocoding failed: Check API key or network connection';
-  //     } else {
-  //       errorMessage = 'Error finding location: $e';
-  //     }
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text(errorMessage)),
-  //     );
-  //     print('Error: $e');
-  //   }
-  // }
+
+  void _updateMarker(double lat, double long) {
+    final position = LatLng(lat, long);
+
+    setState(() {
+      _valvePosition = position;
+      _markers.clear();
+      _markers.add(
+        Marker(
+          markerId: const MarkerId('valve'),
+          position: position,
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+          infoWindow: const InfoWindow(
+            title: 'Valve Controller',
+            snippet: 'Status: 1',
+          ),
+        ),
+      );
+    });
+
+    if (_selectedObject != null) {
+      _selectedObject!.lat = lat;
+      _selectedObject!.long = long;
+      _selectedObject!.status = 1;
+      mqttPayloadProvider.notifyListeners();
+    }
+
+    _mapController?.animateCamera(CameraUpdate.newLatLngZoom(position, 15));
+  }
 
   void _searchLocation() {
     try {
-      // Expecting input in format "lat, long" (e.g., "11.1326952, 76.9767822")
       final input = _searchController.text.trim();
-     final inoutextract =  extractCoordinates(input);
-      final coords = inoutextract.split(',');
+      final extracted = extractCoordinates(input);
+      final coords = extracted.split(',');
+
       if (coords.length == 2) {
         final lat = double.parse(coords[0].trim());
         final long = double.parse(coords[1].trim());
-
-        _valvePosition = LatLng(lat, long);
-        valveData['lat'] = lat;
-        valveData['long'] = long;
-        if (valveData['status'] == null) valveData['status'] = 0; // Default status
-
-        _updateValveMarker();
-
-        _mapController?.animateCamera(
-          CameraUpdate.newLatLngZoom(_valvePosition!, 15),
-        );
+        _updateMarker(lat, long);
       } else {
-        throw Exception('Invalid format');
+        throw Exception('Invalid coordinate format');
       }
-    } catch (e) {
+    } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Enter coordinates as "lat, long" (e.g., 11.1326952, 76.9767822)')),
+        const SnackBar(
+          content: Text('Enter coordinates as "lat, long" (e.g., 11.1326952, 76.9767822)'),
+        ),
       );
     }
   }
-  String extractCoordinates(String input) {
-    // Regular expression to extract coordinates from the Google Maps URL
-    RegExp regExp = RegExp(r"@(-?\d+\.\d+),(-?\d+\.\d+)");
 
-    // Check if the input is a Google Maps URL
-    var match = regExp.firstMatch(input);
+  String extractCoordinates(String input) {
+    final regExp = RegExp(r"@(-?\d+\.\d+),(-?\d+\.\d+)");
+    final match = regExp.firstMatch(input);
+
     if (match != null) {
-      // Extract latitude and longitude from the URL
-      String latitude = match.group(1)!;
-      String longitude = match.group(2)!;
-      return '$latitude,$longitude'; // Return coordinates as a string
+      return '${match.group(1)},${match.group(2)}';
     }
 
-    // If the input is not a URL, check if it's a direct latitude,longitude string
     var coords = input.split(",");
     if (coords.length == 2) {
-      String latitude = coords[0].trim();
-      String longitude = coords[1].trim();
-      return '$latitude,$longitude'; // Return coordinates as a string
+      return '${coords[0].trim()},${coords[1].trim()}';
     }
 
-    // Return an error message if input is invalid
     return "Invalid coordinates format.";
-  }
-  int getValueOfSerial(Map<String, dynamic> liveMessage, String serialNumber)
-  {
-    try {
-      Map<String, dynamic> cM = liveMessage['cM'] as Map<String, dynamic>;
-
-      // Iterate through all fields (2401 to 2412)
-      for (String key in cM.keys) {
-        if (key.startsWith('24')) {
-          String data = cM[key] as String;
-          List<String> values = data.split(';');
-          for (int i = 0; i < values.length; i++) {
-            if (values[i].startsWith(serialNumber)) {
-              List<String> parts = values[i].split(',');
-              return int.parse(parts[1]);
-            }
-          }
-
-        }
-      }
-      // Return -1 if serial number not found
-      return -1;
-    } catch (e) {
-      print('Error parsing data: $e');
-      return -1;
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Valve Controller Map'),
-      ),
+      appBar:  AppBar( title: const Text('Set Location')), // Removed AppBar
       body: Column(
         children: [
           Padding(
@@ -207,21 +159,56 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.search),
+                TextButton(
                   onPressed: _searchLocation,
+                  child: Text(
+                    'Search',
+                    style: TextStyle(color: Colors.blue),
+                  ),
                 ),
               ],
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: DropdownButton<ConnectedObject>(
+              value: _selectedObject,
+              hint: const Text('Select Valve Object'),
+              onChanged: (ConnectedObject? newObject) {
+                setState(() {
+                  _selectedObject = newObject;
+                });
+                if (newObject != null) {
+                  _updateMarker(newObject.lat!, newObject.long!);
+                }
+              },
+              items: mqttPayloadProvider
+                  .mapModelInstance.data?.deviceList?[widget.index].connectedObject
+                  ?.where((obj) =>
+              (obj.name?.toLowerCase().contains('valve') ?? false) ||
+                  (obj.objectName?.toLowerCase().contains('valve') ?? false))
+                  .map<DropdownMenuItem<ConnectedObject>>((ConnectedObject object) {
+                return DropdownMenuItem<ConnectedObject>(
+                  value: object,
+                  child: Text(
+                    '${object.name ?? 'Valve'} (Lat: ${object.lat}, Long: ${object.long})',
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
           Expanded(
-            child: GoogleMap(mapType: MapType.hybrid,
+            child: GoogleMap(
+              mapType: MapType.hybrid,
               onMapCreated: _onMapCreated,
               initialCameraPosition: const CameraPosition(
                 target: LatLng(0, 0),
                 zoom: 2,
               ),
               markers: _markers,
+              onTap: (LatLng latLng) {
+                _updateMarker(latLng.latitude, latLng.longitude);
+              },
             ),
           ),
         ],

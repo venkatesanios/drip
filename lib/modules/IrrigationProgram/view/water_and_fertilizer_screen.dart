@@ -209,17 +209,17 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                               borderRadius: BorderRadius.circular(10),
                                               gradient: LinearGradient(
                                                   colors: [
-                                                    Color(0xffFF857D),
+                                                    const Color(0xffFF857D),
                                                     Theme.of(context).primaryColorDark,
-                                                    Color(0xffFF857D),
+                                                    const Color(0xffFF857D),
                                                     Theme.of(context).primaryColorDark,
-                                                    Color(0xffFF857D),
+                                                    const Color(0xffFF857D),
                                                     Theme.of(context).primaryColorDark,
-                                                    Color(0xffFF857D),
+                                                    const Color(0xffFF857D),
                                                     Theme.of(context).primaryColorDark,
-                                                    Color(0xffFF857D),
+                                                    const Color(0xffFF857D),
                                                     Theme.of(context).primaryColorDark,
-                                                    Color(0xffFF857D),
+                                                    const Color(0xffFF857D),
                                                     Theme.of(context).primaryColorDark,
 
                                                   ],
@@ -370,11 +370,11 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                 ),
                                 SizedBox(
                                   width: (constraint.maxWidth - 20)/2,
-                                  child: Row(
+                                  child: const Row(
                                     children: [
                                       Icon(Icons.apple_rounded,color: AppProperties.primaryColorMedium,),
-                                      const SizedBox(width: 20,),
-                                      const Text('Balance water')
+                                      SizedBox(width: 20,),
+                                      Text('Balance water')
                                     ],
                                   ),
                                 ),
@@ -1103,7 +1103,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                   children: [
                                     Container(
                                       decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.only(topLeft: Radius.circular(10),topRight: Radius.circular(10)),
+                                        borderRadius: const BorderRadius.only(topLeft: Radius.circular(10),topRight: Radius.circular(10)),
                                         color: Theme.of(context).primaryColorDark
 
                                       ),
