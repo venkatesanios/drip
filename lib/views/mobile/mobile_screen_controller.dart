@@ -363,7 +363,6 @@ class MobileScreenController extends StatelessWidget {
                     padding: const EdgeInsets.only(left: 40, right: 25),
                     child: Divider(height: 0, color: Colors.grey.shade300),
                   ),
-
                   Padding(
                     padding: const EdgeInsets.only(left: 16, top: 16, right: 16),
                     child: TextButton.icon(
@@ -376,7 +375,6 @@ class MobileScreenController extends StatelessWidget {
                       ),
                     ),
                   ),
-
                   const Spacer(), // Pushes the version/logo to the bottom
                   Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -621,72 +619,8 @@ class MobileScreenController extends StatelessWidget {
     );
   }
 
-
-  List<NavigationRailDestination> getNavigationDestinations() {
-    final destinations = [
-      const NavigationRailDestination(
-        padding: EdgeInsets.only(top: 5),
-        icon: Tooltip(
-          message: 'Home',
-          child: Icon(Icons.home_outlined),
-        ),
-        selectedIcon: Icon(Icons.home, color: Colors.white),
-        label: Text(''),
-      ),
-      const NavigationRailDestination(
-        icon: Tooltip(
-          message: 'All my devices',
-          child: Icon(Icons.devices_other),
-        ),
-        selectedIcon: Icon(Icons.devices_other, color: Colors.white),
-        label: Text(''),
-      ),
-      const NavigationRailDestination(
-        icon: Tooltip(
-          message: 'Sent & Received',
-          child: Icon(Icons.question_answer_outlined),
-        ),
-        selectedIcon: Icon(Icons.question_answer, color: Colors.white),
-        label: Text(''),
-      ),
-      const NavigationRailDestination(
-        icon: Tooltip(
-          message: 'Controller Logs',
-          child: Icon(Icons.receipt_outlined),
-        ),
-        selectedIcon: Icon(Icons.receipt, color: Colors.white,),
-        label: Text(''),
-      ),
-      const NavigationRailDestination(
-        icon: Tooltip(
-          message: 'Settings',
-          child: Icon(Icons.settings_outlined),
-        ),
-        selectedIcon: Icon(Icons.settings, color: Colors.white),
-        label: Text(''),
-      ),
-      const NavigationRailDestination(
-        icon: Tooltip(
-          message: 'Configuration',
-          child: Icon(Icons.confirmation_num_outlined),
-        ),
-        selectedIcon: Icon(Icons.confirmation_num, color: Colors.white),
-        label: Text(''),
-      ),
-      const NavigationRailDestination(
-        icon: Tooltip(
-          message: 'Weather',
-          child: Icon(Icons.sunny_snowing),
-        ),
-        selectedIcon: Icon(Icons.sunny_snowing, color: Colors.white),
-        label: Text(''),
-      ),
-    ];
-
-    return destinations;
-  }
-
   Widget mainScreen(int index, groupId, groupName, List<Master> masterData, int controllerId, int categoryId, int masterIndex, int siteIndex) {
+
     switch (index) {
       case 0:
         return categoryId==1? CustomerHome(customerId: userId, controllerId: controllerId):

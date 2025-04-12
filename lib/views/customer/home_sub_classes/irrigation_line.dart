@@ -21,6 +21,8 @@ class DisplayIrrigationLine extends StatelessWidget {
       child: Consumer<IrrigationLineViewModel>(
         builder: (context, viewModel, _) {
 
+          print(currentLineName);
+
           final List<Widget> valveWidgets = [
             for (var line in lineData!)
               if (currentLineName == 'All irrigation line' || line.name == currentLineName) ...[

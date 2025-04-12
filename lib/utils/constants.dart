@@ -1,5 +1,8 @@
- import 'package:flutter/cupertino.dart';
- import 'environment.dart';
+import 'dart:convert';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import '../modules/config_Maker/view/config_web_view.dart';
+import 'environment.dart';
 
 enum UserRole { admin, dealer, subUser }
 
@@ -169,6 +172,11 @@ class AppConstants {
   static const String filterNotON = "dp_filter_y.png";
   static const String filterNotOFF = "dp_filter_r.png";
 
+  static const String filterOFFM = "dp_filter_m.png";
+  static const String filterONM = "dp_filter_g_m.png";
+  static const String filterNotONM = "dp_filter_y_m.png";
+  static const String filterNotOFFM = "dp_filter_r_m.png";
+
   static const String boosterPumpOFF = "dp_frt_booster_pump.png";
   static const String boosterPumpON = "dp_frt_booster_pump_g.gif";
   static const String boosterPumpNotON = "dp_frt_booster_pump_y.png";
@@ -312,13 +320,13 @@ class AppConstants {
   static String _getFilterImagePath(int status) {
     switch (status) {
       case 0:
-        return filterOFF;
+        return kIsWeb? filterOFF : filterOFFM;
       case 1:
-        return filterON;
+        return kIsWeb? filterON : filterONM;
       case 2:
-        return filterNotON;
+        return kIsWeb? filterNotON : filterNotONM;
       case 3:
-        return filterNotOFF;
+        return kIsWeb? filterNotOFF : filterNotOFFM;
       default:
         return '';
     }
