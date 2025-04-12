@@ -2872,14 +2872,20 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       return usedValveInSequence.isEmpty;
     }).map((e) => e.irrigationLine).toList().map((e) => e.sNo).toList().join("_")}');*/
 
-  /*  print('Head unit to pause :: ${
+    print('Head unit to pause :: ${
         sampleIrrigationLine!.where((headUnit) {
-          List<double?> headUnitList = sampleIrrigationLine!.map((element) => element.irrigationLine.sNo).toList();
-          List<double?> selectedItems = selectedObjects!.map((element) => element.sNo).toList();
-          List<double?> filteredList = headUnitList.where((valSno) => !selectedItems.contains(valSno)).toList();
+          sampleIrrigationLine!.map((element) => element.irrigationLine.sNo).toList();
+          selectedObjects!.map((element) => element.sNo).toList();
+          List<double?> selectedPumpSnos = selectedObjects!.where((e) => e.objectId == 5).map((e) => e.sNo).toList();
+          List<double?> matchingLocations = sampleIrrigationLine!
+              .expand((line) => line.irrigationPump!)
+              .where((pump) => selectedPumpSnos.contains(pump.sNo))
+              .map((pump) => pump.location)
+              .toList();
+          List<double?> selectedHeadUnitList = selectedObjects!.where((e) => e.objectId == 2 && e.siteMode == null).map((e) => e.sNo).toList();
+          List<double?> filteredList = matchingLocations.where((e) => !selectedHeadUnitList.contains(e)).toList();
           return filteredList.contains(headUnit.irrigationLine.sNo);
-        }).map((e) => e.irrigationLine.sNo).join("_")}');*/
-
+        }).map((e) => e.irrigationLine.sNo).join("_")}');
     return {
       "2500" : {
         "2501" : "${hwPayloadForWF(serialNumber)};",
@@ -3035,9 +3041,16 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
               "HeadUnitToPause": '${programType == "Irrigation Program"
                   ? selectedObjects!.any((element) => element.objectId == 5)
                   ? sampleIrrigationLine!.where((headUnit) {
-                List<double?> headUnitList = sampleIrrigationLine!.map((element) => element.irrigationLine.sNo).toList();
-                List<double?> selectedItems = selectedObjects!.map((element) => element.sNo).toList();
-                List<double?> filteredList = headUnitList.where((valSno) => !selectedItems.contains(valSno)).toList();
+                sampleIrrigationLine!.map((element) => element.irrigationLine.sNo).toList();
+                selectedObjects!.map((element) => element.sNo).toList();
+                List<double?> selectedPumpSnos = selectedObjects!.where((e) => e.objectId == 5).map((e) => e.sNo).toList();
+                List<double?> matchingLocations = sampleIrrigationLine!
+                    .expand((line) => line.irrigationPump!)
+                    .where((pump) => selectedPumpSnos.contains(pump.sNo))
+                    .map((pump) => pump.location)
+                    .toList();
+                List<double?> selectedHeadUnitList = selectedObjects!.where((e) => e.objectId == 2 && e.siteMode == null).map((e) => e.sNo).toList();
+                List<double?> filteredList = matchingLocations.where((e) => !selectedHeadUnitList.contains(e)).toList();
                 return filteredList.contains(headUnit.irrigationLine.sNo);
               }).map((e) => e.irrigationLine.sNo).join("_")
                   : sampleIrrigationLine!.where((headUnit) {

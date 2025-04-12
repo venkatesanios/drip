@@ -498,6 +498,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
         "hardware": dataToMqtt
       };
       userData.addAll(dataToSend);
+      print(dataToMqtt['2500']['2502']);
       // print(dataToMqtt['2500'][1]['2502'].split(',').join('\n'));
       // print(dataToMqtt['2500'][1]['2502'].split(',').length);
       try {
@@ -532,43 +533,43 @@ class _PreviewScreenState extends State<PreviewScreen> {
                     MaterialPageRoute(builder: (context) => ProgramSchedule(customerID: widget.userId, controllerID: widget.controllerId, siteName: "", imeiNumber: widget.deviceId, userId: widget.userId, groupId: widget.groupId, categoryId: widget.categoryId,modelId: widget.modelId, deviceName: widget.deviceName, categoryName: widget.categoryName,))
                 );
               }
-             /* if(widget.toDashboard) {
-                irrigationProvider.updateBottomNavigation(0);
-                Navigator.of(context).pop();
-                // Navigator.push(
-                //   context,
-                //   // MaterialPageRoute(builder: (context) => HomeScreen(userId: widget.userId, fromDealer: widget.fromDealer,)),
-                // );
-              } else {
-                Navigator.of(context).pop();
-                irrigationProvider.updateBottomNavigation(1);
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) => HomeScreen(userId: widget.userId, fromDealer: widget.fromDealer,)),
-                // );
-              }*/
+              // if(widget.toDashboard) {
+              //   irrigationProvider.updateBottomNavigation(0);
+              //   Navigator.of(context).pop();
+              //   // Navigator.push(
+              //   //   context,
+              //   //   // MaterialPageRoute(builder: (context) => HomeScreen(userId: widget.userId, fromDealer: widget.fromDealer,)),
+              //   // );
+              // } else {
+              //   Navigator.of(context).pop();
+              //   irrigationProvider.updateBottomNavigation(1);
+              //   // Navigator.push(
+              //   //   context,
+              //   //   MaterialPageRoute(builder: (context) => HomeScreen(userId: widget.userId, fromDealer: widget.fromDealer,)),
+              //   // );
+              // }
             }
           });
         });
-        /*Future.delayed(const Duration(milliseconds: 300), () async {
-          final IrrigationProgramRepository repository = IrrigationProgramRepository(HttpService());
-          final createUserProgram = await repository.createUserProgram(userData);
-          final response = jsonDecode(createUserProgram.body);
-          if(createUserProgram.statusCode == 200) {
-            // await irrigationProvider.programLibraryData(widget.userId, widget.controllerId);
-            ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: response['message']));
-            if(widget.toDashboard) {
-              Navigator.of(context).pop();
-            } else {
-              // Navigator.of(context).pop();
-              // Navigator.of(context).pop();
-              Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => ProgramSchedule(customerID: widget.userId, controllerID: widget.controllerId, siteName: "", imeiNumber: widget.deviceId, userId: widget.userId, groupId: widget.groupId, categoryId: widget.categoryId,))
-              );
-            }
-          }
-        });*/
+        // Future.delayed(const Duration(milliseconds: 300), () async {
+        //   final IrrigationProgramRepository repository = IrrigationProgramRepository(HttpService());
+        //   final createUserProgram = await repository.createUserProgram(userData);
+        //   final response = jsonDecode(createUserProgram.body);
+        //   if(createUserProgram.statusCode == 200) {
+        //     // await irrigationProvider.programLibraryData(widget.userId, widget.controllerId);
+        //     ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: response['message']));
+        //     if(widget.toDashboard) {
+        //       Navigator.of(context).pop();
+        //     } else {
+        //       // Navigator.of(context).pop();
+        //       // Navigator.of(context).pop();
+        //       Navigator.pushReplacement(
+        //           context,
+        //           MaterialPageRoute(builder: (context) => ProgramSchedule(customerID: widget.userId, controllerID: widget.controllerId, siteName: "", imeiNumber: widget.deviceId, userId: widget.userId, groupId: widget.groupId, categoryId: widget.categoryId,))
+        //       );
+        //     }
+        //   }
+        // });
       } catch (error) {
         ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: 'Failed to update because of $error'));
         print("Error: $error");

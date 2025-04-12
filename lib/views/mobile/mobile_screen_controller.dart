@@ -5,6 +5,7 @@ import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
 import '../../Models/customer/site_model.dart';
 import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
+import '../../modules/IrrigationProgram/view/program_library.dart';
 import '../../modules/PumpController/model/pump_controller_data_model.dart';
 import '../../modules/PumpController/view/pump_controller_home.dart';
 import '../../repository/repository.dart';
@@ -417,6 +418,25 @@ class MobileScreenController extends StatelessWidget {
                           print("Option 2 selected");
                           break;
                         case 'option3':
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) {
+                                    return ProgramLibraryScreenNew(
+                                      customerId: customerId,
+                                      controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                                      deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                                      userId: userId,
+                                      fromDealer: false,
+                                      groupId: vm.mySiteList.data[vm.sIndex].groupId,
+                                      categoryId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
+                                      modelId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId,
+                                      deviceName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceName,
+                                      categoryName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
+                                    );
+                                  }
+                              )
+                          );
                           print("Option 3 selected");
                           break;
                       }
@@ -548,8 +568,8 @@ class MobileScreenController extends StatelessWidget {
                         vm.mySiteList.data[vm.sIndex].master,
                         vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
                         vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
-                        vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                        vm.mySiteList.data[vm.sIndex].master[vm.mIndex].live?.cM
+                        vm.mIndex,
+                        vm.sIndex
                     ):
                     vm.selectedIndex==1?
                     ScheduledProgram(
@@ -638,17 +658,19 @@ class MobileScreenController extends StatelessWidget {
     return destinations;
   }
 
-  Widget mainScreen(int index, groupId, groupName, List<Master> masterData, int controllerId, int categoryId, String deviceId, liveData) {
+  Widget mainScreen(int index, groupId, groupName, List<Master> masterData, int controllerId, int categoryId, int masterIndex, int siteIndex) {
     switch (index) {
       case 0:
         return categoryId==1? CustomerHome(customerId: userId, controllerId: controllerId):
         PumpControllerHome(
-          deviceId: deviceId,
-          liveData: liveData,
+          deviceId: masterData[masterIndex].deviceId,
+          liveData: masterData[masterIndex].live!.cM as PumpControllerData,
           masterName: groupName,
           userId: userId,
           customerId: customerId,
           controllerId: controllerId,
+          siteIndex: siteIndex,
+          masterIndex: masterIndex,
         );
       case 1:
         return CustomerProduct(customerId: userId);

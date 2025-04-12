@@ -10,6 +10,7 @@ import '../../Logs/view/power_graph_screen.dart';
 import '../../Logs/view/pump_log.dart';
 import '../../Logs/view/pump_logs_home.dart';
 import '../../Logs/view/voltage_log.dart';
+import '../model/pump_controller_data_model.dart';
 import '../state_management/pump_controller_provider.dart';
 
 class PumpControllerHome extends StatefulWidget {
@@ -19,6 +20,8 @@ class PumpControllerHome extends StatefulWidget {
   final int userId;
   final int customerId;
   final int controllerId;
+  final int siteIndex;
+  final int masterIndex;
 
   const PumpControllerHome({
     super.key,
@@ -28,6 +31,8 @@ class PumpControllerHome extends StatefulWidget {
     required this.userId,
     required this.customerId,
     required this.controllerId,
+    required this.siteIndex,
+    required this.masterIndex,
   });
 
   @override
@@ -37,12 +42,14 @@ class PumpControllerHome extends StatefulWidget {
 class _PumpControllerHomeState extends State<PumpControllerHome> {
   int _selectedIndex = 0;
   late PageController _pageController;
-  DateTime _focusedDay = DateTime.now();
-  DateTime today = DateTime.now();
+  late DateTime _focusedDay;
+  late DateTime today;
 
   @override
   void initState() {
     super.initState();
+    _focusedDay = DateTime.now();
+    today = DateTime.now();
     _pageController = PageController(initialPage: _selectedIndex);
   }
 
@@ -138,6 +145,8 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
                         userId: widget.userId,
                         customerId: widget.customerId,
                         controllerId: widget.controllerId,
+                        siteIndex: widget.siteIndex,
+                        masterIndex: widget.masterIndex,
                       ),
                     ),
                     if(_selectedIndex != 3)
@@ -190,11 +199,13 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
       children: [
         PumpDashboardScreen(
           deviceId: widget.deviceId,
-          liveData: widget.liveData,
+          liveData: widget.liveData as PumpControllerData,
           masterName: widget.masterName,
           userId: widget.userId,
           customerId: widget.customerId,
           controllerId: widget.controllerId,
+          siteIndex: widget.siteIndex,
+          masterIndex: widget.masterIndex,
         ),
         PreferenceMainScreen(
           userId: widget.userId,

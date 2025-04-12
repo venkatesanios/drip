@@ -127,7 +127,7 @@ class WidgetSetting {
       'value': value,
     };
 
-    if (title == 'RTC TIMER') {
+    if (title.toUpperCase() == 'RTC TIMER') {
       json['value'] = (rtcSettings?.map((item) => item.toJson()).toList())!;
     } else {
       json['value'] = value;
