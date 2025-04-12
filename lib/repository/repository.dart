@@ -389,12 +389,18 @@ class Repository{
   }
 
   Future<http.Response> getresetAccumulation(body) async {
-    return await apiService.postRequest('/api/v1/user/resetAccumulation/get', body);
+    return await apiService.postRequest('/user/resetAccumulation/get', body);
   }
 
   Future<http.Response> updateresetAccumulation(body) async {
-    return await apiService.putRequest('/api/v1/user/resetAccumulation/update', body);
+    return await apiService.putRequest('/user/resetAccumulation/update', body);
   }
 
+  Future<http.Response> getgeography(body) async {
+     return await apiService.postRequest('/user/geography/get', body);
+  }
+  Future<http.Response> creategeography(body) async {
+    return await apiService.postRequest('/user/geography/create', body);
+  }
 }
 

@@ -89,9 +89,7 @@ class DeviceList {
         siteName: json["siteName"],
         categoryName: json["categoryName"],
         modelName: json["modelName"],
-        geography: json["geography"] == null
-            ? null
-            : Geography.fromJson(json["geography"], serialNumber),
+        geography: Geography.fromJson(json["geography"] ?? {}, serialNumber),
         connectedObject: json["connectedObject"] == null
             ? []
             : List<ConnectedObject>.from(
@@ -121,7 +119,7 @@ class ConnectedObject {
   double? sNo;
   String? name;
   String? objectName;
-  String? location;
+  double? location;
   double? lat;
   double? long;
   int? status;
@@ -142,7 +140,7 @@ class ConnectedObject {
         objectId: json["objectId"],
         sNo: json["sNo"]?.toDouble(),
         name: json["name"],
-        objectName: json["object name"],
+        objectName: json["objectName"],
         location: json["location"],
         lat: json["lat"]?.toDouble(),
         long: json["long"]?.toDouble(),
@@ -153,7 +151,7 @@ class ConnectedObject {
     "objectId": objectId,
     "sNo": sNo,
     "name": name,
-    "object name": objectName,
+    "objectName": objectName,
     "location": location,
     "lat": lat,
     "long": long,
@@ -174,9 +172,9 @@ class Geography {
 
   factory Geography.fromJson(Map<String, dynamic> json, String serialNumber) =>
       Geography(
-        lat: json["lat"]?.toDouble(),
-        long: json["long"]?.toDouble(),
-        status: getValueOfStatus(serialNumber),  // Pass serialNumber to get the status
+        lat: json["lat"]?.toDouble() ?? null,
+        long: json["long"]?.toDouble() ?? null,
+        status: getValueOfStatus(serialNumber)  ?? null,  // Pass serialNumber to get the status
       );
 
   Map<String, dynamic> toJson() => {

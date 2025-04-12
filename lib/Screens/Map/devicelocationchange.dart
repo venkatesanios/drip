@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +18,7 @@ class _MapScreendeviceState extends State<MapScreendevice> {
   Set<Marker> _markers = {};
   LatLng? _selectedPosition;
   DeviceList? _selectedDevice;
+  int _selectedDeviceindex = 0;
 
   late MqttPayloadProvider mqttPayloadProvider;
 
@@ -26,12 +26,13 @@ class _MapScreendeviceState extends State<MapScreendevice> {
   void initState() {
     super.initState();
     mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final devices = mqttPayloadProvider.mapModelInstance.data?.deviceList ?? [];
 
       if (devices.isNotEmpty) {
         setState(() {
-          _selectedDevice = devices[0];
+          _selectedDevice = devices[_selectedDeviceindex];
 
           if (_selectedDevice!.geography?.lat != null && _selectedDevice!.geography?.long != null) {
             _selectedPosition = LatLng(
@@ -61,7 +62,6 @@ class _MapScreendeviceState extends State<MapScreendevice> {
     for (var device in devices) {
       if (device.geography?.lat != null && device.geography?.long != null) {
         final position = LatLng(device.geography!.lat!, device.geography!.long!);
-
         final isSelected = device.deviceId == _selectedDevice?.deviceId;
 
         markers.add(
@@ -97,19 +97,24 @@ class _MapScreendeviceState extends State<MapScreendevice> {
   }
 
   void _updateMarker(double lat, double long) {
-    if (_selectedDevice == null) return;
+    final deviceList = mqttPayloadProvider.mapModelInstance.data?.deviceList;
+
+    if (deviceList == null || _selectedDeviceindex < 0 || _selectedDeviceindex >= deviceList.length) return;
 
     final position = LatLng(lat, long);
 
-    _selectedDevice!.geography ??= Geography();
-    _selectedDevice!.geography!.lat = lat;
-    _selectedDevice!.geography!.long = long;
-    _selectedDevice!.geography!.status = 1;
+    setState(() {
+      deviceList[_selectedDeviceindex].geography ??= Geography();
+      deviceList[_selectedDeviceindex].geography!.lat = lat;
+      deviceList[_selectedDeviceindex].geography!.long = long;
 
-    mqttPayloadProvider.notifyListeners();
+      _selectedDevice = deviceList[_selectedDeviceindex]; // Keep local selected device updated
+      _selectedPosition = position;
+    });
 
-    _addAllDeviceMarkers(); // Rebuild with updated position
+    mqttPayloadProvider.notifyListeners();  // Notify provider changes
 
+    _addAllDeviceMarkers();  // Refresh markers
     _mapController?.animateCamera(CameraUpdate.newLatLngZoom(position, 15));
   }
 
@@ -160,6 +165,46 @@ class _MapScreendeviceState extends State<MapScreendevice> {
       body: Column(
         children: [
           Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: DropdownButton<DeviceList>(
+              value: _selectedDevice,
+              hint: const Text('Select Device'),
+              onChanged: (DeviceList? device) {
+                 if (device != null ) {
+                   final lat = device.geography!.lat ?? 11.5937;
+                  final long = device.geography!.long ?? 78.9629;
+                  final position = LatLng(lat, long);
+
+                  final index = deviceList.indexWhere((d) => d.deviceId == device.deviceId);
+
+                  setState(() {
+                    _selectedDevice = device;
+                    _selectedDeviceindex = index;
+                    _selectedPosition = position;
+                  });
+
+                  _addAllDeviceMarkers();
+
+                  _mapController?.animateCamera(CameraUpdate.newLatLngZoom(position, 12));
+                }
+                else
+                  {
+                    print("device else ");
+                  }
+
+              },
+              isExpanded: true,
+              items: deviceList.map((device) {
+                final lat = device.geography?.lat?.toStringAsFixed(5) ?? 'N/A';
+                final long = device.geography?.long?.toStringAsFixed(5) ?? 'N/A';
+                return DropdownMenuItem<DeviceList>(
+                  value: device,
+                  child: Text('${device.deviceName ?? "Device"} (Lat: $lat, Long: $long)'),
+                );
+              }).toList(),
+            ),
+          ),
+          Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
@@ -177,36 +222,6 @@ class _MapScreendeviceState extends State<MapScreendevice> {
                   child: const Text('Search', style: TextStyle(color: Colors.blue)),
                 ),
               ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: DropdownButton<DeviceList>(
-              value: _selectedDevice,
-              hint: const Text('Select Device'),
-              onChanged: (DeviceList? device) {
-                if (device != null && device.geography?.lat != null && device.geography?.long != null) {
-                  final lat = device.geography!.lat!;
-                  final long = device.geography!.long!;
-                  final position = LatLng(lat, long);
-
-                  setState(() {
-                    _selectedDevice = device;
-                    _selectedPosition = position;
-                  });
-
-                  _mapController?.animateCamera(CameraUpdate.newLatLngZoom(position, 15));
-                }
-              },
-              isExpanded: true,
-              items: deviceList.map((device) {
-                final lat = device.geography?.lat?.toStringAsFixed(5) ?? 'N/A';
-                final long = device.geography?.long?.toStringAsFixed(5) ?? 'N/A';
-                return DropdownMenuItem<DeviceList>(
-                  value: device,
-                  child: Text('${device.deviceName ?? "Device"} (Lat: $lat, Long: $long)'),
-                );
-              }).toList(),
             ),
           ),
           Expanded(

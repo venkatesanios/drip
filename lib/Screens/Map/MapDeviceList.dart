@@ -1,13 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/Screens/Map/MapAddObject.dart';
-import 'package:provider/provider.dart';
+ import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/snack_bar.dart';
 import 'CustomerMap.dart';
+import 'MapValveLocationChange.dart';
 import 'devicelocationchange.dart';
 import 'googlemap_model.dart';
 
@@ -625,22 +625,46 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
   late MqttPayloadProvider mqttPayloadProvider;
 
   MapConfigModel _mapConfigModel = MapConfigModel();
+
   @override
   void initState() {
     super.initState();
     mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       fetchData();
+      // mqttPayloadProvider.updateMapData(jsonString);
     });
 
   }
 
-  Future<void> fetchData() async {
-    setState(() {
-      mqttPayloadProvider.updateMapData(jsonString);
-     });
 
-  }
+   Future<void> fetchData() async {
+     try{
+       final Repository repository = Repository(HttpService());
+       var getUserDetails = await repository.getgeography({
+         "userId": 8,
+         "controllerId" : 23
+       });
+       print('getUserDetails${getUserDetails.body}');
+       // final jsonData = jsonDecode(getUserDetails.body);
+       if (getUserDetails.statusCode == 200) {
+         setState(() {
+           var jsonData = jsonDecode(getUserDetails.body);
+           print('jsonData$jsonData');
+            mqttPayloadProvider.updateMapData(jsonData);
+         });
+       } else {
+         //_showSnackBar(response.body);
+       }
+     }
+     catch (e, stackTrace) {
+       mqttPayloadProvider.httpError = true;
+       print(' Error overAll getData => ${e.toString()}');
+       print(' trace overAll getData  => ${stackTrace}');
+     }
+    }
+
+
 
    @override
    Widget build(BuildContext context) {
@@ -650,12 +674,12 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
 
          if (deviceList == null || deviceList.isEmpty) {
            return Scaffold(
-             appBar: AppBar(title: const Text('Device List')),
+             appBar: AppBar(title: const Text('Map Device List')),
              body: const Center(child: Text('Map Device list is empty')),
            );
          }
           return Scaffold(
-           appBar: AppBar(title: const Text('Device List')),
+           appBar: AppBar(title: const Text('Map Device List')),
            body: SingleChildScrollView(
              child: Padding(
                padding: const EdgeInsets.all(10.0),
@@ -667,7 +691,7 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
                         TextButton.icon(
                           onPressed: () {
                             Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => MapScreenall(),
+                              builder: (context) => MapScreenall(userId: widget.userId, customerId: widget.customerId, controllerId: widget.controllerId, imeiNo: widget.imeiNo,),
                             ));
                           },
 
@@ -688,8 +712,7 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
                             textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                           ),
                          icon: Icon(Icons.edit_location_alt,color: Colors.white,),
-                         label: Text('Edit Node location'),
-                                           ),
+                         label: Text('Edit Node location'),),
                       ],
                     ),
                    Wrap(
@@ -762,25 +785,21 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
        },
      );
    }
+
    updateMapLocation() async {
-      Map<String, dynamic> filterBackWash = {};
-      Map<String, dynamic> filterBackWashserverSenddata = {
-       "filterBackwashing" : filterBackWash["data"]['filterBackwashing'],
-       "controllerReadStatus" : "0",
-     };
 
      final Repository repository = Repository(HttpService());
-
+var data = mqttPayloadProvider.mapModelInstance.data?.toJson();
      Map<String, dynamic> body = {
-       // "userId": 04,
-       // "controllerId": 28,
-       // "filterBackwash": filterBackWashserverSenddata,
-       //  "createUser": 04
+       "userId": widget.userId,
+       "controllerId": widget.controllerId,
+       "userGeography": data!['deviceList'],
+       "createUser": widget.userId
      };
-     var getUserDetails = await repository.UpdateFilterBackwasing(body);
+     print(body);
+     var getUserDetails = await repository.creategeography(body);
      var jsonDataResponse = jsonDecode(getUserDetails.body);
-
-      GlobalSnackBar.show(context, jsonDataResponse['message'], jsonDataResponse.statusCode);
-
+      print(jsonDataResponse);
+      GlobalSnackBar.show(context, jsonDataResponse['message'], 200);
    }
 }
