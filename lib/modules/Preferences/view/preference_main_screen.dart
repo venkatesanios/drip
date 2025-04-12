@@ -374,7 +374,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                                       pumpIndex: pumpSettingIndex
                                   )
                               else if(selectedSetting == 3)
-                                ValveSettings()
+                                const ValveSettings()
                                  /* for(var pumpSettingIndex = 0; pumpSettingIndex < [preferenceProvider.valveSettings!].length; pumpSettingIndex++)
                                     buildSettingsCategory(
                                         context: context,
@@ -863,17 +863,18 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
         ),
         Column(
           children: [
-            for (int index = 0; index < preferenceProvider.individualPumpSetting!
-                .where((e) => e.deviceId == preferenceProvider.commonPumpSettings![pumpIndex].deviceId).length; index++)
+            for (int index = 0; index < (preferenceProvider.commonPumpSettings!.length > 1 ? preferenceProvider.individualPumpSetting!
+                .where((e) => e.deviceId == preferenceProvider.commonPumpSettings![pumpIndex].deviceId).length : preferenceProvider.individualPumpSetting!.length); index++)
               SwitchListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10),
                   secondary: const SizedBox(
                     width: 40,
                     height: 40,
                   ),
-                  title: Text(preferenceProvider.individualPumpSetting!
+                  title: Text(preferenceProvider.commonPumpSettings!.length > 1 ? preferenceProvider.individualPumpSetting!
                       .where((e) => e.deviceId == preferenceProvider.commonPumpSettings![pumpIndex].deviceId)
                       .elementAt(index)
-                      .name),
+                      .name : preferenceProvider.individualPumpSetting![index].name),
                   value: settingList[categoryIndex].setting[settingIndex].value[index],
                   onChanged: (newValue) {
                     setState(() {

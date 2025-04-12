@@ -1,4 +1,9 @@
+import 'dart:convert';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/services/mqtt_service.dart';
+import 'package:oro_drip_irrigation/utils/environment.dart';
 import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
 
@@ -52,9 +57,30 @@ class PumpWithValves extends StatelessWidget {
               ],
             ),
             const Spacer(),
-            InkWell(
-              onTap: (){},
-              child: Icon(Icons.change_circle, color: Theme.of(context).primaryColorDark, size: 25,),
+            PopupMenuButton(
+              tooltip: "Select the valve to change",
+              itemBuilder: (BuildContext context) {
+                return [
+                  for(int i = 0; i < valves.length; i++)
+                    PopupMenuItem(
+                      onTap: () {
+                        final Map<String, dynamic> payload = {"sentSms": "changeto,${i+1}"};
+                        MqttService().topicToPublishAndItsMessage(
+                            jsonEncode(payload),
+                            '${Environment.mqttPublishTopic}/${provider.mySiteList.data[siteIndex].master[masterIndex].deviceId}'
+                        );
+                      },
+                      child: Text(valves[i].name),
+                    ),
+                ];
+              },
+              child: Row(
+                spacing: 5,
+                children: [
+                  const Text("Change To"),
+                  Icon(Icons.change_circle, color: Theme.of(context).primaryColorDark, size: 25,),
+                ],
+              ),
             ),
             const SizedBox(width: 10)
           ],
@@ -81,57 +107,80 @@ class PumpWithValves extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             width: MediaQuery.of(context).size.width <= 500 ? MediaQuery.of(context).size.width : 400,
-            child: GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              itemCount: valves.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                // crossAxisSpacing: 20,
-                // mainAxisSpacing: 20,
-                childAspectRatio: 1,
-              ),
-              itemBuilder: (context, i) {
-                final valveItem = valveData.valves['V${i+1}']!;
-                return Column(
+            child: Column(
+              spacing: 10,
+              children: [
+                Row(
+                  spacing: 10,
                   children: [
-                    Builder(
-                        builder: (valveContext) {
-                          return InkWell(
-                            onTap: () => _showDetails(i, valveContext),
-                            child: Image.asset(
-                              'assets/png/valve_gray.png',
-                              height: 40,
-                              color: valveItem.status == '1'
-                                  ? Colors.greenAccent
-                                  : valveItem.status == '0'
-                                  ? Colors.grey.shade100
-                                  : valveItem.status == '2'
-                                  ? Colors.redAccent
-                                  : Colors.deepOrange,
-                              colorBlendMode: BlendMode.modulate,
-                            ),
-                          );
-                        }
-                    ),
-                    Text(valves[i].name, style: Theme.of(context).textTheme.titleSmall),
-                    if (valveItem.status == '1' && valveData.remainingTime != '00:00:00')
-                      IntrinsicWidth(
-                        child: Container(
-                          decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(4)),
-                          padding: const EdgeInsets.symmetric(horizontal: 5),
-                          child: CountdownTimerWidget(
-                            key: Key(valveData.remainingTime),
-                            initialSeconds: Constants.parseTime(valveData.remainingTime).inSeconds,
-                          ),
+                    Text("Cyclic Restart interval", style: Theme.of(context).textTheme.labelSmall),
+                    IntrinsicWidth(
+                      child: Container(
+                        decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(4)),
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        child: CountdownTimerWidget(
+                          key: Key("testing"),
+                          initialSeconds: Constants.parseTime("00:00:00").inSeconds,
                         ),
-                      )
+                      ),
+                    )
                   ],
-                );
-              },
+                ),
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  itemCount: valves.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4,
+                    // crossAxisSpacing: 20,
+                    // mainAxisSpacing: 20,
+                    childAspectRatio: 1,
+                  ),
+                  itemBuilder: (context, i) {
+                    final valveItem = valveData.valves['V${i+1}']!;
+                    return Column(
+                      children: [
+                        Builder(
+                            builder: (valveContext) {
+                              return InkWell(
+                                onTap: () => _showDetails(i, valveContext),
+                                child: Image.asset(
+                                  'assets/png/valve_gray.png',
+                                  height: 40,
+                                  color: valveItem.status == '1'
+                                      ? Colors.greenAccent
+                                      : valveItem.status == '0'
+                                      ? Colors.grey.shade100
+                                      : valveItem.status == '2'
+                                      ? Colors.redAccent
+                                      : Colors.deepOrange,
+                                  colorBlendMode: BlendMode.modulate,
+                                ),
+                              );
+                            }
+                        ),
+                        Text(valves[i].name, style: Theme.of(context).textTheme.titleSmall),
+                        if (valveItem.status == '1' && valveData.remainingTime != '00:00:00')
+                          IntrinsicWidth(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(4)),
+                              padding: const EdgeInsets.symmetric(horizontal: 5),
+                              child: CountdownTimerWidget(
+                                key: Key(valveData.remainingTime),
+                                initialSeconds: Constants.parseTime(valveData.remainingTime).inSeconds,
+                              ),
+                            ),
+                          )
+                      ],
+                    );
+                  },
+                )
+              ],
             )
           ),
         ),
