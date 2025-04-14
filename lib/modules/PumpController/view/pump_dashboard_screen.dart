@@ -306,12 +306,12 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                   const SizedBox(height: 15,),
                   for(var index = 0; index < int.parse(snapshot.data!.numberOfPumps); index++)
                     buildNewPumpDetails(index: index, pumpData: snapshot.data!,),
-                  PumpWithValves(valveData: snapshot.data!.pumps.firstWhere(
-                        (pump) => pump is PumpValveModel,
-                  ) as PumpValveModel,
-                    siteIndex: widget.siteIndex,
-                    masterIndex: widget.masterIndex,
-                  ),
+                  if([48,49].contains(context.read<CustomerScreenControllerViewModel>().mySiteList.data[widget.siteIndex].master[widget.masterIndex].modelId))
+                    PumpWithValves(
+                      valveData: snapshot.data!.pumps.firstWhere((pump) => pump is PumpValveModel) as PumpValveModel,
+                      siteIndex: widget.siteIndex,
+                      masterIndex: widget.masterIndex,
+                    ),
                   const SizedBox(height: 20,),
                 ],
               ),
@@ -941,7 +941,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 5),
         decoration: _boxDecoration(color1, color2),
-        padding: const EdgeInsets.symmetric(vertical: 5),
+        // padding: const EdgeInsets.symmetric(vertical: 5),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

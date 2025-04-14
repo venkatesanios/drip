@@ -206,6 +206,8 @@ class PumpValveModel extends IndividualPumpData {
   final String cyclicRestartFlag;
   final String cyclicRestartInterval;
   final String cyclicRestartLimit;
+  final String currentCycle;
+  final String cycleCompletedFlag;
 
   PumpValveModel({
     required this.valveOnMode,
@@ -214,6 +216,8 @@ class PumpValveModel extends IndividualPumpData {
     required this.cyclicRestartFlag,
     required this.cyclicRestartInterval,
     required this.cyclicRestartLimit,
+    required this.currentCycle,
+    required this.cycleCompletedFlag,
   }) : super(
     status: 0,
     reason: '',
@@ -251,6 +255,8 @@ class PumpValveModel extends IndividualPumpData {
       cyclicRestartFlag: json['CRSF'] ?? '',
       cyclicRestartInterval: json['CRST'] ?? '',
       cyclicRestartLimit: json['CRSL'] ?? '',
+      currentCycle: json['CNO'] ?? '',
+      cycleCompletedFlag: json['CCF'] ?? '',
     );
   }
 

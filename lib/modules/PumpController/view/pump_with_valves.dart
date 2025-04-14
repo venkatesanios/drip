@@ -11,6 +11,7 @@ import '../../../Constants/constants.dart';
 import '../../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../model/pump_controller_data_model.dart';
 import '../widget/custom_countdown_timer.dart';
+import 'cycle_details.dart';
 
 class PumpWithValves extends StatelessWidget {
   final PumpValveModel valveData;
@@ -105,29 +106,16 @@ class PumpWithValves extends StatelessWidget {
           surfaceTintColor: const Color(0xffFFF3D7),*/
           shadowColor: const Color(0xffFFF3D7),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             width: MediaQuery.of(context).size.width <= 500 ? MediaQuery.of(context).size.width : 400,
             child: Column(
               spacing: 10,
               children: [
-                Row(
-                  spacing: 10,
-                  children: [
-                    Text("Cyclic Restart interval", style: Theme.of(context).textTheme.labelSmall),
-                    IntrinsicWidth(
-                      child: Container(
-                        decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(4)),
-                        padding: const EdgeInsets.symmetric(horizontal: 5),
-                        child: CountdownTimerWidget(
-                          key: Key("testing"),
-                          initialSeconds: Constants.parseTime("00:00:00").inSeconds,
-                        ),
-                      ),
-                    )
-                  ],
-                ),
+                if (valveData.cyclicRestartLimit != '0') ...[
+                  ValveCycleWidget(
+                    valveData: valveData,
+                  )
+                ],
+                const SizedBox(height: 5,),
                 GridView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -185,6 +173,38 @@ class PumpWithValves extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _infoTile({required String title, required Widget child}) {
+    return Container(
+      width: 100,
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          )
+        ],
+      ),
+      child: Column(
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.black54,
+            ),
+          ),
+          const SizedBox(height: 6),
+          IntrinsicWidth(child: child),
+        ],
+      ),
     );
   }
 
