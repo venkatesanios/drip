@@ -31,6 +31,8 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   final BuildContext context;
   StreamSubscription<MqttConnectionState>? mqttSubscription;
 
+  bool programRunning = false;
+
   CustomerScreenControllerViewModel(this.context, this.repository){
     fromWhere='init';
     payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
@@ -168,17 +170,21 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     }
   }
 
-  void updateLivePayload(int ws, String liveDataAndTime){
-
+  void updateLivePayload(int ws, String liveDataAndTime, List<String> cProgram) {
     payloadProvider.wifiStrength = 0;
     payloadProvider.liveDateAndTime = '';
 
     List<String> parts = liveDataAndTime.split(' ');
     String date = parts[0];
     String time = parts[1];
+
     mySiteList.data[sIndex].master[mIndex].live?.cD = date;
     mySiteList.data[sIndex].master[mIndex].live?.cT = time;
+
     wifiStrength = ws;
+
+    programRunning = cProgram[0].isNotEmpty;
+    payloadProvider.currentSchedule = cProgram;
 
     notifyListeners();
   }

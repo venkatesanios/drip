@@ -14,7 +14,6 @@ class NextSchedule extends StatelessWidget {
   Widget build(BuildContext context) {
 
     var nextSchedule = Provider.of<MqttPayloadProvider>(context).nextSchedule;
-    // print('nextSchedule:$nextSchedule');
 
     return nextSchedule.isNotEmpty && nextSchedule[0].isNotEmpty?
     Padding(

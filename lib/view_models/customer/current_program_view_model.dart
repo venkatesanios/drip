@@ -7,8 +7,9 @@ class CurrentProgramViewModel extends ChangeNotifier {
   late MqttPayloadProvider payloadProvider;
   List<String> currentSchedule = [];
   Timer? _timer;
+  double currentLineSno;
 
-  CurrentProgramViewModel(BuildContext context){
+  CurrentProgramViewModel(BuildContext context, this.currentLineSno){
     payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
   }
 

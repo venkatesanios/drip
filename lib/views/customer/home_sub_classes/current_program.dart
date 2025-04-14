@@ -16,16 +16,17 @@ import '../../../utils/constants.dart';
 import '../../../view_models/customer/current_program_view_model.dart';
 
 class CurrentProgram extends StatelessWidget {
-  const CurrentProgram({super.key, required this.scheduledPrograms, required this.deviceId, required this.customerId, required this.controllerId});
+  const CurrentProgram({super.key, required this.scheduledPrograms, required this.deviceId, required this.customerId, required this.controllerId, required this.currentLineSNo});
   final List<ProgramList> scheduledPrograms;
   final String deviceId;
   final int customerId, controllerId;
+  final double currentLineSNo;
 
   @override
   Widget build(BuildContext context) {
 
     return ChangeNotifierProvider(
-      create: (context) => CurrentProgramViewModel(context),
+      create: (context) => CurrentProgramViewModel(context, currentLineSNo),
       child: Consumer<CurrentProgramViewModel>(
         builder: (context, vm, _) {
 
@@ -62,10 +63,6 @@ class CurrentProgram extends StatelessWidget {
                       DataColumn2(
                           label: Text('Name', style: TextStyle(fontSize: 13),),
                           size: ColumnSize.M
-                      ),
-                      DataColumn2(
-                        label: Text('Location', style: TextStyle(fontSize: 13)),
-                        fixedWidth: 75,
                       ),
                       DataColumn2(
                         label: Text('Zone', style: TextStyle(fontSize: 13),),
@@ -119,9 +116,7 @@ class CurrentProgram extends StatelessWidget {
                               Text(getContentByCode(int.parse(values[17])), style: const TextStyle(fontSize: 10, color: Colors.black87),),
                             ],
                           ),
-                        ),
-                        const DataCell(Text('--')),
-                        DataCell(Text('${values[10]}/${values[9]}')),
+                        ), DataCell(Text('${values[10]}/${values[9]}')),
                         DataCell(Text(
                           getProgramNameById(int.parse(values[0])) == 'StandAlone - Manual'
                               ? '--'

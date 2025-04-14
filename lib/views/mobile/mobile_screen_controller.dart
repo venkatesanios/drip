@@ -43,15 +43,19 @@ class MobileScreenController extends StatelessWidget {
       child: Consumer2<NavRailViewModel, CustomerScreenControllerViewModel>(
         builder: (context, navViewModel, vm, _) {
 
-          int wifiStrength = Provider.of<MqttPayloadProvider>(context).wifiStrength;
-          String liveDataAndTime = Provider.of<MqttPayloadProvider>(context).liveDateAndTime;
-          Duration lastCommunication = Provider.of<MqttPayloadProvider>(context).lastCommunication;
-          int powerSupply = Provider.of<MqttPayloadProvider>(context).powerSupply;
+          final mqttProvider = Provider.of<MqttPayloadProvider>(context);
+
+          int wifiStrength = mqttProvider.wifiStrength;
+          String liveDataAndTime = mqttProvider.liveDateAndTime;
+          var iLineLiveMessage = mqttProvider.lineLiveMessage;
+          Duration lastCommunication = mqttProvider.lastCommunication;
+          int powerSupply = mqttProvider.powerSupply;
+          var currentSchedule = mqttProvider.currentSchedule;
 
 
           if(liveDataAndTime.isNotEmpty){
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              vm.updateLivePayload(wifiStrength, liveDataAndTime);
+              vm.updateLivePayload(wifiStrength, liveDataAndTime, currentSchedule);
             });
           }
 
@@ -604,6 +608,7 @@ class MobileScreenController extends StatelessWidget {
                       controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
                       deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
                       customerId: customerId,
+                      currentLineSNo: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData[vm.lIndex].sNo,
                     ):
                     ControllerSettings(customerId: customerId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
                       adDrId: fromLogin ? 1 : 0, userId: userId, deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,),
