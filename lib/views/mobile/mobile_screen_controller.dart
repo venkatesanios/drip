@@ -5,6 +5,7 @@ import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
 import '../../Models/customer/site_model.dart';
 import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
+import '../../modules/IrrigationProgram/view/program_library.dart';
 import '../../modules/PumpController/model/pump_controller_data_model.dart';
 import '../../modules/PumpController/view/pump_controller_home.dart';
 import '../../repository/repository.dart';
@@ -362,7 +363,6 @@ class MobileScreenController extends StatelessWidget {
                     padding: const EdgeInsets.only(left: 40, right: 25),
                     child: Divider(height: 0, color: Colors.grey.shade300),
                   ),
-
                   Padding(
                     padding: const EdgeInsets.only(left: 16, top: 16, right: 16),
                     child: TextButton.icon(
@@ -375,7 +375,6 @@ class MobileScreenController extends StatelessWidget {
                       ),
                     ),
                   ),
-
                   const Spacer(), // Pushes the version/logo to the bottom
                   Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -445,6 +444,25 @@ class MobileScreenController extends StatelessWidget {
                           );
                           break;
                         case 'option3':
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) {
+                                    return ProgramLibraryScreenNew(
+                                      customerId: customerId,
+                                      controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                                      deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                                      userId: userId,
+                                      fromDealer: false,
+                                      groupId: vm.mySiteList.data[vm.sIndex].groupId,
+                                      categoryId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
+                                      modelId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId,
+                                      deviceName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceName,
+                                      categoryName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
+                                    );
+                                  }
+                              )
+                          );
                           print("Option 3 selected");
                           break;
                       }
@@ -576,8 +594,8 @@ class MobileScreenController extends StatelessWidget {
                         vm.mySiteList.data[vm.sIndex].master,
                         vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
                         vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
-                        vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                        vm.mySiteList.data[vm.sIndex].master[vm.mIndex].live?.cM
+                        vm.mIndex,
+                        vm.sIndex
                     ):
                     vm.selectedIndex==1?
                     ScheduledProgram(
@@ -601,82 +619,20 @@ class MobileScreenController extends StatelessWidget {
     );
   }
 
+  Widget mainScreen(int index, groupId, groupName, List<Master> masterData, int controllerId, int categoryId, int masterIndex, int siteIndex) {
 
-  List<NavigationRailDestination> getNavigationDestinations() {
-    final destinations = [
-      const NavigationRailDestination(
-        padding: EdgeInsets.only(top: 5),
-        icon: Tooltip(
-          message: 'Home',
-          child: Icon(Icons.home_outlined),
-        ),
-        selectedIcon: Icon(Icons.home, color: Colors.white),
-        label: Text(''),
-      ),
-      const NavigationRailDestination(
-        icon: Tooltip(
-          message: 'All my devices',
-          child: Icon(Icons.devices_other),
-        ),
-        selectedIcon: Icon(Icons.devices_other, color: Colors.white),
-        label: Text(''),
-      ),
-      const NavigationRailDestination(
-        icon: Tooltip(
-          message: 'Sent & Received',
-          child: Icon(Icons.question_answer_outlined),
-        ),
-        selectedIcon: Icon(Icons.question_answer, color: Colors.white),
-        label: Text(''),
-      ),
-      const NavigationRailDestination(
-        icon: Tooltip(
-          message: 'Controller Logs',
-          child: Icon(Icons.receipt_outlined),
-        ),
-        selectedIcon: Icon(Icons.receipt, color: Colors.white,),
-        label: Text(''),
-      ),
-      const NavigationRailDestination(
-        icon: Tooltip(
-          message: 'Settings',
-          child: Icon(Icons.settings_outlined),
-        ),
-        selectedIcon: Icon(Icons.settings, color: Colors.white),
-        label: Text(''),
-      ),
-      const NavigationRailDestination(
-        icon: Tooltip(
-          message: 'Configuration',
-          child: Icon(Icons.confirmation_num_outlined),
-        ),
-        selectedIcon: Icon(Icons.confirmation_num, color: Colors.white),
-        label: Text(''),
-      ),
-      const NavigationRailDestination(
-        icon: Tooltip(
-          message: 'Weather',
-          child: Icon(Icons.sunny_snowing),
-        ),
-        selectedIcon: Icon(Icons.sunny_snowing, color: Colors.white),
-        label: Text(''),
-      ),
-    ];
-
-    return destinations;
-  }
-
-  Widget mainScreen(int index, groupId, groupName, List<Master> masterData, int controllerId, int categoryId, String deviceId, liveData) {
     switch (index) {
       case 0:
         return categoryId==1? CustomerHome(customerId: userId, controllerId: controllerId):
         PumpControllerHome(
-          deviceId: deviceId,
-          liveData: liveData,
+          deviceId: masterData[masterIndex].deviceId,
+          liveData: masterData[masterIndex].live!.cM as PumpControllerData,
           masterName: groupName,
           userId: userId,
           customerId: customerId,
           controllerId: controllerId,
+          siteIndex: siteIndex,
+          masterIndex: masterIndex,
         );
       case 1:
         return CustomerProduct(customerId: userId);

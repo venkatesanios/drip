@@ -6,20 +6,22 @@ import '../../StateManagement/mqtt_payload_provider.dart';
 import 'googlemap_model.dart';
 
 class MapScreenConnectedObjects extends StatefulWidget {
-  const MapScreenConnectedObjects({Key? key}) : super(key: key);
+  const MapScreenConnectedObjects({Key? key, required this.selectindex}) : super(key: key);
+
+  final int selectindex;
 
   @override
-  _MapScreenConnectedObjectsState createState() =>
-      _MapScreenConnectedObjectsState();
+  _MapScreenConnectedObjectsState createState() => _MapScreenConnectedObjectsState();
 }
 
 class _MapScreenConnectedObjectsState extends State<MapScreenConnectedObjects> {
   GoogleMapController? _mapController;
   final TextEditingController _searchController = TextEditingController();
+
   Set<Marker> _markers = {};
   LatLng? _selectedPosition;
   ConnectedObject? _selectedConnectedObject;
-  DeviceList? _selectedDevice;
+
   late MqttPayloadProvider mqttPayloadProvider;
 
   @override
@@ -28,64 +30,70 @@ class _MapScreenConnectedObjectsState extends State<MapScreenConnectedObjects> {
     mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final deviceList = mqttPayloadProvider.mapModelInstance.data?.deviceList ?? [];
+      final connectedObjects = _getConnectedObjectsForSelectedDevice();
 
-      if (deviceList.isNotEmpty) {
-        // Default to the first device
-        _selectedDevice = deviceList[1];
-        _selectedConnectedObject = _selectedDevice?.connectedObject?.first; // Default to first connected object
-
+      if (connectedObjects.isNotEmpty) {
         setState(() {
-          _selectedPosition = LatLng(
-            _selectedConnectedObject?.lat ?? 0.0,
-            _selectedConnectedObject?.long ?? 0.0,
-          );
+          _selectedConnectedObject = connectedObjects.first;
+
+          if (_selectedConnectedObject!.lat != null && _selectedConnectedObject!.long != null) {
+            _selectedPosition = LatLng(_selectedConnectedObject!.lat!, _selectedConnectedObject!.long!);
+            _mapController?.animateCamera(CameraUpdate.newLatLngZoom(_selectedPosition!, 15));
+          }
         });
       }
 
-      _addAllConnectedObjectMarkers();
+      _addConnectedObjectMarkers();
     });
+  }
+
+  List<ConnectedObject> _getConnectedObjectsForSelectedDevice() {
+    final deviceList = mqttPayloadProvider.mapModelInstance.data?.deviceList ?? [];
+
+    if (widget.selectindex >= 0 && widget.selectindex < deviceList.length) {
+      return deviceList[widget.selectindex].connectedObject?.cast<ConnectedObject>() ?? [];
+    }
+
+    return [];
   }
 
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
   }
 
-  void _addAllConnectedObjectMarkers() {
-    final deviceList = mqttPayloadProvider.mapModelInstance.data?.deviceList ?? [];
+  void _addConnectedObjectMarkers() {
+    final connectedObjects = _getConnectedObjectsForSelectedDevice();
     Set<Marker> markers = {};
 
-    for (var device in deviceList) {
-      for (var connectedObject in device.connectedObject ?? []) {
-        if (connectedObject.lat != null && connectedObject.long != null) {
-          final position = LatLng(connectedObject.lat!, connectedObject.long!);
-          final isSelected = connectedObject.objectId == _selectedConnectedObject?.objectId;
+    for (var obj in connectedObjects) {
+      if (obj.lat != null && obj.long != null) {
+        final position = LatLng(obj.lat!, obj.long!);
+        final isSelected = obj.sNo == _selectedConnectedObject?.sNo;
 
-          markers.add(
-            Marker(
-              markerId: MarkerId(connectedObject.objectId.toString()),
-              position: position,
-              icon: BitmapDescriptor.defaultMarkerWithHue(
-                isSelected
-                    ? BitmapDescriptor.hueAzure
-                    : connectedObject.status == 1
-                    ? BitmapDescriptor.hueGreen
-                    : BitmapDescriptor.hueRed,
-              ),
-              infoWindow: InfoWindow(
-                title: connectedObject.name ?? 'Connected Object',
-                snippet: 'Lat: ${connectedObject.lat}, Long: ${connectedObject.long}',
-                onTap: () {
-                  setState(() {
-                    _selectedConnectedObject = connectedObject;
-                    _selectedPosition = position;
-                  });
-                  _mapController?.animateCamera(CameraUpdate.newLatLngZoom(position, 15));
-                },
-              ),
+        markers.add(
+          Marker(
+            markerId: MarkerId('${obj.sNo}'),
+            position: position,
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+              isSelected
+                  ? BitmapDescriptor.hueAzure
+                  : obj.status == 1
+                  ? BitmapDescriptor.hueGreen
+                  : BitmapDescriptor.hueRed,
             ),
-          );
-        }
+            infoWindow: InfoWindow(
+              title: obj.name ?? 'Object',
+              snippet: 'Lat: ${obj.lat}, Long: ${obj.long}',
+              onTap: () {
+                setState(() {
+                  _selectedConnectedObject = obj;
+                  _selectedPosition = position;
+                });
+                _mapController?.animateCamera(CameraUpdate.newLatLngZoom(position, 15));
+              },
+            ),
+          ),
+        );
       }
     }
 
@@ -95,19 +103,17 @@ class _MapScreenConnectedObjectsState extends State<MapScreenConnectedObjects> {
   }
 
   void _updateMarker(double lat, double long) {
-    if (_selectedDevice == null || _selectedConnectedObject == null) return;
-
-    final position = LatLng(lat, long);
+    if (_selectedConnectedObject == null) return;
 
     setState(() {
-      _selectedConnectedObject?.lat = lat;
-      _selectedConnectedObject?.long = long;
-      _selectedPosition = position;
+      _selectedConnectedObject!.lat = lat;
+      _selectedConnectedObject!.long = long;
+      _selectedPosition = LatLng(lat, long);
     });
 
-    mqttPayloadProvider.notifyListeners();  // Notify provider changes
-    _addAllConnectedObjectMarkers();  // Refresh markers
-    _mapController?.animateCamera(CameraUpdate.newLatLngZoom(position, 15));
+    mqttPayloadProvider.notifyListeners();
+    _addConnectedObjectMarkers();
+    _mapController?.animateCamera(CameraUpdate.newLatLngZoom(_selectedPosition!, 15));
   }
 
   void _searchLocation() {
@@ -150,10 +156,10 @@ class _MapScreenConnectedObjectsState extends State<MapScreenConnectedObjects> {
 
   @override
   Widget build(BuildContext context) {
-    final deviceList = mqttPayloadProvider.mapModelInstance.data?.deviceList ?? [];
+    final connectedObjects = _getConnectedObjectsForSelectedDevice();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Select Connected Object Location')),
+      appBar: AppBar(title: const Text('Set Connected Object Locations')),
       body: Column(
         children: [
           Padding(
@@ -161,22 +167,33 @@ class _MapScreenConnectedObjectsState extends State<MapScreenConnectedObjects> {
             child: DropdownButton<ConnectedObject>(
               value: _selectedConnectedObject,
               hint: const Text('Select Connected Object'),
-              onChanged: (ConnectedObject? connectedObject) {
-                if (connectedObject != null) {
+              onChanged: (ConnectedObject? obj) {
+                if (obj != null) {
                   setState(() {
-                    _selectedConnectedObject = connectedObject;
-                    _selectedPosition = LatLng(connectedObject.lat!, connectedObject.long!);
+                    _selectedConnectedObject = obj;
+                    _selectedPosition = obj.lat != null && obj.long != null
+                        ? LatLng(obj.lat!, obj.long!)
+                        : null;
                   });
-                  _mapController?.animateCamera(CameraUpdate.newLatLngZoom(_selectedPosition!, 15));
+
+                  if (_selectedPosition != null) {
+                    _mapController?.animateCamera(
+                      CameraUpdate.newLatLngZoom(_selectedPosition!, 15),
+                    );
+                  }
+
+                  _addConnectedObjectMarkers();
                 }
               },
               isExpanded: true,
-              items: _selectedDevice?.connectedObject?.map((connectedObject) {
+              items: connectedObjects.map((obj) {
+                final lat = obj.lat?.toStringAsFixed(5) ?? 'N/A';
+                final long = obj.long?.toStringAsFixed(5) ?? 'N/A';
                 return DropdownMenuItem<ConnectedObject>(
-                  value: connectedObject,
-                  child: Text('${connectedObject.name ?? "Connected Object"}'),
+                  value: obj,
+                  child: Text('${obj.name ?? "Object"} (Lat: $lat, Long: $long)'),
                 );
-              }).toList() ?? [],
+              }).toList(),
             ),
           ),
           Padding(

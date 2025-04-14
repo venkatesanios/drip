@@ -27,7 +27,7 @@ class PumpControllerHome extends StatefulWidget {
     required this.masterName,
     required this.userId,
     required this.customerId,
-    required this.controllerId,
+    required this.controllerId, required int siteIndex, required int masterIndex,
   });
 
   @override
