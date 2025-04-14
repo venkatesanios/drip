@@ -1253,11 +1253,11 @@ class LiveMessage {
   factory LiveMessage.fromJson(Map<String, dynamic> json) {
     return LiveMessage(
       cC: json['cC'],
-      cM: json['cM'] is Map<String, dynamic> ? Map<String, dynamic>.from(json['cM'])
-          : <String, dynamic> {},
-      /*cM: json['cM'] is Map<String, dynamic>
+     /* cM: json['cM'] is Map<String, dynamic> ? Map<String, dynamic>.from(json['cM'])
+          : <String, dynamic> {},*/
+      cM: json['cM'] is Map<String, dynamic>
           ? Map<String, dynamic>.from(json['cM'])
-          : (json['cM'] is List ? json['mC'] == 'LD01' ? PumpControllerData.fromJson(json, "cM", 2) : <String, dynamic>{} : <String, dynamic>{}),*/
+          : (json['cM'] is List ? json['mC'] == 'LD01' ? PumpControllerData.fromJson(json, "cM", 2) : <String, dynamic>{} : <String, dynamic>{}),
       cD: json['cD'],
       cT: json['cT'],
       mC: json['mC'],
