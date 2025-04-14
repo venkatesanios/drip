@@ -8,6 +8,7 @@ import '../../services/http_service.dart';
 import '../../utils/snack_bar.dart';
 import 'CustomerMap.dart';
 import 'MapValveLocationChange.dart';
+import 'connectedObject.dart';
 import 'devicelocationchange.dart';
 import 'googlemap_model.dart';
 
@@ -724,7 +725,7 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
                        return InkWell(
                          onTap: () {
                            Navigator.of(context).push(MaterialPageRoute(
-                             builder: (context) => MapScreen(index: index),
+                             builder: (context) => MapScreenConnectedObjects(),
                            ));
                          },
                          child: Card(
