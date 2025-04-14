@@ -78,6 +78,7 @@ class PumpStation extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(top: 3.1),
                           child: DisplayIrrigationLine(lineData:vm.mvIrrLineData, pumpStationWith:(vm.grandTotal*70)+157, currentLineName:currentLineName,),
+                          /*child: DisplayIrrigationLine(lineData:vm.mvIrrLineData, pumpStationWith:(vm.grandTotal*70)+157, currentLineName : currentLineName, sensorsHourlyLog: vm.sensors,),*/
                         ),
                       ],
                     ):
@@ -107,7 +108,261 @@ class PumpStation extends StatelessWidget {
     );
   }
 
-  Widget buildRow(BuildContext context, List<WaterSource> sortedWaterSources, PumpStationViewModel vm) {
+  Widget buildPumpAndFilter(BuildContext context, List<WaterSource> sortedWaterSources, PumpStationViewModel vm, ) {
+
+    /*final List<Widget> pumpAndFilter = [
+      for (var line in lineData!)
+        if (currentLineName == 'All irrigation line' || line.name == currentLineName) ...[
+          ...line.prsSwitch.map((psw) => SensorWidget(
+            sensor: psw,
+            sensorType: 'Pressure Switch',
+            imagePath: 'assets/png/pressure_switch.png',
+            sensorData: sensorsHourlyLog,
+          )),
+          ...line.pressureIn.map((psw) => SensorWidget(
+            sensor: psw,
+            sensorType: 'Pressure Sensor',
+            imagePath: 'assets/png/pressure_sensor.png',
+            sensorData: sensorsHourlyLog,
+          )),
+          ...line.waterMeter.map((wm) => SensorWidget(
+            sensor: wm,
+            sensorType: 'Water Meter',
+            imagePath: 'assets/png/water_meter.png',
+            sensorData: sensorsHourlyLog,
+          )),
+          ...line.valves.map((vl) => ValveWidget(
+            vl: vl,
+            status: vl.status,
+            userId: 0,
+            controllerId: 0,
+            moistureSensor: vl.moistureSensor!,
+          )),
+        ],
+    ];*/
+
+    final List<Widget> gridItems = [];
+
+    gridItems.addAll(
+      sortedWaterSources.asMap().entries.expand((entry) {
+        int i = entry.key;
+        var source = entry.value;
+        return [
+          SourceWidget(source: source, index: i),
+          ...source.outletPump.map((pump) => PumpWidget(pump: pump, vm: vm, customerId: customerId, controllerId: controllerId))
+        ];
+      }),
+    );
+
+    gridItems.addAll(
+      vm.mvFilterSite.expand((filterSite) => [
+        if (filterSite.pressureIn != null)
+          PressureSensorWidget(pressureSensor: filterSite.pressureIn!),
+
+        ...filterSite.filters.map((filter) => FilterWidget(filter: filter)),
+
+        if (filterSite.pressureOut != null)
+          PressureSensorWidget(pressureSensor: filterSite.pressureOut!),
+      ]),
+    );
+
+    gridItems.addAll(
+      vm.mvFertilizerSite.expand((fertilizerSite) => [
+        /*if (fertilizerSite.boosterPump.isNotEmpty)
+          PressureSensorWidget(pressureSensor: filterSite.pressureIn!),*/
+
+        ...fertilizerSite.channel.map((channel) => FertilizerWidget(channel: channel)),
+
+      ]),
+    );
+
+    /*return Row(
+      children: gridItems.asMap().entries.map((entry) {
+        int index = entry.key;
+        return Padding(
+          padding: EdgeInsets.only(top: vm.mvFertilizerSite.isNotEmpty ? 38.4 : 0),
+          child: SizedBox(
+            width: 70,
+            height: 100,
+            child: GridTile(
+              child: gridItems[index],
+            ),
+          ),
+        );
+      }).toList(),
+    );*/
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: sortedWaterSources.asMap().entries.map((entry) {
+        int index = entry.key;
+        var source = entry.value;
+        bool isLastIndex = index == sortedWaterSources.length - 1;
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(top: vm.mvFertilizerSite.isNotEmpty ? 38.4 : 0),
+              child: Stack(
+                children: [
+                  SizedBox(
+                    width: 70,
+                    child: isLastIndex? Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Row(
+                            children: [
+                              Container(width: 32, height: 2, color: Colors.grey.shade300),
+                              const SizedBox(width: 7,),
+                              Container(width: 31, height: 2, color: Colors.grey.shade300),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2.9),
+                          child: Row(
+                            children: [
+                              Container(width: 27, height: 2, color: Colors.grey.shade300),
+                              const SizedBox(width: 10,),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 5),
+                                child: Container(width: 28, height: 2, color: Colors.grey.shade300),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ):
+                    Column(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(left: index == 0 ? 33 : 0),
+                          child: Divider(thickness: 2, color: Colors.grey.shade300, height: 5.5),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: index == 0 ? 37 : 0),
+                          child: Divider(thickness: 2, color: Colors.grey.shade300, height: 4.5),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    width: 70,
+                    height: 95,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 70,
+                          height: 15,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 3),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                VerticalDivider(thickness: 1, color: Colors.grey.shade400, width: 3),
+                                VerticalDivider(thickness: 1, color: Colors.grey.shade400, width: 5),
+                                isLastIndex? const SizedBox(width: 3,):const SizedBox(),
+                                isLastIndex? VerticalDivider(thickness: 1, color: Colors.grey.shade400, width: 3):const SizedBox(),
+                                isLastIndex? VerticalDivider(thickness: 1, color: Colors.grey.shade400, width: 5):const SizedBox(),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: 45,
+                          height: 45,
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade300,
+                            border: Border.all(
+                              color: Colors.grey,
+                              width: 1,
+                            ),
+                            borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(5), bottomRight: Radius.circular(5)),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          source.name,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 10, color: Colors.black54),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (source.level != null) ...[
+                    Positioned(
+                      top: 25,
+                      left: 5,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.yellow,
+                          borderRadius: const BorderRadius.all(Radius.circular(2)),
+                          border: Border.all(color: Colors.grey, width: .50),
+                        ),
+                        width: 60,
+                        height: 18,
+                        child: Center(
+                          child: Text(
+                            '${source.level!.percentage!} feet',
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 50,
+                      left: 5,
+                      child: SizedBox(
+                        width: 60,
+                        child: Center(
+                          child: Text(
+                            '${source.valves} %',
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            Wrap(
+              spacing: 0.0,
+              children: source.outletPump.map((pump) {
+                return Padding(
+                  padding: EdgeInsets.only(top: vm.mvFertilizerSite.isNotEmpty ? 38.4 : 0),
+                  child: displayPump(context, pump, vm, source.inletPump.isEmpty? true : false),
+                );
+              }).toList(),
+            ),
+            if (isLastIndex && vm.mvFilterSite.isNotEmpty)
+              Padding(
+                padding: EdgeInsets.only(top: vm.mvFertilizerSite.isNotEmpty ? 38.4 : 0),
+                child: displayFilterSite(context, vm.mvFilterSite),
+              ),
+            if (isLastIndex && vm.mvFertilizerSite.isNotEmpty)
+              displayFertilizerSite(context, vm.mvFertilizerSite),
+          ],
+        );
+      }).toList(),
+    );
+  }
+
+  Widget buildRow(BuildContext context, List<WaterSource> sortedWaterSources, PumpStationViewModel vm, ) {
 
     final List<Widget> gridItems = [];
 
@@ -349,6 +604,7 @@ class PumpStation extends StatelessWidget {
       vm.mvFilterSite.expand((filterSite) => [
         if (filterSite.pressureIn != null)
           PressureSensorWidget(pressureSensor: filterSite.pressureIn!),
+
         ...filterSite.filters.map((filter) => FilterWidget(filter: filter)),
 
         if (filterSite.pressureOut != null)
@@ -368,12 +624,16 @@ class PumpStation extends StatelessWidget {
         child: GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 5,
-            childAspectRatio: 0.82,
+            childAspectRatio: 1.0,
           ),
           itemCount: gridItems.length,
           itemBuilder: (context, index) {
-            return GridTile(
-              child: gridItems[index],
+            return Card(
+              color: Colors.white,
+              elevation: 2,
+              child: GridTile(
+                child: gridItems[index],
+              ),
             );
           },
         ),
@@ -383,6 +643,9 @@ class PumpStation extends StatelessWidget {
 
 
   Widget displayPump(BuildContext context, Pump pump, PumpStationViewModel vm, bool isSourcePump){
+
+    print('${pump.name} onDelayLeft :${pump.onDelayLeft}');
+
     return Stack(
       children: [
         SizedBox(
@@ -1201,7 +1464,7 @@ class PumpStation extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              durationNotifier.onDelayLeft, // Updates every second
+                              durationNotifier.onDelayLeft,
                               style: const TextStyle(
                                 color: Colors.black,
                                 fontSize: 10,
@@ -2582,52 +2845,19 @@ class ValveWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        double gridWidth = constraints.maxWidth;
-        return Stack(
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
-              width: gridWidth,
-              child: Column(
-                children: [
-                  Divider(thickness: 2, color: Colors.grey.shade200, height: 5.5),
-                  Divider(thickness: 2, color: Colors.grey.shade200, height: 4.5),
-                ],
-              ),
+              width: 40,
+              height: 40,
+              child: AppConstants.getAsset('valve', valve.status, ''),
             ),
-            SizedBox(
-              width: 70,
-              height: 95,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 70,
-                    height: 15,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 3),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          VerticalDivider(thickness: 1, color: Colors.grey.shade400, width: 3),
-                          VerticalDivider(thickness: 1, color: Colors.grey.shade400, width: 5),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 45,
-                    height: 45,
-                    child: AppConstants.getAsset('valve', valve.status, ''),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    valve.name,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 10, color: Colors.black54),
-                  ),
-                ],
-              ),
+            const SizedBox(height: 4),
+            Text(
+              valve.name,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 10, color: Colors.black54),
             ),
           ],
         );

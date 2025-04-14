@@ -30,9 +30,9 @@ class DecreaseDurationNotifier extends ChangeNotifier {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_duration.inSeconds > 0) {
         _duration -= const Duration(seconds: 1);
-        notifyListeners(); // Notify UI to update
+        notifyListeners();
       } else {
-        _timer.cancel(); // Stop the timer when time reaches 0
+        _timer.cancel();
       }
     });
   }
