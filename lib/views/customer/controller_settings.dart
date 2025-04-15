@@ -176,10 +176,16 @@ class ControllerSettings extends StatelessWidget {
                       leading: Icon(viewModel.filteredSettingList[index]['icon'], color: Theme.of(context).primaryColor),
                       title: Text(
                         viewModel.filteredSettingList[index]['title'],
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                       ),
-                      subtitle: Text(getSubTitle(viewModel.filteredSettingList[index]['title']),
-                        style: const TextStyle(color: Colors.black54),),
+                      subtitle: Text(
+                        getSubTitle(viewModel.filteredSettingList[index]['title']),
+                        style: const TextStyle(
+                          color: Colors.black54,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                       onTap: () {
                         if(viewModel.filteredSettingList[index]['title']=='General'){

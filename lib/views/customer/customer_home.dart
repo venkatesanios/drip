@@ -40,15 +40,19 @@ class CustomerHome extends StatelessWidget {
           .where((line) => line.name == viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.lineData[viewModel.lIndex].name)
           .toList();
 
-      filteredWaterSource = allWaterSources;
 
-      /*filteredWaterSource = allWaterSources.where((ws) {
-        if (ws.inletPump.isNotEmpty && ws.outletPump.isNotEmpty) {
-          return ws.outletPump.any((op) =>
-              filteredLineData[0].irrigationPump.any((ip) => ip.sNo == op.sNo));
-        }
-        return false;
-      }).toList();*/
+      final irrigationPumpSNos = filteredLineData[0]
+          .irrigationPump
+          .map((ip) => ip.sNo)
+          .toSet();
+
+      filteredWaterSource = allWaterSources.map((ws) {
+        final filteredOutletPumps = ws.outletPump
+            .where((op) => !irrigationPumpSNos.contains(op.sNo))
+            .toList();
+
+        return ws.copyWith(outletPump: filteredOutletPumps);
+      }).toList();
 
 
       filteredFilterSite = viewModel.mySiteList.data[viewModel.sIndex]

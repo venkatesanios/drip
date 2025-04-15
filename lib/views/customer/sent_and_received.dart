@@ -33,16 +33,13 @@ class SentAndReceived extends StatelessWidget {
           final calendarWidget = _buildCalendar(context, viewModel);
 
           if (kIsWeb) {
-            return Scaffold(
-              appBar: AppBar(title: const Text('Sent & Received')),
-              body: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(width: 350, height: 400, child: calendarWidget),
-                  VerticalDivider(color: Colors.grey.shade300),
-                  Expanded(child: _buildBody(context, viewModel)),
-                ],
-              ),
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(width: 350, height: 400, child: calendarWidget),
+                VerticalDivider(color: Colors.grey.shade300),
+                Expanded(child: _buildBody(context, viewModel)),
+              ],
             );
           } else {
             return Scaffold(
@@ -61,6 +58,9 @@ class SentAndReceived extends StatelessWidget {
   }
 
   Widget _buildCalendar(BuildContext context, SentAndReceivedViewModel viewModel) {
+    const bool isWeb = kIsWeb;
+    const CalendarFormat initialFormat = isWeb ? CalendarFormat.month : CalendarFormat.week;
+
     return TableCalendar(
       firstDay: DateTime.utc(2020, 10, 16),
       lastDay: DateTime.utc(2050, 3, 14),
@@ -71,8 +71,9 @@ class SentAndReceived extends StatelessWidget {
       onDaySelected: (selectedDay, focusedDay) {
         viewModel.onDateChanged(customerId, controllerId, selectedDay, focusedDay);
       },
-      calendarFormat: CalendarFormat.week,
+      calendarFormat: initialFormat,
       availableCalendarFormats: const {
+        CalendarFormat.month: 'Month',
         CalendarFormat.week: 'Week',
       },
       calendarStyle: CalendarStyle(
