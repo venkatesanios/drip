@@ -15,562 +15,581 @@ import '../../../utils/constants.dart';
 import '../../../utils/snack_bar.dart';
 
 class ScheduledProgram extends StatelessWidget {
-  const ScheduledProgram({super.key, required this.userId, required this.scheduledPrograms, required this.controllerId, required this.deviceId, required this.customerId});
+  const ScheduledProgram({super.key, required this.userId, required this.scheduledPrograms, required this.controllerId, required this.deviceId, required this.customerId, required this.currentLineSNo});
   final int userId, customerId, controllerId;
   final String deviceId;
   final List<ProgramList> scheduledPrograms;
+  final double currentLineSNo;
 
   @override
   Widget build(BuildContext context) {
 
-    final spLive = Provider.of<MqttPayloadProvider>(context).scheduledProgram;
-    if(spLive.isNotEmpty){
-      for(var sp in spLive){
-        List<String> values = sp.split(",");
-        if(values.length>1){
-          int index = scheduledPrograms.indexWhere((program) => program.serialNumber == int.parse(values[0]));
-          scheduledPrograms[index].startDate = values[3];
-          scheduledPrograms[index].startTime = values[4];
-          scheduledPrograms[index].endDate = values[5];
-          scheduledPrograms[index].programStatusPercentage = int.parse(values[6]);
-          scheduledPrograms[index].startStopReason = int.parse(values[7]);
-          scheduledPrograms[index].pauseResumeReason = int.parse(values[8]);
-          scheduledPrograms[index].prgOnOff = values[10];
-          scheduledPrograms[index].prgPauseResume = values[11];
-          scheduledPrograms[index].status = 1;
-        }
-
-      }
+    final spLive = Provider.of<MqttPayloadProvider>(context).scheduledProgramPayload;
+    if (spLive.isNotEmpty) {
+      _updateProgramsFromMqtt(spLive, scheduledPrograms);
     }
-    return kIsWeb? Padding(
-      padding: const EdgeInsets.only(left: 8, right: 8, top: 3, bottom: 3),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(
-                      color: Colors.grey.shade400,
-                      width: 0.5,
-                    ),
-                    borderRadius: const BorderRadius.all(Radius.circular(5)),
-                  ),
-                  height: (scheduledPrograms.length * 45) + 45,
-                  child: Padding(
-                    padding: const EdgeInsets.all(1.0),
-                    child: DataTable2(
-                      columnSpacing: 12,
-                      horizontalMargin: 12,
-                      minWidth: 1000,
-                      dataRowHeight: 45.0,
-                      headingRowHeight: 40.0,
-                      headingRowColor: WidgetStateProperty.all<Color>(Colors.yellow.shade50),
-                      columns:  const [
-                        DataColumn2(
-                          label: Text('Line Id', style: TextStyle(fontSize: 13),),
-                          fixedWidth: 50,
-                        ),
-                        DataColumn2(
-                          label: Text('Name', style: TextStyle(fontSize: 13),),
-                          size: ColumnSize.M,
-                        ),
-                        DataColumn2(
-                          label: Text('Method', style: TextStyle(fontSize: 13)),
-                          size: ColumnSize.M,
-                        ),
-                        DataColumn2(
-                          label: Text('Status or Reason', style: TextStyle(fontSize: 13)),
-                          size: ColumnSize.L,
-                        ),
-                        DataColumn2(
-                          label: Center(child: Text('Zone', style: TextStyle(fontSize: 13),)),
-                          fixedWidth: 50,
-                        ),
-                        DataColumn2(
-                          label: Center(child: Text('Start Date & Time', style: TextStyle(fontSize: 13),)),
-                          size: ColumnSize.M,
-                        ),
-                        DataColumn2(
-                          label: Center(child: Text('End Date', style: TextStyle(fontSize: 13),)),
-                          size: ColumnSize.S,
-                        ),
-                        DataColumn2(
-                          label: Text(''),
-                          fixedWidth: 265,
-                        ),
-                      ],
-                      rows: List<DataRow>.generate(scheduledPrograms.length, (index) {
-                        String buttonName = getButtonName(int.parse(scheduledPrograms[index].prgOnOff));
-                        bool isStop = buttonName.contains('Stop');
-                        bool isBypass = buttonName.contains('Bypass');
 
-                        return DataRow(cells: [
-                          DataCell(Text(scheduledPrograms[index].prgCategory)),
-                          DataCell(Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(scheduledPrograms[index].programName),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Expanded(
-                                    child: LinearProgressIndicator(
-                                      value: scheduledPrograms[index].programStatusPercentage / 100.0,
-                                      borderRadius: const BorderRadius.all(Radius.circular(3)),
-                                      color: Colors.blue.shade300,
-                                      backgroundColor: Colors.grey.shade200,
-                                      minHeight: 2.5,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 7),
-                                  Text(
-                                    '${scheduledPrograms[index].programStatusPercentage}%',
-                                    style: const TextStyle(fontSize: 12, color: Colors.black45),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          )),
-                          DataCell(Text(getSchedulingMethodName(scheduledPrograms[index].schedulingMethod))),
-                          DataCell(Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
+    var filteredScheduleProgram = currentLineSNo == 0
+        ? scheduledPrograms
+        : scheduledPrograms.where((program) {
+      return program.irrigationLine.contains(currentLineSNo);
+    }).toList();
+
+    if(kIsWeb){
+      return Padding(
+        padding: const EdgeInsets.only(left: 8, right: 8, top: 3, bottom: 3),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(
+                        color: Colors.grey.shade400,
+                        width: 0.5,
+                      ),
+                      borderRadius: const BorderRadius.all(Radius.circular(5)),
+                    ),
+                    height: (filteredScheduleProgram.length * 45) + 45,
+                    child: Padding(
+                      padding: const EdgeInsets.all(1.0),
+                      child: DataTable2(
+                        columnSpacing: 12,
+                        horizontalMargin: 12,
+                        minWidth: 1000,
+                        dataRowHeight: 45.0,
+                        headingRowHeight: 40.0,
+                        headingRowColor: WidgetStateProperty.all<Color>(Colors.yellow.shade50),
+                        columns:  const [
+                          DataColumn2(
+                            label: Text('Name', style: TextStyle(fontSize: 13),),
+                            size: ColumnSize.M,
+                          ),
+                          DataColumn2(
+                            label: Text('Method', style: TextStyle(fontSize: 13)),
+                            size: ColumnSize.M,
+                          ),
+                          DataColumn2(
+                            label: Text('Status or Reason', style: TextStyle(fontSize: 13)),
+                            size: ColumnSize.L,
+                          ),
+                          DataColumn2(
+                            label: Center(child: Text('Zone', style: TextStyle(fontSize: 13),)),
+                            fixedWidth: 50,
+                          ),
+                          DataColumn2(
+                            label: Center(child: Text('Start Date & Time', style: TextStyle(fontSize: 13),)),
+                            size: ColumnSize.M,
+                          ),
+                          DataColumn2(
+                            label: Center(child: Text('End Date', style: TextStyle(fontSize: 13),)),
+                            size: ColumnSize.S,
+                          ),
+                          DataColumn2(
+                            label: Text(''),
+                            fixedWidth: 265,
+                          ),
+                        ],
+                        rows: List<DataRow>.generate(filteredScheduleProgram.length, (index) {
+                          String buttonName = getButtonName(int.parse(filteredScheduleProgram[index].prgOnOff));
+                          bool isStop = buttonName.contains('Stop');
+                          bool isBypass = buttonName.contains('Bypass');
+
+                          return DataRow(cells: [
+                            DataCell(Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(filteredScheduleProgram[index].programName),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    RichText(
-                                      text: TextSpan(
-                                        children: [
-                                          const TextSpan(
-                                            text: 'Start Stop: ',
-                                            style: TextStyle(
-                                              color: Colors.black54,
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                          TextSpan(
-                                            text: getContentByCode(scheduledPrograms[index].startStopReason),
-                                            style: const TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 11,
-                                            ),
-                                          ),
-                                        ],
+                                    Expanded(
+                                      child: LinearProgressIndicator(
+                                        value: filteredScheduleProgram[index].programStatusPercentage / 100.0,
+                                        borderRadius: const BorderRadius.all(Radius.circular(3)),
+                                        color: Colors.blue.shade300,
+                                        backgroundColor: Colors.grey.shade200,
+                                        minHeight: 2.5,
                                       ),
                                     ),
-                                    scheduledPrograms[index].pauseResumeReason!=30?RichText(
-                                      text: TextSpan(
-                                        children: [
-                                          const TextSpan(
-                                            text: 'Pause Resume: ',
-                                            style: TextStyle(
-                                              color: Colors.black54,
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                          TextSpan(
-                                            text: getContentByCode(scheduledPrograms[index].pauseResumeReason),
-                                            style: const TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 11,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ):
-                                    const SizedBox(),
+                                    const SizedBox(width: 7),
+                                    Text(
+                                      '${filteredScheduleProgram[index].programStatusPercentage}%',
+                                      style: const TextStyle(fontSize: 12, color: Colors.black45),
+                                    ),
                                   ],
                                 ),
-                              ),
-                              /*scheduledPrograms[index].startCondition.condition.isNotEmpty ||
-                                  scheduledPrograms[index].stopCondition.condition.isNotEmpty?
+                              ],
+                            )),
+                            DataCell(Text(getSchedulingMethodName(filteredScheduleProgram[index].schedulingMethod))),
+                            DataCell(Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      RichText(
+                                        text: TextSpan(
+                                          children: [
+                                            const TextSpan(
+                                              text: 'Start Stop: ',
+                                              style: TextStyle(
+                                                color: Colors.black54,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text: getContentByCode(filteredScheduleProgram[index].startStopReason),
+                                              style: const TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 11,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      filteredScheduleProgram[index].pauseResumeReason!=30?RichText(
+                                        text: TextSpan(
+                                          children: [
+                                            const TextSpan(
+                                              text: 'Pause Resume: ',
+                                              style: TextStyle(
+                                                color: Colors.black54,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text: getContentByCode(filteredScheduleProgram[index].pauseResumeReason),
+                                              style: const TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 11,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ):
+                                      const SizedBox(),
+                                    ],
+                                  ),
+                                ),
+                                /*filteredScheduleProgram[index].startCondition.condition.isNotEmpty ||
+                                  filteredScheduleProgram[index].stopCondition.condition.isNotEmpty?
                               IconButton(
                                 tooltip: 'view condition',
                                 onPressed: () {
                                   showAutoUpdateDialog(context,
-                                    scheduledPrograms[index].sNo,
+                                    filteredScheduleProgram[index].sNo,
                                   );
                                 },
                                 icon: const Icon(Icons.visibility_outlined, color: Colors.teal,),
                               ):
                               const SizedBox(),*/
-                            ],
-                          )),
-                          DataCell(Center(child: Text('${scheduledPrograms[index].sequence.length}'))),
-                          DataCell(Center(child: Text('${changeDateFormat(scheduledPrograms[index].startDate)} : ${convert24HourTo12Hour(scheduledPrograms[index].startTime)}'))),
-                          DataCell(Center(child: Text(changeDateFormat(scheduledPrograms[index].endDate)))),
-                          DataCell(
-                              scheduledPrograms[index].status==1? Row(
-                            children: [
-                              Tooltip(
-                                message: getDescription(int.parse(scheduledPrograms[index].prgOnOff)),
-                                child: MaterialButton(
-                                  color: int.parse(scheduledPrograms[index].prgOnOff) >= 0? isStop?Colors.red: isBypass?Colors.orange :Colors.green : Colors.grey.shade300,
-                                  textColor: Colors.white,
-                                  onPressed: () {
+                              ],
+                            )),
+                            DataCell(Center(child: Text('${filteredScheduleProgram[index].sequence.length}'))),
+                            DataCell(Center(child: Text('${changeDateFormat(filteredScheduleProgram[index].startDate)} : ${convert24HourTo12Hour(filteredScheduleProgram[index].startTime)}'))),
+                            DataCell(Center(child: Text(changeDateFormat(filteredScheduleProgram[index].endDate)))),
+                            DataCell(
+                              filteredScheduleProgram[index].status==1? Row(
+                                children: [
+                                  Tooltip(
+                                    message: getDescription(int.parse(filteredScheduleProgram[index].prgOnOff)),
+                                    child: MaterialButton(
+                                      color: int.parse(filteredScheduleProgram[index].prgOnOff) >= 0? isStop?Colors.red: isBypass?Colors.orange :Colors.green : Colors.grey.shade300,
+                                      textColor: Colors.white,
+                                      onPressed: () {
 
-                                    if(getPermissionStatusBySNo(context, 3)){
-                                      if (int.parse(scheduledPrograms[index].prgOnOff) >= 0) {
-                                        String payload = '${scheduledPrograms[index].serialNumber},${scheduledPrograms[index].prgOnOff}';
+                                        if(getPermissionStatusBySNo(context, 3)){
+                                          if (int.parse(filteredScheduleProgram[index].prgOnOff) >= 0) {
+                                            String payload = '${filteredScheduleProgram[index].serialNumber},${filteredScheduleProgram[index].prgOnOff}';
+                                            String payLoadFinal = jsonEncode({
+                                              "2900": {"2901": payload}
+                                            });
+                                            MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
+                                            sentUserOperationToServer(
+                                              '${filteredScheduleProgram[index].programName} ${getDescription(int.parse(filteredScheduleProgram[index].prgOnOff))}',
+                                              payLoadFinal,
+                                            );
+                                          }
+                                        }else{
+                                          GlobalSnackBar.show(context, 'Permission denied', 400);
+                                        }
+                                      },
+                                      child: Text(
+                                        buttonName,
+                                        style: const TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  MaterialButton(
+                                    color: getButtonName(int.parse(filteredScheduleProgram[index].prgPauseResume)) == 'Pause' ? Colors.orange : Colors.yellow,
+                                    textColor: getButtonName(int.parse(filteredScheduleProgram[index].prgPauseResume)) == 'Pause' ? Colors.white : Colors.black,
+                                    onPressed: () {
+                                      if(getPermissionStatusBySNo(context, 3)){
+                                        String payload = '${filteredScheduleProgram[index].serialNumber},${filteredScheduleProgram[index].prgPauseResume}';
                                         String payLoadFinal = jsonEncode({
                                           "2900": {"2901": payload}
                                         });
                                         MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
                                         sentUserOperationToServer(
-                                          '${scheduledPrograms[index].programName} ${getDescription(int.parse(scheduledPrograms[index].prgOnOff))}',
+                                          '${filteredScheduleProgram[index].programName} ${getDescription(int.parse(filteredScheduleProgram[index].prgPauseResume))}',
                                           payLoadFinal,
                                         );
+                                      }else{
+                                        GlobalSnackBar.show(context, 'Permission denied', 400);
                                       }
-                                    }else{
-                                      GlobalSnackBar.show(context, 'Permission denied', 400);
-                                    }
-                                  },
-                                  child: Text(
-                                    buttonName,
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 5),
-                              MaterialButton(
-                                color: getButtonName(int.parse(scheduledPrograms[index].prgPauseResume)) == 'Pause' ? Colors.orange : Colors.yellow,
-                                textColor: getButtonName(int.parse(scheduledPrograms[index].prgPauseResume)) == 'Pause' ? Colors.white : Colors.black,
-                                onPressed: () {
-                                  if(getPermissionStatusBySNo(context, 3)){
-                                    String payload = '${scheduledPrograms[index].serialNumber},${scheduledPrograms[index].prgPauseResume}';
-                                    String payLoadFinal = jsonEncode({
-                                      "2900": {"2901": payload}
-                                    });
-                                    MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-                                    sentUserOperationToServer(
-                                      '${scheduledPrograms[index].programName} ${getDescription(int.parse(scheduledPrograms[index].prgPauseResume))}',
-                                      payLoadFinal,
-                                    );
-                                  }else{
-                                    GlobalSnackBar.show(context, 'Permission denied', 400);
-                                  }
 
-                                },
-                                child: Text(getButtonName(int.parse(scheduledPrograms[index].prgPauseResume))),
-                              ),
-                              const Spacer(),
-                              getPermissionStatusBySNo(context, 3) ?PopupMenuButton<String>(
-                                icon: const Icon(Icons.more_vert),
-                                onSelected: (String result) {
-                                  if(result=='Edit program'){
-                                    String prgType = '';
-                                    bool conditionL = false;
-                                    if (scheduledPrograms[index].prgCategory.contains('IL')) {
-                                      prgType = 'Irrigation Program';
-                                    } else {
-                                      prgType = 'Agitator Program';
-                                    }
-                                    /*if (siteData.master[masterInx].conditionLibraryCount > 0) {
+                                    },
+                                    child: Text(getButtonName(int.parse(filteredScheduleProgram[index].prgPauseResume))),
+                                  ),
+                                  const Spacer(),
+                                  getPermissionStatusBySNo(context, 3) ?PopupMenuButton<String>(
+                                    icon: const Icon(Icons.more_vert),
+                                    onSelected: (String result) {
+                                      if(result=='Edit program'){
+                                        String prgType = '';
+                                        bool conditionL = false;
+                                        if (filteredScheduleProgram[index].prgCategory.contains('IL')) {
+                                          prgType = 'Irrigation Program';
+                                        } else {
+                                          prgType = 'Agitator Program';
+                                        }
+                                        /*if (siteData.master[masterInx].conditionLibraryCount > 0) {
                                       conditionL = true;
                                     }*/
-                                   /* Navigator.push(
+                                        /* Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => IrrigationProgram(
                                           deviceId: siteData.master[masterInx].deviceId,
                                           userId: siteData.customerId,
                                           controllerId: siteData.master[masterInx].controllerId,
-                                          serialNumber: scheduledPrograms[index].sNo,
+                                          serialNumber: filteredScheduleProgram[index].sNo,
                                           programType: prgType,
                                           conditionsLibraryIsNotEmpty: conditionL,
                                         ),
                                       ),
                                     );*/
-                                  }
-                                },
-                                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                                  const PopupMenuItem<String>(
-                                    value: 'Edit program',
-                                    child: Text('Edit program'),
-                                  ),
-                                  PopupMenuItem<String>(
-                                    value: 'Change to',
-                                    child: ClickableSubmenu(
-                                      title: 'Change to',
-                                      submenuItems: scheduledPrograms[index].sequence,
-                                      onItemSelected: (selectedItem, selectedIndex) {
-                                        String payload = '${scheduledPrograms[index].serialNumber},${selectedIndex+1}';
-                                        String payLoadFinal = jsonEncode({
-                                          "6700": {"6701": payload}
-                                        });
-                                        MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-                                        sentUserOperationToServer(
-                                          '${scheduledPrograms[index].programName} ${'Changed to $selectedItem'}',
-                                          payLoadFinal,
-                                        );
-                                        Navigator.pop(context);
-                                      },
-                                    ),
-                                  ),
+                                      }
+                                    },
+                                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                                      const PopupMenuItem<String>(
+                                        value: 'Edit program',
+                                        child: Text('Edit program'),
+                                      ),
+                                      PopupMenuItem<String>(
+                                        value: 'Change to',
+                                        child: ClickableSubmenu(
+                                          title: 'Change to',
+                                          submenuItems: filteredScheduleProgram[index].sequence,
+                                          onItemSelected: (selectedItem, selectedIndex) {
+                                            String payload = '${filteredScheduleProgram[index].serialNumber},${selectedIndex+1}';
+                                            String payLoadFinal = jsonEncode({
+                                              "6700": {"6701": payload}
+                                            });
+                                            MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
+                                            sentUserOperationToServer(
+                                              '${filteredScheduleProgram[index].programName} ${'Changed to $selectedItem'}',
+                                              payLoadFinal,
+                                            );
+                                            Navigator.pop(context);
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ):
+                                  const IconButton(onPressed: null, icon: Icon(Icons.more_vert, color: Colors.grey,)),
                                 ],
                               ):
-                              const IconButton(onPressed: null, icon: Icon(Icons.more_vert, color: Colors.grey,)),
-                            ],
-                          ):
-                                  const Center(child: Text('The program is not ready', style: TextStyle(color: Colors.red),)),
-                          ),
-                        ]);
-                      }),
+                              const Center(child: Text('The program is not ready', style: TextStyle(color: Colors.red),)),
+                            ),
+                          ]);
+                        }),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              Positioned(
-                top: 5,
-                left: 0,
-                child: Container(
-                  width: 200,
-                  padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 2),
-                  decoration: BoxDecoration(
-                      color: Colors.yellow.shade200,
-                      borderRadius: const BorderRadius.all(Radius.circular(2)),
-                      border: Border.all(width: 0.5, color: Colors.grey)
+                Positioned(
+                  top: 5,
+                  left: 0,
+                  child: Container(
+                    width: 200,
+                    padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 2),
+                    decoration: BoxDecoration(
+                        color: Colors.yellow.shade200,
+                        borderRadius: const BorderRadius.all(Radius.circular(2)),
+                        border: Border.all(width: 0.5, color: Colors.grey)
+                    ),
+                    child: const Text('SCHEDULED PROGRAM',  style: TextStyle(color: Colors.black)),
                   ),
-                  child: const Text('SCHEDULED PROGRAM',  style: TextStyle(color: Colors.black)),
                 ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ) :
-    Padding(
-      padding: const EdgeInsets.all(5.0),
-      child: scheduledPrograms.isNotEmpty? ListView.builder(
-        itemCount: scheduledPrograms.length,
-        itemBuilder: (context, index) {
-          final program = scheduledPrograms[index];
-          final buttonName = getButtonName(int.parse(program.prgOnOff));
-          final isStop = buttonName.contains('Stop');
-          final isBypass = buttonName.contains('Bypass');
+              ],
+            ),
+          ],
+        ),
+      );
+    }else{
+      return Padding(
+        padding: const EdgeInsets.all(5.0),
+        child: filteredScheduleProgram.isNotEmpty? ListView.builder(
+          itemCount: filteredScheduleProgram.length,
+          itemBuilder: (context, index) {
+            final program = filteredScheduleProgram[index];
+            final buttonName = getButtonName(int.parse(program.prgOnOff));
+            final isStop = buttonName.contains('Stop');
+            final isBypass = buttonName.contains('Bypass');
 
-          return  Card(
-            color: Colors.white,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      const Flexible(
-                        flex: 1,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Name & progress', style: TextStyle(fontSize: 13, color: Colors.black54),),
-                            SizedBox(height: 10,),
-                            Text('Method', style: TextStyle(fontSize: 13, color: Colors.black54)),
-                            SizedBox(height: 5,),
-                            Text('Status or Reason', style: TextStyle(fontSize: 13, color: Colors.black54)),
-                            SizedBox(height: 5,),
-                            Text('Total Sequence', style: TextStyle(fontSize: 13, color: Colors.black54),),
-                            SizedBox(height: 5,),
-                            Text('Start Date & Time', style: TextStyle(fontSize: 13, color: Colors.black54),),
-                            SizedBox(height: 5,),
-                            Text('End Date', style: TextStyle(fontSize: 13, color: Colors.black54),),
-                          ],
-                        ),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.only(left: 10, right: 10),
-                        child: SizedBox(
-                          width: 10,
+            return  Card(
+              color: Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        const Flexible(
+                          flex: 1,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(':'),
+                              Text('Name & progress', style: TextStyle(fontSize: 13, color: Colors.black54),),
                               SizedBox(height: 10,),
-                              Text(':'),
+                              Text('Method', style: TextStyle(fontSize: 13, color: Colors.black54)),
                               SizedBox(height: 5,),
-                              Text(':'),
+                              Text('Status or Reason', style: TextStyle(fontSize: 13, color: Colors.black54)),
                               SizedBox(height: 5,),
-                              Text(':'),
+                              Text('Total Sequence', style: TextStyle(fontSize: 13, color: Colors.black54),),
                               SizedBox(height: 5,),
-                              Text(':'),
+                              Text('Start Date & Time', style: TextStyle(fontSize: 13, color: Colors.black54),),
                               SizedBox(height: 5,),
-                              Text(':'),
+                              Text('End Date', style: TextStyle(fontSize: 13, color: Colors.black54),),
                             ],
                           ),
                         ),
-                      ),
-                      Flexible(
-                        flex: 2,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Column(
+                        const Padding(
+                          padding: EdgeInsets.only(left: 10, right: 10),
+                          child: SizedBox(
+                            width: 10,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(program.programName),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: LinearProgressIndicator(
-                                        value: program.programStatusPercentage / 100.0,
-                                        borderRadius: const BorderRadius.all(Radius.circular(3)),
-                                        color: Colors.blue.shade300,
-                                        backgroundColor: Colors.grey.shade200,
-                                        minHeight: 3,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 7),
-                                    Text(
-                                      '${program.programStatusPercentage}%',
-                                      style: const TextStyle(fontSize: 12, color: Colors.black45),
-                                    ),
-                                  ],
-                                ),
+                                Text(':'),
+                                SizedBox(height: 10,),
+                                Text(':'),
+                                SizedBox(height: 5,),
+                                Text(':'),
+                                SizedBox(height: 5,),
+                                Text(':'),
+                                SizedBox(height: 5,),
+                                Text(':'),
+                                SizedBox(height: 5,),
+                                Text(':'),
                               ],
                             ),
-                            Text(getSchedulingMethodName(program.schedulingMethod)),
-                            const SizedBox(height: 5,),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                RichText(
-                                  text: TextSpan(
-                                    style: const TextStyle(fontSize: 12, color: Colors.black),
+                          ),
+                        ),
+                        Flexible(
+                          flex: 2,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(program.programName),
+                                  Row(
                                     children: [
-                                      const TextSpan(text: 'Start Stop: ', style: TextStyle(color: Colors.black54)),
-                                      TextSpan(text: getContentByCode(program.startStopReason)),
+                                      Expanded(
+                                        child: LinearProgressIndicator(
+                                          value: program.programStatusPercentage / 100.0,
+                                          borderRadius: const BorderRadius.all(Radius.circular(3)),
+                                          color: Colors.blue.shade300,
+                                          backgroundColor: Colors.grey.shade200,
+                                          minHeight: 3,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 7),
+                                      Text(
+                                        '${program.programStatusPercentage}%',
+                                        style: const TextStyle(fontSize: 12, color: Colors.black45),
+                                      ),
                                     ],
                                   ),
-                                ),
-                                if (program.pauseResumeReason != 30)
+                                ],
+                              ),
+                              Text(getSchedulingMethodName(program.schedulingMethod)),
+                              const SizedBox(height: 5,),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
                                   RichText(
                                     text: TextSpan(
                                       style: const TextStyle(fontSize: 12, color: Colors.black),
                                       children: [
-                                        const TextSpan(text: 'Pause Resume: ', style: TextStyle(color: Colors.black54)),
-                                        TextSpan(text: getContentByCode(program.pauseResumeReason)),
+                                        const TextSpan(text: 'Start Stop: ', style: TextStyle(color: Colors.black54)),
+                                        TextSpan(text: getContentByCode(program.startStopReason)),
                                       ],
                                     ),
                                   ),
-                              ],
-                            ),
-                            const SizedBox(height: 5,),
-                            SizedBox(width: 50, child: Text('${program.sequence.length}')),
-                            const SizedBox(height: 5,),
-                            Text('${changeDateFormat(program.startDate)} : ${convert24HourTo12Hour(program.startTime)}'),
-                            const SizedBox(height: 5,),
-                            Text(changeDateFormat(program.endDate)),
-                          ],
+                                  if (program.pauseResumeReason != 30)
+                                    RichText(
+                                      text: TextSpan(
+                                        style: const TextStyle(fontSize: 12, color: Colors.black),
+                                        children: [
+                                          const TextSpan(text: 'Pause Resume: ', style: TextStyle(color: Colors.black54)),
+                                          TextSpan(text: getContentByCode(program.pauseResumeReason)),
+                                        ],
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 5,),
+                              SizedBox(width: 50, child: Text('${program.sequence.length}')),
+                              const SizedBox(height: 5,),
+                              Text('${changeDateFormat(program.startDate)} : ${convert24HourTo12Hour(program.startTime)}'),
+                              const SizedBox(height: 5,),
+                              Text(changeDateFormat(program.endDate)),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    width: MediaQuery.sizeOf(context).width,
-                    child: program.status == 1? Row(
-                      children: [
-                        const Spacer(),
-                        Tooltip(
-                          message: getDescription(int.parse(program.prgOnOff)),
-                          child: MaterialButton(
-                            color: int.parse(program.prgOnOff) >= 0
-                                ? isStop
-                                ? Colors.red
-                                : isBypass
-                                ? Colors.orange
-                                : Colors.green
-                                : Colors.grey.shade300,
-                            textColor: Colors.white,
+                      ],
+                    ),
+                    SizedBox(
+                      width: MediaQuery.sizeOf(context).width,
+                      child: program.status == 1? Row(
+                        children: [
+                          const Spacer(),
+                          Tooltip(
+                            message: getDescription(int.parse(program.prgOnOff)),
+                            child: MaterialButton(
+                              color: int.parse(program.prgOnOff) >= 0
+                                  ? isStop
+                                  ? Colors.red
+                                  : isBypass
+                                  ? Colors.orange
+                                  : Colors.green
+                                  : Colors.grey.shade300,
+                              textColor: Colors.white,
+                              onPressed: () {
+                                if (getPermissionStatusBySNo(context, 3)) {
+                                  String payload = '${program.serialNumber},${program.prgOnOff}';
+                                  String payLoadFinal = jsonEncode({
+                                    "2900": {"2901": payload}
+                                  });
+                                  MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
+                                  sentUserOperationToServer('${program.programName} ${getDescription(int.parse(program.prgOnOff))}', payLoadFinal);
+                                } else {
+                                  GlobalSnackBar.show(context, 'Permission denied', 400);
+                                }
+                              },
+                              child: Text(buttonName),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          MaterialButton(
+                            color: getButtonName(int.parse(program.prgPauseResume)) == 'Pause' ? Colors.orange : Colors.yellow,
+                            textColor: getButtonName(int.parse(program.prgPauseResume)) == 'Pause' ? Colors.white : Colors.black,
                             onPressed: () {
                               if (getPermissionStatusBySNo(context, 3)) {
-                                String payload = '${program.serialNumber},${program.prgOnOff}';
+                                String payload = '${program.serialNumber},${program.prgPauseResume}';
                                 String payLoadFinal = jsonEncode({
                                   "2900": {"2901": payload}
                                 });
                                 MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-                                sentUserOperationToServer('${program.programName} ${getDescription(int.parse(program.prgOnOff))}', payLoadFinal);
+                                sentUserOperationToServer('${program.programName} ${getDescription(int.parse(program.prgPauseResume))}', payLoadFinal);
                               } else {
                                 GlobalSnackBar.show(context, 'Permission denied', 400);
                               }
                             },
-                            child: Text(buttonName),
+                            child: Text(getButtonName(int.parse(program.prgPauseResume))),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        MaterialButton(
-                          color: getButtonName(int.parse(program.prgPauseResume)) == 'Pause' ? Colors.orange : Colors.yellow,
-                          textColor: getButtonName(int.parse(program.prgPauseResume)) == 'Pause' ? Colors.white : Colors.black,
-                          onPressed: () {
-                            if (getPermissionStatusBySNo(context, 3)) {
-                              String payload = '${program.serialNumber},${program.prgPauseResume}';
-                              String payLoadFinal = jsonEncode({
-                                "2900": {"2901": payload}
-                              });
-                              MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-                              sentUserOperationToServer('${program.programName} ${getDescription(int.parse(program.prgPauseResume))}', payLoadFinal);
-                            } else {
-                              GlobalSnackBar.show(context, 'Permission denied', 400);
-                            }
-                          },
-                          child: Text(getButtonName(int.parse(program.prgPauseResume))),
-                        ),
-                        const SizedBox(width: 5),
-                        getPermissionStatusBySNo(context, 3)
-                            ? PopupMenuButton<String>(
-                          icon: const Icon(Icons.more_vert),
-                          onSelected: (String result) {
-                            if (result == 'Edit program') {
-                              // Navigate to edit screen
-                            }
-                          },
-                          itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                            const PopupMenuItem<String>(
-                              value: 'Edit program',
-                              child: Text('Edit program'),
-                            ),
-                            PopupMenuItem<String>(
-                              value: 'Change to',
-                              child: ClickableSubmenu(
-                                title: 'Change to',
-                                submenuItems: program.sequence,
-                                onItemSelected: (selectedItem, selectedIndex) {
-                                  String payload = '${program.serialNumber},${selectedIndex + 1}';
-                                  String payLoadFinal = jsonEncode({
-                                    "6700": {"6701": payload}
-                                  });
-                                  MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-                                  sentUserOperationToServer('${program.programName} Changed to $selectedItem', payLoadFinal);
-                                  Navigator.pop(context);
-                                },
+                          const SizedBox(width: 5),
+                          getPermissionStatusBySNo(context, 3)
+                              ? PopupMenuButton<String>(
+                            icon: const Icon(Icons.more_vert),
+                            onSelected: (String result) {
+                              if (result == 'Edit program') {
+                                // Navigate to edit screen
+                              }
+                            },
+                            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                              const PopupMenuItem<String>(
+                                value: 'Edit program',
+                                child: Text('Edit program'),
                               ),
-                            ),
-                          ],
-                        )
-                            : const Icon(Icons.more_vert, color: Colors.grey),
-                      ],
-                    ):
-                    const Center(child: Text('The program is not ready', style: TextStyle(color: Colors.red))),
-                  ),
-                ],
+                              PopupMenuItem<String>(
+                                value: 'Change to',
+                                child: ClickableSubmenu(
+                                  title: 'Change to',
+                                  submenuItems: program.sequence,
+                                  onItemSelected: (selectedItem, selectedIndex) {
+                                    String payload = '${program.serialNumber},${selectedIndex + 1}';
+                                    String payLoadFinal = jsonEncode({
+                                      "6700": {"6701": payload}
+                                    });
+                                    MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
+                                    sentUserOperationToServer('${program.programName} Changed to $selectedItem', payLoadFinal);
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ),
+                            ],
+                          )
+                              : const Icon(Icons.more_vert, color: Colors.grey),
+                        ],
+                      ):
+                      const Center(child: Text('The program is not ready', style: TextStyle(color: Colors.red))),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
+            );
 
-        },
-      ):
-      const Center(child: Text('Program not found')),
-    );
+          },
+        ):
+        const Center(child: Text('Program not found')),
+      );
+    }
+
+  }
+
+  void _updateProgramsFromMqtt(List<String> spLive, List<ProgramList> scheduledPrograms) {
+
+
+    for (var sp in spLive) {
+      List<String> values = sp.split(",");
+      if (values.length > 11) {
+
+        int? serialNumber = int.tryParse(values[0]);
+        if (serialNumber == null) continue;
+        int index = scheduledPrograms.indexWhere((program) => program.serialNumber == serialNumber);
+
+        if (index != -1) {
+          scheduledPrograms[index]
+            ..startDate = values[3]
+            ..startTime = values[4]
+            ..endDate = values[5]
+            ..programStatusPercentage = int.tryParse(values[6]) ?? 0
+            ..startStopReason = int.tryParse(values[7]) ?? 0
+            ..pauseResumeReason = int.tryParse(values[8]) ?? 0
+            ..prgOnOff = values[10]
+            ..prgPauseResume = values[11]
+            ..status = 1;
+        }
+      }
+    }
   }
 
   void updateProgramById(int id, ProgramList updatedProgram) {
@@ -688,11 +707,13 @@ class ScheduledProgram extends StatelessWidget {
 
   bool getPermissionStatusBySNo(BuildContext context, int sNo) {
     MqttPayloadProvider payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
-    final permission = payloadProvider.userPermission.firstWhere(
+    Map<String, dynamic>? permission = payloadProvider.userPermission
+        .cast<Map<String, dynamic>>()
+        .firstWhere(
           (element) => element['sNo'] == sNo,
-      orElse: () => null,
+      orElse: () => {},
     );
-    return permission?['status'] as bool? ?? true;
+    return permission['status'] as bool? ?? true;
   }
 
 }

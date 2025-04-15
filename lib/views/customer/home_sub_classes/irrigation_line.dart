@@ -1,6 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/utils/my_function.dart';
+import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:syncfusion_flutter_gauges/gauges.dart';
+import '../../../Models/customer/sensor_hourly_data_model.dart';
 import '../../../Models/customer/site_model.dart';
 import '../../../utils/constants.dart';
 import '../../../view_models/customer/irrigation_line_view_model.dart';
@@ -9,8 +15,9 @@ class DisplayIrrigationLine extends StatelessWidget {
   final List<IrrigationLineData>? lineData;
   final double pumpStationWith;
   final String currentLineName;
+  final List<SensorHourlyDataModel> sensorsHourlyLog;
 
-  const DisplayIrrigationLine({super.key, required this.lineData, required this.pumpStationWith, required this.currentLineName});
+  const DisplayIrrigationLine({super.key, required this.lineData, required this.pumpStationWith, required this.currentLineName, required this.sensorsHourlyLog});
 
   @override
   Widget build(BuildContext context) {
@@ -30,22 +37,26 @@ class DisplayIrrigationLine extends StatelessWidget {
                   sensor: psw,
                   sensorType: 'Pressure Switch',
                   imagePath: 'assets/png/pressure_switch.png',
+                  sensorData: sensorsHourlyLog,
                 )),
                 ...line.pressureIn.map((psw) => SensorWidget(
                   sensor: psw,
                   sensorType: 'Pressure Sensor',
                   imagePath: 'assets/png/pressure_sensor.png',
+                  sensorData: sensorsHourlyLog,
                 )),
                 ...line.waterMeter.map((wm) => SensorWidget(
                   sensor: wm,
                   sensorType: 'Water Meter',
                   imagePath: 'assets/png/water_meter.png',
+                  sensorData: sensorsHourlyLog,
                 )),
                 ...line.valves.map((vl) => ValveWidget(
                   vl: vl,
                   status: vl.status,
                   userId: 0,
                   controllerId: 0,
+                  moistureSensor: vl.moistureSensor!,
                 )),
               ],
           ];
@@ -123,18 +134,19 @@ class SensorWidget extends StatelessWidget {
   final SensorModel sensor;
   final String sensorType;
   final String imagePath;
-  //final Map<String, List<SensorHourlyData>> sensorData;
+  final List<SensorHourlyDataModel> sensorData;
 
   const SensorWidget({
     super.key,
     required this.sensor,
     required this.sensorType,
     required this.imagePath,
-    //required this.sensorData,
+    required this.sensorData,
   });
 
   @override
   Widget build(BuildContext context) {
+
     if(sensorType != 'Pressure Switch'){
       return Container(
         width: 150,
@@ -182,30 +194,59 @@ class SensorWidget extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                /*showPopover(
+
+                showPopover(
                   context: context,
                   bodyBuilder: (context) {
-                    Map<String, dynamic> jsonData = jsonDecode(jsonEncode(sensorData));
-                    Map<String, List<Map<String, dynamic>>> filteredData = {};
+                    final sensorDataList = getSensorDataById(sensor.sNo.toString());
 
-                    jsonData.forEach((key, value) {
-                      var filteredList = (value as List)
-                          .where((item) => item['sNo']==sensor.sNo)
-                          .toList();
-                      if (filteredList.isNotEmpty) {
-                        filteredData[key] = List<Map<String, dynamic>>.from(filteredList);
-                      }
-                    });
-
-                    String input = getUnitByParameter(context, sensorType, sensor.value.toString()) ?? '';
-                    String numericValue = extractNumber(input);
+                    List<CartesianSeries<dynamic, String>> series = [
+                      LineSeries<SensorHourlyData, String>(
+                        dataSource: sensorDataList,
+                        xValueMapper: (SensorHourlyData data, _) => data.hour,
+                        yValueMapper: (SensorHourlyData data, _) {
+                          try {
+                            return double.parse(data.value);
+                          } catch (_) {
+                            return 0.0;
+                          }
+                        },
+                        markerSettings: const MarkerSettings(isVisible: true),
+                        dataLabelSettings: const DataLabelSettings(isVisible: false),
+                        color: Colors.blueAccent,
+                        name: sensor.name ?? 'Sensor',
+                      ),
+                    ];
 
                     return Row(
                       children: [
                         SizedBox(
                           width: 450,
                           height: 175,
-                          child: buildLineChart(context, filteredData, sensorType, sensor.name, sensor.moistureType!),
+                          child: SfCartesianChart(
+                            primaryXAxis: CategoryAxis(
+                              title: AxisTitle(
+                                text: sensorType == 'Moisture Sensor'
+                                    ? '${sensor.name}($sensorType) - Hours'
+                                    : '${sensor.name} - Hours',
+                                textStyle: const TextStyle(fontSize: 12),
+                              ),
+                              majorGridLines: const MajorGridLines(width: 0),
+                              axisLine: const AxisLine(width: 0),
+                              labelStyle: const TextStyle(
+                                fontSize: 11,
+                                color: Colors.black54,
+                              ),
+                            ),
+                            primaryYAxis: NumericAxis(
+                              labelStyle: const TextStyle(
+                                fontSize: 11,
+                                color: Colors.black54,
+                              ),
+                            ),
+                            tooltipBehavior: TooltipBehavior(enable: true),
+                            series: series,
+                          ),
                         ),
                         SizedBox(
                           width: 100,
@@ -217,7 +258,7 @@ class SensorWidget extends StatelessWidget {
                                 maximum: sensorType=='Moisture Sensor'?200:sensorType=='Pressure Sensor'?12:100,
                                 pointers: <GaugePointer>[
                                   NeedlePointer(
-                                      value: double.parse(numericValue),
+                                      value: double.parse(sensor.value),
                                       needleEndWidth: 3, needleColor: Colors.black54),
                                   RangePointer(
                                     value: sensorType=='Moisture Sensor'?200.0:100.0,
@@ -247,7 +288,7 @@ class SensorWidget extends StatelessWidget {
                                 annotations: <GaugeAnnotation>[
                                   GaugeAnnotation(
                                     widget: Text(
-                                      numericValue,
+                                      sensor.value,
                                       style: const TextStyle(
                                           fontSize: 10, fontWeight: FontWeight.bold),
                                     ),
@@ -270,7 +311,7 @@ class SensorWidget extends StatelessWidget {
                   arrowWidth: 30,
                   barrierColor: Colors.black54,
                   arrowDyOffset: -20,
-                );*/
+                );
               },
               style: ButtonStyle(
                 padding: WidgetStateProperty.all(EdgeInsets.zero),
@@ -355,18 +396,36 @@ class SensorWidget extends StatelessWidget {
     Match? match = regex.firstMatch(input);
     return match?.group(0) ?? '';
   }
+
+  List<SensorHourlyData> getSensorDataById(String sensorId) {
+    List<SensorHourlyData> result = [];
+
+    for (final model in sensorData) {
+      model.data.forEach((hour, sensorList) {
+        for (final sensor in sensorList) {
+          if (sensor.sensorId == sensorId) {
+            result.add(sensor);
+          }
+        }
+      });
+    }
+
+    return result;
+  }
+
+
 }
 
 class ValveWidget extends StatelessWidget {
   final Valve vl;
   final int status, userId, controllerId;
-  //final List<SensorModel> moistureSensor;
+  final List<MoistureSensorModel> moistureSensor;
   //final Map<String, List<SensorHourlyData>> sensorData;
-  const ValveWidget({super.key, required this.vl, required this.status, required this.userId, required this.controllerId});
+  const ValveWidget({super.key, required this.vl, required this.status, required this.userId, required this.controllerId, required this.moistureSensor});
 
   @override
   Widget build(BuildContext context) {
-    bool hasMoisture = false;
+    bool hasMoisture = moistureSensor.isNotEmpty;
     return Stack(
       children: [
         Container(
@@ -409,6 +468,121 @@ class ValveWidget extends StatelessWidget {
             ],
           ),
         ),
+        if (hasMoisture)
+          Positioned(
+            top: 2,
+            right: 15,
+            child: TextButton(
+              onPressed: () {
+                showPopover(
+                  context: context,
+                  bodyBuilder: (context) {
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: moistureSensor.map((ms) {
+
+                        return Container();
+
+                        /*Map<String, dynamic> jsonData = jsonDecode(jsonEncode(sensorData));
+                        Map<String, List<Map<String, dynamic>>> filteredData = {};
+
+                        jsonData.forEach((key, value) {
+                          var filteredList = (value as List)
+                              .where((item) => item['sNo']==ms.sNo)
+                              .toList();
+                          if (filteredList.isNotEmpty) {
+                            filteredData[key] = List<Map<String, dynamic>>.from(filteredList);
+                          }
+                        });
+
+                        return Row(
+                          children: [
+                            SizedBox(
+                              width: 450,
+                              height: 175,
+                              child: buildLineChart(context, filteredData, 'Moisture Sensor', ms.name, ms.moistureType!),
+                            ),
+                            SizedBox(
+                              width: 100,
+                              height: 100,
+                              child: SfRadialGauge(
+                                axes: <RadialAxis>[
+                                  RadialAxis(
+                                    minimum: 0,
+                                    maximum: 200,
+                                    pointers: <GaugePointer>[
+                                      NeedlePointer(
+                                          value: double.parse(ms.value),
+                                          needleEndWidth: 3, needleColor: Colors.black54),
+                                      RangePointer(
+                                        value: 200.0,
+                                        width: 0.30,
+                                        sizeUnit: GaugeSizeUnit.factor,
+                                        color: const Color(0xFF494CA2),
+                                        animationDuration: 1000,
+                                        gradient: const SweepGradient(
+                                          colors: <Color>[
+                                            Colors.greenAccent,
+                                            Colors.orangeAccent,
+                                            Colors.redAccent,
+                                            Colors.redAccent
+                                          ],
+                                          stops: <double>[0.15, 0.50, 0.70, 1.00],
+                                        ),
+                                        enableAnimation: true,
+                                      ),
+                                    ],
+                                    showFirstLabel: false,
+                                    annotations: <GaugeAnnotation>[
+                                      GaugeAnnotation(
+                                        widget: Text(
+                                          '${ms.value} CB',
+                                          style: const TextStyle(
+                                              fontSize: 10, fontWeight: FontWeight.bold),
+                                        ),
+                                        angle: 90,
+                                        positionFactor: 0.8,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );*/
+                      }).toList(),
+                    );
+                  },
+                  onPop: () => print('Popover was popped!'),
+                  direction: PopoverDirection.bottom,
+                  width: 550,
+                  height: moistureSensor.length * 175,
+                  arrowHeight: 15,
+                  arrowWidth: 30,
+                  barrierColor: Colors.black54,
+                  arrowDxOffset: 20,
+                  arrowDyOffset: -43,
+                );
+              },
+              style: ButtonStyle(
+                padding: WidgetStateProperty.all(EdgeInsets.zero),
+                minimumSize: WidgetStateProperty.all(Size.zero),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                backgroundColor: WidgetStateProperty.all(Colors.transparent),
+              ),
+              child: CircleAvatar(
+                radius: 15,
+                backgroundColor: _getMoistureColor(moistureSensor
+                    .map((sensor) => {'name': 'sensor.valveSNo', 'value': '0'})
+                    .toList()),
+                child: Image.asset(
+                  'assets/png/moisture_sensor.png',
+                  width: 25,
+                  height: 25,
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }

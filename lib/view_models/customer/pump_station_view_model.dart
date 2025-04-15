@@ -256,10 +256,23 @@ class PumpStationViewModel extends ChangeNotifier {
       final filterIndexStr = filterData[1];
 
       if (filterIndexStr == '0') {
-        for (var filter in filterSite.filters) {
-          filter.status = 0;
-          filter.onDelayLeft = '00:00:00';
+        Map<String, int> statusMap = {};
+
+        for (var item in filterStatus) {
+          List<String> parts = item.split(',');
+          if (parts.length == 2) {
+            statusMap[parts[0]] = int.tryParse(parts[1]) ?? 0;
+          }
         }
+
+        for (var filter in filterSite.filters) {
+          filter.onDelayLeft = '00:00:00';
+
+          if (statusMap.containsKey(filter.sNo.toString())) {
+            filter.status = statusMap[filter.sNo.toString()]!;
+          }
+        }
+
         continue;
       }
 

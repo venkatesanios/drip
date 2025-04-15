@@ -20,8 +20,9 @@ class CustomerHome extends StatelessWidget {
 
     List<FilterSite> filteredFilterSite = [];
     List<FertilizerSite> filteredFertilizerSite = [];
+    List<WaterSource> filteredWaterSource = [];
 
-    final waterSources = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.waterSource;
+    final allWaterSources = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.waterSource;
     final allFilterSite = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.filterSite;
     final allFertilizerSite = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.fertilizerSite;
     final lineData = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.lineData;
@@ -30,6 +31,7 @@ class CustomerHome extends StatelessWidget {
     var onRefresh = Provider.of<MqttPayloadProvider>(context).onRefresh;
 
     if(viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.lineData[viewModel.lIndex].name=='All irrigation line'){
+      filteredWaterSource = allWaterSources;
       filteredFilterSite = allFilterSite;
       filteredFertilizerSite = allFertilizerSite;
     }else{
@@ -37,6 +39,21 @@ class CustomerHome extends StatelessWidget {
           .master[viewModel.mIndex].config.lineData
           .where((line) => line.name == viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.lineData[viewModel.lIndex].name)
           .toList();
+
+
+      final irrigationPumpSNos = filteredLineData[0]
+          .irrigationPump
+          .map((ip) => ip.sNo)
+          .toSet();
+
+      filteredWaterSource = allWaterSources.map((ws) {
+        final filteredOutletPumps = ws.outletPump
+            .where((op) => !irrigationPumpSNos.contains(op.sNo))
+            .toList();
+
+        return ws.copyWith(outletPump: filteredOutletPumps);
+      }).toList();
+
 
       filteredFilterSite = viewModel.mySiteList.data[viewModel.sIndex]
           .master[viewModel.mIndex].config.filterSite
@@ -69,10 +86,11 @@ class CustomerHome extends StatelessWidget {
               deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,
               customerId: customerId,
               controllerId: controllerId,
+              currentLineSNo: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.lineData[viewModel.lIndex].sNo,
             ),
           PumpStation(
             key: ValueKey(filteredFilterSite.map((e) => e.sNo).join(',')),
-            waterSource: waterSources,
+            waterSource: filteredWaterSource,
             irrLineData: lineData,
             filterSite: filteredFilterSite,
             fertilizerSite: filteredFertilizerSite,
@@ -87,6 +105,7 @@ class CustomerHome extends StatelessWidget {
               deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,
               customerId: customerId,
               controllerId: controllerId,
+              currentLineSNo: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.lineData[viewModel.lIndex].sNo,
             ),
           NextSchedule(scheduledPrograms: scheduledProgram),
           if (kIsWeb && scheduledProgram.isNotEmpty)
@@ -96,6 +115,7 @@ class CustomerHome extends StatelessWidget {
               controllerId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].controllerId,
               deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,
               customerId: customerId,
+              currentLineSNo: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].config.lineData[viewModel.lIndex].sNo,
             ),
           const SizedBox(height: 8),
         ],

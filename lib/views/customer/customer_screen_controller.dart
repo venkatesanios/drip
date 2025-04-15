@@ -60,17 +60,22 @@ class CustomerScreenController extends StatelessWidget {
       child: Consumer2<NavRailViewModel, CustomerScreenControllerViewModel>(
         builder: (context, navViewModel, vm, _) {
 
-          int wifiStrength = Provider.of<MqttPayloadProvider>(context).wifiStrength;
-          String liveDataAndTime = Provider.of<MqttPayloadProvider>(context).liveDateAndTime;
-          var iLineLiveMessage = Provider.of<MqttPayloadProvider>(context).lineLiveMessage;
-          Duration lastCommunication = Provider.of<MqttPayloadProvider>(context).lastCommunication;
-          int powerSupply = Provider.of<MqttPayloadProvider>(context).powerSupply;
-          var currentSchedule = Provider.of<MqttPayloadProvider>(context).currentSchedule;
+          final mqttProvider = Provider.of<MqttPayloadProvider>(context);
 
-          if(liveDataAndTime.isNotEmpty){
+          int wifiStrength = mqttProvider.wifiStrength;
+          String liveDataAndTime = mqttProvider.liveDateAndTime;
+          var iLineLiveMessage = mqttProvider.lineLiveMessage;
+          Duration lastCommunication = mqttProvider.lastCommunication;
+          int powerSupply = mqttProvider.powerSupply;
+          var currentSchedule = mqttProvider.currentSchedule;
+
+          if (liveDataAndTime.isNotEmpty) {
+            print("liveDataAndTime is not empty, calling updateLivePayload...");
             WidgetsBinding.instance.addPostFrameCallback((_) {
-               vm.updateLivePayload(wifiStrength, liveDataAndTime);
+              vm.updateLivePayload(wifiStrength, liveDataAndTime, currentSchedule);
             });
+          } else {
+            print("liveDataAndTime is empty.");
           }
 
           if(vm.isLoading){
@@ -249,13 +254,24 @@ class CustomerScreenController extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    currentSchedule.isNotEmpty?
-                    CircleAvatar(
-                      radius: 15,
-                      backgroundImage: const AssetImage('assets/gif/water_drop_ani.gif'),
-                      backgroundColor: Colors.blue.shade100,
-                    ):
-                    const SizedBox(),
+
+                    Consumer<CustomerScreenControllerViewModel>(
+                      builder: (context, vm, child) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            vm.programRunning
+                                ? CircleAvatar(
+                              radius: 15,
+                              backgroundImage: const AssetImage('assets/gif/water_drop_ani.gif'),
+                              backgroundColor: Colors.blue.shade100,
+                            )
+                                : const SizedBox(),
+                          ],
+                        );
+                      },
+                    ),
+
                     const SizedBox(width: 10,),
 
                     vm.mySiteList.data[vm.sIndex].master[vm.mIndex].config.lineData.length>1 && iLineLiveMessage[0].isNotEmpty ? TextButton(
