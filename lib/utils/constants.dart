@@ -167,6 +167,11 @@ class AppConstants {
   static const String pumpNotON = "dp_irr_pump_y.png";
   static const String pumpNotOFF = "dp_irr_pump_r.png";
 
+  static const String pumpOFFm = "dp_irr_pump_m.png";
+  static const String pumpONm = "dp_irr_pump_g_m.gif";
+  static const String pumpNotONm = "dp_irr_pump_y_m.png";
+  static const String pumpNotOFFm = "dp_irr_pump_r_m.png";
+
   static const String filterOFF = "dp_filter.png";
   static const String filterON = "dp_filter_g.png";
   static const String filterNotON = "dp_filter_y.png";
@@ -297,7 +302,11 @@ class AppConstants {
     }
 
     if (imagePathFinal.contains('.gif')) {
-      return Image.asset('$gifPath$imagePathFinal');
+      return Image.asset(
+        '$gifPath$imagePathFinal',
+        key: UniqueKey(),
+        fit: BoxFit.contain,
+      );
     }
     return Image.asset('$pngPath$imagePathFinal');
   }
@@ -305,13 +314,13 @@ class AppConstants {
   static String _getIrrigationPumpImagePath(int status) {
     switch (status) {
       case 0:
-        return pumpOFF;
+        return kIsWeb? pumpOFF : pumpOFFm;
       case 1:
-        return pumpON;
+        return kIsWeb? pumpON : pumpONm;
       case 2:
-        return pumpNotON;
+        return kIsWeb? pumpNotON : pumpNotONm;
       case 3:
-        return pumpNotOFF;
+        return kIsWeb? pumpNotOFF : pumpNotOFFm;
       default:
         return '';
     }

@@ -33,6 +33,7 @@ class MobileScreenController extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const String correctPassword = 'Oro@321';
+    print('mobile screen controller');
 
     return MultiProvider(
       providers: [
@@ -413,124 +414,57 @@ class MobileScreenController extends StatelessWidget {
                 BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), label: "Settings"),
               ],
             ) : null,
-            floatingActionButton: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1 ? Stack(
-              alignment: Alignment.bottomRight,
-              children: [
-                FloatingActionButton(
-                  onPressed: null,
-                  backgroundColor: Colors.blue,
-                  child: PopupMenuButton<String>(
-                    onSelected: (String value) {
-                      switch (value) {
-                        case 'Node Status':
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => NodeList(
-                                customerId: customerId,
-                                nodes: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList,
-                                deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                                deviceName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
-                                controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                                userId: userId,
-                              ),
-                            ),
-                          );
-                          break;
-                        case 'Sent & Received':
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => SentAndReceived(
-                                customerId: userId,
-                                controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                              ),
-                            ),
-                          );
-                          break;
-                        case 'option3':
-                          print("Option 3 selected");
-                          break;
-                      }
-                    },
-                    offset: const Offset(0, -180), // Move menu **above** FAB
-                    color: Colors.white,
-                    icon: const Icon(Icons.menu, color: Colors.white),
-                    itemBuilder: (BuildContext context) => [
-                      const PopupMenuItem<String>(
-                        value: 'Node Status',
-                        child: Row(
-                          children: [
-                            Icon(Icons.format_list_numbered, color: Colors.black54),
-                            SizedBox(width: 8),
-                            Text('Node Status'),
-                          ],
+            floatingActionButton: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1 ?
+            FloatingActionButton(
+              onPressed: null,
+              backgroundColor: Theme.of(context).primaryColor,
+              child: PopupMenuButton<String>(
+                onSelected: (String value) {
+                  switch (value) {
+                    case 'Node Status':
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => NodeList(
+                            customerId: customerId,
+                            nodes: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList,
+                            deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                            deviceName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
+                            controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                            userId: userId,
+                          ),
                         ),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'option2',
-                        child: Row(
-                          children: [
-                            Icon(Icons.settings_input_component_outlined, color: Colors.black54),
-                            SizedBox(width: 8),
-                            Text('Input/Output Connection details'),
-                          ],
+                      );
+                      break;
+                    case 'Sent & Received':
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SentAndReceived(
+                            customerId: userId,
+                            controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                          ),
                         ),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'option3',
-                        child: Row(
-                          children: [
-                            Icon(Icons.list_alt, color: Colors.black54),
-                            SizedBox(width: 8),
-                            Text('Program'),
-                          ],
-                        ),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'option4',
-                        child: Row(
-                          children: [
-                            Icon(Icons.view_list_outlined, color: Colors.black54),
-                            SizedBox(width: 8),
-                            Text('Scheduled program details'),
-                          ],
-                        ),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'option5',
-                        child: Row(
-                          children: [
-                            Icon(Icons.touch_app_outlined, color: Colors.black54),
-                            SizedBox(width: 8),
-                            Text('Manual'),
-                          ],
-                        ),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'Sent & Received',
-                        child: Row(
-                          children: [
-                            Icon(Icons.question_answer_outlined, color: Colors.black54),
-                            SizedBox(width: 8),
-                            Text('Sent & Received'),
-                          ],
-                        ),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'option7',
-                        child: Row(
-                          children: [
-                            Icon(Icons.devices_other, color: Colors.black54),
-                            SizedBox(width: 8),
-                            Text('All my devices'),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                      );
+                      break;
+                    case 'option3':
+                      print("Option 3 selected");
+                      break;
+                  }
+                },
+                offset: const Offset(0, -180), // Move menu **above** FAB
+                color: Colors.white,
+                icon: const Icon(Icons.menu, color: Colors.white),
+                  itemBuilder: (BuildContext context) => [
+                    _buildPopupItem(context, 'Node Status', Icons.format_list_numbered, 'Node Status'),
+                    _buildPopupItem(context, 'option2', Icons.settings_input_component_outlined, 'I/O\nConnection\ndetails'),
+                    _buildPopupItem(context, 'option3', Icons.list_alt, 'Program'),
+                    _buildPopupItem(context, 'option4', Icons.view_list_outlined, 'Scheduled\nprogram\ndetails'),
+                    _buildPopupItem(context, 'option5', Icons.touch_app_outlined, 'Manual'),
+                    _buildPopupItem(context, 'Sent & Received', Icons.question_answer_outlined, 'Sent &\nReceived'),
+                    _buildPopupItem(context, 'option7', Icons.devices_other, 'All my\ndevices'),
+                  ]
+              ),
             ) : null,
             body: Container(
               decoration: BoxDecoration(
@@ -602,6 +536,32 @@ class MobileScreenController extends StatelessWidget {
           );
 
         },
+      ),
+    );
+  }
+
+  PopupMenuItem<String> _buildPopupItem(BuildContext context, String value, IconData icon, String label) {
+    return PopupMenuItem<String>(
+      value: value,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(height: 8),
+            CircleAvatar(
+              radius: 20,
+              backgroundColor: Theme.of(context).primaryColor,
+              child: Icon(icon, color: Colors.white),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 13),
+            ),
+          ],
+        ),
       ),
     );
   }

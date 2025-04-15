@@ -332,7 +332,7 @@ class WaterSource {
   final dynamic count;
   final Level? level;
   final List<Pump> inletPump;
-  final List<Pump> outletPump;
+  List<Pump> outletPump;
   final List<dynamic> valves;
 
   WaterSource({
@@ -370,6 +370,39 @@ class WaterSource {
           .map((e) => Pump.fromJson(e))
           .toList(),
       valves: json['valves'] ?? [],
+    );
+  }
+
+}
+
+extension WaterSourceCopyWith on WaterSource {
+  WaterSource copyWith({
+    int? objectId,
+    double? sNo,
+    String? name,
+    int? connectionNo,
+    String? objectName,
+    String? type,
+    int? controllerId,
+    dynamic count,
+    Level? level,
+    List<Pump>? inletPump,
+    List<Pump>? outletPump,
+    List<dynamic>? valves,
+  }) {
+    return WaterSource(
+      objectId: objectId ?? this.objectId,
+      sNo: sNo ?? this.sNo,
+      name: name ?? this.name,
+      connectionNo: connectionNo ?? this.connectionNo,
+      objectName: objectName ?? this.objectName,
+      type: type ?? this.type,
+      controllerId: controllerId ?? this.controllerId,
+      count: count ?? this.count,
+      level: level ?? this.level,
+      inletPump: inletPump ?? this.inletPump,
+      outletPump: outletPump ?? this.outletPump,
+      valves: valves ?? this.valves,
     );
   }
 }
