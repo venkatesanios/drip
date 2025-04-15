@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -32,13 +34,35 @@ class _MapScreenallState extends State<MapScreenall> {
   late MqttPayloadProvider mqttPayloadProvider;
   Set<Marker> markers = {};
 
+  // Custom marker icons
+  late BitmapDescriptor markerGray;
+  late BitmapDescriptor markerGreen;
+  late BitmapDescriptor markerRed;
+
   @override
   void initState() {
     super.initState();
     mqttPayloadProvider =
         Provider.of<MqttPayloadProvider>(context, listen: false);
-    fetchData();
+    _loadMarkerIcons().then((_) => fetchData());
   }
+
+  Future<Uint8List> getImages(String path, int width) async {
+    ByteData data = await rootBundle.load(path);
+    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
+        targetHeight: width);
+    ui.FrameInfo fi = await codec.getNextFrame();
+    return (await fi.image.toByteData(format: ui.ImageByteFormat.png))!
+        .buffer
+        .asUint8List();
+  }
+
+  Future<void> _loadMarkerIcons() async {
+    markerGray = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)),'assets/png/markergray.png',);
+    markerGreen = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)), 'assets/png/markergreen.png',);
+    markerRed = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)),'assets/png/markerred.png',);
+   }
+
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
@@ -62,7 +86,6 @@ class _MapScreenallState extends State<MapScreenall> {
               mqttPayloadProvider.mapModelInstance.data?.deviceList ?? [];
           markers = createMarkersFromDeviceList(deviceList);
 
-          // Use first available location to center map
           LatLng? firstValid = _getFirstLatLng(deviceList);
           if (firstValid != null) {
             _center = firstValid;
@@ -88,21 +111,6 @@ class _MapScreenallState extends State<MapScreenall> {
       }
     }
     return null;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Geography')),
-      body: GoogleMap(
-        onMapCreated: _onMapCreated,
-        initialCameraPosition: CameraPosition(
-          target: _center,
-          zoom: 15.0,
-        ),
-        markers: markers,
-      ),
-    );
   }
 
   Set<Marker> createMarkersFromDeviceList(List<DeviceList> devices) {
@@ -152,11 +160,11 @@ class _MapScreenallState extends State<MapScreenall> {
   BitmapDescriptor _getMarkerIcon(int? status) {
     switch (status) {
       case 1:
-        return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen);
+        return markerGreen;
       case 0:
-        return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed);
+        return markerRed;
       default:
-        return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue);
+        return markerGray;
     }
   }
 
@@ -180,5 +188,20 @@ class _MapScreenallState extends State<MapScreenall> {
     );
 
     await mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 80));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Geography')),
+      body: GoogleMap(
+        onMapCreated: _onMapCreated,
+        initialCameraPosition: CameraPosition(
+          target: _center,
+          zoom: 15.0,
+        ),
+        markers: markers,
+      ),
+    );
   }
 }

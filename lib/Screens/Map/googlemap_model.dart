@@ -210,9 +210,9 @@ int getValueOfStatus(String serialNumber) {
       }
     }
 
-    return 0; // Default status if serialNumber is not found
+    return 7; // Default status if serialNumber is not found
   } catch (e) {
     print('Error parsing data: $e');
-    return 0; // Return 0 in case of error
+    return 7; // Return 0 in case of error
   }
 }
