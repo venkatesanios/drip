@@ -38,6 +38,13 @@ class _MapScreenallState extends State<MapScreenall> {
   late BitmapDescriptor markerGray;
   late BitmapDescriptor markerGreen;
   late BitmapDescriptor markerRed;
+  late BitmapDescriptor markerAgitator;
+  late BitmapDescriptor markerBlue;
+  late BitmapDescriptor markerFert;
+  late BitmapDescriptor markerFilter;
+  late BitmapDescriptor markerInjector;
+  late BitmapDescriptor markerSensor;
+  late BitmapDescriptor markerPump;
 
   @override
   void initState() {
@@ -61,6 +68,14 @@ class _MapScreenallState extends State<MapScreenall> {
     markerGray = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)),'assets/png/markergray.png',);
     markerGreen = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)), 'assets/png/markergreen.png',);
     markerRed = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)),'assets/png/markerred.png',);
+    markerSensor = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)),'assets/png/markersensor.png',);
+    markerAgitator = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)), 'assets/png/markeragitator.png',);
+    markerBlue = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)),'assets/png/markerblue.png',);
+    markerInjector = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)),'assets/png/markerinjector.png',);
+    markerFert = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)), 'assets/png/markerfertilizer.png',);
+    markerFilter = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)),'assets/png/markerfilter.png',);
+    markerPump = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)),'assets/png/markerpump.png',);
+
    }
 
 
@@ -125,7 +140,7 @@ class _MapScreenallState extends State<MapScreenall> {
             markerId: MarkerId('device-${device.deviceId}'),
             position: LatLng(
                 device.geography!.lat!, device.geography!.long!),
-            icon: _getMarkerIcon(device.geography?.status),
+            icon: _getMarkerIcon(device.geography?.status,device.categoryName!),
             infoWindow: InfoWindow(
               title: device.deviceName,
               snippet: device.modelName ?? '',
@@ -142,7 +157,7 @@ class _MapScreenallState extends State<MapScreenall> {
             Marker(
               markerId: MarkerId('object-${obj.sNo}'),
               position: LatLng(obj.lat!, obj.long!),
-              icon: _getMarkerIcon(obj.status),
+              icon: _getMarkerIcon(obj.status,obj.name),
               infoWindow: InfoWindow(
                 title: obj.name ?? obj.objectName ?? 'Object',
                 snippet: 'Location: ${obj.location}',
@@ -157,8 +172,9 @@ class _MapScreenallState extends State<MapScreenall> {
     return markers;
   }
 
-  BitmapDescriptor _getMarkerIcon(int? status) {
-    switch (status) {
+  BitmapDescriptor _getMarkerIcon(int? status,String type) {
+   if( type.contains('Valve')) {
+     switch (status) {
       case 1:
         return markerGreen;
       case 0:
@@ -166,6 +182,25 @@ class _MapScreenallState extends State<MapScreenall> {
       default:
         return markerGray;
     }
+    }
+   else if( type.contains('fertilizer')) {
+          return markerFert;
+    }
+   else if( type.contains('Filter')) {
+     return markerFilter;
+   }
+   else if( type.contains('Agitator')) {
+     return markerAgitator;
+   } else if( type.contains('Pump')) {
+     return markerPump;
+   } else if( type.contains('Sensor')) {
+     return markerSensor;
+   }
+    else
+     {
+       return markerBlue;
+     }
+
   }
 
   Future<void> _fitMapToMarkers(Set<Marker> markers) async {
