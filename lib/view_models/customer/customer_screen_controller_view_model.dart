@@ -201,6 +201,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
       if (mySiteList.data[sIndex].master[mIndex].categoryId == 1) {
         livePayload = jsonEncode({"3000": {"3001": ""}});
       } else {
+        if(attempts != 0) await Future.delayed(const Duration(seconds: 2));
         livePayload = jsonEncode({"sentSms": "#live"});
       }
 

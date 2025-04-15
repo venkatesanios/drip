@@ -52,6 +52,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
   bool hasRequestedLive = false;
   final MqttService mqttService = MqttService();
   final Repository repository = Repository(HttpService());
+  late Animation<double> _animation2;
 
   @override
   void initState() {
@@ -69,6 +70,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
     _controller.addListener(() {setState(() {});});
     _controller.repeat();
     mqttService.pumpDashboardPayload = widget.liveData;
+    _animation2 = Tween<double>(begin: 1.0, end: 0.0).animate(_controller2);
     if(mounted){
       getLive();
     }
@@ -198,7 +200,25 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                               label: Text("${snapshot.data?.signalStrength ?? "0"}%", style: const TextStyle(fontSize: 8, color: Colors.red, fontWeight: FontWeight.bold),),
                               child: getIcon(snapshot.data!.signalStrength),
                             ),
-                            Row(
+                            ([30, 31].contains(snapshot.data!.pumps[0].reasonCode)) ?
+                            Container(
+                              decoration: BoxDecoration(
+                                  color: snapshot.data!.pumps[0].reasonCode == 30 ? Colors.red : Colors.green,
+                                  borderRadius: BorderRadius.circular(5)
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 5,),
+                              child: FadeTransition(
+                                opacity: snapshot.data!.pumps[0].reasonCode == 30
+                                    ? _animation2
+                                    : const AlwaysStoppedAnimation(1.0),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.electric_bolt, color: Colors.white,),
+                                    Text(snapshot.data!.pumps[0].reasonCode == 30 ? "Power off" : "Power on", style: const TextStyle(color: Colors.white),)
+                                  ],
+                                ),
+                              ),
+                            ) : Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               spacing: 5,
                               children: [
@@ -311,6 +331,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                       valveData: snapshot.data!.pumps.firstWhere((pump) => pump is PumpValveModel) as PumpValveModel,
                       siteIndex: widget.siteIndex,
                       masterIndex: widget.masterIndex,
+                      dataFetchingStatus: snapshot.data!.dataFetchingStatus,
                     ),
                   const SizedBox(height: 20,),
                 ],
@@ -505,12 +526,6 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                                   ),
                                 )
                             ),
-                          // SizedBox(width: 10,),
-                          // Text(
-                          //   pumpItem.reasonCode == 0
-                          //       ? (pumpItem.status == 1 ? "Turned on through the mobile" : "Turned off through the mobile")
-                          //       : pumpItem.reason, style: TextStyle(overflow: TextOverflow.ellipsis),),
-                          // SizedBox(width: 10,),
                           if(voltageTripCondition || currentTripCondition)
                             Container(
                                 padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),

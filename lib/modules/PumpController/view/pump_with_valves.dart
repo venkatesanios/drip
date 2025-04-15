@@ -15,8 +15,8 @@ import 'cycle_details.dart';
 
 class PumpWithValves extends StatelessWidget {
   final PumpValveModel valveData;
-  final int siteIndex, masterIndex;
-  const PumpWithValves({super.key, required this.valveData, required this.siteIndex, required this.masterIndex});
+  final int siteIndex, masterIndex, dataFetchingStatus;
+  const PumpWithValves({super.key, required this.valveData, required this.siteIndex, required this.masterIndex, required this.dataFetchingStatus});
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +105,7 @@ class PumpWithValves extends StatelessWidget {
         /*  color: const Color(0xffFFF3D7),
           surfaceTintColor: const Color(0xffFFF3D7),*/
           shadowColor: const Color(0xffFFF3D7),
-          child: Container(
+          child: SizedBox(
             width: MediaQuery.of(context).size.width <= 500 ? MediaQuery.of(context).size.width : 400,
             child: Column(
               spacing: 10,
@@ -128,7 +128,10 @@ class PumpWithValves extends StatelessWidget {
                     childAspectRatio: 1,
                   ),
                   itemBuilder: (context, i) {
-                    final valveItem = valveData.valves['V${i+1}']!;
+                    var valveItem = valveData.valves['V${i+1}']!;
+                    if(dataFetchingStatus != 1) {
+                      valveItem.status = '0';
+                    }
                     return Column(
                       children: [
                         Builder(
@@ -151,7 +154,7 @@ class PumpWithValves extends StatelessWidget {
                             }
                         ),
                         Text(valves[i].name, style: Theme.of(context).textTheme.titleSmall),
-                        if (valveItem.status == '1' && valveData.remainingTime != '00:00:00')
+                        if (valveItem.status == '1' && valveData.remainingTime != '00:00:00' && dataFetchingStatus == 1)
                           IntrinsicWidth(
                             child: Container(
                               decoration: BoxDecoration(

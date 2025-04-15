@@ -157,6 +157,7 @@ class IndividualPumpData {
           : reason == 29 ? "$motorOn auto mobile key on"
           : reason == 30 ? "Power off"
           : reason == 31 ? "Power on"
+          : reason == 33 ? "2 Phase only"
           : reason == 100 ? "No communication"
           : "Unknown",
       waterMeter: json["WM"] ?? "",
@@ -180,7 +181,7 @@ class IndividualPumpData {
 
 class ValveData {
   final String duration;
-  final String status;
+  String status;
 
   ValveData({required this.duration, required this.status});
 

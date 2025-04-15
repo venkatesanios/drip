@@ -98,9 +98,10 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
     };
     DateTime selectedDateWithoutTime = DateTime(date.year, date.month, date.day);
     DateTime todayWithoutTime = DateTime(today.year, today.month, today.day);
-    if (selectedDateWithoutTime.isAfter(todayWithoutTime)) {
+    // print(selectedDateWithoutTime.isAfter(todayWithoutTime));
+    // if (selectedDateWithoutTime.isAfter(todayWithoutTime)) {
       MqttService().topicToPublishAndItsMessage(jsonEncode(data), '${Environment.mqttPublishTopic}/${widget.deviceId}');
-    }
+    // }
   }
 
   /// Function to get user log data
