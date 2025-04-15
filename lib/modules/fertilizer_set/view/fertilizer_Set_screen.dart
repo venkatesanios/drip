@@ -122,7 +122,8 @@ class _FertilizerSetScreenState extends State<FertilizerSetScreen> {
                               ),
                               children: [
                                 for(var recipe in listOfFertilizerSet)
-                                  Container(
+                                  if(recipe.sNo == listOfFertilizerSite[selectedFertilizerSite].sNo)
+                                    Container(
                                     decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(8),
                                         color: Colors.white,
@@ -208,24 +209,24 @@ class _FertilizerSetScreenState extends State<FertilizerSetScreen> {
                                                           widget: channel.method.contains('ime')
                                                               ? InkWell(
                                                             onTap: (){
-                                                              _showTimePicker(overAllPvd: overAllPvd, time: channel.timeValve, onPressed: (){
+                                                              _showTimePicker(overAllPvd: overAllPvd, time: channel.timeValue, onPressed: (){
                                                                 setState(() {
-                                                                  channel.timeValve = '${overAllPvd.hrs < 10 ? '0' :''}${overAllPvd.hrs}:${overAllPvd.min < 10 ? '0' :''}${overAllPvd.min}:${overAllPvd.sec < 10 ? '0' :''}${overAllPvd.sec}';
+                                                                  channel.timeValue = '${overAllPvd.hrs < 10 ? '0' :''}${overAllPvd.hrs}:${overAllPvd.min < 10 ? '0' :''}${overAllPvd.min}:${overAllPvd.sec < 10 ? '0' :''}${overAllPvd.sec}';
                                                                 });
                                                                 Navigator.pop(context);
                                                               }) ;
                                                               },
                                                             child: Center(
-                                                              child: Text(channel.timeValve),
+                                                              child: Text(channel.timeValue),
                                                             ),
                                                           )
                                                               : getTextField(
                                                               key: '${recipe.channel.indexOf(channel) + 1} - ${channel.sNo}',
-                                                              initialValue: channel.quantityValve,
+                                                              initialValue: channel.quantityValue,
                                                               regex: AppProperties.regexForDecimal,
                                                               onChanged: (value){
                                                                 setState(() {
-                                                                  channel.quantityValve = value;
+                                                                  channel.quantityValue = value;
                                                                 });
                                                               }
                                                           )
@@ -433,6 +434,9 @@ class _FertilizerSetScreenState extends State<FertilizerSetScreen> {
                 key: '${listOfFertilizerSet.indexOf(recipe)} - ec',
                 initialValue: recipe.ecValue,
                 onChanged: (value){
+                  setState(() {
+                    recipe.ecValue = value;
+                  });
                 }),
           ],
         ),
@@ -445,6 +449,9 @@ class _FertilizerSetScreenState extends State<FertilizerSetScreen> {
                 key: '${listOfFertilizerSet.indexOf(recipe)} - ph',
                 initialValue: recipe.phValue,
                 onChanged: (value){
+                  setState(() {
+                    recipe.phValue = value;
+                  });
                 }),
           ],
         ),
@@ -515,7 +522,7 @@ class _FertilizerSetScreenState extends State<FertilizerSetScreen> {
                       borderRadius: const BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5)),
                       color: selectedFertilizerSite == site ? Theme.of(context).primaryColor : Colors.grey.shade300
                   ),
-                  child: Text(listOfFertilizerSite[selectedFertilizerSite].name, style: TextStyle(color: selectedFertilizerSite == site ? Colors.white : Colors.black, fontSize: 13),),
+                  child: Text(listOfFertilizerSite[site].name, style: TextStyle(color: selectedFertilizerSite == site ? Colors.white : Colors.black, fontSize: 13),),
                 ),
               )
           ],

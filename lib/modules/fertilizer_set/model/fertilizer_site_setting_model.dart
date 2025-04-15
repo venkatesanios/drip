@@ -8,6 +8,8 @@ class FertilizerSiteSettingModel{
   final String recipeName;
   bool select;
   List<ChannelSettingModel> channel;
+  bool ecActive;
+  bool phActive;
   String ecValue;
   String phValue;
   List<EcPhSettingModel> ec;
@@ -21,8 +23,10 @@ class FertilizerSiteSettingModel{
     required this.channel,
     required this.ec,
     required this.ecValue,
+    required this.ecActive,
     required this.ph,
     required this.phValue,
+    required this.phActive,
     required this.select,
   });
 
@@ -43,7 +47,9 @@ class FertilizerSiteSettingModel{
           return EcPhSettingModel.fromJson(ph);
         }).toList(),
       ecValue: data['ecValue'] ?? '0.0',
+      ecActive: data['ecActive'] ?? false,
       phValue: data['phValue'] ?? '0.0',
+      phActive: data['phActive'] ?? false,
     );
   }
 
@@ -63,7 +69,9 @@ class FertilizerSiteSettingModel{
       'ec' : ec.map((ec) => ec.toJson()).toList(),
       'ph' : ph.map((ph) => ph.toJson()).toList(),
       'ecValue' : ecValue,
+      'ecActive' : ecActive,
       'phValue' : phValue,
+      'phActive' : phActive,
     };
   }
 }

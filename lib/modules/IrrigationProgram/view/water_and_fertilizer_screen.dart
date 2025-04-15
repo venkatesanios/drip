@@ -891,65 +891,76 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                           height: 40,
                                           child: ListView.builder(
                                               scrollDirection: Axis.horizontal,
-                                              itemCount: returnSelectedSiteRecipe(programPvd).length,
+                                              itemCount: programPvd.recipe.length,
                                               itemBuilder: (context,index){
                                                 // return Text('yes')
-                                                return Row(
-                                                  children: [
-                                                    const SizedBox(
-                                                      width: 10,
-                                                    ),
-                                                    InkWell(
-                                                      onTap: (){
-                                                        // programPvd.editGroupSiteInjector(programPvd.segmentedControlCentralLocal == 0 ? 'selectedCentralSite' : 'selectedLocalSite', index);
-                                                        dynamic result = programPvd.editGroupSiteInjector('selectedRecipe', index);
-                                                        if(result != null){
-                                                          showDialog(context: context, builder: (context){
-                                                            return AlertDialog(
-                                                              title: const Text('Limitation Alert!',style: TextStyle(color: Colors.red,fontSize: 15,fontWeight: FontWeight.w900),),
-                                                              content: Text('${result['message']}',style: const TextStyle(fontSize: 14)),
-                                                              actions: [
-                                                                InkWell(
-                                                                  onTap: (){
-                                                                    Navigator.pop(context);
-                                                                  },
-                                                                  child: Container(
-                                                                    width: 80,
-                                                                    height: 30,
-                                                                    color: themeData.primaryColor,
-                                                                    child: const Center(
-                                                                      child: Text('Ok',style: TextStyle(color: Colors.white,fontSize: 16),
+                                                var currentRecipe = programPvd.recipe[index];
+                                                var selectedSite = programPvd.sequenceData[programPvd.selectedGroup][programPvd.segmentedControlCentralLocal == 0 ? 'selectedCentralSite' : 'selectedLocalSite'];
+                                                if(selectedSite != -1){
+                                                  if(programPvd.sequenceData[programPvd.selectedGroup][programPvd.segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][selectedSite]['sNo'] == currentRecipe['sNo']){
+                                                    return Row(
+                                                      children: [
+                                                        const SizedBox(
+                                                          width: 10,
+                                                        ),
+                                                        InkWell(
+                                                          onTap: (){
+                                                            // programPvd.editGroupSiteInjector(programPvd.segmentedControlCentralLocal == 0 ? 'selectedCentralSite' : 'selectedLocalSite', index);
+                                                            dynamic result = programPvd.editGroupSiteInjector('selectedRecipe', index);
+                                                            print('selectedRecipe finished');
+                                                            if(result != null){
+                                                              showDialog(context: context, builder: (context){
+                                                                return AlertDialog(
+                                                                  title: const Text('Limitation Alert!',style: TextStyle(color: Colors.red,fontSize: 15,fontWeight: FontWeight.w900),),
+                                                                  content: Text('${result['message']}',style: const TextStyle(fontSize: 14)),
+                                                                  actions: [
+                                                                    InkWell(
+                                                                      onTap: (){
+                                                                        Navigator.pop(context);
+                                                                      },
+                                                                      child: Container(
+                                                                        width: 80,
+                                                                        height: 30,
+                                                                        color: themeData.primaryColor,
+                                                                        child: const Center(
+                                                                          child: Text('Ok',style: TextStyle(color: Colors.white,fontSize: 16),
+                                                                          ),
+                                                                        ),
                                                                       ),
                                                                     ),
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            );
-                                                          });
-                                                        }
-                                                        setState(() {
+                                                                  ],
+                                                                );
+                                                              });
+                                                            }
+                                                            setState(() {
 
-                                                        });
-                                                      },
-                                                      child: Container(
-                                                        padding: const EdgeInsets.only(left: 10,top: 5,bottom: 5,right: 10),
-                                                        decoration: BoxDecoration(
-                                                            color: programPvd.sequenceData[programPvd.selectedGroup][programPvd.segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][programPvd.sequenceData[programPvd.selectedGroup][programPvd.segmentedControlCentralLocal == 0 ? 'selectedCentralSite' : 'selectedLocalSite']]['recipe'] == index ? liteViolet : Colors.white,
-                                                            borderRadius: BorderRadius.circular(10),
-                                                            border: Border.all(width: 1,color: violetBorder)
-                                                        ),
-                                                        child: Center(
-                                                          child: Text(
-                                                            '${returnSelectedSiteRecipe(programPvd)[index]['name']}',style: const TextStyle(color: Colors.black,fontSize: 12),
+                                                            });
+                                                          },
+                                                          child: Container(
+                                                            padding: const EdgeInsets.only(left: 10,top: 5,bottom: 5,right: 10),
+                                                            decoration: BoxDecoration(
+                                                                color: programPvd.sequenceData[programPvd.selectedGroup][programPvd.segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][programPvd.sequenceData[programPvd.selectedGroup][programPvd.segmentedControlCentralLocal == 0 ? 'selectedCentralSite' : 'selectedLocalSite']]['recipe'] == index ? liteViolet : Colors.white,
+                                                                borderRadius: BorderRadius.circular(10),
+                                                                border: Border.all(width: 1,color: violetBorder)
+                                                            ),
+                                                            child: Center(
+                                                              child: Text(
+                                                                '${programPvd.recipe[index]['recipeName']}',style: const TextStyle(color: Colors.black,fontSize: 12),
+                                                              ),
+                                                            ),
                                                           ),
                                                         ),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(
-                                                      width: 5,
-                                                    ),
-                                                  ],
-                                                );
+                                                        const SizedBox(
+                                                          width: 5,
+                                                        ),
+                                                      ],
+                                                    );
+                                                  }
+                                                }
+                                                else{
+                                                  return Container();
+                                                }
+                                                return null;
                                               }),
                                         ),
                                       )
@@ -2121,7 +2132,7 @@ List<dynamic> returnSelectedSiteRecipe(IrrigationProgramMainProvider programPvd)
     var selectedSite = programPvd.sequenceData[programPvd.selectedGroup][programPvd.segmentedControlCentralLocal == 0 ? 'selectedCentralSite' : 'selectedLocalSite'];
     if(selectedSite != -1){
       if(programPvd.sequenceData[programPvd.selectedGroup][programPvd.segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][selectedSite]['sNo'] == i['sNo']){
-        list = i['recipe'];
+        list.add(i);
       }
     }
   }

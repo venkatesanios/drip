@@ -1,5 +1,4 @@
 
-
 class DataConvert{
 
   //TODO: string time into integer seconds

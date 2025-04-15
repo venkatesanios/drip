@@ -4,8 +4,8 @@ class ChannelSettingModel{
   final String name;
   int active;
   String method;
-  String timeValve;
-  String quantityValve;
+  String timeValue;
+  String quantityValue;
 
   ChannelSettingModel({
     required this.objectId,
@@ -13,8 +13,8 @@ class ChannelSettingModel{
     required this.name,
     required this.active,
     required this.method,
-    required this.timeValve,
-    required this.quantityValve,
+    required this.timeValue,
+    required this.quantityValue,
   });
 
   factory ChannelSettingModel.fromJson(data){
@@ -24,8 +24,8 @@ class ChannelSettingModel{
         name: data['name'],
         active: data['active'] ?? 0,
         method: data['method'] ?? 'Time',
-        timeValve: data['timeValve'] ?? '00:00:00',
-        quantityValve: data['quantityValve'] ?? '0',
+        timeValue: data['timeValve'] ?? '00:00:00',
+        quantityValue: data['quantityValve'] ?? '0',
     );
   }
 
@@ -36,8 +36,8 @@ class ChannelSettingModel{
       'name' : name,
       'active' : active,
       'method' : method,
-      'timeValve' : timeValve,
-      'quantityValve' : quantityValve,
+      'timeValue' : timeValue,
+      'quantityValue' : quantityValue,
     };
   }
 }

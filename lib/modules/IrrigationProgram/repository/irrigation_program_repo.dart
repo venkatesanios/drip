@@ -38,6 +38,10 @@ class IrrigationProgramRepository {
     return await apiService.postRequest('/user/program/waterAndFert/get', body);
   }
 
+  Future<http.Response> getUserFertilizerSet(body) async {
+    return await apiService.postRequest('/user/planning/fertilizerSet/get', body);
+  }
+
   Future<http.Response> getProgramLibraryData(body) async {
     return await apiService.postRequest('/user/program/getLibrary', body);
   }

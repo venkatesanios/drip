@@ -364,7 +364,7 @@ class ConstantProvider extends ChangeNotifier{
   dynamic payloadValidate(value){
     if(value is bool){
       return value ? 1 : 0;
-    }else if(value is String){
+    }else if(value is String && AppConstants.ecoGemModelList.contains(userData['modelId'])){
       if(value.contains(':')){
         return value.split(':').join(',');
       }
