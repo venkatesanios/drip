@@ -46,6 +46,15 @@ class _MapScreenallState extends State<MapScreenall> {
   late BitmapDescriptor markerSensor;
   late BitmapDescriptor markerPump;
 
+  late BitmapDescriptor markerxMm1;
+  late BitmapDescriptor markerXMp1;
+  late BitmapDescriptor markerXMh1;
+  late BitmapDescriptor markerXMr1;
+  late BitmapDescriptor markerXMs1;
+  late BitmapDescriptor markerXMw1;
+  late BitmapDescriptor markerXMl1;
+  late BitmapDescriptor markerXMe1;
+
   @override
   void initState() {
     super.initState();
@@ -75,6 +84,15 @@ class _MapScreenallState extends State<MapScreenall> {
     markerFert = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)), 'assets/png/markerfertilizer.png',);
     markerFilter = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)),'assets/png/markerfilter.png',);
     markerPump = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)),'assets/png/markerpump.png',);
+
+    markerxMm1 = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)),'assets/png/markerxmm.png',);
+    markerXMp1 = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)),'assets/png/markerxmp.png',);
+    markerXMh1 = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)),'assets/png/markerxmh.png',);
+    markerXMr1 = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)),'assets/png/markerxmr.png',);
+    markerXMs1 = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)),'assets/png/markerxms.png',);
+    markerXMw1 = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)),'assets/png/markerxmw.png',);
+    markerXMl1 = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)),'assets/png/markerxml.png',);
+    markerXMe1 = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)),'assets/png/markerxme.png',);
 
    }
 
@@ -157,7 +175,7 @@ class _MapScreenallState extends State<MapScreenall> {
             Marker(
               markerId: MarkerId('object-${obj.sNo}'),
               position: LatLng(obj.lat!, obj.long!),
-              icon: _getMarkerIcon(obj.status,obj.name),
+              icon: _getMarkerIcon(obj.status,obj.objectName),
               infoWindow: InfoWindow(
                 title: obj.name ?? obj.objectName ?? 'Object',
                 snippet: 'Location: ${obj.location}',
@@ -173,6 +191,9 @@ class _MapScreenallState extends State<MapScreenall> {
   }
 
   BitmapDescriptor _getMarkerIcon(int? status,String type) {
+
+
+    print('type:-->$type');
    if( type.contains('Valve')) {
      switch (status) {
       case 1:
@@ -195,6 +216,25 @@ class _MapScreenallState extends State<MapScreenall> {
      return markerPump;
    } else if( type.contains('Sensor')) {
      return markerSensor;
+   }else if( type.contains('Injector')) {
+     return markerInjector;
+   }
+   else if( type.contains('xMm')) {
+     return markerxMm1;
+   }else if( type.contains('xMe')) {
+     return markerXMe1;
+   }else if( type.contains('xMp')) {
+     return markerXMp1;
+   }else if( type.contains('xMh')) {
+     return markerXMh1;
+   }else if( type.contains('xMr')) {
+     return markerXMr1;
+   }else if( type.contains('xMs')) {
+     return markerXMs1;
+   }else if( type.contains('xMw')) {
+     return markerXMw1;
+   }else if( type.contains('xMl')) {
+     return markerXMl1;
    }
     else
      {
