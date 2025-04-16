@@ -332,6 +332,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                       CustomMaterialButton(
                         onPressed: ()async{
                           payloadLoop : for(var payload in listOfPayload){
+                            print("payload : ${payload}");
                             if(!payload['selected']){
                               continue payloadLoop;
                             }
@@ -379,7 +380,6 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                                       }
                                     }
                                   }
-
 
                                 });
                               });

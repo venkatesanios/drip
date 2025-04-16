@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import '../../models/admin&dealer/stock_model.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
+import '../../services/mqtt_service.dart';
+import '../../utils/environment.dart';
 import '../../view_models/admin&dealer/customer_device_list_view_model.dart';
 
 enum MasterController {gem1, gem2, gem3, gem4, gem5, gem6, gem7, gem8, gem9, gem10,}

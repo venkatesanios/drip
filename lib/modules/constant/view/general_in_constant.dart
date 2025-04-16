@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/constant/state_management/constant_provider.dart';
+import 'package:oro_drip_irrigation/modules/constant/widget/custom_switch.dart';
+import 'package:oro_drip_irrigation/modules/constant/widget/custom_text_form_field.dart';
 import 'package:oro_drip_irrigation/modules/constant/widget/find_suitable_widget.dart';
+import 'package:oro_drip_irrigation/modules/irrigation_report/model/general_parameter_model.dart';
+import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
+
 import '../../../StateManagement/overall_use.dart';
+import '../../../Widgets/HoursMinutesSeconds.dart';
+import '../model/constant_setting_model.dart';
+
 
 class GeneralInConstant extends StatefulWidget {
   final ConstantProvider constPvd;
@@ -30,7 +38,9 @@ class _GeneralInConstantState extends State<GeneralInConstant> {
         listViewBuilderOptions: ListViewBuilderOptions(
           physics: const NeverScrollableScrollPhysics(),
         ),
-        children: widget.constPvd.general.map((generalSetting){
+        children: widget.constPvd.general
+            .where((generalSetting) => AppConstants.gemModelList.contains(widget.constPvd.userData['modelId']) ? generalSetting.gemDisplay : generalSetting.ecoGemDisplay)
+            .map((generalSetting){
           return AnimatedBuilder(
               animation: hoveredSno,
               builder: (context, child){
@@ -59,25 +69,25 @@ class _GeneralInConstantState extends State<GeneralInConstant> {
                     child: ListTile(
                       title: Text(generalSetting.title, style: Theme.of(context).textTheme.labelLarge,),
                       trailing: SizedBox(
-                        width: 80,
-                        child: AnimatedBuilder(
-                            animation: generalSetting.value,
-                            builder: (context, child){
-                              return FindSuitableWidget(
-                                constantSettingModel: generalSetting,
-                                onUpdate: (value){
-                                  generalSetting.value.value = value;
-                                },
-                                onOk: (){
-                                  setState(() {
-                                    generalSetting.value.value = widget.overAllPvd.getTime();
-                                  });
-                                  Navigator.pop(context);
-                                },
-                                popUpItemModelList: [],
-                              );
-                            }
-                        )
+                          width: 80,
+                          child: AnimatedBuilder(
+                              animation: generalSetting.value,
+                              builder: (context, child){
+                                return FindSuitableWidget(
+                                  constantSettingModel: generalSetting,
+                                  onUpdate: (value){
+                                    generalSetting.value.value = value;
+                                  },
+                                  onOk: (){
+                                    setState(() {
+                                      generalSetting.value.value = widget.overAllPvd.getTime();
+                                    });
+                                    Navigator.pop(context);
+                                  },
+                                  popUpItemModelList: [],
+                                );
+                              }
+                          )
                       ),
                     ),
                   ),

@@ -24,8 +24,8 @@ class ChannelSettingModel{
         name: data['name'],
         active: data['active'] ?? 0,
         method: data['method'] ?? 'Time',
-        timeValue: data['timeValve'] ?? '00:00:00',
-        quantityValue: data['quantityValve'] ?? '0',
+        timeValue: data['timeValue'] ?? '00:00:00',
+        quantityValue: data['quantityValue'] ?? '0',
     );
   }
 

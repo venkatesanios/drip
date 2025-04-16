@@ -137,7 +137,7 @@ class _GlobalAlarmInConstantState extends State<GlobalAlarmInConstant> {
                                       onPressed: ()async{
                                         sendToHttp();
                                         var payload = jsonEncode(getConstantHardwarePayload());
-                                        int delayDuration = 10;
+                                        int delayDuration = 50;
                                         for(var delay = 0; delay < delayDuration; delay++){
                                           if(delay == 0){
                                             stateSetter((){

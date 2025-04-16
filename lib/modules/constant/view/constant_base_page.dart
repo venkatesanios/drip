@@ -1,6 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:oro_drip_irrigation/Constants/properties.dart';
+import 'package:oro_drip_irrigation/Widgets/custom_buttons.dart';
+import 'package:oro_drip_irrigation/modules/constant/model/constant_menu_model.dart';
+import 'package:oro_drip_irrigation/modules/constant/model/constant_setting_type_Model.dart';
 import 'package:oro_drip_irrigation/modules/constant/repository/constant_repository.dart';
 import 'package:oro_drip_irrigation/modules/constant/state_management/constant_provider.dart';
 import 'package:oro_drip_irrigation/modules/constant/view/ec_ph_in_constant.dart';
@@ -12,6 +17,10 @@ import 'package:oro_drip_irrigation/modules/constant/view/pump_in_constant.dart'
 import 'package:oro_drip_irrigation/modules/constant/view/valve_in_constant.dart';
 import 'package:oro_drip_irrigation/modules/constant/view/water_meter_in_constant.dart';
 import 'package:oro_drip_irrigation/modules/constant/widget/arrow_tab.dart';
+import 'package:oro_drip_irrigation/modules/constant/widget/custom_check_box.dart';
+import 'package:oro_drip_irrigation/modules/constant/widget/custom_pop_up_button.dart';
+import 'package:oro_drip_irrigation/modules/constant/widget/custom_switch.dart';
+import 'package:oro_drip_irrigation/modules/constant/widget/custom_text_form_field.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
 
