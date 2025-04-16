@@ -862,9 +862,6 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   }
 
   dynamic returnSequenceDataUpdate({required central,required local,required i,required sequence,required bool newSequence}){
-    print('sequence : $sequence');
-    print('central : $central');
-    print('local : $local');
     String prePostMethod = 'Time';
     String preValue = '00:00:00';
     String postValue = '00:00:00';
@@ -998,7 +995,6 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
             fertilizer.add(fert);
 
           }
-          print('fertilizer :: ${fertilizer}');
 
           if(cd['ecSensor'].length != 0){
             String ecValue = '0';
@@ -1029,7 +1025,6 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         }
       }
     }
-    print("myCentral => $myCentral");
     // process end for central
 
     // this process is to find the local site for the sequence
@@ -1111,7 +1106,6 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         }
       }
     }
-    print("myLocal => $myLocal");
     // process end for local
 
 
@@ -1219,7 +1213,6 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     return copiedList;
   }
   void waterAndFert(){
-    print('inside water and fert');
     final valSeqList = deepCopy(_irrigationLine!.sequence);
     var givenSeq = [];
     var myOldSeq = [];

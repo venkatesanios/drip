@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:provider/provider.dart';
 import '../../Models/customer/site_model.dart';
 import '../../modules/config_Maker/view/config_base_page.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
+import '../../utils/environment.dart';
 import '../../view_models/customer/site_config_view_model.dart';
 
 class SiteConfig extends StatelessWidget {
@@ -211,7 +213,8 @@ class SiteConfig extends StatelessWidget {
                                               const SizedBox(width: 8),
                                               MaterialButton(
                                                 onPressed: () async {
-                                                  print('controllerId:${masterData[mstIndex].controllerId}');
+                                                  MqttService().topicToSubscribe('${Environment.mqttSubscribeTopic}/${masterData[mstIndex].controllerId}');
+                                                  print('controllerId ==> ${masterData[mstIndex].controllerId}');
                                                   Navigator.push(context, MaterialPageRoute(builder: (context) {
                                                     return ConfigBasePage(
                                                       masterData: {

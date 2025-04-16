@@ -965,7 +965,6 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                 ),
                               ),
 
-
                       const SliverToBoxAdapter(
                         child: SizedBox(
                           height: 10,
@@ -1287,23 +1286,6 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                           height: 100,
                         ),
                       )
-                      // if(programPvd.sequenceData[programPvd.selectedGroup][programPvd.segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'].length == 0 || programPvd.isSiteVisible(programPvd.sequenceData[programPvd.selectedGroup][programPvd.segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'],programPvd.segmentedControlCentralLocal == 0 ? 'central' : 'local') == false)
-                      //   if(programPvd.segmentedControlGroupValue == 1)
-                      //     const SliverToBoxAdapter(
-                      //       child: SizedBox(
-                      //         width: double.infinity,
-                      //         height: 100,
-                      //         child: Row(
-                      //           children: [
-                      //             Text(
-                      //               'Not Available: \u{1F6AB}', // Unicode for "no entry" emoji
-                      //               style: TextStyle(fontSize: 36,color: Colors.red),
-                      //             ),
-                      //           ],
-                      //         ),
-                      //       ),
-                      //     ),
-
 
                     ],
                   ),
