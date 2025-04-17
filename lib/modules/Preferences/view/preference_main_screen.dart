@@ -1638,8 +1638,6 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
           if(settingCategory.type == 211) {
             if(preferenceProvider.mode == "Duration" && setting.serialNumber != 5) {
               value = setting.value ? "1" : "0";
-            } else if(preferenceProvider.mode == "Manual" && setting.serialNumber == 5){
-              value = setting.value ? "1" : "0";
             }
           } else {
             value = setting.value ? "1" : "0";
@@ -1652,21 +1650,19 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
         }
       } else if (setting.value is String) {
         if(settingCategory.type == 211) {
-          if(setting.serialNumber >= 3) {
-            if(setting.value.toString().contains(',')) {
-              final parts = setting.value.split(',');
-              if(preferenceProvider.mode == "Manual") {
-                value = "${parts[1]}";
-              } else {
-                final result = parts[0].split(':');
-                value = "${result[0]},${result[1]}";
-              }
+          if(setting.value.toString().contains(',')) {
+            final parts = setting.value.split(',');
+            if(preferenceProvider.mode == "Manual") {
+              value = "${parts[1]}";
             } else {
-              if(setting.value.toString().contains(':')) {
-                value = setting.value.replaceAll(":", ",");
-              } else {
-                value = setting.value;
-              }
+              final result = parts[0].split(':');
+              value = "${result[0]},${result[1]}";
+            }
+          } else {
+            if(setting.value.toString().contains(':')) {
+              value = setting.value.replaceAll(":", ",");
+            } else {
+              value = setting.value;
             }
           }
         } else {

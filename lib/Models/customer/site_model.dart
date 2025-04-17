@@ -228,6 +228,7 @@ class Master {
         .toList()
         : [];
 
+    print("json['nodeList'] :: ${json['nodeList']}");
     return Master(
       controllerId: json['controllerId'] ?? 0,
       deviceId: json['deviceId'] ?? '',

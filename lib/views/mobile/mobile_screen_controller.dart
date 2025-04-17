@@ -8,6 +8,7 @@ import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../modules/IrrigationProgram/view/program_library.dart';
 import '../../modules/PumpController/model/pump_controller_data_model.dart';
 import '../../modules/PumpController/view/pump_controller_home.dart';
+import '../../modules/PumpController/view/set_serial.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/formatters.dart';
@@ -116,7 +117,18 @@ class MobileScreenController extends StatelessWidget {
                       ),
                   ],
                 ),
-                const SizedBox(width: 16),
+                IconButton(
+                    onPressed: (){
+                      showModalBottomSheet(
+                          context: context,
+                          builder: (context) {
+                            return SetSerialScreen();
+                          }
+                      );
+                    },
+                    icon: const Icon(Icons.settings_remote)
+                ),
+                // const SizedBox(width: 16),
               ],
               bottom: PreferredSize(
                 preferredSize: const Size.fromHeight(50),
@@ -195,6 +207,7 @@ class MobileScreenController extends StatelessWidget {
                                   value: {
                                     'category': master.categoryName,
                                     'model': master.modelName,
+                                    'index': index.toString(),
                                   },
                                   child: Row(
                                     children: [
@@ -229,7 +242,7 @@ class MobileScreenController extends StatelessWidget {
                             onSelected: (selected) {
                               final category = selected['category']!;
                               final model = selected['model']!;
-                              vm.masterOnChanged(category, model);
+                              vm.masterOnChanged(category, model, selected['index']!);
                             },
                           )
                               :

@@ -9,7 +9,7 @@ class ValveCycleWidget extends StatefulWidget {
   const ValveCycleWidget({super.key, required this.valveData});
 
   @override
-  _ValveCycleWidgetState createState() => _ValveCycleWidgetState();
+  State<ValveCycleWidget> createState() => _ValveCycleWidgetState();
 }
 
 class _ValveCycleWidgetState extends State<ValveCycleWidget>
@@ -68,22 +68,9 @@ class _ValveCycleWidgetState extends State<ValveCycleWidget>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                if (widget.valveData.valveOnMode == '1' &&
-                    widget.valveData.cyclicRestartFlag == '0' &&
-                    widget.valveData.cyclicRestartInterval != '00:00:00')
-                  _buildCycleCard(
-                    context,
-                    title: "Interval",
-                    content: CountdownTimerWidget(
-                      key: const Key("testing"),
-                      initialSeconds: Constants.parseTime(
-                          widget.valveData.cyclicRestartInterval)
-                          .inSeconds,
-                    ),
-                  ),
                 _buildCycleCard(
                   context,
-                  title: "Total",
+                  title: "Total Cycles",
                   content: Text(
                     widget.valveData.cyclicRestartLimit,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -91,9 +78,20 @@ class _ValveCycleWidgetState extends State<ValveCycleWidget>
                     ),
                   ),
                 ),
+                if (widget.valveData.valveOnMode == '1' &&
+                    widget.valveData.cyclicRestartFlag == '1' &&
+                    widget.valveData.cyclicRestartInterval != '00:00:00')
+                  _buildCycleCard(
+                    context,
+                    title: "Cycle Interval Rem.",
+                    content: CountdownTimerWidget(
+                      key: Key(widget.valveData.cyclicRestartInterval),
+                      initialSeconds: Constants.parseTime(widget.valveData.cyclicRestartInterval).inSeconds,
+                    ),
+                  ),
                 _buildCycleCard(
                   context,
-                  title: "Current",
+                  title: "Current Cycle",
                   content: Text(
                     widget.valveData.currentCycle,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
