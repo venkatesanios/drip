@@ -122,9 +122,12 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     }
   }
 
-  void masterOnChanged(categoryName, model){
-    int masterIdx = mySiteList.data[sIndex].master.indexWhere((master)=>
-    master.categoryName == categoryName && master.modelName == model);
+  void masterOnChanged(categoryName, model, index){
+    print("index :: $index");
+   /* int masterIdx = mySiteList.data[sIndex].master.indexWhere((master)=>
+    master.categoryName == categoryName && master.modelName == model);*/
+    int masterIdx = int.parse(index);
+    print("masterIdx :: $masterIdx");
     if (masterIdx != -1 && mySiteList.data[sIndex].master.length > 1) {
       mIndex = masterIdx;
       lIndex = 0;
@@ -156,6 +159,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
       updateMasterLine(sIdx, mIdx, lIdx);
       //displayServerData();
     }else{
+      // updateMasterLine(sIdx, mIdx, 0);
       //pump controller
       //MqttPayloadProvider payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
       //payloadProvider.updateLastSync('${mySiteList[siteIndex].master[masterIndex].liveSyncDate} ${mySiteList[siteIndex].master[masterIndex].liveSyncTime}');
@@ -201,6 +205,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
       if (mySiteList.data[sIndex].master[mIndex].categoryId == 1) {
         livePayload = jsonEncode({"3000": {"3001": ""}});
       } else {
+        if(attempts != 0) await Future.delayed(const Duration(seconds: 2));
         livePayload = jsonEncode({"sentSms": "#live"});
       }
 

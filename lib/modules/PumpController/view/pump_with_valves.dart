@@ -15,13 +15,13 @@ import 'cycle_details.dart';
 
 class PumpWithValves extends StatelessWidget {
   final PumpValveModel valveData;
-  final int siteIndex, masterIndex;
-  const PumpWithValves({super.key, required this.valveData, required this.siteIndex, required this.masterIndex});
+  final int dataFetchingStatus;
+  const PumpWithValves({super.key, required this.valveData, required this.dataFetchingStatus});
 
   @override
   Widget build(BuildContext context) {
     final provider = context.read<CustomerScreenControllerViewModel>();
-    final valves = provider.mySiteList.data[siteIndex].master[masterIndex].configObjects.where((e) => e.objectId == 13).toList();
+    final valves = provider.mySiteList.data[provider.sIndex].master[provider.mIndex].configObjects.where((e) => e.objectId == 13).toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -68,7 +68,7 @@ class PumpWithValves extends StatelessWidget {
                         final Map<String, dynamic> payload = {"sentSms": "changeto,${i+1}"};
                         MqttService().topicToPublishAndItsMessage(
                             jsonEncode(payload),
-                            '${Environment.mqttPublishTopic}/${provider.mySiteList.data[siteIndex].master[masterIndex].deviceId}'
+                            '${Environment.mqttPublishTopic}/${provider.mySiteList.data[provider.sIndex].master[provider.mIndex].deviceId}'
                         );
                       },
                       child: Text(valves[i].name),
@@ -105,17 +105,18 @@ class PumpWithValves extends StatelessWidget {
         /*  color: const Color(0xffFFF3D7),
           surfaceTintColor: const Color(0xffFFF3D7),*/
           shadowColor: const Color(0xffFFF3D7),
-          child: Container(
+          child: SizedBox(
             width: MediaQuery.of(context).size.width <= 500 ? MediaQuery.of(context).size.width : 400,
             child: Column(
               spacing: 10,
               children: [
+                // const SizedBox(height: 5,),
                 if (valveData.cyclicRestartLimit != '0') ...[
                   ValveCycleWidget(
                     valveData: valveData,
+                    deviceId: provider.mySiteList.data[provider.sIndex].master[provider.mIndex].deviceId,
                   )
                 ],
-                const SizedBox(height: 5,),
                 GridView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -128,7 +129,10 @@ class PumpWithValves extends StatelessWidget {
                     childAspectRatio: 1,
                   ),
                   itemBuilder: (context, i) {
-                    final valveItem = valveData.valves['V${i+1}']!;
+                    var valveItem = valveData.valves['V${i+1}']!;
+                    if(dataFetchingStatus != 1) {
+                      valveItem.status = '0';
+                    }
                     return Column(
                       children: [
                         Builder(
@@ -144,14 +148,14 @@ class PumpWithValves extends StatelessWidget {
                                       ? Colors.grey.shade100
                                       : valveItem.status == '2'
                                       ? Colors.redAccent
-                                      : Colors.deepOrange,
+                                      : Colors.orange,
                                   colorBlendMode: BlendMode.modulate,
                                 ),
                               );
                             }
                         ),
                         Text(valves[i].name, style: Theme.of(context).textTheme.titleSmall),
-                        if (valveItem.status == '1' && valveData.remainingTime != '00:00:00')
+                        if (valveItem.status == '1' && valveData.remainingTime != '00:00:00' && dataFetchingStatus == 1)
                           IntrinsicWidth(
                             child: Container(
                               decoration: BoxDecoration(
@@ -173,38 +177,6 @@ class PumpWithValves extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _infoTile({required String title, required Widget child}) {
-    return Container(
-      width: 100,
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          )
-        ],
-      ),
-      child: Column(
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Colors.black54,
-            ),
-          ),
-          const SizedBox(height: 6),
-          IntrinsicWidth(child: child),
-        ],
-      ),
     );
   }
 

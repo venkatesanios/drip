@@ -98,9 +98,10 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
     };
     DateTime selectedDateWithoutTime = DateTime(date.year, date.month, date.day);
     DateTime todayWithoutTime = DateTime(today.year, today.month, today.day);
-    if (selectedDateWithoutTime.isAfter(todayWithoutTime)) {
+    // print(selectedDateWithoutTime.isAfter(todayWithoutTime));
+    // if (selectedDateWithoutTime.isAfter(todayWithoutTime)) {
       MqttService().topicToPublishAndItsMessage(jsonEncode(data), '${Environment.mqttPublishTopic}/${widget.deviceId}');
-    }
+    // }
   }
 
   /// Function to get user log data
@@ -260,14 +261,6 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
             "2700": {
               "2701": "${listToMqtt.join(";").toString()};"
             }
-          };
-          var userData = {
-            "userId": widget.userId,
-            "controllerId": widget.controllerId,
-            "modifyUser": widget.customerId,
-            "sequence": convertedList,
-            "scheduleDate": DateFormat('yyyy-MM-dd').format(date),
-            "hardware": dataToHardware
           };
           try {
             validatePayloadSent(
@@ -977,7 +970,8 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
                                 decoration: const InputDecoration(
                                     suffixText: "%"
                                 ),
-                                onChanged: (newValue){
+                                onChanged: (newValue){},
+                                onSaved: (newValue) {
                                   setState(() {
                                     var temp = scheduleItem["ScaleFactor"].toString();
                                     scheduleItem["ScaleFactor"] = newValue != '' ? newValue : scheduleItem["ScaleFactor"];

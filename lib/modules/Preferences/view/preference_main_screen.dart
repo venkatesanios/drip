@@ -1402,7 +1402,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
         if([48, 49].contains(modelId) && selectedSetting == 3) {
           for (var settingCategory in [preferenceProvider.valveSettings!]) {
             if ([211].contains(settingCategory.type)) {
-              final payload = jsonEncode({"55": jsonEncode({"sentSms": 'valvesetting,${getSettingValue(settingCategory)}'})});
+              final payload = jsonEncode({"55": jsonEncode({"sentSms": '${preferenceProvider.mode == "Duration" ? 'valvesetting' : 'standalone'},${getSettingValue(settingCategory)}'})});
               temp.add(payload);
             }
           }
@@ -1486,7 +1486,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
         if([48, 49].contains(modelId)) {
           for (var settingCategory in [preferenceProvider.valveSettings!]) {
             if (!sendAll ? ([211].contains(settingCategory.type) && settingCategory.controllerReadStatus == "0") : [211].contains(settingCategory.type)) {
-              final payload = jsonEncode({"51": jsonEncode({"sentSms": 'valvesetting,${getSettingValue(settingCategory)}'})});
+              final payload = jsonEncode({"51": jsonEncode({"sentSms": '${preferenceProvider.mode == "Duration" ? 'valvesetting' : 'standalone'},${getSettingValue(settingCategory)}'})});
               temp.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+$categoryId2": payload);
             }
           }
@@ -1638,8 +1638,6 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
           if(settingCategory.type == 211) {
             if(preferenceProvider.mode == "Duration" && setting.serialNumber != 5) {
               value = setting.value ? "1" : "0";
-            } else if(preferenceProvider.mode == "Manual" && setting.serialNumber == 5){
-              value = setting.value ? "1" : "0";
             }
           } else {
             value = setting.value ? "1" : "0";
@@ -1652,16 +1650,16 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
         }
       } else if (setting.value is String) {
         if(settingCategory.type == 211) {
-          if(setting.serialNumber >= 3) {
-            if(setting.value.toString().contains(',')) {
-              final parts = setting.value.split(',');
-              if(preferenceProvider.mode == "Manual") {
-                value = "${parts[1]}";
-              } else {
-                final result = parts[0].split(':');
-                value = "${result[0]},${result[1]}";
-              }
+          if(setting.value.toString().contains(',')) {
+            final parts = setting.value.split(',');
+            if(preferenceProvider.mode == "Manual" && setting.serialNumber > 5) {
+              value = "${parts[1]}";
             } else {
+              final result = parts[0].split(':');
+              value = "${result[0]},${result[1]}";
+            }
+          } else {
+            if(preferenceProvider.mode != "Manual") {
               if(setting.value.toString().contains(':')) {
                 value = setting.value.replaceAll(":", ",");
               } else {
@@ -1680,7 +1678,9 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
               }
               break;
             case 1:
-              value = setting.value.isEmpty ? "000" : setting.value;
+              if(settingCategory.type == 211 && preferenceProvider.mode != "Manual") {
+                value = setting.value.isEmpty ? "000" : setting.value;
+              }
               break;
             case 2:
               final parts = setting.value.split(',');

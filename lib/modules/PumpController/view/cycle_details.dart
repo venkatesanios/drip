@@ -1,15 +1,20 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/services/mqtt_service.dart';
+import 'package:oro_drip_irrigation/utils/environment.dart';
 import '../../../Constants/constants.dart';
 import '../model/pump_controller_data_model.dart';
 import '../widget/custom_countdown_timer.dart';
 
 class ValveCycleWidget extends StatefulWidget {
   final PumpValveModel valveData;
+  final String deviceId;
 
-  const ValveCycleWidget({super.key, required this.valveData});
+  const ValveCycleWidget({super.key, required this.valveData, required this.deviceId});
 
   @override
-  _ValveCycleWidgetState createState() => _ValveCycleWidgetState();
+  State<ValveCycleWidget> createState() => _ValveCycleWidgetState();
 }
 
 class _ValveCycleWidgetState extends State<ValveCycleWidget>
@@ -64,26 +69,14 @@ class _ValveCycleWidgetState extends State<ValveCycleWidget>
           // border: Border.all(color: Colors.grey.shade200),
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                if (widget.valveData.valveOnMode == '1' &&
-                    widget.valveData.cyclicRestartFlag == '0' &&
-                    widget.valveData.cyclicRestartInterval != '00:00:00')
-                  _buildCycleCard(
-                    context,
-                    title: "Interval",
-                    content: CountdownTimerWidget(
-                      key: const Key("testing"),
-                      initialSeconds: Constants.parseTime(
-                          widget.valveData.cyclicRestartInterval)
-                          .inSeconds,
-                    ),
-                  ),
                 _buildCycleCard(
                   context,
-                  title: "Total",
+                  title: "Total Cycles",
                   content: Text(
                     widget.valveData.cyclicRestartLimit,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -91,9 +84,20 @@ class _ValveCycleWidgetState extends State<ValveCycleWidget>
                     ),
                   ),
                 ),
+                if (widget.valveData.valveOnMode == '1' &&
+                    widget.valveData.cyclicRestartFlag == '1' &&
+                    widget.valveData.cyclicRestartInterval != '00:00:00')
+                  _buildCycleCard(
+                    context,
+                    title: "Cycle Interval Rem.",
+                    content: CountdownTimerWidget(
+                      key: Key(widget.valveData.cyclicRestartInterval),
+                      initialSeconds: Constants.parseTime(widget.valveData.cyclicRestartInterval).inSeconds,
+                    ),
+                  ),
                 _buildCycleCard(
                   context,
-                  title: "Current",
+                  title: "Current Cycle",
                   content: Text(
                     widget.valveData.currentCycle,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -119,6 +123,47 @@ class _ValveCycleWidgetState extends State<ValveCycleWidget>
                   ),
                 );
               },
+            ),
+            const SizedBox(height: 6),
+            SizedBox(
+              height: 25,
+              child: FilledButton(
+                style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.all(Colors.red),
+                  shape: WidgetStateProperty.all(RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  )),
+                  maximumSize: WidgetStateProperty.all(const Size(100, 40)),
+                  padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 10, vertical: 5)),
+                ),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      title: const Text('Confirmation'),
+                      content: const Text('Are you sure! you want to proceed to reset cycle?'),
+                      actions: [
+                        MaterialButton(
+                          color: Colors.redAccent,
+                          textColor: Colors.white,
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('Cancel'),
+                        ),
+                        MaterialButton(
+                          color: Theme.of(context).primaryColor,
+                          textColor: Colors.white,
+                          onPressed: () {
+                            MqttService().topicToPublishAndItsMessage(jsonEncode({'sentSms': 'resetcycle'}), '${Environment.mqttPublishTopic}/${widget.deviceId}');
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('Yes'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                child: Text('Reset cycle', style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.white),),
+              ),
             ),
           ],
         ),

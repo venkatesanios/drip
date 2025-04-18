@@ -163,7 +163,6 @@ class MqttService {
     // print('MqttPayloadReceived:$payload');
     try {
       Map<String, dynamic> payloadMessage = jsonDecode(payload);
-      providerState?.updateReceivedPayload(payload, false);
       acknowledgementPayload = payloadMessage;
       if(payloadMessage['mC'] == "SMS") {
         preferenceAck = payloadMessage;
@@ -175,6 +174,7 @@ class MqttService {
       if (acknowledgementPayload != null && acknowledgementPayload!['mC'] == '3600') {
         schedulePayload = Constants.dataConversionForScheduleView(acknowledgementPayload!['cM']['3601']);
       }
+      providerState?.updateReceivedPayload(payload, false);
     } catch (e, stackTrace) {
       debugPrint('Error parsing MQTT payload: $e');
       debugPrint('StackTrace parsing MQTT payload: $stackTrace');

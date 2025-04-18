@@ -8,6 +8,7 @@ import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../modules/IrrigationProgram/view/program_library.dart';
 import '../../modules/PumpController/model/pump_controller_data_model.dart';
 import '../../modules/PumpController/view/pump_controller_home.dart';
+import '../../modules/PumpController/view/set_serial.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/formatters.dart';
@@ -80,42 +81,71 @@ class MobileScreenController extends StatelessWidget {
                 fit: BoxFit.fitWidth,
               ),
               actions: [
-                Stack(
-                  children: [
-                    IconButton(
-                      tooltip: 'Alarms',
-                      onPressed: vm.onAlarmClicked,
-                      icon: const Icon(Icons.notifications_none),
-                      color: Colors.white,
-                      iconSize: 28.0,
-                    ),
-                    if (vm.unreadAlarmCount > 0)
-                      Positioned(
-                        right: 5,
-                        top: 10,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          constraints: const BoxConstraints(
-                            minWidth: 16,
-                            minHeight: 16,
-                          ),
-                          child: Text(
-                            '${vm.unreadAlarmCount}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                if(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId != 2)
+                  Stack(
+                    children: [
+                      IconButton(
+                        tooltip: 'Alarms',
+                        onPressed: vm.onAlarmClicked,
+                        icon: const Icon(Icons.notifications_none),
+                        color: Colors.white,
+                        iconSize: 28.0,
+                      ),
+                      if (vm.unreadAlarmCount > 0)
+                        Positioned(
+                          right: 5,
+                          top: 10,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            textAlign: TextAlign.center,
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            child: Text(
+                              '${vm.unreadAlarmCount}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
                           ),
                         ),
-                      ),
-                  ],
-                ),
+                    ],
+                  ),
+                if(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 2 && [48, 49].contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId))
+                  IconButton(
+                      onPressed: (){
+                        /* Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => NodeList(
+                                customerId: customerId,
+                                nodes: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList,
+                                deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                                deviceName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
+                                controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                                userId: userId,
+                              )
+                          )
+                      );*/
+                        showModalBottomSheet(
+                            context: context,
+                            builder: (context) {
+                              return SetSerialScreen(
+                                nodeList: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList,
+                                deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                              );
+                            }
+                        );
+                      },
+                      icon: const Icon(Icons.settings_remote)
+                  ),
                 const SizedBox(width: 16),
               ],
               bottom: PreferredSize(
@@ -136,7 +166,7 @@ class MobileScreenController extends StatelessWidget {
                               ? DropdownButton(
                             isExpanded: false,
                             underline: Container(),
-                            items: (vm.mySiteList.data ?? []).map((site) {
+                            items: (vm.mySiteList.data).map((site) {
                               return DropdownMenuItem(
                                 value: site.groupName,
                                 child: Text(
@@ -195,6 +225,7 @@ class MobileScreenController extends StatelessWidget {
                                   value: {
                                     'category': master.categoryName,
                                     'model': master.modelName,
+                                    'index': index.toString(),
                                   },
                                   child: Row(
                                     children: [
@@ -229,7 +260,7 @@ class MobileScreenController extends StatelessWidget {
                             onSelected: (selected) {
                               final category = selected['category']!;
                               final model = selected['model']!;
-                              vm.masterOnChanged(category, model);
+                              vm.masterOnChanged(category, model, selected['index']!);
                             },
                           )
                               :

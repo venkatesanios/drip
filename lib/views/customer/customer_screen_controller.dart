@@ -149,6 +149,7 @@ class CustomerScreenController extends StatelessWidget {
                           value: {
                             'category': master.categoryName,
                             'model': master.modelName,
+                            'index': index.toString(),
                           },
                           child: Row(
                             children: [
@@ -177,7 +178,7 @@ class CustomerScreenController extends StatelessWidget {
                     onSelected: (selected) {
                       final category = selected['category']!;
                       final model = selected['model']!;
-                      vm.masterOnChanged(category, model);
+                      vm.masterOnChanged(category, model, selected['index']!);
                     },
                   ):
                   Text(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,

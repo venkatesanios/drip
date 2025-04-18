@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/Models/watersource_model.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/widgets/custom_native_time_picker.dart';
 import 'package:oro_drip_irrigation/modules/Preferences/model/preference_data_model.dart';
 import 'package:oro_drip_irrigation/modules/Preferences/state_management/preference_provider.dart';
 import 'package:provider/provider.dart';
 
+import '../../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../../IrrigationProgram/view/schedule_screen.dart';
 
 class ValveSettings extends StatelessWidget {
@@ -12,11 +12,13 @@ class ValveSettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.read<CustomerScreenControllerViewModel>();
+    final valves = provider.mySiteList.data[provider.sIndex].master[provider.mIndex].configObjects.where((e) => e.objectId == 13).toList();
     return Consumer<PreferenceProvider>(
       builder: (context, provider, _) {
         final settings = provider.valveSettings!.setting;
         final firstHalf = settings.sublist(0, 5);
-        final secondHalf = settings.sublist(5);
+        final secondHalf = settings.sublist(5, 5+valves.length);
 
         return ListView(
           padding: const EdgeInsets.all(8),
