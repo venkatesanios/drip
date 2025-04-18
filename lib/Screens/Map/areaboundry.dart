@@ -2,7 +2,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:oro_drip_irrigation/Screens/Map/MapAreaModel.dart';
 
+
+// MapScreenArea widget
 class MapScreenArea extends StatefulWidget {
   const MapScreenArea({super.key});
 
@@ -12,19 +15,15 @@ class MapScreenArea extends StatefulWidget {
 
 class _MapScreenAreaState extends State<MapScreenArea> {
   late GoogleMapController _mapController;
-
-  // Initial camera position
   static const CameraPosition _initialPosition = CameraPosition(
-    target: LatLng(11.166315, 76.125778),
+    target: LatLng(11.1387361, 76.9764367),
     zoom: 15,
   );
-    final List<LatLng> _polygonPoints = [];
 
-   final Set<Polygon> _polygons = {};
-
-   final Set<Marker> _markers = {};
-
-   Map<String, List<LatLng>> _savedAreas = {};
+  final Set<Polygon> _polygons = {};
+  final Set<Marker> _markers = {};
+  Map<String, Valve> _valves = {};
+  Valve? selectedValve;
 
   @override
   void initState() {
@@ -32,205 +31,254 @@ class _MapScreenAreaState extends State<MapScreenArea> {
     _loadSavedAreas();
   }
 
-  void _onMapCreated(GoogleMapController controller) {
-    _mapController = controller;
-  }
-
-  // Load saved areas from SharedPreferences
   Future<void> _loadSavedAreas() async {
+    await _loadValvesFromJsonString();
+
     final prefs = await SharedPreferences.getInstance();
     final savedAreas = prefs.getString('saved_areas') ?? '{}';
-    final decoded = jsonDecode(savedAreas) as Map<String, dynamic>;
-    setState(() {
-      _savedAreas = decoded.map((key, value) => MapEntry(
-        key,
-        (value as List).map((point) {
-          final coords = point as Map<String, dynamic>;
-          return LatLng(coords['latitude'], coords['longitude']);
-        }).toList(),
-      ));
-    });
+    try {
+      final decoded = jsonDecode(savedAreas) as Map<String, dynamic>;
+      if (decoded.isNotEmpty && _valves.isEmpty) {
+        setState(() {
+          _valves = decoded.map((key, value) {
+            final valve = Valve.fromJson(value);
+            return MapEntry(valve.name, valve);
+          });
+          _updatePolygons();
+        });
+      }
+    } catch (e) {
+      print('Error loading saved areas: $e');
+    }
+    if (_valves.isNotEmpty) {
+      _zoomToValves();
+    }
   }
 
-  // Save areas to SharedPreferences
+  Future<void> _loadValvesFromJsonString() async {
+    const jsonString = '''
+    {
+      "controllerId": 23,
+      "deviceId": "2CCF6773D07D",
+      "mapobject": [
+          {
+              "objectId": 13,
+              "sNo": 13.001,
+              "name": "V 1",
+              "objectName": "Valve",
+              "areas": [
+                  {
+                      "latitude": 11.138073534888953,
+                      "longitude": 76.97587885707556
+                  },
+                  {
+                      "latitude": 11.137536669979172,
+                      "longitude": 76.97601833194433
+                  },
+                  {
+                      "latitude": 11.13769457152603,
+                      "longitude": 76.97645821422277
+                  },
+                  {
+                      "latitude": 11.138220909396832,
+                      "longitude": 76.97634019702612
+                  }
+              ],
+              "status": 1
+          },
+          {
+              "objectId": 13,
+              "sNo": 13.002,
+              "name": "V 2",
+              "objectName": "Valve",
+              "areas": [],
+              "status": 1
+          },
+          {
+              "objectId": 13,
+              "sNo": 13.003,
+              "name": "V 3",
+              "objectName": "Valve",
+              "areas": [],
+              "status": 0
+          }
+      ],
+      "liveMessage": {
+          "cC": "2CCF6773D07D",
+          "cM": {
+              "2401": "1,19.0,12.4,1,2025-04-17 12:58:49.428749;2,0.0,0.0,1,2025-04-17 12:58:00.174468;3,19.0,6.5,1,2025-04-17 12:58:51.398794;4,19.0,8.0,3,2025-04-17 12:54:58.021312;5,38.0,8.1,1,2025-04-17 12:58:50.611901;6,0.0,100.0,1,2025-04-17 12:58:51.045949",
+              "2402": "5.001,3;5.002,2;5.003,0;7.001,0;7.002,0;10.001,0;10.002,0;10.003,0;10.004,0;11.001,0;11.002,0;13.001,0;13.002,0;13.003,0;13.004,1;13.005,1;13.006,1;13.007,0;13.008,0;13.009,0;13.01,0;13.011,0;13.012,0;13.013,0;13.014,0;13.015,0;13.016,0;5.004,0",
+              "2403": "24.001,0.00,0;24.002,0.00,0;24.003,0.00,0;24.004,0.00,0;22.001,11.02,879877;23.001,0,0",
+              "2404": "5.001,0,0,0,0,228_230_234,1:0.0_2:0.0,00:00:00;5.002,0,0,0,0,228_230_234,3:0.0,00:00:00;5.003,0,0,00:00:00,0,239.0_233.0_234.0,1:0.0_2:0.0,00:00:00;5.004,0,0,00:00:00,0,239.0_233.0_234.0,3:0.0,00:00:00",
+              "2405": "2.001,0;2.002,0",
+              "2406": "4.001,0,00:02:00,0.0;4.002,0,00:02:00,0.0",
+              "2407": "",
+              "2408": "1,1.2,2,3000.0,600.0,0,0,0,0,3,2,12:54:32,00:00:00,None,2.001,2,11.02,1,220",
+              "2409": "1,1.3,2,3000,2.001,2025-04-17,23:59:59,3",
+              "2410": "1,2.001,3,2025-04-17,12:54:32,2025-04-17,60,2,30,1,0,2;2,2.002,3,-,-,2025-04-17,75,4,30,0,1,2;3,2.001_2.002,4,2025-04-17,11:13:19,2025-04-22,91,1,16,0,-1,3",
+              "2411": "",
+              "2412": "",
+              "WifiStrength": 100,
+              "Version": "1.1.0:079",
+              "PowerSupply": 1
+          },
+          "cD": "2025-04-17",
+          "cT": "12:58:52",
+          "mC": "2400"
+      }
+    }
+    ''';
+
+    try {
+      final mapAreaModel = mapAreaModelFromJson(jsonString);
+      setState(() {
+        _valves = {
+          for (var mapobject in mapAreaModel.mapobject ?? [])
+            mapobject.name!: Valve.fromMapobject(mapobject, mapAreaModel.liveMessage)
+        };
+        _updatePolygons();
+      });
+      await _saveAreas();
+    } catch (e) {
+      print('Error parsing JSON: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to load valve data')),
+      );
+    }
+  }
+
   Future<void> _saveAreas() async {
     final prefs = await SharedPreferences.getInstance();
-    final encoded = jsonEncode(_savedAreas.map((key, value) => MapEntry(
-      key,
-      value
-          .map((point) => {
-        'latitude': point.latitude,
-        'longitude': point.longitude,
-      })
-          .toList(),
-    )));
+    final encoded = jsonEncode(_valves.map((key, valve) {
+      return MapEntry(key, valve.toJson());
+    }));
     await prefs.setString('saved_areas', encoded);
   }
 
-  // Handle map taps to add polygon points
-  void _onMapTapped(LatLng position) {
+  void _selectValve(String? valveName) {
     setState(() {
-      _polygonPoints.add(position);
-      _markers.add(
-        Marker(
-          markerId: MarkerId('point_${_polygonPoints.length}'),
-          position: position,
-          infoWindow: InfoWindow(title: 'Point ${_polygonPoints.length}'),
-          draggable: true,
-          onDragEnd: (newPosition) => _onMarkerDragEnd(
-              MarkerId('point_${_polygonPoints.length}'), newPosition),
-        ),
-      );
-      _updatePolygon();
+      selectedValve = valveName != null ? _valves[valveName] : null;
+      _updatePolygons();
     });
   }
 
-  // Handle marker drag to update polygon points
-  void _onMarkerDragEnd(MarkerId markerId, LatLng newPosition) {
-    setState(() {
-      final index = int.parse(markerId.value.split('_')[1]) - 1;
-      _polygonPoints[index] = newPosition;
-      _markers.removeWhere((marker) => marker.markerId == markerId);
-      _markers.add(
-        Marker(
-          markerId: markerId,
-          position: newPosition,
-          infoWindow: InfoWindow(title: 'Point ${index + 1}'),
-          draggable: true,
-          onDragEnd: (newPosition) => _onMarkerDragEnd(markerId, newPosition),
-        ),
-      );
-      _updatePolygon();
-    });
-  }
-
-  // Update polygon based on current points
-  void _updatePolygon() {
-    _polygons.clear();
-    if (_polygonPoints.length >= 3) {
-      _polygons.add(
-        Polygon(
-          polygonId: const PolygonId('freehand_boundary'),
-          points: _polygonPoints,
-          strokeColor: Colors.green,
-          strokeWidth: 2,
-          fillColor: Colors.green.withOpacity(0.3),
-        ),
-      );
+  Future<void> _sendSelectedValveToServer() async {
+    if (selectedValve != null) {
+      final body = jsonEncode(selectedValve!.toJson());
+      print('Sending valve data: $body');
+      // Implement HTTP request here
     }
   }
 
-  // Clear the drawn boundary
-  void _clearBoundary() {
+  void _updatePolygons() {
     setState(() {
-      _polygonPoints.clear();
       _polygons.clear();
       _markers.clear();
-    });
-  }
 
-  // Undo the last added point
-  void _undoLastPoint() {
-    setState(() {
-      if (_polygonPoints.isNotEmpty) {
-        _polygonPoints.removeLast();
-        _markers
-            .removeWhere((marker) => marker.markerId.value == 'point_${_markers.length}');
-        _updatePolygon();
+      for (var valve in _valves.values) {
+        if (valve.area.length >= 3) {
+          _polygons.add(Polygon(
+            polygonId: PolygonId(valve.name),
+            points: valve.area,
+            strokeColor: valve.status == 1 ? Colors.green : Colors.red,
+            strokeWidth: 2,
+            fillColor: valve.status == 1 ? Colors.green.withOpacity(0.3) : Colors.red.withOpacity(0.3),
+          ));
+        }
+
+        if (selectedValve != null && selectedValve!.name == valve.name) {
+          valve.area.asMap().forEach((index, point) {
+            _markers.add(
+              Marker(
+                markerId: MarkerId('${valve.name}_point_$index'),
+                position: point,
+                infoWindow: InfoWindow(title: 'Valve ${valve.name}'),
+                draggable: true,
+                onDragEnd: (newPosition) => _onMarkerDragEnd(newPosition, index),
+              ),
+            );
+          });
+        }
       }
     });
   }
 
-  // Save the current polygon
-  void _saveBoundary() {
-    if (_polygonPoints.isEmpty) {
+  void _onMapTapped(LatLng position) {
+    if (selectedValve == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No boundary to save')),
+        const SnackBar(content: Text('Please select a valve from the dropdown')),
       );
       return;
     }
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        final nameController = TextEditingController();
-        return AlertDialog(
-          title: const Text('Save Area'),
-          content: TextField(
-            controller: nameController,
-            decoration: const InputDecoration(hintText: 'Enter area name'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                if (nameController.text.isNotEmpty) {
-                  setState(() {
-                    _savedAreas[nameController.text] = List.from(_polygonPoints);
-                  });
-                  await _saveAreas();
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Area "${nameController.text}" saved')),
-                  );
-                }
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // Load and edit a saved area
-  void _loadArea(String areaName) {
     setState(() {
-      _polygonPoints.clear();
-      _markers.clear();
-      _polygons.clear();
-      _polygonPoints.addAll(_savedAreas[areaName]!);
-      for (var i = 0; i < _polygonPoints.length; i++) {
-        _markers.add(
-          Marker(
-            markerId: MarkerId('point_${i + 1}'),
-            position: _polygonPoints[i],
-            infoWindow: InfoWindow(title: 'Point ${i + 1}'),
-            draggable: true,
-            onDragEnd: (newPosition) =>
-                _onMarkerDragEnd(MarkerId('point_${i + 1}'), newPosition),
-          ),
-        );
-      }
-      _updatePolygon();
-      // Move camera to the first point of the loaded area
-      if (_polygonPoints.isNotEmpty) {
-        _mapController.animateCamera(
-          CameraUpdate.newLatLng(_polygonPoints.first),
-        );
-      }
+      selectedValve!.area.add(position);
+      _updatePolygons();
     });
+    _saveAreas();
   }
 
-  // Navigate to Saved Areas screen
-  void _showSavedAreas() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SavedAreasScreen(
-          savedAreas: _savedAreas,
-          onLoadArea: _loadArea,
-          onDeleteArea: (areaName) async {
-            setState(() {
-              _savedAreas.remove(areaName);
-            });
-            await _saveAreas();
-          },
-        ),
-      ),
+  void _onMarkerDragEnd(LatLng newPosition, int index) {
+    if (selectedValve != null && index >= 0 && index < selectedValve!.area.length) {
+      setState(() {
+        selectedValve!.area[index] = newPosition;
+        _updatePolygons();
+      });
+      _saveAreas();
+    }
+  }
+
+  void _saveValveArea() {
+    if (selectedValve != null) {
+      setState(() {
+        _valves[selectedValve!.name] = selectedValve!;
+      });
+      _saveAreas();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Valve "${selectedValve!.name}" saved')),
+      );
+    }
+  }
+
+  void _clearLastPoint() {
+    if (selectedValve != null && selectedValve!.area.isNotEmpty) {
+      setState(() {
+        selectedValve!.area.removeLast();
+        _updatePolygons();
+      });
+      _saveAreas();
+    }
+  }
+
+  void _clearBoundary() {
+    if (selectedValve != null) {
+      setState(() {
+        selectedValve!.area.clear();
+        _updatePolygons();
+      });
+      _saveAreas();
+    }
+  }
+
+  void _zoomToValves() {
+    if (_valves.isEmpty) return;
+    final allPoints = _valves.values.expand((v) => v.area).toList();
+    if (allPoints.isEmpty) return;
+    final bounds = _calculateBounds(allPoints);
+    _mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
+  }
+
+  LatLngBounds _calculateBounds(List<LatLng> points) {
+    double minLat = points[0].latitude, maxLat = points[0].latitude;
+    double minLng = points[0].longitude, maxLng = points[0].longitude;
+    for (var point in points) {
+      minLat = minLat < point.latitude ? minLat : point.latitude;
+      maxLat = maxLat > point.latitude ? maxLat : point.latitude;
+      minLng = minLng < point.longitude ? minLng : point.longitude;
+      maxLng = maxLng > point.longitude ? maxLng : point.longitude;
+    }
+    return LatLngBounds(
+      southwest: LatLng(minLat, minLng),
+      northeast: LatLng(maxLat, maxLng),
     );
   }
 
@@ -238,166 +286,58 @@ class _MapScreenAreaState extends State<MapScreenArea> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Boundary with Map'),
+        title: const Text('Map Area with Valves'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.undo),
-            tooltip: 'Undo Last Point',
-            onPressed: _undoLastPoint,
-          ),
-          IconButton(
-            icon: const Icon(Icons.clear),
-            tooltip: 'Clear Boundary',
-            onPressed: _clearBoundary,
-          ),
-          IconButton(
-            icon: const Icon(Icons.save),
-            tooltip: 'Save Boundary',
-            onPressed: _saveBoundary,
-          ),
-          IconButton(
-            icon: const Icon(Icons.edit),
-            tooltip: 'Edit Saved Area',
-            onPressed: _editSavedArea,
-          ),
-          IconButton(
-            icon: const Icon(Icons.list),
-            tooltip: 'Saved Areas',
-            onPressed: _showSavedAreas,
-          ),
+          IconButton(icon: const Icon(Icons.undo), onPressed: _clearLastPoint),
+          IconButton(icon: const Icon(Icons.clear), onPressed: _clearBoundary),
+          IconButton(icon: const Icon(Icons.save), onPressed: _saveValveArea),
+          IconButton(icon: const Icon(Icons.cloud_upload), onPressed: _sendSelectedValveToServer),
         ],
       ),
-      body: Stack(
+      body: Column(
         children: [
-          GoogleMap(
-            initialCameraPosition: _initialPosition,
-            onMapCreated: _onMapCreated,
-            polygons: _polygons,
-            mapType: MapType.hybrid,
-            markers: _markers,
-            onTap: _onMapTapped,
-          ),
-          Positioned(
-            bottom: 20,
-            left: 20,
-            child: FloatingActionButton(
-              onPressed: _clearBoundary,
-              tooltip: 'Clear Boundary',
-              child: const Icon(Icons.delete),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(5),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 5,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-          ),
-          Positioned(
-            bottom: 20,
-            right: 20,
-            child: FloatingActionButton(
-              onPressed: _saveBoundary,
-              tooltip: 'Save Boundary',
-              child: const Icon(Icons.save),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-  void _editSavedArea() {
-    if (_savedAreas.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No saved areas')),
-      );
-      return;
-    }
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Select Area to Edit'),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: ListView(
-              shrinkWrap: true,
-              children: _savedAreas.keys.map((areaName) {
-                return ListTile(
-                  title: Text(areaName),
-                  onTap: () {
-                    setState(() {
-                      _polygonPoints.clear();
-                      _markers.clear();
-                      _polygons.clear();
-                      _polygonPoints.addAll(_savedAreas[areaName]!);
-                      for (var i = 0; i < _polygonPoints.length; i++) {
-                        _markers.add(
-                          Marker(
-                            markerId: MarkerId('point_${i + 1}'),
-                            position: _polygonPoints[i],
-                            infoWindow: InfoWindow(title: 'Point ${i + 1}'),
-                            draggable: true,
-                            onDragEnd: (newPosition) =>
-                                _onMarkerDragEnd(MarkerId('point_${i + 1}'), newPosition),
-                          ),
-                        );
-                      }
-                      _updatePolygon();
-                    });
-                    Navigator.pop(context);
-                  },
+            child: DropdownButton<String>(
+              hint: const Text('Select Valve'),
+              value: selectedValve?.name,
+              isExpanded: true,
+              items: _valves.keys.map((valveName) {
+                return DropdownMenuItem<String>(
+                  value: valveName,
+                  child: Text(valveName),
                 );
               }).toList(),
+              onChanged: _selectValve,
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class SavedAreasScreen extends StatelessWidget {
-  final Map<String, List<LatLng>> savedAreas;
-  final Function(String) onLoadArea;
-  final Function(String) onDeleteArea;
-
-  const SavedAreasScreen({
-    super.key,
-    required this.savedAreas,
-    required this.onLoadArea,
-    required this.onDeleteArea,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Saved Areas'),
-      ),
-      body: savedAreas.isEmpty
-          ? const Center(child: Text('No saved areas'))
-          : ListView.builder(
-        itemCount: savedAreas.length,
-        itemBuilder: (context, index) {
-          final areaName = savedAreas.keys.elementAt(index);
-          return ListTile(
-            title: Text(areaName),
-            trailing: IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () async {
-                await onDeleteArea(areaName);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Area "$areaName" deleted')),
-                );
+          Expanded(
+            child: GoogleMap(
+              initialCameraPosition: _initialPosition,
+              onMapCreated: (GoogleMapController controller) {
+                _mapController = controller;
+                if (_valves.isNotEmpty) {
+                  _zoomToValves();
+                }
               },
+              markers: _markers,
+              polygons: _polygons,
+              onTap: _onMapTapped,
             ),
-            onTap: () {
-              onLoadArea(areaName);
-              Navigator.pop(context);
-            },
-          );
-        },
+          ),
+
+        ],
       ),
     );
   }

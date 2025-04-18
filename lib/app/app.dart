@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/view/config_base_page.dart';
 import '../Screens/Map/MapDeviceList.dart';
+import '../Screens/Map/allAreaBoundry.dart';
 import '../Screens/Map/areaboundry.dart';
 import '../flavors.dart';
 import '../modules/constant/view/constant_base_page.dart';
@@ -57,6 +58,7 @@ Widget navigateToInitialScreen(String route) {
       // return ProgramLibraryScreenNew(userId: 4, controllerId: 1, deviceId: '2CCF674C0F8A', fromDealer: false, customerId: 4,);
       return const LoginScreen();
     case Routes.dashboard:
+       return MapScreenAllArea();
        return MapScreenArea();
 
       return const ScreenController();
