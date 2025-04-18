@@ -21,7 +21,7 @@ import '../../SystemDefinitions/widgets/custom_snack_bar.dart';
 import '../../../utils/environment.dart';
 import '../../IrrigationProgram/view/program_library.dart';
 import '../widgets/custom_segmented_control.dart';
-import '../widgets/progres_dialog.dart';
+import '../widgets/progress_dialog.dart';
 
 final otherSettingsIcons = [
   MdiIcons.lightbulbMultipleOutline,

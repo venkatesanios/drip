@@ -1,13 +1,19 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
 import 'package:oro_drip_irrigation/Constants/properties.dart';
+import 'package:oro_drip_irrigation/Widgets/sized_image.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/repository/irrigation_program_repo.dart';
+import 'package:oro_drip_irrigation/modules/PumpController/state_management/pump_controller_provider.dart';
 import 'package:oro_drip_irrigation/modules/ScheduleView/repository/schedule_view_repo.dart';
+import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../../Constants/constants.dart';
 import '../../../services/mqtt_service.dart';
+import '../../Logs/widgets/custom_calendar_mobile.dart';
 import '../../SystemDefinitions/widgets/custom_snack_bar.dart';
 import '../widgets/custom_timeline_widget.dart';
 import '../../../flavors.dart';
@@ -159,79 +165,136 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isLargeScreen = MediaQuery.of(context).size.width >= 700;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Schedule View'),
-        leadingWidth: 250,
+        leadingWidth: isLargeScreen ? 250 : null,
         leading: Row(
           children: [
             const BackButton(),
-            Image(
-              image: F.appFlavor!.name.contains('oro')?const AssetImage("assets/png/oro_logo_white.png"):
-              const AssetImage("assets/png/company_logo.png"),
-              width: 110,
-              fit: BoxFit.fitWidth,
-            )
+            if(isLargeScreen)
+              Image(
+                image: F.appFlavor!.name.contains('oro')?const AssetImage("assets/png/oro_logo_white.png"):
+                const AssetImage("assets/png/company_logo.png"),
+                width: 110,
+                fit: BoxFit.fitWidth,
+              )
           ],
         ),
         actions: [
-          for (int i = 0; i < 3; i++) ...[
-            FilledButton.icon(
-              onPressed: () {
-                if (i == 0) {
-                  _showStatusListDialog(context);
-                } else if (i == 1) {
-                  _requestScheduleData();
-                } else if (i == 2) {
-                  _showInfoDialog(context);
-                }
-              },
-              icon: Icon([Icons.filter_alt_outlined, Icons.refresh_outlined, Icons.info_outline][i]),
-              label: Text(['Filter', 'Refresh', 'Info'][i]),
+          Container(
+            height: 35,
+            decoration: BoxDecoration(
+              color: isLargeScreen ? Colors.transparent: Theme.of(context).primaryColorLight,
+              borderRadius: const BorderRadius.only(topLeft: Radius.circular(25), bottomLeft: Radius.circular(25))
             ),
-            const SizedBox(width: 10),
-          ],
+            child: Row(
+              children: [
+                for (int i = 0; i < 3; i++) ...[
+                  if(isLargeScreen)
+                    FilledButton.icon(
+                      onPressed: () {
+                        if (i == 0) {
+                          _showStatusListDialog(context);
+                        } else if (i == 1) {
+                          _requestScheduleData();
+                        } else if (i == 2) {
+                          _showInfoDialog(context);
+                        }
+                      },
+                      icon: Icon([Icons.filter_alt_outlined, Icons.refresh_outlined, Icons.info_outline][i]),
+                      label: Text(['Filter', 'Refresh', 'Info'][i]),
+                    )
+                  else
+                    InkWell(
+                      onTap: () {
+                        if (i == 0) {
+                          _showStatusListDialog(context);
+                        } else if (i == 1) {
+                          _requestScheduleData();
+                        } else if (i == 2) {
+                          _showInfoDialog(context);
+                        }
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Icon([Icons.filter_alt_outlined, Icons.refresh_outlined, Icons.info_outline][i]),
+                      ),
+                    ),
+                  const SizedBox(width: 10),
+                ],
+              ],
+            ),
+          )
         ],
       ),
-      body: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          return Row(
-            children: [
-              Container(
-                  width: 250,
-                  color: theme.primaryColor,
-                  child: Column(
-                    children: [
-                      Expanded(child: Container()),
-                      _buildCalendar(constraints)
-                    ],
-                  )
-              ),
-              Expanded(
-                child: Center(
-                  child: StreamBuilder<List<Map<String, dynamic>>?>(
-                    stream: MqttService().schedulePayloadStream,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const CircularProgressIndicator();
-                      }
-
-                      if (!snapshot.hasData || snapshot.data == null || (snapshot.data is List && snapshot.data!.isEmpty)) {
-                        return const Text('No data available');
-                      }
-
-                      final data = snapshot.data!;
-                      if(data[0].containsKey('message')) {
-                        return Center(child: Text("${data[0]['message']}"),);
-                      }
-                      return _buildScheduleView(data, constraints);
-                    },
-                  ),
-                ),
-              )
-            ],
-          );
-        }
+      body: Column(
+        children: [
+          if(MediaQuery.of(context).size.width <= 700)
+            MobileCustomCalendar(
+              focusedDay: _focusedDay,
+              calendarFormat: context.read<PumpControllerProvider>().calendarFormat,
+              selectedDate: date,
+              onDaySelected: (selectedDay, focusedDay) {
+                setState(() {
+                  date = selectedDay;
+                  _focusedDay = focusedDay;
+                });
+                _requestScheduleData();
+              },
+              onFormatChanged: (format) {
+                /* if (pumpControllerProvider.calendarFormat != format) {
+                setState(() {
+                  pumpControllerProvider.calendarFormat = format;
+                });
+              }*/
+              },
+            ),
+          Expanded(
+            child: LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                return Row(
+                  children: [
+                    if(MediaQuery.of(context).size.width >= 700)
+                      Container(
+                          width: 250,
+                          color: theme.primaryColor,
+                          child: Column(
+                            children: [
+                              Expanded(child: Container()),
+                              _buildCalendar(constraints)
+                            ],
+                          )
+                      ),
+                    Expanded(
+                      child: Center(
+                        child: StreamBuilder<List<Map<String, dynamic>>?>(
+                          stream: MqttService().schedulePayloadStream,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return const CircularProgressIndicator();
+                            }
+            
+                            if (!snapshot.hasData || snapshot.data == null || (snapshot.data is List && snapshot.data!.isEmpty)) {
+                              return const Text('No data available');
+                            }
+            
+                            final data = snapshot.data!;
+                            if(data[0].containsKey('message')) {
+                              return Center(child: Text("${data[0]['message']}"),);
+                            }
+                            return _buildScheduleView(data, constraints);
+                          },
+                        ),
+                      ),
+                    )
+                  ],
+                );
+              }
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FilledButton.icon(
         onPressed: () async {
@@ -334,12 +397,12 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
   }
 
   /// Widget for displaying the schedule view
-  Widget _buildScheduleView(List<Map<String, dynamic>> data, constraints) {
+  Widget _buildScheduleView(List<Map<String, dynamic>> data, BoxConstraints constraints) {
     return Column(
       children: [
         const SizedBox(height: 16),
         Container(
-          margin: const EdgeInsets.symmetric(horizontal: 40),
+          margin: EdgeInsets.symmetric(horizontal: constraints.maxWidth >= 700 ? 40 : 10),
           height: 35,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
@@ -356,7 +419,7 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
         ),
         const SizedBox(height: 8),
         Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20),
+          margin: EdgeInsets.symmetric(horizontal: constraints.maxWidth >= 700 ? 20 : 5),
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           height: 55,
           decoration: BoxDecoration(
@@ -385,7 +448,7 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
             itemCount: data.length,
             itemBuilder: (context, index) {
               return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
+                margin: constraints.maxWidth >= 700 ? const EdgeInsets.symmetric(horizontal: 20) : const EdgeInsets.only(left: 5, right: 10),
                 child: Column(
                   children: [
                     if(selectedHeadUnits.any((element) => element['sNo'].toString() == data[index]['HeadUnit'])
@@ -398,7 +461,10 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
                           _buildTimeLineIndicators(data[index], index, data.length)
                         ],
                         children: [
-                          _buildScheduleCard(data[index], index, data.length, constraints)
+                          Container(
+                              margin: constraints.maxWidth <= 700 ? const EdgeInsets.only(bottom: 6) : EdgeInsets.zero,
+                              child: _buildScheduleCard(data[index], index, data.length, constraints)
+                          )
                         ],
                       ),
                     if(index == data.length - 1)
@@ -481,17 +547,27 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Container(
-              decoration: BoxDecoration(
-                  color: status.color,
-                  borderRadius: BorderRadius.circular(5)
-              ),
-              height: 5,
-              width: 20,
-              margin: const EdgeInsets.only(right: 10),
+            Row(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                      color: status.color,
+                      borderRadius: BorderRadius.circular(5)
+                  ),
+                  height: 5,
+                  width: 20,
+                  margin: const EdgeInsets.only(right: 10),
+                ),
+                Text(time12, style: TextStyle(fontWeight: FontWeight.bold, color: theme.primaryColor)),
+              ],
             ),
-            Text(time12, style: TextStyle(fontWeight: FontWeight.bold, color: theme.primaryColor)),
+            if(MediaQuery.of(context).size.width <= 700)
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Text("Reason: ${reason.reason}", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: theme.primaryColor)),
+              ),
           ],
         ),
         Card(
@@ -500,29 +576,28 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
           color: Colors.white,
           elevation: 5,
           child: Padding(
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.all(screenSize >= 700 ? 10 : 6),
             child: Row(
-              spacing: 20,
+              spacing: screenSize >= 700 ? 20 : 10,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                const SizedBox(width: 10),
+                if(screenSize >= 700)
+                  const SizedBox(width: 10),
                 _buildScheduleOrderCircle('${scheduleItem["ScheduleOrder"]}', theme),
-                const SizedBox(width: 10),
+                if(screenSize >= 700)
+                  const SizedBox(width: 10),
                 _buildStatusSection(
                     status,
                     _buildProgressIndicator(completedValue, progressValue, theme),
                     scheduleItem
                 ),
-                if (screenSize > 500) ...[
-                  // const SizedBox(width: 20),
-                  Expanded(flex: 2, child: _buildDetailsSection(completedValue, inputValue, reason, theme)),
-                ],
-                // else
+                Expanded(flex: screenSize >= 700 ? 2 : 1, child: _buildDetailsSection(completedValue, inputValue, reason, theme)),
+                if(screenSize >= 700)...[
                   _buildDetailChip("Pumps", _getItemNames(pumps)),
-                _buildDetailChip("Valves", _getItemNames(valves)),
-                _buildDetailChip("Scale Factor", "${scheduleItem["ScaleFactor"]}"),
-                _buildRtcCycleInfo(scheduleItem, theme),
-                _buildMoreOptions(screenSize, index),
+                  _buildDetailChip("Valves", _getItemNames(valves)),
+                  _buildDetailChip("Scale Factor", "${scheduleItem["ScaleFactor"]}"),
+                  _buildRtcCycleInfo(scheduleItem, theme),
+                ],
                 _buildIconButton(
                     Icons.edit_note_outlined,
                     (
@@ -532,7 +607,8 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
                           _showEditSideSheet(scheduleItem, constraints, index);
                         } : null
                 ),
-                const SizedBox(width: 20,),
+                if(screenSize >= 700)
+                  const SizedBox(width: 20),
                 _buildIconButton(
                     scheduleItem["SkipFlag"] == 0 ? Icons.skip_next : Icons.undo_sharp,
                     (
@@ -556,7 +632,9 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
                           });
                         } : null
                 ),
-                const SizedBox(width: 20,),
+                if(screenSize <= 700)
+                  _buildMoreOptions(screenSize, index, scheduleItem),
+                // const SizedBox(width: 20,),
               ],
             ),
           ),
@@ -693,7 +771,8 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
       children: [
         Text("Completed: $completedValue", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.green)),
         Text("Actual: $inputValue", style: const TextStyle(fontSize: 12)),
-        Text("Reason: ${reason.reason}", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: theme.primaryColor)),
+        if(MediaQuery.of(context).size.width >= 700)
+          Text("Reason: ${reason.reason}", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: theme.primaryColor)),
       ],
     );
   }
@@ -724,21 +803,66 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
   }
 
   /// Widget for "More" options button
-  Widget _buildMoreOptions(double screenSize, int index) {
-    return screenSize < 500
-        ? Expanded(
-      flex: 1,
-      child: Center(
-        child: IconButton(
-          tooltip: "More",
-          onPressed: () {
-            // showScheduleDetails(context: context, index: index);
+  Widget _buildMoreOptions(double screenSize, int index, scheduleItem) {
+    return InkWell(
+      onTap: () {
+        showModalBottomSheet(
+          context: context,
+          builder: (BuildContext dialogContext) {
+            return Padding(
+              padding: const EdgeInsets.all(15),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildInfoRow(
+                    screenSize,
+                    'assets/Images/Svg/objectId_5.svg',
+                    _buildDetailChip("Pumps", _getItemNames(scheduleItem['Pump'])),
+                  ),
+                  _buildInfoRow(
+                    screenSize,
+                    'assets/Images/Svg/objectId_13.svg',
+                    _buildDetailChip("Valves", _getItemNames(scheduleItem['SequenceData'])),
+                  ),
+                  _buildInfoRow(
+                    screenSize,
+                    null,
+                    _buildRtcCycleInfo(scheduleItem, Theme.of(context)),
+                    iconData: Icons.schedule,
+                  ),
+                ],
+              ),
+            );
           },
-          icon: const Icon(Icons.more_vert),
-        ),
+        );
+      },
+      child: const Icon(Icons.more_vert),
+    );
+  }
+
+  Widget _buildInfoRow(double width, String? assetPath, Widget content, {IconData? iconData}) {
+    return Container(
+      width: width - 30,
+      padding: const EdgeInsets.all(6),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColorDark,
+              shape: BoxShape.circle,
+            ),
+            child: assetPath != null
+                ? SvgPicture.asset(assetPath)
+                : Icon(iconData, color: Colors.white),
+          ),
+          const SizedBox(width: 12),
+          content,
+        ],
       ),
-    )
-        : const SizedBox.shrink();
+    );
   }
 
   /// Widget for displaying the detail chip

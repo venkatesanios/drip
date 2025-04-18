@@ -345,24 +345,6 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
               );
             },
           ),
-          /*floatingActionButton: SizedBox(
-            height: 30,
-            child: FilledButton(
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(Colors.red),
-                shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                )),
-                maximumSize: MaterialStateProperty.all(const Size(100, 40)),
-                padding: MaterialStateProperty.all(const EdgeInsets.symmetric(horizontal: 10, vertical: 5)),
-              ),
-              onPressed: () {
-                // Navigator.push(context, MaterialPageRoute(builder: (context) => const WaveView()));
-              },
-              child: Text('Reset cycle', style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.white),),
-            ),
-          ),*/
-          // bottomNavigationBar: ,
         ),
       ),
     );

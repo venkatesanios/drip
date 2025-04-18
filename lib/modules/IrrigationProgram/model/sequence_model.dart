@@ -508,8 +508,8 @@ class ProgramLibrary {
   factory ProgramLibrary.fromJson(Map<String, dynamic> json) {
     return ProgramLibrary(
       programType: List<String>.from(json['data']['programType'] ?? []),
-      programLimit: 4,
-      // programLimit: json['data']['programLimit'],
+      // programLimit: 4,
+      programLimit: json['data']['programLimit'],
       agitatorCount: json['data']['agitatorCount'] ?? 0,
       program: List<Program>.from(
           (json['data']['program'] as List<dynamic>? ?? [])

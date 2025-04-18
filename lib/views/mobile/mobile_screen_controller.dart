@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Screens/Logs/irrigation_and_pump_log.dart';
 import 'package:oro_drip_irrigation/Screens/planning/WeatherScreen.dart';
+import 'package:oro_drip_irrigation/modules/ScheduleView/view/schedule_view_screen.dart';
 import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
 import '../../Models/customer/site_model.dart';
 import 'package:provider/provider.dart';
@@ -113,19 +114,6 @@ class MobileScreenController extends StatelessWidget {
                 if(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 2 && [48, 49].contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId))
                   IconButton(
                       onPressed: (){
-                        /* Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => NodeList(
-                                customerId: customerId,
-                                nodes: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList,
-                                deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                                deviceName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
-                                controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                                userId: userId,
-                              )
-                          )
-                      );*/
                         showModalBottomSheet(
                             context: context,
                             builder: (context) {
@@ -478,7 +466,7 @@ class MobileScreenController extends StatelessWidget {
                             ),
                           );
                           break;
-                        case 'option3':
+                        case 'Program':
                           Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -498,7 +486,22 @@ class MobileScreenController extends StatelessWidget {
                                   }
                               )
                           );
-                          print("Option 3 selected");
+                          break;
+                        case 'Scheduled program details':
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) {
+                                    return ScheduleViewScreen(
+                                        deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                                        userId: userId,
+                                        controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                                        customerId: customerId,
+                                        groupId: vm.mySiteList.data[vm.sIndex].groupId,
+                                    );
+                                  }
+                              )
+                          );
                           break;
                       }
                     },
@@ -527,7 +530,7 @@ class MobileScreenController extends StatelessWidget {
                         ),
                       ),
                       const PopupMenuItem<String>(
-                        value: 'option3',
+                        value: 'Program',
                         child: Row(
                           children: [
                             Icon(Icons.list_alt, color: Colors.black54),
@@ -537,7 +540,7 @@ class MobileScreenController extends StatelessWidget {
                         ),
                       ),
                       const PopupMenuItem<String>(
-                        value: 'option4',
+                        value: 'Scheduled program details',
                         child: Row(
                           children: [
                             Icon(Icons.view_list_outlined, color: Colors.black54),
@@ -630,7 +633,8 @@ class MobileScreenController extends StatelessWidget {
                         vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
                         vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
                         vm.mIndex,
-                        vm.sIndex
+                        vm.sIndex,
+                        vm.isChanged
                     ):
                     vm.selectedIndex==1?
                     ScheduledProgram(
@@ -655,12 +659,12 @@ class MobileScreenController extends StatelessWidget {
     );
   }
 
-  Widget mainScreen(int index, groupId, groupName, List<Master> masterData, int controllerId, int categoryId, int masterIndex, int siteIndex) {
+  Widget mainScreen(int index, groupId, groupName, List<Master> masterData, int controllerId, int categoryId, int masterIndex, int siteIndex, bool isChanged) {
 
     switch (index) {
       case 0:
         return categoryId==1? CustomerHome(customerId: userId, controllerId: controllerId):
-        PumpControllerHome(
+        isChanged ? PumpControllerHome(
           deviceId: masterData[masterIndex].deviceId,
           liveData: masterData[masterIndex].live!.cM as PumpControllerData,
           masterName: groupName,
@@ -669,6 +673,17 @@ class MobileScreenController extends StatelessWidget {
           controllerId: controllerId,
           siteIndex: siteIndex,
           masterIndex: masterIndex,
+        ) : const Scaffold(
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Please wait...'),
+                SizedBox(height: 10),
+                CircularProgressIndicator(),
+              ],
+            ),
+          ),
         );
       case 1:
         return CustomerProduct(customerId: userId);

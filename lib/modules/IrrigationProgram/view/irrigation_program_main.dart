@@ -146,7 +146,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
                     mainProvider.programLibraryData(widget.userId, widget.controllerId);
                     Navigator.pop(context);
                   },
-                  icon: Icon(Icons.arrow_back, color: Colors.white,),
+                  icon: const Icon(Icons.arrow_back, color: Colors.white,),
                 ),
                 bottom: constraints.maxWidth < 600
                     ?
@@ -278,7 +278,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
                   CircleAvatar(
                     // backgroundColor: Theme.of(context).primaryColor,
                     child: Text("${selectedIndex + 1}",
-                      style: TextStyle(
+                      style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           // color: Colors.white
                       ),
@@ -346,7 +346,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: Row(
+                    title: const Row(
                       children: [
                         Icon(Icons.warning, color: Colors.red,),
                         Text("Warning!", style: TextStyle(color: Colors.red),)
@@ -355,22 +355,22 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
                     content: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text("Pump station range is not sufficient for total zone's valve flow rate!", style: TextStyle(fontWeight: FontWeight.w300, fontStyle: FontStyle.italic),),
-                        SizedBox(height: 10,),
+                        const Text("Pump station range is not sufficient for total zone's valve flow rate!", style: TextStyle(fontWeight: FontWeight.w300, fontStyle: FontStyle.italic),),
+                        const SizedBox(height: 10,),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text('Pump station range', style: TextStyle(color: Colors.black)),
-                            SizedBox(width: 20,),
+                            const SizedBox(width: 20,),
                             Text('${mainProvider.pumpStationValveFlowRate} L/hr', style: TextStyle(color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold)),
                           ],
                         ),
-                        SizedBox(height: 10,),
+                        const SizedBox(height: 10,),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text('Total zone valve flow rate', style: TextStyle(color: Colors.black)),
-                            SizedBox(width: 20,),
+                            const SizedBox(width: 20,),
                             Text('${mainProvider.totalValveFlowRate} L/hr', style: TextStyle(color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold)),
                           ],
                         ),
@@ -381,7 +381,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
                           onPressed: () {
                             Navigator.pop(context);
                           },
-                          child: Text("OK")
+                          child: const Text("OK")
                       )
                     ],
                   );
@@ -423,7 +423,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: Row(
+                    title: const Row(
                       children: [
                         Icon(Icons.warning, color: Colors.red,),
                         Text("Warning!", style: TextStyle(color: Colors.red),)
@@ -432,22 +432,22 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
                     content: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text("Pump station range is not sufficient for total zone's valve flow rate!", style: TextStyle(fontWeight: FontWeight.w300, fontStyle: FontStyle.italic),),
-                        SizedBox(height: 10,),
+                        const Text("Pump station range is not sufficient for total zone's valve flow rate!", style: TextStyle(fontWeight: FontWeight.w300, fontStyle: FontStyle.italic),),
+                        const SizedBox(height: 10,),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text('Pump station range', style: TextStyle(color: Colors.black)),
-                            SizedBox(width: 20,),
+                            const SizedBox(width: 20,),
                             Text('${mainProvider.pumpStationValveFlowRate} L/hr', style: TextStyle(color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold)),
                           ],
                         ),
-                        SizedBox(height: 10,),
+                        const SizedBox(height: 10,),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text('Total zone valve flow rate', style: TextStyle(color: Colors.black)),
-                            SizedBox(width: 20,),
+                            const SizedBox(width: 20,),
                             Text('${mainProvider.totalValveFlowRate} L/hr', style: TextStyle(color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold)),
                           ],
                         ),
@@ -458,7 +458,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
                           onPressed: () {
                             Navigator.pop(context);
                           },
-                          child: Text("OK")
+                          child: const Text("OK")
                       )
                     ],
                   );
