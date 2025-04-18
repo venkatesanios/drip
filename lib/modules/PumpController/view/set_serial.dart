@@ -7,14 +7,22 @@ import 'package:oro_drip_irrigation/utils/environment.dart';
 
 import '../../../Models/customer/site_model.dart';
 import '../../../services/mqtt_service.dart';
+import '../../../utils/snack_bar.dart';
+import '../model/pump_controller_data_model.dart';
 
-class SetSerialScreen extends StatelessWidget {
+class SetSerialScreen extends StatefulWidget {
   final List<NodeListModel> nodeList;
   final String deviceId;
   const SetSerialScreen({super.key, required this.nodeList, required this.deviceId});
 
   @override
+  State<SetSerialScreen> createState() => _SetSerialScreenState();
+}
+
+class _SetSerialScreenState extends State<SetSerialScreen> {
+  @override
   Widget build(BuildContext context) {
+    final MqttService mqttService = MqttService();
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 20),
       child: Column(
@@ -95,7 +103,7 @@ class SetSerialScreen extends StatelessWidget {
                             color: Theme.of(context).primaryColor,
                             textColor: Colors.white,
                             onPressed: () {
-                              MqttService().topicToPublishAndItsMessage(jsonEncode({'sentSms': '3'}), '${Environment.mqttPublishTopic}/$deviceId');
+                              MqttService().topicToPublishAndItsMessage(jsonEncode({'sentSms': '3'}), '${Environment.mqttPublishTopic}/${widget.deviceId}');
                               Navigator.of(context).pop();
                             },
                             child: const Text('Yes'),
@@ -105,7 +113,7 @@ class SetSerialScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(
+                /*SizedBox(
                   width: 40,
                   child: IconButton(
                     tooltip: 'Test Communication',
@@ -115,7 +123,7 @@ class SetSerialScreen extends StatelessWidget {
                     ),
                     onPressed: (){},
                   ),
-                ),
+                ),*/
               ],
             ),
           ),
@@ -158,9 +166,9 @@ class SetSerialScreen extends StatelessWidget {
           Flexible(
             child: ListView.builder(
                 shrinkWrap: true,
-                itemCount: nodeList.length,
+                itemCount: widget.nodeList.length,
                 itemBuilder: (BuildContext context, int index) {
-                  final item = nodeList[index];
+                  final item = widget.nodeList[index];
                   return ExpansionTile(
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -180,13 +188,25 @@ class SetSerialScreen extends StatelessWidget {
                         SizedBox(width: 30, child: Text('${item.serialNumber}', style: const TextStyle(fontSize: 13),)),
                         SizedBox(
                           width:50,
-                          child: Center(child: CircleAvatar(radius: 7, backgroundColor:
-                          item.status == 1? Colors.green.shade400:
-                          item.status == 2? Colors.grey:
-                          item.status == 3? Colors.redAccent:
-                          item.status == 4? Colors.yellow:
-                          Colors.grey,
-                          )),
+                          child: StreamBuilder<PumpControllerData?>(
+                              stream: mqttService.pumpDashboardPayloadStream,
+                              builder: (BuildContext context, AsyncSnapshot<PumpControllerData?> snapshot) {
+                                final status = snapshot.data != null
+                                    ? (snapshot.data!.pumps.firstWhere((pump) => pump is PumpValveModel) as PumpValveModel).setSerialFlag.split(',')
+                                    : '0,0'.split(',');
+                                // print("status :: $status");
+                                return Center(
+                                    child: CircleAvatar(
+                                      radius: 7,
+                                      backgroundColor: status[index] == '1'
+                                          ? Colors.green.shade400
+                                          : status[index] == '0'
+                                          ? Colors.grey
+                                          : Colors.redAccent,
+                                    )
+                                );
+                              }
+                          ),
                         ),
                         SizedBox(width: 40, child: Center(child: Text('${item.referenceNumber}', style: const TextStyle(fontSize: 13),))),
                         SizedBox(
@@ -267,15 +287,18 @@ class SetSerialScreen extends StatelessWidget {
                                   const SizedBox(width: 5),
                                   IconButton(
                                     tooltip: 'Serial set',
-                                  /*  onPressed: getPermissionStatusBySNo(context, 7) ? () {
-                                      actionSerialSet(index, deviceId, customerId, controllerId, userId);
-                                      GlobalSnackBar.show(context, 'Your comment sent successfully', 200);
-                                    }:null,*/
                                     onPressed: () async {
                                       final payload = jsonEncode({"sentSms": 'setserial,${item.categoryId == 9 ? '1' : '2'}'});
-                                      MqttService().topicToPublishAndItsMessage(payload, '${Environment.mqttPublishTopic}/$deviceId');
+                                      MqttService().topicToPublishAndItsMessage(payload, '${Environment.mqttPublishTopic}/${widget.deviceId}');
+                                      setState(() {
+                                        final pump = mqttService.pumpDashboardPayload!.pumps.firstWhere((pump) => pump is PumpValveModel) as PumpValveModel;
+                                        List<String> flags = pump.setSerialFlag.split(',');
+                                        flags[index] = '2';
+                                        pump.setSerialFlag = flags.join(','); // ✅ update the actual value
+                                      });
+
                                     },
-                                    icon: Icon(Icons.fact_check_outlined),
+                                    icon: const Icon(Icons.fact_check_outlined),
                                   ),
                                 ],
                               ),

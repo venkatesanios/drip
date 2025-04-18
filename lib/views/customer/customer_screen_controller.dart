@@ -16,6 +16,7 @@ import '../../Screens/Dealer/controllerverssionupdate.dart';
 import '../../Screens/planning/FactoryReset.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../flavors.dart';
+import '../../modules/PumpController/model/pump_controller_data_model.dart';
 import '../../modules/ScheduleView/view/schedule_view_screen.dart';
 import '../../modules/PumpController/view/pump_controller_home.dart';
 import '../../repository/repository.dart';
@@ -509,7 +510,8 @@ class CustomerScreenController extends StatelessWidget {
                               vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
                               vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
                               vm.mIndex,
-                              vm.sIndex
+                              vm.sIndex,
+                              vm.isChanged
                           ),
                         ),
                       ],
@@ -920,21 +922,32 @@ class CustomerScreenController extends StatelessWidget {
     return destinations;
   }
 
-  Widget mainScreen(int index, groupId, groupName, List<Master> masterData, int controllerId, int categoryId, int masterIndex, int siteIndex) {
+  Widget mainScreen(int index, groupId, groupName, List<Master> masterData, int controllerId, int categoryId, int masterIndex, int siteIndex, bool isChanged) {
     switch (index) {
       case 0:
         return categoryId==1 ?
         /*HomeView(customerId: customerId, controllerId: controllerId)*/
         CustomerHome(customerId: userId, controllerId: controllerId):
-        PumpControllerHome(
+        isChanged ? PumpControllerHome(
           deviceId: masterData[masterIndex].deviceId,
-          liveData: masterData[masterIndex].live!.cM,
+          liveData: masterData[masterIndex].live!.cM as PumpControllerData,
           masterName: groupName,
           userId: userId,
           customerId: customerId,
           controllerId: controllerId,
           siteIndex: siteIndex,
           masterIndex: masterIndex,
+        ) : const Scaffold(
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Please wait...'),
+                SizedBox(height: 10),
+                CircularProgressIndicator(),
+              ],
+            ),
+          ),
         );
       case 1:
         return CustomerProduct(customerId: userId);

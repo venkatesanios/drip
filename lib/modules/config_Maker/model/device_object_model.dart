@@ -41,7 +41,7 @@ class DeviceObjectModel {
       count: data['count'],
       connectedObject: data['connectedObject'],
       siteMode: data['siteMode'],
-      location: data['location'] ?? 0.00,
+      location: (data['location'] == 0 ? 0.0 : data['location']) ?? 0.00,
     );
   }
 

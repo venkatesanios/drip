@@ -43,7 +43,7 @@ class _MobileCustomCalendarState extends State<MobileCustomCalendar> {
         // boxShadow: AppProperties.customBoxShadowLiteTheme,
         color: Colors.white,
       ),
-      margin: const EdgeInsets.symmetric(horizontal: 10),
+      // margin: const EdgeInsets.symmetric(horizontal: 10),
       child: TableCalendar(
         focusedDay: _focusedDay,
         firstDay: DateTime.utc(2020, 10, 16),

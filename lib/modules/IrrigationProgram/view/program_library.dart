@@ -62,7 +62,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
     // overAllUse = Provider.of<OverAllUse>(context, listen: false);
     irrigationProgramMainProvider = Provider.of<IrrigationProgramMainProvider>(context, listen: false);
     // MqttService().topicToSubscribe('${Environment.mqttSubscribeTopic}/${widget.deviceId}');
-    irrigationProgramMainProvider.programLibraryData(widget.customerId, kIsWeb ? widget.controllerId : context.read<OverAllUse>().controllerId);
+    irrigationProgramMainProvider.programLibraryData(widget.customerId,  widget.controllerId);
     // print("init state called");
     super.initState();
   }
@@ -95,7 +95,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
       ) : PreferredSize(preferredSize: const Size(0, 0), child: Container()),
       body: irrigationProgramMainProvider.programLibrary != null ?
       RefreshIndicator(
-        onRefresh: () => irrigationProgramMainProvider.programLibraryData(kIsWeb ? widget.userId : context.read<OverAllUse>().userId, kIsWeb ? widget.controllerId : context.read<OverAllUse>().controllerId),
+        onRefresh: () => irrigationProgramMainProvider.programLibraryData( widget.userId,  widget.controllerId),
         child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
             double cardSize = 0.0;
@@ -235,17 +235,17 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => IrrigationProgram(
-                                  userId: kIsWeb ? widget.userId : context.read<OverAllUse>().userId,
-                                  controllerId: kIsWeb ? widget.controllerId : context.read<OverAllUse>().controllerId,
+                                  userId:  widget.userId,
+                                  controllerId:  widget.controllerId,
                                   serialNumber: programProvider.programLibrary!.program.any((element) => element.programName.isEmpty)
                                       ? programProvider.programLibrary!.program.firstWhere((element) => element.programName.isEmpty).serialNumber : 0,
                                   conditionsLibraryIsNotEmpty: programProvider.conditionsLibraryIsNotEmpty,
                                   programType: irrigationProgramMainProvider.selectedProgramType, deviceId: widget.deviceId,
                                   fromDealer: false,
                                   // fromDealer: overAllUse.fromDealer,
-                                  customerId: kIsWeb ? widget.customerId : context.read<OverAllUse>().customerId,
-                                  groupId: kIsWeb ? widget.groupId : context.read<OverAllUse>().userGroupId,
-                                  categoryId: kIsWeb ? widget.categoryId : context.read<OverAllUse>().controllerType,
+                                  customerId:  widget.customerId,
+                                  groupId:  widget.groupId,
+                                  categoryId:  widget.categoryId,
                                   modelId: widget.modelId,
                                   deviceName: widget.deviceName,
                                   categoryName: widget.categoryName,
@@ -258,18 +258,18 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => IrrigationProgram(
-                                  userId: kIsWeb ? widget.userId : context.read<OverAllUse>().userId,
-                                  controllerId: kIsWeb ? widget.controllerId : context.read<OverAllUse>().controllerId,
+                                  userId:  widget.userId,
+                                  controllerId:  widget.controllerId,
                                   serialNumber: programProvider.programLibrary!.program.any((element) => element.programName.isEmpty)
                                       ? programProvider.programLibrary!.program.firstWhere((element) => element.programName.isEmpty).serialNumber : 0,
                                   conditionsLibraryIsNotEmpty: programProvider.conditionsLibraryIsNotEmpty,
                                   programType: irrigationProgramMainProvider.selectedProgramType,
-                                  deviceId: kIsWeb ? widget.deviceId : context.read<OverAllUse>().deviceId,
+                                  deviceId:  widget.deviceId,
                                   fromDealer: false,
                                   // fromDealer: overAllUse.fromDealer,
-                                  customerId: kIsWeb ? widget.customerId : context.read<OverAllUse>().customerId,
-                                  groupId: kIsWeb ? widget.groupId : context.read<OverAllUse>().userGroupId,
-                                  categoryId: kIsWeb ? widget.categoryId : context.read<OverAllUse>().controllerType,
+                                  customerId:  widget.customerId,
+                                  groupId:  widget.groupId,
+                                  categoryId:  widget.categoryId,
                                   modelId: widget.modelId,
                                   deviceName: widget.deviceName,
                                   categoryName: widget.categoryName,
@@ -459,7 +459,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                               });
                               // await saveProgramDetails(programItem, dataToMqtt);
                               await Future.delayed(const Duration(seconds: 1), () async{
-                                await irrigationProgramMainProvider.programLibraryData(widget.customerId, kIsWeb ? widget.controllerId : context.read<OverAllUse>().controllerId);
+                                await irrigationProgramMainProvider.programLibraryData(widget.customerId,  widget.controllerId);
                               });
                             } catch (error) {
                               showSnackBar(message: 'Failed to update because of $error', context: context);
@@ -752,10 +752,10 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
 
   void createCopyOfProgram({required int oldSerialNumber, required int serialNumber, required String programName, required String defaultProgramName, required String programType}) {
     irrigationProgramMainProvider
-        .userProgramCopy(kIsWeb ? widget.userId : context.read<OverAllUse>().userId, kIsWeb ? widget.controllerId : context.read<OverAllUse>().controllerId, oldSerialNumber, serialNumber, programName, defaultProgramName, programType)
+        .userProgramCopy( widget.userId,  widget.controllerId, oldSerialNumber, serialNumber, programName, defaultProgramName, programType)
         .then((String message) {
       ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: message));
-    }).then((value) => irrigationProgramMainProvider.programLibraryData(kIsWeb ? widget.userId : context.read<OverAllUse>().userId, kIsWeb ? widget.controllerId : context.read<OverAllUse>().controllerId)
+    }).then((value) => irrigationProgramMainProvider.programLibraryData( widget.userId,  widget.controllerId)
         .catchError((error) {
       ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: error));
     }));
@@ -810,7 +810,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                         });
                         // await saveProgramDetails(program, dataToMqtt);
                         await Future.delayed(const Duration(seconds: 1), () async{
-                          await irrigationProgramMainProvider.programLibraryData(kIsWeb ? widget.userId : context.read<OverAllUse>().userId, kIsWeb ? widget.controllerId : context.read<OverAllUse>().controllerId,);
+                          await irrigationProgramMainProvider.programLibraryData( widget.userId,  widget.controllerId,);
                         });
                         if(toMove != "inactive") {
                           if(irrigationProgramMainProvider.programLibrary!.program.any((element) => element.programName.isNotEmpty)) {
@@ -838,14 +838,14 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
   void deleteProgram(Program program, String active) {
     irrigationProgramMainProvider
         .userProgramReset(
-        kIsWeb ? widget.userId : context.read<OverAllUse>().userId,
-        kIsWeb ? widget.controllerId : context.read<OverAllUse>().controllerId,
+         widget.userId,
+         widget.controllerId,
         program.programId,
         widget.deviceId,
         program.serialNumber, program.defaultProgramName, program.programName, active, controllerReadStatus)
         .then((String message) {
       ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: message));
-    }).then((value) => irrigationProgramMainProvider.programLibraryData(kIsWeb ? widget.userId : context.read<OverAllUse>().userId, kIsWeb ? widget.controllerId : context.read<OverAllUse>().controllerId)
+    }).then((value) => irrigationProgramMainProvider.programLibraryData( widget.userId,  widget.controllerId)
         .catchError((error) {
       ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: error));
     }));
@@ -951,7 +951,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                             });
                             await saveProgramDetails(program, dataToMqtt);
                             await Future.delayed(const Duration(seconds: 2), () async{
-                              await irrigationProgramMainProvider.programLibraryData(widget.customerId, kIsWeb ? widget.controllerId : context.read<OverAllUse>().controllerId);
+                              await irrigationProgramMainProvider.programLibraryData(widget.customerId,  widget.controllerId);
                             });
                           } catch (error) {
                             showSnackBar(message: 'Failed to update because of $error', context: dialogContext);
@@ -971,8 +971,8 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
   Future<void> saveProgramDetails(Program program, hardwareData) async{
     irrigationProgramMainProvider
         .updateUserProgramDetails(
-        kIsWeb ? widget.userId : context.read<OverAllUse>().userId,
-        kIsWeb ? widget.controllerId : context.read<OverAllUse>().controllerId,
+         widget.userId,
+         widget.controllerId,
         program.serialNumber,
         program.programId,
         program.programName,
@@ -988,17 +988,17 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
       context,
       MaterialPageRoute(
         builder: (context) => IrrigationProgram(
-          userId: kIsWeb ? widget.userId : context.read<OverAllUse>().userId,
-          controllerId: kIsWeb ? widget.controllerId : context.read<OverAllUse>().controllerId,
+          userId:  widget.userId,
+          controllerId:  widget.controllerId,
           serialNumber: program.serialNumber,
           programType: program.programType,
           conditionsLibraryIsNotEmpty: irrigationProgramMainProvider.conditionsLibraryIsNotEmpty,
-          deviceId: kIsWeb ? widget.deviceId : context.read<OverAllUse>().deviceId,
+          deviceId:  widget.deviceId,
           fromDealer: false,
           // fromDealer: overAllUse.fromDealer,
-          customerId: kIsWeb ? widget.customerId : context.read<OverAllUse>().customerId,
-          groupId: kIsWeb ? widget.groupId : context.read<OverAllUse>().userGroupId,
-          categoryId: kIsWeb ? widget.categoryId : context.read<OverAllUse>().controllerType,
+          customerId:  widget.customerId,
+          groupId:  widget.groupId,
+          categoryId:  widget.categoryId,
           modelId: widget.modelId,
           deviceName: widget.deviceName,
           categoryName: widget.categoryName,
