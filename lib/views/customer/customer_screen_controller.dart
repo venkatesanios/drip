@@ -11,6 +11,8 @@ import 'package:oro_drip_irrigation/views/customer/stand_alone.dart';
 import '../../Models/customer/site_model.dart';
 import 'package:provider/provider.dart';
 import '../../Screens/Dealer/controllerverssionupdate.dart';
+import '../../Screens/Map/CustomerMap.dart';
+import '../../Screens/Map/allAreaBoundry.dart';
 import '../../Screens/planning/FactoryReset.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../flavors.dart';
@@ -915,6 +917,14 @@ class CustomerScreenController extends StatelessWidget {
         selectedIcon: Icon(Icons.map_outlined, color: Colors.white),
         label: Text(''),
       ),
+      const NavigationRailDestination(
+        icon: Tooltip(
+          message: 'Area',
+          child: Icon(Icons.map),
+        ),
+        selectedIcon: Icon(Icons.map, color: Colors.white),
+        label: Text(''),
+      ),
     ];
 
     return destinations;
@@ -957,7 +967,9 @@ class CustomerScreenController extends StatelessWidget {
       case 7:
         return WeatherScreen(userId: userId, controllerId: controllerId, deviceID: masterData[masterIndex].deviceId,);
       case 8:
-        return DeviceListScreen(userId: userId, customerId: customerId, controllerId: controllerId, imeiNo: masterData[masterIndex].deviceId);
+        return MapScreenall(userId: userId, customerId: customerId, controllerId: controllerId, imeiNo: masterData[masterIndex].deviceId);
+      case 9:
+        return MapScreenAllArea(userId: userId, customerId: customerId, controllerId: controllerId, imeiNo: masterData[masterIndex].deviceId);
       default:
         return const SizedBox();
     }

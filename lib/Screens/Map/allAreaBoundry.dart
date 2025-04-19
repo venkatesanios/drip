@@ -1,9 +1,22 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:oro_drip_irrigation/Screens/Map/MapAreaModel.dart';
 
+import '../../repository/repository.dart';
+import '../../services/http_service.dart';
+import 'areaboundry.dart';
+
 class MapScreenAllArea extends StatefulWidget {
-  const MapScreenAllArea({super.key});
+  const MapScreenAllArea({Key? key,
+      required this.userId,
+  required this.customerId,
+  required this.controllerId,
+  required this.imeiNo})
+: super(key: key);
+final int userId, customerId, controllerId;
+final String imeiNo;
 
   @override
   State<MapScreenAllArea> createState() => _MapScreenAllAreaState();
@@ -36,116 +49,44 @@ class _MapScreenAllAreaState extends State<MapScreenAllArea> {
   @override
   void initState() {
     super.initState();
-    _loadValvesFromJsonString();
+    fetchData();
   }
 
-  Future<void> _loadValvesFromJsonString() async {
-    const jsonString = '''
-    {
-      "controllerId": 23,
-      "deviceId": "2CCF6773D07D",
-      "mapobject": [
-          {
-              "objectId": 13,
-              "sNo": 13.001,
-              "name": "V 1",
-              "objectName": "Valve",
-              "areas": [{"latitude":11.138618620608188,"longitude":76.97570962076003},{"latitude":11.138665990905126,"longitude":76.97593492631728},{"latitude":11.138496247305406,"longitude":76.97597918276603},{"latitude":11.138484404724977,"longitude":76.97579276923949}],
-              "status": 1
-          },
-          {
-              "objectId": 13,
-              "sNo": 13.002,
-              "name": "V 2",
-              "objectName": "Valve",
-              "areas": [
-        {
-            "latitude": 11.138431771028399,
-            "longitude": 76.97575521831328
-        },
-        {
-            "latitude": 11.138496247305406,
-            "longitude": 76.97596711282546
-        },
-        {
-            "latitude": 11.138376505636742,
-            "longitude": 76.97601405148322
-        },
-        {
-            "latitude": 11.13833853286429,
-            "longitude": 76.97577774524689
-        }
-    ],
-              "status": 1
-          },
-          {
-              "objectId": 13,
-              "sNo": 13.003,
-              "name": "V 3",
-              "objectName": "Valve",
-              "areas": [
-        {
-            "latitude": 11.138234581252254,
-            "longitude": 76.97579068061066
-        },
-        {
-            "latitude": 11.13827274070908,
-            "longitude": 76.97600793954086
-        },
-        {
-            "latitude": 11.13820036932119,
-            "longitude": 76.97607633587074
-        },
-        {
-            "latitude": 11.138130629603094,
-            "longitude": 76.97579604502869
-        }
-    ],
-              "status": 0
-          }
-      ],
-      "liveMessage": {
-          "cC": "2CCF6773D07D",
-          "cM": {
-              "2401": "1,19.0,12.4,1,2025-04-17 12:58:49.428749;2,0.0,0.0,1,2025-04-17 12:58:00.174468;3,19.0,6.5,1,2025-04-17 12:58:51.398794;4,19.0,8.0,3,2025-04-17 12:54:58.021312;5,38.0,8.1,1,2025-04-17 12:58:50.611901;6,0.0,100.0,1,2025-04-17 12:58:51.045949",
-              "2402": "5.001,3;5.002,2;5.003,0;7.001,0;7.002,0;10.001,0;10.002,0;10.003,0;10.004,0;11.001,0;11.002,0;13.001,0;13.002,0;13.003,0;13.004,1;13.005,1;13.006,1;13.007,0;13.008,0;13.009,0;13.01,0;13.011,0;13.012,0;13.013,0;13.014,0;13.015,0;13.016,0;5.004,0",
-              "2403": "24.001,0.00,0;24.002,0.00,0;24.003,0.00,0;24.004,0.00,0;22.001,11.02,879877;23.001,0,0",
-              "2404": "5.001,0,0,0,0,228_230_234,1:0.0_2:0.0,00:00:00;5.002,0,0,0,0,228_230_234,3:0.0,00:00:00;5.003,0,0,00:00:00,0,239.0_233.0_234.0,1:0.0_2:0.0,00:00:00;5.004,0,0,00:00:00,0,239.0_233.0_234.0,3:0.0,00:00:00",
-              "2405": "2.001,0;2.002,0",
-              "2406": "4.001,0,00:02:00,0.0;4.002,0,00:02:00,0.0",
-              "2407": "",
-              "2408": "1,1.2,2,3000.0,600.0,0,0,0,0,3,2,12:54:32,00:00:00,None,2.001,2,11.02,1,220",
-              "2409": "1,1.3,2,3000,2.001,2025-04-17,23:59:59,3",
-              "2410": "1,2.001,3,2025-04-17,12:54:32,2025-04-17,60,2,30,1,0,2;2,2.002,3,-,-,2025-04-17,75,4,30,0,1,2;3,2.001_2.002,4,2025-04-17,11:13:19,2025-04-22,91,1,16,0,-1,3",
-              "2411": "",
-              "2412": "",
-              "WifiStrength": 100,
-              "Version": "1.1.0:079",
-              "PowerSupply": 1
-          },
-          "cD": "2025-04-17",
-          "cT": "12:58:52",
-          "mC": "2400"
+
+  Future<void> fetchData() async {
+    print('fetchData');
+    try{
+      final Repository repository = Repository(HttpService());
+      var getUserDetails = await repository.getgeographyArea({
+        "userId": widget.userId,
+        "controllerId" : widget.controllerId
+      });
+      print('getUserDetails${getUserDetails.body.runtimeType}');
+      // final jsonData = jsonDecode(getUserDetails.body);
+      if (getUserDetails.statusCode == 200) {
+        setState(() {
+          var jsonData = getUserDetails.body;
+          print('jsonData${jsonData.runtimeType}');
+
+          final mapAreaModel = valveResponseModelFromJson(jsonData);
+          setState(() {
+            _valves = {
+              for (var mapobject in mapAreaModel.data?.valveGeographyArea ?? [])
+                mapobject.name!: Valve.fromMapobject(mapobject, mapAreaModel.data?.liveMessage)
+            };
+            _updatePolygons();
+          });
+         });
+      } else {
+        //_showSnackBar(response.body);
       }
     }
-    ''';
-
-    try {
-      final mapAreaModel = mapAreaModelFromJson(jsonString);
-      setState(() {
-        _valves = {
-          for (var mapobject in mapAreaModel.mapobject ?? [])
-            mapobject.name!: Valve.fromMapobject(mapobject, mapAreaModel.liveMessage)
-        };
-        _updatePolygons();
-      });
-    } catch (e) {
-      print('Error parsing JSON: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to load valve data')),
-      );
+    catch (e, stackTrace) {
+       print(' Error overAll getData => ${e.toString()}');
+      print(' trace overAll getData  => ${stackTrace}');
     }
   }
+
 
 
   void _updatePolygons() {
@@ -230,6 +171,14 @@ class _MapScreenAllAreaState extends State<MapScreenAllArea> {
             icon: const Icon(Icons.zoom_out_map),
             onPressed: _zoomToValves,
           ),
+          IconButton(
+            icon: const Icon(Icons.edit_location_alt),
+            onPressed: (){
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => MapScreenArea(userId: widget.userId, customerId: widget.customerId, controllerId: widget.controllerId, imeiNo: widget.imeiNo,),
+              ));
+            },
+          ),
         ],
       ),
       body: GoogleMap(
@@ -240,6 +189,7 @@ class _MapScreenAllAreaState extends State<MapScreenAllArea> {
             _zoomToValves();
           }
         },
+        mapType: MapType.hybrid,
         polygons: _polygons,
         markers: _markers,
       ),

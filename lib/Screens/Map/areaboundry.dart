@@ -4,10 +4,20 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:oro_drip_irrigation/Screens/Map/MapAreaModel.dart';
 
+import '../../repository/repository.dart';
+import '../../services/http_service.dart';
+
 
 // MapScreenArea widget
 class MapScreenArea extends StatefulWidget {
-  const MapScreenArea({super.key});
+  const MapScreenArea({Key? key,
+    required this.userId,
+    required this.customerId,
+    required this.controllerId,
+    required this.imeiNo})
+      : super(key: key);
+  final int userId, customerId, controllerId;
+  final String imeiNo;
 
   @override
   State<MapScreenArea> createState() => _MapScreenAreaState();
@@ -25,125 +35,46 @@ class _MapScreenAreaState extends State<MapScreenArea> {
   Map<String, Valve> _valves = {};
   Valve? selectedValve;
 
+  ValveResponseModel _valveResponseModel = ValveResponseModel();
+
+
   @override
   void initState() {
     super.initState();
-    _loadSavedAreas();
-  }
+    fetchData();
+   }
 
-  Future<void> _loadSavedAreas() async {
-    await _loadValvesFromJsonString();
-
-    final prefs = await SharedPreferences.getInstance();
-    final savedAreas = prefs.getString('saved_areas') ?? '{}';
-    try {
-      final decoded = jsonDecode(savedAreas) as Map<String, dynamic>;
-      if (decoded.isNotEmpty && _valves.isEmpty) {
-        setState(() {
-          _valves = decoded.map((key, value) {
-            final valve = Valve.fromJson(value);
-            return MapEntry(valve.name, valve);
-          });
-          _updatePolygons();
-        });
-      }
-    } catch (e) {
-      print('Error loading saved areas: $e');
-    }
-    if (_valves.isNotEmpty) {
-      _zoomToValves();
-    }
-  }
-
-  Future<void> _loadValvesFromJsonString() async {
-    const jsonString = '''
-    {
-      "controllerId": 23,
-      "deviceId": "2CCF6773D07D",
-      "mapobject": [
-          {
-              "objectId": 13,
-              "sNo": 13.001,
-              "name": "V 1",
-              "objectName": "Valve",
-              "areas": [
-                  {
-                      "latitude": 11.138073534888953,
-                      "longitude": 76.97587885707556
-                  },
-                  {
-                      "latitude": 11.137536669979172,
-                      "longitude": 76.97601833194433
-                  },
-                  {
-                      "latitude": 11.13769457152603,
-                      "longitude": 76.97645821422277
-                  },
-                  {
-                      "latitude": 11.138220909396832,
-                      "longitude": 76.97634019702612
-                  }
-              ],
-              "status": 1
-          },
-          {
-              "objectId": 13,
-              "sNo": 13.002,
-              "name": "V 2",
-              "objectName": "Valve",
-              "areas": [],
-              "status": 1
-          },
-          {
-              "objectId": 13,
-              "sNo": 13.003,
-              "name": "V 3",
-              "objectName": "Valve",
-              "areas": [],
-              "status": 0
-          }
-      ],
-      "liveMessage": {
-          "cC": "2CCF6773D07D",
-          "cM": {
-              "2401": "1,19.0,12.4,1,2025-04-17 12:58:49.428749;2,0.0,0.0,1,2025-04-17 12:58:00.174468;3,19.0,6.5,1,2025-04-17 12:58:51.398794;4,19.0,8.0,3,2025-04-17 12:54:58.021312;5,38.0,8.1,1,2025-04-17 12:58:50.611901;6,0.0,100.0,1,2025-04-17 12:58:51.045949",
-              "2402": "5.001,3;5.002,2;5.003,0;7.001,0;7.002,0;10.001,0;10.002,0;10.003,0;10.004,0;11.001,0;11.002,0;13.001,0;13.002,0;13.003,0;13.004,1;13.005,1;13.006,1;13.007,0;13.008,0;13.009,0;13.01,0;13.011,0;13.012,0;13.013,0;13.014,0;13.015,0;13.016,0;5.004,0",
-              "2403": "24.001,0.00,0;24.002,0.00,0;24.003,0.00,0;24.004,0.00,0;22.001,11.02,879877;23.001,0,0",
-              "2404": "5.001,0,0,0,0,228_230_234,1:0.0_2:0.0,00:00:00;5.002,0,0,0,0,228_230_234,3:0.0,00:00:00;5.003,0,0,00:00:00,0,239.0_233.0_234.0,1:0.0_2:0.0,00:00:00;5.004,0,0,00:00:00,0,239.0_233.0_234.0,3:0.0,00:00:00",
-              "2405": "2.001,0;2.002,0",
-              "2406": "4.001,0,00:02:00,0.0;4.002,0,00:02:00,0.0",
-              "2407": "",
-              "2408": "1,1.2,2,3000.0,600.0,0,0,0,0,3,2,12:54:32,00:00:00,None,2.001,2,11.02,1,220",
-              "2409": "1,1.3,2,3000,2.001,2025-04-17,23:59:59,3",
-              "2410": "1,2.001,3,2025-04-17,12:54:32,2025-04-17,60,2,30,1,0,2;2,2.002,3,-,-,2025-04-17,75,4,30,0,1,2;3,2.001_2.002,4,2025-04-17,11:13:19,2025-04-22,91,1,16,0,-1,3",
-              "2411": "",
-              "2412": "",
-              "WifiStrength": 100,
-              "Version": "1.1.0:079",
-              "PowerSupply": 1
-          },
-          "cD": "2025-04-17",
-          "cT": "12:58:52",
-          "mC": "2400"
-      }
-    }
-    ''';
-
-    try {
-      final mapAreaModel = mapAreaModelFromJson(jsonString);
-      setState(() {
-        _valves = {
-          for (var mapobject in mapAreaModel.mapobject ?? [])
-            mapobject.name!: Valve.fromMapobject(mapobject, mapAreaModel.liveMessage)
-        };
-        _updatePolygons();
+  Future<void> fetchData() async {
+    print('fetchData');
+    try{
+      final Repository repository = Repository(HttpService());
+      var getUserDetails = await repository.getgeographyArea({
+        "userId": widget.userId,
+        "controllerId" : widget.controllerId
       });
-      await _saveAreas();
-    } catch (e) {
-      print('Error parsing JSON: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to load valve data')),
-      );
+      print('getUserDetails${getUserDetails.body.runtimeType}');
+      // final jsonData = jsonDecode(getUserDetails.body);
+      if (getUserDetails.statusCode == 200) {
+        setState(() {
+          var jsonData = getUserDetails.body;
+          print('jsonData${jsonData.runtimeType}');
+
+          _valveResponseModel = valveResponseModelFromJson(jsonData);
+          setState(() {
+            _valves = {
+              for (var mapobject in _valveResponseModel.data?.valveGeographyArea ?? [])
+                mapobject.name!: Valve.fromMapobject(mapobject, _valveResponseModel.data?.liveMessage)
+            };
+            _updatePolygons();
+          });
+        });
+      } else {
+        //_showSnackBar(response.body);
+      }
+    }
+    catch (e, stackTrace) {
+      print(' Error overAll getData => ${e.toString()}');
+      print(' trace overAll getData  => ${stackTrace}');
     }
   }
 
@@ -162,13 +93,44 @@ class _MapScreenAreaState extends State<MapScreenArea> {
     });
   }
 
+  List<Map<String, dynamic>> convertValvesToJson() {
+    List<Valve> valveList = _valves.values.toList();
+    List<Map<String, dynamic>> jsonList = valveList.map((v) => v.toJson()).toList();
+    return jsonList;
+  }
   Future<void> _sendSelectedValveToServer() async {
-    if (selectedValve != null) {
-      final body = jsonEncode(selectedValve!.toJson());
-      print('Sending valve data: $body');
-      // Implement HTTP request here
+    try {
+
+      List<Map<String, dynamic>> jsondata = convertValvesToJson();
+      print('\n json: $jsondata');
+
+
+      Map<String, dynamic> body = {
+        "userId": widget.userId,
+        "controllerId" : widget.controllerId,
+        "valveGeographyArea" : jsondata,
+        "modifyUser" : widget.userId
+      };
+      print('\n body:$body');
+
+        final Repository repository = Repository(HttpService());
+         final response = await repository.updategeographyArea(body);
+        if (response.statusCode != 200) {
+          print('Failed to send valve : ${response.body}');
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('All valves sent successfully!')),
+      );
+    } catch (e) {
+      print('Error sending valves: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to send valves')),
+      );
     }
   }
+
+
 
   void _updatePolygons() {
     setState(() {
@@ -331,6 +293,7 @@ class _MapScreenAreaState extends State<MapScreenArea> {
                   _zoomToValves();
                 }
               },
+              mapType: MapType.hybrid,
               markers: _markers,
               polygons: _polygons,
               onTap: _onMapTapped,

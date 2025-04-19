@@ -1,47 +1,62 @@
 import 'dart:convert';
-
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-MapAreaModel mapAreaModelFromJson(String str) => MapAreaModel.fromJson(json.decode(str));
+/// Parse main response from JSON
+ValveResponseModel valveResponseModelFromJson(String str) =>
+    ValveResponseModel.fromJson(json.decode(str));
 
-String mapAreaModelToJson(MapAreaModel data) => json.encode(data.toJson());
+ class ValveResponseModel {
+  int? code;
+  String? message;
+  ValveData? data;
 
-class MapAreaModel {
-  int? controllerId;
-  String? deviceId;
-  List<Mapobject>? mapobject;
+  ValveResponseModel({
+    this.code,
+    this.message,
+    this.data,
+  });
+
+  factory ValveResponseModel.fromJson(Map<String, dynamic> json) =>
+      ValveResponseModel(
+        code: json["code"],
+        message: json["message"],
+        data:
+        json["data"] != null ? ValveData.fromJson(json["data"]) : null,
+      );
+}
+
+ class ValveData {
+  List<Mapobject>? valveGeographyArea;
   Map<String, dynamic>? liveMessage;
 
-  MapAreaModel({
-    this.controllerId,
-    this.deviceId,
-    this.mapobject,
+  ValveData({
+    this.valveGeographyArea,
     this.liveMessage,
   });
 
-  factory MapAreaModel.fromJson(Map<String, dynamic> json) => MapAreaModel(
-    controllerId: json["controllerId"],
-    deviceId: json["deviceId"],
-    mapobject: json["mapobject"] == null
+  factory ValveData.fromJson(Map<String, dynamic> json) => ValveData(
+    valveGeographyArea: json["valveGeographyArea"] == null
         ? []
-        : List<Mapobject>.from(json["mapobject"]!.map((x) => Mapobject.fromJson(x))),
+        : List<Mapobject>.from(
+        json["valveGeographyArea"]
+            .map((x) => Mapobject.fromJson(x))),
     liveMessage: json["liveMessage"],
   );
 
   Map<String, dynamic> toJson() => {
-    "controllerId": controllerId,
-    "deviceId": deviceId,
-    "mapobject": mapobject == null ? [] : List<dynamic>.from(mapobject!.map((x) => x.toJson())),
-    "liveMessage": liveMessage,
+    "valveGeographyArea": valveGeographyArea == null
+        ? []
+        : List<dynamic>.from(valveGeographyArea!.map((x) => x.toJson())),
+    "liveMessage": liveMessage ?? {},
   };
 }
 
-class Mapobject {
+ class Mapobject {
   int? objectId;
   double? sNo;
   String? name;
   String? objectName;
-  List<Area>? areas;
+  List<Area>? area;
   int? status;
 
   Mapobject({
@@ -49,7 +64,7 @@ class Mapobject {
     this.sNo,
     this.name,
     this.objectName,
-    this.areas,
+    this.area,
     this.status,
   });
 
@@ -58,8 +73,11 @@ class Mapobject {
     sNo: json["sNo"]?.toDouble(),
     name: json["name"],
     objectName: json["objectName"],
-    areas: json["areas"] == null ? [] : List<Area>.from(json["areas"]!.map((x) => Area.fromJson(x))),
-    status: json["status"], // Note: We'll override this with getValueOfStatus
+    area: json["area"] == null
+        ? []
+        : List<Area>.from(
+        json["area"].map((x) => Area.fromJson(x))),
+    status: json["status"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -67,12 +85,14 @@ class Mapobject {
     "sNo": sNo,
     "name": name,
     "objectName": objectName,
-    "areas": areas == null ? [] : List<dynamic>.from(areas!.map((x) => x.toJson())),
+    "area": area == null
+        ? []
+        : List<dynamic>.from(area!.map((x) => x.toJson())),
     "status": status,
   };
 }
 
-class Area {
+ class Area {
   double? latitude;
   double? longitude;
 
@@ -92,8 +112,68 @@ class Area {
   };
 }
 
-// Corrected getValueOfStatus function
-int getValueOfStatus(String serialNumber, Map<String, dynamic>? liveMessage) {
+ class Valve {
+  final String name;
+  final List<LatLng> area;
+  int status;
+  final int objectId;
+  final double sNo;
+  final String objectName;
+
+  Valve({
+    required this.name,
+    required this.area,
+    required this.status,
+    required this.objectId,
+    required this.sNo,
+    required this.objectName,
+  });
+
+  factory Valve.fromMapobject(
+      Mapobject mapobject, Map<String, dynamic>? liveMessage) {
+    return Valve(
+      name: mapobject.name ?? '',
+      area: mapobject.area
+          ?.map((a) => LatLng(a.latitude ?? 0.0, a.longitude ?? 0.0))
+          .toList() ??
+          [],
+      status: getValueOfStatus(mapobject.sNo?.toString() ?? '', liveMessage),
+      objectId: mapobject.objectId ?? 0,
+      sNo: mapobject.sNo ?? 0.0,
+      objectName: mapobject.objectName ?? '',
+    );
+  }
+
+  void updateStatus(int newStatus) {
+    status = newStatus;
+  }
+
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'area': area
+        .map((point) => {
+      'latitude': point.latitude,
+      'longitude': point.longitude,
+    })
+        .toList(),
+    'status': status,
+    'objectId': objectId,
+    'sNo': sNo,
+    'objectName': objectName,
+  };
+
+  factory Valve.fromJson(Map<String, dynamic> json) => Valve(
+    name: json['name'],
+    area: List<LatLng>.from((json['area'] as List).map(
+            (point) => LatLng(point['latitude'], point['longitude']))),
+    status: json['status'],
+    objectId: json['objectId'],
+    sNo: json['sNo'].toDouble(),
+    objectName: json['objectName'],
+  );
+}
+
+ int getValueOfStatus(String serialNumber, Map<String, dynamic>? liveMessage) {
   try {
     if (liveMessage == null || liveMessage['cM'] == null) {
       return 0;
@@ -118,66 +198,5 @@ int getValueOfStatus(String serialNumber, Map<String, dynamic>? liveMessage) {
   } catch (e) {
     print('Error parsing status for $serialNumber: $e');
     return 0;
-  }
-}
-
-// Valve class for map rendering
-class Valve {
-  final String name;
-  final List<LatLng> area;
-  int status;
-  final int objectId;
-  final double sNo;
-  final String objectName;
-
-  Valve({
-    required this.name,
-    required this.area,
-    required this.status,
-    required this.objectId,
-    required this.sNo,
-    required this.objectName,
-  });
-
-  factory Valve.fromMapobject(Mapobject mapobject, Map<String, dynamic>? liveMessage) {
-    return Valve(
-      name: mapobject.name ?? '',
-      area: mapobject.areas?.map((area) => LatLng(area.latitude ?? 0.0, area.longitude ?? 0.0)).toList() ?? [],
-      status: getValueOfStatus(mapobject.sNo?.toString() ?? '', liveMessage),
-      objectId: mapobject.objectId ?? 0,
-      sNo: mapobject.sNo ?? 0.0,
-      objectName: mapobject.objectName ?? '',
-    );
-  }
-
-  void updateStatus(int newStatus) {
-    status = newStatus;
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'areas': area.map((point) => {
-        'latitude': point.latitude,
-        'longitude': point.longitude,
-      }).toList(),
-      'status': status,
-      'objectId': objectId,
-      'sNo': sNo,
-      'objectName': objectName,
-    };
-  }
-
-  factory Valve.fromJson(Map<String, dynamic> json) {
-    return Valve(
-      name: json['name'],
-      area: List<LatLng>.from(
-        (json['areas'] as List).map((point) => LatLng(point['latitude'], point['longitude'])),
-      ),
-      status: json['status'],
-      objectId: json['objectId'],
-      sNo: json['sNo'].toDouble(),
-      objectName: json['objectName'],
-    );
   }
 }

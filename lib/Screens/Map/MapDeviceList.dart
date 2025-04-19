@@ -49,8 +49,8 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
      try{
        final Repository repository = Repository(HttpService());
        var getUserDetails = await repository.getgeography({
-         "userId": 8,
-         "controllerId" : 23
+         "userId": widget.userId,
+         "controllerId" :  widget.controllerId
        });
        print('getUserDetails${getUserDetails.body}');
        // final jsonData = jsonDecode(getUserDetails.body);
@@ -86,7 +86,7 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
            );
          }
           return Scaffold(
-           appBar: AppBar(title: const Text('Map Device List'),automaticallyImplyLeading: false),
+           appBar: AppBar(title: const Text('Map Device List'),automaticallyImplyLeading: true),
            body: SingleChildScrollView(
              child: Padding(
                padding: const EdgeInsets.all(10.0),

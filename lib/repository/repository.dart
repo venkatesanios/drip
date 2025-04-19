@@ -402,5 +402,12 @@ class Repository{
   Future<http.Response> creategeography(body) async {
     return await apiService.postRequest('/user/geography/create', body);
   }
+  Future<http.Response> getgeographyArea(body) async {
+    return await apiService.postRequest('/user/deviceList/valveGeographyArea/get', body);
+  }
+  Future<http.Response> updategeographyArea(body) async {
+    return await apiService.putRequest('/user/deviceList/valveGeographyArea/update', body);
+  }
+
 }
 
