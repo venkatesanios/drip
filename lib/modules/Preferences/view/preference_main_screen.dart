@@ -1680,6 +1680,8 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
             case 1:
               if(settingCategory.type == 211 && preferenceProvider.mode != "Manual") {
                 value = setting.value.isEmpty ? "000" : setting.value;
+              } else {
+                value = setting.value.isEmpty ? "000" : setting.value;
               }
               break;
             case 2:

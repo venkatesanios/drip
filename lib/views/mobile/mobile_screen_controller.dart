@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../modules/IrrigationProgram/view/program_library.dart';
 import '../../modules/PumpController/model/pump_controller_data_model.dart';
+import '../../modules/PumpController/view/node_settings.dart';
 import '../../modules/PumpController/view/pump_controller_home.dart';
 import '../../modules/PumpController/view/set_serial.dart';
 import '../../repository/repository.dart';
@@ -111,13 +112,16 @@ class MobileScreenController extends StatelessWidget {
                         ),
                     ],
                   ),
-                if(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 2 && [48, 49].contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId))
+                if(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList.isNotEmpty && vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 2 && [48, 49].contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId))
                   IconButton(
                       onPressed: (){
                         showModalBottomSheet(
                             context: context,
                             builder: (context) {
-                              return SetSerialScreen(
+                              return NodeSettings(
+                                userId: userId,
+                                controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                                customerId: customerId,
                                 nodeList: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList,
                                 deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
                               );
@@ -628,7 +632,7 @@ class MobileScreenController extends StatelessWidget {
                     mainScreen(
                         navViewModel.selectedIndex,
                         vm.mySiteList.data[vm.sIndex].groupId,
-                        vm.mySiteList.data[vm.sIndex].groupName,
+                        vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceName,
                         vm.mySiteList.data[vm.sIndex].master,
                         vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
                         vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,

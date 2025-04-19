@@ -16,6 +16,7 @@ import '../../Screens/planning/FactoryReset.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../flavors.dart';
 import '../../modules/PumpController/model/pump_controller_data_model.dart';
+import '../../modules/PumpController/view/node_settings.dart';
 import '../../modules/ScheduleView/view/schedule_view_screen.dart';
 import '../../modules/PumpController/view/pump_controller_home.dart';
 import '../../repository/repository.dart';
@@ -436,6 +437,25 @@ class CustomerScreenController extends StatelessWidget {
                           child: Text(customerName.substring(0, 1).toUpperCase()),
                         )
                     ),
+
+                    if(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList.isNotEmpty && vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 2 && [48, 49].contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId))
+                      IconButton(
+                          onPressed: (){
+                            showModalBottomSheet(
+                                context: context,
+                                builder: (context) {
+                                  return NodeSettings(
+                                    userId: userId,
+                                    controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                                    customerId: customerId,
+                                    nodeList: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList,
+                                    deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                                  );
+                                }
+                            );
+                          },
+                          icon: const Icon(Icons.settings_remote)
+                      ),
                   ],),
                 const SizedBox(width: 05),
               ],

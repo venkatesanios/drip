@@ -338,6 +338,9 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                       PumpWithValves(
                         valveData: snapshot.data!.pumps.firstWhere((pump) => pump is PumpValveModel) as PumpValveModel,
                         dataFetchingStatus: snapshot.data!.dataFetchingStatus,
+                        userId: widget.userId,
+                        customerId: widget.customerId,
+                        controllerId: widget.controllerId,
                       ),
                     const SizedBox(height: 20,),
                   ],
