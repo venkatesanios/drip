@@ -122,30 +122,18 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     }
   }
 
-  bool isChanged = false;
-
-  void masterOnChanged(categoryName, model, index) async{
-   /* int masterIdx = mySiteList.data[sIndex].master.indexWhere((master)=>
-    master.categoryName == categoryName && master.modelName == model);*/
-
-    int masterIdx = int.parse(index);
-    if (masterIdx != -1 && mySiteList.data[sIndex].master.length > 1) {
-      mIndex = masterIdx;
+  void masterOnChanged(index){
+    if (mySiteList.data[sIndex].master.length > 1) {
+      mIndex = index;
       lIndex = 0;
       fromWhere='master';
-      updateMaster(sIndex, masterIdx, 0);
+      updateMaster(sIndex, index, 0);
       onSubscribeTopic();
     }
-    isChanged = false;
-    await Future.delayed(const Duration(seconds: 1));
-    isChanged = true;
-    notifyListeners();
   }
 
-  void lineOnChanged(lineName){
-    int lInx = mySiteList.data[sIndex].master[mIndex].config.lineData.indexWhere((line)
-    => line.name == lineName);
-    if (lInx != -1 && mySiteList.data[sIndex].master[mIndex].config.lineData.length > 1) {
+  void lineOnChanged(int lInx){
+    if (mySiteList.data[sIndex].master[mIndex].irrigationLine.length > 1) {
       lIndex = lInx;
       fromWhere='line';
       updateMasterLine(sIndex, mIndex, lInx);
@@ -164,7 +152,6 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
       updateMasterLine(sIdx, mIdx, lIdx);
       //displayServerData();
     }else{
-      // updateMasterLine(sIdx, mIdx, 0);
       //pump controller
       //MqttPayloadProvider payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
       //payloadProvider.updateLastSync('${mySiteList[siteIndex].master[masterIndex].liveSyncDate} ${mySiteList[siteIndex].master[masterIndex].liveSyncTime}');
@@ -173,8 +160,8 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   }
 
   void updateMasterLine(sIdx, mIdx, lIdx){
-    if(mySiteList.data[sIdx].master[mIdx].config.lineData.isNotEmpty){
-      myCurrentIrrLine = mySiteList.data[sIdx].master[mIdx].config.lineData[lIdx].name;
+    if(mySiteList.data[sIdx].master[mIdx].irrigationLine.isNotEmpty){
+      myCurrentIrrLine = mySiteList.data[sIdx].master[mIdx].irrigationLine[lIdx].name;
       notifyListeners();
     }
   }
@@ -210,7 +197,6 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
       if (mySiteList.data[sIndex].master[mIndex].categoryId == 1) {
         livePayload = jsonEncode({"3000": {"3001": ""}});
       } else {
-        if(attempts != 0) await Future.delayed(const Duration(seconds: 2));
         livePayload = jsonEncode({"sentSms": "#live"});
       }
 
@@ -286,8 +272,5 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     //selectedIndex = index;
     //notifyListeners();
   }
-
-
-
 
 }

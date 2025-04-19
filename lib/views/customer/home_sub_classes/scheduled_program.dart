@@ -126,7 +126,7 @@ class ScheduledProgram extends StatelessWidget {
                                 ),
                               ],
                             )),
-                            DataCell(Text(getSchedulingMethodName(filteredScheduleProgram[index].schedulingMethod))),
+                            DataCell(Text(filteredScheduleProgram[index].selectedSchedule, style: const TextStyle(fontSize: 11))),
                             DataCell(Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -325,9 +325,9 @@ class ScheduledProgram extends StatelessWidget {
                     width: 200,
                     padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 2),
                     decoration: BoxDecoration(
-                        color: Colors.yellow.shade200,
+                        color: Colors.yellow.shade100,
                         borderRadius: const BorderRadius.all(Radius.circular(2)),
-                        border: Border.all(width: 0.5, color: Colors.grey)
+                        border: Border.all(width: 0.5, color: Colors.black26)
                     ),
                     child: const Text('SCHEDULED PROGRAM',  style: TextStyle(color: Colors.black)),
                   ),
@@ -429,7 +429,7 @@ class ScheduledProgram extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              Text(getSchedulingMethodName(program.schedulingMethod)),
+                              Text(filteredScheduleProgram[index].selectedSchedule, style: const TextStyle(fontSize: 11)),
                               const SizedBox(height: 5,),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -619,18 +619,6 @@ class ScheduledProgram extends StatelessWidget {
     return formattedTime;
   }
 
-  String getSchedulingMethodName(int code) {
-    switch (code) {
-      case 1:
-        return 'No Schedule';
-      case 2:
-        return 'Schedule by days';
-      case 3:
-        return 'Schedule as run list';
-      default:
-        return 'Day count schedule';
-    }
-  }
 
   String getButtonName(int code) {
     const Map<int, String> codeDescriptionMap = {

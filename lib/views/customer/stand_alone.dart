@@ -9,12 +9,12 @@ import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 
 class StandAlone extends StatefulWidget {
-  const StandAlone({super.key, required this.customerId, required this.siteId, required this.controllerId, required this.userId, required this.deviceId, required this.callbackFunction, required this.config});
+  const StandAlone({super.key, required this.customerId, required this.siteId, required this.controllerId, required this.userId, required this.deviceId, required this.callbackFunction, required this.masterData});
 
   final int customerId, siteId, controllerId, userId;
   final String deviceId;
   final void Function(String msg) callbackFunction;
-  final Config config;
+  final MasterControllerModel masterData;
 
   @override
   State<StandAlone> createState() => _StandAloneState();
@@ -33,7 +33,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return   ChangeNotifierProvider(
-        create: (_) => StandAloneViewModel(Repository(HttpService()), widget.config, widget.userId, widget.customerId, widget.controllerId, widget.deviceId)
+        create: (_) => StandAloneViewModel(Repository(HttpService()), widget.masterData, widget.userId, widget.customerId, widget.controllerId, widget.deviceId)
           ..getProgramList(),
         child: Consumer<StandAloneViewModel>(
           builder: (context, viewModel, _) {
@@ -217,7 +217,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                   const Divider(height: 0),
                   Expanded(
                     child: SingleChildScrollView(
-                      child: displayLineOrSequence(widget.config, viewModel, viewModel.ddCurrentPosition),
+                      child: displayLineOrSequence(widget.masterData, viewModel, viewModel.ddCurrentPosition),
                     ),
                   ),
                   ListTile(
@@ -250,15 +250,42 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
     );
   }
 
-  Widget displayLineOrSequence(Config config, StandAloneViewModel vm, int ddPosition){
+  Widget displayLineOrSequence(MasterControllerModel masterData, StandAloneViewModel vm, int ddPosition){
+
+    final pumps = masterData.irrigationLine
+        .expand((line) => line.waterSources)
+        .expand((ws) => ws.pumpObjects ?? [])
+        .toList();
+
+    final allPumps = pumps.fold<Map<double, PumpModel>>({}, (map, pump) {
+      map[pump.sNo] = pump;
+      return map;
+    }).values.toList();
+
+    final filterSites = masterData.irrigationLine
+        .map((line) => line.centralFilterSite)
+        .whereType<FilterSiteModel>()
+        .toList();
+
+    final fertilizerSite = masterData.irrigationLine
+        .map((line) => line.centralFertilizerSite)
+        .whereType<FertilizerSiteModel>()
+        .toList();
+
+    final valveList = masterData.irrigationLine
+        .expand((line) => line.valveObjects ?? [])
+        .toList();
+
+
+
     return Column(
       children: [
-        config.pump.isNotEmpty ? Padding(
+        allPumps.isNotEmpty ? Padding(
           padding: const EdgeInsets.only(left: 8, right: 5, top: 8),
           child: Column(
             children: [
               SizedBox(
-                height: config.pump.length*40+48,
+                height: allPumps.length*40+48,
                 child: Card(
                   elevation: 1,
                   shape: RoundedRectangleBorder(
@@ -285,7 +312,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                         ),
                       ),
                       SizedBox(
-                        height: config.pump.length*40,
+                        height: allPumps.length*40,
                         child: DataTable2(
                           columnSpacing: 12,
                           horizontalMargin: 12,
@@ -309,20 +336,20 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                               fixedWidth: 70,
                             ),
                           ],
-                          rows: List<DataRow>.generate(config.pump.length, (index) => DataRow(cells: [
+                          rows: List<DataRow>.generate(allPumps.length, (index) => DataRow(cells: [
                             DataCell(Center(child: Image.asset('assets/png/dp_pump.png',width: 30, height: 30,))),
-                            DataCell(Text(config.pump[index].name, style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14))),
+                            DataCell(Text(allPumps[index].name, style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14))),
                             DataCell(Transform.scale(
                               scale: 0.7,
                               child: Tooltip(
-                                message: config.pump[index].selected? 'Close' : 'Open',
+                                message: allPumps[index].selected? 'Close' : 'Open',
                                 child: Switch(
                                   hoverColor: Colors.pink.shade100,
                                   activeColor: Colors.teal,
-                                  value: config.pump[index].selected,
+                                  value: allPumps[index].selected,
                                   onChanged: (value) {
                                     setState(() {
-                                      config.pump[index].selected = value;
+                                      allPumps[index].selected = value;
                                     });
                                   },
                                 ),
@@ -339,10 +366,11 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
           ),
         ):
         Container(),
-        config.filterSite.isNotEmpty? Padding(
+
+        filterSites.isNotEmpty? Padding(
           padding: const EdgeInsets.only(left: 8, right: 5, top: 8),
           child: Column(
-            children: config.filterSite.map((site) {
+            children: filterSites.map((site) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: SizedBox(
@@ -442,10 +470,11 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
           ),
         ):
         Container(),
-        config.fertilizerSite.isNotEmpty? Padding(
+
+        fertilizerSite.isNotEmpty? Padding(
           padding: const EdgeInsets.only(left: 8, right: 5, top: 8),
           child: Column(
-            children: config.fertilizerSite.map((site) {
+            children: fertilizerSite.map((site) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: SizedBox(
@@ -665,12 +694,13 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
           ),
         ):
         Container(),
+
         ddPosition==0? SizedBox(
-          height: getTotalHeight(),
+          height: valveList.length * 40,
           child: ListView.builder(
-            itemCount: widget.config.lineData.length,
+            itemCount: masterData.irrigationLine.length,
             itemBuilder: (context, index) {
-              IrrigationLineData line = widget.config.lineData[index];
+              IrrigationLineModel line = masterData.irrigationLine[index];
               if(line.name=='All irrigation line'){
                 return const SizedBox();
               }
@@ -722,6 +752,233 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                                                       }
                                                       line.selected = value;
                                                     });*/
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: (line.valveObjects.length * 40),
+                        width: MediaQuery.sizeOf(context).width,
+                        child:  DataTable2(
+                          columnSpacing: 12,
+                          horizontalMargin: 12,
+                          minWidth: 150,
+                          dataRowHeight: 40.0,
+                          headingRowHeight: 0,
+                          headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withOpacity(0.05)),
+                          columns: const [
+                            DataColumn2(
+                                label: Center(child: Text('', style: TextStyle(fontSize: 14),)),
+                                fixedWidth: 30
+                            ),
+                            DataColumn2(
+                                label: Text('Name',  style: TextStyle(fontSize: 14),),
+                                size: ColumnSize.M
+                            ),
+                            DataColumn2(
+                              label: Center(
+                                child: Text('Valve Status', textAlign: TextAlign.right,),
+                              ),
+                              fixedWidth: 70,
+                            ),
+                          ],
+                          rows: List<DataRow>.generate(line.valveObjects.length, (index) => DataRow(cells: [
+                            DataCell(Center(child: Image.asset('assets/png/valve_gray.png',width: 25, height: 25,))),
+                            DataCell(Text(line.valveObjects[index].name, style: const TextStyle(fontWeight: FontWeight.normal))),
+                            DataCell(Transform.scale(
+                              scale: 0.7,
+                              child: Tooltip(
+                                message: line.valveObjects[index].isOn? 'Close' : 'Open',
+                                child: Switch(
+                                  hoverColor: Colors.pink.shade100,
+                                  activeColor: Colors.teal,
+                                  value: line.valveObjects[index].isOn,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      line.valveObjects[index].isOn = value;
+                                    });
+                                  },
+                                ),
+                              ),
+                            )),
+                          ])),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ) :
+        SizedBox(
+          height: valveList.length * 40,
+          child: ListView.builder(
+            itemCount: vm.standAloneData.sequence.length,
+            itemBuilder: (context, index) {
+              SequenceModel sequence = vm.standAloneData.sequence[index];
+              return Padding(
+                padding: const EdgeInsets.only(left: 5, right: 5, bottom: 5,),
+                child: Card(
+                  elevation: 1,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor.withOpacity(0.1),
+                          borderRadius: const BorderRadius.only(topRight: Radius.circular(5), topLeft: Radius.circular(5)),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 10, top: 10, right: 5),
+                                child: Text(sequence.name, textAlign: TextAlign.left),
+                              ),
+                            ),
+
+                            if (vm.ddCurrentPosition!=0)
+                              VerticalDivider(color: Theme.of(context).primaryColor.withOpacity(0.1)),
+
+                            if(vm.ddCurrentPosition!=0)
+                              Center(
+                                child: SizedBox(
+                                  width: 60,
+                                  child: Transform.scale(
+                                    scale: 0.7,
+                                    child: Switch(
+                                      value: sequence.selected,
+                                      hoverColor: Colors.pink.shade100,
+                                      activeColor: Colors.teal,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          sequence.selected = !sequence.selected;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: (sequence.valve.length * 40),
+                        width: MediaQuery.sizeOf(context).width,
+                        child:  DataTable2(
+                          columnSpacing: 12,
+                          horizontalMargin: 12,
+                          minWidth: 150,
+                          dataRowHeight: 40.0,
+                          headingRowHeight: 0,
+                          headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withOpacity(0.05)),
+                          columns: const [
+                            DataColumn2(
+                                label: Center(child: Text('', style: TextStyle(fontSize: 14),)),
+                                fixedWidth: 30
+                            ),
+                            DataColumn2(
+                                label: Center(
+                                  child: Text(
+                                    'Name',
+                                    style: TextStyle(fontSize: 14),
+                                    textAlign: TextAlign.right,
+                                  ),
+                                ),
+                                size: ColumnSize.M
+                            ),
+                          ],
+                          rows: List<DataRow>.generate(sequence.valve.length, (index) => DataRow(cells: [
+                            DataCell(Center(child: Image.asset('assets/png/valve_gray.png',width: 25, height: 25,))),
+                            DataCell(Text(sequence.valve[index].name, style: const TextStyle(fontWeight: FontWeight.normal))),
+
+                          ])),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+
+      ],
+    );
+  }
+
+  /*Widget displayLineOrSequence(IrrigationLineModel config, StandAloneViewModel vm, int ddPosition){
+    return Column(
+      children: [
+
+        ddPosition==0? SizedBox(
+          height: getTotalHeight(),
+          child: ListView.builder(
+            itemCount: widget.config.lineData.length,
+            itemBuilder: (context, index) {
+              IrrigationLineModel line = widget.config.lineData[index];
+              if(line.name=='All irrigation line'){
+                return const SizedBox();
+              }
+
+              return Padding(
+                padding: const EdgeInsets.only(left: 5, right: 5, bottom: 5,),
+                child: Card(
+                  elevation: 1,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor.withOpacity(0.1),
+                          borderRadius: const BorderRadius.only(topRight: Radius.circular(5), topLeft: Radius.circular(5)),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 10, top: 10, right: 5),
+                                child: Text(line.name, textAlign: TextAlign.left),
+                              ),
+                            ),
+
+                            if (vm.ddCurrentPosition!=0)
+                              VerticalDivider(color: Theme.of(context).primaryColor.withOpacity(0.1)),
+
+                            if(vm.ddCurrentPosition!=0)
+                              Center(
+                                child: SizedBox(
+                                  width: 60,
+                                  child: Transform.scale(
+                                    scale: 0.7,
+                                    child: Switch(
+                                      value: true,
+                                      hoverColor: Colors.pink.shade100,
+                                      activeColor: Colors.teal,
+                                      onChanged: (value) {
+                                        *//* setState(() {
+                                                      for (var line in widget.lineOrSequence) {
+                                                        line.selected = false;
+                                                      }
+                                                      line.selected = value;
+                                                    });*//*
                                       },
                                     ),
                                   ),
@@ -885,11 +1142,11 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
         ),
       ],
     );
-  }
+  }*/
 
-  double getTotalHeight() {
-    int totalValves = widget.config.lineData.fold(0, (sum, line) => sum + line.valves.length);
+  /*double getTotalHeight() {
+    int totalValves = widget.config.fold(0, (sum, line) => sum + line.valves.length);
     return (totalValves * 40).toDouble()+60;
-  }
+  }*/
 
 }

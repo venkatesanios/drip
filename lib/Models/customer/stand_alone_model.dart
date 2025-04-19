@@ -58,7 +58,7 @@ class SequenceModel {
   List<dynamic> selectedGroup;
   bool modified;
   String location;
-  List<Valve> valve;
+  List<ValveModel> valve;
   List<dynamic> mainValve;
 
   SequenceModel({
@@ -81,7 +81,7 @@ class SequenceModel {
     selectedGroup: List<dynamic>.from(json["selectedGroup"]),
     modified: json["modified"],
     location: json["location"],
-    valve: (json['valve'] as List).map((v) => Valve.fromJson(v))
+    valve: (json['valve'] as List).map((v) => ValveModel.fromConfigObject(v))
         .toList(),
     mainValve: List<dynamic>.from(json["mainValve"]),
   );

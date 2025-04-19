@@ -33,6 +33,7 @@ class DecreaseDurationNotifier extends ChangeNotifier {
         notifyListeners();
       } else {
         _timer.cancel();
+        notifyListeners();
       }
     });
   }

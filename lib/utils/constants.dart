@@ -162,6 +162,10 @@ class AppConstants {
   static const String pngPath = "assets/png/";
   static const String gifPath = "assets/gif/";
 
+  static const String sumpFirst = "dp_sump_first.png";
+  static const String sumpCenter = "dp_sump_center.png";
+  static const String sumpLast = "dp_sump_last.png";
+
   static const String pumpOFF = "dp_irr_pump.png";
   static const String pumpON = "dp_irr_pump_g.gif";
   static const String pumpNotON = "dp_irr_pump_y.png";
@@ -279,6 +283,9 @@ class AppConstants {
   static Widget getAsset(String imageKey, int status, String type) {
     String imagePathFinal;
     switch (imageKey) {
+      case 'source':
+        imagePathFinal = _getSourceImagePath(type);
+        break;
       case 'pump':
         imagePathFinal = _getIrrigationPumpImagePath(status);
         break;
@@ -311,6 +318,19 @@ class AppConstants {
     return Image.asset('$pngPath$imagePathFinal');
   }
 
+  static String _getSourceImagePath(String position) {
+    switch (position) {
+      case 'First':
+        return kIsWeb? sumpFirst : sumpFirst;
+      case 'Center':
+        return kIsWeb? sumpCenter : sumpCenter;
+      case 'Last':
+        return kIsWeb? sumpLast : sumpLast;
+      default:
+        return '';
+    }
+  }
+
   static String _getIrrigationPumpImagePath(int status) {
     switch (status) {
       case 0:
@@ -339,6 +359,50 @@ class AppConstants {
       default:
         return '';
     }
+  }
+
+  static String getFertilizerImage(int cIndex, int status, int cheLength, List agitatorList) {
+    String imageName;
+    if(cIndex == cheLength - 1){
+      if(agitatorList.isNotEmpty){
+        imageName='dp_frt_channel_last_aj';
+      }else{
+        imageName='dp_frt_channel_last';
+      }
+    }else{
+      if(agitatorList.isNotEmpty){
+        if(cIndex==0){
+          imageName='dp_frt_channel_first_aj';
+        }else{
+          imageName='dp_frt_channel_center_aj';
+        }
+      }else{
+        imageName='dp_frt_channel_center';
+      }
+    }
+
+    switch (status) {
+      case 0:
+        imageName += '.png';
+        break;
+      case 1:
+        imageName += '_g.png';
+        break;
+      case 2:
+        imageName += '_y.png';
+        break;
+      case 3:
+        imageName += '_r.png';
+        break;
+      case 4:
+        imageName += '.png';
+        break;
+      default:
+        imageName += '.png';
+    }
+
+    return 'assets/png/$imageName';
+
   }
 
   static String _getBoosterImagePath(int status) {

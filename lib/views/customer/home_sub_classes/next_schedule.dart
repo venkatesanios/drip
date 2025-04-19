@@ -81,7 +81,7 @@ class NextSchedule extends StatelessWidget {
 
                         return DataRow(cells: [
                           DataCell(Text(getProgramNameById(int.parse(values[0])))),
-                          DataCell(Text(getSchedulingMethodName(scheduledPrograms[index].schedulingMethod))),
+                          DataCell(Text(scheduledPrograms[index].selectedSchedule, style: const TextStyle(fontSize: 11),)),
                           const DataCell(Text('--')),
                           DataCell(Center(child: Text(values[7]))),
                           DataCell(Center(child: Center(child: Text(getSequenceName(int.parse(values[0]), values[1]) ?? '--')))),
@@ -130,18 +130,6 @@ class NextSchedule extends StatelessWidget {
     }
   }
 
-  String getSchedulingMethodName(int code) {
-    switch (code) {
-      case 1:
-        return 'No Schedule';
-      case 2:
-        return 'Schedule by days';
-      case 3:
-        return 'Schedule as run list';
-      default:
-        return 'Day count schedule';
-    }
-  }
 
   String? getSequenceName(int programId, String sequenceId) {
     ProgramList? program = getProgramById(programId);

@@ -41,7 +41,7 @@ class StandAloneViewModel extends ChangeNotifier {
   final int userId, customerId, controllerId;
   final String deviceId;
 
-  Config configData;
+  MasterControllerModel configData;
 
   StandAloneViewModel(this.repository, this.configData, this.userId, this.customerId, this.controllerId, this.deviceId);
 
@@ -177,7 +177,7 @@ class StandAloneViewModel extends ChangeNotifier {
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
         print(response.body);
-        if (jsonResponse['data'] != null) {
+        /*if (jsonResponse['data'] != null) {
           dynamic data = jsonResponse['data'];
           standAloneData = StandAloneModel.fromJson(data);
           print(standAloneData.sequence);
@@ -239,7 +239,7 @@ class StandAloneViewModel extends ChangeNotifier {
           }
         } else {
           debugPrint('Invalid response format: "data" is null');
-        }
+        }*/
       }
     } catch (error, stackTrace) {
       debugPrint('Error fetching Product stock: $error');
@@ -428,7 +428,7 @@ class StandAloneViewModel extends ChangeNotifier {
           strSldBoosterPumpSrlNo = '',
           strSldSelectorSrlNo = '';
 
-      if (configData.pump.isNotEmpty) {
+     /* if (configData.pump.isNotEmpty) {
         strSldPumpSrlNo = getSelectedRelaySrlNo(configData.pump);
       }
 
@@ -454,7 +454,7 @@ class StandAloneViewModel extends ChangeNotifier {
             });
           }
         }
-      }
+      }*/
 
       strSldValveOrLineSrlNo = strSldValveOrLineSrlNo.isNotEmpty ? strSldValveOrLineSrlNo.substring(
           0, strSldValveOrLineSrlNo.length - 1) : '';

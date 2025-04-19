@@ -109,6 +109,14 @@ class MqttPayloadProvider with ChangeNotifier {
   // List<FertilizerSite> fertilizerSiteMobDash = [];
   // List<IrrigationLineData>? irrLineDataMobDash = [];
 
+   final Map<String, String> _pumpOnOffStatusMap = {};
+   final Map<String, String> _pumpOtherDetailMap = {};
+
+   final Map<String, String> _filterOnOffStatusMap = {};
+   final Map<String, String> _filterOtherDetailMap = {};
+
+   final Map<String, String> _valveOnOffStatusMap = {};
+
 
   void updateMapData(data){
     print("updateMapData $data");
@@ -497,7 +505,14 @@ class MqttPayloadProvider with ChangeNotifier {
         updateNodeLiveMessage(data['cM']['2401'].split(";"));
         updateOutputStatusPayload(data['cM']['2402'].split(";"));
         updateInputPayload(data['cM']['2403'].split(";"));
+
         updatePumpStatusPayload(data['cM']['2404'].split(";"));
+
+        updateAllPumpPayloads(data['cM']['2402'].split(";"), data['cM']['2404'].split(";"));
+        updateFilterSitePayloads(data['cM']['2402'].split(";"), data['cM']['2406'].split(";"));
+
+        updateValveStatus(data['cM']['2402'].split(";"));
+
         updateFilterStatusPayload(data['cM']['2406'].split(";"));
         updateFertilizerStatusPayload(data['cM']['2407'].split(";"));
         updateLineLiveMessage(data['cM']['2405'].split(";"));
@@ -628,6 +643,52 @@ class MqttPayloadProvider with ChangeNotifier {
     pumpPayload = message;
   }
 
+   void updateAllPumpPayloads(List<String> pumpOnOffPayload, List<String> pumpOtherPayload) {
+     for (final entry in pumpOnOffPayload) {
+       if (!entry.startsWith('5.')) continue;
+       final parts = entry.split(',');
+       if (parts.isEmpty || parts[0].isEmpty) continue;
+       final sNo = parts[0];
+       _pumpOnOffStatusMap[sNo] = entry;
+     }
+
+     for (final entry in pumpOtherPayload) {
+       final parts = entry.split(',');
+       if (parts.isEmpty || parts[0].isEmpty) continue;
+       final sNo = parts[0];
+       _pumpOtherDetailMap[sNo] = entry;
+     }
+
+   }
+
+   void updateFilterSitePayloads(List<String> filterOnOffPayload, List<String> filterOtherPayload) {
+     for (final entry in filterOnOffPayload) {
+       if (!entry.startsWith('11.')) continue;
+       final parts = entry.split(',');
+       if (parts.isEmpty || parts[0].isEmpty) continue;
+       final sNo = parts[0];
+       _filterOnOffStatusMap[sNo] = entry;
+     }
+
+     for (final entry in filterOtherPayload) {
+       final parts = entry.split(',');
+       if (parts.isEmpty || parts[0].isEmpty) continue;
+       final sNo = parts[0];
+       _filterOtherDetailMap[sNo] = entry;
+     }
+
+   }
+
+   void updateValveStatus(List<String> valveOnOffPayload) {
+     for (final entry in valveOnOffPayload) {
+       if (!entry.startsWith('13.')) continue;
+       final parts = entry.split(',');
+       if (parts.isEmpty || parts[0].isEmpty) continue;
+       final sNo = parts[0];
+       _valveOnOffStatusMap[sNo] = entry;
+     }
+   }
+
   void updateFilterStatusPayload(List<String> message) {
     filterPayload = message;
   }
@@ -664,6 +725,15 @@ class MqttPayloadProvider with ChangeNotifier {
     lastCommunication = currentDateTime.difference(lastSyncDateTime);
     notifyListeners();
   }
+
+  String? getPumpOnOffStatus(String sNo) => _pumpOnOffStatusMap[sNo];
+  String? getPumpOtherData(String sNo) => _pumpOtherDetailMap[sNo];
+
+   String? getFilterOnOffStatus(String sNo) => _filterOnOffStatusMap[sNo];
+   String? getFilterOtherData(String sNo) => _filterOtherDetailMap[sNo];
+
+   String? getValveOnOffStatus(String sNo) => _valveOnOffStatusMap[sNo];
+
 
   String get receivedDashboardPayload => dashBoardPayload;
   String get receivedSchedulePayload => schedulePayload;

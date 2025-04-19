@@ -145,10 +145,8 @@ class ConstantData {
         .mySiteList
         .data[viewModel.sIndex]
         .master[viewModel.mIndex]
-        .config
-        .fertilizerSite
-        .map((site) => site.toJson())
-        .toList();
+        .irrigationLine[viewModel.lIndex]
+        .centralFertilizerSite! as List<Map<String, dynamic>>;
 
 
     List<ConstantFertilizerSite> fertilizerSite = (jsonConstant['fertilization'] != null &&

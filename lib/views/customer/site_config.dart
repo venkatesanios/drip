@@ -11,7 +11,7 @@ import '../../view_models/customer/site_config_view_model.dart';
 class SiteConfig extends StatelessWidget {
   final int userId, customerId, groupId;
   final String customerName, groupName;
-  final List<Master> masterData;
+  final List<MasterControllerModel> masterData;
 
   const SiteConfig({super.key,
     required this.userId,
