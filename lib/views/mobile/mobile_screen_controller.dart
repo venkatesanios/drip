@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Screens/Logs/irrigation_and_pump_log.dart';
 import 'package:oro_drip_irrigation/Screens/planning/WeatherScreen.dart';
+import 'package:oro_drip_irrigation/modules/ScheduleView/view/schedule_view_screen.dart';
 import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
 import '../../Models/customer/site_model.dart';
 import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../modules/IrrigationProgram/view/program_library.dart';
 import '../../modules/PumpController/model/pump_controller_data_model.dart';
+import '../../modules/PumpController/view/node_settings.dart';
 import '../../modules/PumpController/view/pump_controller_home.dart';
+import '../../modules/PumpController/view/set_serial.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/formatters.dart';
@@ -21,14 +24,13 @@ import '../customer/node_list.dart';
 
 
 class MobileScreenController extends StatelessWidget {
-  const MobileScreenController(
-      {super.key, required this.userId, required this.customerName, required this.mobileNo, required this.emailId, required this.customerId, required this.fromLogin});
-
+  const MobileScreenController({super.key, required this.userId, required this.customerName, required this.mobileNo, required this.emailId, required this.customerId, required this.fromLogin});
   final int customerId, userId;
   final String customerName, mobileNo, emailId;
   final bool fromLogin;
 
-  void callbackFunction(message) {
+  void callbackFunction(message)
+  {
 
   }
 
@@ -80,42 +82,61 @@ class MobileScreenController extends StatelessWidget {
                 fit: BoxFit.fitWidth,
               ),
               actions: [
-                Stack(
-                  children: [
-                    IconButton(
-                      tooltip: 'Alarms',
-                      onPressed: vm.onAlarmClicked,
-                      icon: const Icon(Icons.notifications_none),
-                      color: Colors.white,
-                      iconSize: 28.0,
-                    ),
-                    if (vm.unreadAlarmCount > 0)
-                      Positioned(
-                        right: 5,
-                        top: 10,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          constraints: const BoxConstraints(
-                            minWidth: 16,
-                            minHeight: 16,
-                          ),
-                          child: Text(
-                            '${vm.unreadAlarmCount}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                if(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId != 2)
+                  Stack(
+                    children: [
+                      IconButton(
+                        tooltip: 'Alarms',
+                        onPressed: vm.onAlarmClicked,
+                        icon: const Icon(Icons.notifications_none),
+                        color: Colors.white,
+                        iconSize: 28.0,
+                      ),
+                      if (vm.unreadAlarmCount > 0)
+                        Positioned(
+                          right: 5,
+                          top: 10,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            textAlign: TextAlign.center,
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            child: Text(
+                              '${vm.unreadAlarmCount}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
                           ),
                         ),
-                      ),
-                  ],
-                ),
+                    ],
+                  ),
+                if(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList.isNotEmpty && vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 2 && [48, 49].contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId))
+                  IconButton(
+                      onPressed: (){
+                        showModalBottomSheet(
+                            context: context,
+                            builder: (context) {
+                              return NodeSettings(
+                                userId: userId,
+                                controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                                customerId: customerId,
+                                nodeList: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList,
+                                deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                              );
+                            }
+                        );
+                      },
+                      icon: const Icon(Icons.settings_remote)
+                  ),
                 const SizedBox(width: 16),
               ],
               bottom: PreferredSize(
@@ -608,7 +629,8 @@ class MobileScreenController extends StatelessWidget {
                         vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
                             .categoryId,
                         vm.mIndex,
-                        vm.sIndex
+                        vm.sIndex,
+                      vm.isChanged
                     ) :
                     vm.selectedIndex == 1 ?
                     ScheduledProgram(
@@ -667,12 +689,12 @@ class MobileScreenController extends StatelessWidget {
     );
   }
 
-  Widget mainScreen(int index, groupId, groupName, List<MasterControllerModel> masterData, int controllerId, int categoryId, int masterIndex, int siteIndex) {
+  Widget mainScreen(int index, groupId, groupName, List<MasterControllerModel> masterData, int controllerId, int categoryId, int masterIndex, int siteIndex, bool isChanged) {
 
     switch (index) {
       case 0:
         return categoryId==1? CustomerHome(customerId: userId, controllerId: controllerId):
-        PumpControllerHome(
+        isChanged ? PumpControllerHome(
           deviceId: masterData[masterIndex].deviceId,
           liveData: masterData[masterIndex].live!.cM as PumpControllerData,
           masterName: groupName,
@@ -681,6 +703,17 @@ class MobileScreenController extends StatelessWidget {
           controllerId: controllerId,
           siteIndex: siteIndex,
           masterIndex: masterIndex,
+        ) : const Scaffold(
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Please wait...'),
+                SizedBox(height: 10),
+                CircularProgressIndicator(),
+              ],
+            ),
+          ),
         );
       case 1:
         return CustomerProduct(customerId: userId);
@@ -698,8 +731,8 @@ class MobileScreenController extends StatelessWidget {
         return const SizedBox();
     }
   }
-}
 
+}
 
 class BadgeButton extends StatelessWidget {
   final VoidCallback onPressed;

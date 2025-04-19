@@ -16,6 +16,8 @@ import '../../Screens/Map/allAreaBoundry.dart';
 import '../../Screens/planning/FactoryReset.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../flavors.dart';
+import '../../modules/PumpController/model/pump_controller_data_model.dart';
+import '../../modules/PumpController/view/node_settings.dart';
 import '../../modules/ScheduleView/view/schedule_view_screen.dart';
 import '../../modules/PumpController/view/pump_controller_home.dart';
 import '../../repository/repository.dart';
@@ -438,6 +440,25 @@ class CustomerScreenController extends StatelessWidget {
                           child: Text(customerName.substring(0, 1).toUpperCase()),
                         )
                     ),
+
+                    if(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList.isNotEmpty && vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 2 && [48, 49].contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId))
+                      IconButton(
+                          onPressed: (){
+                            showModalBottomSheet(
+                                context: context,
+                                builder: (context) {
+                                  return NodeSettings(
+                                    userId: userId,
+                                    controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                                    customerId: customerId,
+                                    nodeList: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList,
+                                    deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                                  );
+                                }
+                            );
+                          },
+                          icon: const Icon(Icons.settings_remote)
+                      ),
                   ],),
                 const SizedBox(width: 05),
               ],
@@ -511,7 +532,8 @@ class CustomerScreenController extends StatelessWidget {
                               vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
                               vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
                               vm.mIndex,
-                              vm.sIndex
+                              vm.sIndex,
+                              vm.isChanged
                           ),
                         ),
                       ],
@@ -930,20 +952,31 @@ class CustomerScreenController extends StatelessWidget {
     return destinations;
   }
 
-  Widget mainScreen(int index, groupId, groupName, List<MasterControllerModel> masterData, int controllerId, int categoryId, int masterIndex, int siteIndex) {
+  Widget mainScreen(int index, groupId, groupName, List<MasterControllerModel> masterData, int controllerId, int categoryId, int masterIndex, int siteIndex, bool isChanged) {
     switch (index) {
       case 0:
-        return categoryId==1 ?
+        return categoryId==1?
         CustomerHome(customerId: userId, controllerId: controllerId):
-        PumpControllerHome(
+        isChanged ? PumpControllerHome(
           deviceId: masterData[masterIndex].deviceId,
-          liveData: masterData[masterIndex].live!.cM,
+          liveData: masterData[masterIndex].live!.cM as PumpControllerData,
           masterName: groupName,
           userId: userId,
           customerId: customerId,
           controllerId: controllerId,
           siteIndex: siteIndex,
           masterIndex: masterIndex,
+        ) : const Scaffold(
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Please wait...'),
+                SizedBox(height: 10),
+                CircularProgressIndicator(),
+              ],
+            ),
+          ),
         );
       case 1:
         return CustomerProduct(customerId: userId);
@@ -953,7 +986,7 @@ class CustomerScreenController extends StatelessWidget {
         return IrrigationAndPumpLog(userData: {'userId' : userId, 'controllerId' : controllerId});
       case 4:
         return ControllerSettings( userId: userId,customerId: userId, controllerId: controllerId, adDrId: fromLogin ? 1 : 0, deviceId: masterData[masterIndex].deviceId);
-      case 5:
+     case 5:
         return SiteConfig(
             userId: userId,
             customerId: customerId,

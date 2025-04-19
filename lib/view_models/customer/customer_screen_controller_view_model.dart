@@ -122,7 +122,12 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     }
   }
 
-  void masterOnChanged(index){
+  bool isChanged = false;
+
+  void masterOnChanged(index) async{
+    /* int masterIdx = mySiteList.data[sIndex].master.indexWhere((master)=>
+    master.categoryName == categoryName && master.modelName == model);*/
+
     if (mySiteList.data[sIndex].master.length > 1) {
       mIndex = index;
       lIndex = 0;
@@ -130,6 +135,10 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
       updateMaster(sIndex, index, 0);
       onSubscribeTopic();
     }
+    isChanged = false;
+    await Future.delayed(const Duration(seconds: 1));
+    isChanged = true;
+    notifyListeners();
   }
 
   void lineOnChanged(int lInx){

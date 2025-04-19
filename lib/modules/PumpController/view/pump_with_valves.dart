@@ -7,6 +7,8 @@ import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
 
 import '../../../Constants/constants.dart';
+import '../../../repository/repository.dart';
+import '../../../services/http_service.dart';
 import '../../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../model/pump_controller_data_model.dart';
 import '../widget/custom_countdown_timer.dart';
@@ -15,12 +17,14 @@ import 'cycle_details.dart';
 class PumpWithValves extends StatelessWidget {
   final PumpValveModel valveData;
   final int dataFetchingStatus;
-  const PumpWithValves({super.key, required this.valveData, required this.dataFetchingStatus});
+  final int userId, customerId, controllerId;
+  const PumpWithValves({super.key, required this.valveData, required this.dataFetchingStatus, required this.userId, required this.customerId, required this.controllerId});
 
   @override
   Widget build(BuildContext context) {
     final provider = context.read<CustomerScreenControllerViewModel>();
     final valves = provider.mySiteList.data[provider.sIndex].master[provider.mIndex].configObjects.where((e) => e.objectId == 13).toList();
+    final moistureSensors = provider.mySiteList.data[provider.sIndex].master[provider.mIndex].configObjects.where((e) => e.objectId == 25).toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -63,12 +67,21 @@ class PumpWithValves extends StatelessWidget {
                 return [
                   for(int i = 0; i < valves.length; i++)
                     PopupMenuItem(
-                      onTap: () {
+                      onTap: () async{
+                        final Repository repository = Repository(HttpService());
                         final Map<String, dynamic> payload = {"sentSms": "changeto,${i+1}"};
                         MqttService().topicToPublishAndItsMessage(
                             jsonEncode(payload),
                             '${Environment.mqttPublishTopic}/${provider.mySiteList.data[provider.sIndex].master[provider.mIndex].deviceId}'
                         );
+                        Map<String, dynamic> body = {
+                          "userId": userId,
+                          "controllerId": controllerId,
+                          "hardware": payload,
+                          "messageStatus": "Change to successfully for ${valves[i].name}",
+                          "createUser": userId
+                        };
+                        final result = await repository.createUserSentAndReceivedMessageManually(body);
                       },
                       child: Text(valves[i].name),
                     ),
@@ -114,8 +127,46 @@ class PumpWithValves extends StatelessWidget {
                   ValveCycleWidget(
                     valveData: valveData,
                     deviceId: provider.mySiteList.data[provider.sIndex].master[provider.mIndex].deviceId,
+                    userId: userId,
+                    customerId: customerId,
+                    controllerId: controllerId,
                   )
                 ],
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  itemCount: moistureSensors.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4,
+                    // crossAxisSpacing: 20,
+                    // mainAxisSpacing: 20,
+                    childAspectRatio: 1,
+                  ),
+                  itemBuilder: (context, i) {
+                    return Column(
+                      children: [
+                        Image.asset(
+                          'assets/Images/Png/objectId_25.png',
+                          height: 35,
+                          colorBlendMode: BlendMode.modulate,
+                        ),
+                        Flexible(child: Text(moistureSensors[i].name, style: Theme.of(context).textTheme.titleSmall)),
+                        IntrinsicWidth(
+                          child: Container(
+                            decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(4)),
+                            padding: const EdgeInsets.symmetric(horizontal: 5),
+                            child: Text("${valveData.moistureValues.split(',')[i]} cb",
+                              style: Theme.of(context).textTheme.labelSmall,
+                            ),
+                          ),
+                        )
+                      ],
+                    );
+                  },
+                ),
                 GridView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -203,6 +254,19 @@ class PumpWithValves extends StatelessWidget {
         Text('Set : ${valveData.valves['V${i+1}']!.duration}'),
         const SizedBox(height: 5,)
         // Text('Actual : 00:00:10')
+      ],
+    );
+  }
+
+  Widget _buildMoistureDetails(context) {
+    return Row(
+      children: [
+        const Icon(Icons.water_drop, color: Colors.blue, size: 15,),
+        const SizedBox(width: 5,),
+        Text(
+          'Moisture : ${valveData.moistureValues}',
+          style: Theme.of(context).textTheme.labelSmall,
+        ),
       ],
     );
   }

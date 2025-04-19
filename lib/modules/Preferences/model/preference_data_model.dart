@@ -1,46 +1,29 @@
 class GeneralData {
-  String userName;
-  String categoryName;
-  String controllerName;
   String deviceId;
   String controllerReadStatus;
   int controllerId;
   int categoryId;
-  int modelId;
 
   GeneralData({
-    required this.userName,
-    required this.categoryName,
-    required this.controllerName,
     required this.controllerReadStatus,
     required this.deviceId,
     required this.controllerId,
     required this.categoryId,
-    required this.modelId
   });
 
   factory GeneralData.fromJson(Map<String, dynamic> json) {
     return GeneralData(
-        userName: json['userName'] ?? '',
-        categoryName: json['categoryName'] ?? '',
-        controllerName: json['controllerName'] ?? '',
-        controllerReadStatus: json['controllerReadStatus'] ?? '0',
-        deviceId: json['deviceId'] ?? "0",
-        controllerId: json['controllerId'] ?? 0,
-        categoryId: json['categoryId'] ?? 0,
-        modelId: json['modelId'] ?? 0
+      controllerReadStatus: json['controllerReadStatus'] ?? '0',
+      deviceId: json['deviceId'] ?? "0",
+      controllerId: json['controllerId'] ?? 0,
+      categoryId: json['categoryId'] ?? 0,
     );
   }
   Map<String, dynamic> toJson() {
     return {
-      'userName': userName,
-      'categoryName': categoryName,
-      'controllerName': controllerName,
-      'controllerReadStatus': controllerReadStatus,
-      'deviceId': deviceId,
-      'controllerId': controllerId,
-      "categoryId": categoryId,
-      "modelId": modelId,
+      // 'loraKey': loraKey,
+      // 'loraFrequency': loraFrequency,
+      // 'spreadFactor': spreadFactor,
     };
   }
 }
