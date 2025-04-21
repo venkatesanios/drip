@@ -1,23 +1,28 @@
 import 'package:data_table_2/data_table_2.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+
 import '../../../Models/customer/site_model.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
 
 class NextSchedule extends StatelessWidget {
   const NextSchedule({super.key, required this.scheduledPrograms});
+
   final List<ProgramList> scheduledPrograms;
 
   @override
   Widget build(BuildContext context) {
+    var nextSchedule = context
+        .watch<MqttPayloadProvider>()
+        .nextSchedule;
 
-    var nextSchedule = Provider.of<MqttPayloadProvider>(context).nextSchedule;
+    if (nextSchedule.isEmpty || nextSchedule[0].isEmpty) {
+      return const SizedBox();
+    }
 
-    return nextSchedule.isNotEmpty && nextSchedule[0].isNotEmpty?
-    Padding(
-      padding: const EdgeInsets.only(left: 8, right: 8),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -28,75 +33,61 @@ class NextSchedule extends StatelessWidget {
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    border: Border.all(
-                      color: Colors.grey,
-                      width: 0.5,
-                    ),
-                    borderRadius: const BorderRadius.all(Radius.circular(5)),
+                    border: Border.all(color: Colors.grey, width: 0.5),
+                    borderRadius: BorderRadius.circular(5),
                   ),
-                  height:(nextSchedule.length * 40) + 55,
-                  child: Padding(
-                    padding: const EdgeInsets.all(1.0),
-                    child: DataTable2(
-                      columnSpacing: 12,
-                      horizontalMargin: 12,
-                      minWidth: 1000,
-                      dataRowHeight: 45.0,
-                      headingRowHeight: 40.0,
-                      headingRowColor: WidgetStateProperty.all<Color>(Colors.orange.shade50),
-                      columns: const [
-                        DataColumn2(
-                            label: Text('Name', style: TextStyle(fontSize: 13),),
-                            size: ColumnSize.L
-                        ),
-                        DataColumn2(
-                            label: Text('Method', style: TextStyle(fontSize: 13)),
-                            size: ColumnSize.M
+                  height: (nextSchedule.length * 40) + 55,
+                  child: DataTable2(
+                    columnSpacing: 12,
+                    horizontalMargin: 12,
+                    minWidth: 1000,
+                    dataRowHeight: 45,
+                    headingRowHeight: 40,
+                    headingRowColor: WidgetStateProperty.all(
+                        Colors.orange.shade50),
+                    columns: const [
+                      DataColumn2(
+                          label: Text('Name', style: TextStyle(fontSize: 13)),
+                          size: ColumnSize.L),
+                      DataColumn2(
+                          label: Text('Method', style: TextStyle(fontSize: 13)),
+                          size: ColumnSize.M),
+                      DataColumn2(label: Text(
+                          'Location', style: TextStyle(fontSize: 13)),
+                          size: ColumnSize.M),
+                      DataColumn2(
+                          label: Center(child: Text('Zone', style: TextStyle(
+                              fontSize: 13))), size: ColumnSize.S),
+                      DataColumn2(label: Center(
+                          child: Text('Zone Name', style: TextStyle(
+                              fontSize: 13))), size: ColumnSize.M),
+                      DataColumn2(label: Center(
+                          child: Text('Start Time', style: TextStyle(
+                              fontSize: 13))), size: ColumnSize.M),
+                      DataColumn2(label: Center(
+                          child: Text('Set(Duration/Flow)', style: TextStyle(
+                              fontSize: 13))), size: ColumnSize.M),
+                    ],
+                    rows: List.generate(nextSchedule.length, (index) {
+                      final values = nextSchedule[index].split(",");
+                      final programId = int.tryParse(values[0]) ?? 0;
+                      final sequenceId = values[1];
+                      final setDuration = values[3];
+                      final startTime = convert24HourTo12Hour(values[6]);
+                      final zone = values[7];
 
-                        ),
-                        DataColumn2(
-                            label: Text('Location', style: TextStyle(fontSize: 13),),
-                            size: ColumnSize.M
-                        ),
-                        DataColumn2(
-                            label: Center(child: Text('Zone', style: TextStyle(fontSize: 13),)),
-                            size: ColumnSize.S
-                        ),
-                        DataColumn2(
-                            label: Center(child: Text('Zone Name', style: TextStyle(fontSize: 13),)),
-                            size: ColumnSize.M
-                        ),
-                        DataColumn2(
-                            label: Center(child: Text('Start Time', style: TextStyle(fontSize: 13),)),
-                            size: ColumnSize.M
-                        ),
-                        DataColumn2(
-                            label: Center(child: Text('Set(Duration/Flow)', style: TextStyle(fontSize: 13),)),
-                            size: ColumnSize.M
-                        ),
-                      ],
-                      rows: List<DataRow>.generate(nextSchedule.length, (index) {
-
-                        List<String> values = nextSchedule[index].split(",");
-
-                        return DataRow(cells: [
-                          DataCell(Text(getProgramNameById(int.parse(values[0])))),
-                          DataCell(Text(scheduledPrograms[index].selectedSchedule, style: const TextStyle(fontSize: 11),)),
-                          const DataCell(Text('--')),
-                          DataCell(Center(child: Text(values[7]))),
-                          DataCell(Center(child: Center(child: Text(getSequenceName(int.parse(values[0]), values[1]) ?? '--')))),
-                          DataCell(Center(child: Text(convert24HourTo12Hour(values[6])))),
-                          DataCell(Center(child: Text(values[3]))),
-                          /*DataCell(Text(widget.programQueue[index].schMethod==1?'No Schedule':widget.programQueue[index].schMethod==2?'Schedule by days':
-                          widget.programQueue[index].schMethod==3?'Schedule as run list':'Day count schedule')),
-                          DataCell(Text(widget.programQueue[index].programCategory)),
-                          DataCell(Center(child: Text('${widget.programQueue[index].currentZone}'))),
-                          DataCell(Center(child: Center(child: Text(widget.programQueue[index].zoneName)))),
-                          DataCell(Center(child: Text(convert24HourTo12Hour(widget.programQueue[index].startTime)))),
-                          DataCell(Center(child: Text(widget.programQueue[index].totalDurORQty))),*/
-                        ]);
-                      }),
-                    ),
+                      return DataRow(cells: [
+                        DataCell(Text(_getProgramNameById(programId))),
+                        DataCell(Text(scheduledPrograms[index].selectedSchedule,
+                            style: const TextStyle(fontSize: 11))),
+                        const DataCell(Text('--')),
+                        DataCell(Center(child: Text(zone))),
+                        DataCell(Center(child: Text(
+                            _getSequenceName(programId, sequenceId) ?? '--'))),
+                        DataCell(Center(child: Text(startTime))),
+                        DataCell(Center(child: Text(setDuration))),
+                      ]);
+                    }),
                   ),
                 ),
               ),
@@ -104,82 +95,71 @@ class NextSchedule extends StatelessWidget {
                 top: 5,
                 left: 0,
                 child: Container(
-                  width: 220,
-                  padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 2),
+                  width: 200,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 13, vertical: 2),
                   decoration: BoxDecoration(
-                      color: Colors.orange.shade200,
-                      borderRadius: const BorderRadius.all(Radius.circular(2)),
-                      border: Border.all(width: 0.5, color: Colors.grey)
+                    color: Colors.orange.shade200,
+                    borderRadius: BorderRadius.circular(2),
+                    border: Border.all(width: 0.5, color: Colors.grey),
                   ),
-                  child: const Text('NEXT SCHEDULE IN QUEUE',  style: TextStyle(color: Colors.black)),
+                  child: const Text('NEXT SCHEDULE IN QUEUE',
+                      style: TextStyle(color: Colors.black)),
                 ),
               ),
             ],
           ),
         ],
       ),
-    ):
-    const SizedBox();
+    );
   }
 
-  String getProgramNameById(int id) {
-    try {
-      return scheduledPrograms.firstWhere((program) => program.serialNumber == id).programName;
-    } catch (e) {
-      return "Stand Alone";
-    }
+  String _getProgramNameById(int id) {
+    return scheduledPrograms
+        .firstWhere(
+          (program) => program.serialNumber == id,
+      orElse: () =>
+          ProgramList(programName: "Stand Alone",
+              serialNumber: 0,
+              defaultProgramName: '',
+              programType: '',
+              sequence: [],
+              selectedSchedule: '',
+              irrigationLine: []),
+    )
+        .programName;
   }
 
+  String? _getSequenceName(int programId, String sequenceId) {
+    final program = scheduledPrograms.firstWhere(
+          (p) => p.serialNumber == programId,
+      orElse: () =>
+          ProgramList(sequence: [],
+              serialNumber: 0,
+              programName: '',
+              defaultProgramName: '',
+              programType: '',
+              selectedSchedule: '',
+              irrigationLine: []),
+    );
 
-  String? getSequenceName(int programId, String sequenceId) {
-    ProgramList? program = getProgramById(programId);
-    if (program != null) {
-      return getSequenceNameById(program, sequenceId);
-    }
-    return null;
-  }
-
-  ProgramList? getProgramById(int id) {
-    try {
-      return scheduledPrograms.firstWhere((program) => program.serialNumber == id);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  String? getSequenceNameById(ProgramList program, String sequenceId) {
-    try {
-      return program.sequence.firstWhere((seq) => seq.sNo == sequenceId).name;
-    } catch (e) {
-      return null;
-    }
+    return program.sequence
+        .firstWhere(
+          (seq) => seq.sNo == sequenceId,
+      orElse: () => Sequence(name: "--", sNo: ''),
+    )
+        .name;
   }
 
   String convert24HourTo12Hour(String timeString) {
-    if(timeString=='-'){
-      return '-';
+    if (timeString == '-' || timeString
+        .trim()
+        .isEmpty) return '-';
+    try {
+      final parsedTime = DateFormat('HH:mm:ss').parseStrict(timeString);
+      return DateFormat('hh:mm a').format(parsedTime);
+    } catch (_) {
+      return timeString;
     }
-    final parsedTime = DateFormat('HH:mm:ss').parse(timeString);
-    final formattedTime = DateFormat('hh:mm a').format(parsedTime);
-    return formattedTime;
   }
-
 }
-
-  String? getSequenceNameById(ProgramList program, String sequenceId) {
-    try {
-      return program.sequence.firstWhere((seq) => seq.sNo == sequenceId).name;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  String convert24HourTo12Hour(String timeString) {
-    if(timeString=='-'){
-      return '-';
-    }
-    final parsedTime = DateFormat('HH:mm:ss').parse(timeString);
-    final formattedTime = DateFormat('hh:mm a').format(parsedTime);
-    return formattedTime;
-  }
-
