@@ -7,6 +7,8 @@ import 'package:tuple/tuple.dart';
 import '../Models/customer/site_model.dart';
 import '../StateManagement/duration_notifier.dart';
 import '../StateManagement/mqtt_payload_provider.dart';
+import '../repository/repository.dart';
+import '../services/http_service.dart';
 import '../services/mqtt_service.dart';
 import '../utils/constants.dart';
 import '../utils/formatters.dart';
@@ -15,7 +17,10 @@ import '../utils/snack_bar.dart';
 class PumpWidget extends StatelessWidget {
   final PumpModel pump;
   final bool isSourcePump;
-  PumpWidget({super.key, required this.pump, required this.isSourcePump});
+  final String deviceId;
+  final int customerId, controllerId;
+  PumpWidget({super.key, required this.pump, required this.isSourcePump,
+    required this.deviceId, required this.customerId, required this.controllerId});
 
   final ValueNotifier<int> popoverUpdateNotifier = ValueNotifier<int>(0);
 
@@ -440,8 +445,8 @@ class PumpWidget extends StatelessWidget {
             onPressed: () {
               final payload = '${pump.sNo},1,1';
               final payLoadFinal = jsonEncode({"6200": {"6201": payload}});
-              // MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-              // sentUserOperationToServer('${pump.name} Start Manually', payLoadFinal);
+               MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
+              sentUserOperationToServer('${pump.name} Start Manually', payLoadFinal);
               GlobalSnackBar.show(context, 'Pump start comment sent successfully', 200);
               Navigator.pop(context);
             },
@@ -454,8 +459,8 @@ class PumpWidget extends StatelessWidget {
             onPressed: () {
               final payload = '${pump.sNo},0,1';
               final payLoadFinal = jsonEncode({"6200": {"6201": payload}});
-              // MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-              // sentUserOperationToServer('${pump.name} Stop Manually', payLoadFinal);
+               MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
+              sentUserOperationToServer('${pump.name} Stop Manually', payLoadFinal);
               GlobalSnackBar.show(context, 'Pump stop comment sent successfully', 200);
               Navigator.pop(context);
             },
@@ -474,5 +479,16 @@ class PumpWidget extends StatelessWidget {
 
   String getContentByCode(int code) {
     return PumpReasonCode.fromCode(code).content;
+  }
+
+  void sentUserOperationToServer(String msg, String data) async
+  {
+    Map<String, Object> body = {"userId": customerId, "controllerId": controllerId, "messageStatus": msg, "hardware": jsonDecode(data), "createUser": customerId};
+    final response = await Repository(HttpService()).createUserSentAndReceivedMessageManually(body);
+    if (response.statusCode == 200) {
+      print(response.body);
+    } else {
+      throw Exception('Failed to load data');
+    }
   }
 }

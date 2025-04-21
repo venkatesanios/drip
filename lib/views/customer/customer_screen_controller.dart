@@ -934,7 +934,7 @@ class CustomerScreenController extends StatelessWidget {
     switch (index) {
       case 0:
         return categoryId==1 ?
-        CustomerHome(customerId: userId, controllerId: controllerId):
+        CustomerHome(customerId: userId, controllerId: controllerId, deviceId: masterData[masterIndex].deviceId):
         PumpControllerHome(
           deviceId: masterData[masterIndex].deviceId,
           liveData: masterData[masterIndex].live!.cM,

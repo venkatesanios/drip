@@ -23,8 +23,10 @@ import 'home_sub_classes/next_schedule.dart';
 import 'home_sub_classes/scheduled_program.dart';
 
 class CustomerHome extends StatelessWidget {
-  const CustomerHome({super.key, required this.customerId, required this.controllerId});
+  const CustomerHome({super.key, required this.customerId, required this.controllerId,
+    required this.deviceId});
   final int customerId, controllerId;
+  final String deviceId;
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +84,8 @@ class CustomerHome extends StatelessWidget {
 
           (fertilizerSite.isEmpty && (grandTotal < 7 || totalValveCount < 25))
               ? buildWidgetInHorizontal(context, waterSources, filterSite, fertilizerSite, linesToDisplay, grandTotal)
-              : buildWidgetInVertical(context, waterSources, filterSite, fertilizerSite, linesToDisplay, grandTotal),
+              : buildWidgetInVertical(context, waterSources, filterSite, fertilizerSite, linesToDisplay, grandTotal,
+              deviceId, customerId, controllerId),
 
           CurrentProgram(
             scheduledPrograms: scheduledProgram,
@@ -130,7 +133,8 @@ class CustomerHome extends StatelessWidget {
       children: [
         SizedBox(
             width: (grandTotal*70) + 20,
-            child: PumpStationWidget(waterSources: waterSources, filterSite: filterSite, fertilizerSite: fertilizerSite, isLineRight: true)
+            child: PumpStationWidget(waterSources: waterSources, filterSite: filterSite, fertilizerSite: fertilizerSite, isLineRight: true,
+              deviceId: '', customerId: customerId, controllerId: controllerId,)
         ),
         ...linesToDisplay.map((lineObjects) => Padding(
           padding: const EdgeInsets.only(top: 8),
@@ -162,7 +166,7 @@ class CustomerHome extends StatelessWidget {
   }
 
   Widget buildWidgetInVertical(BuildContext context, waterSources, filterSite, fertilizerSite,
-      List<IrrigationLineModel> linesToDisplay,  int grandTotal,)
+      List<IrrigationLineModel> linesToDisplay,  int grandTotal, deviceId, customerId, controllerId)
   {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -177,6 +181,9 @@ class CustomerHome extends StatelessWidget {
               filterSite: filterSite,
               fertilizerSite: fertilizerSite,
               isLineRight: false,
+              deviceId: deviceId,
+              customerId: customerId,
+              controllerId: controllerId,
             ),
             linesToDisplay.length == 1? Padding(
               padding: const EdgeInsets.all(8.0),
@@ -340,6 +347,8 @@ class PumpStationWidget extends StatelessWidget {
   final List<FilterSiteModel> filterSite;
   final List<FertilizerSiteModel> fertilizerSite;
   final bool isLineRight;
+  final String deviceId;
+  final int customerId, controllerId;
 
   const PumpStationWidget({
     super.key,
@@ -347,6 +356,7 @@ class PumpStationWidget extends StatelessWidget {
     required this.filterSite,
     required this.fertilizerSite,
     required this.isLineRight,
+    required this.deviceId, required this.customerId, required this.controllerId,
   });
 
   @override
@@ -363,7 +373,7 @@ class PumpStationWidget extends StatelessWidget {
       final source = sortedWaterSources[index];
       gridItems.add(_buildSourceColumn(source, index, sortedWaterSources.length));
       for (final pump in source.pumpObjects) {
-        gridItems.add(PumpWidget(pump: pump, isSourcePump: !source.isWaterInAndOut));
+        gridItems.add(PumpWidget(pump: pump, isSourcePump: !source.isWaterInAndOut, deviceId: deviceId, customerId: customerId, controllerId: controllerId,));
       }
     }
 

@@ -669,7 +669,8 @@ class MobileScreenController extends StatelessWidget {
 
     switch (index) {
       case 0:
-        return categoryId==1? CustomerHome(customerId: userId, controllerId: controllerId):
+        return categoryId==1? CustomerHome(customerId: userId, controllerId: controllerId,
+          deviceId: masterData[masterIndex].deviceId,):
         PumpControllerHome(
           deviceId: masterData[masterIndex].deviceId,
           liveData: masterData[masterIndex].live!.cM as PumpControllerData,
