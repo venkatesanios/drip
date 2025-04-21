@@ -29,7 +29,6 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
   late ThemeData themeData;
   late bool themeMode;
 
-
   @override
   void initState() {
     // TODO: implement initState
@@ -229,7 +228,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                           ),
                                         )
                                       else
-                                        Container(
+                                        SizedBox(
                                           width: returnWidthForProMethod(programPvd, screenSizeForGraph),
                                           height: 30/programPvd.sequenceData[programPvd.selectedGroup][programPvd.segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['fertilizer'].length,
                                           child: Row(
@@ -294,13 +293,6 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                               Text('00:00:00',style: graphTextStyle,),
                             if(programPvd.waterValueInTime != '00:00:00' && programPvd.waterValueInTime != '0:0:0')
                               ...generateTimeValues(programPvd.waterValueInTime),
-                            //   Text(generateTimeValues(programPvd.waterValueInTime)[0],style: graphTextStyle),
-                            // if(programPvd.waterValueInTime != '00:00:00')
-                            //   Text(generateTimeValues(programPvd.waterValueInTime)[1],style: graphTextStyle),
-                            // if(programPvd.waterValueInTime != '00:00:00')
-                            //   Text(generateTimeValues(programPvd.waterValueInTime)[2],style: graphTextStyle),
-                            // if(programPvd.waterValueInTime != '00:00:00')
-                            //   Text(generateTimeValues(programPvd.waterValueInTime)[3],style: graphTextStyle),
                           ],
                         ),
                       ),

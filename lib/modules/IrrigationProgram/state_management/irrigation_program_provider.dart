@@ -1460,6 +1460,96 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     return payload;
   }
 
+  dynamic ecoGemPayloadForWF(serialNumber){
+    var wf = '';
+    var payload = '';
+    editGroupSiteInjector('selectedGroup', 0);
+    for(var sq in sequenceData){
+      editGroupSiteInjector('selectedGroup', sequenceData.indexOf(sq));
+      var valId = '';
+      for(var vl in sq['valve']){
+        valId += '${valId.isNotEmpty ? '_' : ''}${vl['sNo']}';
+      }
+      var centralMethod = '';
+      var centralTimeAndQuantity = '';
+      var centralFertOnOff = '';
+      var centralFertSno = '';
+      var localMethod = '';
+      var localTimeAndQuantity = '';
+      var localFertOnOff = '';
+      var localFertId = '';
+      if(!isSiteVisible(sq['centralDosing'],'central') || sq[segmentedControlCentralLocal == 0 ? 'applyFertilizerForCentral' : 'applyFertilizerForLocal'] == false || sq['centralDosing'].isEmpty || sq['selectedCentralSite'] == -1){
+        centralMethod = '0_0_0_0_0_0_0_0';
+        centralTimeAndQuantity += '0_0_0_0_0_0_0_0';
+        centralFertOnOff += '0_0_0_0_0_0_0_0';
+      }else{
+        var fertList = [];
+        for(var ft in sq['centralDosing'][sq['selectedCentralSite']]['fertilizer']){
+          centralMethod += '${centralMethod.isNotEmpty ? '_' : ''}${fertMethodHw(ft['method'])}';
+          centralFertOnOff += '${centralFertOnOff.isNotEmpty ? '_' : ''}${ft['onOff'] == true ? 1 : 0}';
+          centralFertSno += '${centralFertSno.isNotEmpty ? '_' : ''}${ft['sNo']}';
+          centralTimeAndQuantity += '${centralTimeAndQuantity.isNotEmpty ? '_' : ''}${ft['method'].contains('ime') ? ft['timeValue'] : ft['quantityValue']}';
+          fertList.add(fertMethodHw(ft['method']));
+        }
+        for(var coma = fertList.length;coma < 8;coma++){
+          centralMethod += '${centralMethod.isNotEmpty ? '_' : ''}0';
+          centralTimeAndQuantity += '${centralTimeAndQuantity.isNotEmpty ? '_' : ''}0';
+          centralFertOnOff += '${centralFertOnOff.isNotEmpty ? '_' : ''}0';
+        }
+      }
+
+      if(!isSiteVisible(sq['localDosing'],'local') || sq[segmentedControlCentralLocal == 0 ? 'applyFertilizerForCentral' : 'applyFertilizerForLocal'] == false || sq['localDosing'].isEmpty || sq['selectedLocalSite'] == -1){
+        localMethod = '0_0_0_0_0_0_0_0';
+        localTimeAndQuantity += '0_0_0_0_0_0_0_0';
+        localFertOnOff += '0_0_0_0_0_0_0_0';
+      }else{
+        var fertList = [];
+        for(var ft in sq['localDosing'][sq['selectedLocalSite']]['fertilizer']){
+          localMethod += '${localMethod.isNotEmpty ? '_' : ''}${fertMethodHw(ft['method'])}';
+          localFertOnOff += '${localFertOnOff.isNotEmpty ? '_' : ''}${ft['onOff'] == true ? 1 : 0}';
+          localFertId += '${localFertId.isNotEmpty ? '_' : ''}${ft['sNo']}';
+          localTimeAndQuantity += '${localTimeAndQuantity.isNotEmpty ? '_' : ''}${ft['method'].contains('ime') ? ft['timeValue'] : ft['quantityValue']}';
+          fertList.add(fertMethodHw(ft['method']));
+        }
+        for(var coma = fertList.length;coma < 8;coma++){
+          localMethod += '${localMethod.isNotEmpty ? '_' : ''}0';
+          localTimeAndQuantity += '${localTimeAndQuantity.isNotEmpty ? '_' : ''}0';
+          localFertOnOff += '${localFertOnOff.isNotEmpty ? '_' : ''}0';
+        }
+      }
+      payload += payload.isNotEmpty ? ';' : '';
+      print('sq :: $sq');
+      print('sq moisture :: ${sq['moistureSno']}');
+      print('sq level :: ${sq['levelSno']}');
+      var getValve = [];
+      for(var v = 0;v < 4;v++){
+        if(sq['valve'].length > v){
+          getValve.add(sq['valve'][v].toString().split('.')[1]);
+        }else{
+          getValve.add('0');
+        }
+      }
+      Map<String, dynamic> jsonPayload = {
+        'S_No' : sq['sNo'].toString().split('.')[1],
+        'ProgramS_No' : serialNumber,
+        'SequenceData' : getValve.join(','),
+        'ValveFlowrate' : getNominalFlow(),
+        'IrrigationMethod' : sq['method'] == 'Time' ? 1 : 2,
+        'IrrigationDuration_Quantity' : sq['method'] == 'Time' ? sq['timeValue'] : sq['quantityValue'],
+        'CentralFertOnOff' : sq['applyFertilizerForCentral'] == false ? 0 : sq['selectedCentralSite'] == -1 ? 0 : 1,
+        'PrePostMethod' : sq['prePostMethod'] == 'Time' ? 1 : 2,
+        'PreTime_PreQty' : sq['preValue'],
+        'PostTime_PostQty' : sq['postValue'],
+        'CentralFertMethod' : centralMethod,
+        'CentralFertChannelSelection' : centralFertOnOff,
+        'CentralFertDuration_Qty' : centralTimeAndQuantity,
+      };
+      print('jsonPayload :: $jsonPayload');
+      payload += jsonPayload.values.toList().join(',');
+    }
+    return payload;
+  }
+
   String wfPld(int index){
     switch (index){
       case (0):{

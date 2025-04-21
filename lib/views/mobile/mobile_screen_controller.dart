@@ -212,7 +212,6 @@ class MobileScreenController extends StatelessWidget {
                           ):
                           Text(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
                             style: const TextStyle(fontSize: 12),),
-
                           const SizedBox(width: 15),
                           Container(
                               width: 1, height: 20, color: Colors.white54),
