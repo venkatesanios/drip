@@ -50,10 +50,9 @@ class MobileScreenController extends StatelessWidget {
 
           int wifiStrength = mqttProvider.wifiStrength;
           String liveDataAndTime = mqttProvider.liveDateAndTime;
-          var iLineLiveMessage = mqttProvider.lineLiveMessage;
-          Duration lastCommunication = mqttProvider.lastCommunication;
           int powerSupply = mqttProvider.powerSupply;
           var currentSchedule = mqttProvider.currentSchedule;
+          bool isLiveSynced = mqttProvider.isLiveSynced;
 
 
           if (liveDataAndTime.isNotEmpty) {
@@ -553,46 +552,50 @@ class MobileScreenController extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  lastCommunication.inMinutes >= 10 && powerSupply == 0
-                      ? Container(
-                    height: 23.0,
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade300,
-                      borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(5),
-                          topRight: Radius.circular(5)),
-                    ),
-                    child: Center(
-                      child: Text(
-                        'No communication and power Supply to Controller'
-                            .toUpperCase(),
-                        style: const TextStyle(
-                          color: Colors.black87,
-                          fontSize: 12.0,
+                  if (vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1) ...[
+                    if (!isLiveSynced)
+                      Container(
+                        height: 20.0,
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade300,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(5),
+                            topRight: Radius.circular(5),
+                          ),
                         ),
-                      ),
-                    ),
-                  )
-                      :
-                  (powerSupply == 0 &&
-                      vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
-                          .categoryId == 1) ? Container(
-                    height: 20.0,
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade300,
-                      borderRadius: const BorderRadius.only(topLeft: Radius
-                          .circular(5), topRight: Radius.circular(5)),
-                    ),
-                    child: Center(
-                      child: Text('No power Supply to Controller'.toUpperCase(),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12.0,
+                        child: const Center(
+                          child: Text(
+                            'NO COMMUNICATION TO CONTROLLER',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12.0,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ) :
-                  const SizedBox(),
+                      )
+                    else if (powerSupply == 0)
+                      Container(
+                        height: 23.0,
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade300,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(5),
+                            topRight: Radius.circular(5),
+                          ),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            'NO POWER SUPPLY TO CONTROLLER',
+                            style: TextStyle(
+                              color: Colors.black87,
+                              fontSize: 12.0,
+                            ),
+                          ),
+                        ),
+                      )
+                    else
+                      const SizedBox(),
+                  ],
 
                   Expanded(
                     child: vm.selectedIndex == 0 ?

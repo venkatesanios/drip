@@ -745,8 +745,6 @@ class SensorWidget extends StatelessWidget {
     );
   }
 
-
-
   Future<List<SensorHourlyDataModel>> fetchSensorData() async {
     List<SensorHourlyDataModel> sensors = [];
 
@@ -821,29 +819,166 @@ class ValveWidget extends StatelessWidget {
           valve.status = int.parse(statusParts[1]);
         }
 
+        bool hasMoisture = valve.moistureSensors.isNotEmpty;
+
         return Padding(
           padding: const EdgeInsets.only(top: 8),
           child: SizedBox(
             width: 85,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+            child: Stack(
               children: [
-                SizedBox(
-                  width: 35,
-                  height: 35,
-                  child: AppConstants.getAsset('valve', valve.status, ''),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 35,
+                      height: 35,
+                      child: AppConstants.getAsset('valve', valve.status, ''),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      valve.name,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 10, color: Colors.black54),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  valve.name,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 10, color: Colors.black54),
-                ),
+                if (hasMoisture)
+                  Positioned(
+                    top: 0,
+                    left: 30,
+                    child: TextButton(
+                      onPressed: () {
+                        /*showPopover(
+                          context: context,
+                          bodyBuilder: (context) {
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: moistureSensor.map((ms) {
+
+                                Map<String, dynamic> jsonData = jsonDecode(jsonEncode(sensorData));
+                                Map<String, List<Map<String, dynamic>>> filteredData = {};
+
+                                jsonData.forEach((key, value) {
+                                  var filteredList = (value as List)
+                                      .where((item) => item['sNo']==ms.sNo)
+                                      .toList();
+                                  if (filteredList.isNotEmpty) {
+                                    filteredData[key] = List<Map<String, dynamic>>.from(filteredList);
+                                  }
+                                });
+
+                                return Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 450,
+                                      height: 175,
+                                      child: buildLineChart(context, filteredData, 'Moisture Sensor', ms.name, ms.moistureType!),
+                                    ),
+                                    SizedBox(
+                                      width: 100,
+                                      height: 100,
+                                      child: SfRadialGauge(
+                                        axes: <RadialAxis>[
+                                          RadialAxis(
+                                            minimum: 0,
+                                            maximum: 200,
+                                            pointers: <GaugePointer>[
+                                              NeedlePointer(
+                                                  value: double.parse(ms.value),
+                                                  needleEndWidth: 3, needleColor: Colors.black54),
+                                              RangePointer(
+                                                value: 200.0,
+                                                width: 0.30,
+                                                sizeUnit: GaugeSizeUnit.factor,
+                                                color: const Color(0xFF494CA2),
+                                                animationDuration: 1000,
+                                                gradient: const SweepGradient(
+                                                  colors: <Color>[
+                                                    Colors.greenAccent,
+                                                    Colors.orangeAccent,
+                                                    Colors.redAccent,
+                                                    Colors.redAccent
+                                                  ],
+                                                  stops: <double>[0.15, 0.50, 0.70, 1.00],
+                                                ),
+                                                enableAnimation: true,
+                                              ),
+                                            ],
+                                            showFirstLabel: false,
+                                            annotations: <GaugeAnnotation>[
+                                              GaugeAnnotation(
+                                                widget: Text(
+                                                  '${ms.value} CB',
+                                                  style: const TextStyle(
+                                                      fontSize: 10, fontWeight: FontWeight.bold),
+                                                ),
+                                                angle: 90,
+                                                positionFactor: 0.8,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }).toList(),
+                            );
+                          },
+                          onPop: () => print('Popover was popped!'),
+                          direction: PopoverDirection.bottom,
+                          width: 550,
+                          height: moistureSensor.length * 175,
+                          arrowHeight: 15,
+                          arrowWidth: 30,
+                          barrierColor: Colors.black54,
+                          arrowDxOffset: 20,
+                          arrowDyOffset: -43,
+                        );*/
+                      },
+                      style: ButtonStyle(
+                        padding: WidgetStateProperty.all(EdgeInsets.zero),
+                        minimumSize: WidgetStateProperty.all(Size.zero),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        backgroundColor: WidgetStateProperty.all(Colors.transparent),
+                      ),
+                      child: CircleAvatar(
+                        radius: 15,
+                        backgroundColor:  _getMoistureColor(valve.moistureSensors
+                            .map((sensor) => {'name': sensor.name, 'value': sensor.value})
+                            .toList()),
+                        child: Image.asset(
+                          'assets/png/moisture_sensor.png',
+                          width: 25,
+                          height: 25,
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
         );
       },
     );
+  }
+
+  Color _getMoistureColor(List<Map<String, dynamic>> sensors) {
+    if (sensors.isEmpty) return Colors.grey;
+
+    final values = sensors
+        .map((ms) => double.tryParse(ms['value'] ?? '0') ?? 0.0)
+        .toList();
+
+    final averageValue = values.reduce((a, b) => a + b) / values.length;
+
+    if (averageValue < 20) {
+      return Colors.green.shade200;
+    } else if (averageValue <= 60) {
+      return Colors.orange.shade200;
+    } else {
+      return Colors.red.shade200;
+    }
   }
 }

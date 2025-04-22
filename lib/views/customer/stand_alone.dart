@@ -228,7 +228,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                         MaterialButton(
                           color: Colors.redAccent,
                           textColor: Colors.white,
-                          onPressed:() => viewModel.stopAllManualOperation(),
+                          onPressed:() => viewModel.stopAllManualOperation(context),
                           child: const Text('Stop Manually'),
                         ),
                         const SizedBox(width: 16),
@@ -342,7 +342,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                             DataCell(Transform.scale(
                               scale: 0.7,
                               child: Tooltip(
-                                message: allPumps[index].selected? 'Close' : 'Open',
+                                message: allPumps[index].selected? 'Deselect' : 'Select',
                                 child: Switch(
                                   hoverColor: Colors.pink.shade100,
                                   activeColor: Colors.teal,
@@ -402,7 +402,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                           ),
                         ),
                         SizedBox(
-                          height: site.filters.length * 40, // Adjust height based on number of filters
+                          height: site.filters.length * 40,
                           child: DataTable2(
                             columnSpacing: 12,
                             horizontalMargin: 12,
@@ -696,7 +696,8 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
         Container(),
 
         ddPosition==0? SizedBox(
-          height: valveList.length * 40,
+          height: masterData.irrigationLine.length>1? (valveList.length * 40)+masterData.irrigationLine.length*45:
+          (valveList.length * 40)+45,
           child: ListView.builder(
             itemCount: masterData.irrigationLine.length,
             itemBuilder: (context, index) {
@@ -913,7 +914,6 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
             },
           ),
         ),
-
       ],
     );
   }

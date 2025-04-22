@@ -20,38 +20,8 @@ class FilterSiteView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             filterSite.pressureIn != null?
-            Padding(
-              padding: const EdgeInsets.only(top: 2.5),
-              child: SizedBox(
-                width: 70,
-                height: 70,
-                child : Stack(
-                  children: [
-                    Image.asset('assets/png/dp_prs_sensor.png',),
-                    Positioned(
-                      top: 42,
-                      left: 5,
-                      child: Container(
-                        width: 60,
-                        height: 17,
-                        decoration: BoxDecoration(
-                          color:Colors.yellow,
-                          borderRadius: const BorderRadius.all(Radius.circular(2)),
-                          border: Border.all(color: Colors.grey, width: .50,),
-                        ),
-                        child: Center(
-                          child: Text('${filterSite.pressureIn?.value} bar', style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            PressureSensorWidget(
+              sensor: filterSite.pressureIn!,
             ):
             const SizedBox(),
             Padding(
@@ -70,38 +40,8 @@ class FilterSiteView extends StatelessWidget {
               ),
             ),
             filterSite.pressureOut != null?
-            Padding(
-              padding: const EdgeInsets.only(top: 2.5),
-              child: SizedBox(
-                width: 70,
-                height: 70,
-                child : Stack(
-                  children: [
-                    Image.asset('assets/png/dp_prs_sensor.png',),
-                    Positioned(
-                      top: 42,
-                      left: 5,
-                      child: Container(
-                        width: 60,
-                        height: 17,
-                        decoration: BoxDecoration(
-                          color:Colors.yellow,
-                          borderRadius: const BorderRadius.all(Radius.circular(2)),
-                          border: Border.all(color: Colors.grey, width: .50,),
-                        ),
-                        child: Center(
-                          child: Text('${filterSite.pressureOut?.value} bar', style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            PressureSensorWidget(
+              sensor: filterSite.pressureOut!,
             ):
             const SizedBox(),
           ],
@@ -216,4 +156,61 @@ class FilterWidget extends StatelessWidget {
       },
     );
   }
+}
+
+class PressureSensorWidget extends StatelessWidget {
+  final PressureSensor sensor;
+  const PressureSensorWidget({
+    super.key,
+    required this.sensor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Selector<MqttPayloadProvider, String?>(
+      selector: (_, provider) => provider.getSensorUpdatedValve(sensor.sNo.toString()),
+      builder: (_, status, __) {
+
+        final statusParts = status?.split(',') ?? [];
+        if(statusParts.isNotEmpty){
+          sensor.value = statusParts[1];
+        }
+
+        return Padding(
+          padding: const EdgeInsets.only(top: 2.5),
+          child: SizedBox(
+            width: 70,
+            height: 70,
+            child : Stack(
+              children: [
+                Image.asset('assets/png/dp_prs_sensor.png',),
+                Positioned(
+                  top: 42,
+                  left: 5,
+                  child: Container(
+                    width: 60,
+                    height: 17,
+                    decoration: BoxDecoration(
+                      color:Colors.yellow,
+                      borderRadius: const BorderRadius.all(Radius.circular(2)),
+                      border: Border.all(color: Colors.grey, width: .50,),
+                    ),
+                    child: Center(
+                      child: Text('${sensor.value} bar', style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
 }
