@@ -15,8 +15,9 @@ class WaterAndFertilizerScreen extends StatefulWidget {
   final int userId;
   final int controllerId;
   final int serialNumber;
+  final int modelId;
   final bool isIrrigationProgram;
-  const WaterAndFertilizerScreen({super.key, required this.userId, required this.controllerId, required this.serialNumber, required this.isIrrigationProgram});
+  const WaterAndFertilizerScreen({super.key, required this.userId, required this.controllerId, required this.serialNumber, required this.isIrrigationProgram, required this.modelId});
 
   @override
   State<WaterAndFertilizerScreen> createState() => _WaterAndFertilizerScreenState();
@@ -36,7 +37,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
     if (mounted) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         var programPvd = Provider.of<IrrigationProgramMainProvider>(context,listen: false);
-        programPvd.waterAndFert();
+        programPvd.waterAndFert(widget.modelId);
         programPvd.editSegmentedControlGroupValue(0);
         // programPvd.selectingTheSite();
         if(programPvd.sequenceData.isNotEmpty){
@@ -1174,7 +1175,20 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                                   dropdownColor: Colors.white,
                                                   value: programPvd.sequenceData[programPvd.selectedGroup][programPvd.segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['fertilizer'][index]['method'],
                                                   underline: Container(),
-                                                  items: ['Time','Pro.time','Quantity','Pro.quantity','Pro.quant per 1000L'].map((String items) {
+                                                  items: [
+                                                    if(!AppConstants.ecoGemModelList.contains(widget.modelId) || programPvd.sequenceData[programPvd.selectedGroup]['method'] == 'Time')
+                                                      ...[
+                                                        'Time',
+                                                        'Pro.time',
+                                                      ],
+                                                    if(!AppConstants.ecoGemModelList.contains(widget.modelId) || programPvd.sequenceData[programPvd.selectedGroup]['method'] != 'Time')
+                                                      ...[
+                                                        'Quantity',
+                                                        'Pro.quantity',
+                                                      ],
+                                                    if(!AppConstants.ecoGemModelList.contains(widget.modelId))
+                                                      'Pro.quant per 1000L'
+                                                  ].map((String items) {
                                                     return DropdownMenuItem(
                                                       value: items,
                                                       child: Text(items,style: const TextStyle(fontSize: 12,color: Colors.black),),

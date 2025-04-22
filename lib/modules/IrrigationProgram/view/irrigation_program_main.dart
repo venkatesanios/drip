@@ -683,17 +683,17 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
             ? conditionsLibraryIsNotEmpty
             ? ConditionsScreen(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, deviceId: widget.deviceId,)
             : const SelectionScreen()
-            : WaterAndFertilizerScreen(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram,);
+            : WaterAndFertilizerScreen(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram, modelId: widget.modelId,);
       case 3:
         return isIrrigationProgram
             ? conditionsLibraryIsNotEmpty
             ? const SelectionScreen()
-            : WaterAndFertilizerScreen(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram,)
+            : WaterAndFertilizerScreen(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram, modelId: widget.modelId,)
             : const AlarmScreen();
       case 4:
         return isIrrigationProgram
             ? conditionsLibraryIsNotEmpty
-            ? WaterAndFertilizerScreen(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram,)
+            ? WaterAndFertilizerScreen(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram, modelId: widget.modelId,)
             : const AlarmScreen()
             : AdditionalDataScreen(
             userId: widget.customerId, controllerId: widget.controllerId, deviceId: widget.deviceId,

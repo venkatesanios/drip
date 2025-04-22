@@ -98,7 +98,6 @@ class AppProperties {
   ];
 
 
-
   //Todo radius
   static const Radius radius5 = Radius.circular(5);
 
@@ -197,4 +196,5 @@ class AppProperties {
   static dynamic regexForDecimal = [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),];
   static TextStyle cardTitle = const TextStyle(fontSize: 13);
   static List<String> yesNoList = ['Yes','No'];
+
 }

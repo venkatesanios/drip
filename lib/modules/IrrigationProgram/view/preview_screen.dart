@@ -72,7 +72,8 @@ class _PreviewScreenState extends State<PreviewScreen> {
     mqttPayloadProvider =  Provider.of<MqttPayloadProvider>(context, listen: false);
     if (mounted) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        irrigationProvider.waterAndFert();
+        irrigationProvider.waterAndFert(widget.modelId);
+        irrigationProvider.ecoGemPayloadForWF(widget.serialNumber);
         _chartDataList = List<ChartData>.from(irrigationProvider.sequenceData.map((json) => ChartData.fromJson(json, irrigationProvider.constantSetting, json['valve'])));
         // irrigationProvider.sequenceData.forEach((element) {
         //   print(element['localDosing']);

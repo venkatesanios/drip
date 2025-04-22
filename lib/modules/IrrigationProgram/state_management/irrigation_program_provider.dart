@@ -6,6 +6,7 @@ import 'package:oro_drip_irrigation/Constants/constants.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/repository/irrigation_program_repo.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/model/device_object_model.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/model/LineDataModel.dart';
+import 'package:oro_drip_irrigation/utils/constants.dart';
 import '../../../Constants/data_convertion.dart';
 import '../model/sequence_model.dart';
 import 'package:intl/intl.dart';
@@ -690,6 +691,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   ScrollController scrollControllerGroup = ScrollController();
   ScrollController scrollControllerSite = ScrollController();
   ScrollController scrollControllerInjector = ScrollController();
+  int modelId = 0;
 
   Map<int, Widget> myTabs = <int, Widget>{
     0: const Padding(
@@ -729,6 +731,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     fertilizerSet = [];
     segmentedControlGroupValue = 0;
     segmentedControlCentralLocal = 0;
+    modelId = 0;
     // waterQuantity = TextEditingController();
     // preValue = TextEditingController();
     // postValue = TextEditingController();
@@ -1212,7 +1215,9 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
 
     return copiedList;
   }
-  void waterAndFert(){
+
+  void waterAndFert(int model){
+    modelId = model;
     final valSeqList = deepCopy(_irrigationLine!.sequence);
     var givenSeq = [];
     var myOldSeq = [];
@@ -1464,6 +1469,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     var wf = '';
     var payload = '';
     editGroupSiteInjector('selectedGroup', 0);
+    int channelLimit = AppConstants.ecoGemModelList.contains(modelId) ? 1 : 8;
     for(var sq in sequenceData){
       editGroupSiteInjector('selectedGroup', sequenceData.indexOf(sq));
       var valId = '';
@@ -1479,9 +1485,9 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       var localFertOnOff = '';
       var localFertId = '';
       if(!isSiteVisible(sq['centralDosing'],'central') || sq[segmentedControlCentralLocal == 0 ? 'applyFertilizerForCentral' : 'applyFertilizerForLocal'] == false || sq['centralDosing'].isEmpty || sq['selectedCentralSite'] == -1){
-        centralMethod = '0_0_0_0_0_0_0_0';
-        centralTimeAndQuantity += '0_0_0_0_0_0_0_0';
-        centralFertOnOff += '0_0_0_0_0_0_0_0';
+        centralMethod = channelLimit == 1 ? '0' : '0_0_0_0_0_0_0_0';
+        centralTimeAndQuantity += channelLimit == 1 ? '0' : '0_0_0_0_0_0_0_0';
+        centralFertOnOff += channelLimit == 1 ? '0' : '0_0_0_0_0_0_0_0';
       }else{
         var fertList = [];
         for(var ft in sq['centralDosing'][sq['selectedCentralSite']]['fertilizer']){
@@ -1491,7 +1497,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
           centralTimeAndQuantity += '${centralTimeAndQuantity.isNotEmpty ? '_' : ''}${ft['method'].contains('ime') ? ft['timeValue'] : ft['quantityValue']}';
           fertList.add(fertMethodHw(ft['method']));
         }
-        for(var coma = fertList.length;coma < 8;coma++){
+        for(var coma = fertList.length;coma < channelLimit;coma++){
           centralMethod += '${centralMethod.isNotEmpty ? '_' : ''}0';
           centralTimeAndQuantity += '${centralTimeAndQuantity.isNotEmpty ? '_' : ''}0';
           centralFertOnOff += '${centralFertOnOff.isNotEmpty ? '_' : ''}0';
@@ -1499,9 +1505,9 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       }
 
       if(!isSiteVisible(sq['localDosing'],'local') || sq[segmentedControlCentralLocal == 0 ? 'applyFertilizerForCentral' : 'applyFertilizerForLocal'] == false || sq['localDosing'].isEmpty || sq['selectedLocalSite'] == -1){
-        localMethod = '0_0_0_0_0_0_0_0';
-        localTimeAndQuantity += '0_0_0_0_0_0_0_0';
-        localFertOnOff += '0_0_0_0_0_0_0_0';
+        localMethod = channelLimit == 1 ? '0' : '0_0_0_0_0_0_0_0';
+        localTimeAndQuantity += channelLimit == 1 ? '0' : '0_0_0_0_0_0_0_0';
+        localFertOnOff += channelLimit == 1 ? '0' : '0_0_0_0_0_0_0_0';
       }else{
         var fertList = [];
         for(var ft in sq['localDosing'][sq['selectedLocalSite']]['fertilizer']){
@@ -1511,7 +1517,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
           localTimeAndQuantity += '${localTimeAndQuantity.isNotEmpty ? '_' : ''}${ft['method'].contains('ime') ? ft['timeValue'] : ft['quantityValue']}';
           fertList.add(fertMethodHw(ft['method']));
         }
-        for(var coma = fertList.length;coma < 8;coma++){
+        for(var coma = fertList.length;coma < channelLimit;coma++){
           localMethod += '${localMethod.isNotEmpty ? '_' : ''}0';
           localTimeAndQuantity += '${localTimeAndQuantity.isNotEmpty ? '_' : ''}0';
           localFertOnOff += '${localFertOnOff.isNotEmpty ? '_' : ''}0';
@@ -1524,7 +1530,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       var getValve = [];
       for(var v = 0;v < 4;v++){
         if(sq['valve'].length > v){
-          getValve.add(sq['valve'][v].toString().split('.')[1]);
+          getValve.add(sq['valve'][v]['sNo'].toString().split('.')[1]);
         }else{
           getValve.add('0');
         }
@@ -1535,113 +1541,36 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         'SequenceData' : getValve.join(','),
         'ValveFlowrate' : getNominalFlow(),
         'IrrigationMethod' : sq['method'] == 'Time' ? 1 : 2,
-        'IrrigationDuration_Quantity' : sq['method'] == 'Time' ? sq['timeValue'] : sq['quantityValue'],
+        'IrrigationDuration_Quantity' : timeAndQuantityForEcoGem(sq['method'] == 'Time' ? sq['timeValue'] : sq['quantityValue']),
         'CentralFertOnOff' : sq['applyFertilizerForCentral'] == false ? 0 : sq['selectedCentralSite'] == -1 ? 0 : 1,
         'PrePostMethod' : sq['prePostMethod'] == 'Time' ? 1 : 2,
-        'PreTime_PreQty' : sq['preValue'],
-        'PostTime_PostQty' : sq['postValue'],
+        'PreTime_PreQty' : timeAndQuantityForEcoGem(sq['preValue']),
+        'PostTime_PostQty' : timeAndQuantityForEcoGem(sq['postValue']),
         'CentralFertMethod' : centralMethod,
         'CentralFertChannelSelection' : centralFertOnOff,
-        'CentralFertDuration_Qty' : centralTimeAndQuantity,
+        'CentralFertDuration_Qty' : timeAndQuantityForEcoGem(centralTimeAndQuantity),
       };
-      print('jsonPayload :: $jsonPayload');
       payload += jsonPayload.values.toList().join(',');
     }
-    return payload;
+    List<String> originalList = payload.split(';');
+    List<List<String>> subLists = [];
+    List<String> payLoadList = [];
+    int howMuchPayloadNeedToSendInSingleShot = 8;
+    for (int i = 0; i < originalList.length; i += howMuchPayloadNeedToSendInSingleShot) {
+      int end = (i + howMuchPayloadNeedToSendInSingleShot < originalList.length) ? i + howMuchPayloadNeedToSendInSingleShot : originalList.length;
+      subLists.add(originalList.sublist(i, end));
+    }
+    payLoadList = subLists.map((e) => (e as List).join(';')).toList();
+    print('payLoadList :: ${jsonEncode(payLoadList)}');
+    return payLoadList;
   }
 
-  String wfPld(int index){
-    switch (index){
-      case (0):{
-        return 'S_No';
-      }
-      case (1):{
-        return 'program sno';
-      }
-      case (2):{
-        return 'seq name';
-      }
-      case (3):{
-        return 'seq id';
-      }
-      case (4):{
-        return 'pump';
-      }
-      case (5):{
-        return 'valve flowrate';
-      }
-      case (6):{
-        return 'irri method';
-      }
-      case (7):{
-        return 'irr duration or quantity';
-      }
-      case (8):{
-        return 'central fert on-off';
-      }
-      case (9):{
-        return 'local fert on-off';
-      }
-      case (10):{
-        return 'pre post method';
-      }
-      case (11):{
-        return 'pre time or quantity';
-      }
-      case (12):{
-        return 'post time or quantity';
-      }
-      case (13):{
-        return 'central method';
-      }
-      case (14):{
-        return 'local method';
-      }
-      case (15):{
-        return 'central channel on off';
-      }
-      case (16):{
-        return 'local channel on off';
-      }
-      case (17):{
-        return 'central channel method';
-      }
-      case (18):{
-        return 'local channel method';
-      }
-      case (19):{
-        return 'central ec on-off';
-      }
-      case (20):{
-        return 'central ec value';
-      }
-      case (20):{
-        return 'local ec on-off';
-      }
-      case (22):{
-        return 'local ec value';
-      }
-      case (23):{
-        return 'central ph on-off';
-      }
-      case (24):{
-        return 'central ph value';
-      }
-      case (25):{
-        return 'local ph on-off';
-      }
-      case (26):{
-        return 'local ph value';
-      }
-      case (27):{
-        return 'condition';
-      }
-      case (28):{
-        return 'immediate on-off';
-      }
-      default:{
-        return 'nothing';
-      }
+  String timeAndQuantityForEcoGem(String value){
+    if(value.contains(':')){
+      var timePayload = value.split(':').join(',');
+      return '$timePayload,0';
+    }else{
+      return '0,0,0,$value';
     }
   }
 
@@ -1650,6 +1579,17 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       var maxFertInSec = getMaxFertilizerValueForSelectedSequence();
       var diff = (postValueInSec() + preValueInSec() + maxFertInSec);
       var quantity = diff * flowRate();
+
+      if(AppConstants.ecoGemModelList.contains(modelId)){
+        if(sequenceData[selectedGroup][segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'].isNotEmpty){
+          for(var fert in sequenceData[selectedGroup][segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['fertilizer']){
+            fert['method'] = value;
+            fert['timeValue'] = '00:00:00';
+            fert['quantityValue'] = '0';
+          }
+        }
+      }
+
       if(value == 'Time'){
         sequenceData[selectedGroup]['timeValue'] = formatTime(diff);
       }else{
@@ -2345,6 +2285,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   bool get isChangeOverMode => _additionalData?.changeOverMode ?? false;
   bool get isProgramBasedSet => _additionalData?.programBasedSet ?? false;
   bool get isProgramBasedInjector => _additionalData?.programBasedInjector ?? false;
+
   void updatePumpStationMode(newValue, title) {
     switch(title) {
       case 0: _additionalData?.pumpStationMode = newValue;
@@ -2363,6 +2304,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
 
   bool get centralFiltBegin => _additionalData?.centralFiltrationBeginningOnly ?? false;
   bool get localFiltBegin => _additionalData?.localFiltrationBeginningOnly ?? false;
+
   void updateFiltBegin(newValue, isCentral) {
     if(isCentral) {
       _additionalData?.centralFiltrationBeginningOnly = newValue;
@@ -2419,6 +2361,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       "controllerId": controllerId,
       "serialNumber": serialNumber
     };
+
     try {
       final response = await repository.getUserProgramSelection(userData);
       final jsonData = json.decode(response.body);
