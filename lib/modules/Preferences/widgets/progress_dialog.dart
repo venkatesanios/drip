@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:mqtt_client/mqtt_client.dart';
+import 'package:oro_drip_irrigation/modules/Preferences/state_management/preference_provider.dart';
+import 'package:provider/provider.dart';
 import '../../../services/mqtt_service.dart';
 import '../../../utils/environment.dart';
 
@@ -9,6 +11,7 @@ class PayloadProgressDialog extends StatefulWidget {
   final String deviceId;
   final bool isToGem;
   final MqttService mqttService;
+  final bool shouldSendFailedPayloads;
 
   const PayloadProgressDialog({
     super.key,
@@ -16,6 +19,7 @@ class PayloadProgressDialog extends StatefulWidget {
     required this.deviceId,
     required this.isToGem,
     required this.mqttService,
+    required this.shouldSendFailedPayloads,
   });
 
   @override
@@ -100,9 +104,11 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
 
       bool isAcknowledged = await _waitForControllerResponse(payload, key, i);
 
-      setState(() {
-        payloadStatuses[i]['status'] = isAcknowledged ? 'Sent' : 'Failed';
-      });
+      if(mounted){
+        setState(() {
+          payloadStatuses[i]['status'] = isAcknowledged ? 'Sent' : 'Failed';
+        });
+      }
     }
     _checkAllProcessed();
   }
@@ -123,7 +129,10 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
       bool isAcknowledged = false;
       int maxWaitTime = 10;
       int elapsedTime = 0;
-
+      int oroPumpIndex = 0;
+      if(widget.isToGem) {
+        oroPumpIndex = context.read<PreferenceProvider>().commonPumpSettings!.indexWhere((element) => element.deviceId == payload.split('+')[2]);
+      }
       await for (var mqttMessage in widget.mqttService.preferenceAckStream.timeout(
         Duration(seconds: maxWaitTime),
         onTimeout: (sink) {
@@ -134,6 +143,7 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
 
         if (mqttMessage!['cM'].contains(key) &&
             (widget.isToGem ? mqttMessage['cC'] == payload.split('+')[2] : true)) {
+          context.read<PreferenceProvider>().updateControllerReaStatus(key: key, oroPumpIndex: oroPumpIndex, failed: widget.shouldSendFailedPayloads);
           isAcknowledged = true;
           break;
         }

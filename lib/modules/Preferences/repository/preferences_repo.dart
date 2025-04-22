@@ -29,6 +29,6 @@ class PreferenceRepository {
   }
 
   Future<http.Response> getUserPreferenceValveSetting(body) async {
-    return await apiService.postRequest('/user/preference/valveSetting/get', body);
+    return await apiService.postRequest('/user/preference/irrigation/get', body);
   }
 }

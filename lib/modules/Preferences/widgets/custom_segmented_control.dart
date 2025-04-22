@@ -21,7 +21,7 @@ class CustomSegmentedControl extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoSlidingSegmentedControl<int>(
-      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
       children: segmentTitles.map((key, title) {
         return MapEntry(
           key,

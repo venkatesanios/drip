@@ -50,6 +50,9 @@ class PreferenceProvider extends ChangeNotifier {
   SettingList? _valveSettings;
   SettingList? get valveSettings => _valveSettings;
 
+  SettingList? _moistureSettings;
+  SettingList? get moistureSettings => _moistureSettings;
+
   int passwordValidationCode = 0;
 
   void updateValidationCode() {
@@ -121,7 +124,8 @@ class PreferenceProvider extends ChangeNotifier {
       if(response.statusCode == 200) {
         final result = jsonDecode(response.body);
         try {
-          _valveSettings = SettingList.fromJson(Map<String, dynamic>.from(result['data']));
+          _valveSettings = SettingList.fromJson(Map<String, dynamic>.from(result['data']['valveSetting']));
+          _moistureSettings = SettingList.fromJson(Map<String, dynamic>.from(result['data']['moistureSetting']));
         } catch(error) {
           print(error);
         }
@@ -166,20 +170,20 @@ class PreferenceProvider extends ChangeNotifier {
     for (var individualPump in individualPumpSetting ?? []) {
       if (commonPumpSettings![oroPumpIndex].deviceId == individualPump.deviceId) {
         if(individualPump.output != null) {
-          pumpIndex = int.parse(RegExp(r'\d+').firstMatch(individualPump.output)!.group(0)!);
+          pumpIndex = individualPump.output;
         } else {
           pumpIndex++;
         }
         for (var individualPumpSetting in individualPump.settingList) {
           switch (individualPumpSetting.pumpType) {
-            case 23:case 203:
+            case 203:
               if(key.contains("400-$pumpIndex")) {
                 individualPumpSetting.controllerReadStatus= "1";
                 individualPumpSetting.changed = false;
                 // print("$key acknowledged");
               }
               break;
-            case 22:case 202:
+            case 202:
               temp.add(key);
               // print("temp variable ==> ${temp.toSet()}");
               if(temp.toSet().contains("300-$pumpIndex") && temp.toSet().contains("500-$pumpIndex")) {
@@ -188,7 +192,7 @@ class PreferenceProvider extends ChangeNotifier {
                 // print("$key acknowledged");
               }
               break;
-            case 25: case 205:
+            case 205:
             if(key.contains("600-$pumpIndex")) {
                 individualPumpSetting.controllerReadStatus = "1";
                 individualPumpSetting.changed = false;
@@ -203,7 +207,7 @@ class PreferenceProvider extends ChangeNotifier {
       if(key.contains("900")) {
         calibrationSetting![oroPumpIndex].settingList[1].controllerReadStatus = "1";
         calibrationSetting![oroPumpIndex].settingList[0].changed = false;
-      };
+      }
     }
     notifyListeners();
   }
@@ -268,4 +272,11 @@ class PreferenceProvider extends ChangeNotifier {
   bool getSwitchState(String value) {
     return value.toString().contains(',') ? value.split(',')[1] == '1' : value == 'true';
   }
+
+  void updateRadioValue(String title, int value) {
+    final item = _moistureSettings!.setting.firstWhere((e) => e.title == title);
+    item.value = value;
+    notifyListeners();
+  }
+
 }

@@ -14,50 +14,56 @@ class ValveSettings extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = context.read<CustomerScreenControllerViewModel>();
     final valves = provider.mySiteList.data[provider.sIndex].master[provider.mIndex].configObjects.where((e) => e.objectId == 13).toList();
-    return Consumer<PreferenceProvider>(
-      builder: (context, provider, _) {
-        final settings = provider.valveSettings!.setting;
-        final firstHalf = settings.sublist(0, 5);
-        final secondHalf = settings.sublist(5, 5+valves.length);
-
-        return ListView(
-          padding: const EdgeInsets.all(8),
-          children: [
-            ...firstHalf.map((item) => _buildSettingTile(context, item)),
-            const Divider(),
-
-           /* const Text("Select Mode:", style: TextStyle(fontWeight: FontWeight.bold)),
-            Row(
-              children: [
-                Expanded(
-                  child: RadioListTile<String>(
-                    title: const Text("Duration"),
-                    value: "Duration",
-                    groupValue: provider.mode,
-                    onChanged: (value) {
-                      if (value != null) provider.updateMode(value);
-                    },
-                  ),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          IntrinsicWidth(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              height: 30,
+              decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColorLight,
+                  borderRadius: const BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(3))
+              ),
+              child: const Center(
+                child: Text(
+                  "Valve Settings",
+                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white,),
                 ),
-                Expanded(
-                  child: RadioListTile<String>(
-                    title: const Text("Manual"),
-                    value: "Manual",
-                    groupValue: provider.mode,
-                    onChanged: (value) {
-                      if (value != null) provider.updateMode(value);
-                    },
-                  ),
-                ),
-              ],
+              ),
             ),
-
-            const Divider(),*/
-            ...secondHalf.map((item) => _buildSecondHalfTile(context, item, provider.mode)),
-            const SizedBox(height: 60),
-          ],
-        );
-      },
+          ),
+          Flexible(
+            child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.only(topRight: Radius.circular(10), bottomLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
+                  color: Colors.white,
+                  border: Border.all(color: Theme.of(context).primaryColorLight, width: 0.3)
+                // boxShadow: AppProperties.customBoxShadowLiteTheme
+              ),
+              child: Consumer<PreferenceProvider>(
+                builder: (context, provider, _) {
+                  final settings = provider.valveSettings!.setting;
+                  final firstHalf = settings.sublist(0, 5);
+                  final secondHalf = settings.sublist(5, 5+valves.length);
+              
+                  return ListView(
+                    padding: const EdgeInsets.all(8),
+                    children: [
+                      ...firstHalf.map((item) => _buildSettingTile(context, item)),
+                      const Divider(),
+                      ...secondHalf.map((item) => _buildSecondHalfTile(context, item, provider.mode)),
+                      const SizedBox(height: 60),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -65,6 +71,7 @@ class ValveSettings extends StatelessWidget {
     final provider = Provider.of<PreferenceProvider>(context, listen: false);
 
     return ListTile(
+      contentPadding: EdgeInsets.zero,
       title: Text(settingItem.title),
       trailing: IntrinsicWidth(
         child: settingItem.widgetTypeId == 3
@@ -112,6 +119,7 @@ class ValveSettings extends StatelessWidget {
     final provider = Provider.of<PreferenceProvider>(context, listen: false);
 
     return ListTile(
+      contentPadding: EdgeInsets.zero,
       title: Text(settingItem.title),
       trailing: IntrinsicWidth(
         child: mode == "Manual"

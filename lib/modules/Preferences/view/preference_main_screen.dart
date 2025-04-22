@@ -22,6 +22,7 @@ import '../../../utils/environment.dart';
 import '../../IrrigationProgram/view/program_library.dart';
 import '../widgets/custom_segmented_control.dart';
 import '../widgets/progress_dialog.dart';
+import 'moisture_settings.dart';
 
 final otherSettingsIcons = [
   MdiIcons.lightbulbMultipleOutline,
@@ -226,14 +227,23 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
   Widget build(BuildContext context) {
     preferenceProvider = Provider.of<PreferenceProvider>(context, listen:  true);
     mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: true);
+
+    List settingOptions = [];
     if(preferenceProvider.commonPumpSettings != null && preferenceProvider.commonPumpSettings!.isNotEmpty) {
+      settingOptions = [
+        'Common setting',
+        'Individual setting',
+        'Calibration',
+        if ([48, 49].contains(preferenceProvider.commonPumpSettings![0].modelId))
+          'Valve setting',
+        if ([48, 49].contains(preferenceProvider.commonPumpSettings![0].modelId))
+          'Moisture setting',
+      ];
       if(oroPumpList.isEmpty) {
         for(var i = 0; i < preferenceProvider.commonPumpSettings!.length; i++){
-          print("commonPumpSettings device id: ${preferenceProvider.commonPumpSettings![i].deviceId}");
           oroPumpList.add(preferenceProvider.commonPumpSettings![i].deviceId);
         }
         selectedOroPumpList = oroPumpList;
-        print("selectedOroPumpList initiallhy ::$selectedOroPumpList");
       }
     }
     if(preferenceProvider.generalData != null && preferenceProvider.commonPumpSettings != null){
@@ -255,77 +265,82 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                             if(preferenceProvider.commonPumpSettings!.isNotEmpty)
                               if(!viewConfig)
                                 Expanded(
-                                  child: CustomSegmentedControl(
-                                    segmentTitles: [48,49].contains(preferenceProvider.commonPumpSettings![0].modelId) ? {
-                                      0: 'Common setting',
-                                      1: 'Individual setting',
-                                      2: 'Calibration',
-                                      3: "Valve setting"
-                                    } : {
-                                      0: 'Common setting',
-                                      1: 'Individual setting',
-                                      2: 'Calibration'
-                                    },
-                                    groupValue: selectedSetting,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        selectedSetting = value!;
-                                        if(selectedSetting == 2) {
-                                          showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                return Consumer(
-                                                    builder: (BuildContext context, PreferenceProvider preferenceProvider, _) {
-                                                      return AlertDialog(
-                                                        content: Column(
-                                                          mainAxisSize: MainAxisSize.min,
-                                                          children: [
-                                                            TextFormField(
-                                                              controller: passwordController,
-                                                              autofocus: true,
-                                                              decoration: const InputDecoration(
-                                                                  hintText: "Enter password"
-                                                              ),
-                                                            ),
-                                                            const SizedBox(height: 10,),
-                                                            if(preferenceProvider.passwordValidationCode == 404)
-                                                              const Text('Invalid password', style: TextStyle(color: Colors.red),)
-                                                          ],
-                                                        ),
-                                                        actions: [
-                                                          TextButton(
-                                                              onPressed: (){
-                                                                passwordController.text = "";
-                                                                preferenceProvider.updateValidationCode();
-                                                                selectedSetting = 1;
-                                                                Navigator.of(context).pop();
-                                                              },
-                                                              child: const Text("CANCEL")
-                                                          ),
-                                                          TextButton(
-                                                              onPressed: () async {
-                                                                await Future.delayed(Duration.zero, () {
-                                                                  preferenceProvider.updateValidationCode();
-                                                                });
-                                                                await preferenceProvider.checkPassword(userId: widget.userId, password: passwordController.text);
-                                                                if(preferenceProvider.passwordValidationCode == 200) {
-                                                                  Navigator.of(context).pop();
-                                                                  passwordController.text = "";
-                                                                }
-                                                              },
-                                                              child: const Text("OK")
-                                                          ),
-                                                        ],
-                                                      );
-                                                    }
-                                                );
-                                              }
-                                          );
-                                        } else {
-                                          preferenceProvider.updateValidationCode();
-                                        }
-                                      });
-                                    },
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Row(
+                                      children: List.generate(settingOptions.length, (index) {
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                                          child: ChoiceChip(
+                                            label: Text(settingOptions[index]),
+                                            selected: selectedSetting == index,
+                                            // color: WidgetStatePropertyAll(selectedSetting == index ? Theme.of(context).primaryColorDark : null),
+                                            labelStyle: TextStyle(color: selectedSetting == index ? Colors.white : Theme.of(context).primaryColor),
+                                            selectedColor: Theme.of(context).primaryColor,
+                                            showCheckmark: false,
+                                            onSelected: (selected) async {
+                                              setState(() {
+                                                selectedSetting = index;
+                                                if(selectedSetting == 2) {
+                                                  showDialog(
+                                                      context: context,
+                                                      builder: (BuildContext context) {
+                                                        return Consumer(
+                                                            builder: (BuildContext context, PreferenceProvider preferenceProvider, _) {
+                                                              return AlertDialog(
+                                                                content: Column(
+                                                                  mainAxisSize: MainAxisSize.min,
+                                                                  children: [
+                                                                    TextFormField(
+                                                                      controller: passwordController,
+                                                                      autofocus: true,
+                                                                      decoration: const InputDecoration(
+                                                                          hintText: "Enter password"
+                                                                      ),
+                                                                    ),
+                                                                    const SizedBox(height: 10,),
+                                                                    if(preferenceProvider.passwordValidationCode == 404)
+                                                                      const Text('Invalid password', style: TextStyle(color: Colors.red),)
+                                                                  ],
+                                                                ),
+                                                                actions: [
+                                                                  TextButton(
+                                                                      onPressed: (){
+                                                                        passwordController.text = "";
+                                                                        preferenceProvider.updateValidationCode();
+                                                                        selectedSetting = 1;
+                                                                        Navigator.of(context).pop();
+                                                                      },
+                                                                      child: const Text("CANCEL")
+                                                                  ),
+                                                                  TextButton(
+                                                                      onPressed: () async {
+                                                                        await Future.delayed(Duration.zero, () {
+                                                                          preferenceProvider.updateValidationCode();
+                                                                        });
+                                                                        await preferenceProvider.checkPassword(userId: widget.userId, password: passwordController.text);
+                                                                        if(preferenceProvider.passwordValidationCode == 200) {
+                                                                          Navigator.of(context).pop();
+                                                                          passwordController.text = "";
+                                                                        }
+                                                                      },
+                                                                      child: const Text("OK")
+                                                                  ),
+                                                                ],
+                                                              );
+                                                            }
+                                                        );
+                                                      }
+                                                  );
+                                                } else {
+                                                  preferenceProvider.updateValidationCode();
+                                                }
+                                              });
+                                            },
+                                          ),
+                                        );
+                                      }),
+                                    ),
                                   ),
                                 )
                               else
@@ -375,13 +390,9 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                                   )
                               else if(selectedSetting == 3)
                                 const ValveSettings()
-                                 /* for(var pumpSettingIndex = 0; pumpSettingIndex < [preferenceProvider.valveSettings!].length; pumpSettingIndex++)
-                                    buildSettingsCategory(
-                                        context: context,
-                                        settingList: [preferenceProvider.valveSettings!],
-                                        constraints: constraints,
-                                        pumpIndex: pumpSettingIndex
-                                    )*/
+                              else if(selectedSetting == 4)
+                                const MoistureSettings()
+
                             ],
                           )
                       ),
@@ -681,7 +692,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                           IntrinsicWidth(
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 15),
-                              height: 35,
+                              height: 30,
                               decoration: BoxDecoration(
                                   color: Theme.of(context).primaryColorLight,
                                   borderRadius: const BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(3))
@@ -1343,6 +1354,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
           'commonPumps': preferenceProvider.commonPumpSettings?.map((item) => item.toJson()).toList(),
           'hardware': payloadForSlave,
           'valveSetting': preferenceProvider.valveSettings?.setting.map((e) => e.toJson()).toList() ?? [],
+          'moistureSetting': preferenceProvider.moistureSettings?.setting.map((e) => e.toJson()).toList() ?? [],
           'controllerReadStatus': preferenceProvider.generalData!.controllerReadStatus
         });
       });
@@ -1403,6 +1415,15 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
           for (var settingCategory in [preferenceProvider.valveSettings!]) {
             if ([211].contains(settingCategory.type)) {
               final payload = jsonEncode({"55": jsonEncode({"sentSms": '${preferenceProvider.mode == "Duration" ? 'valvesetting' : 'standalone'},${getSettingValue(settingCategory)}'})});
+              temp.add(payload);
+            }
+          }
+        }
+
+        if([48, 49].contains(modelId) && selectedSetting == 4) {
+          for (var settingCategory in [preferenceProvider.moistureSettings!]) {
+            if ([212].contains(settingCategory.type)) {
+              final payload = jsonEncode({"57": jsonEncode({"sentSms": 'moisturesetting,${preferenceProvider.moistureSettings!.setting.map((e) => e.widgetTypeId != 2 ? e.value : e.value ? 1 : 0).toList().join(',')}'})});
               temp.add(payload);
             }
           }
@@ -1483,14 +1504,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
             temp.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+$categoryId2": payload);
           }
         }
-        if([48, 49].contains(modelId)) {
-          for (var settingCategory in [preferenceProvider.valveSettings!]) {
-            if (!sendAll ? ([211].contains(settingCategory.type) && settingCategory.controllerReadStatus == "0") : [211].contains(settingCategory.type)) {
-              final payload = jsonEncode({"51": jsonEncode({"sentSms": '${preferenceProvider.mode == "Duration" ? 'valvesetting' : 'standalone'},${getSettingValue(settingCategory)}'})});
-              temp.add(isToGem ? "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload+$categoryId2": payload);
-            }
-          }
-        }
+
         int pumpIndex = 0;
         for (var individualPump in preferenceProvider.individualPumpSetting ?? []) {
           if (commonSetting.deviceId == individualPump.deviceId) {
@@ -1652,11 +1666,15 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
         if(settingCategory.type == 211) {
           if(setting.value.toString().contains(',')) {
             final parts = setting.value.split(',');
-            if(preferenceProvider.mode == "Manual" && setting.serialNumber > 5) {
-              value = "${parts[1]}";
+            if(setting.serialNumber <= 15) {
+              if(preferenceProvider.mode == "Manual" && setting.serialNumber > 5) {
+                value = "${parts[1]}";
+              } else {
+                final result = parts[0].split(':');
+                value = "${result[0]},${result[1]}";
+              }
             } else {
-              final result = parts[0].split(':');
-              value = "${result[0]},${result[1]}";
+              value = setting.value;
             }
           } else {
             if(preferenceProvider.mode != "Manual") {
@@ -1730,6 +1748,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
           deviceId: deviceId,
           isToGem: isToGem,
           mqttService: mqttService,
+          shouldSendFailedPayloads: shouldSendFailedPayloads,
         );
       },
     );

@@ -423,7 +423,6 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                   ),
                   child: Center(
                     child: Text(
-                      // '${Provider.of<PreferenceProvider>(context).individualPumpSetting![index].name}',
                       pumps[index].name,
                       style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white,),
                     ),
@@ -441,7 +440,9 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                       // // padding: const EdgeInsets.all(8),
                       margin: const EdgeInsets.symmetric(horizontal: 15),
                       child: Text(
-                        pumpItem.reasonCode == 0
+                        (pumpData.pumps.firstWhere((pump) => pump is PumpValveModel) as PumpValveModel).cycleCompletedFlag == '1'
+                            ? "Turned off due to Cycles completed"
+                            : pumpItem.reasonCode == 0
                             ? (pumpItem.status == 1 ? "Turned on through the mobile" : "Turned off through the mobile").toUpperCase()
                             : pumpItem.reason.toUpperCase(),
                         style: TextStyle(
@@ -525,11 +526,11 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                                             ? "RC"
                                             : phase == 2
                                             ? "YC" : "BC"} : ',
-                                        // style: TextStyle(fontSize: smallFontSize, color: Colors.black),
+                                        style: const TextStyle(color: Colors.black),
                                       ),
                                       TextSpan(
                                         text: '${pumpItem.set}',
-                                        // style: TextStyle(fontSize: smallFontSize, color: Colors.black, fontWeight: FontWeight.bold),
+                                        style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                                       ),
                                     ],
                                   ),
