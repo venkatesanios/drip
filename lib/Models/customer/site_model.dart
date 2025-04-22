@@ -58,6 +58,7 @@ class MasterControllerModel {
   late final LiveMessage? live;
   List<ConfigObject> configObjects;
 
+
   MasterControllerModel({
     required this.controllerId,
     required this.deviceId,
@@ -78,8 +79,8 @@ class MasterControllerModel {
 
     final config = json['config'] ?? json;
 
-    final configObjectsRaw = config['configObject'] as List;
-    final irrigationLinesRaw = config['irrigationLine'] as List;
+    final configObjectsRaw = (config['configObject'] as List?) ?? [];
+    final irrigationLinesRaw = (config['irrigationLine'] as List?) ?? [];
 
     if(irrigationLinesRaw.isNotEmpty && irrigationLinesRaw.length>1){
       var allLine = {
@@ -113,7 +114,7 @@ class MasterControllerModel {
         "waterMeter": 0,
         "pressureIn": 0,
         "pressureOut": 0,
-        "moisture": [],
+        "moistureSensor": [],
         "temperature": [],
         "soilTemperature": [],
         "humidity": [],
@@ -125,6 +126,7 @@ class MasterControllerModel {
     final waterSourcesRaw = config['waterSource'] as List? ?? [];
     final filterSiteRaw = config['filterSite'] as List? ?? [];
     final fertilizerSiteRaw = config['fertilizerSite'] as List? ?? [];
+    final moistureSensorRaw = config['moistureSensor'] as List? ?? [];
 
     List<ConfigObject> configObjectsR = json["config"] != null &&
         json["config"] is Map<String, dynamic> &&
@@ -155,7 +157,7 @@ class MasterControllerModel {
     };
 
     List<IrrigationLineModel> irrigationLines = irrigationLinesRaw
-        .map((item) => IrrigationLineModel.fromJson(item, configObjects))
+        .map((item) => IrrigationLineModel.fromJson(item, configObjects, moistureSensorRaw))
         .toList();
 
     for (var line in irrigationLines) {
@@ -163,8 +165,6 @@ class MasterControllerModel {
       final matchedFertilizerSite = fertilizerSiteMap[line.centralFertilization];
       line.linkReferences(configObjects, waterSources, matchedFilterSite, matchedFertilizerSite);
     }
-
-
 
     return MasterControllerModel(
       controllerId: json['controllerId'] ?? 0,
@@ -286,12 +286,31 @@ class IrrigationLineModel {
     required this.waterMeter,
   });
 
-  factory IrrigationLineModel.fromJson(Map<String, dynamic> json, List<ConfigObject> configObjects) {
+  factory IrrigationLineModel.fromJson(Map<String, dynamic> json, List<ConfigObject> configObjects, var moistureSensorRaw) {
 
     final valveSNoSet = ((json['valve'] as List?) ?? []).map((e) => e).toSet();
     final valves = configObjects.where((obj) => valveSNoSet.contains(obj.sNo))
         .map(ValveModel.fromConfigObject)
         .toList();
+
+    final Map<double, List<MoistureSensorModel>> valveToMoistureSensors = {};
+
+    for (var sensor in moistureSensorRaw) {
+      final sensorSNo = (sensor['sNo'] as num).toDouble();
+      final sensorName = sensor['name'] as String;
+      final sensorValves = sensor['valves'] as List;
+
+      for (var valve in sensorValves) {
+        final valveSNo = (valve as num).toDouble();
+        valveToMoistureSensors
+            .putIfAbsent(valveSNo, () => [])
+            .add(MoistureSensorModel(sNo: sensorSNo, name: sensorName));
+      }
+    }
+
+    for (var valve in valves) {
+      valve.moistureSensors = valveToMoistureSensors[valve.sNo] ?? [];
+    }
 
 
     final pressureSwitchSNoList = (json['pressureSwitch'] is List)
@@ -1014,28 +1033,30 @@ class Agitator {
 }
 
 class MoistureSensorModel {
-  final double valveSNo;
-  final double moistureSensorSNo;
+  final double sNo;
+  final String name;
+  String value;
 
   MoistureSensorModel({
-    required this.valveSNo,
-    required this.moistureSensorSNo,
+    required this.sNo,
+    required this.name,
+    this.value = '0',
   });
 
-  factory MoistureSensorModel.fromValve({
-    required Map<String, dynamic> valve,
-    required double sensorSNo,
-  }) {
+  factory MoistureSensorModel.fromJson(Map<String, dynamic> json) {
     return MoistureSensorModel(
-      valveSNo: (valve['sNo'] as num).toDouble(),
-      moistureSensorSNo: sensorSNo,
+      sNo: (json['sNo'] as num).toDouble(),
+      name: json['name'],
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    'valveSNo': valveSNo,
-    'moistureSensorSNo': moistureSensorSNo,
-  };
+  Map<String, dynamic> toJson() {
+    return {
+      'sNo': sNo,
+      'name': name,
+    };
+  }
+
 }
 
 class SensorModel {
@@ -1080,6 +1101,7 @@ class ValveModel {
   final String name;
   int status;
   bool isOn;
+  List<MoistureSensorModel> moistureSensors = [];
 
   ValveModel({
     required this.sNo,

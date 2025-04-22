@@ -41,9 +41,9 @@ class StandAloneViewModel extends ChangeNotifier {
   final int userId, customerId, controllerId;
   final String deviceId;
 
-  MasterControllerModel configData;
+  MasterControllerModel masterData;
 
-  StandAloneViewModel(this.repository, this.configData, this.userId, this.customerId, this.controllerId, this.deviceId);
+  StandAloneViewModel(this.repository, this.masterData, this.userId, this.customerId, this.controllerId, this.deviceId);
 
   Future<void> getProgramList() async {
     setLoading(true);
@@ -177,56 +177,72 @@ class StandAloneViewModel extends ChangeNotifier {
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
         print(response.body);
-        /*if (jsonResponse['data'] != null) {
+        if (jsonResponse['data'] != null) {
           dynamic data = jsonResponse['data'];
           standAloneData = StandAloneModel.fromJson(data);
           print(standAloneData.sequence);
 
-          if(ddCurrentPosition==0){
+          if(ddCurrentPosition==0) {
             for (var item in standAloneData.selection) {
               int serialNo = item.sNo.toInt();
 
               if (serialNo == 5) {
-                configData.pump
-                    .where((pump) => pump.sNo == item.sNo)
-                    .forEach((pump) => pump.selected = true);
+                for (var line in masterData.irrigationLine) {
+                  for (var waterSource in line.waterSources) {
+                    waterSource.pumpObjects.where((pump) => pump.sNo == item.sNo).forEach((pump) {
+                      pump.selected = true;
+                    });
+                  }
+                }
               }
 
               if (serialNo == 7) {
-                for (var fertilizerSite in configData.fertilizerSite) {
-                  fertilizerSite.boosterPump
-                      .where((boosterPump) => boosterPump.sNo == item.sNo)
-                      .forEach((boosterPump) => boosterPump.selected = true);
+                for (var line in masterData.irrigationLine) {
+                  var fertilizerSite = line.centralFertilizerSite;
+                  if (fertilizerSite != null) {
+                    fertilizerSite.boosterPump.where((booster) => booster.sNo == item.sNo).forEach((booster) {
+                      booster.selected = true;
+                    });
+                  }
                 }
               }
 
               if (serialNo == 9) {
-                for (var fertilizerSite in configData.fertilizerSite) {
-                  fertilizerSite.agitator
-                      .where((agitator) => agitator.sNo == item.sNo)
-                      .forEach((agitator) => agitator.selected = true);
+                for (var line in masterData.irrigationLine) {
+                  var fertilizerSite = line.centralFertilizerSite;
+                  if (fertilizerSite != null) {
+                    fertilizerSite.agitator.where((agitator) => agitator.sNo == item.sNo).forEach((agitator) {
+                      agitator.selected = true;
+                    });
+                  }
                 }
               }
 
               if (serialNo == 10) {
-                for (var fertilizerSite in configData.fertilizerSite) {
-                  fertilizerSite.channel
-                      .where((channel) => channel.sNo == item.sNo)
-                      .forEach((channel) => channel.selected = true);
+                for (var line in masterData.irrigationLine) {
+                  var fertilizerSite = line.centralFertilizerSite;
+                  if (fertilizerSite != null) {
+                    fertilizerSite.channel.where((channel) => channel.sNo == item.sNo).forEach((channel) {
+                      channel.selected = true;
+                    });
+                  }
                 }
               }
 
               if (serialNo == 11) {
-                for (var filterSite in configData.filterSite) {
-                  filterSite.filters
-                      .where((filter) => filter.sNo == item.sNo)
-                      .forEach((filter) => filter.selected = true);
+                for (var line in masterData.irrigationLine) {
+                  var filterSite = line.centralFilterSite;
+                  if (filterSite != null) {
+                    filterSite.filters.where((filter) => filter.sNo == item.sNo).forEach((filter) {
+                      filter.selected = true;
+                    });
+                  }
                 }
               }
 
               if (serialNo == 13) {
-                for (var line in configData.lineData) {
-                  line.valves
+                for (var line in masterData.irrigationLine) {
+                  line.valveObjects
                       .where((valve) => valve.sNo == item.sNo)
                       .forEach((valve) => valve.isOn = true);
                 }
@@ -239,7 +255,7 @@ class StandAloneViewModel extends ChangeNotifier {
           }
         } else {
           debugPrint('Invalid response format: "data" is null');
-        }*/
+        }
       }
     } catch (error, stackTrace) {
       debugPrint('Error fetching Product stock: $error');
@@ -400,13 +416,13 @@ class StandAloneViewModel extends ChangeNotifier {
     }
   }
 
-  void stopAllManualOperation() {
+  void stopAllManualOperation(BuildContext context) {
     if(ddCurrentPosition==0){
       String payLoadFinal = jsonEncode({
         "800": {"801": '0,0,0,0,0'}
       });
       MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-
+      Navigator.of(context).pop();
     }
   }
 
@@ -428,33 +444,42 @@ class StandAloneViewModel extends ChangeNotifier {
           strSldBoosterPumpSrlNo = '',
           strSldSelectorSrlNo = '';
 
-     /* if (configData.pump.isNotEmpty) {
-        strSldPumpSrlNo = getSelectedRelaySrlNo(configData.pump);
-      }
 
-      if(configData.filterSite.isNotEmpty){
-        for(int i=0; i<configData.filterSite.length; i++){
-          String concatenatedString = getSelectedRelaySrlNo(configData.filterSite[i].filters);
-          if(concatenatedString.isNotEmpty){
+      Set<String> serialNoSet = {};
+      for (var line in masterData.irrigationLine) {
+        for (var waterSource in line.waterSources) {
+          var srlNo = getSelectedRelaySrlNo(waterSource.pumpObjects);
+          if (srlNo.isNotEmpty) {
+            serialNoSet.addAll(srlNo.split(','));
+          }
+        }
+      }
+      strSldPumpSrlNo = serialNoSet.join('_');
+
+      for (var line in masterData.irrigationLine) {
+        if (line.centralFilterSite != null && line.centralFilterSite!.filters.isNotEmpty) {
+          String concatenatedString = getSelectedRelaySrlNo(line.centralFilterSite!.filters);
+          if (concatenatedString.isNotEmpty) {
             strSldCtrlFilterSrlNo += '${concatenatedString}_';
           }
         }
-        if (strSldCtrlFilterSrlNo.isNotEmpty && strSldCtrlFilterSrlNo.endsWith('_')) {
-          strSldCtrlFilterSrlNo = strSldCtrlFilterSrlNo.replaceRange(strSldCtrlFilterSrlNo.length - 1, strSldCtrlFilterSrlNo.length, '');
-        }
+      }
+      if (strSldCtrlFilterSrlNo.isNotEmpty && strSldCtrlFilterSrlNo.endsWith('_')) {
+        strSldCtrlFilterSrlNo = strSldCtrlFilterSrlNo.substring(0, strSldCtrlFilterSrlNo.length - 1);
       }
 
-      for (var line in configData.lineData) {
-        for (int j = 0; j < line.valves.length; j++) {
-          if (line.valves[j].isOn) {
-            strSldValveOrLineSrlNo += '${line.valves[j].sNo}_';
+
+      for (var line in masterData.irrigationLine) {
+        for (int j = 0; j < line.valveObjects.length; j++) {
+          if (line.valveObjects[j].isOn) {
+            strSldValveOrLineSrlNo += '${line.valveObjects[j].sNo}_';
             standaloneSelection.add({
-              'sNo': line.valves[j].sNo,
-              'selected': line.valves[j].isOn,
+              'sNo': line.valveObjects[j].sNo,
+              'selected': line.valveObjects[j].isOn,
             });
           }
         }
-      }*/
+      }
 
       strSldValveOrLineSrlNo = strSldValveOrLineSrlNo.isNotEmpty ? strSldValveOrLineSrlNo.substring(
           0, strSldValveOrLineSrlNo.length - 1) : '';

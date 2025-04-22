@@ -43,51 +43,7 @@ class FertilizerSiteView extends StatelessWidget {
                       ],
                     ),
                   ),
-                SizedBox(
-                    width: 70,
-                    height: 120,
-                    child : Stack(
-                      children: [
-                        AppConstants.getAsset('booster', fertilizerSite.boosterPump[0].status,''),
-                        Positioned(
-                          top: 70,
-                          left: 15,
-                          child: fertilizerSite.selector.isNotEmpty ? const SizedBox(
-                            width: 50,
-                            child: Center(
-                              child: Text('Selector' , style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 10,
-                                fontWeight: FontWeight.normal,
-                              ),
-                              ),
-                            ),
-                          ) :
-                          const SizedBox(),
-                        ),
-                        Positioned(
-                          top: 85,
-                          left: 18,
-                          child: fertilizerSite.selector.isNotEmpty ? Container(
-                            decoration: BoxDecoration(
-                              color: fertilizerSite.selector[0]['Status']==0? Colors.grey.shade300:
-                              fertilizerSite.selector[0]['Status']==1? Colors.greenAccent:
-                              fertilizerSite.selector[0]['Status']==2? Colors.orangeAccent:Colors.redAccent,
-                              borderRadius: BorderRadius.circular(3),
-                            ),
-                            width: 45,
-                            height: 22,
-                          ):
-                          const SizedBox(),
-                        ),
-                        Positioned(
-                          top: 115,
-                          left: 8.3,
-                          child: Image.asset('assets/png/dp_frt_vertical_pipe.png', width: 9.5, height: 37,),
-                        ),
-                      ],
-                    )
-                ),
+                BoosterWidget(fertilizerSite: fertilizerSite),
                 SizedBox(
                   width: fertilizerSite.channel.length * 70,
                   height: 120,
@@ -251,6 +207,75 @@ class FertilizerSiteView extends StatelessWidget {
     final timeRegExp = RegExp(r'^([0-1]?\d|2[0-3]):[0-5]\d:[0-5]\d$');
     return timeRegExp.hasMatch(value);
   }
+}
+
+class BoosterWidget extends StatelessWidget {
+  final FertilizerSiteModel fertilizerSite;
+  const BoosterWidget({
+    super.key,
+    required this.fertilizerSite,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Selector<MqttPayloadProvider, String?>(
+      selector: (_, provider) => provider.getBoosterPumpOnOffStatus(fertilizerSite.boosterPump[0].sNo.toString()),
+      builder: (_, status, __) {
+
+        final statusParts = status?.split(',') ?? [];
+        if(statusParts.isNotEmpty){
+          fertilizerSite.boosterPump[0].status = int.parse(statusParts[1]);
+        }
+
+        return SizedBox(
+            width: 70,
+            height: 120,
+            child : Stack(
+              children: [
+                AppConstants.getAsset('booster', fertilizerSite.boosterPump[0].status,''),
+                Positioned(
+                  top: 70,
+                  left: 15,
+                  child: fertilizerSite.selector.isNotEmpty ? const SizedBox(
+                    width: 50,
+                    child: Center(
+                      child: Text('Selector' , style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 10,
+                        fontWeight: FontWeight.normal,
+                      ),
+                      ),
+                    ),
+                  ) :
+                  const SizedBox(),
+                ),
+                Positioned(
+                  top: 85,
+                  left: 18,
+                  child: fertilizerSite.selector.isNotEmpty ? Container(
+                    decoration: BoxDecoration(
+                      color: fertilizerSite.selector[0]['Status']==0? Colors.grey.shade300:
+                      fertilizerSite.selector[0]['Status']==1? Colors.greenAccent:
+                      fertilizerSite.selector[0]['Status']==2? Colors.orangeAccent:Colors.redAccent,
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                    width: 45,
+                    height: 22,
+                  ):
+                  const SizedBox(),
+                ),
+                Positioned(
+                  top: 115,
+                  left: 8.3,
+                  child: Image.asset('assets/png/dp_frt_vertical_pipe.png', width: 9.5, height: 37,),
+                ),
+              ],
+            )
+        );
+      },
+    );
+  }
+
 }
 
 class ChannelWidget extends StatelessWidget {

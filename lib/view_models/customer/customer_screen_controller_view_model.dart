@@ -212,23 +212,30 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
       final deviceId = mySiteList.data[sIndex].master[mIndex].deviceId;
       final topic = '${AppConstants.publishTopic}/$deviceId';
 
+
       Future.delayed(const Duration(milliseconds: 1000), () async {
-        while (attempts < 3 && ! payloadProvider.isLiveSynced) {
-          print("Attempt ${attempts + 1}: Sent live request");
+        bool responseReceived = false;
+        while (attempts < 3 && !payloadProvider.isLiveSynced) {
+          print("Attempt ${attempts + 1}: Sending live request...");
           mqttService.topicToPublishAndItsMessage(livePayload, topic);
           await Future.delayed(const Duration(seconds: 3));
           if (payloadProvider.isLiveSynced) {
-            print("Live response received.");
+            responseReceived = true;
             payloadProvider.liveSyncCall(false);
+            break;
           } else {
             attempts++;
           }
         }
+
+        if (!responseReceived) {
+          print("No communication after 3 attempts.");
+          payloadProvider.isLiveSynced = false;
+          payloadProvider.liveSyncCall(false);
+          //payloadProvider.setCommunicationStatus(false);
+        }
       });
 
-      Future.delayed(const Duration(milliseconds: 3000), () {
-        payloadProvider.liveSyncCall(false);
-      });
 
       if (!payloadProvider.isLiveSynced) {
 
