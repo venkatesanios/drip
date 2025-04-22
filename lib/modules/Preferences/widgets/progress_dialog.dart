@@ -196,7 +196,7 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
       await widget.mqttService.connect().then((_) {
         if (widget.mqttService.connectionState == MqttConnectionState.connected) {
           setState(() {
-            mqttError = ''; // Clear error if reconnected
+            mqttError = '';
           });
           retryFailedPayloads();
         } else {
@@ -275,7 +275,7 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
               },
             ),
           ),
-          if (mqttError.isNotEmpty) // Show MQTT error if any
+          if (mqttError.isNotEmpty)
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
@@ -286,13 +286,21 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
         ],
       ),
       actions: [
-        FilledButton(
-          onPressed: () {
-            breakLoop = true;
-            Navigator.of(context).pop();
-          },
-          child: const Text("Cancel"),
-        ),
+        if(isAllProcessed && isAllSent)
+          FilledButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text("Done"),
+          )
+        else
+          FilledButton(
+            onPressed: () {
+              breakLoop = true;
+              Navigator.of(context).pop();
+            },
+            child: const Text("Cancel"),
+          ),
         if (isAllProcessed && !isAllSent)
           FilledButton(
             onPressed: handleRetry,

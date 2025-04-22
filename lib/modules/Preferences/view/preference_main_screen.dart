@@ -372,7 +372,12 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                             controller: selectedSetting != 1 ? tabController1 : tabController2,
                             physics: const NeverScrollableScrollPhysics(),
                             children: [
-                              if(selectedSetting == 0)
+                              if(viewConfig)
+                                ViewConfig(
+                                  userId: widget.userId,
+                                  isLora: preferenceProvider.commonPumpSettings![tabController1.index].interfaceTypeId == 1,
+                                )
+                              else if(selectedSetting == 0)
                                 for(var commonSettingIndex = 0; commonSettingIndex < preferenceProvider.commonPumpSettings!.length; commonSettingIndex++)
                                   buildSettingsCategory(
                                       context: context,
@@ -392,7 +397,6 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                                 const ValveSettings()
                               else if(selectedSetting == 4)
                                 const MoistureSettings()
-
                             ],
                           )
                       ),
@@ -670,12 +674,6 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
 
   Widget buildSettingsCategory({required BuildContext context, required List<SettingList> settingList, required BoxConstraints constraints, required int pumpIndex}) {
     try {
-      if(viewConfig) {
-        return ViewConfig(
-          userId: widget.userId,
-          isLora: preferenceProvider.commonPumpSettings![tabController1.index].interfaceTypeId == 1,
-        );
-      }
       return SingleChildScrollView(
         child: Column(
           children: [

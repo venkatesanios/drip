@@ -69,7 +69,7 @@ class MoistureSettings extends StatelessWidget {
         return _SwitchTile(
           title: item.title,
           value: item.value as bool,
-          onChanged: (value) => provider.updateSwitchValue(item.title, value),
+          onChanged: (value) => provider.updateMoistureSwitchValue(item.title, value),
         );
       case 2:
         return _RadioTile(
@@ -100,7 +100,8 @@ class MoistureSettings extends StatelessWidget {
               title: item.title,
               firstValue: values[0],
               secondValue: values[1],
-              onChanged: (value) => provider.updateSettingValue(item.title, value),
+              onChanged1: (value) => provider.updateMoistureSettingValue(item.title, value, true),
+              onChanged2: (value) => provider.updateMoistureSettingValue(item.title, value, false),
             ),
           ],
         );
@@ -179,13 +180,15 @@ class _RangeInputTile extends StatelessWidget {
   final String title;
   final String firstValue;
   final String secondValue;
-  final ValueChanged<String> onChanged;
+  final ValueChanged<String> onChanged1;
+  final ValueChanged<String> onChanged2;
 
   const _RangeInputTile({
     required this.title,
     required this.firstValue,
     required this.secondValue,
-    required this.onChanged,
+    required this.onChanged1,
+    required this.onChanged2,
   });
 
   @override
@@ -198,12 +201,12 @@ class _RangeInputTile extends StatelessWidget {
           Expanded(child: Text(title)),
           _NumberInputField(
             value: firstValue,
-            onChanged: onChanged,
+            onChanged: onChanged1,
           ),
           const SizedBox(width: 16),
           _NumberInputField(
             value: secondValue,
-            onChanged: onChanged,
+            onChanged: onChanged2,
           ),
         ],
       ),

@@ -244,6 +244,24 @@ class PreferenceProvider extends ChangeNotifier {
     }
   }
 
+  void updateMoistureSettingValue(String title, String newValue, bool part1) {
+    final setting = moistureSettings?.setting.firstWhere((e) => e.title == title);
+    if (setting != null) {
+      if(part1) {
+        if (setting.value.toString().contains(',')) {
+          if(part1) {
+            setting.value = '$newValue,${setting.value.split(',')[1]}';
+          } else {
+            setting.value = '${setting.value.split(',')[0]},$newValue';
+          }
+          final parts = setting.value.split(',');
+          setting.value = '$newValue,${parts[1]}';
+        }
+      }
+      notifyListeners();
+    }
+  }
+
   void updateSwitchValue(String title, bool newValue) {
     final setting = valveSettings?.setting.firstWhere((e) => e.title == title);
     if (setting != null) {
@@ -251,6 +269,7 @@ class PreferenceProvider extends ChangeNotifier {
         final parts = setting.value.split(',');
         setting.value = '${parts[0]},${newValue ? "1" : "0"}';
       } else {
+        print("else condition");
         setting.value = newValue;
 
         if(setting.serialNumber == 5) {
@@ -261,6 +280,14 @@ class PreferenceProvider extends ChangeNotifier {
           }
         }
       }
+      notifyListeners();
+    }
+  }
+
+  void updateMoistureSwitchValue(String title, bool newValue) {
+    final setting = moistureSettings?.setting.firstWhere((e) => e.title == title);
+    if (setting != null) {
+      setting.value = newValue;
       notifyListeners();
     }
   }

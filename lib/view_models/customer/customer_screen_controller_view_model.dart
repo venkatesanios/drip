@@ -122,7 +122,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     }
   }
 
-  bool isChanged = false;
+  bool isChanged = true;
 
   void masterOnChanged(categoryName, model, index) async{
    /* int masterIdx = mySiteList.data[sIndex].master.indexWhere((master)=>

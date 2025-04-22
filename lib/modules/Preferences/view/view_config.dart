@@ -239,7 +239,7 @@ class _ViewConfigState extends State<ViewConfig> {
     List<String> titles = ['Number of pumps'];
     if (widget.isLora) {
       final pumpNames = prefProvider.individualPumpSetting!
-          .where((e) => e.controllerId == prefProvider.commonPumpSettings![prefProvider.selectedTabIndex].controllerId)
+          .where((e) => e.deviceId == prefProvider.commonPumpSettings![prefProvider.selectedTabIndex].deviceId)
           .map((e) => e.name)
           .toList();
       titles.add('Serial id');
@@ -314,9 +314,9 @@ class _ViewConfigState extends State<ViewConfig> {
       "Flow on off",
       "Pressure on off"
     ];
-    final pumpNames = prefProvider.individualPumpSetting!.where((e) =>
-    e.controllerId == prefProvider.commonPumpSettings![context.read<PreferenceProvider>().selectedTabIndex].controllerId)
-        .map((e) => e.name).toList();
+    final pumpNames = prefProvider.commonPumpSettings!.length > 1 ? prefProvider.individualPumpSetting!.where((e) =>
+    e.deviceId == prefProvider.commonPumpSettings![context.read<PreferenceProvider>().selectedTabIndex].deviceId)
+        .map((e) => e.name).toList() : prefProvider.individualPumpSetting!.map((e) => e.name).toList();
 
     return Expanded(
       child: SingleChildScrollView(
@@ -501,9 +501,9 @@ class _ViewConfigState extends State<ViewConfig> {
 
   Widget _buildIndividualSettingCategory(MqttPayloadProvider provider, deviceId) {
     final prefProvider = context.read<PreferenceProvider>();
-    final pumps = prefProvider.individualPumpSetting!.where(
-          (e) => e.controllerId == prefProvider.commonPumpSettings![prefProvider.selectedTabIndex].controllerId,
-    ).toList();
+    final pumps = prefProvider.commonPumpSettings!.length > 1 ? prefProvider.individualPumpSetting!.where(
+          (e) => e.deviceId == prefProvider.commonPumpSettings![prefProvider.selectedTabIndex].deviceId,
+    ).toList() : prefProvider.individualPumpSetting!;
 
     return SingleChildScrollView(
       child: Column(
