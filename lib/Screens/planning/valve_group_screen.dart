@@ -67,7 +67,7 @@ class _GroupListScreenState extends State<GroupListScreen> {
         _groupdata = Groupdata.fromJson(jsonData);
       });
     } else {
-      // Handle error
+      GlobalSnackBar.show(context, "Failed to fetch valve groups", 400);
     }
   }
 
@@ -98,8 +98,10 @@ class _GroupListScreenState extends State<GroupListScreen> {
     List<double> selectedValveSnos = [];
     int selectLineIndex = 0;
 
+    // Initialize dialog state for editing or adding
     if (editCheck && selectedGroupIndex != null) {
-      selectedValves = _groupdata.data!.valveGroup![selectedGroupIndex].valve;
+      // Deep copy to avoid modifying the original data
+      selectedValves = List.from(_groupdata.data!.valveGroup![selectedGroupIndex].valve);
       selectedValveSnos = selectedValves.map((e) => e.sNo).toList();
       _controller.text = _groupdata.data!.valveGroup![selectedGroupIndex].groupName;
       double selectedIrrigationLineSno = _groupdata.data!.valveGroup![selectedGroupIndex].sNo;
@@ -117,7 +119,10 @@ class _GroupListScreenState extends State<GroupListScreen> {
         return StatefulBuilder(
           builder: (context, setStateDialog) {
             return AlertDialog(
-              title: Text(editCheck ? 'Edit Valve Group' : 'Add Valve Group',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18),),
+              title: Text(
+                editCheck ? 'Edit Valve Group' : 'Add Valve Group',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -138,7 +143,8 @@ class _GroupListScreenState extends State<GroupListScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8), Card(
+                    const SizedBox(height: 8),
+                    Card(
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: DropdownButton<IrrigationLine>(
@@ -149,6 +155,7 @@ class _GroupListScreenState extends State<GroupListScreen> {
                               selectLineIndex = _groupdata.data!.defaultData.irrigationLine
                                   .indexWhere((line) => line.name == newValue!.name);
                               selectedIrrigationLine = newValue;
+                              // Clear valves when irrigation line changes
                               selectedValves.clear();
                               selectedValveSnos.clear();
                             });
@@ -179,12 +186,13 @@ class _GroupListScreenState extends State<GroupListScreen> {
                             onSelected: (bool selected) {
                               setStateDialog(() {
                                 if (selected) {
-                                  if (!selectedValves.contains(valve)) {
+                                  if (!selectedValveSnos.contains(valve.sNo)) {
                                     selectedValves.add(valve);
                                     selectedValveSnos.add(valve.sNo);
                                   }
                                 } else {
-                                  selectedValves.remove(valve);
+                                  // Remove valve by sNo to avoid object reference issues
+                                  selectedValves.removeWhere((v) => v.sNo == valve.sNo);
                                   selectedValveSnos.remove(valve.sNo);
                                 }
                               });
@@ -220,18 +228,22 @@ class _GroupListScreenState extends State<GroupListScreen> {
                       valve: selectedValves,
                     );
 
-                    if (editCheck) {
-                      _groupdata.data!.valveGroup![selectedGroupIndex!] = vdate;
-                    } else {
-                      _groupdata.data!.valveGroup!.add(vdate);
-                    }
+                    setState(() {
+                      if (editCheck) {
+                        _groupdata.data!.valveGroup![selectedGroupIndex!] = vdate;
+                      } else {
+                        _groupdata.data!.valveGroup!.add(vdate);
+                      }
+                    });
 
                     await createValveGroup();
                     Navigator.of(context).pop();
-                    setState(() {});
                   }
                       : null,
-                  child: Text(editCheck ? 'Update' : 'Create',style: TextStyle(color: Colors.white),),
+                  child: Text(
+                    editCheck ? 'Update' : 'Create',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ],
             );
@@ -243,7 +255,6 @@ class _GroupListScreenState extends State<GroupListScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: const Color(0xffE6EDF5),
       body: Padding(
@@ -288,10 +299,9 @@ class _GroupListScreenState extends State<GroupListScreen> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Row(
-                        spacing: 5,
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          SizedBox(width: 10,),
+                          SizedBox(width: 10),
                           CircleAvatar(
                             backgroundColor: Theme.of(context).primaryColor,
                             foregroundColor: Colors.white,
@@ -352,7 +362,7 @@ class _GroupListScreenState extends State<GroupListScreen> {
                                           ),
                                           TextButton(
                                             onPressed: () async {
-                                              await deleteValveGroupAtIndex(index);
+                                              deleteValveGroupAtIndex(index);
                                               await createValveGroup();
                                               Navigator.of(context).pop();
                                             },
