@@ -667,7 +667,6 @@ class MobileScreenController extends StatelessWidget {
                           .mIndex].irrigationLine[vm.lIndex].sNo,
                     ) :
                     ControllerSettings(customerId: customerId,
-                      adDrId: fromLogin ? 1 : 0,
                       userId: userId,
                       masterController: vm.mySiteList.data[vm.sIndex].master[vm.mIndex],
                   ),
@@ -746,7 +745,6 @@ class MobileScreenController extends StatelessWidget {
       case 4:
         return ControllerSettings(
           customerId: customerId,
-          adDrId: fromLogin ? 1 : 0,
           userId: userId,
           masterController: masterData[masterIndex],
         );

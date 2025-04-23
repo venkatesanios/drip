@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
@@ -8,7 +7,6 @@ import 'package:oro_drip_irrigation/views/customer/condition_library.dart';
 import 'package:provider/provider.dart';
 import '../../Models/customer/site_model.dart';
 import '../../Screens/Map/CustomerMap.dart';
-import '../../Screens/Map/MapDeviceList.dart';
 import '../../Screens/planning/frost_productionScreen.dart';
 import '../../Screens/planning/names_form.dart';
 import '../../Screens/planning/valve_group_screen.dart';
@@ -21,13 +19,15 @@ import '../../modules/global_limit/view/global_limit_screen.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../mobile/general_setting.dart';
-import 'constant.dart';
 
 class ControllerSettings extends StatelessWidget {
-  const ControllerSettings({super.key, required this.customerId,
-    required this.adDrId, required this.userId, required this.masterController});
+  const ControllerSettings({super.key,
+    required this.customerId,
+    required this.userId,
+    required this.masterController,
+  });
 
-  final int customerId, adDrId, userId;
+  final int customerId, userId;
   final MasterControllerModel masterController;
 
   @override
@@ -37,196 +37,213 @@ class ControllerSettings extends StatelessWidget {
         ..getSettingsMenu(customerId, masterController.controllerId),
       child: Consumer<ControllerSettingsViewModel>(
         builder: (context, viewModel, _) {
-          return viewModel.isLoading?
-          buildLoadingIndicator(true, MediaQuery.sizeOf(context).width):
-          kIsWeb? Scaffold(
-            backgroundColor: Colors.white,
-            body: DefaultTabController(
-              length: viewModel.filteredSettingList.length,
-              child: Column(
-                children: [
-                  TabBar(
-                    indicatorColor: Theme.of(context).primaryColorLight,
-                    labelColor: Colors.black,
-                    unselectedLabelColor: Colors.grey,
-                    isScrollable: true,
-                    tabs: viewModel.filteredSettingList.map((tab) {
-                      return Tab(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min, // Prevents excessive spacing
-                          children: [
-                            Icon(tab['icon'], size: 18),
-                            const SizedBox(width: 6),
-                            Text(tab['title']),
-                          ],
-                        ),
-                      );
-                    }).toList(),
+          if (viewModel.isLoading) {
+            return buildLoadingIndicator(true, MediaQuery.sizeOf(context).width);
+          }
+          return kIsWeb ? _buildWebView(context, viewModel):
+          _buildMobileView(context, viewModel);
+        },
+      ),
+    );
+  }
+
+  /// Web layout with tabs
+  Widget _buildWebView(BuildContext context, ControllerSettingsViewModel viewModel) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: DefaultTabController(
+        length: viewModel.filteredSettingList.length,
+        child: Column(
+          children: [
+            TabBar(
+              indicatorColor: Theme.of(context).primaryColorLight,
+              labelColor: Colors.black,
+              unselectedLabelColor: Colors.grey,
+              isScrollable: true,
+              tabs: viewModel.filteredSettingList.map((tab) {
+                return Tab(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(tab['icon'], size: 18),
+                      const SizedBox(width: 6),
+                      Text(tab['title']),
+                    ],
                   ),
-                  Expanded(
-                    child: TabBarView(
-                      children: viewModel.filteredSettingList.map((tab) {
-                        final String title = tab['title'];
-                        print(title);
-                        switch (title) {
-                          case 'Preference':
-                            return Container();
-                          case 'General':
-                            return GeneralSetting(
-                              customerId: customerId,
-                              controllerId: masterController.controllerId,
-                              adDrId: adDrId,
-                              userId: adDrId,
-                            );
-                          case 'Constant':
-                            return ConstantBasePage(
-                                userData: {
-                                  "userId" : customerId,
-                                  "controllerId": masterController.controllerId,
-                                  "deviceId" : masterController.deviceId,
-                                  "modelId":masterController.modelId,
-                                  "deviceName": masterController.deviceName,
-                                  "categoryId":masterController.categoryId,
-                                  "categoryName":masterController.categoryName
-                                }
-                            );
-                          case 'Condition Library':
-                            return ConditionLibrary(
-                              customerId: customerId,
-                              controllerId: masterController.controllerId,
-                              userId: adDrId,
-                              deviceId: masterController.deviceId,
-                            );
-                          case 'Name':
-                            return Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Names(
-                                userID: userId,
-                                customerID: customerId,
-                                controllerId: masterController.controllerId,
-                                menuId: 0,
-                                imeiNo: masterController.deviceId,
-                              ),
-                            );
-                          case 'Fertilizer Set':
-                            return FertilizerSetScreen(
-                              userData: {
-                                'userId': userId,
-                                'controllerId': masterController.controllerId,
-                                'deviceId': masterController.deviceId,
-                              },
-                            );
-                          case 'Valve Group':
-                            return GroupListScreen(
-                              userId: userId,
-                              controllerId: masterController.controllerId,
-                              deviceId: masterController.deviceId,
-                            );
-                          case 'System Definitions':
-                            return SystemDefinition(
-                              userId: userId,
-                              controllerId: masterController.controllerId,
-                              deviceId: masterController.deviceId,
-                              customerId: customerId,
-                            );
-                          case 'Global Limit':
-                            return GlobalLimitScreen(
-                              userData: {
-                                'userId': userId,
-                                'controllerId': masterController.controllerId,
-                                'deviceId': masterController.deviceId,
-                              },
-                            );
-                          case 'Virtual Water Meter':
-                            return VirtualMeterScreen(
-                              userId: userId,
-                              controllerId: masterController.controllerId,
-                              menuId: 67,
-                              deviceId: masterController.deviceId,
-                            );
-                          case 'Frost Protection':
-                            return FrostMobUI(
-                              userId: userId,
-                              controllerId: masterController.controllerId,
-                              deviceID: masterController.deviceId,
-                              menuId: 71,
-                            );
-                          case 'Calibration':
-                            return CalibrationScreen(
-                              userData: {
-                                'userId': userId,
-                                'controllerId': masterController.controllerId,
-                                'deviceId': masterController.deviceId,
-                              },
-                            );
-                          case 'Dealer Definition':
-                            return DealerDefinitionInConfig(
-                              userId: userId,
-                              customerId: customerId,
-                              controllerId: masterController.controllerId,
-                              imeiNo: masterController.deviceId,
-                            );
-                          case 'Geography':
-                            return MapScreenall(
-                              userId: userId,
-                              customerId: customerId,
-                              controllerId: masterController.controllerId,
-                              imeiNo: masterController.deviceId,
-                            );
-                          default:
-                            return const Center(child: Text('Coming Soon'));
-                        }
-                      }).toList(),
-                    ),
-                  ),
-                ],
+                );
+              }).toList(),
+            ),
+            Expanded(
+              child: TabBarView(
+                children: viewModel.filteredSettingList.map((tab) {
+                  return _buildTabContent(context, tab['title']);
+                }).toList(),
               ),
             ),
-          ) :
-          Scaffold(
-            body: ListView.builder(
-              itemCount: viewModel.filteredSettingList.length,
-              itemBuilder: (context, index) {
-                return Column(
-                  children: [
-                    ListTile(
-                      leading: Icon(viewModel.filteredSettingList[index]['icon'], color: Theme.of(context).primaryColor),
-                      title: Text(
-                        viewModel.filteredSettingList[index]['title'],
-                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Text(
-                        getSubTitle(viewModel.filteredSettingList[index]['title']),
-                        style: const TextStyle(
-                          color: Colors.black54,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () {
-                        if(viewModel.filteredSettingList[index]['title']=='General'){
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => GeneralSetting(customerId: customerId, controllerId: masterController.controllerId, adDrId: adDrId, userId: adDrId,)));
-                        }else if(viewModel.filteredSettingList[index]['title']=='Condition Library'){
-                          Navigator.push(context, MaterialPageRoute(builder: (context) =>  ConditionLibrary(deviceId: masterController.deviceId, customerId: customerId, controllerId: masterController.controllerId, userId: adDrId,)));
-                        }
+          ],
+        ),
+      ),
+    );
+  }
 
-                      },
-                    ),
-                    if (index < viewModel.filteredSettingList.length - 1) const Padding(
-                      padding: EdgeInsets.only(left: 40, right: 8),
-                      child: Divider(height: 0),
-                    ),
-                  ],
-                );
-              },
-            ),
+  /// Mobile layout with list tiles
+  Widget _buildMobileView(BuildContext context, ControllerSettingsViewModel viewModel) {
+    return Scaffold(
+      body: ListView.builder(
+        itemCount: viewModel.filteredSettingList.length,
+        itemBuilder: (context, index) {
+          final title = viewModel.filteredSettingList[index]['title'];
+
+          return Column(
+            children: [
+              ListTile(
+                leading: Icon(
+                  viewModel.filteredSettingList[index]['icon'],
+                  color: Theme.of(context).primaryColor,
+                ),
+                title: Text(
+                  title,
+                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(
+                  getSubTitle(title),
+                  style: const TextStyle(
+                    color: Colors.black54,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: () => _navigateToScreen(context, title),
+              ),
+              if (index < viewModel.filteredSettingList.length - 1)
+                const Padding(
+                  padding: EdgeInsets.only(left: 40, right: 8),
+                  child: Divider(height: 0),
+                ),
+            ],
           );
         },
       ),
     );
-
   }
+
+  Widget _buildTabContent(BuildContext context, String title) {
+    return _getScreenWidget(title) ?? const SizedBox();
+  }
+
+  void _navigateToScreen(BuildContext context, String title) {
+    final widget = _getScreenWidget(title);
+    if (widget != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => widget),
+      );
+    }
+  }
+
+  Widget? _getScreenWidget(String title) {
+    switch (title) {
+      case 'Preference':
+        return const SizedBox();
+      case 'General':
+        return GeneralSetting(
+          customerId: customerId,
+          controllerId: masterController.controllerId,
+          userId: userId,
+        );
+      case 'Constant':
+        return ConstantBasePage(userData: {
+          "userId": customerId,
+          "controllerId": masterController.controllerId,
+          "deviceId": masterController.deviceId,
+          "modelId": masterController.modelId,
+          "deviceName": masterController.deviceName,
+          "categoryId": masterController.categoryId,
+          "categoryName": masterController.categoryName,
+        });
+      case 'Condition Library':
+        return ConditionLibrary(
+          customerId: customerId,
+          controllerId: masterController.controllerId,
+          deviceId: masterController.deviceId,
+          userId: userId,
+        );
+      case 'Name':
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Names(
+            userID: userId,
+            customerID: customerId,
+            controllerId: masterController.controllerId,
+            menuId: 0,
+            imeiNo: masterController.deviceId,
+          ),
+        );
+      case 'Fertilizer Set':
+        return FertilizerSetScreen(userData: {
+          'userId': userId,
+          'controllerId': masterController.controllerId,
+          'deviceId': masterController.deviceId,
+        });
+      case 'Valve Group':
+        return GroupListScreen(
+          userId: userId,
+          controllerId: masterController.controllerId,
+          deviceId: masterController.deviceId,
+        );
+      case 'System Definitions':
+        return SystemDefinition(
+          userId: userId,
+          controllerId: masterController.controllerId,
+          deviceId: masterController.deviceId,
+          customerId: customerId,
+        );
+      case 'Global Limit':
+        return GlobalLimitScreen(userData: {
+          'userId': userId,
+          'controllerId': masterController.controllerId,
+          'deviceId': masterController.deviceId,
+        });
+      case 'Virtual Water Meter':
+        return VirtualMeterScreen(
+          userId: userId,
+          controllerId: masterController.controllerId,
+          menuId: 67,
+          deviceId: masterController.deviceId,
+        );
+      case 'Frost Protection':
+        return FrostMobUI(
+          userId: userId,
+          controllerId: masterController.controllerId,
+          deviceID: masterController.deviceId,
+          menuId: 71,
+        );
+      case 'Calibration':
+        return CalibrationScreen(userData: {
+          'userId': userId,
+          'controllerId': masterController.controllerId,
+          'deviceId': masterController.deviceId,
+        });
+      case 'Dealer Definition':
+        return DealerDefinitionInConfig(
+          userId: userId,
+          customerId: customerId,
+          controllerId: masterController.controllerId,
+          imeiNo: masterController.deviceId,
+        );
+      case 'Geography':
+        return MapScreenall(
+          userId: userId,
+          customerId: customerId,
+          controllerId: masterController.controllerId,
+          imeiNo: masterController.deviceId,
+        );
+      default:
+        return const Center(child: Text('Coming Soon'));
+    }
+  }
+
 
   Widget buildLoadingIndicator(bool isVisible, double width) {
     return Visibility(
@@ -234,9 +251,7 @@ class ControllerSettings extends StatelessWidget {
       child: Container(
         color: Colors.white,
         padding: EdgeInsets.symmetric(horizontal: width / 2 - 25),
-        child: const LoadingIndicator(
-          indicatorType: Indicator.ballPulse,
-        ),
+        child: const LoadingIndicator(indicatorType: Indicator.ballPulse),
       ),
     );
   }
@@ -255,5 +270,4 @@ class ControllerSettings extends StatelessWidget {
         return 'No additional information available.';
     }
   }
-
 }

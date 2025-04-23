@@ -8,8 +8,8 @@ import '../../view_models/customer/general_setting_view_model.dart';
 
 
 class GeneralSetting extends StatelessWidget {
-  const GeneralSetting({super.key, required this.customerId, required this.controllerId, required this.adDrId, required this.userId});
-  final int customerId, controllerId, adDrId, userId;
+  const GeneralSetting({super.key, required this.customerId, required this.controllerId, required this.userId});
+  final int customerId, controllerId, userId;
 
   @override
   Widget build(BuildContext context) {
@@ -502,7 +502,7 @@ class GeneralSetting extends StatelessWidget {
                   style:
                   TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                 ),
-                trailing: adDrId != 0
+                trailing: userId != 0
                     ? IconButton(
                     tooltip: 'Add new sub user',
                     onPressed: () async {
