@@ -10,20 +10,20 @@ class Routes {
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
-      case flash:
+      case Routes.flash:
         return MaterialPageRoute(
           builder: (_) => const SplashScreen(),
           settings: settings,
         );
-      case login:
+      case Routes.login:
         return MaterialPageRoute(
           builder: (_) => const LoginScreen(),
           settings: settings,
         );
-      case dashboard:
+      case Routes.dashboard:
         return MaterialPageRoute(
-           builder: (_) => const ScreenController(),
-          // settings: settings,
+          builder: (_) => const ScreenController(),
+          settings: settings,
         );
       default:
         return MaterialPageRoute(

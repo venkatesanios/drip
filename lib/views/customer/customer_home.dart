@@ -312,30 +312,32 @@ class LineObjects extends StatelessWidget {
         ],
     ];*/
 
-    return Container(
-      color: Colors.white,
-      child: Wrap(
-        children: [
-          ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch.png'),
-          ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor.png'),
-          ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter.png'),
-          ...valves.map((valve) => ValveWidget(valve: valve)),
-        ],
+    return Padding(
+      padding: const EdgeInsets.only(left: 8, top: 8),
+      child: Container(
+        color: Colors.white,
+        child: Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch.png'),
+            ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor.png'),
+            ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter.png'),
+            ...valves.map((valve) => ValveWidget(valve: valve, customerId: customerId, controllerId: controllerId,)),
+          ],
+        ),
       ),
     );
   }
 
   List<Widget> _buildSensorItems(List<SensorModel> sensors, String type, String imagePath) {
     return sensors.map((sensor) {
-      return SizedBox(
-        width: 70,
-        child: SensorWidget(
-          sensor: sensor,
-          sensorType: type,
-          imagePath: imagePath,
-          customerId: customerId,
-          controllerId: controllerId,
-        ),
+      return SensorWidget(
+        sensor: sensor,
+        sensorType: type,
+        imagePath: imagePath,
+        customerId: customerId,
+        controllerId: controllerId,
       );
     }).toList();
   }
@@ -540,205 +542,201 @@ class SensorWidget extends StatelessWidget {
           sensor.value = statusParts[1];
         }
 
-        return Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: Container(
-            width: 85,
-            margin: const EdgeInsets.symmetric(horizontal: 4),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                if (sensorType != 'Pressure Switch') ...[
-                  SizedBox(
-                    width: 85,
-                    child: Stack(
-                      children: [
-                        SizedBox(
-                          width: 70,
-                          height: 40,
-                          child: TextButton(
-                            onPressed: () async {
+        return SizedBox(
+          width: 85,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              if (sensorType != 'Pressure Switch') ...[
+                SizedBox(
+                  width: 85,
+                  child: Stack(
+                    children: [
+                      SizedBox(
+                        width: 85,
+                        height: 40,
+                        child: TextButton(
+                          onPressed: () async {
 
-                              final sensors = await fetchSensorData();
-                              final sensorDataList = getSensorDataById(sensor.sNo.toString(), sensors);
+                            final sensors = await fetchSensorData();
+                            final sensorDataList = getSensorDataById(sensor.sNo.toString(), sensors);
 
-                              showPopover(
-                                context: context,
-                                bodyBuilder: (context) {
+                            showPopover(
+                              context: context,
+                              bodyBuilder: (context) {
 
-                                  List<CartesianSeries<dynamic, String>> series = [
-                                    LineSeries<SensorHourlyData, String>(
-                                      dataSource: sensorDataList,
-                                      xValueMapper: (SensorHourlyData data, _) => data.hour,
-                                      yValueMapper: (SensorHourlyData data, _) {
-                                        try {
-                                          return double.parse(data.value);
-                                        } catch (_) {
-                                          return 0.0;
-                                        }
-                                      },
-                                      markerSettings: const MarkerSettings(isVisible: true),
-                                      dataLabelSettings: const DataLabelSettings(isVisible: false),
-                                      color: Colors.blueAccent,
-                                      name: sensor.name ?? 'Sensor',
+                                List<CartesianSeries<dynamic, String>> series = [
+                                  LineSeries<SensorHourlyData, String>(
+                                    dataSource: sensorDataList,
+                                    xValueMapper: (SensorHourlyData data, _) => data.hour,
+                                    yValueMapper: (SensorHourlyData data, _) {
+                                      try {
+                                        return double.parse(data.value);
+                                      } catch (_) {
+                                        return 0.0;
+                                      }
+                                    },
+                                    markerSettings: const MarkerSettings(isVisible: true),
+                                    dataLabelSettings: const DataLabelSettings(isVisible: false),
+                                    color: Colors.blueAccent,
+                                    name: sensor.name ?? 'Sensor',
+                                  ),
+                                ];
+
+                                return Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 450,
+                                      height: 175,
+                                      child: SfCartesianChart(
+                                        primaryXAxis: CategoryAxis(
+                                          title: AxisTitle(
+                                            text: sensorType == 'Moisture Sensor'
+                                                ? '${sensor.name}($sensorType) - Hours'
+                                                : '${sensor.name} - Hours',
+                                            textStyle: const TextStyle(fontSize: 12),
+                                          ),
+                                          majorGridLines: const MajorGridLines(width: 0),
+                                          axisLine: const AxisLine(width: 0),
+                                          labelStyle: const TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.black54,
+                                          ),
+                                        ),
+                                        primaryYAxis: const NumericAxis(
+                                          labelStyle: TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.black54,
+                                          ),
+                                        ),
+                                        tooltipBehavior: TooltipBehavior(enable: true),
+                                        series: series,
+                                      ),
                                     ),
-                                  ];
-
-                                  return Row(
-                                    children: [
-                                      SizedBox(
-                                        width: 450,
-                                        height: 175,
-                                        child: SfCartesianChart(
-                                          primaryXAxis: CategoryAxis(
-                                            title: AxisTitle(
-                                              text: sensorType == 'Moisture Sensor'
-                                                  ? '${sensor.name}($sensorType) - Hours'
-                                                  : '${sensor.name} - Hours',
-                                              textStyle: const TextStyle(fontSize: 12),
-                                            ),
-                                            majorGridLines: const MajorGridLines(width: 0),
-                                            axisLine: const AxisLine(width: 0),
-                                            labelStyle: const TextStyle(
-                                              fontSize: 11,
-                                              color: Colors.black54,
-                                            ),
-                                          ),
-                                          primaryYAxis: const NumericAxis(
-                                            labelStyle: TextStyle(
-                                              fontSize: 11,
-                                              color: Colors.black54,
-                                            ),
-                                          ),
-                                          tooltipBehavior: TooltipBehavior(enable: true),
-                                          series: series,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 100,
-                                        height: 100,
-                                        child: SfRadialGauge(
-                                          axes: <RadialAxis>[
-                                            RadialAxis(
-                                              minimum: 0,
-                                              maximum: sensorType=='Moisture Sensor'?200:sensorType=='Pressure Sensor'?12:100,
-                                              pointers: <GaugePointer>[
-                                                NeedlePointer(
-                                                    value: double.parse(sensor.value),
-                                                    needleEndWidth: 3, needleColor: Colors.black54),
-                                                RangePointer(
-                                                  value: sensorType=='Moisture Sensor'?200.0:100.0,
-                                                  width: 0.30,
-                                                  sizeUnit: GaugeSizeUnit.factor,
-                                                  color: const Color(0xFF494CA2),
-                                                  animationDuration: 1000,
-                                                  gradient: SweepGradient(
-                                                    colors: sensorType == "Water Meter" ? <Color>[
-                                                      Colors.teal.shade300,
-                                                      Colors.teal.shade400,
-                                                      Colors.teal.shade500,
-                                                      Colors.teal.shade600
-                                                    ]:
-                                                    <Color>[
-                                                      Colors.tealAccent,
-                                                      Colors.orangeAccent,
-                                                      Colors.redAccent,
-                                                      Colors.redAccent
-                                                    ],
-                                                    stops: const <double>[0.15, 0.50, 0.70, 1.00],
-                                                  ),
-                                                  enableAnimation: true,
+                                    SizedBox(
+                                      width: 100,
+                                      height: 100,
+                                      child: SfRadialGauge(
+                                        axes: <RadialAxis>[
+                                          RadialAxis(
+                                            minimum: 0,
+                                            maximum: sensorType=='Moisture Sensor'?200:sensorType=='Pressure Sensor'?12:100,
+                                            pointers: <GaugePointer>[
+                                              NeedlePointer(
+                                                  value: double.parse(sensor.value),
+                                                  needleEndWidth: 3, needleColor: Colors.black54),
+                                              RangePointer(
+                                                value: sensorType=='Moisture Sensor'?200.0:100.0,
+                                                width: 0.30,
+                                                sizeUnit: GaugeSizeUnit.factor,
+                                                color: const Color(0xFF494CA2),
+                                                animationDuration: 1000,
+                                                gradient: SweepGradient(
+                                                  colors: sensorType == "Water Meter" ? <Color>[
+                                                    Colors.teal.shade300,
+                                                    Colors.teal.shade400,
+                                                    Colors.teal.shade500,
+                                                    Colors.teal.shade600
+                                                  ]:
+                                                  <Color>[
+                                                    Colors.tealAccent,
+                                                    Colors.orangeAccent,
+                                                    Colors.redAccent,
+                                                    Colors.redAccent
+                                                  ],
+                                                  stops: const <double>[0.15, 0.50, 0.70, 1.00],
                                                 ),
-                                              ],
-                                              showFirstLabel: false,
-                                              annotations: <GaugeAnnotation>[
-                                                GaugeAnnotation(
-                                                  widget: Text(
-                                                    sensor.value,
-                                                    style: const TextStyle(
-                                                        fontSize: 10, fontWeight: FontWeight.bold),
-                                                  ),
-                                                  angle: 90,
-                                                  positionFactor: 0.8,
+                                                enableAnimation: true,
+                                              ),
+                                            ],
+                                            showFirstLabel: false,
+                                            annotations: <GaugeAnnotation>[
+                                              GaugeAnnotation(
+                                                widget: Text(
+                                                  sensor.value,
+                                                  style: const TextStyle(
+                                                      fontSize: 10, fontWeight: FontWeight.bold),
                                                 ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
+                                                angle: 90,
+                                                positionFactor: 0.8,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  );
-                                },
-                                direction: PopoverDirection.bottom,
-                                width: 550,
-                                height: 175,
-                                arrowHeight: 15,
-                                arrowWidth: 30,
-                                barrierColor: Colors.black54,
-                                arrowDyOffset: -20,
-                              );
-                            },
-                            style: ButtonStyle(
-                              padding: WidgetStateProperty.all(EdgeInsets.zero),
-                              minimumSize: WidgetStateProperty.all(Size.zero),
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              backgroundColor: WidgetStateProperty.all(Colors.transparent),
-                            ),
-                            child: Image.asset(
-                              imagePath,
-                              width: 35,
-                              height: 35,
-                            ),
+                                    ),
+                                  ],
+                                );
+                              },
+                              direction: PopoverDirection.bottom,
+                              width: 550,
+                              height: 175,
+                              arrowHeight: 15,
+                              arrowWidth: 30,
+                              barrierColor: Colors.black54,
+                              arrowDyOffset: -20,
+                            );
+                          },
+                          style: ButtonStyle(
+                            padding: WidgetStateProperty.all(EdgeInsets.zero),
+                            minimumSize: WidgetStateProperty.all(Size.zero),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            backgroundColor: WidgetStateProperty.all(Colors.transparent),
+                          ),
+                          child: Image.asset(
+                            imagePath,
+                            width: 35,
+                            height: 35,
                           ),
                         ),
-                        Positioned(
-                          top: 0,
-                          left: 0,
-                          right: 1,
-                          child: Container(
-                            width: 70,
-                            height: 17,
-                            decoration: BoxDecoration(
-                              color: Colors.yellow,
-                              borderRadius: BorderRadius.circular(2),
-                              border: Border.all(color: Colors.grey, width: 0.5),
-                            ),
-                            child: Center(
-                              child: Text(
-                                MyFunction().getUnitByParameter(context, sensorType, sensor.value.toString()) ?? '',
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                      ),
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 1,
+                        child: Container(
+                          width: 70,
+                          height: 17,
+                          decoration: BoxDecoration(
+                            color: Colors.yellow,
+                            borderRadius: BorderRadius.circular(2),
+                            border: Border.all(color: Colors.grey, width: 0.5),
+                          ),
+                          child: Center(
+                            child: Text(
+                              MyFunction().getUnitByParameter(context, sensorType, sensor.value.toString()) ?? '',
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ] else ...[
-                  SizedBox(
-                    width: 85,
-                    child: SizedBox(
-                      width: 40,
-                      height: 40,
-                      child: Image.asset(
-                        imagePath,
-                        width: 35,
-                        height: 35,
                       ),
+                    ],
+                  ),
+                ),
+              ] else ...[
+                SizedBox(
+                  width: 85,
+                  child: SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: Image.asset(
+                      imagePath,
+                      width: 35,
+                      height: 35,
                     ),
                   ),
-                ],
-                Text(
-                  sensor.name,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 10, color: Colors.black54),
                 ),
               ],
-            ),
+              Text(
+                sensor.name,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 10, color: Colors.black54),
+              ),
+            ],
           ),
         );
       },
@@ -755,8 +753,8 @@ class SensorWidget extends StatelessWidget {
       Map<String, Object> body = {
         "userId": customerId,
         "controllerId": controllerId,
-        "fromDate": '2025:04:17',
-        "toDate": '2025:04:17',
+        "fromDate": date,
+        "toDate": date,
       };
 
       final response = await Repository(HttpService()).fetchSensorHourlyData(body);
@@ -806,7 +804,8 @@ class SensorWidget extends StatelessWidget {
 
 class ValveWidget extends StatelessWidget {
   final ValveModel valve;
-  const ValveWidget({super.key, required this.valve});
+  final int customerId, controllerId;
+  const ValveWidget({super.key, required this.valve, required this.customerId, required this.controllerId});
 
   @override
   Widget build(BuildContext context) {
@@ -821,143 +820,169 @@ class ValveWidget extends StatelessWidget {
 
         bool hasMoisture = valve.moistureSensors.isNotEmpty;
 
-        return Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: SizedBox(
-            width: 85,
-            child: Stack(
-              children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      width: 35,
-                      height: 35,
-                      child: AppConstants.getAsset('valve', valve.status, ''),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      valve.name,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 10, color: Colors.black54),
-                    ),
-                  ],
-                ),
-                if (hasMoisture)
-                  Positioned(
-                    top: 0,
-                    left: 30,
-                    child: TextButton(
-                      onPressed: () {
-                        /*showPopover(
-                          context: context,
-                          bodyBuilder: (context) {
-                            return Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: moistureSensor.map((ms) {
+        return SizedBox(
+          width: 85,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 35,
+                    height: 35,
+                    child: AppConstants.getAsset('valve', valve.status, ''),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    valve.name,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 10, color: Colors.black54),
+                  ),
+                ],
+              ),
+              if (hasMoisture)
+                Positioned(
+                  top: 0,
+                  left: 50,
+                  child: TextButton(
+                    onPressed: () async {
 
-                                Map<String, dynamic> jsonData = jsonDecode(jsonEncode(sensorData));
-                                Map<String, List<Map<String, dynamic>>> filteredData = {};
+                      final sensors = await fetchSensorData();
+                      final sensorDataList = getSensorDataById(valve.moistureSensors[0].sNo.toString(), sensors);
 
-                                jsonData.forEach((key, value) {
-                                  var filteredList = (value as List)
-                                      .where((item) => item['sNo']==ms.sNo)
-                                      .toList();
-                                  if (filteredList.isNotEmpty) {
-                                    filteredData[key] = List<Map<String, dynamic>>.from(filteredList);
-                                  }
-                                });
+                      showPopover(
+                        context: context,
+                        bodyBuilder: (context) {
+                          List<CartesianSeries<dynamic, String>> series = [
+                            LineSeries<SensorHourlyData, String>(
+                              dataSource: sensorDataList,
+                              xValueMapper: (SensorHourlyData data, _) => data.hour,
+                              yValueMapper: (SensorHourlyData data, _) {
+                                try {
+                                  return double.parse(data.value);
+                                } catch (_) {
+                                  return 0.0;
+                                }
+                              },
+                              markerSettings: const MarkerSettings(isVisible: true),
+                              dataLabelSettings: const DataLabelSettings(isVisible: false),
+                              color: Colors.blueAccent,
+                              name: valve.moistureSensors[0].name ?? 'Sensor',
+                            ),
+                          ];
 
-                                return Row(
-                                  children: [
-                                    SizedBox(
-                                      width: 450,
-                                      height: 175,
-                                      child: buildLineChart(context, filteredData, 'Moisture Sensor', ms.name, ms.moistureType!),
+                          return Row(
+                            children: [
+                              SizedBox(
+                                width: 450,
+                                height: 175,
+                                child: SfCartesianChart(
+                                  primaryXAxis: CategoryAxis(
+                                    title: AxisTitle(
+                                      text: valve.moistureSensors[0].name,
+                                      textStyle: const TextStyle(fontSize: 12),
                                     ),
-                                    SizedBox(
-                                      width: 100,
-                                      height: 100,
-                                      child: SfRadialGauge(
-                                        axes: <RadialAxis>[
-                                          RadialAxis(
-                                            minimum: 0,
-                                            maximum: 200,
-                                            pointers: <GaugePointer>[
-                                              NeedlePointer(
-                                                  value: double.parse(ms.value),
-                                                  needleEndWidth: 3, needleColor: Colors.black54),
-                                              RangePointer(
-                                                value: 200.0,
-                                                width: 0.30,
-                                                sizeUnit: GaugeSizeUnit.factor,
-                                                color: const Color(0xFF494CA2),
-                                                animationDuration: 1000,
-                                                gradient: const SweepGradient(
-                                                  colors: <Color>[
-                                                    Colors.greenAccent,
-                                                    Colors.orangeAccent,
-                                                    Colors.redAccent,
-                                                    Colors.redAccent
-                                                  ],
-                                                  stops: <double>[0.15, 0.50, 0.70, 1.00],
-                                                ),
-                                                enableAnimation: true,
-                                              ),
+                                    majorGridLines: const MajorGridLines(width: 0),
+                                    axisLine: const AxisLine(width: 0),
+                                    labelStyle: const TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                                  primaryYAxis: const NumericAxis(
+                                    labelStyle: TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                                  tooltipBehavior: TooltipBehavior(enable: true),
+                                  series: series,
+                                ),
+                              ),
+                              SizedBox(
+                                width: 100,
+                                height: 100,
+                                child: SfRadialGauge(
+                                  axes: <RadialAxis>[
+                                    RadialAxis(
+                                      minimum: 0,
+                                      maximum: 200,
+                                      pointers: <GaugePointer>[
+                                        NeedlePointer(
+                                            value: double.parse(valve.moistureSensors[0].value),
+                                            needleEndWidth: 3, needleColor: Colors.black54),
+                                        RangePointer(
+                                          value: 200.0,
+                                          width: 0.30,
+                                          sizeUnit: GaugeSizeUnit.factor,
+                                          color: const Color(0xFF494CA2),
+                                          animationDuration: 1000,
+                                          gradient: SweepGradient(
+                                            colors:
+                                            <Color>[
+                                              Colors.tealAccent,
+                                              Colors.orangeAccent,
+                                              Colors.redAccent,
+                                              Colors.redAccent
                                             ],
-                                            showFirstLabel: false,
-                                            annotations: <GaugeAnnotation>[
-                                              GaugeAnnotation(
-                                                widget: Text(
-                                                  '${ms.value} CB',
-                                                  style: const TextStyle(
-                                                      fontSize: 10, fontWeight: FontWeight.bold),
-                                                ),
-                                                angle: 90,
-                                                positionFactor: 0.8,
-                                              ),
-                                            ],
+                                            stops: const <double>[0.15, 0.50, 0.70, 1.00],
                                           ),
-                                        ],
-                                      ),
+                                          enableAnimation: true,
+                                        ),
+                                      ],
+                                      showFirstLabel: false,
+                                      annotations: <GaugeAnnotation>[
+                                        GaugeAnnotation(
+                                          widget: Text(
+                                            valve.moistureSensors[0].value,
+                                            style: const TextStyle(
+                                                fontSize: 10, fontWeight: FontWeight.bold),
+                                          ),
+                                          angle: 90,
+                                          positionFactor: 0.8,
+                                        ),
+                                      ],
                                     ),
                                   ],
-                                );
-                              }).toList(),
-                            );
-                          },
-                          onPop: () => print('Popover was popped!'),
-                          direction: PopoverDirection.bottom,
-                          width: 550,
-                          height: moistureSensor.length * 175,
-                          arrowHeight: 15,
-                          arrowWidth: 30,
-                          barrierColor: Colors.black54,
-                          arrowDxOffset: 20,
-                          arrowDyOffset: -43,
-                        );*/
-                      },
-                      style: ButtonStyle(
-                        padding: WidgetStateProperty.all(EdgeInsets.zero),
-                        minimumSize: WidgetStateProperty.all(Size.zero),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        backgroundColor: WidgetStateProperty.all(Colors.transparent),
-                      ),
-                      child: CircleAvatar(
-                        radius: 15,
-                        backgroundColor:  _getMoistureColor(valve.moistureSensors
-                            .map((sensor) => {'name': sensor.name, 'value': sensor.value})
-                            .toList()),
-                        child: Image.asset(
-                          'assets/png/moisture_sensor.png',
-                          width: 25,
-                          height: 25,
-                        ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                        onPop: () => print('Popover was popped!'),
+                        direction: PopoverDirection.bottom,
+                        width: 550,
+                        height: valve.moistureSensors.length * 175,
+                        arrowHeight: 15,
+                        arrowWidth: 30,
+                        barrierColor: Colors.black54,
+                        arrowDxOffset: 23,
+                        arrowDyOffset: -25,
+                      );
+                    },
+                    style: ButtonStyle(
+                      padding: WidgetStateProperty.all(EdgeInsets.zero),
+                      minimumSize: WidgetStateProperty.all(Size.zero),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      backgroundColor: WidgetStateProperty.all(Colors.transparent),
+                    ),
+                    child: CircleAvatar(
+                      radius: 15,
+                      backgroundColor: _getMoistureColor(valve.moistureSensors
+                          .map((sensor) => {'name': sensor.name, 'value': sensor.value})
+                          .toList()),
+                      child: Image.asset(
+                        'assets/png/moisture_sensor.png',
+                        width: 25,
+                        height: 25,
                       ),
                     ),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
         );
       },
@@ -980,5 +1005,63 @@ class ValveWidget extends StatelessWidget {
     } else {
       return Colors.red.shade200;
     }
+  }
+
+  Future<List<SensorHourlyDataModel>> fetchSensorData() async {
+    List<SensorHourlyDataModel> sensors = [];
+
+    try {
+      DateTime selectedDate = DateTime.now();
+      String date = DateFormat('yyyy-MM-dd').format(selectedDate);
+
+      Map<String, Object> body = {
+        "userId": customerId,
+        "controllerId": controllerId,
+        "fromDate": date,
+        "toDate": date,
+      };
+
+      final response = await Repository(HttpService()).fetchSensorHourlyData(body);
+      if (response.statusCode == 200) {
+        print(response.body);
+        final jsonData = jsonDecode(response.body);
+        if (jsonData["code"] == 200) {
+          sensors = (jsonData['data'] as List).map((item) {
+            final Map<String, List<SensorHourlyData>> hourlyDataMap = {};
+
+            item.forEach((key, value) {
+              if (key == 'date') return;
+              if (value is String && value.isNotEmpty) {
+                final entries = value.split(';');
+                hourlyDataMap[key] = entries.map((entry) {
+                  return SensorHourlyData.fromCsv(entry, key);
+                }).toList();
+              } else {
+                hourlyDataMap[key] = [];
+              }
+            });
+
+            return SensorHourlyDataModel(
+              date: item['date'],
+              data: hourlyDataMap,
+            );
+          }).toList();
+        }
+      }
+    } catch (error) {
+      debugPrint('Error fetching sensor hourly data: $error');
+    }
+
+    return sensors;
+  }
+
+  List<SensorHourlyData> getSensorDataById(String sensorId, List<SensorHourlyDataModel> sensorData) {
+    final result = <SensorHourlyData>[];
+    for (final model in sensorData) {
+      model.data.forEach((hour, sensorList) {
+        result.addAll(sensorList.where((sensor) => sensor.sensorId == sensorId));
+      });
+    }
+    return result;
   }
 }

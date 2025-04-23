@@ -54,8 +54,6 @@ Widget navigateToInitialScreen(String route) {
   print("route:-->$route");
   switch (route) {
     case Routes.login:
-      // return ScheduleViewScreen(deviceId: "2CCF674C0F8A", userId: 4, controllerId: 1, customerId: 4, groupId: 1);
-      // return ProgramLibraryScreenNew(userId: 4, controllerId: 1, deviceId: '2CCF674C0F8A', fromDealer: false, customerId: 4,);
       return const LoginScreen();
     case Routes.dashboard:
       return const ScreenController();
