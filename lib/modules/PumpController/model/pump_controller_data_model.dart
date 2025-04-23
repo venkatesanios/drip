@@ -214,6 +214,7 @@ class PumpValveModel extends IndividualPumpData {
   final String cycleCompletedFlag;
   String setSerialFlag;
   final String moistureValues;
+  final String soilTemperature;
 
   PumpValveModel({
     required this.valveOnMode,
@@ -227,6 +228,7 @@ class PumpValveModel extends IndividualPumpData {
     required this.cycleCompletedFlag,
     required this.setSerialFlag,
     required this.moistureValues,
+    required this.soilTemperature,
   }) : super(
     status: 0,
     reason: '',
@@ -269,6 +271,7 @@ class PumpValveModel extends IndividualPumpData {
       cycleCompletedFlag: json['CCF'] ?? '',
       setSerialFlag: json['SS'] ?? '',
       moistureValues: json['MOS'] ?? '',
+      soilTemperature: json['STM'] ?? '',
     );
   }
 

@@ -61,40 +61,41 @@ class PumpWithValves extends StatelessWidget {
               ],
             ),
             const Spacer(),
-            PopupMenuButton(
-              tooltip: "Select the valve to change",
-              itemBuilder: (BuildContext context) {
-                return [
-                  for(int i = 0; i < valves.length; i++)
-                    PopupMenuItem(
-                      onTap: () async{
-                        final Repository repository = Repository(HttpService());
-                        final Map<String, dynamic> payload = {"sentSms": "changeto,${i+1}"};
-                        MqttService().topicToPublishAndItsMessage(
-                            jsonEncode(payload),
-                            '${Environment.mqttPublishTopic}/${provider.mySiteList.data[provider.sIndex].master[provider.mIndex].deviceId}'
-                        );
-                        Map<String, dynamic> body = {
-                          "userId": userId,
-                          "controllerId": controllerId,
-                          "hardware": payload,
-                          "messageStatus": "Change to successfully for ${valves[i].name}",
-                          "createUser": userId
-                        };
-                        final result = await repository.createUserSentAndReceivedMessageManually(body);
-                      },
-                      child: Text(valves[i].name),
-                    ),
-                ];
-              },
-              child: Row(
-                spacing: 5,
-                children: [
-                  const Text("Change To"),
-                  Icon(Icons.change_circle, color: Theme.of(context).primaryColorDark, size: 25,),
-                ],
+            if(dataFetchingStatus == 1)
+              PopupMenuButton(
+                tooltip: "Select the valve to change",
+                itemBuilder: (BuildContext context) {
+                  return [
+                    for(int i = 0; i < valves.length; i++)
+                      PopupMenuItem(
+                        onTap: () async{
+                          final Repository repository = Repository(HttpService());
+                          final Map<String, dynamic> payload = {"sentSms": "changeto,${i+1}"};
+                          MqttService().topicToPublishAndItsMessage(
+                              jsonEncode(payload),
+                              '${Environment.mqttPublishTopic}/${provider.mySiteList.data[provider.sIndex].master[provider.mIndex].deviceId}'
+                          );
+                          Map<String, dynamic> body = {
+                            "userId": userId,
+                            "controllerId": controllerId,
+                            "hardware": payload,
+                            "messageStatus": "Change to successfully for ${valves[i].name}",
+                            "createUser": userId
+                          };
+                          final result = await repository.createUserSentAndReceivedMessageManually(body);
+                        },
+                        child: Text(valves[i].name),
+                      ),
+                  ];
+                },
+                child: Row(
+                  spacing: 5,
+                  children: [
+                    const Text("Change To"),
+                    Icon(Icons.change_circle, color: Theme.of(context).primaryColorDark, size: 25,),
+                  ],
+                ),
               ),
-            ),
             const SizedBox(width: 10)
           ],
         ),
@@ -130,6 +131,7 @@ class PumpWithValves extends StatelessWidget {
                     userId: userId,
                     customerId: customerId,
                     controllerId: controllerId,
+                    dataFetchingStatus: dataFetchingStatus,
                   )
                 ],
                 GridView.builder(

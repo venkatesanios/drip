@@ -334,68 +334,37 @@ class DefaultData {
 
 class ConditionLibraryItem {
   dynamic sNo;
-  String id;
-  String hid;
-  String location;
   String name;
-  bool enable;
-  String state;
-  String duration;
-  String conditionIsTrueWhen;
-  String fromTime;
-  String untilTime;
-  bool notification;
-  String usedByProgram;
-  String program;
-  String zone;
-  String dropdown1;
-  String dropdown2;
-  String dropdown3;
-  String dropdownValue;
+  bool status;
+  String rule;
+  String component;
+  String threshold;
+  String reason;
+  String alertMessage;
 
   ConditionLibraryItem({
     required this.sNo,
-    required this.id,
-    required this.hid,
-    required this.location,
     required this.name,
-    required this.enable,
-    required this.state,
-    required this.duration,
-    required this.conditionIsTrueWhen,
-    required this.fromTime,
-    required this.untilTime,
-    required this.notification,
-    required this.usedByProgram,
-    required this.program,
-    required this.zone,
-    required this.dropdown1,
-    required this.dropdown2,
-    required this.dropdown3,
-    required this.dropdownValue,
+    required this.status,
+    required this.rule,
+    required this.component,
+    required this.threshold,
+    required this.reason,
+    required this.alertMessage,
   });
 
   factory ConditionLibraryItem.fromJson(Map<String, dynamic> json) {
+    print("json in the sample conditions model :: $json");
+
     return ConditionLibraryItem(
       sNo: json['sNo'],
-      id: json['id'],
-      location: json['location'],
       name: json['name'],
-      enable: json['enable'],
-      state: json['state'],
-      duration: json['duration'],
-      conditionIsTrueWhen: json['conditionIsTrueWhen'],
-      fromTime: json['fromTime'],
-      untilTime: json['untilTime'],
-      notification: json['notification'],
-      usedByProgram: json['usedByProgram'],
-      program: json['program'],
-      zone: json['zone'],
-      dropdown1: json['dropdown1'],
-      dropdown2: json['dropdown2'],
-      dropdown3: json['dropdown3'],
-      dropdownValue: json['dropdownValue'],
-      hid: json['hid'] ?? "",
+      status: json['status'],
+      rule: json['rule'],
+      component: json['component'],
+      threshold: json['threshold'],
+      reason: json['reason'],
+      alertMessage: json['alert message'],
     );
   }
 }

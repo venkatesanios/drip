@@ -299,17 +299,6 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
                           }
                         }
                     ),
-                  // if(selectedIndex == labels.length-1)
-                  //   buildActionButtonColored(
-                  //       key: "send",
-                  //       icon: Icons.send,
-                  //       label: "Save",
-                  //       context: context,
-                  //       onPressed: () {
-                  //         mainProvider.programLibraryData(overAllPvd.userId, widget.controllerId);
-                  //         sendFunction();
-                  //       }
-                  //   ),
                 ],
               ),
               floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -512,105 +501,6 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
     );
   }
 
-  void sendFunction() async{
-    final mainProvider = Provider.of<IrrigationProgramMainProvider>(context, listen: false);
-    Map<String, dynamic> dataToMqtt = {};
-    dataToMqtt = mainProvider.dataToMqtt(widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber, widget.programType);
-    var userData = {
-      "defaultProgramName": mainProvider.defaultProgramName,
-      "userId": widget.userId,
-      "controllerId": widget.controllerId,
-      "createUser": widget.userId,
-      "serialNumber": widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber,
-    };
-    if(mainProvider.irrigationLine!.sequence.isNotEmpty) {
-      // print(mainProvider.selectionModel.data!.toJson());
-      var dataToSend = {
-        "sequence": mainProvider.irrigationLine!.sequence,
-        "schedule": mainProvider.sampleScheduleModel!.toJson(),
-        "conditions": mainProvider.sampleConditions!.toJson(),
-        "waterAndFert": mainProvider.sequenceData,
-        "selection": {
-          ...mainProvider.additionalData!.toJson(),
-          "selected": mainProvider.selectedObjects!.map((e) => e.toJson()).toList(),
-        },
-        "alarm": mainProvider.newAlarmList!.toJson(),
-        "programName": mainProvider.programName,
-        "priority": mainProvider.priority,
-        "delayBetweenZones": mainProvider.programDetails!.delayBetweenZones,
-        "adjustPercentage": mainProvider.programDetails!.adjustPercentage,
-        "incompleteRestart": mainProvider.isCompletionEnabled ? "1" : "0",
-        "controllerReadStatus": 0,
-        "programType": mainProvider.selectedProgramType,
-        "hardware": dataToMqtt
-      };
-      userData.addAll(dataToSend);
-      print(userData);
-      // print(dataToMqtt['2500'][1]['2502'].split(',').join('\n'));
-      // print(dataToMqtt['2500'][1]['2502'].split(',').length);
-      /*try {
-        // MQTTManager().publish(jsonEncode(dataToMqtt), "AppToFirmware/${widget.deviceId}");
-        await validatePayloadSent(
-            dialogContext: context,
-            context: context,
-            mqttPayloadProvider: mqttPayloadProvider,
-            acknowledgedFunction: () {
-              setState(() {
-                userData['controllerReadStatus'] = "1";
-              });
-              // showSnackBar(message: "${mqttPayloadProvider.messageFromHw['Name']} from controller", context: context);
-            },
-            payload: dataToMqtt,
-            payloadCode: "2500",
-            deviceId: widget.deviceId
-        ).whenComplete(() {
-          Future.delayed(const Duration(seconds: 1), () async {
-            final createUserProgram = await httpServiceOld.postRequest('createUserProgram', userData);
-            final response = jsonDecode(createUserProgram.body);
-            if(createUserProgram.statusCode == 200) {
-              await irrigationProvider.programLibraryData(overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, widget.controllerId);
-              ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: response['message']));
-              if(widget.toDashboard) {
-                irrigationProvider.updateBottomNavigation(0);
-                Navigator.of(context).pop();
-                print(irrigationProvider.selectedIndex);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomeScreen(userId: overAllPvd.takeSharedUserId ? overAllPvd.sharedUserId : overAllPvd.userId, fromDealer: widget.fromDealer,)),
-                );
-              } else {
-                Navigator.of(context).pop();
-                irrigationProvider.updateBottomNavigation(1);
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) => HomeScreen(userId: overAllPvd.userId, fromDealer: widget.fromDealer,)),
-                // );
-              }
-            }
-          });
-        });
-      } catch (error) {
-        ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: 'Failed to update because of $error'));
-        print("Error: $error");
-      }*/
-      // print(mainProvider.selectionModel.data!.localFertilizerSet!.map((e) => e.toJson()));
-    }
-    else {
-      showAdaptiveDialog<Future>(
-        context: context,
-        builder: (BuildContext context) {
-          return CustomAlertDialog(
-            title: 'Warning',
-            content: "Select valves to be sequence for Irrigation Program",
-            actions: [
-              TextButton(child: const Text("OK"), onPressed: () => Navigator.of(context).pop(),),
-            ],
-          );
-        },
-      );
-    }
-  }
-
   void validatorFunction(BuildContext context, IrrigationProgramMainProvider mainProvider) {
     if(mainProvider.irrigationLine!.sequence.every((element) => element['valve'].isEmpty)) {
       final indexWhereEmpty = mainProvider.irrigationLine!.sequence.indexWhere((element) => element['valve'].isEmpty);
@@ -675,13 +565,13 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
   Widget _buildTabContent({required int index, required bool isIrrigationProgram, required bool conditionsLibraryIsNotEmpty}) {
     switch (index) {
       case 0:
-        return SequenceScreen(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber);
+        return SequenceScreen(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, deviceId: widget.deviceId,);
       case 1:
         return ScheduleScreen(serialNumber: widget.serialNumber,);
       case 2:
         return isIrrigationProgram
             ? conditionsLibraryIsNotEmpty
-            ? ConditionsScreen(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, deviceId: widget.deviceId,)
+            ? ConditionsScreen(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, deviceId: widget.deviceId, customerId: widget.customerId,)
             : const SelectionScreen()
             : WaterAndFertilizerScreen(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram, modelId: widget.modelId,);
       case 3:

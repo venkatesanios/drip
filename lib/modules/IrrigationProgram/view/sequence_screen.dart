@@ -5,6 +5,7 @@ import 'package:oro_drip_irrigation/Constants/properties.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/model/LineDataModel.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/schedule_screen.dart';
 import 'package:provider/provider.dart';
+import '../../../Screens/planning/valve_group_screen.dart';
 import '../state_management/irrigation_program_provider.dart';
 import '../widgets/custom_animated_switcher.dart';
 import '../../SystemDefinitions/widgets/custom_snack_bar.dart';
@@ -15,7 +16,8 @@ class SequenceScreen extends StatefulWidget {
   final int userId;
   final int controllerId;
   final int serialNumber;
-  const SequenceScreen({super.key, required this.userId, required this.controllerId, required this.serialNumber});
+  final String deviceId;
+  const SequenceScreen({super.key, required this.userId, required this.controllerId, required this.serialNumber, required this.deviceId});
 
   @override
   State<SequenceScreen> createState() => _SequenceScreenState();
@@ -253,9 +255,9 @@ class _SequenceScreenState extends State<SequenceScreen> {
                             },
                           );
                         },
-                        icon: Icon(Icons.info, color: Theme.of(context).primaryColor,),
+                        icon: const Icon(Icons.edit_note_rounded, color: Colors.white,),
                         style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(Colors.black.withOpacity(0.05))
+                            backgroundColor: MaterialStateProperty.all(Theme.of(context).primaryColorLight)
                         ),
                       ),
                       buildButtonBar(context: context, isAgitatorProgram: agitatorProgram)
@@ -498,14 +500,14 @@ class _SequenceScreenState extends State<SequenceScreen> {
                   trailing: isGroup
                       ? TextButton(
                       onPressed: (){
-                        // Navigator.push(context, MaterialPageRoute(builder: (context) => MyGroupScreen(userId: widget.userId, controllerId: widget.controllerId, menuId: 584, deviceID: '')));
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => GroupListScreen(userId: widget.userId, controllerId: widget.controllerId, deviceId: widget.deviceId,)));
                       },
                       child: const Text("Create")
                   )
                       : null,
                   leading: isMainValve ? Container(
                     padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                         color: cardColor,
                         shape: BoxShape.circle
                     ),

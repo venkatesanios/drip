@@ -20,12 +20,13 @@ class CustomTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color avatarColor = tabIndex == selectedTabIndex
-        ? Theme.of(context).primaryColor
-        : Color(0xffE7F0F2);
+        ? Theme.of(context).primaryColorLight
+        : Colors.white;
 
     Color contentColor = tabIndex == selectedTabIndex
         ? Colors.white
-        : Colors.black;
+        : Colors.grey.shade500
+    ;
     return Tab(
       height: height,
       child: Column(
@@ -44,14 +45,14 @@ class CustomTab extends StatelessWidget {
                 content,
                 style: TextStyle(
                     color: contentColor,
-                    fontSize: Theme.of(context).textTheme.bodyLarge?.fontSize
+                    // fontSize: Theme.of(context).textTheme.bodyLarge!.fontSize
                 ),
               ),
             ),
           ),
           if (label != null) ...[
             const SizedBox(height: 4),
-            Text(label!),
+            Text(label!, style: TextStyle(color: contentColor, fontWeight: FontWeight.bold),),
           ],
         ],
       ),

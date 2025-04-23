@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Constants/properties.dart';
 import 'package:provider/provider.dart';
+import '../../../views/customer/condition_library.dart';
 import '../state_management/irrigation_program_provider.dart';
 
 class ConditionsScreen extends StatefulWidget {
   final int userId;
   final int controllerId;
+  final int customerId;
   final int serialNumber;
   final String deviceId;
-  const ConditionsScreen({super.key, required this.userId, required this.controllerId, required this.serialNumber, required this.deviceId});
+  const ConditionsScreen({super.key, required this.userId, required this.controllerId, required this.serialNumber, required this.deviceId, required this.customerId});
 
   @override
   State<ConditionsScreen> createState() => _ConditionsScreenState();
@@ -84,9 +86,8 @@ class _ConditionsScreenState extends State<ConditionsScreen> {
                                               children: conditionsProvider.sampleConditions!.defaultData.conditionLibrary.asMap().entries.map((conditions) {
                                                 final conditionName = conditions.value.name;
                                                 final conditionSno = conditions.value.sNo;
-                                                final subTitle =  '${conditions.value.dropdown1}, ${conditions.value.dropdown2} ,${(conditions.value.dropdown1.contains('Analog') == true || conditions.value.dropdown1.contains('Program') == true || conditions.value.dropdown1.contains('Moisture') == true || conditions.value.dropdown1.contains('Level') == true) ? '' : conditions.value.dropdown3 } ${(conditions.value.dropdown1.contains('Analog') == true || conditions.value.dropdown1.contains('Program') == true || conditions.value.dropdown1.contains('Moisture') == true || conditions.value.dropdown1.contains('Level') == true  || conditions.value.dropdown1.contains('Combined') == true) ? conditions.value.dropdownValue : ''  }';
+                                                final subTitle = conditions.value.rule;
 
-                                                // var conditionNameIndex = conditions.key;
                                                 return RadioListTile(
                                                   title: Text(conditionName),
                                                   subtitle: Text(subTitle),
@@ -95,7 +96,7 @@ class _ConditionsScreenState extends State<ConditionsScreen> {
                                                   onChanged: (newValue) {
                                                     // print(conditionSno);
                                                     conditionsProvider.updateConditions(title, conditionSno, newValue, conditionTypeIndex);
-                                                    Future.delayed(Duration(milliseconds: 500), () {
+                                                    Future.delayed(const Duration(milliseconds: 500), () {
                                                       Navigator.of(context).pop();
                                                     });
                                                   },
@@ -109,12 +110,12 @@ class _ConditionsScreenState extends State<ConditionsScreen> {
                                         FilledButton(
                                             onPressed: (){
                                               Navigator.of(context).pop();
-                                              /*Navigator.push(
+                                              Navigator.push(
                                                   context,
-                                                  MaterialPageRoute(builder: (BuildContext context) => ConditionScreen(userId: widget.userId, controllerId: widget.controllerId, deviceID: widget.deviceId, isProgram: true, serialNumber: widget.serialNumber, menuId: 70,))
-                                              );*/
+                                                  MaterialPageRoute(builder: (BuildContext context) => ConditionLibrary(userId: widget.userId, controllerId: widget.controllerId, deviceId: widget.deviceId, customerId: widget.customerId,))
+                                              );
                                             },
-                                            child: Text("Edit Conditions")
+                                            child: const Text("Edit Conditions")
                                         )
                                       ],
                                       actionsAlignment: MainAxisAlignment.center,

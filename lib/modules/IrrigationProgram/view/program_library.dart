@@ -91,7 +91,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
         // surfaceTintColor: Colors.white,
         title: const Text('Program Library',),
         centerTitle: false,
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: true,
       ) : PreferredSize(preferredSize: const Size(0, 0), child: Container()),
       body: irrigationProgramMainProvider.programLibrary != null ?
       RefreshIndicator(
