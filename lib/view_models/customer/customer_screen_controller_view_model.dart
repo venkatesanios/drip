@@ -42,7 +42,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   void mqttConnectionCallbackMethod() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       mqttConfigureAndConnect(context);
-      await Future.delayed(const Duration(milliseconds: 300));
+      await Future.delayed(const Duration(milliseconds: 3000));
       final state = mqttService.isConnected;
       if (state) {
         onSubscribeTopic();
@@ -197,52 +197,51 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   void onRefreshClicked() async {
     if (mqttService.connectionState != MqttConnectionState.connected) {
       mqttConnectionCallbackMethod();
-    }else{
-      String livePayload = '';
-      int attempts = 0;
-      payloadProvider.isLiveSynced = false;
-      payloadProvider.liveSyncCall(true);
+      return;
+    }
 
-      if (mySiteList.data[sIndex].master[mIndex].categoryId == 1) {
-        livePayload = jsonEncode({"3000": {"3001": ""}});
-      } else {
-        livePayload = jsonEncode({"sentSms": "#live"});
+    String livePayload = '';
+    int attempts = 0;
+    bool responseReceived = false;
+    final deviceId = mySiteList.data[sIndex].master[mIndex].deviceId;
+    final topic = '${AppConstants.publishTopic}/$deviceId';
+
+    if (mySiteList.data[sIndex].master[mIndex].categoryId == 1) {
+      livePayload = jsonEncode({"3000": {"3001": ""}});
+    } else {
+      livePayload = jsonEncode({"sentSms": "#live"});
+    }
+
+    payloadProvider.liveSyncCall(true);
+    payloadProvider.isLiveSynced = true;
+
+    await Future.delayed(const Duration(milliseconds: 1000)); // Optional wait
+
+    while (attempts < 3 && !responseReceived) {
+      print("Attempt ${attempts + 1}: Sending live request...");
+      mqttService.topicToPublishAndItsMessage(livePayload, topic);
+
+      for (int i = 0; i < 30; i++) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        if (payloadProvider.isLiveSynced) {
+          responseReceived = true;
+          break;
+        }
       }
 
-      final deviceId = mySiteList.data[sIndex].master[mIndex].deviceId;
-      final topic = '${AppConstants.publishTopic}/$deviceId';
-
-
-      Future.delayed(const Duration(milliseconds: 1000), () async {
-        bool responseReceived = false;
-        while (attempts < 3 && !payloadProvider.isLiveSynced) {
-          print("Attempt ${attempts + 1}: Sending live request...");
-          mqttService.topicToPublishAndItsMessage(livePayload, topic);
-          await Future.delayed(const Duration(seconds: 3));
-          if (payloadProvider.isLiveSynced) {
-            responseReceived = true;
-            payloadProvider.liveSyncCall(false);
-            break;
-          } else {
-            attempts++;
-          }
-        }
-
-        if (!responseReceived) {
-          print("No communication after 3 attempts.");
-          payloadProvider.isLiveSynced = false;
-          payloadProvider.liveSyncCall(false);
-          //payloadProvider.setCommunicationStatus(false);
-        }
-      });
-
-
-      if (!payloadProvider.isLiveSynced) {
-
+      if (!responseReceived) {
+        print("No response in attempt ${attempts + 1}");
+        attempts++;
       }
     }
-  }
 
+    if (!responseReceived) {
+      print("No communication after 3 attempts.");
+      payloadProvider.isLiveSynced = false;
+    }
+
+    payloadProvider.liveSyncCall(false);
+  }
 
   bool getPermissionStatusBySNo(BuildContext context, int sNo) {
     return true;

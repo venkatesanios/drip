@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:oro_drip_irrigation/Screens/Dealer/dealer_definition.dart';
 import 'package:oro_drip_irrigation/view_models/customer/controller_settings_view_model.dart';
+import 'package:oro_drip_irrigation/view_models/customer/customer_screen_controller_view_model.dart';
 import 'package:oro_drip_irrigation/views/customer/condition_library.dart';
 import 'package:provider/provider.dart';
 import '../../Models/customer/site_model.dart';
@@ -11,6 +12,7 @@ import '../../Screens/planning/frost_productionScreen.dart';
 import '../../Screens/planning/names_form.dart';
 import '../../Screens/planning/valve_group_screen.dart';
 import '../../Screens/planning/virtual_screen.dart';
+import '../../modules/Preferences/view/preference_main_screen.dart';
 import '../../modules/SystemDefinitions/view/system_definition_screen.dart';
 import '../../modules/calibration/view/calibration_screen.dart';
 import '../../modules/constant/view/constant_base_page.dart';
@@ -25,16 +27,19 @@ class ControllerSettings extends StatelessWidget {
     required this.customerId,
     required this.userId,
     required this.masterController,
+    required this.vm,
   });
 
   final int customerId, userId;
   final MasterControllerModel masterController;
+  final CustomerScreenControllerViewModel vm;
+
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => ControllerSettingsViewModel(Repository(HttpService()))
-        ..getSettingsMenu(customerId, masterController.controllerId),
+        ..getSettingsMenu(customerId, masterController.controllerId, masterController.categoryId),
       child: Consumer<ControllerSettingsViewModel>(
         builder: (context, viewModel, _) {
           if (viewModel.isLoading) {
@@ -47,7 +52,6 @@ class ControllerSettings extends StatelessWidget {
     );
   }
 
-  /// Web layout with tabs
   Widget _buildWebView(BuildContext context, ControllerSettingsViewModel viewModel) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -86,7 +90,6 @@ class ControllerSettings extends StatelessWidget {
     );
   }
 
-  /// Mobile layout with list tiles
   Widget _buildMobileView(BuildContext context, ControllerSettingsViewModel viewModel) {
     return Scaffold(
       body: ListView.builder(
@@ -144,13 +147,20 @@ class ControllerSettings extends StatelessWidget {
 
   Widget? _getScreenWidget(String title) {
     switch (title) {
-      case 'Preference':
-        return const SizedBox();
       case 'General':
         return GeneralSetting(
           customerId: customerId,
           controllerId: masterController.controllerId,
           userId: userId,
+        );
+      case 'Preference':
+        return PreferenceMainScreen(
+          userId: userId,
+          controllerId: masterController.controllerId,
+          deviceId: masterController.deviceId,
+          customerId: customerId,
+          menuId: 0,
+          vm : vm,
         );
       case 'Constant':
         return ConstantBasePage(userData: {

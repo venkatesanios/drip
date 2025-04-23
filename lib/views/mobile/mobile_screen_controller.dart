@@ -668,7 +668,7 @@ class MobileScreenController extends StatelessWidget {
                     ) :
                     ControllerSettings(customerId: customerId,
                       userId: userId,
-                      masterController: vm.mySiteList.data[vm.sIndex].master[vm.mIndex],
+                      masterController: vm.mySiteList.data[vm.sIndex].master[vm.mIndex], vm: vm,
                   ),
                   ),
                 ],
@@ -747,6 +747,7 @@ class MobileScreenController extends StatelessWidget {
           customerId: customerId,
           userId: userId,
           masterController: masterData[masterIndex],
+          vm: vm,
         );
       case 6:
         return WeatherScreen(userId: userId, controllerId: controllerId, deviceID: '',);

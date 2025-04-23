@@ -1021,6 +1021,7 @@ class CustomerScreenController extends StatelessWidget {
             userId: userId,
             customerId: userId,
           masterController: masterData[masterIndex],
+          vm: vm,
         );
       case 5:
         return SiteConfig(

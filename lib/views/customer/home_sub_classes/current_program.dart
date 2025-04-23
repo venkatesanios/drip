@@ -37,6 +37,8 @@ class CurrentProgram extends StatelessWidget {
             });
           }
 
+          print('currentSchedule');
+
           return vm.currentSchedule.isNotEmpty && vm.currentSchedule[0].isNotEmpty?
           kIsWeb? Padding(
             padding: const EdgeInsets.only(left: 8, right: 8, top: 20),
@@ -291,85 +293,6 @@ class CurrentProgram extends StatelessWidget {
                                     color: CupertinoColors.inactiveGray,
                                   ),
                                 ),
-                                /*Expanded(
-                                    child: Row(
-                                      children: [
-                                        Flexible(
-                                          flex:1,
-                                          child: Column(
-                                            children: [
-                                              const Text('Remaining', style: TextStyle(color: Colors.black54, fontSize: 12)),
-                                              const Divider(height: 5),
-                                              Text(getProgramNameById(int.parse(values[0]))=='StandAlone - Manual' &&
-                                                  (values[3]=='00:00:00'||values[3]=='0')? '----': values[4],
-                                                  style:  const TextStyle(fontSize: 20)),
-                                            ],
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.only(left: 8, right: 8),
-                                          child: Container(
-                                            width: 1,
-                                            height: 50,
-                                            color: CupertinoColors.inactiveGray,
-                                          ),
-                                        ),
-                                        Flexible(
-                                          flex:1,
-                                          child: Center(
-                                            child: getProgramNameById(int.parse(values[0]))=='StandAlone - Manual'?
-                                            MaterialButton(
-                                              color: Colors.redAccent,
-                                              textColor: Colors.white,
-                                              onPressed: values[17]=='1'? (){
-                                                String payLoadFinal = jsonEncode({
-                                                  "800": {"801": '0,0,0,0,0'}
-                                                });
-                                                MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-                                                *//*sendToServer(0, currentSchedule[index].programName, widget.currentSchedule[index].zoneName,
-                            widget.currentSchedule[index].duration_Qty=='00:00:00'? 3:
-                            widget.currentSchedule[index].duration_Qty.contains(':')? 1: 2, payLoadFinal);*//*
-                                              }: null,
-                                              child: const Text('Stop'),
-                                            ):
-                                            getProgramNameById(int.parse(values[0])).contains('StandAlone')?
-                                            MaterialButton(
-                                              color: Colors.redAccent,
-                                              textColor: Colors.white,
-                                              onPressed: () async {
-
-                                                String payLoadFinal = jsonEncode({
-                                                  "3900": {"3901": '0,${values[3]},${values[0]},'
-                                                      '${values[1]},,,,,,,,,0,'}
-                                                });
-                                                MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-
-                                                *//*sendToServer(widget.currentSchedule[index].programSno,widget.currentSchedule[index].programName,
-                            widget.currentSchedule[index].zoneName,
-                            widget.currentSchedule[index].duration_Qty=='00:00:00'? 3:
-                            widget.currentSchedule[index].duration_Qty.contains(':')?1: 2, payLoadFinal);*//*
-                                              },
-                                              child: const Text('Stop'),
-                                            ):
-                                            MaterialButton(
-                                              color: Colors.orange,
-                                              textColor: Colors.black,
-                                              onPressed: values[17]=='1' ? (){
-                                                String payload = '${values[0]},0';
-                                                String payLoadFinal = jsonEncode({
-                                                  "3700": {"3701": payload}
-                                                });
-                                                MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-                                                sentUserOperationToServer('${getProgramNameById(int.parse(values[0]))} - ${getSequenceName(int.parse(values[0]), values[1])} skipped manually', payLoadFinal);
-                                              } : null,
-                                              child: const Text('Skip'),
-                                            ),
-                                          ),
-                                        ),
-
-                                      ],
-                                    )
-                                ),*/
                               ],
                             ),
                             const SizedBox(height: 3),

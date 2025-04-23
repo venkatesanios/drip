@@ -35,7 +35,7 @@ class ControllerSettingsViewModel extends ChangeNotifier {
 
   ControllerSettingsViewModel(this.repository);
 
-  Future<void> getSettingsMenu(int customerId, int controllerId) async {
+  Future<void> getSettingsMenu(int customerId, int controllerId, int categoryId) async {
     try {
       Map<String, Object> body = {
         "userId": customerId,
@@ -53,14 +53,32 @@ class ControllerSettingsViewModel extends ChangeNotifier {
               .map((e) => e["parameter"]?.toString() ?? '')
               .toSet();
 
-          filteredSettingList = allSettings.where((setting) {
-            if (setting['title'] == 'General') return true;
-             else if (setting['title'] == 'Dealer Definition') return true;
-             else if (setting['title'] == 'Geography') return true;
-             else if (setting['title'] == 'Geography Area') return true;
-
-            return availableTitles.contains(setting['title']);
-          }).toList();
+          if(categoryId==2){
+            final allowedTitles = {
+              'General',
+              'Preference',
+              'Name',
+              'Calibration',
+              'Global Limit',
+              'Dealer Definition',
+              'Geography',
+              'Geography Area',
+            };
+            filteredSettingList = allSettings.where((setting) {
+              final title = setting['title'];
+              return allowedTitles.contains(title);
+            }).toList();
+          }else{
+            filteredSettingList = allSettings.where((setting) {
+              if (setting['title'] == 'General'
+                  || setting['title'] == 'Dealer Definition'
+                  || setting['title'] == 'Geography'
+                  || setting['title'] == 'Geography Area') {
+                return true;
+              }
+              return availableTitles.contains(setting['title']);
+            }).toList();
+          }
         }
       }
     } catch (error) {
