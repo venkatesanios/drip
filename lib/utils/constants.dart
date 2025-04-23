@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:ui_web' as ui;
+import 'dart:html' as html;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import '../modules/config_Maker/view/config_web_view.dart';
@@ -309,11 +311,7 @@ class AppConstants {
     }
 
     if (imagePathFinal.contains('.gif')) {
-      return Image.asset(
-        '$gifPath$imagePathFinal',
-        key: UniqueKey(),
-        fit: BoxFit.contain,
-      );
+      return Image.asset('$gifPath$imagePathFinal');
     }
     return Image.asset('$pngPath$imagePathFinal');
   }
@@ -626,4 +624,31 @@ class AppConstants {
   static List<int> senseModelList = [41, 42, 43, 44, 45];
   static List<int> ecoNodeList = [36];
 
+}
+
+class GifImageWeb extends StatelessWidget {
+  final String imagePath;
+  final double width;
+  final double height;
+  final String viewId;
+
+  GifImageWeb({
+    super.key,
+    required this.imagePath,
+    this.width = 70,
+    this.height = 70,
+  }) : viewId = '${imagePath}_${DateTime.now().millisecondsSinceEpoch}' {
+    ui.platformViewRegistry.registerViewFactory(
+      viewId, (int viewId) => html.ImageElement()
+        ..src = imagePath
+        ..style.width = '${width}px'
+        ..style.height = '${height}px'
+        ..style.objectFit = 'contain',
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return HtmlElementView(viewType: viewId);
+  }
 }

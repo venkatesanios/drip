@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
@@ -119,7 +120,53 @@ class PumpWidget extends StatelessWidget {
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           backgroundColor: WidgetStateProperty.all(Colors.transparent),
                         ),
-                        child: SizedBox(
+                        child: kIsWeb && pump.status == 1?
+                        SizedBox(
+                          width: 70,
+                          height: 70,
+                          child: Stack(
+                            children: [
+                              GifImageWeb(imagePath: 'assets/gif/dp_irr_pump_g.gif'),
+                              Positioned.fill(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    showPopover(
+                                      context: buttonContext,
+                                      bodyBuilder: (context) {
+                                        return ValueListenableBuilder<int>(
+                                          valueListenable: popoverUpdateNotifier,
+                                          builder: (context, _, __) {
+                                            return Material(
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  hasVoltage
+                                                      ? _buildVoltagePopoverContent(context, voltages, columns)
+                                                      : _buildManualControlButtons(context),
+                                                  if (isSourcePump) _buildBottomControlButtons(context),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      },
+                                      onPop: () => print('Popover was popped!'),
+                                      direction: PopoverDirection.bottom,
+                                      width: 325,
+                                      arrowHeight: 15,
+                                      arrowWidth: 30,
+                                    );
+                                  },
+                                  child: MouseRegion(
+                                    cursor: SystemMouseCursors.click,
+                                    child: Container(color: Colors.transparent),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ) :
+                        SizedBox(
                           width: 70,
                           height: 70,
                           child: AppConstants.getAsset('pump', pump.status, ''),

@@ -6,14 +6,17 @@ import 'package:oro_drip_irrigation/Screens/Dealer/dealer_definition.dart';
 import 'package:oro_drip_irrigation/view_models/customer/controller_settings_view_model.dart';
 import 'package:oro_drip_irrigation/views/customer/condition_library.dart';
 import 'package:provider/provider.dart';
+import '../../Models/customer/site_model.dart';
 import '../../Screens/Map/CustomerMap.dart';
 import '../../Screens/Map/MapDeviceList.dart';
 import '../../Screens/planning/frost_productionScreen.dart';
 import '../../Screens/planning/names_form.dart';
 import '../../Screens/planning/valve_group_screen.dart';
 import '../../Screens/planning/virtual_screen.dart';
+import '../../modules/Preferences/view/general_screen.dart';
 import '../../modules/SystemDefinitions/view/system_definition_screen.dart';
 import '../../modules/calibration/view/calibration_screen.dart';
+import '../../modules/constant/view/constant_base_page.dart';
 import '../../modules/fertilizer_set/view/fertilizer_Set_screen.dart';
 import '../../modules/global_limit/view/global_limit_screen.dart';
 import '../../repository/repository.dart';
@@ -22,15 +25,17 @@ import '../mobile/general_setting.dart';
 import 'constant.dart';
 
 class ControllerSettings extends StatelessWidget {
-  const ControllerSettings({super.key, required this.customerId, required this.controllerId, required this.adDrId, required this.userId, required this.deviceId});
-  final int customerId, controllerId, adDrId, userId;
-  final String deviceId;
+  const ControllerSettings({super.key, required this.customerId,
+    required this.adDrId, required this.userId, required this.masterController});
+
+  final int customerId, adDrId, userId;
+  final MasterControllerModel masterController;
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => ControllerSettingsViewModel(Repository(HttpService()))
-        ..getSettingsMenu(customerId, controllerId),
+        ..getSettingsMenu(customerId, masterController.controllerId),
       child: Consumer<ControllerSettingsViewModel>(
         builder: (context, viewModel, _) {
           return viewModel.isLoading?
@@ -63,99 +68,111 @@ class ControllerSettings extends StatelessWidget {
                     child: TabBarView(
                       children: viewModel.filteredSettingList.map((tab) {
                         final String title = tab['title'];
+                        print(title);
                         switch (title) {
+                          case 'Preference':
+                            return const GeneralScreen();
                           case 'General':
                             return GeneralSetting(
                               customerId: customerId,
-                              controllerId: controllerId,
+                              controllerId: masterController.controllerId,
                               adDrId: adDrId,
                               userId: adDrId,
                             );
                           case 'Constant':
-                            return Constant(
-                              customerId: customerId,
-                              controllerId: controllerId,
-                              userId: adDrId,
+                            return ConstantBasePage(
+                                userData: {
+                                  "userId" : customerId,
+                                  "controllerId": masterController.controllerId,
+                                  "deviceId" : masterController.deviceId,
+                                  "modelId":masterController.modelId,
+                                  "deviceName": masterController.deviceName,
+                                  "categoryId":masterController.categoryId,
+                                  "categoryName":masterController.categoryName
+                                }
                             );
                           case 'Condition Library':
                             return ConditionLibrary(
                               customerId: customerId,
-                              controllerId: controllerId,
+                              controllerId: masterController.controllerId,
                               userId: adDrId,
-                              deviceId: deviceId,
+                              deviceId: masterController.deviceId,
                             );
                           case 'Name':
-                            return Names(
-                              userID: userId,
-                              customerID: customerId,
-                              controllerId: controllerId,
-                              menuId: 0,
-                              imeiNo: deviceId,
+                            return Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Names(
+                                userID: userId,
+                                customerID: customerId,
+                                controllerId: masterController.controllerId,
+                                menuId: 0,
+                                imeiNo: masterController.deviceId,
+                              ),
                             );
                           case 'Fertilizer Set':
                             return FertilizerSetScreen(
                               userData: {
                                 'userId': userId,
-                                'controllerId': controllerId,
-                                'deviceId': deviceId,
+                                'controllerId': masterController.controllerId,
+                                'deviceId': masterController.deviceId,
                               },
                             );
                           case 'Valve Group':
                             return GroupListScreen(
                               userId: userId,
-                              controllerId: controllerId,
-                              deviceId: deviceId,
+                              controllerId: masterController.controllerId,
+                              deviceId: masterController.deviceId,
                             );
                           case 'System Definitions':
                             return SystemDefinition(
                               userId: userId,
-                              controllerId: controllerId,
-                              deviceId: deviceId,
+                              controllerId: masterController.controllerId,
+                              deviceId: masterController.deviceId,
                               customerId: customerId,
                             );
                           case 'Global Limit':
                             return GlobalLimitScreen(
                               userData: {
                                 'userId': userId,
-                                'controllerId': controllerId,
-                                'deviceId': deviceId,
+                                'controllerId': masterController.controllerId,
+                                'deviceId': masterController.deviceId,
                               },
                             );
                           case 'Virtual Water Meter':
                             return VirtualMeterScreen(
                               userId: userId,
-                              controllerId: controllerId,
+                              controllerId: masterController.controllerId,
                               menuId: 67,
-                              deviceId: deviceId,
+                              deviceId: masterController.deviceId,
                             );
                           case 'Frost Protection':
                             return FrostMobUI(
                               userId: userId,
-                              controllerId: controllerId,
-                              deviceID: deviceId,
+                              controllerId: masterController.controllerId,
+                              deviceID: masterController.deviceId,
                               menuId: 71,
                             );
                           case 'Calibration':
                             return CalibrationScreen(
                               userData: {
                                 'userId': userId,
-                                'controllerId': controllerId,
-                                'deviceId': deviceId,
+                                'controllerId': masterController.controllerId,
+                                'deviceId': masterController.deviceId,
                               },
                             );
                           case 'Dealer Definition':
                             return DealerDefinitionInConfig(
                               userId: userId,
                               customerId: customerId,
-                              controllerId: controllerId,
-                              imeiNo: deviceId,
+                              controllerId: masterController.controllerId,
+                              imeiNo: masterController.deviceId,
                             );
                           case 'Geography':
                             return MapScreenall(
                               userId: userId,
                               customerId: customerId,
-                              controllerId: controllerId,
-                              imeiNo: deviceId,
+                              controllerId: masterController.controllerId,
+                              imeiNo: masterController.deviceId,
                             );
                           default:
                             return const Center(child: Text('Coming Soon'));
@@ -190,9 +207,9 @@ class ControllerSettings extends StatelessWidget {
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                       onTap: () {
                         if(viewModel.filteredSettingList[index]['title']=='General'){
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => GeneralSetting(customerId: customerId, controllerId: controllerId, adDrId: adDrId, userId: adDrId,)));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => GeneralSetting(customerId: customerId, controllerId: masterController.controllerId, adDrId: adDrId, userId: adDrId,)));
                         }else if(viewModel.filteredSettingList[index]['title']=='Condition Library'){
-                          Navigator.push(context, MaterialPageRoute(builder: (context) =>  ConditionLibrary(deviceId: deviceId, customerId: customerId, controllerId: controllerId, userId: adDrId,)));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) =>  ConditionLibrary(deviceId: masterController.deviceId, customerId: customerId, controllerId: masterController.controllerId, userId: adDrId,)));
                         }
 
                       },
