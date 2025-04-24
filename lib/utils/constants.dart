@@ -637,10 +637,11 @@ class GifImageWeb extends StatelessWidget {
     required this.imagePath,
     this.width = 70,
     this.height = 70,
-  }) : viewId = '${imagePath}_${DateTime.now().millisecondsSinceEpoch}' {
+  }) : viewId = 'gif_${imagePath.hashCode}' {
     ui.platformViewRegistry.registerViewFactory(
-      viewId, (int viewId) => html.ImageElement()
-        ..src = imagePath
+      viewId,
+          (int viewId) => html.ImageElement()
+        ..src = Uri.base.resolve(imagePath).toString()
         ..style.width = '${width}px'
         ..style.height = '${height}px'
         ..style.objectFit = 'contain',
@@ -649,6 +650,10 @@ class GifImageWeb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return HtmlElementView(viewType: viewId);
+    return SizedBox(
+      width: width,
+      height: height,
+      child: HtmlElementView(viewType: viewId),
+    );
   }
 }
