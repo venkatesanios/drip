@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:ui' as ui;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -259,7 +260,7 @@ class _MapScreenallState extends State<MapScreenall> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Geography'),automaticallyImplyLeading: false,
+      appBar: AppBar(title: const Text('Geography'),automaticallyImplyLeading: kIsWeb ? false:true,
         actions: [
         IconButton(
           icon: Icon(Icons.map_outlined),

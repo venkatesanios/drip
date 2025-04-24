@@ -331,7 +331,7 @@ class Repository{
   }
 
   Future<http.Response> getPlanningHiddenMenu(body) async {
-    return await apiService.postRequest('ar', body);
+    return await apiService.postRequest('/user/dealerDefinition/mainMenu/get', body);
   }
 
   Future<http.Response> getUserIrrigationLog(body) async {
