@@ -8,6 +8,7 @@ import 'package:oro_drip_irrigation/views/customer/condition_library.dart';
 import 'package:provider/provider.dart';
 import '../../Models/customer/site_model.dart';
 import '../../Screens/Map/CustomerMap.dart';
+import '../../Screens/Map/allAreaBoundry.dart';
 import '../../Screens/planning/frost_productionScreen.dart';
 import '../../Screens/planning/names_form.dart';
 import '../../Screens/planning/valve_group_screen.dart';
@@ -244,6 +245,13 @@ class ControllerSettings extends StatelessWidget {
         );
       case 'Geography':
         return MapScreenall(
+          userId: userId,
+          customerId: customerId,
+          controllerId: masterController.controllerId,
+          imeiNo: masterController.deviceId,
+        );
+      case 'Geography Area':
+        return MapScreenAllArea(
           userId: userId,
           customerId: customerId,
           controllerId: masterController.controllerId,
