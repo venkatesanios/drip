@@ -145,9 +145,7 @@ class LoginScreen extends StatelessWidget {
                                               color: Theme.of(context).primaryColor,
                                               textColor: Colors.white,
                                               child: const Text('CONTINUE', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),),
-                                              onPressed: () async {
-                                                viewModel.login();
-                                              },
+                                              onPressed: () => viewModel.login(),
                                             ),
                                           ),
                                         ),

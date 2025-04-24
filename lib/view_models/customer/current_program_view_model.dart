@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
+import 'package:flutter/material.dart';
 
 class CurrentProgramViewModel extends ChangeNotifier {
   late MqttPayloadProvider payloadProvider;
@@ -9,7 +10,7 @@ class CurrentProgramViewModel extends ChangeNotifier {
   Timer? _timer;
   double currentLineSno;
 
-  CurrentProgramViewModel(BuildContext context, this.currentLineSno){
+  CurrentProgramViewModel(BuildContext context, this.currentLineSno) {
     payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
   }
 
@@ -20,7 +21,7 @@ class CurrentProgramViewModel extends ChangeNotifier {
     startTimer();
   }
 
-  void startTimer(){
+  void startTimer() {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
       updateDurationQtyLeft();
@@ -29,78 +30,74 @@ class CurrentProgramViewModel extends ChangeNotifier {
 
   void updateDurationQtyLeft() {
     bool allOnDelayLeftZero = true;
+    bool didUpdate = false;
+
     try {
-      if(currentSchedule.isNotEmpty){
-        for (int i = 0; i < currentSchedule.length; i++) {
-          List<String> values = currentSchedule[i].split(",");
-          if(values.length>1){
-            if(values[17]=='1'){
-              if (values[4].contains(':')){
-                List<String> parts = values[4].split(':');
-                int hours = int.parse(parts[0]);
-                int minutes = int.parse(parts[1]);
-                int seconds = int.parse(parts[2]);
+      for (int i = 0; i < currentSchedule.length; i++) {
+        List<String> values = currentSchedule[i].split(',');
 
-                if (seconds > 0) {
-                  seconds--;
-                } else {
-                  if (minutes > 0) {
-                    minutes--;
-                    seconds = 59;
-                  } else {
-                    if (hours > 0) {
-                      hours--;
-                      minutes = 59;
-                      seconds = 59;
-                    }
-                  }
-                }
+        if (values.length <= 17 || values[17] != '1') continue;
 
-                if (values[4] != '00:00:00') {
-                  values[4] = '${hours.toString().padLeft(2, '0')}:'
-                      '${minutes.toString().padLeft(2, '0')}:'
-                      '${seconds.toString().padLeft(2, '0')}';
-                  currentSchedule[i] = values.join(",");
-                  notifyListeners();
-                }
-              }
-              else {
-                double remainFlow = double.parse(values[4]);
-                if (remainFlow > 0) {
-                  double flowRate = double.parse(values[16]);
-                  remainFlow -= flowRate;
-
-                  if (remainFlow < 0) {
-                    remainFlow = 0;
-                  }
-
-                  String formattedFlow = remainFlow.toStringAsFixed(2);
-
-                  values[4] = formattedFlow;
-                  currentSchedule[i] = values.join(",");
-                  notifyListeners();
-                } else {
-                  values[4] = '0.00';
-                  currentSchedule[i] = values.join(",");
-                  notifyListeners();
-                }
-              }
-
-              allOnDelayLeftZero = false;
-            }
-            else{
-              //pump on delay or filter running
-            }
-          }
+        if (values[4].contains(':')) {
+          values[4] = _updateTime(values[4]);
+        } else {
+          values[4] = _updateFlow(values[4], values[16]);
         }
+
+        currentSchedule[i] = values.join(',');
+        allOnDelayLeftZero = false;
+        didUpdate = true;
       }
     } catch (e) {
-      print(e);
+      print("Error in updateDurationQtyLeft: $e");
     }
 
-    if (allOnDelayLeftZero) {
-      _timer?.cancel();
+    if (didUpdate) notifyListeners();
+    if (allOnDelayLeftZero) _timer?.cancel();
+  }
+
+  String _updateTime(String timeStr) {
+    try {
+      List<String> parts = timeStr.split(':');
+      int hours = int.parse(parts[0]);
+      int minutes = int.parse(parts[1]);
+      int seconds = int.parse(parts[2]);
+
+      if (seconds > 0) {
+        seconds--;
+      } else if (minutes > 0) {
+        minutes--;
+        seconds = 59;
+      } else if (hours > 0) {
+        hours--;
+        minutes = 59;
+        seconds = 59;
+      }
+
+      return '${hours.toString().padLeft(2, '0')}:'
+          '${minutes.toString().padLeft(2, '0')}:'
+          '${seconds.toString().padLeft(2, '0')}';
+    } catch (e) {
+      return '00:00:00';
     }
+  }
+
+  String _updateFlow(String flowStr, String rateStr) {
+    try {
+      double remainFlow = double.tryParse(flowStr) ?? 0.0;
+      double flowRate = double.tryParse(rateStr) ?? 0.0;
+
+      remainFlow -= flowRate;
+      if (remainFlow < 0) remainFlow = 0;
+
+      return remainFlow.toStringAsFixed(2);
+    } catch (e) {
+      return '0.00';
+    }
+  }
+
+  void stopTimer() {
+    _timer?.cancel();
   }
 
   @override
