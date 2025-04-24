@@ -1,7 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import '../modules/config_Maker/view/config_web_view.dart';
 import 'environment.dart';
 
 enum UserRole { admin, dealer, subUser }
@@ -627,3 +625,36 @@ class AppConstants {
   static List<int> ecoNodeList = [36];
 
 }
+
+/*
+class GifImageWeb extends StatelessWidget {
+  final String imagePath;
+  final double width;
+  final double height;
+  final String viewId;
+
+  GifImageWeb({
+    super.key,
+    required this.imagePath,
+    this.width = 70,
+    this.height = 70,
+  }) : viewId = 'gif_${imagePath.hashCode}' {
+    ui.platformViewRegistry.registerViewFactory(
+      viewId,
+          (int viewId) => html.ImageElement()
+        ..src = Uri.base.resolve(imagePath).toString()
+        ..style.width = '${width}px'
+        ..style.height = '${height}px'
+        ..style.objectFit = 'contain',
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      height: height,
+      child: HtmlElementView(viewType: viewId),
+    );
+  }
+}*/

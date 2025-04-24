@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
@@ -119,7 +120,8 @@ class PumpWidget extends StatelessWidget {
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           backgroundColor: WidgetStateProperty.all(Colors.transparent),
                         ),
-                        child: SizedBox(
+                        child:
+                        SizedBox(
                           width: 70,
                           height: 70,
                           child: AppConstants.getAsset('pump', pump.status, ''),

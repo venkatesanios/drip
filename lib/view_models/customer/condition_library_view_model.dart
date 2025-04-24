@@ -67,6 +67,13 @@ class ConditionLibraryViewModel extends ChangeNotifier {
 
   void conTypeOnChange(String type, int index){
     conditionLibraryData.conditionLibrary.condition[index].type = type;
+    conditionLibraryData.conditionLibrary.condition[index].component = '--';
+    conditionLibraryData.conditionLibrary.condition[index].parameter = '--';
+    conditionLibraryData.conditionLibrary.condition[index].threshold = '--';
+    conditionLibraryData.conditionLibrary.condition[index].value = '--';
+    conditionLibraryData.conditionLibrary.condition[index].reason = '--';
+    conditionLibraryData.conditionLibrary.condition[index].delayTime = '--';
+    conditionLibraryData.conditionLibrary.condition[index].alertMessage = '--';
     notifyListeners();
   }
 
@@ -221,16 +228,41 @@ class ConditionLibraryViewModel extends ChangeNotifier {
       List<Map<String, dynamic>> payloadList = [];
 
       for (var condition in conditionLibraryData.conditionLibrary.condition) {
+        String input = condition.value;
+        final match = RegExp(r'[\d.]+').firstMatch(input);
+        String? numberOnly = match?.group(0);
+
         payloadList.add({
           'sNo': condition.sNo ?? 0,
+          'name': condition.name,
           'status': condition.status ? 1 : 0,
           'delayTime': formatTime(condition.delayTime),
+          'StartTime': '00:01:00',
+          'StopTime': '23:59:00',
           'notify': 1,
-          'category': condition.type,
-          'operator': condition.threshold == 'Higher than'? 4 :
-          condition.threshold == 'Lower than'? 5 : 6,
+          'category': condition.type == 'Program' ? 1 :condition.type == 'Sensor' ? 5:6,
+          'object': condition.component,
+          'operator': condition.threshold == 'Higher than'? 4 : condition.threshold == 'Lower than'? 5 : 6,
+          'setValue': numberOnly,
+          'Bypass': 0,
         });
       }
+
+      /*S_No
+      Name
+      ConditonOnOff
+      ScanTime
+      StartTime
+      StopTime
+      NotificationOnOff
+      ConditionCategory
+      Object_Condition1
+      Operator
+      SetValue_Condition2
+      ConditionBypass*/
+
+      /*"1,Soil Moisture_1,0,00:00:30,10:15:00,18:00:00,1,8,SM.1.1.1,4,100*/
+      /*1,1,Condition 1,00:00:03,1,Sensor,4*/
 
       String payloadString = payloadList.map((e) => e.values.join(',')).join(';');
       print(payloadString);
