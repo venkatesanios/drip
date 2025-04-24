@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../Constants/properties.dart';
@@ -256,40 +257,58 @@ class _GroupListScreenState extends State<GroupListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: !kIsWeb
+          ? AppBar(
+        title: const Text("Valve Group"),
+        actions: [
+          ElevatedButton.icon(
+            icon: const Icon(Icons.add, color: Colors.white),
+            label: const Text('Add', style: TextStyle(color: Colors.white)),
+            onPressed: () {
+              if (_groupdata.data!.defaultData.valveGroupLimit > 0 &&
+                  _groupdata.data!.valveGroup!.length < _groupdata.data!.defaultData.valveGroupLimit) {
+                _showAddEditValveGroupDialog();
+              } else {
+                GlobalSnackBar.show(context, "Valve group limit is reached", 201);
+              }
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
+      )
+          : null,
       backgroundColor: const Color(0xffE6EDF5),
       body: Padding(
         padding: const EdgeInsets.all(5.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ElevatedButton(
-                    child: const Row(
-                      children: [
-                        Icon(Icons.add, color: Colors.white),
-                        Text('Add', style: TextStyle(color: Colors.white)),
-                      ],
+            if (kIsWeb)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.add, color: Colors.white),
+                      label: const Text('Add', style: TextStyle(color: Colors.white)),
+                      onPressed: () {
+                        if (_groupdata.data!.defaultData.valveGroupLimit > 0 &&
+                            _groupdata.data!.valveGroup!.length < _groupdata.data!.defaultData.valveGroupLimit) {
+                          _showAddEditValveGroupDialog();
+                        } else {
+                          GlobalSnackBar.show(context, "Valve group limit is reached", 201);
+                        }
+                      },
                     ),
-                    onPressed: () {
-                      if (_groupdata.data!.defaultData.valveGroupLimit > 0 &&
-                          _groupdata.data!.valveGroup!.length < _groupdata.data!.defaultData.valveGroupLimit) {
-                        _showAddEditValveGroupDialog();
-                      } else {
-                        GlobalSnackBar.show(context, "Valve group limit is reached", 201);
-                      }
-                    },
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
             Expanded(
               child: ListView.builder(
-                itemCount: _groupdata.data?.valveGroup!.length ?? 0,
+                itemCount: _groupdata.data?.valveGroup?.length ?? 0,
                 itemBuilder: (context, index) {
+                  final group = _groupdata.data!.valveGroup![index];
+
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Container(
@@ -298,92 +317,9 @@ class _GroupListScreenState extends State<GroupListScreen> {
                         boxShadow: AppProperties.customBoxShadowLiteTheme,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          SizedBox(width: 10),
-                          CircleAvatar(
-                            backgroundColor: Theme.of(context).primaryColor,
-                            foregroundColor: Colors.white,
-                            child: Text('${index + 1}'),
-                          ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "${_groupdata.data?.valveGroup?[index].groupName}",
-                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-                                "${_groupdata.data?.valveGroup?[index].irrigationLineName}",
-                                style: const TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                          Container(width: 1, height: 100, color: Colors.grey),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Wrap(
-                                spacing: 5.0,
-                                runSpacing: 10.0,
-                                children: List.generate(
-                                  _groupdata.data?.valveGroup![index].valve.length ?? 0,
-                                      (vindex) => Chip(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(15),
-                                    ),
-                                    backgroundColor: const Color(0xfffdce7f),
-                                    labelStyle: TextStyle(color: Theme.of(context).primaryColor),
-                                    label: Text('${_groupdata.data?.valveGroup![index].valve[vindex].name}'),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              IconButton(
-                                icon: Image.asset('assets/png/delete_icon.png'),
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: const Text('Delete Valve Group'),
-                                        content: const Text('Are you sure you want to delete this valve group?'),
-                                        actions: <Widget>[
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: const Text('Cancel'),
-                                          ),
-                                          TextButton(
-                                            onPressed: () async {
-                                              deleteValveGroupAtIndex(index);
-                                              await createValveGroup();
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: const Text('Delete'),
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
-                              IconButton(
-                                icon: Image.asset('assets/png/edit_icon.png'),
-                                onPressed: () {
-                                  _showAddEditValveGroupDialog(editCheck: true, selectedGroupIndex: index);
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                      child: kIsWeb
+                          ? buildWebLayout(context, group, index)
+                          : buildMobileLayout(context, group, index),
                     ),
                   );
                 },
@@ -396,14 +332,131 @@ class _GroupListScreenState extends State<GroupListScreen> {
       floatingActionButton: Row(
         children: [
           const Spacer(),
-          ElevatedButton(
-            onPressed: () {
-              createValveGroup();
-            },
+          FloatingActionButton(
+            onPressed: createValveGroup,
+            backgroundColor: Theme.of(context).primaryColor,
             child: const Icon(Icons.send, color: Colors.white),
           ),
         ],
       ),
     );
   }
+
+  Widget buildWebLayout(BuildContext context, group, int index) {
+    return Row(
+      children: [
+        const SizedBox(width: 10),
+        CircleAvatar(
+          backgroundColor: Theme.of(context).primaryColor,
+          child: Text('${index + 1}', style: const TextStyle(color: Colors.white)),
+        ),
+        const SizedBox(width: 10),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(group.groupName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(group.irrigationLineName, style: const TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+        SizedBox(width: 5,),
+        Container(width: 1, height: 100, color: Colors.grey),
+        SizedBox(width: 5,),
+        Expanded(
+          child: Wrap(
+            spacing: 5.0,
+            runSpacing: 10.0,
+            children: List.generate(group.valve.length, (vindex) {
+              return Chip(
+                backgroundColor: const Color(0xfffdce7f),
+                labelStyle: TextStyle(color: Theme.of(context).primaryColor),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                label: Text(group.valve[vindex].name),
+              );
+            }),
+          ),
+        ),
+        Row(
+          children: [
+            IconButton(
+              icon: Image.asset('assets/png/delete_icon.png'),
+              onPressed: () => _confirmDelete(context, index),
+            ),
+            IconButton(
+              icon: Image.asset('assets/png/edit_icon.png'),
+              onPressed: () => _showAddEditValveGroupDialog(editCheck: true, selectedGroupIndex: index),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget buildMobileLayout(BuildContext context, group, int index) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ListTile(
+          leading: CircleAvatar(
+            backgroundColor: Theme.of(context).primaryColor,
+            child: Text('${index + 1}', style: const TextStyle(color: Colors.white)),
+          ),
+          title: Text(group.groupName, style: const TextStyle(fontWeight: FontWeight.bold)),
+          subtitle: Text(group.irrigationLineName),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: Image.asset('assets/png/edit_icon.png'),
+                onPressed: () => _showAddEditValveGroupDialog(editCheck: true, selectedGroupIndex: index),
+              ),
+              IconButton(
+                icon: Image.asset('assets/png/delete_icon.png'),
+                onPressed: () => _confirmDelete(context, index),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: Wrap(
+            spacing: 6.0,
+            runSpacing: 6.0,
+            children: List.generate(group.valve.length, (vindex) {
+              return Chip(
+                backgroundColor: const Color(0xfffdce7f),
+                labelStyle: TextStyle(color: Theme.of(context).primaryColor),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                label: Text(group.valve[vindex].name),
+              );
+            }),
+          ),
+        ),
+        const SizedBox(height: 10),
+      ],
+    );
+  }
+
+  void _confirmDelete(BuildContext context, int index) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Valve Group'),
+          content: const Text('Are you sure you want to delete this valve group?'),
+          actions: <Widget>[
+            TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+            TextButton(
+              onPressed: () async {
+                deleteValveGroupAtIndex(index);
+                await createValveGroup();
+                Navigator.of(context).pop();
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 }
