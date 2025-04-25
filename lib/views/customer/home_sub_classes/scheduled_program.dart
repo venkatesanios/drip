@@ -490,6 +490,7 @@ class ScheduledProgram extends StatelessWidget {
                                   });
                                   MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
                                   sentUserOperationToServer('${program.programName} ${getDescription(int.parse(program.prgOnOff))}', payLoadFinal);
+                                  GlobalSnackBar.show(context, 'Comment sent successfully', 200);
                                 } else {
                                   GlobalSnackBar.show(context, 'Permission denied', 400);
                                 }
@@ -509,6 +510,7 @@ class ScheduledProgram extends StatelessWidget {
                                 });
                                 MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
                                 sentUserOperationToServer('${program.programName} ${getDescription(int.parse(program.prgPauseResume))}', payLoadFinal);
+                                GlobalSnackBar.show(context, 'Comment sent successfully', 200);
                               } else {
                                 GlobalSnackBar.show(context, 'Permission denied', 400);
                               }
@@ -541,6 +543,7 @@ class ScheduledProgram extends StatelessWidget {
                                     });
                                     MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
                                     sentUserOperationToServer('${program.programName} Changed to $selectedItem', payLoadFinal);
+                                    GlobalSnackBar.show(context, 'Comment sent successfully', 200);
                                     Navigator.pop(context);
                                   },
                                 ),

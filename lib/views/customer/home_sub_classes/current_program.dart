@@ -13,6 +13,7 @@ import '../../../repository/repository.dart';
 import '../../../services/http_service.dart';
 import '../../../services/mqtt_service.dart';
 import '../../../utils/constants.dart';
+import '../../../utils/snack_bar.dart';
 import '../../../view_models/customer/current_program_view_model.dart';
 
 class CurrentProgram extends StatelessWidget {
@@ -39,8 +40,8 @@ class CurrentProgram extends StatelessWidget {
           }
 
           return vm.currentSchedule.isNotEmpty && vm.currentSchedule[0].isNotEmpty?
-          kIsWeb? buildWebTable(vm.currentSchedule):
-          buildMobileCard(vm.currentSchedule):
+          kIsWeb? buildWebTable(context, vm.currentSchedule):
+          buildMobileCard(context, vm.currentSchedule):
           const SizedBox();
         },
       ),
@@ -48,7 +49,7 @@ class CurrentProgram extends StatelessWidget {
 
   }
 
-  Widget buildWebTable(List<String> schedule) {
+  Widget buildWebTable(BuildContext context, List<String> schedule) {
     return Padding(
       padding: const EdgeInsets.only(left: 8, right: 8, top: 20),
       child: Column(
@@ -153,7 +154,7 @@ class CurrentProgram extends StatelessWidget {
                           style: const TextStyle(fontSize: 20),
                         ))),
                         DataCell(Center(
-                          child: buildActionButton(values),
+                          child: buildActionButton(context, values),
                         )),
                       ]);
                     }),
@@ -180,21 +181,29 @@ class CurrentProgram extends StatelessWidget {
     );
   }
 
-  Widget buildMobileCard(List<String> schedule) {
+  Widget buildMobileCard(BuildContext context, List<String> schedule) {
     return Card(
       color: Colors.white,
-      elevation: 5,
+      margin: EdgeInsets.zero,
       shape: const RoundedRectangleBorder(),
       child: Column(
-        children: schedule.asMap().entries.map((entry) {
-          List<String> values = entry.value.split(",");
-          return buildScheduleRow(values);
-        }).toList(),
+        children: List.generate(schedule.length, (index) {
+          List<String> values = schedule[index].split(',');
+          return Column(
+            children: [
+              buildScheduleRow(context, values),
+              if (index != schedule.length - 1) const Padding(
+                padding: EdgeInsets.only(left: 10, right: 8),
+                child: Divider(height: 2),
+              ),
+            ],
+          );
+        }),
       ),
     );
   }
 
-  Widget buildActionButton(List<String> values) {
+  Widget buildActionButton(BuildContext context, List<String> values) {
     final programName = getProgramNameById(int.parse(values[0]));
     if (programName == 'StandAlone - Manual') {
       return MaterialButton(
@@ -206,6 +215,7 @@ class CurrentProgram extends StatelessWidget {
           });
           MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
           sentUserOperationToServer('${getProgramNameById(int.parse(values[0]))} Stopped manually', payLoadFinal);
+          GlobalSnackBar.show(context, 'Comment sent successfully', 200);
         }: null,
         child: const Text('Stop'),
       );
@@ -221,6 +231,7 @@ class CurrentProgram extends StatelessWidget {
           });
           MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
           sentUserOperationToServer('${getProgramNameById(int.parse(values[0]))} Stopped manually', payLoadFinal);
+          GlobalSnackBar.show(context, 'Comment sent successfully', 200);
 
         },
         child: const Text('Stop'),
@@ -236,6 +247,7 @@ class CurrentProgram extends StatelessWidget {
           });
           MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
           sentUserOperationToServer('${getProgramNameById(int.parse(values[0]))} - ${getSequenceName(int.parse(values[0]), values[1])} skipped manually', payLoadFinal);
+          GlobalSnackBar.show(context, 'Comment sent successfully', 200);
         } : null,
         child: const Text('Skip'),
       );
@@ -243,7 +255,7 @@ class CurrentProgram extends StatelessWidget {
   }
 
 
-  Widget buildScheduleRow(List<String> values) {
+  Widget buildScheduleRow(BuildContext context, List<String> values) {
     final programName = getProgramNameById(int.parse(values[0]));
     return Row(
       children: [
@@ -253,16 +265,17 @@ class CurrentProgram extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Name & reason', style: TextStyle(color: Colors.black45)),
-              SizedBox(height: 3),
+              Text('Name', style: TextStyle(color: Colors.black45)),
+              SizedBox(height: 2),
+              Text('Reason', style: TextStyle(color: Colors.black45)),
+              SizedBox(height: 2),
               Text('Current Zone', style: TextStyle(color: Colors.black45)),
-              SizedBox(height: 3),
+              SizedBox(height: 2),
               Text('RTC & Cyclic', style: TextStyle(color: Colors.black45)),
-              SizedBox(height: 3),
+              SizedBox(height: 2),
               Text('Start Time', style: TextStyle(color: Colors.black45)),
-              SizedBox(height: 3),
+              SizedBox(height: 2),
               Text('Set (Dur/Flw)', style: TextStyle(color: Colors.black45)),
-              SizedBox(height: 3),
             ],
           ),
         ),
@@ -272,15 +285,16 @@ class CurrentProgram extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(':'),
-              SizedBox(height: 3),
+              SizedBox(height: 2),
               Text(':'),
-              SizedBox(height: 3),
+              SizedBox(height: 2),
               Text(':'),
-              SizedBox(height: 3),
+              SizedBox(height: 2),
               Text(':'),
-              SizedBox(height: 3),
+              SizedBox(height: 2),
               Text(':'),
-              SizedBox(height: 3),
+              SizedBox(height: 2),
+              Text(':'),
             ],
           ),
         ),
@@ -288,10 +302,13 @@ class CurrentProgram extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('$programName - ${getContentByCode(int.parse(values[17]))}'),
-              const SizedBox(height: 3),
-              Text(
-                  '${values[10]}/${values[9]} - ${programName == 'StandAlone - Manual' ? '--' : getSequenceName(int.parse(values[0]), values[1]) ?? '--'}'),
+              const SizedBox(height: 6),
+              Text(programName),
+              const SizedBox(height: 4),
+              Text(getContentByCode(int.parse(values[17])), style: const TextStyle(color: Colors.black54)),
+              const SizedBox(height: 1),
+              Text('${values[10]}/${values[9]} - ${programName == 'StandAlone - Manual' ? '--' : 
+              getSequenceName(int.parse(values[0]), values[1]) ?? '--'}'),
               Row(
                 children: [
                   SizedBox(
@@ -317,9 +334,39 @@ class CurrentProgram extends StatelessWidget {
                     child: Container(
                       width: 1,
                       height: 50,
-                      color: CupertinoColors.inactiveGray,
+                      color: Colors.black12,
                     ),
                   ),
+                  const Spacer(),
+                  Column(
+                    children: [
+                      const Text('Remaining', style: TextStyle(color: Colors.black45)),
+                      Padding(
+                        padding: const EdgeInsets.only(top:2, bottom: 5),
+                        child: Container(
+                          width: 75,
+                          height: 1,
+                          color: Colors.black12,
+                        ),
+                      ),
+                      Center(child: Text(
+                        getProgramNameById(int.parse(values[0])) == 'StandAlone - Manual' &&
+                            (values[3] == '00:00:00' || values[3] == '0')
+                            ? '----'
+                            : values[4],
+                        style: const TextStyle(fontSize: 20),
+                      )),
+                    ],
+                  ),
+                  const Spacer(),
+                  Container(
+                    width: 1,
+                    height: 50,
+                    color: Colors.black12,
+                  ),
+                  const Spacer(),
+                  buildActionButton(context, values),
+                  const Spacer(),
                 ],
               ),
               const SizedBox(height: 3),

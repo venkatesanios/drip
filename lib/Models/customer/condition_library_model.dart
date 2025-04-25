@@ -56,6 +56,7 @@ class Condition {
   String type;
   String rule;
   String component;
+  String componentSNo;
   String parameter;
   String threshold;
   String value;
@@ -70,6 +71,7 @@ class Condition {
     required this.type,
     required this.rule,
     required this.component,
+    required this.componentSNo,
     required this.parameter,
     required this.threshold,
     required this.value,
@@ -86,6 +88,7 @@ class Condition {
       type: json['type'] ?? '',
       rule: json['rule'] ?? '',
       component: json['component'] ?? '',
+      componentSNo: json['componentSNo'] ?? '0',
       parameter: json['parameter'] ?? '',
       threshold: json['threshold'] ?? '',
       value: json['value'] ?? '',
@@ -103,6 +106,7 @@ class Condition {
       "type": type,
       "rule": rule,
       "component": component,
+      "componentSNo": componentSNo,
       "parameter": parameter,
       "threshold": threshold,
       "value": value,

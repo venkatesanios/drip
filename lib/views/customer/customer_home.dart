@@ -75,7 +75,7 @@ class CustomerHome extends StatelessWidget {
         totalFilters + totalPressureIn + totalPressureOut +
         totalBoosterPump + totalChannels + totalAgitators;
 
-    return SingleChildScrollView(
+    return kIsWeb? SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,6 +87,35 @@ class CustomerHome extends StatelessWidget {
               ? buildWidgetInHorizontal(context, waterSources, filterSite, fertilizerSite, linesToDisplay, grandTotal)
               : buildWidgetInVertical(context, waterSources, filterSite, fertilizerSite, linesToDisplay, grandTotal,
               deviceId, customerId, controllerId),
+          CurrentProgram(
+            scheduledPrograms: scheduledProgram,
+            deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,
+            customerId: customerId,
+            controllerId: controllerId,
+            currentLineSNo: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine[viewModel.lIndex].sNo,
+          ),
+          NextSchedule(scheduledPrograms: scheduledProgram),
+          if (scheduledProgram.isNotEmpty)
+            ScheduledProgram(
+              userId: customerId,
+              scheduledPrograms: scheduledProgram,
+              controllerId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].controllerId,
+              deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,
+              customerId: customerId,
+              currentLineSNo: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine[viewModel.lIndex].sNo,
+            ),
+
+          const SizedBox(height: 8),
+        ],
+      ),
+    ):
+    SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          context.watch<MqttPayloadProvider>().onRefresh ? displayLinearProgressIndicator() : const SizedBox(),
 
           CurrentProgram(
             scheduledPrograms: scheduledProgram,
@@ -96,17 +125,10 @@ class CustomerHome extends StatelessWidget {
             currentLineSNo: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine[viewModel.lIndex].sNo,
           ),
 
-          NextSchedule(scheduledPrograms: scheduledProgram),
-
-          if (kIsWeb && scheduledProgram.isNotEmpty)
-            ScheduledProgram(
-              userId: customerId,
-              scheduledPrograms: scheduledProgram,
-              controllerId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].controllerId,
-              deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,
-              customerId: customerId,
-              currentLineSNo: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine[viewModel.lIndex].sNo,
-            ),
+          (fertilizerSite.isEmpty && (grandTotal < 7 || totalValveCount < 25))
+              ? buildWidgetInHorizontal(context, waterSources, filterSite, fertilizerSite, linesToDisplay, grandTotal)
+              : buildWidgetInVertical(context, waterSources, filterSite, fertilizerSite, linesToDisplay, grandTotal,
+              deviceId, customerId, controllerId),
 
           const SizedBox(height: 8),
         ],
@@ -281,52 +303,38 @@ class LineObjects extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    /*final List<Widget> valveWidgets = [
-      for (var line in lineData!)
-        if (currentLineName == 'All irrigation line' || line.name == currentLineName) ...[
-          ...line.prsSwitch.map((psw) => SensorWidget(
-            sensor: psw,
-            sensorType: 'Pressure Switch',
-            imagePath: 'assets/png/pressure_switch.png',
-            sensorData: sensorsHourlyLog,
-          )),
-          ...line.pressureIn.map((psw) => SensorWidget(
-            sensor: psw,
-            sensorType: 'Pressure Sensor',
-            imagePath: 'assets/png/pressure_sensor.png',
-            sensorData: sensorsHourlyLog,
-          )),
-          ...line.waterMeter.map((wm) => SensorWidget(
-            sensor: wm,
-            sensorType: 'Water Meter',
-            imagePath: 'assets/png/water_meter.png',
-            sensorData: sensorsHourlyLog,
-          )),
-          ...line.valves.map((vl) => ValveWidget(
-            vl: vl,
-            status: vl.status,
-            userId: 0,
-            controllerId: 0,
-            moistureSensor: vl.moistureSensor!,
-          )),
-        ],
-    ];*/
+    final allItems = [
+      ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch.png'),
+      ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor.png'),
+      ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter.png'),
+      ...valves.map((valve) => ValveWidget(
+        valve: valve,
+        customerId: customerId,
+        controllerId: controllerId,
+      )),
+    ];
 
     return Padding(
-      padding: const EdgeInsets.only(left: 8, top: 8),
-      child: Container(
+      padding: const EdgeInsets.all(8.0),
+      child: kIsWeb? Container(
         color: Colors.white,
         child: Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: [
-            ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch.png'),
-            ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor.png'),
-            ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter.png'),
-            ...valves.map((valve) => ValveWidget(valve: valve, customerId: customerId, controllerId: controllerId,)),
-          ],
+          children: allItems,
         ),
+      ) :
+      GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 6,
+          mainAxisSpacing: 8,
+          crossAxisSpacing: 8,
+          childAspectRatio: 1,
+        ),
+        itemCount: allItems.length,
+        itemBuilder: (context, index) => allItems[index],
       ),
     );
   }
@@ -342,7 +350,6 @@ class LineObjects extends StatelessWidget {
       );
     }).toList();
   }
-
 }
 
 class PumpStationWidget extends StatelessWidget {

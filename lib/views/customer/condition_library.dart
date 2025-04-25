@@ -256,47 +256,38 @@ class ConditionLibrary extends StatelessWidget {
                                                   .condition[index].component,
                                             ),
                                           ) :
-                                          PopupMenuButton<String>(
-                                            tooltip: vm.conditionLibraryData
-                                                .conditionLibrary
-                                                .condition[index].type ==
-                                                'Sensor'
+                                          PopupMenuButton<ComponentSelection>(
+                                            tooltip: vm.conditionLibraryData.conditionLibrary.condition[index].type == 'Sensor'
                                                 ? 'Select your sensor'
-                                                :
-                                            vm.conditionLibraryData
-                                                .conditionLibrary
-                                                .condition[index].type ==
-                                                'Program'
+                                                : vm.conditionLibraryData.conditionLibrary.condition[index].type == 'Program'
                                                 ? 'Select your program'
-                                                :
-                                            'Select more than one conditions',
-                                            onSelected: (String selectedValue) {
-                                              vm.componentOnChange(selectedValue, index);
+                                                : 'Select more than one conditions',
+                                            onSelected: (ComponentSelection selected) {
+                                              vm.componentOnChange(selected.name, index, selected.sNo);
                                             },
                                             itemBuilder: (BuildContext context) {
-                                              return vm.conditionLibraryData
-                                                  .conditionLibrary
-                                                  .condition[index].type == 'Sensor' ?
-                                              vm.conditionLibraryData.defaultData.sensors.map<PopupMenuEntry<String>>((sensor) {
-                                                return PopupMenuItem<String>(
-                                                  value: sensor.name,
-                                                  height: 35,
-                                                  child: Text(sensor.name),
-                                                );
-                                              }).toList() :
-                                              vm.conditionLibraryData.defaultData.program.map<PopupMenuEntry<String>>((
-                                                  program) {
-                                                return PopupMenuItem<String>(
-                                                  value: program.name,
-                                                  height: 35,
-                                                  child: Text(program.name),
-                                                );
-                                              }).toList();
+                                              final condition = vm.conditionLibraryData.conditionLibrary.condition[index];
+
+                                              if (condition.type == 'Sensor') {
+                                                return vm.conditionLibraryData.defaultData.sensors.map<PopupMenuEntry<ComponentSelection>>((sensor) {
+                                                  return PopupMenuItem<ComponentSelection>(
+                                                    value: ComponentSelection(name: sensor.name, sNo: sensor.sNo.toString()),
+                                                    height: 35,
+                                                    child: Text(sensor.name),
+                                                  );
+                                                }).toList();
+                                              } else {
+                                                return vm.conditionLibraryData.defaultData.program.map<PopupMenuEntry<ComponentSelection>>((program) {
+                                                  return PopupMenuItem<ComponentSelection>(
+                                                    value: ComponentSelection(name: program.name, sNo: program.sNo.toString()),
+                                                    height: 35,
+                                                    child: Text(program.name),
+                                                  );
+                                                }).toList();
+                                              }
                                             },
                                             child: Text(
-                                              vm.conditionLibraryData
-                                                  .conditionLibrary
-                                                  .condition[index].component,
+                                              vm.conditionLibraryData.conditionLibrary.condition[index].component,
                                             ),
                                           ),
                                         ),
@@ -992,4 +983,11 @@ class ConditionLibrary extends StatelessWidget {
       ),
     );
   }
+}
+
+class ComponentSelection {
+  final String name;
+  final String sNo;
+
+  ComponentSelection({required this.name, required this.sNo});
 }

@@ -42,10 +42,7 @@ class ConditionLibraryViewModel extends ChangeNotifier {
 
           if (jsonData["code"] == 200) {
             conditionLibraryData = ConditionLibraryModel.fromJson(jsonData['data']);
-
             conditionLibraryData.conditionLibrary.condition.sort((a, b) => (a.sNo).compareTo(b.sNo));
-
-            // Initialize controllers
             vtTEVControllers = List.generate(
               conditionLibraryData.conditionLibrary.condition.length,
                   (index) => TextEditingController(),
@@ -77,8 +74,9 @@ class ConditionLibraryViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void componentOnChange(String component, int index){
+  void componentOnChange(String component, int index, String serialNo){
     conditionLibraryData.conditionLibrary.condition[index].component = component;
+    conditionLibraryData.conditionLibrary.condition[index].componentSNo = serialNo;
     conditionLibraryData.conditionLibrary.condition[index].parameter = '--';
     conditionLibraryData.conditionLibrary.condition[index].threshold = '--';
     conditionLibraryData.conditionLibrary.condition[index].value = '--';
@@ -191,6 +189,7 @@ class ConditionLibraryViewModel extends ChangeNotifier {
       type: "Sensor",
       rule: "--",
       component: "--",
+      componentSNo: '0',
       parameter: "--",
       threshold: "--",
       value: "--",
@@ -241,7 +240,7 @@ class ConditionLibraryViewModel extends ChangeNotifier {
           'StopTime': '23:59:00',
           'notify': 1,
           'category': condition.type == 'Program' ? 1 :condition.type == 'Sensor' ? 5:6,
-          'object': condition.component,
+          'object': condition.componentSNo,
           'operator': condition.threshold == 'Higher than'? 4 : condition.threshold == 'Lower than'? 5 : 6,
           'setValue': numberOnly,
           'Bypass': 0,
