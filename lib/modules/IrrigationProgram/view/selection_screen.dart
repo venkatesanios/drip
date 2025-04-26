@@ -18,7 +18,8 @@ const yellowDark = Color(0xfffdce7f);
 final primaryColorLight = const Color(0xffE3FFF5).withOpacity(0.5);
 
 class SelectionScreen extends StatefulWidget{
-  const SelectionScreen({super.key});
+  final int modelId;
+  const SelectionScreen({super.key, required this.modelId});
 
   @override
   State<SelectionScreen> createState() => _SelectionScreenState();
@@ -77,44 +78,45 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
   @override
   Widget build(BuildContext context) {
     irrigationProgramProvider = Provider.of<IrrigationProgramMainProvider>(context);
-    final irrigationLine = irrigationProgramProvider.sampleIrrigationLine;
-    final primaryColorDark = Theme.of(context).primaryColor.withOpacity(0.35);
-    final centralFertilizerSite = irrigationProgramProvider.fertilizerSite!.where((site) {
-      for (var i = 0; i < irrigationProgramProvider.selectedObjects!.length; i++) {
-        if (site.siteMode == 1 && irrigationProgramProvider.selectedObjects![i].objectId == 3 && irrigationProgramProvider.selectedObjects![i].sNo == site.fertilizerSite?.sNo) {
-          return true;
-        }
-      }
-      return false;
-    });
-    final localFertilizerSite = irrigationProgramProvider.fertilizerSite!.where((site) {
-      for (var i = 0; i < irrigationProgramProvider.selectedObjects!.length; i++) {
-        if (site.siteMode == 2 && irrigationProgramProvider.selectedObjects![i].objectId == 3 && irrigationProgramProvider.selectedObjects![i].sNo == site.fertilizerSite?.sNo) {
-          return true;
-        }
-      }
-      return false;
-    });
-    final centralFilterSite = irrigationProgramProvider.filterSite!.where((site) {
-      // print("Central filter site ==> ${site.filterSite?.sNo}");
-      for (var i = 0; i < irrigationProgramProvider.selectedObjects!.length; i++) {
-        if (site.siteMode == 1 && irrigationProgramProvider.selectedObjects![i].objectId == 4 && irrigationProgramProvider.selectedObjects![i].sNo == site.filterSite?.sNo) {
-          return true;
-        }
-      }
-      return false;
-    });
-    final localFilterSite = irrigationProgramProvider.filterSite!.where((site) {
-      for (var i = 0; i < irrigationProgramProvider.selectedObjects!.length; i++) {
-        if (site.siteMode == 2 && irrigationProgramProvider.selectedObjects![i].objectId == 4 && irrigationProgramProvider.selectedObjects![i].sNo == site.filterSite?.sNo) {
-          return true;
-        }
-      }
-      return false;
-    });
-
-    return LayoutBuilder(
+    final isEcoGem = [3].contains(widget.modelId);
+    return irrigationProgramProvider.sampleIrrigationLine != null ? LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
+        final irrigationLine = irrigationProgramProvider.sampleIrrigationLine;
+        final primaryColorDark = Theme.of(context).primaryColor.withOpacity(0.35);
+        final centralFertilizerSite = irrigationProgramProvider.fertilizerSite!.where((site) {
+          for (var i = 0; i < irrigationProgramProvider.selectedObjects!.length; i++) {
+            if (site.siteMode == 1 && irrigationProgramProvider.selectedObjects![i].objectId == 3 && irrigationProgramProvider.selectedObjects![i].sNo == site.fertilizerSite?.sNo) {
+              return true;
+            }
+          }
+          return false;
+        });
+        final localFertilizerSite = irrigationProgramProvider.fertilizerSite!.where((site) {
+          for (var i = 0; i < irrigationProgramProvider.selectedObjects!.length; i++) {
+            if (site.siteMode == 2 && irrigationProgramProvider.selectedObjects![i].objectId == 3 && irrigationProgramProvider.selectedObjects![i].sNo == site.fertilizerSite?.sNo) {
+              return true;
+            }
+          }
+          return false;
+        });
+        final centralFilterSite = irrigationProgramProvider.filterSite!.where((site) {
+          // print("Central filter site ==> ${site.filterSite?.sNo}");
+          for (var i = 0; i < irrigationProgramProvider.selectedObjects!.length; i++) {
+            if (site.siteMode == 1 && irrigationProgramProvider.selectedObjects![i].objectId == 4 && irrigationProgramProvider.selectedObjects![i].sNo == site.filterSite?.sNo) {
+              return true;
+            }
+          }
+          return false;
+        });
+        final localFilterSite = irrigationProgramProvider.filterSite!.where((site) {
+          for (var i = 0; i < irrigationProgramProvider.selectedObjects!.length; i++) {
+            if (site.siteMode == 2 && irrigationProgramProvider.selectedObjects![i].objectId == 4 && irrigationProgramProvider.selectedObjects![i].sNo == site.filterSite?.sNo) {
+              return true;
+            }
+          }
+          return false;
+        });
+
         return SingleChildScrollView(
           child: Container(
             margin: EdgeInsets.symmetric(
@@ -149,22 +151,23 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                   ),
                 if(irrigationProgramProvider.isPumpStationMode)
                   const SizedBox(height: 30,),
-                CustomAnimatedSwitcher(
-                  condition: irrigationLine.map((e) => e.irrigationPump ?? []).expand((list) => list).toList().length > 1 && irrigationProgramProvider.isPumpStationMode,
-                  child: buildListTile(
-                      padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.width > 1200 ? 8 : 0),
-                      context: context,
-                      title: "Change over",
-                      subTitle: "Automated pump changeover during trip conditions",
-                      icon: Icons.change_circle,
-                      textColor: Colors.black,
-                      trailing: Switch(
-                          value: irrigationProgramProvider.isChangeOverMode,
-                          onChanged: (newValue) => irrigationProgramProvider.updatePumpStationMode(newValue, 1)
-                      )
+                if(!isEcoGem)
+                  CustomAnimatedSwitcher(
+                    condition: irrigationLine.map((e) => e.irrigationPump ?? []).expand((list) => list).toList().length > 1 && irrigationProgramProvider.isPumpStationMode,
+                    child: buildListTile(
+                        padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.width > 1200 ? 8 : 0),
+                        context: context,
+                        title: "Change over",
+                        subTitle: "Automated pump changeover during trip conditions",
+                        icon: Icons.change_circle,
+                        textColor: Colors.black,
+                        trailing: Switch(
+                            value: irrigationProgramProvider.isChangeOverMode,
+                            onChanged: (newValue) => irrigationProgramProvider.updatePumpStationMode(newValue, 1)
+                        )
+                    ),
                   ),
-                ),
-                if(irrigationLine.map((e) => e.irrigationPump ?? []).expand((list) => list).toList().length > 1)
+                if(irrigationLine.map((e) => e.irrigationPump ?? []).expand((list) => list).toList().length > 1 && !isEcoGem)
                   const SizedBox(height: 30,),
                 CustomAnimatedSwitcher(
                     condition: !irrigationProgramProvider.isPumpStationMode,
@@ -175,27 +178,28 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                         darkColor: redDark
                     )
                 ),
-                buildSection(
-                  title: "Head Units",
-                  dataList: !irrigationProgramProvider.isPumpStationMode
-                      ? irrigationProgramProvider.selectedObjects!.any((element) => element.objectId == 5)
-                      ? irrigationLine.where((line) => irrigationProgramProvider.selectedObjects!
-                      .any((element) => line.irrigationPump != null && line.irrigationPump!.any((pump) => element.sNo == pump.sNo)))
-                      .map((line) => line.irrigationLine)
-                      .toList()
-                      : irrigationLine.where((headUnit) {
-                    return irrigationProgramProvider.irrigationLine!.sequence.any((sequenceItem) {
-                      return sequenceItem['valve'].any((valve) {
-                        return headUnit.valve!.any((valveItem) {
-                          return valveItem.sNo == valve['sNo'];
+                if(!isEcoGem)
+                  buildSection(
+                    title: "Head Units",
+                    dataList: !irrigationProgramProvider.isPumpStationMode
+                        ? irrigationProgramProvider.selectedObjects!.any((element) => element.objectId == 5)
+                        ? irrigationLine.where((line) => irrigationProgramProvider.selectedObjects!
+                        .any((element) => line.irrigationPump != null && line.irrigationPump!.any((pump) => element.sNo == pump.sNo)))
+                        .map((line) => line.irrigationLine)
+                        .toList()
+                        : irrigationLine.where((headUnit) {
+                      return irrigationProgramProvider.irrigationLine!.sequence.any((sequenceItem) {
+                        return sequenceItem['valve'].any((valve) {
+                          return headUnit.valve!.any((valveItem) {
+                            return valveItem.sNo == valve['sNo'];
+                          });
                         });
                       });
-                    });
-                  }).map((e) => e.irrigationLine).toList()
-                      : irrigationLine.map((e) => e.irrigationLine).toList(),
-                  lightColor: greenLight,
-                  darkColor: greenDark,
-                ),
+                    }).map((e) => e.irrigationLine).toList()
+                        : irrigationLine.map((e) => e.irrigationLine).toList(),
+                    lightColor: greenLight,
+                    darkColor: greenDark,
+                  ),
                 if(irrigationLine.map((e) => e.centralFertilization != null ? [e.centralFertilization!] : []).expand((list) => list).whereType<DeviceObjectModel>().toList().isNotEmpty
                     || irrigationLine.map((e) => e.localFertilization != null ? [e.localFertilization!] : []).expand((list) => list).whereType<DeviceObjectModel>().toList().isNotEmpty)
                   buildSectionTitle(title: "Fertilizer"),
@@ -386,19 +390,20 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                           ),
                         ),
                         const SizedBox(width: 20,),
-                        Expanded(
-                          child: buildListTile(
-                              context: context,
-                              title: 'Central Filtration Beginning Only'.toUpperCase(),
-                              subTitle: "Filtration preference",
-                              textColor: Colors.black,
-                              icon: Icons.filter_list_outlined,
-                              trailing:  Switch(
-                                  value: irrigationProgramProvider.centralFiltBegin,
-                                  onChanged: (newValue) => irrigationProgramProvider.updateFiltBegin(newValue, true)
-                              )
+                        if(!isEcoGem)
+                          Expanded(
+                            child: buildListTile(
+                                context: context,
+                                title: 'Central Filtration Beginning Only'.toUpperCase(),
+                                subTitle: "Filtration preference",
+                                textColor: Colors.black,
+                                icon: Icons.filter_list_outlined,
+                                trailing:  Switch(
+                                    value: irrigationProgramProvider.centralFiltBegin,
+                                    onChanged: (newValue) => irrigationProgramProvider.updateFiltBegin(newValue, true)
+                                )
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ),
@@ -428,7 +433,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                   ),
                 if(MediaQuery.of(context).size.width < 1200 && centralFilterSite.isNotEmpty)
                   const SizedBox(height: 30,),
-                if(MediaQuery.of(context).size.width < 1200)
+                if(MediaQuery.of(context).size.width < 1200 && !isEcoGem)
                   buildRow(
                     context: context,
                     title: "",
@@ -571,6 +576,8 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
           ),
         );
       },
+    ) : const Center(
+      child: CircularProgressIndicator(),
     );
   }
 
@@ -615,7 +622,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
             leading: image != null
                 ? Container(
               padding: const EdgeInsets.all(5),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                   color: cardColor,
                   shape: BoxShape.circle
               ),

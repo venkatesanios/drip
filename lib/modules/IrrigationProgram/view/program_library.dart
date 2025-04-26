@@ -8,6 +8,7 @@ import 'package:oro_drip_irrigation/Constants/properties.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 
 import 'package:provider/provider.dart';
+import '../../../utils/constants.dart';
 import '../model/sequence_model.dart';
 import '../state_management/irrigation_program_provider.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
@@ -16,6 +17,7 @@ import '../widgets/custom_alert_dialog.dart';
 import '../../SystemDefinitions/widgets/custom_snack_bar.dart';
 import '../../../utils/environment.dart';
 import '../widgets/custom_drop_down_tile.dart';
+import '../widgets/progress_dialog_ecogem.dart';
 import 'irrigation_program_main.dart';
 
 class ProgramLibraryScreenNew extends StatefulWidget {
@@ -434,36 +436,55 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                         toolTip: programItem.active == "1" ? "Send" : "Delete",
                         onTap: () async{
                           if(programItem.active == "1") {
-                            Map<String, dynamic> dataToMqtt = programItem.hardwareData;
+                            var dataToMqtt = programItem.hardwareData;
 
                             try {
-                              // MqttManager().topicToPublishAndItsMessage('${Environment.mqttWebPublishTopic}/${widget.deviceId}', jsonEncode(dataToMqtt));
-                              await validatePayloadSent(
-                                  dialogContext: context,
+                              if(AppConstants.ecoGemModelList.contains(widget.modelId)) {
+                                final result = await showDialog<String>(
                                   context: context,
-                                  acknowledgedFunction: () {
-                                    setState(() {
-                                      controllerReadStatus = "1";
-                                    });
-                                    // showSnackBar(message: "${mqttPayloadProvider.messageFromHw['Name']} from controller", context: context);
+                                  barrierDismissible: false,
+                                  builder: (BuildContext context) {
+                                    return EcoGemProgressDialog(
+                                      payloads: List<String>.from(dataToMqtt),
+                                      deviceId: widget.deviceId,
+                                      mqttService: MqttService(),
+                                    );
                                   },
-                                  payload: dataToMqtt,
-                                  payloadCode: "2500",
-                                  deviceId: widget.deviceId
-                              ).whenComplete(() async {
-                                if(MqttService().acknowledgementPayload!['cM']['4201']['Code'] != "200") {
+                                );
+
+                                if (result != null) {
                                   setState(() {
-                                    controllerReadStatus = "0";
+                                    controllerReadStatus = result;
                                   });
                                 }
-                              });
-                              // await saveProgramDetails(programItem, dataToMqtt);
+                              } else  {
+                                await validatePayloadSent(
+                                    dialogContext: context,
+                                    context: context,
+                                    acknowledgedFunction: () {
+                                      setState(() {
+                                        controllerReadStatus = "1";
+                                      });
+                                      // showSnackBar(message: "${mqttPayloadProvider.messageFromHw['Name']} from controller", context: context);
+                                    },
+                                    payload: dataToMqtt,
+                                    payloadCode: "2500",
+                                    deviceId: widget.deviceId
+                                ).whenComplete(() async {
+                                  if(MqttService().acknowledgementPayload!['cM']['4201']['Code'] != "200") {
+                                    setState(() {
+                                      controllerReadStatus = "0";
+                                    });
+                                  }
+                                });
+                              }
                               await Future.delayed(const Duration(seconds: 1), () async{
                                 await irrigationProgramMainProvider.programLibraryData(widget.customerId,  widget.controllerId);
                               });
-                            } catch (error) {
+                            } catch (error, stackTrace) {
                               showSnackBar(message: 'Failed to update because of $error', context: context);
                               print("Error: $error");
+                              print("stackTrace: $stackTrace");
                             }
                           } else {
                             showConfirmationDialog(programItem, "delete");

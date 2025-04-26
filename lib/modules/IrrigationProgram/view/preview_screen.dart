@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:oro_drip_irrigation/Constants/properties.dart';
+import 'package:oro_drip_irrigation/services/mqtt_service.dart';
+import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
@@ -17,6 +19,7 @@ import '../widgets/custom_data_table.dart';
 import '../../SystemDefinitions/widgets/custom_snack_bar.dart';
 import '../../../services/http_service.dart';
 import '../widgets/custom_sliding_button.dart';
+import '../widgets/progress_dialog_ecogem.dart';
 import 'program_library.dart';
 
 
@@ -438,23 +441,6 @@ class _PreviewScreenState extends State<PreviewScreen> {
                       sendFunction();
                     },
                   ),
-                  // ElevatedButton.icon(
-                  //   onPressed: (){
-                  //     irrigationProvider.programLibraryData(widget.userId, widget.controllerId);
-                  //     sendFunction();
-                  //   },
-                  //   style: ButtonStyle(
-                  //     backgroundColor: MaterialStatePropertyAll(Theme.of(context).primaryColor),
-                  //     foregroundColor: MaterialStatePropertyAll(Colors.white),
-                  //     elevation: MaterialStatePropertyAll(20),
-                  //     fixedSize: MaterialStatePropertyAll(
-                  //       Size(MediaQuery.of(context).size.width - 50, 30), // Width and Height
-                  //     ),
-                  //   ),
-                  //   icon: Icon(Icons.send),
-                  //   label: Text("Send"),
-                  //   iconAlignment: IconAlignment.end,
-                  // ),
                   const SizedBox(height: 80,)
                 ],
               ),
@@ -467,7 +453,19 @@ class _PreviewScreenState extends State<PreviewScreen> {
   void sendFunction() async{
     final mainProvider = Provider.of<IrrigationProgramMainProvider>(context, listen: false);
     Map<String, dynamic> dataToMqtt = mainProvider.dataToMqtt(widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber, widget.programType);
-    var userData = {
+    Map<String, dynamic> dataToMqttEcoGem = mainProvider.dataToMqttForEcoGem(widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber, widget.programType);
+    final ecoGemWFPayload = mainProvider.ecoGemPayloadForWF(widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber);
+    List<String> ecoGemWFPayloadList = [];
+    ecoGemWFPayloadList.add(jsonEncode(dataToMqttEcoGem));
+    for(int i = 0; i < ecoGemWFPayload.length; i++) {
+      final payload = {
+        "260${i + 1}": {
+          "2501": ecoGemWFPayload[i]
+        }
+      };
+      ecoGemWFPayloadList.add(jsonEncode(payload));
+    }
+    Map<String, dynamic> userData = {
       "defaultProgramName": mainProvider.defaultProgramName,
       "userId": widget.customerId,
       "controllerId": widget.controllerId,
@@ -495,86 +493,60 @@ class _PreviewScreenState extends State<PreviewScreen> {
         "incompleteRestart": mainProvider.isCompletionEnabled ? "1" : "0",
         "controllerReadStatus": '0',
         "programType": mainProvider.selectedProgramType,
-        "hardware": dataToMqtt
+        "hardware": AppConstants.ecoGemModelList.contains(widget.modelId) ? ecoGemWFPayloadList : dataToMqtt
       };
       userData.addAll(dataToSend);
-      print(dataToMqtt['2500']['2502']);
-      // print(dataToMqtt['2500'][1]['2502'].split(',').join('\n'));
-      // print(dataToMqtt['2500'][1]['2502'].split(',').length);
+      // print("ecoGemWFPayloadList :: $ecoGemWFPayloadList");
       try {
-        await validatePayloadSent(
-            dialogContext: context,
+        if(AppConstants.ecoGemModelList.contains(widget.modelId)) {
+          final result = await showDialog<String>(
             context: context,
-            mqttPayloadProvider: mqttPayloadProvider,
-            acknowledgedFunction: () {
-              setState(() {
-                userData['controllerReadStatus'] = "1";
-              });
-              // showSnackBar(message: "${mqttPayloadProvider.messageFromHw['Name']} from controller", context: context);
+            barrierDismissible: false,
+            builder: (BuildContext context) {
+              return EcoGemProgressDialog(
+                payloads: ecoGemWFPayloadList,
+                deviceId: widget.deviceId,
+                mqttService: MqttService(),
+              );
             },
-            payload: dataToMqtt,
-            payloadCode: "2500",
-            deviceId: widget.deviceId
-        ).whenComplete(() {
-          Future.delayed(const Duration(milliseconds: 300), () async {
-            final IrrigationProgramRepository repository = IrrigationProgramRepository(HttpService());
-            final createUserProgram = await repository.createUserProgram(userData);
-            final response = jsonDecode(createUserProgram.body);
-            if(createUserProgram.statusCode == 200) {
-              await irrigationProvider.programLibraryData(widget.userId, widget.controllerId);
-              ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: response['message']));
-              if(widget.toDashboard) {
-                Navigator.of(context).pop();
-              } else {
-                // Navigator.of(context).pop();
-                Navigator.of(context).pop();
-                Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => ProgramSchedule(customerID: widget.userId, controllerID: widget.controllerId, siteName: "", imeiNumber: widget.deviceId, userId: widget.userId, groupId: widget.groupId, categoryId: widget.categoryId,modelId: widget.modelId, deviceName: widget.deviceName, categoryName: widget.categoryName,))
-                );
-              }
-              // if(widget.toDashboard) {
-              //   irrigationProvider.updateBottomNavigation(0);
-              //   Navigator.of(context).pop();
-              //   // Navigator.push(
-              //   //   context,
-              //   //   // MaterialPageRoute(builder: (context) => HomeScreen(userId: widget.userId, fromDealer: widget.fromDealer,)),
-              //   // );
-              // } else {
-              //   Navigator.of(context).pop();
-              //   irrigationProvider.updateBottomNavigation(1);
-              //   // Navigator.push(
-              //   //   context,
-              //   //   MaterialPageRoute(builder: (context) => HomeScreen(userId: widget.userId, fromDealer: widget.fromDealer,)),
-              //   // );
-              // }
-            }
-          });
-        });
-        // Future.delayed(const Duration(milliseconds: 300), () async {
-        //   final IrrigationProgramRepository repository = IrrigationProgramRepository(HttpService());
-        //   final createUserProgram = await repository.createUserProgram(userData);
-        //   final response = jsonDecode(createUserProgram.body);
-        //   if(createUserProgram.statusCode == 200) {
-        //     // await irrigationProvider.programLibraryData(widget.userId, widget.controllerId);
-        //     ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: response['message']));
-        //     if(widget.toDashboard) {
-        //       Navigator.of(context).pop();
-        //     } else {
-        //       // Navigator.of(context).pop();
-        //       // Navigator.of(context).pop();
-        //       Navigator.pushReplacement(
-        //           context,
-        //           MaterialPageRoute(builder: (context) => ProgramSchedule(customerID: widget.userId, controllerID: widget.controllerId, siteName: "", imeiNumber: widget.deviceId, userId: widget.userId, groupId: widget.groupId, categoryId: widget.categoryId,))
-        //       );
-        //     }
-        //   }
-        // });
-      } catch (error) {
+          );
+
+          if (result != null) {
+            setState(() {
+              userData['controllerReadStatus'] = result;
+            });
+          }
+        } else {
+          await validatePayloadSent(
+              dialogContext: context,
+              context: context,
+              mqttPayloadProvider: mqttPayloadProvider,
+              acknowledgedFunction: () {
+                setState(() {
+                  userData['controllerReadStatus'] = "1";
+                });
+                // showSnackBar(message: "${mqttPayloadProvider.messageFromHw['Name']} from controller", context: context);
+              },
+              payload: dataToMqtt,
+              payloadCode: "2500",
+              deviceId: widget.deviceId
+          );
+        }
+      } catch(error) {
         ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: 'Failed to update because of $error'));
         print("Error: $error");
       }
-      // print(mainProvider.selectionModel.data!.localFertilizerSet!.map((e) => e.toJson()));
+
+      Future.delayed(const Duration(milliseconds: 300), () async {
+        final IrrigationProgramRepository repository = IrrigationProgramRepository(HttpService());
+        final createUserProgram = await repository.createUserProgram(userData);
+        final response = jsonDecode(createUserProgram.body);
+        if(createUserProgram.statusCode == 200) {
+          await irrigationProvider.programLibraryData(widget.userId, widget.controllerId);
+          ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: response['message']));
+          Navigator.of(context).pop();
+        }
+      });
     }
     else {
       showAdaptiveDialog<Future>(
@@ -745,7 +717,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
                 labelFormat: '{value}m',
                 axisLabelFormatter: (AxisLabelRenderDetails details) {
                   num quantity = details.value;
-                  print("AxisLabelRenderDetails ==> value: ${details.value}, text: ${details.text}");
+                  // print("AxisLabelRenderDetails ==> value: ${details.value}, text: ${details.text}");
                   if (quantity == 0) {
                     return ChartAxisLabel('0m', const TextStyle(color: Colors.black));
                   }
@@ -817,7 +789,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
       itemList1: irrigationProvider.isPumpStationMode ? "Auto pump selection is enabled" : irrigationProvider.selectedObjects!.where((e) => e.objectId == 5).toList(),
       title2: "Head units",
       itemList2: irrigationProvider.selectedObjects!.where((e) => e.objectId == 2).toList(),
-      showRow: true,
+      showRow: [3].contains(widget.modelId) ? false : true,
       show4thWidget: false,
       title3: "Main valve",
       itemList3: irrigationProvider.selectedObjects!.where((e) => e.objectId == 14).toList(),
@@ -827,21 +799,26 @@ class _PreviewScreenState extends State<PreviewScreen> {
   }
 
   Widget buildNoSchedule() {
+    final conditionForEcoGem = ([3].contains(widget.modelId));
     return buildCategory(
         categoryTitle: "General details",
         title1: "Irrigation pump",
         itemList1: irrigationProvider.isPumpStationMode ? "Auto pump selection is enabled" : irrigationProvider.selectedObjects!.where((e) => e.objectId == 5).toList(),
-        title2: "Head units",
-        itemList2: irrigationProvider.selectedObjects!.where((e) => e.objectId == 2).toList(),
-        showRow: true,
+        title2: conditionForEcoGem
+            ? 'Schedule type'
+            : "Head units",
+        itemList2: conditionForEcoGem
+            ? irrigationProvider.sampleScheduleModel!.selected
+            : irrigationProvider.selectedObjects!.where((e) => e.objectId == 2).toList(),
+        showRow: conditionForEcoGem ? false : true,
         show4thWidget: true,
         title3: "Main valve",
         itemList3: irrigationProvider.selectedObjects!.where((e) => e.objectId == 14).toList(),
         title4: "Schedule type",
         itemList4: irrigationProvider.sampleScheduleModel!.selected,
-        showWidget2: irrigationProvider.sampleScheduleModel!.selected == irrigationProvider.scheduleTypes[3],
+        showWidget2: conditionForEcoGem ? false : irrigationProvider.sampleScheduleModel!.selected == irrigationProvider.scheduleTypes[3],
         showRow2: irrigationProvider.sampleScheduleModel!.selected == irrigationProvider.scheduleTypes[3],
-        show2ndWidget: irrigationProvider.sampleScheduleModel!.selected == irrigationProvider.scheduleTypes[3],
+        show2ndWidget: [irrigationProvider.scheduleTypes[0], irrigationProvider.scheduleTypes[3]].contains(irrigationProvider.sampleScheduleModel!.selected),
         title5: "On time",
         title6: "Interval",
         title7: "Cycles",
@@ -857,8 +834,10 @@ class _PreviewScreenState extends State<PreviewScreen> {
         categoryTitle: "Fertigation details",
         title1: MediaQuery.of(context).size.width > 800 ? "Central fertilizer site" : "Cent. fert site",
         title2: centralSelectorCondition ? "Cent. fert selector" : "Local fert Site",
-        itemList1: irrigationProvider.sampleIrrigationLine!.map((e) => centralSelectorCondition ? (e.centralFertilization != null ? [e.centralFertilization!] : []) : (e.localFertilization != null ? [e.localFertilization!] : [])).expand((list) => list).whereType<DeviceObjectModel>().toList().where((e) => irrigationProvider.selectedObjects!.any((ele) => ele.sNo == e.sNo)).toList(),
-        itemList2: centralSelectorCondition
+        itemList1: irrigationProvider.sampleIrrigationLine!.map((e) => centralSelectorCondition
+            ? (e.centralFertilization != null ? [e.centralFertilization!] : [])
+            : (e.localFertilization != null ? [e.localFertilization!] : [])).expand((list) => list).whereType<DeviceObjectModel>().toList().where((e) => irrigationProvider.selectedObjects!.any((ele) => ele.sNo == e.sNo)).toList(),
+        itemList2: [3].contains(widget.modelId) ? [] : centralSelectorCondition
             ? irrigationProvider.fertilizerSite!.where((site) {
           // print("Central filter site ==> ${site.filterSite?.sNo}");
           for (var i = 0; i < irrigationProvider.selectedObjects!.length; i++) {
@@ -873,13 +852,13 @@ class _PreviewScreenState extends State<PreviewScreen> {
             .whereType<DeviceObjectModel>()
             .toList().where((e) => irrigationProvider.selectedObjects!.any((ele) => ele.sNo == e.sNo)).toList()
             : irrigationProvider.sampleIrrigationLine!.map((e) => e.localFertilization != null ? [e.localFertilization!] : []).expand((list) => list).whereType<DeviceObjectModel>().toList().where((e) => irrigationProvider.selectedObjects!.any((ele) => ele.sNo == e.sNo)).toList(),
-        showRow: centralSelectorCondition,
-        show4thWidget: true,
-        show2ndWidget: irrigationProvider.sampleIrrigationLine!.map((e) => e.localFertilization != null ? [e.localFertilization!] : []).expand((list) => list).whereType<DeviceObjectModel>().toList().where((e) => irrigationProvider.selectedObjects!.any((ele) => ele.sNo == e.sNo)).toList().isNotEmpty,
+        showRow: [3].contains(widget.modelId) ? false : centralSelectorCondition,
+        show4thWidget: [3].contains(widget.modelId) ? false : true,
+        show2ndWidget: [3].contains(widget.modelId) ? false : irrigationProvider.sampleIrrigationLine!.map((e) => e.localFertilization != null ? [e.localFertilization!] : []).expand((list) => list).whereType<DeviceObjectModel>().toList().where((e) => irrigationProvider.selectedObjects!.any((ele) => ele.sNo == e.sNo)).toList().isNotEmpty,
         title3: "Local fertilizer site",
         title4: "Local fertilizer selector",
-        itemList3: irrigationProvider.sampleIrrigationLine!.map((e) => e.localFertilization != null ? [e.localFertilization!] : []).expand((list) => list).whereType<DeviceObjectModel>().toList().where((e) => irrigationProvider.selectedObjects!.any((ele) => ele.sNo == e.sNo)).toList(),
-        itemList4: irrigationProvider.fertilizerSite!.where((site) {
+        itemList3: [3].contains(widget.modelId) ? [] : irrigationProvider.sampleIrrigationLine!.map((e) => e.localFertilization != null ? [e.localFertilization!] : []).expand((list) => list).whereType<DeviceObjectModel>().toList().where((e) => irrigationProvider.selectedObjects!.any((ele) => ele.sNo == e.sNo)).toList(),
+        itemList4: [3].contains(widget.modelId) ? [] : irrigationProvider.fertilizerSite!.where((site) {
           // print("Central filter site ==> ${site.filterSite?.sNo}");
           for (var i = 0; i < irrigationProvider.selectedObjects!.length; i++) {
             if (site.siteMode == 2 && irrigationProvider.selectedObjects![i].objectId == 4 && irrigationProvider.selectedObjects![i].sNo == site.fertilizerSite?.sNo) {

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:oro_drip_irrigation/Constants/properties.dart';
-import 'package:oro_drip_irrigation/app.dart';
 import 'package:oro_drip_irrigation/modules/Preferences/view/valve_settings.dart';
 import 'package:oro_drip_irrigation/modules/Preferences/view/view_config.dart';
 import 'package:oro_drip_irrigation/services/http_service.dart';
@@ -196,7 +195,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
     // TODO: implement initState
     preferenceProvider = Provider.of<PreferenceProvider>(context, listen: false);
     mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
-    preferenceProvider.getUserPreference(userId: widget.customerId, controllerId: widget.controllerId).then((_) {
+    preferenceProvider.getUserPreference(userId: widget.customerId, controllerId: widget.controllerId, modelId: widget.vm.mySiteList.data[widget.vm.sIndex].master[widget.vm.mIndex].modelId).then((_) {
       tabController1 = TabController(
           length: preferenceProvider.commonPumpSettings?.length ?? 0,
           vsync: this

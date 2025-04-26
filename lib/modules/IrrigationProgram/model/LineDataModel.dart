@@ -250,6 +250,7 @@ class ProgramIrrigationLine with DiagnosticableTreeMixin {
   }
 
   factory ProgramIrrigationLine.fromJson(Map<String, dynamic> json) {
+    // print('irrigationPump in the model :: ${json['irrigationPump']}');
     return ProgramIrrigationLine(
       irrigationLine: DeviceObjectModel.fromJson(json),
       source: _parseList(json['source']),

@@ -95,7 +95,7 @@ class CustomerHome extends StatelessWidget {
             currentLineSNo: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine[viewModel.lIndex].sNo,
           ),
 
-          NextSchedule(scheduledPrograms: scheduledProgram),
+          /*NextSchedule(scheduledPrograms: scheduledProgram),*/
 
           if (kIsWeb && scheduledProgram.isNotEmpty)
             ScheduledProgram(

@@ -441,7 +441,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                       margin: const EdgeInsets.symmetric(horizontal: 15),
                       child: Text(
                         (pumpData.pumps.firstWhere((pump) => pump is PumpValveModel) as PumpValveModel).cycleCompletedFlag == '1'
-                            ? "Turned off due to Cycles completed"
+                            ? "Turned off due to Cycles completed".toUpperCase()
                             : pumpItem.reasonCode == 0
                             ? (pumpItem.status == 1 ? "Turned on through the mobile" : "Turned off through the mobile").toUpperCase()
                             : pumpItem.reason.toUpperCase(),
@@ -491,12 +491,6 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                   if(pumpItem.reasonCode != 30 && pumpItem.reasonCode != 31)
                     SizedBox(
                       width: double.maxFinite,
-                      // color: pumpItem.reasonCode == 0
-                      //     ? (pumpItem.status == 1
-                      //     ? Colors.green.shade50
-                      //     : Colors.red.shade50)
-                      //     : (pumpItem.reason.contains('on') ? Colors.green.shade50 : Colors.red.shade50),
-                      // padding: const EdgeInsets.all(8),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -582,12 +576,14 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                       // const SizedBox(width: 10,),
                       Stack(
                         children: [
-                          pumpData.pumps[index].status == 1 ? Image.asset(
-                              'assets/gif/Run-motor.gif',
-                          ) : SvgPicture.asset(
-                            'assets/SVGPicture/Pump.svg',
-                            color: pumpData.pumps[index].status == 2 ? Colors.orange : null,
-                            colorBlendMode: BlendMode.modulate,
+                          Image.asset(
+                            pumpData.pumps[index].status == 1
+                                ? 'assets/gif/runningmotor.gif'
+                                : pumpData.pumps[index].status == 3
+                                ? 'assets/png/faultmotor.png'
+                                : pumpData.pumps[index].status == 2
+                                ? 'assets/png/readymotor.png'
+                                : 'assets/png/idealmotor.png',
                           ),
                           /*getTypesOfPump(
                               mode: pumpData.pumps[index].status,

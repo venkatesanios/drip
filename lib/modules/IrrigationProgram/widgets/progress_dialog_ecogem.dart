@@ -1,79 +1,59 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:mqtt_client/mqtt_client.dart';
-import 'package:oro_drip_irrigation/modules/Preferences/state_management/preference_provider.dart';
-import 'package:provider/provider.dart';
 import '../../../services/mqtt_service.dart';
 import '../../../utils/environment.dart';
 
-class PayloadProgressDialog extends StatefulWidget {
+class EcoGemProgressDialog extends StatefulWidget {
   final List<String> payloads;
   final String deviceId;
-  final bool isToGem;
   final MqttService mqttService;
-  final bool shouldSendFailedPayloads;
 
-  const PayloadProgressDialog({
+  const EcoGemProgressDialog({
     super.key,
     required this.payloads,
     required this.deviceId,
-    required this.isToGem,
     required this.mqttService,
-    required this.shouldSendFailedPayloads,
   });
 
   @override
-  State<PayloadProgressDialog> createState() => _PayloadProgressDialogState();
+  State<EcoGemProgressDialog> createState() => _EcoGemProgressDialogState();
 }
 
-class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
+class _EcoGemProgressDialogState extends State<EcoGemProgressDialog> {
   late List<Map<String, dynamic>> payloadStatuses;
   bool breakLoop = false;
   bool isAllProcessed = false;
   bool isAllSent = false;
   String mqttError = '';
   bool isSending = false;
+  String controllerReadStatus = '0';
 
   static const Map<String, String> statusMessages = {
-    "100": "Other settings",
-    "200": "Voltage settings",
-    "400-1": "Current settings for pump 1",
-    "300-1": "Delay settings for pump 1",
-    "500-1": "RTC settings for pump 1",
-    "600-1": "Schedule config for pump 1",
-    "400-2": "Current settings for pump 2",
-    "300-2": "Delay settings for pump 2",
-    "500-2": "RTC settings for pump 2",
-    "600-2": "Schedule config for pump 2",
-    "400-3": "Current settings for pump 3",
-    "300-3": "Delay settings for pump 3",
-    "500-3": "RTC settings for pump 3",
-    "600-3": "Schedule config for pump 3",
-    "900": "Calibration settings",
-    "55": "Valve settings",
-    "57": "Moisture settings",
+    "2500": "Program Payload",
+    "2601": "Zone 1 payload",
+    "2602": "Zone 2 payload",
+    "2603": "Zone 3 payload",
+    "2604": "Zone 4 payload",
   };
 
   @override
   void initState() {
     super.initState();
-    if(mounted){
+    if (mounted) {
       payloadStatuses = widget.payloads.map((payload) {
-        var payloadToDecode = widget.isToGem ? payload.split('+')[4] : payload;
-        var decodedData = jsonDecode(payloadToDecode);
-        var key = decodedData.keys.first;
-
+        // Decode JSON string to extract PayloadCode
+        Map<String, dynamic> decodedPayload = jsonDecode(payload);
+        String key = decodedPayload.keys.first;
         return {
           'payload': payload,
-          'status': 'Pending',
-          'reference': widget.isToGem ? payload.split('+')[2] : '',
-          'selected': true,
           'key': key,
+          'status': 'Pending',
+          'selected': true,
+          'reference': statusMessages[key] ?? 'Unknown setting',
         };
       }).toList();
     }
-
-    // _processPayloads();
   }
 
   void _checkAllProcessed() {
@@ -92,60 +72,57 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
     setState(() {
       isSending = true;
     });
-    for (int i = 0; i < widget.payloads.length && !breakLoop; i++) {
+
+    for (int i = 0; i < payloadStatuses.length && !breakLoop; i++) {
       if (!payloadStatuses[i]['selected']) continue;
-      var payload = widget.payloads[i];
-      var payloadToDecode = widget.isToGem ? payload.split('+')[4] : payload;
-      var decodedData = jsonDecode(payloadToDecode);
-      var key = decodedData.keys.first;
+
+      var payload = payloadStatuses[i]['payload'];
+      var key = payloadStatuses[i]['key'];
 
       setState(() {
         payloadStatuses[i]['status'] = 'Sending';
       });
 
-      bool isAcknowledged = await _waitForControllerResponse(payload, key, i);
+      bool isAcknowledged = await _waitForControllerResponse(payload, i, key);
 
-      if(mounted){
+      if (mounted) {
         setState(() {
           payloadStatuses[i]['status'] = isAcknowledged ? 'Sent' : 'Failed';
         });
       }
+
+      // Wait briefly before sending the next payload
+      if (isAcknowledged && !breakLoop) {
+        await Future.delayed(const Duration(milliseconds: 500));
+      }
     }
+
     _checkAllProcessed();
   }
 
-  Future<bool> _waitForControllerResponse(String payload, String key, int index) async {
+  Future<bool> _waitForControllerResponse(String payload, int index, String key) async {
     try {
-      Map<String, dynamic> gemPayload = {};
-      if (widget.isToGem) {
-        gemPayload = {
-          "5900": {
-            "5901": payload,
-          }
-        };
-      }
-
-      await widget.mqttService.topicToPublishAndItsMessage(widget.isToGem ? jsonEncode(gemPayload) : jsonDecode(payload)[key], "${Environment.mqttPublishTopic}/${widget.deviceId}",);
+      controllerReadStatus = '0';
+      await widget.mqttService.topicToPublishAndItsMessage(
+        payload,
+        "${Environment.mqttPublishTopic}/${widget.deviceId}",
+      );
 
       bool isAcknowledged = false;
-      int maxWaitTime = 10;
+      const int maxWaitTime = 10;
       int elapsedTime = 0;
-      int oroPumpIndex = 0;
-      if(widget.isToGem) {
-        oroPumpIndex = context.read<PreferenceProvider>().commonPumpSettings!.indexWhere((element) => element.deviceId == payload.split('+')[2]);
-      }
-      await for (var mqttMessage in widget.mqttService.preferenceAckStream.timeout(
-        Duration(seconds: maxWaitTime),
-        onTimeout: (sink) {
-          sink.close();
-        },
+
+      await for (var mqttMessage in widget.mqttService.payloadController.timeout(
+        const Duration(seconds: maxWaitTime),
+        onTimeout: (sink) => sink.close(),
       )) {
         if (elapsedTime >= maxWaitTime || breakLoop) break;
 
-        if (mqttMessage!['cM'].contains(key) &&
-            (widget.isToGem ? mqttMessage['cC'] == payload.split('+')[2] : true)) {
-          context.read<PreferenceProvider>().updateControllerReaStatus(key: key, oroPumpIndex: oroPumpIndex, failed: widget.shouldSendFailedPayloads);
+        if (mqttMessage != null &&
+            mqttMessage['cM']['4201']['PayloadCode'] == key &&
+            mqttMessage['cC'] == widget.deviceId) {
           isAcknowledged = true;
+          controllerReadStatus = '1';
           break;
         }
 
@@ -155,7 +132,7 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
 
       return isAcknowledged;
     } catch (error) {
-      print(error);
+      print('Error in _waitForControllerResponse: $error');
       return false;
     }
   }
@@ -166,22 +143,22 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
       mqttError = '';
     });
 
-    for (int i = 0; i < payloadStatuses.length; i++) {
-      if (payloadStatuses[i]['status'] == 'Failed') {
+    for (int i = 0; i < payloadStatuses.length && !breakLoop; i++) {
+      if (payloadStatuses[i]['status'] == 'Failed' && payloadStatuses[i]['selected']) {
         var payload = payloadStatuses[i]['payload'];
-        var payloadToDecode = widget.isToGem ? payload.split('+')[4] : payload;
-        var decodedData = jsonDecode(payloadToDecode);
-        var key = decodedData.keys.first;
+        var key = payloadStatuses[i]['key'];
 
         setState(() {
           payloadStatuses[i]['status'] = 'Retrying';
         });
 
-        bool isAcknowledged = await _waitForControllerResponse(payload, key, i);
+        bool isAcknowledged = await _waitForControllerResponse(payload, i, key);
 
-        setState(() {
-          payloadStatuses[i]['status'] = isAcknowledged ? 'Sent' : 'Failed';
-        });
+        if (mounted) {
+          setState(() {
+            payloadStatuses[i]['status'] = isAcknowledged ? 'Sent' : 'Failed';
+          });
+        }
       }
     }
 
@@ -264,9 +241,9 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
                       ],
                     ),
                   ),
-                  title: Text("${status['reference']}"),
+                  title: Text(status['reference']),
                   subtitle: Text(message),
-                  value: payloadStatuses[index]['selected'],
+                  value: status['selected'],
                   onChanged: (bool? value) {
                     setState(() {
                       payloadStatuses[index]['selected'] = value!;
@@ -287,10 +264,10 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
         ],
       ),
       actions: [
-        if(isAllProcessed && isAllSent)
+        if (isAllProcessed && isAllSent)
           FilledButton(
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.of(context).pop(controllerReadStatus);
             },
             child: const Text("Done"),
           )
@@ -298,7 +275,7 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
           FilledButton(
             onPressed: () {
               breakLoop = true;
-              Navigator.of(context).pop();
+              Navigator.of(context).pop(controllerReadStatus);
             },
             child: const Text("Cancel"),
           ),

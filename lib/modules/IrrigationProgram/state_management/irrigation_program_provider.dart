@@ -494,6 +494,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   }
 
   List<String> scheduleTypes = ['NO SCHEDULE', 'SCHEDULE BY DAYS', 'SCHEDULE BY RUN LIST', 'SCHEDULE BY PROGRAM'];
+  List<String> scheduleTypesForEcoGem = ['NO SCHEDULE', 'SCHEDULE BY PROGRAM'];
 
   String get selectedScheduleType => sampleScheduleModel?.selected ?? scheduleTypes[0];
 
@@ -1524,9 +1525,9 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         }
       }
       payload += payload.isNotEmpty ? ';' : '';
-      print('sq :: $sq');
+      /*print('sq :: $sq');
       print('sq moisture :: ${sq['moistureSno']}');
-      print('sq level :: ${sq['levelSno']}');
+      print('sq level :: ${sq['levelSno']}');*/
       var getValve = [];
       for(var v = 0;v < 4;v++){
         if(sq['valve'].length > v){
@@ -1536,18 +1537,18 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         }
       }
       Map<String, dynamic> jsonPayload = {
-        'S_No' : sq['sNo'].toString().split('.')[1],
-        'ProgramS_No' : serialNumber,
+        'Zone_No' : sq['sNo'].toString().split('.')[1],
+        'Program_No' : serialNumber,
         'SequenceData' : getValve.join(','),
         'ValveFlowrate' : getNominalFlow(),
         'IrrigationMethod' : sq['method'] == 'Time' ? 1 : 2,
         'IrrigationDuration_Quantity' : timeAndQuantityForEcoGem(sq['method'] == 'Time' ? sq['timeValue'] : sq['quantityValue']),
         'CentralFertOnOff' : sq['applyFertilizerForCentral'] == false ? 0 : sq['selectedCentralSite'] == -1 ? 0 : 1,
-        'PrePostMethod' : sq['prePostMethod'] == 'Time' ? 1 : 2,
+        // 'PrePostMethod' : sq['prePostMethod'] == 'Time' ? 1 : 2,
         'PreTime_PreQty' : timeAndQuantityForEcoGem(sq['preValue']),
         'PostTime_PostQty' : timeAndQuantityForEcoGem(sq['postValue']),
         'CentralFertMethod' : centralMethod,
-        'CentralFertChannelSelection' : centralFertOnOff,
+        // 'CentralFertChannelSelection' : centralFertOnOff,
         'CentralFertDuration_Qty' : timeAndQuantityForEcoGem(centralTimeAndQuantity),
       };
       payload += jsonPayload.values.toList().join(',');
@@ -2568,9 +2569,9 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       break;
       case 'programType':selectedProgramType = newValue as String;
       break;
-      case"delayBetweenZones": _programDetails!.delayBetweenZones = newValue;
+      case "delayBetweenZones": _programDetails!.delayBetweenZones = newValue;
       break;
-      case"adjustPercentage": _programDetails!.adjustPercentage = newValue;
+      case "adjustPercentage": _programDetails!.adjustPercentage = newValue;
       break;
       default:
         log("Not found");
@@ -3093,7 +3094,76 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       }
     };
   }
+
+  List<int> getPayloadForEcoGemPumpAndFilter({required objectId}) {
+    final configObject = configObjects.where((pump) => pump['objectId'] == objectId).map((e) => e['sNo']).toList();
+    final selectedObject = selectedObjects!.where((pump) => pump.objectId == objectId).map((e) => e.sNo).toList();
+    print("selectedObject :: $selectedObject");
+    print('configObject :: $configObject');
+    var payload = [0,0];
+    for(var obj in selectedObject){
+      int indexOfObject = configObject.indexOf(obj);
+      payload[indexOfObject] = 1;
+    }
+    return payload;
+  }
+
+  dynamic dataToMqttForEcoGem(serialNumber, programType) {
+    final scheduleType = selectedScheduleType;
+    final schedule = scheduleType == scheduleTypes[1]
+        ? sampleScheduleModel!.scheduleAsRunList.schedule
+        : sampleScheduleModel!.scheduleByDays.schedule;
+
+    final centralFilterSite = filterSite!.where((site) {
+      // print("Central filter site ==> ${site.filterSite?.sNo}");
+      for (var i = 0; i < selectedObjects!.length; i++) {
+        if (site.siteMode == 1 && selectedObjects![i].objectId == 4 && selectedObjects![i].sNo == site.filterSite?.sNo) {
+          return true;
+        }
+      }
+      return false;
+    });
+
+    var endDate = DateTime.parse(schedule['endDate']).isBefore(DateTime.parse(startDate(serialNumber: serialNumber)))
+        ? DateTime.now().toString() :(schedule['endDate'] ?? DateTime.now().toString());
+    var noOfDays = ((schedule['noOfDays'] == "" || schedule['noOfDays'] == "0") ? "1": schedule['noOfDays']) ?? '1';
+    final runDays = ((schedule['runDays'] == "" || schedule['runDays'] == "0") ? "1": schedule['runDays']) ?? '1';
+    final skipDays = schedule['skipDays'] ?? '0';
+    final dateRange = (DateTime.parse(endDate).difference(DateTime.parse(startDate(serialNumber: serialNumber)))).inDays;
+    final firstDate = DateTime.parse(startDate(serialNumber: serialNumber)).add(Duration(days: (scheduleType == scheduleTypes[1] ? int.parse(noOfDays) : 0)
+        + int.parse(runDays != '' ? runDays : "1") + int.parse(skipDays != '' ? skipDays : "0") - (selectedScheduleType == scheduleTypes[1] ? 2 : 1)));
+    endDate = dateRange < (scheduleType == scheduleTypes[1] ? int.parse(noOfDays) : 0)
+        + int.parse(runDays != '' ? runDays : "1") + int.parse(skipDays != '' ? skipDays : "0")
+        ? firstDate
+        : DateTime.parse(endDate);
+    var pumpPayload = getPayloadForEcoGemPumpAndFilter(objectId: AppConstants.pumpObjectId);
+    var filterPayload = getPayloadForEcoGemPumpAndFilter(objectId: AppConstants.filterObjectId);
+    return {
+      "2500" : {
+        "2502": {
+              "S_No": '$serialNumber',
+              "no of zones": '${_irrigationLine!.sequence.length}',
+              "PumpStationMode": '${isPumpStationMode ? 1 : 0}',
+              "Pump": pumpPayload.join(','),
+              "DelayBetweenZones": delayBetweenZones.length == 5 ? "$delayBetweenZones:00" : delayBetweenZones,
+              "ScaleFactor": adjustPercentage != "0" ? adjustPercentage : "100",
+              "SchedulingMethod": '${selectedScheduleType == scheduleTypesForEcoGem[0]
+                  ? 1 : 2}',
+              "IntervalBetweenCycles": selectedScheduleType == scheduleTypes[3] ? _sampleScheduleModel!.dayCountSchedule.schedule["interval"] : '00:00:00',/*IntervalBetweenCycles*/
+              "CentralFilterSiteOperationMode": '${selectedCentralFiltrationMode == "TIME"
+                  ? 1 : selectedCentralFiltrationMode == "DP"
+                  ? 2
+                  : 3}',/*CentralFilterSiteOperationMode*/
+              "CentralFilterSelection": centralFilterSite.isNotEmpty ? filterPayload.join(',') : '0,0',
+              // "AlarmOnOff": newAlarmList!.alarmList.map((e) => e.value == true ? 1 : 0).toList().join('_'),/*AlarmOnOff*/
+              "AlarmOnOff": '0,0,0,0,0,0',/*AlarmOnOff*/
+              "Name": programName,
+            }.entries.map((e) => e.value).join(","),
+      }
+    };
+  }
 }
+
 class Tuple<Labels, Icons> {
   final Labels labels;
   final Icons icons;

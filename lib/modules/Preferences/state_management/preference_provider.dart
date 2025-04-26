@@ -60,24 +60,21 @@ class PreferenceProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getUserPreference({required int userId, required int controllerId}) async {
+  String _mode = "Duration";
+
+  String get mode => _mode;
+
+  Future<void> getUserPreference({required int userId, required int controllerId, required int modelId}) async {
     final userData = {
       "userId": userId,
       "controllerId": controllerId
     };
 
-    print("userData :: $userData");
     try {
       final response = await repository.getUserPreferenceGeneral(userData);
       if(response.statusCode == 200) {
         final result = jsonDecode(response.body);
-        try {
-          generalData = GeneralData.fromJson(result['data'][0]);
-        } catch(error) {
-          print(error);
-        }
-      } else {
-        print("response.body ${response.body}");
+        generalData = GeneralData.fromJson(result['data'][0]);
       }
     } catch(error, stackTrace) {
       print("Error parsing general data: $error");
@@ -87,15 +84,8 @@ class PreferenceProvider extends ChangeNotifier {
       final response = await repository.getUserPreferenceSetting(userData);
       if(response.statusCode == 200) {
         final result = jsonDecode(response.body);
-        try {
-          individualPumpSetting = List.from(result['data']['individualPumpSetting'].map((json) => IndividualPumpSetting.fromJson(json)));
-          commonPumpSettings = List.from(result['data']['commonPumpSetting'].map((json) => CommonPumpSetting.fromJson(json)));
-        } catch(error, stackTrace) {
-          print(error);
-          print("stackTrace ==> $stackTrace");
-        }
-      } else {
-        print("response.body ${response.body}");
+        individualPumpSetting = List.from(result['data']['individualPumpSetting'].map((json) => IndividualPumpSetting.fromJson(json)));
+        commonPumpSettings = List.from(result['data']['commonPumpSetting'].map((json) => CommonPumpSetting.fromJson(json)));
       }
     } catch(error, stackTrace) {
       print("Error parsing setting data: $error");
@@ -103,38 +93,33 @@ class PreferenceProvider extends ChangeNotifier {
     }
     try {
       final response = await repository.getUserPreferenceCalibration(userData);
-      print("getUserPreferenceCalibration :: ${response.body}");
       if(response.statusCode == 200) {
         final result = jsonDecode(response.body);
-        try {
-          calibrationSetting = List.from(result['data'].map((json) => CommonPumpSetting.fromJson(json)));
-        } catch(error) {
-          print(error);
-        }
-      } else {
-        print("response.body ${response.body}");
+        calibrationSetting = List.from(result['data'].map((json) => CommonPumpSetting.fromJson(json)));
       }
     } catch(error, stackTrace) {
       print("Error parsing setting data: $error");
       print("Stack trace setting data: $stackTrace");
     }
-    try {
-      final response = await repository.getUserPreferenceValveSetting(userData);
-      print("getUserPreferenceValveSetting :: ${response.body}");
-      if(response.statusCode == 200) {
-        final result = jsonDecode(response.body);
-        try {
+    if([48,49].contains(modelId)){
+      try {
+        final response = await repository.getUserPreferenceValveSetting(userData);
+        if(response.statusCode == 200) {
+          final result = jsonDecode(response.body);
           _valveSettings = SettingList.fromJson(Map<String, dynamic>.from(result['data']['valveSetting']));
           _moistureSettings = SettingList.fromJson(Map<String, dynamic>.from(result['data']['moistureSetting']));
-        } catch(error) {
-          print(error);
+          if(_valveSettings != null) {
+            if(_valveSettings!.setting[4].value) {
+              _mode = "Manual";
+            } else {
+              _mode = "Duration";
+            }
+          }
         }
-      } else {
-        print("response.body ${response.body}");
+      } catch(error, stackTrace) {
+        print("Error parsing setting data: $error");
+        print("Stack trace setting data: $stackTrace");
       }
-    } catch(error, stackTrace) {
-      print("Error parsing setting data: $error");
-      print("Stack trace setting data: $stackTrace");
     }
     notifyListeners();
   }
@@ -223,10 +208,6 @@ class PreferenceProvider extends ChangeNotifier {
     passwordValidationCode = 0;
   }
 
-  String _mode = "Duration";
-
-  String get mode => _mode;
-
   void updateMode(String newMode) {
     _mode = newMode;
     notifyListeners();
@@ -269,7 +250,6 @@ class PreferenceProvider extends ChangeNotifier {
         final parts = setting.value.split(',');
         setting.value = '${parts[0]},${newValue ? "1" : "0"}';
       } else {
-        print("else condition");
         setting.value = newValue;
 
         if(setting.serialNumber == 5) {

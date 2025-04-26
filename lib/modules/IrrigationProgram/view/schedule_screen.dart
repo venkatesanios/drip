@@ -27,7 +27,8 @@ const cardColor = Color(0xffE7F0F2);
 final dateFormat = DateFormat('dd-MM-yyyy');
 class ScheduleScreen extends StatefulWidget {
   final int serialNumber;
-  const ScheduleScreen({super.key, required this.serialNumber});
+  final int modelId;
+  const ScheduleScreen({super.key, required this.serialNumber, required this.modelId});
 
   @override
   State<ScheduleScreen> createState() => _ScheduleScreenState();
@@ -124,6 +125,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     final allowStopMethodCondition = irrigationProgramProvider.sampleScheduleModel!.defaultModel.allowStopMethod;
     final defaultOffTime = irrigationProgramProvider.sampleScheduleModel!.defaultModel.rtcOffTime;
     final defaultMaxTime = irrigationProgramProvider.sampleScheduleModel!.defaultModel.rtcMaxTime;
+    final isEcoGem = [3].contains(widget.modelId);
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints){
           return SingleChildScrollView(
@@ -148,20 +150,26 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             return SimpleDialog(
                               title: Text('Schedule types', style: TextStyle(color: Theme.of(context).primaryColor),),
                               children: [
-                                for(var i = 0; i < irrigationProgramProvider.scheduleTypes.length; i++)
+                                for(var i = 0; i < (isEcoGem ? irrigationProgramProvider.scheduleTypesForEcoGem.length : irrigationProgramProvider.scheduleTypes.length); i++)
                                   Column(
                                     children: [
                                       SimpleDialogOption(
                                         onPressed: () {
-                                          irrigationProgramProvider.updateSelectedScheduleType(irrigationProgramProvider.scheduleTypes[i]);
+                                          irrigationProgramProvider.updateSelectedScheduleType(isEcoGem ? irrigationProgramProvider.scheduleTypesForEcoGem[i] : irrigationProgramProvider.scheduleTypes[i]);
                                           Navigator.pop(context);
                                         },
                                         padding: EdgeInsets.zero,
                                         child: ListTile(
-                                          contentPadding: EdgeInsets.symmetric(horizontal: 20),
-                                          title: Text(irrigationProgramProvider.scheduleTypes[i]),
+                                          contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                                          title: Text(
+                                              isEcoGem
+                                                  ? irrigationProgramProvider.scheduleTypesForEcoGem[i]
+                                                  : irrigationProgramProvider.scheduleTypes[i]
+                                          ),
                                           subtitle: Text(
-                                              ["Manually start whenever needed",
+                                              isEcoGem ? (["Manually start whenever needed",
+                                                '1. Without cycle limit, program will run continuously \n2. With cycle limit, program will run daily at real time clock by setting start time'][i])
+                                                  : ["Manually start whenever needed",
                                                 "Schedule for specific days",
                                                 "Schedule based on run days, skip days",
                                                 '1. Without cycle limit, program will run continuously \n2. With cycle limit, program will run daily at real time clock by setting start time'][i]
@@ -174,8 +182,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                           ),
                                         ),
                                       ),
-                                      if(i != irrigationProgramProvider.scheduleTypes.length-1)
-                                      Divider(endIndent: 20, indent: 20,)
+                                      if(i != (isEcoGem ? irrigationProgramProvider.scheduleTypesForEcoGem.length-1: irrigationProgramProvider.scheduleTypes.length-1))
+                                      const Divider(endIndent: 20, indent: 20,)
                                     ],
                                   ),
                               ],
@@ -187,8 +195,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         color: cardColor,
                         child: ListTile(
                           title: Text(irrigationProgramProvider.selectedScheduleType),
-                          subtitle: Text("Select schedule type"),
-                          leading: CircleAvatar(backgroundColor: Theme.of(context).primaryColor, child: Icon(Icons.schedule, color: Colors.white,),),
+                          subtitle: const Text("Select schedule type"),
+                          leading: CircleAvatar(backgroundColor: Theme.of(context).primaryColor, child: const Icon(Icons.schedule, color: Colors.white,),),
                           trailing: SizedBox(
                               width: 40,
                               child: Icon(Icons.chevron_right, color: Theme.of(context).primaryColor)
@@ -206,7 +214,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         ),
                         buildPopUpMenuButton(
                             context: context,
-                            dataList: irrigationProgramProvider.scheduleTypes,
+                            dataList: isEcoGem ? irrigationProgramProvider.scheduleTypesForEcoGem : irrigationProgramProvider.scheduleTypes,
                             onSelected: (selectedValue) => irrigationProgramProvider.updateSelectedScheduleType(selectedValue),
                             child: Container(
                               padding: const EdgeInsets.all(8.0),
@@ -276,7 +284,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   ),
                   CustomAnimatedSwitcher(
                     condition: irrigationProgramProvider.selectedScheduleType == irrigationProgramProvider.scheduleTypes[3],
-                    child: buildNewScheduleType(context: context),
+                    child: buildNewScheduleType(context: context, isEcoGem: isEcoGem),
                   ),
                   const SizedBox(height: 50,),
                 ],
@@ -287,7 +295,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     );
   }
 
-  Widget buildNewScheduleType({required BuildContext context}) {
+  Widget buildNewScheduleType({required BuildContext context, required isEcoGem}) {
     final dayCountSchedule = irrigationProgramProvider.sampleScheduleModel!.dayCountSchedule.schedule;
 
     Widget buildOnTime() {
@@ -338,9 +346,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       children: [
         Row(
           children: [
-            Expanded(
-              child: buildCheckBox(),
-            ),
+            if(!isEcoGem)
+              Expanded(
+                child: buildCheckBox(),
+              ),
             const SizedBox(width: 20,),
             Expanded(
               child: buildInterval(),
@@ -352,7 +361,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           children: [
             Expanded(
               child: CustomAnimatedSwitcher(
-                  condition: dayCountSchedule["shouldLimitCycles"],
+                  condition: isEcoGem ? true : dayCountSchedule["shouldLimitCycles"],
                   child: buildOnTime()
               ),
             ),
@@ -371,10 +380,12 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       children: [
         buildInterval(),
         const SizedBox(height: 20,),
-        buildCheckBox(),
-        const SizedBox(height: 20,),
+        if(!isEcoGem)...[
+          buildCheckBox(),
+          const SizedBox(height: 20,),
+        ],
         CustomAnimatedSwitcher(
-            condition: dayCountSchedule["shouldLimitCycles"],
+            condition: isEcoGem ? true : dayCountSchedule["shouldLimitCycles"],
             child: buildOnTime()
         ),
         const SizedBox(height: 20,),
@@ -1192,7 +1203,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             // shape: BoxShape.circle,
                             borderRadius: BorderRadius.circular(5),
                             color: irrigationProgramProvider.currentRtcIndex == i ? Theme.of(context).primaryColor : Colors.grey,
-                          ), duration: Duration(milliseconds: 1000),
+                          ), duration: const Duration(milliseconds: 1000),
                         ),
                     ],
                   ),

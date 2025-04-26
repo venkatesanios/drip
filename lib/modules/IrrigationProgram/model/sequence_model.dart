@@ -364,7 +364,7 @@ class ConditionLibraryItem {
       component: json['component'],
       threshold: json['threshold'],
       reason: json['reason'],
-      alertMessage: json['alert message'],
+      alertMessage: json['alertMessage'],
     );
   }
 }
@@ -496,7 +496,7 @@ class Program {
   String priority;
   dynamic sequence;
   Map<String, dynamic> schedule;
-  Map<String, dynamic> hardwareData;
+  dynamic hardwareData;
   String controllerReadStatus;
   String active;
 

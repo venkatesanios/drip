@@ -756,7 +756,7 @@ class MobileScreenController extends StatelessWidget {
         isChanged ? PumpControllerHome(
           deviceId: masterData[masterIndex].deviceId,
           liveData: masterData[masterIndex].live!.cM as PumpControllerData,
-          masterName: groupName,
+          masterName: masterData[masterIndex].deviceName,
           userId: userId,
           customerId: customerId,
           controllerId: controllerId,
