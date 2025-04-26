@@ -467,7 +467,6 @@ class _LineConfigurationState extends State<LineConfiguration> {
             context: context,
             title: 'Select $objectName',
             singleSelection: singleSelection,
-            // listOfObject: mode != null ? widget.configPvd.pump.where((pump) => (mode == pump.pumpType)).toList().map((pump) => pump.commonDetails).toList() :
             listOfObject: listOfObject ??
             getUnselectedLineParameterObject(
                 currentParameterList: currentParameterValue,

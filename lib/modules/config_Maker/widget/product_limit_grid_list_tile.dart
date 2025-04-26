@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Widgets/sized_image.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/widget/toggle_text_form_field_product_limit.dart';
@@ -143,15 +144,25 @@ class _ProductLimitGridListTileState extends State<ProductLimitGridListTile> wit
     bool visible = true;
     /*hide waterSource for pump with valve model*/
     if(AppConstants.pumpWithValveModelList.contains(widget.configPvd.masterData['modelId'])){
-
-    }else if(AppConstants.ecoGemModelList.contains(widget.configPvd.masterData['modelId'])){
+      if (kDebugMode) {
+        print('master ::: pump with valve model');
+      }
+    }
+    else if(AppConstants.ecoGemModelList.contains(widget.configPvd.masterData['modelId'])){
+      if (kDebugMode) {
+        print('master ::: eco gem');
+      }
       List<int> objectThatConfigureToEcoGemModel = [1, 2, 3, 4, 5, 7, 10, 11, 13, 22, 24, 26, 40];
       if(objectThatConfigureToEcoGemModel.contains(objectId)){
         visible = true;
       }else{
         visible = false;
       }
-    }else{
+    }
+    else{
+      if (kDebugMode) {
+        print('master ::: gem');
+      }
       if(objectIdDependsOnDosing.contains(objectId)){
         //filter object by dosing site
         DeviceObjectModel dosingObject = widget.configPvd.listOfSampleObjectModel.firstWhere((object) => object.objectId == 3);
@@ -185,7 +196,9 @@ class _ProductLimitGridListTileState extends State<ProductLimitGridListTile> wit
       }
     }
 
-    print('objectId ($objectId) - $visible');
+    if (kDebugMode) {
+      print('objectId ($objectId) - $visible');
+    }
 
     return visible;
   }

@@ -475,7 +475,17 @@ class _LogHomeState extends State<LogHome> {
 
           print('get function ended......');
           setState(() {
-            dataToShow = irrigationParameterArray.editDateWise(dataSource, date);
+            if(_irrigationOptionWise[0][1] == true){
+              dataToShow = irrigationParameterArray.editDateWise(dataSource, date);
+            }else if(_irrigationOptionWise[1][1] == true){
+              dataToShow = irrigationParameterArray.editProgramWise(dataSource, program);
+            }else if(_irrigationOptionWise[2][1] == true){
+              dataToShow = irrigationParameterArray.editLineWise(dataSource, line);
+            }else if(_irrigationOptionWise[3][1] == true){
+              dataToShow = irrigationParameterArray.editValveWise(dataSource, valve);
+            }else if(_irrigationOptionWise[4][1] == true){
+              dataToShow = irrigationParameterArray.editStatusWise(dataSource, status);
+            }
           });
           print('get function completed......');
         }
@@ -500,39 +510,39 @@ class _LogHomeState extends State<LogHome> {
     }
   }
 
-  Widget navigationItem(String name,int index,icon){
-    return InkWell(
-      onTap: (){
-        setState(() {
-          _selectedIndex = index;
-        });
-      },
-      child: Container(
-          width: 230,
-          height: 50,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            color: _selectedIndex == index ? Theme.of(context).primaryColorDark : null,
-          ),
-          child: ListTile(
-            leading: icon,
-            title: Text(name,style: TextStyle(color: _selectedIndex == index ? Colors.white : Colors.white,fontSize: 14,fontWeight: FontWeight.bold),),
-          )
-      ),
-    );
-  }
+  // Widget navigationItem(String name,int index,icon){
+  //   return InkWell(
+  //     onTap: (){
+  //       setState(() {
+  //         _selectedIndex = index;
+  //       });
+  //     },
+  //     child: Container(
+  //         width: 230,
+  //         height: 50,
+  //         decoration: BoxDecoration(
+  //           borderRadius: BorderRadius.circular(8),
+  //           color: _selectedIndex == index ? Theme.of(context).primaryColorDark : null,
+  //         ),
+  //         child: ListTile(
+  //           leading: icon,
+  //           title: Text(name,style: TextStyle(color: _selectedIndex == index ? Colors.white : Colors.white,fontSize: 14,fontWeight: FontWeight.bold),),
+  //         )
+  //     ),
+  //   );
+  // }
 
-  Widget getIcon(icon,index){
-    return Icon(icon,color: _selectedIndex == index ? Colors.white : Colors.white,);
-  }
+  // Widget getIcon(icon,index){
+  //   return Icon(icon,color: _selectedIndex == index ? Colors.white : Colors.white,);
+  // }
 
-  String getLineName(list){
-    var name = '';
-    for(var i in list){
-      name += '${name.length == 0 ? '' : ','}$i';
-    }
-    return name;
-  }
+  // String getLineName(list){
+  //   var name = '';
+  //   for(var i in list){
+  //     name += '${name.length == 0 ? '' : ','}$i';
+  //   }
+  //   return name;
+  // }
 
   void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
     print('args : ${args}');
@@ -1003,7 +1013,13 @@ class _LogHomeState extends State<LogHome> {
                                       getDialog(context);
                                       getData();
                                       setState(() {
-                                        _irrigationOptionWise = [['Date',true],['Program',false],['Line',false],['Valve',false],['Status',false]];
+                                        for(var sortItem = 0;sortItem < _irrigationOptionWise.length;sortItem++){
+                                          if(_selectedIndex == sortItem){
+                                            _irrigationOptionWise[sortItem][1] = true;
+                                          }else{
+                                            _irrigationOptionWise[sortItem][1] = false;
+                                          }
+                                        }
                                       });
                                       if(mounted){
                                         Navigator.pop(context);

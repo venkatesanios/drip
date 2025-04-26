@@ -63,6 +63,7 @@ Widget navigateToInitialScreen(String route) {
     case Routes.login:
       return const LoginScreen();
     case Routes.dashboard:
+      // return const ConfigBasePage(masterData: {});
       return const ScreenController();
     default:
       return const SplashScreen(); // Fallback screen

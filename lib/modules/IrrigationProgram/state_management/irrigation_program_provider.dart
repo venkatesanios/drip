@@ -790,6 +790,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       return injectorValue_7;
     }
   }
+
   void editSegmentedCentralLocal(int value){
     segmentedControlCentralLocal = value;
     selectedCentralSite = 0;
@@ -815,6 +816,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     };
     notifyListeners();
   }
+
   var waterAndFertData = [];
 
   // void selectingTheSite(){
@@ -824,7 +826,6 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   //   }
   //   notifyListeners();
   // }
-
 
   Future<void> getWaterAndFertData({required int userId, required int controllerId, required int serialNumber}) async {
     try {
@@ -1330,7 +1331,6 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       }
     }
   }
-
 
   dynamic hwPayloadForWF(serialNumber){
     var wf = '';
@@ -2199,7 +2199,6 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   }
 
   dynamic editParticularChannelDetails(String title,String centralOrLocal,dynamic value,[int? index]){
-    // print('index is give : $index');
     switch(title){
       case ('method') : {
         sequenceData[selectedGroup][centralOrLocal][centralOrLocal == 'centralDosing' ? selectedCentralSite : selectedLocalSite]['fertilizer'][index ?? selectedInjector]['method'] = value;
@@ -2386,6 +2385,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   //TODO: ALARM SCREEN PROVIDER
   NewAlarmList? _newAlarmList;
   NewAlarmList? get newAlarmList => _newAlarmList;
+
   Future<void> getUserProgramAlarm(userId, controllerId, int serialNumber) async {
     try {
       var userData = {
@@ -2430,6 +2430,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   ProgramDetails? get programDetails => _programDetails;
   String get delayBetweenZones => _programDetails!.delayBetweenZones;
   String get adjustPercentage => _programDetails!.adjustPercentage;
+
   Future<void> doneData(int userId, int controllerId, int serialNumber) async {
     try {
       var userData = {
@@ -2553,6 +2554,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       rethrow;
     }
   }
+
   void updatePriority(newValue, index) {
     _programLibrary?.program[index].priority = newValue;
     notifyListeners();
@@ -2596,6 +2598,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     showAgitatorPrograms = agitator;
     notifyListeners();
   }
+
   void updateIsIrrigationProgram() {
     isIrrigationProgram = true;
     isAgitatorProgram = false;
@@ -3094,6 +3097,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     };
   }
 }
+
 class Tuple<Labels, Icons> {
   final Labels labels;
   final Icons icons;

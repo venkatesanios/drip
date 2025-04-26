@@ -260,8 +260,9 @@ class _ConfigWebViewState extends State<ConfigWebView> {
         }
       };
       setState(() {
+        var payloadTitle = AppConstants.ecoGemModelList.contains(configPvd.masterData['modelId']) ? 'Eco Gem Config' : 'Gem Config';
         listOfPayload.insert(0,{
-          'title' : '${configPvd.masterData['deviceId']}(gem config)',
+          'title' : '${configPvd.masterData['deviceId']}($payloadTitle)',
           'deviceId' : configPvd.masterData['deviceId'],
           'deviceIdToSend' : configPvd.masterData['deviceId'],
           'payload' : jsonEncode(configMakerPayload),
