@@ -975,8 +975,8 @@ class ConfigMakerProvider extends ChangeNotifier{
         int sumpHighConnectionNo = 0;
         int sumpLowConnectionNo = 0;
         int levelConnectionNo = 0;
-        int availableOfWaterMeter = pumpModel.waterMeter != 0.0 ? 1 : 0;
-        int availableOfPressure = pumpModel.pressureIn != 0.0 ? 1 : 0;
+        int availableOfWaterMeter = listOfWaterMeter.isNotEmpty ? 1 : 0;
+        int availableOfPressure = listOfPressure.isNotEmpty ? 1 : 0;
         for(var src in source){
           if([...src.inletPump, ...src.outletPump].contains(p.sNo)){
             if(src.sourceType == 1){
@@ -1025,7 +1025,15 @@ class ConfigMakerProvider extends ChangeNotifier{
           "pressure" : availableOfPressure
         }.entries.map((e) => e.value).join(','));
       }
-      var tankPayload = {"sentSms":"tankconfig,${listOfTankPayload.join(',')},"};
+      int fixedLengthOfTankPayload = 3;
+      if(listOfTankPayload.length != fixedLengthOfTankPayload){
+        for(var flp = 0;flp < fixedLengthOfTankPayload - listOfTankPayload.length;flp++){
+          listOfTankPayload.add(List.generate(9, (index){
+            return '0';
+          }).join(','));
+        }
+      }
+      var tankPayload = {"sentSms":"tankconfig,${listOfTankPayload.join(',')}"};
       int tankConfigCode = 800;
       var gemPayloadForTankConfig = {
         '5900' : {
@@ -1047,7 +1055,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         'payload' : jsonEncode(payloadToSendForTankConfig),
         'acknowledgementState' : HardwareAcknowledgementSate.notSent,
         'selected' : true,
-        'checkingCode' : hardwareType == HardwareType.master ? '$pumpCodeUnderGem' : '$tankConfigCode',
+        'checkingCode' : '$tankConfigCode',
         'hardwareType' : HardwareType.pump
       });
     }
@@ -1082,6 +1090,7 @@ class ConfigMakerProvider extends ChangeNotifier{
       int pumpCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.pumpObjectId).length;
       int valveCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.valveObjectId).length;
       int moistureCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.moistureObjectId).length;
+      int soilTemperatureCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.soilTemperatureObjectId).length;
       List<DeviceModel> nodeForValve = listOfDeviceModel.where((device) => ![...AppConstants.pumpWithValveModelList, ...AppConstants.senseModelList].contains(device.modelId)).toList();
       List<DeviceModel> nodeForMoisture = listOfDeviceModel.where((device) => AppConstants.senseModelList.contains(device.modelId)).toList();
       var payload = {
@@ -1089,6 +1098,7 @@ class ConfigMakerProvider extends ChangeNotifier{
             "$pumpCount,"
             "$valveCount,"
             "$moistureCount,"
+            "$soilTemperatureCount,"
             "${nodeForValve.isNotEmpty ? formDevicePayloadIfThere(nodeForValve[0]) : formDevicePayloadIfThereNot()},"
             "${nodeForMoisture.isNotEmpty ? formDevicePayloadIfThere(nodeForMoisture[0]) : formDevicePayloadIfThereNot()}"};
       listOfPumpPayload.add({

@@ -131,6 +131,7 @@ class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
                             IconButton(
                                 onPressed: (){
                                   setState(() {
+                                    widget.configPvd.listOfSelectedSno.clear();
                                     widget.configPvd.listOfSelectedSno.addAll(filtrationSite.filters);
                                   });
                                   selectionDialogBox(

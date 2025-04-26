@@ -152,6 +152,7 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
           IconButton(
               onPressed: (){
                 setState(() {
+                  widget.configPvd.listOfSelectedSno.clear();
                   widget.configPvd.listOfSelectedSno.addAll(currentParameterValue);
                 });
                 selectionDialogBox(

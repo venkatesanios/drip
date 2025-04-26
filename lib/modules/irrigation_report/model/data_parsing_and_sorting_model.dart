@@ -382,7 +382,9 @@ class IrrigationLogModel {
                   }
                   if(parameter.payloadKey == 'IrrigationDurationCompleted/IrrigationQuantityCompleted') {
                     if(parameter.show == true){
-                      waterList.add(date['irrigation'][date['irrigation']['IrrigationMethod'][howManyValve] == 1 ? parameter.payloadKey.split('/')[0] : parameter.payloadKey.split('/')[1]][howManyValve]);
+                      var time = date['irrigation'][parameter.payloadKey.split('/')[0]][howManyValve];
+                      var quantity = date['irrigation'][parameter.payloadKey.split('/')[1]][howManyValve];
+                      waterList.add('$time HMS\n$quantity L');
                     }
                   }
                 }
@@ -794,7 +796,9 @@ class IrrigationLogModel {
                   }
                   if(parameter.payloadKey == 'IrrigationDurationCompleted/IrrigationQuantityCompleted') {
                     if(parameter.show == true){
-                      waterList.add(date['irrigation'][date['irrigation']['IrrigationMethod'][howManyLine] == 1 ? parameter.payloadKey.split('/')[0] : parameter.payloadKey.split('/')[1]][howManyLine]);
+                      var time = date['irrigation'][parameter.payloadKey.split('/')[0]][howManyLine];
+                      var quantity = date['irrigation'][parameter.payloadKey.split('/')[1]][howManyLine];
+                      waterList.add('$time HMS\n$quantity L');
                     }
                   }
                 }
@@ -1212,7 +1216,9 @@ class IrrigationLogModel {
                   }
                   if(parameter.payloadKey == 'IrrigationDurationCompleted/IrrigationQuantityCompleted') {
                     if(parameter.show == true){
-                      waterList.add(date['irrigation'][date['irrigation']['IrrigationMethod'][howManyProgram] == 1 ? parameter.payloadKey.split('/')[0] : parameter.payloadKey.split('/')[1]][howManyProgram]);
+                      var time = date['irrigation'][parameter.payloadKey.split('/')[0]][howManyProgram];
+                      var quantity = date['irrigation'][parameter.payloadKey.split('/')[1]][howManyProgram];
+                      waterList.add('$time HMS\n$quantity L');
                     }
                   }
                 }
@@ -1627,7 +1633,9 @@ class IrrigationLogModel {
                   }
                   if(parameter.payloadKey == 'IrrigationDurationCompleted/IrrigationQuantityCompleted') {
                     if(parameter.show == true){
-                      waterList.add(date['irrigation'][date['irrigation']['IrrigationMethod'][howManyDate] == 1 ? parameter.payloadKey.split('/')[0] : parameter.payloadKey.split('/')[1]][howManyDate]);
+                      var time = date['irrigation'][parameter.payloadKey.split('/')[0]][howManyDate];
+                      var quantity = date['irrigation'][parameter.payloadKey.split('/')[1]][howManyDate];
+                      waterList.add('$time HMS\n$quantity L');
                     }
                   }
                 }
@@ -2044,7 +2052,9 @@ class IrrigationLogModel {
                   }
                   if(parameter.payloadKey == 'IrrigationDurationCompleted/IrrigationQuantityCompleted') {
                     if(parameter.show == true){
-                      waterList.add(date['irrigation'][date['irrigation']['IrrigationMethod'][howManyStatus] == 1 ? parameter.payloadKey.split('/')[0] : parameter.payloadKey.split('/')[1]][howManyStatus]);
+                      var time = date['irrigation'][parameter.payloadKey.split('/')[0]][howManyStatus];
+                      var quantity = date['irrigation'][parameter.payloadKey.split('/')[1]][howManyStatus];
+                      waterList.add('$time HMS\n$quantity L');
                     }
                   }
                 }

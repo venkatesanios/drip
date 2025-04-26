@@ -107,13 +107,15 @@ class ConstantProvider extends ChangeNotifier{
 
   void updateConstant({required constantData, required configMakerData, required userDataAndMasterData}){
     try{
+      print("constantData : ${jsonEncode(constantData)}");
+      print("configMakerData : ${jsonEncode(configMakerData)}");
       constantDataFromHttp = constantData['data'];
       userData = userDataAndMasterData;
       configObjectDataFromHttp = configMakerData['data']['configObject'];
       Map<String, dynamic> defaultData = constantDataFromHttp['default'];
       deviceList = defaultData['nodeList'];
       if(AppConstants.ecoGemModelList.contains(userData['modelId'])){
-        deviceList.insert(1, userData);
+        deviceList.insert(0, userData);
       }
       Map<String, dynamic> constantOldData = constantDataFromHttp['constant'];
       // update constant menu

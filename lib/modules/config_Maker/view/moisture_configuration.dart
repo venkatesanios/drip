@@ -119,6 +119,7 @@ class _MoistureConfigurationState extends State<MoistureConfiguration> {
           IconButton(
               onPressed: (){
                 setState(() {
+                  widget.configPvd.listOfSelectedSno.clear();
                   widget.configPvd.listOfSelectedSno.addAll(valveList);
                 });
                 selectionDialogBox(

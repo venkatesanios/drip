@@ -166,6 +166,7 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
           IconButton(
               onPressed: (){
                 setState(() {
+                  widget.configPvd.listOfSelectedSno.clear();
                   widget.configPvd.listOfSelectedSno.addAll(currentParameter);
                 });
                 selectionDialogBox(

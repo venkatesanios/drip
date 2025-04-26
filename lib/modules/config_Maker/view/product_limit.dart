@@ -13,6 +13,7 @@ import '../widget/product_limit_grid_list_tile.dart';
 class ProductLimit extends StatefulWidget {
   final ConfigMakerProvider configPvd;
   List<DeviceModel> listOfDevices;
+
   ProductLimit({
     super.key,
     required this.listOfDevices,
@@ -99,7 +100,16 @@ class _ProductLimitState extends State<ProductLimit> {
   }
 
   Widget digitalObject(){
-    List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => (widget.configPvd.masterData['categoryId'] != 2 ? object.type == '4' : [22, 24, 26, 40].contains(object.objectId))).toList();
+    List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) {
+      if(widget.configPvd.masterData['categoryId'] != 2){
+        return object.type == '4';
+      }else if(AppConstants.pumpWithValveModelList.contains(widget.configPvd.masterData['modelId'])){
+        return [22, 24, 26, 30, 40,].contains(object.objectId);
+      }else{
+        return [22, 24, 26, 40].contains(object.objectId);
+      }
+    }).toList();
+
     return ProductLimitGridListTile(
       listOfObjectModel: filteredList,
       title: 'Digital Input',
@@ -133,7 +143,6 @@ class _ProductLimitState extends State<ProductLimit> {
       configPvd: widget.configPvd,
     );
   }
-
 
   // Widget analogObject(){
   //   print('listOfObjectId : ${widget.configPvd.listOfSampleObjectModel.map((e) => e.objectId)}');
@@ -185,7 +194,6 @@ class _ProductLimitState extends State<ProductLimit> {
     ];
   }
 }
-
 
 int getRelayLatchCount(List<DeviceModel> listOfDevices){
   int count = 0;
