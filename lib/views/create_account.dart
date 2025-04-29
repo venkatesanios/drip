@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'package:flutter/services.dart';
 import 'package:oro_drip_irrigation/utils/Theme/oro_theme.dart';
 import 'package:provider/provider.dart';
 
@@ -45,180 +45,193 @@ class CreateAccount extends StatelessWidget {
                 child: Text(viewModel.errorMsg, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.normal), textAlign: TextAlign.center,)
               ):
               const SizedBox(),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Form(
-                      key: viewModel.formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextFormField(
-                            keyboardType: TextInputType.name,
-                            decoration: InputDecoration(
-                              labelText: AppConstants.fullName,
-                              icon: Icon(Icons.text_fields, color: primaryDark),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return AppConstants.getNameError(role);
-                              }
-                              final regex = RegExp(r'^[a-zA-Z ]+$');
-                              if (!regex.hasMatch(value)) {
-                                return AppConstants.nameValidationError;
-                              }
-                              return null;
-                            },
-                            onSaved: (value) => viewModel.name = value,
-                            inputFormatters: [
-                              Formatters.capitalizeFirstLetter(),
-                            ],
-                          ),
-                          const SizedBox(height: 15),
-                          InternationalPhoneNumberInput(
-                            validator: (value){
-                              if(value==null ||value.isEmpty){
-                                return AppConstants.getMobileError(role);
-                              }
-                              return null;
-                            },
-                            inputDecoration: InputDecoration(
-                              contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                              icon:  Icon(Icons.phone_outlined, color: primaryDark),
-                              labelText: AppConstants.mobileNumber,
-                            ),
-                            onInputChanged: (PhoneNumber number) {
-                            },
-                            selectorConfig: const SelectorConfig(
-                              selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
-                              setSelectorButtonAsPrefixIcon: true,
-                              leadingPadding: 10,
-                              useEmoji: true,
-                            ),
-                            ignoreBlank: false,
-                            autoValidateMode: AutovalidateMode.disabled,
-                            //selectorTextStyle: myTheme.textTheme.titleMedium,
-                            initialValue: PhoneNumber(isoCode: 'IN'),
-                            textFieldController: viewModel.mobileNoController,
-                            formatInput: false,
-                            keyboardType:
-                            const TextInputType.numberWithOptions(signed: true, decimal: true),
-                            onSaved: (PhoneNumber number) {
-                              viewModel.dialCode = number.dialCode.toString();
-                            },
-                          ),
-                          const SizedBox(height: 15),
-                          TextFormField(
-                            decoration: InputDecoration(
-                              labelText: AppConstants.emailAddress,
-                              icon: Icon(Icons.email_outlined, color: primaryDark),
-                            ),
-                            keyboardType: TextInputType.emailAddress,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return AppConstants.getEmailError(role);
-                              }
-                              if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
-                                return AppConstants.enterValidEmail;
-                              }
-                              return null;
-                            },
-                            onSaved: (email) => viewModel.email = email,
-                          ),
-                          const SizedBox(height: 15),
-                          DropdownButtonFormField<String>(
-                            decoration: InputDecoration(
-                              labelText: AppConstants.country,
-                              icon: Icon(CupertinoIcons.globe, color: primaryDark),
-                            ),
-                            value: viewModel.country,
-                            items: viewModel.countries.map((countryItem) {
-                              return DropdownMenuItem(
-                                value: countryItem,
-                                child: Text(countryItem),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              viewModel.country = value;
-                              viewModel.state = null;
-                              viewModel.states.clear();
-                              viewModel.selectedCountryID = viewModel.getCountryIdByName(value.toString())!;
-                              viewModel.getStateList(viewModel.selectedCountryID.toString());
-                            },
-                            validator: (value) {
-                              if (value == null) {
-                                return AppConstants.getCountryError(role);
-                              }
-                              return null;
-                            },
-                            onSaved: (value) => viewModel.country = value,
-                          ),
-                          const SizedBox(height: 20),
-                          DropdownButtonFormField<String>(
-                            decoration: InputDecoration(
-                              labelText: AppConstants.state,
-                              icon: Icon(CupertinoIcons.placemark, color: primaryDark),
-                            ),
-                            value: viewModel.state,
-                            items: viewModel.states.map((stateItem) {
-                              return DropdownMenuItem(
-                                value: stateItem,
-                                child: Text(stateItem),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              viewModel.state = value;
-                              viewModel.selectedStateID = viewModel.getStateIdByName(value.toString())!;
-                            },
-                            validator: (value) {
-                              if (value == null) {
-                                return AppConstants.getStateError(role);
-                              }
-                              return null;
-                            },
-                            onSaved: (value) => viewModel.state = value,
-                          ),
-                          const SizedBox(height: 20),
-                          TextFormField(
-                            decoration: InputDecoration(
-                              labelText: AppConstants.city,
-                              icon: Icon(Icons.location_city, color: primaryDark),
-                            ),
-                            keyboardType: TextInputType.name,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return AppConstants.getCityError(role);
-                              }
-                              return null;
-                            },
-                            onSaved: (value) => viewModel.city = value,
-                            inputFormatters: [
-                              Formatters.capitalizeFirstLetter(),
-                            ],
-                          ),
-                          const SizedBox(height: 15),
-                          TextFormField(
-                            decoration: InputDecoration(
-                              labelText: AppConstants.address,
-                              icon: Icon(Icons.linear_scale, color: primaryDark,),
-                            ),
-                            keyboardType: TextInputType.streetAddress,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return AppConstants.getAddressError(role);
-                              }
-                              return null;
-                            },
-                            onSaved: (value) => viewModel.address = value,
-                          ),
-                          const SizedBox(height: 15),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+          Expanded(
+          child: SingleChildScrollView(
+          child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+          key: viewModel.formKey,
+          child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+
+          // Full Name
+          TextFormField(
+          keyboardType: TextInputType.name,
+          decoration: InputDecoration(
+          labelText: AppConstants.fullName,
+          icon: Icon(Icons.text_fields, color: primaryDark),
+          ),
+          validator: (value) {
+          if (value == null || value.isEmpty) {
+          return AppConstants.getNameError(role);
+          }
+          final regex = RegExp(r'^[a-zA-Z ]+$');
+          if (!regex.hasMatch(value)) {
+          return AppConstants.nameValidationError;
+          }
+          return null;
+          },
+          onSaved: (value) => viewModel.name = value,
+          inputFormatters: [
+          Formatters.capitalizeFirstLetter(),
+          ],
+          ),
+
+          const SizedBox(height: 15),
+
+          // Mobile Number
+          TextFormField(
+          controller: viewModel.mobileNoController,
+          keyboardType: TextInputType.phone,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          decoration: InputDecoration(
+          labelText: AppConstants.mobileNumber,
+          icon: Icon(Icons.phone_outlined, color: primaryDark),
+          prefixText: '+91 ', // or make it dynamic if needed
+          contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+          ),
+          validator: (value) {
+          if (value == null || value.isEmpty) {
+          return AppConstants.getMobileError(role);
+          }
+          if (value.length < 10) {
+          return 'Enter a valid 10-digit number';
+          }
+          return null;
+          },
+          onSaved: (value) {
+          viewModel.dialCode = '+91'; // static for now, dynamic if needed
+          },
+          ),
+
+          const SizedBox(height: 15),
+
+          // Email
+          TextFormField(
+          decoration: InputDecoration(
+          labelText: AppConstants.emailAddress,
+          icon: Icon(Icons.email_outlined, color: primaryDark),
+          ),
+          keyboardType: TextInputType.emailAddress,
+          validator: (value) {
+          if (value == null || value.isEmpty) {
+          return AppConstants.getEmailError(role);
+          }
+          if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
+          return AppConstants.enterValidEmail;
+          }
+          return null;
+          },
+          onSaved: (email) => viewModel.email = email,
+          ),
+
+          const SizedBox(height: 15),
+
+          // Country Dropdown
+          DropdownButtonFormField<String>(
+          decoration: InputDecoration(
+          labelText: AppConstants.country,
+          icon: Icon(CupertinoIcons.globe, color: primaryDark),
+          ),
+          value: viewModel.country,
+          items: viewModel.countries.map((countryItem) {
+          return DropdownMenuItem(
+          value: countryItem,
+          child: Text(countryItem),
+          );
+          }).toList(),
+          onChanged: (value) {
+          viewModel.country = value;
+          viewModel.state = null;
+          viewModel.states.clear();
+          viewModel.selectedCountryID = viewModel.getCountryIdByName(value.toString())!;
+          viewModel.getStateList(viewModel.selectedCountryID.toString());
+          },
+          validator: (value) {
+          if (value == null) {
+          return AppConstants.getCountryError(role);
+          }
+          return null;
+          },
+          onSaved: (value) => viewModel.country = value,
+          ),
+
+          const SizedBox(height: 20),
+
+          // State Dropdown
+          DropdownButtonFormField<String>(
+          decoration: InputDecoration(
+          labelText: AppConstants.state,
+          icon: Icon(CupertinoIcons.placemark, color: primaryDark),
+          ),
+          value: viewModel.state,
+          items: viewModel.states.map((stateItem) {
+          return DropdownMenuItem(
+          value: stateItem,
+          child: Text(stateItem),
+          );
+          }).toList(),
+          onChanged: (value) {
+          viewModel.state = value;
+          viewModel.selectedStateID = viewModel.getStateIdByName(value.toString())!;
+          },
+          validator: (value) {
+          if (value == null) {
+          return AppConstants.getStateError(role);
+          }
+          return null;
+          },
+          onSaved: (value) => viewModel.state = value,
+          ),
+
+          const SizedBox(height: 20),
+
+          // City
+          TextFormField(
+          decoration: InputDecoration(
+          labelText: AppConstants.city,
+          icon: Icon(Icons.location_city, color: primaryDark),
+          ),
+          keyboardType: TextInputType.name,
+          validator: (value) {
+          if (value == null || value.isEmpty) {
+          return AppConstants.getCityError(role);
+          }
+          return null;
+          },
+          onSaved: (value) => viewModel.city = value,
+          inputFormatters: [
+          Formatters.capitalizeFirstLetter(),
+          ],
+          ),
+
+          const SizedBox(height: 15),
+
+          // Address
+          TextFormField(
+          decoration: InputDecoration(
+          labelText: AppConstants.address,
+          icon: Icon(Icons.linear_scale, color: primaryDark),
+          ),
+          keyboardType: TextInputType.streetAddress,
+          validator: (value) {
+          if (value == null || value.isEmpty) {
+          return AppConstants.getAddressError(role);
+          }
+          return null;
+          },
+          onSaved: (value) => viewModel.address = value,
+          ),
+
+          const SizedBox(height: 15),
+          ],
+          ),
+          ),
+          ),
+          ),
+          ),
+
               SizedBox(
                 height: 48,
                 child: Column(

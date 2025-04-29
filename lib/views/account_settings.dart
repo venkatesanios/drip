@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl_phone_number_input/intl_phone_number_input.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
+ import 'package:provider/provider.dart';
 
 import '../repository/repository.dart';
 import '../services/http_service.dart';
@@ -106,124 +106,121 @@ class AccountSettings extends StatelessWidget {
                                                   ),
                                                 ),
                                                 Flexible(
-                                                  flex :2,
-                                                  child: Column(
-                                                    children: [
-                                                      const SizedBox(height: 20),
-                                                      InternationalPhoneNumberInput(
-                                                        onInputChanged: (PhoneNumber number) {
-                                                          //print(number.phoneNumber);
-                                                        },
-                                                        selectorConfig: const SelectorConfig(
-                                                          selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
-                                                          setSelectorButtonAsPrefixIcon: true,
-                                                          leadingPadding: 10,
-                                                          useEmoji: false,
-                                                        ),
-                                                        ignoreBlank: false,
-                                                        inputDecoration: InputDecoration(
-                                                          labelText: 'Mobile Number',
-                                                          border: OutlineInputBorder(
-                                                            borderRadius: BorderRadius.circular(10.0), // Border radius
+                                                  flex: 2,
+                                                  child: Form(
+                                                    key: viewModel.formKey,
+                                                    child: Column(
+                                                      children: [
+                                                        const SizedBox(height: 20),
+
+                                                        // Mobile Number Field
+                                                        TextFormField(
+                                                          controller: viewModel.controllerMblNo,
+                                                          keyboardType: TextInputType.phone,
+                                                          inputFormatters: [
+                                                            FilteringTextInputFormatter.digitsOnly,
+                                                          ],
+                                                          decoration: InputDecoration(
+                                                            labelText: 'Mobile Number',
+                                                            prefixText: '+91 ', // You can make this dynamic
+                                                            border: OutlineInputBorder(
+                                                              borderRadius: BorderRadius.circular(10.0),
+                                                            ),
                                                           ),
+                                                          validator: (value) {
+                                                            if (value == null || value.isEmpty) {
+                                                              return 'Please enter your mobile number';
+                                                            } else if (value.length < 10) {
+                                                              return 'Mobile number must be at least 10 digits';
+                                                            }
+                                                            return null;
+                                                          },
                                                         ),
-                                                        autoValidateMode: AutovalidateMode.disabled,
-                                                        selectorTextStyle: const TextStyle(color: Colors.black),
-                                                        initialValue: PhoneNumber(isoCode: 'IN'),
-                                                        textFieldController: viewModel.controllerMblNo,
-                                                        formatInput: false,
-                                                        keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: true),
-                                                        onSaved: (PhoneNumber number) {
-                                                          //print('On Saved: $number');
-                                                        },
-                                                      ),
-                                                      Form(
-                                                        key: viewModel.formKey,
-                                                        child: Column(
-                                                          mainAxisAlignment: MainAxisAlignment.center,
-                                                          children: <Widget>[
-                                                            const SizedBox(height: 20),
-                                                            TextFormField(
-                                                              controller: viewModel.controllerUsrName,
-                                                              decoration: InputDecoration(
-                                                                labelText: 'Name',
-                                                                border: OutlineInputBorder(
-                                                                  borderRadius: BorderRadius.circular(10.0), // Border radius
-                                                                ),
-                                                              ),
-                                                              validator: (value) {
-                                                                if (value!.isEmpty) {
-                                                                  return 'Please enter your name';
-                                                                }
-                                                                return null;
-                                                              },
-                                                              onChanged: (value) {
 
+                                                        const SizedBox(height: 20),
+
+                                                        // Name Field
+                                                        TextFormField(
+                                                          controller: viewModel.controllerUsrName,
+                                                          decoration: InputDecoration(
+                                                            labelText: 'Name',
+                                                            border: OutlineInputBorder(
+                                                              borderRadius: BorderRadius.circular(10.0),
+                                                            ),
+                                                          ),
+                                                          validator: (value) {
+                                                            if (value == null || value.isEmpty) {
+                                                              return 'Please enter your name';
+                                                            }
+                                                            return null;
+                                                          },
+                                                        ),
+
+                                                        const SizedBox(height: 20),
+
+                                                        // Password Field
+                                                        TextFormField(
+                                                          controller: viewModel.controllerPwd,
+                                                          obscureText: true,
+                                                          decoration: InputDecoration(
+                                                            labelText: 'Password',
+                                                            border: OutlineInputBorder(
+                                                              borderRadius: BorderRadius.circular(10.0),
+                                                            ),
+                                                          ),
+                                                          validator: (value) {
+                                                            if (value == null || value.isEmpty) {
+                                                              return 'Please enter your password';
+                                                            }
+                                                            return null;
+                                                          },
+                                                        ),
+
+                                                        const SizedBox(height: 20),
+
+                                                        // Email Field
+                                                        TextFormField(
+                                                          controller: viewModel.controllerEmail,
+                                                          keyboardType: TextInputType.emailAddress,
+                                                          decoration: InputDecoration(
+                                                            labelText: 'Email Id',
+                                                            border: OutlineInputBorder(
+                                                              borderRadius: BorderRadius.circular(10.0),
+                                                            ),
+                                                          ),
+                                                          validator: (value) {
+                                                            if (value == null || value.isEmpty) {
+                                                              return 'Please enter your email id';
+                                                            }
+                                                            return null;
+                                                          },
+                                                        ),
+
+                                                        const SizedBox(height: 20),
+
+                                                        // Action Buttons
+                                                        Row(
+                                                          mainAxisSize: MainAxisSize.min,
+                                                          children: [
+                                                            MaterialButton(
+                                                              color: Colors.grey,
+                                                              textColor: Colors.white,
+                                                              child: const Text('CANCEL'),
+                                                              onPressed: () {
+                                                                // handle cancel
                                                               },
                                                             ),
-                                                            const SizedBox(height: 20),
-                                                            TextFormField(
-                                                              controller: viewModel.controllerPwd,
-                                                              decoration: InputDecoration(
-                                                                labelText: 'Password',
-                                                                border: OutlineInputBorder(
-                                                                  borderRadius: BorderRadius.circular(10.0), // Border radius
-                                                                ),
-                                                              ),
-                                                              validator: (value) {
-                                                                if (value!.isEmpty) {
-                                                                  return 'Please enter your password';
-                                                                }
-                                                                return null;
-                                                              },
-                                                              onChanged: (value) {
-
-                                                              },
-                                                            ),
-                                                            const SizedBox(height: 20),
-                                                            TextFormField(
-                                                              controller: viewModel.controllerEmail,
-                                                              decoration: InputDecoration(
-                                                                labelText: 'Email Id',
-                                                                border: OutlineInputBorder(
-                                                                  borderRadius: BorderRadius.circular(10.0), // Border radius
-                                                                ),
-                                                              ),
-                                                              validator: (value) {
-                                                                if (value!.isEmpty) {
-                                                                  return 'Please enter your email id';
-                                                                }
-                                                                return null;
-                                                              },
-                                                              onChanged: (value) {
-
-                                                              },
-                                                            ),
-                                                            const SizedBox(height: 20),
-                                                            Row(
-                                                              mainAxisSize: MainAxisSize.min,
-                                                              children: [
-                                                                MaterialButton(
-                                                                  color: Colors.grey,
-                                                                  textColor: Colors.white,
-                                                                  child: const Text('CANCEL'),
-                                                                  onPressed: () {
-
-                                                                  },
-                                                                ),
-                                                                const SizedBox(width: 20,),
-                                                                MaterialButton(
-                                                                  color: Colors.blue,
-                                                                  textColor: Colors.white,
-                                                                  child: const Text('SAVE CHANGES'),
-                                                                  onPressed: ()=> viewModel.updateUserDetails(context, customerId, userId),
-                                                                ),
-                                                              ],
+                                                            const SizedBox(width: 20),
+                                                            MaterialButton(
+                                                              color: Colors.blue,
+                                                              textColor: Colors.white,
+                                                              child: const Text('SAVE CHANGES'),
+                                                              onPressed: () => viewModel.updateUserDetails(context, customerId, userId),
                                                             ),
                                                           ],
                                                         ),
-                                                      ),
-                                                    ],
+                                                      ],
+                                                    ),
                                                   ),
                                                 ),
                                                 Flexible(

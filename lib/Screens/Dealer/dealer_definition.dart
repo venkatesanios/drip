@@ -37,11 +37,16 @@ class DealerDefinitionInConfigState extends State<DealerDefinitionInConfig> {
   Widget build(BuildContext context) {
     // return wideLayout(data, context);
     if (MediaQuery.sizeOf(context).width <= 800) {
-      return MyContainerWithTabs(
-        data: data,
-        userID: widget.userId,
-        customerID: widget.customerId,
-        controllerId: widget.controllerId,
+      return Material(
+        child: Scaffold(
+          appBar: AppBar(title: Text('Dealer Definition'),),
+          body: MyContainerWithTabs(
+            data: data,
+            userID: widget.userId,
+            customerID: widget.customerId,
+            controllerId: widget.controllerId,
+          ),
+        ),
       );
     } else {
       return wideLayout(data, context);
