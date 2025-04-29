@@ -409,6 +409,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                   margin: const EdgeInsets.symmetric(horizontal: 10),
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   height: 25,
+                  width: 80,
                   decoration: BoxDecoration(
                       // gradient: AppProperties.linearGradientLeading,
                     color: Theme.of(context).primaryColorLight,
@@ -417,6 +418,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                   child: Center(
                     child: Text(
                       pumps[index].name,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white,),
                     ),
                   ),

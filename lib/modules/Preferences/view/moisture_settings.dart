@@ -234,6 +234,7 @@ class _NumberInputField extends StatelessWidget {
         onChanged: onChanged,
         decoration: const InputDecoration(
           hintText: "000",
+          isDense: true,
           contentPadding: EdgeInsets.symmetric(vertical: 5),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(8)),

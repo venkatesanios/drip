@@ -6,11 +6,11 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(F.title),
+        title: Text(F.name),
       ),
       body: Center(
         child: Text(
-          'Hello ${F.title}',
+          'Hello ${F.name}',
         ),
       ),
     );

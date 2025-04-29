@@ -108,18 +108,23 @@ class PreferenceProvider extends ChangeNotifier {
           final result = jsonDecode(response.body);
           _valveSettings = SettingList.fromJson(Map<String, dynamic>.from(result['data']['valveSetting']));
           _moistureSettings = SettingList.fromJson(Map<String, dynamic>.from(result['data']['moistureSetting']));
-          if(_valveSettings != null) {
-            if(_valveSettings!.setting[4].value) {
-              _mode = "Manual";
-            } else {
-              _mode = "Duration";
-            }
-          }
+          /*if(_valveSettings != null) {
+            getMode();
+          }*/
         }
       } catch(error, stackTrace) {
         print("Error parsing setting data: $error");
         print("Stack trace setting data: $stackTrace");
       }
+    }
+    notifyListeners();
+  }
+
+  void getMode() {
+    if(_valveSettings!.setting[4].value) {
+      _mode = "Manual";
+    } else {
+      _mode = "Duration";
     }
     notifyListeners();
   }
@@ -252,13 +257,13 @@ class PreferenceProvider extends ChangeNotifier {
       } else {
         setting.value = newValue;
 
-        if(setting.serialNumber == 5) {
+       /* if(setting.serialNumber == 5) {
           if(setting.value) {
             _mode = "Manual";
           } else {
             _mode = "Duration";
           }
-        }
+        }*/
       }
       notifyListeners();
     }

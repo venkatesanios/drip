@@ -477,8 +477,9 @@ class _PreviewScreenState extends State<PreviewScreen> {
       var dataToSend = {
         "sequence": mainProvider.irrigationLine!.sequence,
         "schedule": mainProvider.sampleScheduleModel!.toJson(),
-        "conditions": {},
-        // "conditions": mainProvider.sampleConditions!.toJson(),
+        "conditions": mainProvider.sampleConditions != null
+            ? mainProvider.sampleConditions!.toJson()
+            : [],
         "waterAndFert": mainProvider.sequenceData,
         "selection": {
           ...mainProvider.additionalData!.toJson(),

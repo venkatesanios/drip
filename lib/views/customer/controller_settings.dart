@@ -157,6 +157,7 @@ class ControllerSettings extends StatelessWidget {
           userId: userId,
           customerId: customerId,
           masterData: masterController,
+          selectedIndex: 0,
         );
       case 'Constant':
         return ConstantBasePage(userData: {

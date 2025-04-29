@@ -30,45 +30,43 @@ class PumpWithValves extends StatelessWidget {
       children: [
         Row(
           children: [
-            IntrinsicWidth(
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 10),
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                height: 25,
-                decoration: const BoxDecoration(
-                  // gradient: AppProperties.linearGradientLeading,
-                    color: Color(0xffFFA300),
-                    borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(3))
-                ),
-                child: const Center(
-                  child: Text(
-                    // '${Provider.of<PreferenceProvider>(context).individualPumpSetting![index].name}',
-                    "Valves",
-                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white,),
-                  ),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              height: 25,
+              width: 80,
+              decoration: const BoxDecoration(
+                // gradient: AppProperties.linearGradientLeading,
+                  color: Color(0xffFFA300),
+                  borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(3))
+              ),
+              child: const Center(
+                child: Text(
+                  // '${Provider.of<PreferenceProvider>(context).individualPumpSetting![index].name}',
+                  "Valves",
+                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white,),
                 ),
               ),
             ),
-            // const Spacer(),
+            const Spacer(),
             Row(
               children: [
                 const Icon(Icons.info_outline, color: Colors.grey, size: 15,),
                 const SizedBox(width: 5,),
                 Text(
-                  'Valve On Mode : ${valveData.valveOnMode == '1' ? "RTC ON" : "STANDALONE"}',
+                  'VALVE ON MODE : ${valveData.valveOnMode == '1' ? "PROGRAM" : "STANDALONE"}',
                   style: Theme.of(context).textTheme.labelSmall,
                 ),
               ],
             ),
-            const Spacer(),
-            if(dataFetchingStatus == 1)
+           /* const Spacer(),
               PopupMenuButton(
                 tooltip: "Select the valve to change",
                 itemBuilder: (BuildContext context) {
                   return [
                     for(int i = 0; i < valves.length; i++)
                       PopupMenuItem(
-                        onTap: () async{
+                        onTap: dataFetchingStatus == 1 ? () async{
                           final Repository repository = Repository(HttpService());
                           final Map<String, dynamic> payload = {"sentSms": "changeto,${i+1}"};
                           MqttService().topicToPublishAndItsMessage(
@@ -82,8 +80,8 @@ class PumpWithValves extends StatelessWidget {
                             "messageStatus": "Change to successfully for ${valves[i].name}",
                             "createUser": userId
                           };
-                          final result = await repository.createUserSentAndReceivedMessageManually(body);
-                        },
+                          await repository.createUserSentAndReceivedMessageManually(body);
+                        } : null,
                         child: Text(valves[i].name),
                       ),
                   ];
@@ -95,7 +93,7 @@ class PumpWithValves extends StatelessWidget {
                     Icon(Icons.change_circle, color: Theme.of(context).primaryColorDark, size: 25,),
                   ],
                 ),
-              ),
+              ),*/
             const SizedBox(width: 10)
           ],
         ),
@@ -121,7 +119,9 @@ class PumpWithValves extends StatelessWidget {
           child: SizedBox(
             width: MediaQuery.of(context).size.width <= 500 ? MediaQuery.of(context).size.width : 400,
             child: Column(
-              spacing: 10,
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              // spacing: 10,
               children: [
                 // const SizedBox(height: 5,),
                 if (valveData.cyclicRestartLimit != '0') ...[
@@ -132,8 +132,54 @@ class PumpWithValves extends StatelessWidget {
                     customerId: customerId,
                     controllerId: controllerId,
                     dataFetchingStatus: dataFetchingStatus,
-                  )
+                  ),
+                  // SizedBox(height: 10,),
                 ],
+                IntrinsicWidth(
+                  child: PopupMenuButton(
+                    tooltip: "Select the valve to change",
+                    itemBuilder: (BuildContext context) {
+                      return [
+                        for(int i = 0; i < valves.length; i++)
+                          PopupMenuItem(
+                            onTap: dataFetchingStatus == 1 ? () async{
+                              final Repository repository = Repository(HttpService());
+                              final Map<String, dynamic> payload = {"sentSms": "changeto,${i+1}"};
+                              MqttService().topicToPublishAndItsMessage(
+                                  jsonEncode(payload),
+                                  '${Environment.mqttPublishTopic}/${provider.mySiteList.data[provider.sIndex].master[provider.mIndex].deviceId}'
+                              );
+                              Map<String, dynamic> body = {
+                                "userId": userId,
+                                "controllerId": controllerId,
+                                "hardware": payload,
+                                "messageStatus": "Change to successfully for ${valves[i].name}",
+                                "createUser": userId
+                              };
+                              await repository.createUserSentAndReceivedMessageManually(body);
+                            } : null,
+                            child: Text(valves[i].name),
+                          ),
+                      ];
+                    },
+                    child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColorLight,
+                          borderRadius: BorderRadius.circular(15)
+                        ),
+                        margin: const EdgeInsets.symmetric(horizontal: 10),
+                        child: const Row(
+                          spacing: 5,
+                          children: [
+                            Icon(Icons.change_circle_outlined, color: Colors.white,),
+                            Text('CHANGE TO', style: TextStyle(color: Colors.white, fontSize: 12),),
+                          ],
+                        )
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10,),
                 GridView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -169,6 +215,7 @@ class PumpWithValves extends StatelessWidget {
                     );
                   },
                 ),
+                const SizedBox(height: 10,),
                 GridView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),

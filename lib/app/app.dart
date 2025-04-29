@@ -32,14 +32,14 @@ class MyApp extends StatelessWidget {
     return FutureBuilder<String>(
       future: getInitialRoute(),
       builder: (context, snapshot) {
-        print('ConnectionState.done:${snapshot.connectionState}  F.appFlavor : ${F.appFlavor}');
+        /*print('ConnectionState.done:${snapshot.connectionState}  F.appFlavor : ${F.appFlavor}');
         // Show splash screen or loading while waiting for route or flavor
         if (snapshot.connectionState != ConnectionState.done || F.appFlavor == null) {
           return const MaterialApp(
             debugShowCheckedModeBanner: false,
             home: SplashScreen(), // or a loading widget
           );
-        }
+        }*/
 
         final isOro = F.appFlavor!.name.contains('oro');
 

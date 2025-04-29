@@ -90,7 +90,7 @@ class _ValveCycleWidgetState extends State<ValveCycleWidget> {
             ),
           ),
           const SizedBox(height: 6),
-          if(widget.dataFetchingStatus == 1)
+         /* if(widget.dataFetchingStatus == 1)
             SizedBox(
               height: 25,
               child: FilledButton(
@@ -140,7 +140,7 @@ class _ValveCycleWidgetState extends State<ValveCycleWidget> {
                 },
                 child: Text('Reset cycle', style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.white),),
               ),
-            ),
+            ),*/
         ],
       ),
     );

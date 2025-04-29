@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/Preferences/view/preference_main_screen.dart';
 import 'package:oro_drip_irrigation/modules/PumpController/view/pump_dashboard_screen.dart';
 import 'package:oro_drip_irrigation/modules/PumpController/widget/custom_outline_button.dart';
+import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:oro_drip_irrigation/view_models/customer/customer_screen_controller_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -17,28 +18,14 @@ import '../model/pump_controller_data_model.dart';
 import '../state_management/pump_controller_provider.dart';
 
 class PumpControllerHome extends StatefulWidget {
-/*  final String deviceId;
-  final dynamic liveData;
-  final String masterName;*/
   final int userId;
   final int customerId;
-/*  final int controllerId;
-  final int siteIndex;
-  final int masterIndex;
-  final CustomerScreenControllerViewModel vm;*/
   final MasterControllerModel masterData;
 
   const PumpControllerHome({
     super.key,
-/*    required this.deviceId,
-    this.liveData,
-    required this.masterName,*/
     required this.userId,
     required this.customerId,
-/*    required this.controllerId,
-    required this.siteIndex,
-    required this.masterIndex,
-    required this.vm,*/
     required this.masterData,
   });
 
@@ -51,6 +38,7 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
   late PageController _pageController;
   late DateTime _focusedDay;
   late DateTime today;
+  late bool isPumpWithValveModel;
 
   @override
   void initState() {
@@ -58,6 +46,7 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
     _focusedDay = DateTime.now();
     today = DateTime.now();
     _pageController = PageController(initialPage: _selectedIndex);
+    isPumpWithValveModel = AppConstants.pumpWithValveModelList.contains(widget.masterData.modelId);
   }
 
   @override
@@ -88,10 +77,14 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
       child: Scaffold(
         body: isSmallScreen ? _buildSmallScreen(): _buildLargeScreen(),
         bottomNavigationBar: !kIsWeb ? BottomNavigationBar(
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.dashboard_outlined), activeIcon: Icon(Icons.dashboard), label: 'Dashboard'),
-            BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), activeIcon: Icon(Icons.settings), label: 'Preference'),
-            BottomNavigationBarItem(icon: Icon(Icons.assessment_outlined), activeIcon: Icon(Icons.assessment), label: 'Logs'),
+          items: [
+            const BottomNavigationBarItem(icon: Icon(Icons.dashboard_outlined), activeIcon: Icon(Icons.dashboard), label: 'Dashboard'),
+            if(isPumpWithValveModel)...[
+              const BottomNavigationBarItem(icon: Icon(Icons.touch_app_outlined), activeIcon: Icon(Icons.touch_app_rounded), label: 'Standalone'),
+              const BottomNavigationBarItem(icon: Icon(Icons.schedule_outlined), activeIcon: Icon(Icons.schedule_rounded), label: 'Program'),
+            ],
+            const BottomNavigationBarItem(icon: Icon(Icons.assessment_outlined), activeIcon: Icon(Icons.assessment), label: 'Logs'),
+            const BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), activeIcon: Icon(Icons.settings), label: 'Settings'),
           ],
           currentIndex: _selectedIndex,
           backgroundColor: Colors.white,
@@ -124,7 +117,7 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
                     child: Row(
                       spacing: 15,
                       children: [
-                        for(int index = 0; index < 4; index++)
+                        for(int index = 0; index < (isPumpWithValveModel ? 5 : 3); index++)
                           CustomOutlineButton(
                               onPressed: () async{
                                 setState(() {
@@ -132,7 +125,15 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
                                 });
                               },
                               isSelected: _selectedIndex == index,
-                              label: ["Pump log", "Power graph", "Voltage log", "Settings"][index]
+                              label: [
+                                "Pump log",
+                                if(isPumpWithValveModel)...[
+                                  "Standalone",
+                                  'Program',
+                                ],
+                                "Power graph",
+                                "Voltage log",
+                              ][index]
                           )
                       ],
                     ),
@@ -146,18 +147,12 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
                       height: constraints.maxHeight - (constraints.maxHeight * 0.1),
                       width: 400,
                       child: PumpDashboardScreen(
-/*                        deviceId: widget.deviceId,
-                        liveData: widget.liveData,
-                        masterName: widget.masterName,*/
                         userId: widget.userId,
                         customerId: widget.customerId,
-                   /*     controllerId: widget.controllerId,
-                        siteIndex: widget.siteIndex,
-                        masterIndex: widget.masterIndex,*/
                         masterData: widget.masterData,
                       ),
                     ),
-                    if(_selectedIndex != 3)
+                    if(isPumpWithValveModel ? ![1,2].contains(_selectedIndex) : true)
                       Expanded(
                           child: Container(
                             height: constraints.maxHeight - (constraints.maxHeight * 0.1),
@@ -210,12 +205,29 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
           customerId: widget.customerId,
           masterData: widget.masterData,
         ),
+        if (isPumpWithValveModel) ...[
+          PreferenceMainScreen(
+            userId: widget.userId,
+            customerId: widget.customerId,
+            masterData: widget.masterData,
+            selectedIndex: _selectedIndex,
+          ),
+          PreferenceMainScreen(
+            userId: widget.userId,
+            customerId: widget.customerId,
+            masterData: widget.masterData,
+            selectedIndex: _selectedIndex,
+          ),
+        ],
+        PumpLogsHome(
+            userId: widget.userId,
+            controllerId: widget.masterData.controllerId
+        ),
         ControllerSettings(
           userId: widget.userId,
           customerId: widget.customerId,
           masterController: widget.masterData,
         ),
-        PumpLogsHome(userId: widget.userId, controllerId: widget.masterData.controllerId),
       ],
       onPageChanged: (index) {
         setState(() {
@@ -270,8 +282,14 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
       case 0:
         await provider.getUserPumpLog(widget.userId, widget.masterData.controllerId, 0);
       case 1:
-        await provider.getPumpControllerData(userId: widget.userId, controllerId: widget.masterData.controllerId, nodeControllerId: 0);
+        if(!isPumpWithValveModel) {
+          await provider.getUserPumpLog(widget.userId, widget.masterData.controllerId, 0);
+        }
       case 2:
+        if(isPumpWithValveModel) {
+          await provider.getPumpControllerData(userId: widget.userId, controllerId: widget.masterData.controllerId, nodeControllerId: 0);
+        }
+      case 3:
         await provider.getUserVoltageLog(userId: widget.userId, controllerId: widget.masterData.controllerId, nodeControllerId: 0);
       default:
         (){};
@@ -289,15 +307,44 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
       case 0:
         selectedWidget =  PumpLogScreen(userId: widget.userId, controllerId: widget.masterData.controllerId);
       case 1:
-        selectedWidget =  PowerGraphScreen(userId: widget.userId, controllerId: widget.masterData.controllerId);
+        if(isPumpWithValveModel) {
+          selectedWidget =  PreferenceMainScreen(
+            userId: widget.userId,
+            customerId: widget.customerId,
+            masterData: widget.masterData,
+            selectedIndex: _selectedIndex,
+          );
+        } else {
+          selectedWidget =  PowerGraphScreen(userId: widget.userId, controllerId: widget.masterData.controllerId);
+        }
       case 2:
-        selectedWidget = PumpVoltageLogScreen(userId: widget.userId, controllerId: widget.masterData.controllerId);
+        if(isPumpWithValveModel) {
+          selectedWidget =  PreferenceMainScreen(
+            userId: widget.userId,
+            customerId: widget.customerId,
+            masterData: widget.masterData,
+            selectedIndex: _selectedIndex,
+          );
+        } else {
+          selectedWidget =  PumpVoltageLogScreen(userId: widget.userId, controllerId: widget.masterData.controllerId);
+        }
       case 3:
-        selectedWidget =  PreferenceMainScreen(
-          userId: widget.userId,
-          customerId: widget.customerId,
-          masterData: widget.masterData,
-        );
+        if(isPumpWithValveModel) {
+          selectedWidget =  PowerGraphScreen(userId: widget.userId, controllerId: widget.masterData.controllerId);
+        } else {
+          selectedWidget = PumpVoltageLogScreen(userId: widget.userId, controllerId: widget.masterData.controllerId);
+        }
+      case 4:
+        if(isPumpWithValveModel) {
+          selectedWidget = PumpVoltageLogScreen(userId: widget.userId, controllerId: widget.masterData.controllerId);
+        } else {
+          selectedWidget =  PreferenceMainScreen(
+            userId: widget.userId,
+            customerId: widget.customerId,
+            masterData: widget.masterData,
+            selectedIndex: _selectedIndex,
+          );
+        }
       default:
         selectedWidget;
     }

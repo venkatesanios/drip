@@ -158,8 +158,9 @@ class IndividualPumpData {
           : reason == 30 ? "Power off"
           : reason == 31 ? "Power on"
           : reason == 33 ? "3 Phase only"
-          : reason == 35 ? "Turned of due to Cyclic interval"
-          : reason == 36 ? "Turned of due to Moisture limit"
+          : reason == 35 ? "$motorOff Cyclic interval"
+          : reason == 36 ? "$motorOff Moisture limit"
+          : reason == 37 ? "$motorOff Cycles completed"
           : reason == 100 ? "No communication"
           : "Unknown",
       waterMeter: json["WM"] ?? "",

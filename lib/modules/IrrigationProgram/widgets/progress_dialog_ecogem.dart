@@ -31,10 +31,10 @@ class _EcoGemProgressDialogState extends State<EcoGemProgressDialog> {
 
   static const Map<String, String> statusMessages = {
     "2500": "Program Payload",
-    "2601": "Zone 1 payload",
-    "2602": "Zone 2 payload",
-    "2603": "Zone 3 payload",
-    "2604": "Zone 4 payload",
+    "2601": "1 to 8 zones payload",
+    "2602": "9 to 16 zones payload",
+    "2603": "17 to 24 zones payload",
+    "2604": "25 to 32 zones payload",
   };
 
   @override
@@ -83,6 +83,7 @@ class _EcoGemProgressDialogState extends State<EcoGemProgressDialog> {
         payloadStatuses[i]['status'] = 'Sending';
       });
 
+      await Future.delayed(const Duration(seconds: 2));
       bool isAcknowledged = await _waitForControllerResponse(payload, i, key);
 
       if (mounted) {
@@ -109,7 +110,7 @@ class _EcoGemProgressDialogState extends State<EcoGemProgressDialog> {
       );
 
       bool isAcknowledged = false;
-      const int maxWaitTime = 10;
+      const int maxWaitTime = 30;
       int elapsedTime = 0;
 
       await for (var mqttMessage in widget.mqttService.payloadController.timeout(
