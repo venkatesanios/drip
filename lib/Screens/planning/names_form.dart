@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../Models/names_model.dart';
@@ -265,6 +266,7 @@ class _NamesState extends State<Names> {
     }
 
     return Scaffold(
+      appBar: kIsWeb ? null  : AppBar(title: Text('Names'),),
       body: Column(
         children: [
           getTabBarViewWidget(),

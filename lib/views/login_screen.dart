@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:provider/provider.dart';
 import '../flavors.dart';
 import '../repository/repository.dart';
@@ -15,7 +15,6 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return ChangeNotifierProvider(
       create: (_) => LoginViewModel(Repository(HttpService()), onLoginSuccess: (pageRoute) {
         Navigator.pushReplacementNamed(context, '/dashboard');
@@ -60,103 +59,121 @@ class LoginScreen extends StatelessWidget {
                             padding: const EdgeInsets.only(left: 150, top: 40),
                             child: SvgPicture.asset('assets/svg_images/lk_login_top_corner.svg', fit: BoxFit.fitWidth),
                           ),
-                          Expanded(
-                              flex:5,
-                              child:
-                              Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Container(
-                                  color: Colors.white,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 20, right: 40),
-                                    child: Column(
-                                      children: [
-                                        F.appFlavor!.name.contains('oro')?SvgPicture.asset('assets/svg_images/oro_logo.svg', fit: BoxFit.cover):
-                                        const SizedBox(),
-                                        F.appFlavor!.name.contains('oro')?const SizedBox(height: 10):
-                                        const SizedBox(),
-                                        Padding(
-                                          padding: const EdgeInsets.only(left: 5, right: 5, bottom: 5),
-                                          child: Text(AppConstants.appShortContent, style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.center,),
-                                        ),
-                                        const SizedBox(height: 15,),
-                                        SizedBox(height: 50,
-                                          child: InternationalPhoneNumberInput(
-                                            inputDecoration: InputDecoration(
-                                              border: const OutlineInputBorder(),
-                                              icon: const Icon(Icons.phone_outlined),
-                                              labelText: 'Phone Number',
-                                              suffixIcon: IconButton(icon: const Icon(Icons.clear, color: Colors.red,),
-                                                  onPressed: () {
-                                                    viewModel.mobileNoController.clear();
-                                                  }),
-                                            ),
-                                            onInputChanged: (PhoneNumber number) {
-                                              viewModel.countryCode = number.dialCode ?? '';
-                                            },
-                                            selectorConfig: const SelectorConfig(
-                                              selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
-                                              setSelectorButtonAsPrefixIcon: true,
-                                              leadingPadding: 10,
-                                              useEmoji: true,
-                                            ),
-                                            ignoreBlank: false,
-                                            autoValidateMode: AutovalidateMode.disabled,
-                                            initialValue: PhoneNumber(isoCode: 'IN'),
-                                            textFieldController: viewModel.mobileNoController,
-                                            formatInput: false,
-                                            keyboardType:
-                                            const TextInputType.numberWithOptions(signed: true, decimal: true),
-                                            onSaved: (PhoneNumber number) {
-                                              //print('On Saved: $number');
-                                            },
-                                          ),
-                                        ),
-                                        const SizedBox(height: 15,),
-                                        TextField(
-                                          controller: viewModel.passwordController,
-                                          obscureText: viewModel.isObscure,
-                                          decoration: InputDecoration(
-                                            contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                                            border: const OutlineInputBorder(),
-                                            icon: const Icon(Icons.lock_outline),
-                                            labelText: 'Password',
-                                            suffixIcon: IconButton(icon: Icon(viewModel.isObscure ? Icons.visibility : Icons.visibility_off),
-                                                onPressed: () {
-                                                  viewModel.onIsObscureChanged();
-                                                }),
-                                          ),
-                                        ),
-                                        viewModel.errorMessage.isNotEmpty?SizedBox(
-                                            width: 400,
-                                            child: Padding(
-                                              padding: const EdgeInsets.only(left: 40, top: 4),
-                                              child: Text(viewModel.errorMessage, textAlign: TextAlign.left,style: const TextStyle(color: Colors.red),),
-                                            )
-                                        ):
-                                        const SizedBox(),
-                                        const SizedBox(height: 20,),
-                                        SizedBox(
-                                          width: 200,
-                                          height: 45.0,
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(left: 40),
-                                            child: MaterialButton(
-                                              color: Theme.of(context).primaryColor,
-                                              textColor: Colors.white,
-                                              child: const Text('CONTINUE', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),),
-                                              onPressed: () async {
-                                                viewModel.login();
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              )
-                          ),
+          Expanded(
+          flex: 5,
+          child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Container(
+          color: Colors.white,
+          child: Padding(
+          padding: const EdgeInsets.only(left: 20, right: 40),
+          child: Column(
+          children: [
+
+          // Logo (only for oro flavor)
+          F.appFlavor!.name.contains('oro')
+          ? SvgPicture.asset('assets/svg_images/oro_logo.svg', fit: BoxFit.cover)
+              : const SizedBox(),
+          F.appFlavor!.name.contains('oro') ? const SizedBox(height: 10) : const SizedBox(),
+
+          // Intro text
+          Padding(
+          padding: const EdgeInsets.only(left: 5, right: 5, bottom: 5),
+          child: Text(
+          AppConstants.appShortContent,
+          style: Theme.of(context).textTheme.titleMedium,
+          textAlign: TextAlign.center,
+          ),
+          ),
+
+          const SizedBox(height: 15),
+
+          // Mobile Number Input (replacing InternationalPhoneNumberInput)
+          SizedBox(
+          height: 50,
+          child: TextField(
+          controller: viewModel.mobileNoController,
+          keyboardType: TextInputType.phone,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          decoration: InputDecoration(
+          border: const OutlineInputBorder(),
+          icon: const Icon(Icons.phone_outlined),
+          labelText: 'Phone Number',
+          prefixText: '+91 ',
+          suffixIcon: IconButton(
+          icon: const Icon(Icons.clear, color: Colors.red),
+          onPressed: () {
+          viewModel.mobileNoController.clear();
+          },
+          ),
+          ),
+          onChanged: (value) {
+          viewModel.countryCode = '+91'; // Manually set; or use logic if needed
+          },
+          ),
+          ),
+
+          const SizedBox(height: 15),
+
+          // Password Input
+          TextField(
+          controller: viewModel.passwordController,
+          obscureText: viewModel.isObscure,
+          decoration: InputDecoration(
+          contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+          border: const OutlineInputBorder(),
+          icon: const Icon(Icons.lock_outline),
+          labelText: 'Password',
+          suffixIcon: IconButton(
+          icon: Icon(viewModel.isObscure ? Icons.visibility : Icons.visibility_off),
+          onPressed: () {
+          viewModel.onIsObscureChanged();
+          },
+          ),
+          ),
+          ),
+
+          // Error Message
+          viewModel.errorMessage.isNotEmpty
+          ? SizedBox(
+          width: 400,
+          child: Padding(
+          padding: const EdgeInsets.only(left: 40, top: 4),
+          child: Text(
+          viewModel.errorMessage,
+          textAlign: TextAlign.left,
+          style: const TextStyle(color: Colors.red),
+          ),
+          ),
+          )
+              : const SizedBox(),
+
+          const SizedBox(height: 20),
+
+          // CONTINUE Button
+          SizedBox(
+          width: 200,
+          height: 45.0,
+          child: Padding(
+          padding: const EdgeInsets.only(left: 40),
+          child: MaterialButton(
+          color: Theme.of(context).primaryColor,
+          textColor: Colors.white,
+          child: const Text(
+          'CONTINUE',
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+          ),
+          onPressed: () => viewModel.login(),
+          ),
+          ),
+          ),
+          ],
+          ),
+          ),
+          ),
+          ),
+          ),
+
                         ],
                       ),
                     )
