@@ -199,9 +199,15 @@ class _StandAloneSettingsState extends State<StandAloneSettings> {
     }
   }
 
+  String getValvePayload() {
+
+    return '';
+  }
+
   Future<void> _sendSettings(BuildContext context) async {
     final provider = Provider.of<PreferenceProvider>(context, listen: false);
     Map<String, dynamic> rawPayload = {};
+
     if (widget.selectedIndex == 1) {
       rawPayload = {
         "sentSms": 'standalone,${provider.standaloneSettings!.setting.map((e) => e.value ? '1' : '0').join(',')}'
@@ -210,7 +216,22 @@ class _StandAloneSettingsState extends State<StandAloneSettings> {
       if (_selectedSetting == 0) {
         rawPayload = {
           "sentSms":
-          'valvesetting,${provider.standaloneSettings!.setting.map((e) => e.widgetTypeId == 2 ? (e.value ? '1' : '0') : e.value).join(',')}'
+          'valvesetting,${provider.programSettings!.setting.map((e) {
+            if(e.widgetTypeId == 2) {
+              return e.value ? '1' : '0';
+            } else {
+              if(e.value.toString().contains(':')) {
+                final result = e.value.split(':');
+                if(e.serialNumber == 3) {
+                  return '${result[0]},${result[1]},${result[2]}';
+                } else {
+                  return '${result[0]},${result[1]}';
+                }
+              } else {
+                return e.value;
+              }
+            }
+          }).join(',')}'
         };
       } else {
         rawPayload = {
@@ -239,7 +260,10 @@ class _StandAloneSettingsState extends State<StandAloneSettings> {
       "createUser": widget.userId,
       "hardware": rawPayload,
       if (_selectedSetting == 0)
-        widget.selectedIndex == 1 ? "valveStandalone" : "valveSetting": provider.standaloneSettings!.toJson()
+        if(widget.selectedIndex == 1)
+          "valveStandalone" : provider.standaloneSettings!.toJson()
+        else
+            "valveSetting" : provider.programSettings!.toJson()
       else
         "moistureSetting": provider.moistureSettings!.toJson()
     };
