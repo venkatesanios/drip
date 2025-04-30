@@ -14,6 +14,7 @@ import '../../Logs/view/power_graph_screen.dart';
 import '../../Logs/view/pump_log.dart';
 import '../../Logs/view/pump_logs_home.dart';
 import '../../Logs/view/voltage_log.dart';
+import '../../Preferences/view/standalone_settings.dart';
 import '../model/pump_controller_data_model.dart';
 import '../state_management/pump_controller_provider.dart';
 
@@ -206,18 +207,24 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
           masterData: widget.masterData,
         ),
         if (isPumpWithValveModel) ...[
-          PreferenceMainScreen(
+          StandAloneSettings(
             userId: widget.userId,
             customerId: widget.customerId,
             masterData: widget.masterData,
             selectedIndex: _selectedIndex,
           ),
-          PreferenceMainScreen(
+          StandAloneSettings(
             userId: widget.userId,
             customerId: widget.customerId,
             masterData: widget.masterData,
             selectedIndex: _selectedIndex,
           ),
+          /*PreferenceMainScreen(
+            userId: widget.userId,
+            customerId: widget.customerId,
+            masterData: widget.masterData,
+            selectedIndex: _selectedIndex,
+          ),*/
         ],
         PumpLogsHome(
             userId: widget.userId,
@@ -308,7 +315,7 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
         selectedWidget =  PumpLogScreen(userId: widget.userId, controllerId: widget.masterData.controllerId);
       case 1:
         if(isPumpWithValveModel) {
-          selectedWidget =  PreferenceMainScreen(
+          selectedWidget = StandAloneSettings(
             userId: widget.userId,
             customerId: widget.customerId,
             masterData: widget.masterData,
@@ -319,7 +326,7 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
         }
       case 2:
         if(isPumpWithValveModel) {
-          selectedWidget =  PreferenceMainScreen(
+          selectedWidget = StandAloneSettings(
             userId: widget.userId,
             customerId: widget.customerId,
             masterData: widget.masterData,

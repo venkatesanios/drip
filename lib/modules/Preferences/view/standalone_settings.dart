@@ -1,0 +1,265 @@
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/program_library.dart';
+import 'package:oro_drip_irrigation/modules/Preferences/state_management/preference_provider.dart';
+import 'package:oro_drip_irrigation/modules/Preferences/view/moisture_settings.dart';
+import 'package:oro_drip_irrigation/modules/Preferences/widgets/custom_segmented_control.dart';
+import 'package:oro_drip_irrigation/services/http_service.dart';
+import 'package:oro_drip_irrigation/services/mqtt_service.dart';
+import 'package:provider/provider.dart';
+import 'package:responsive_grid/responsive_grid.dart';
+import '../../../Models/customer/site_model.dart';
+import '../model/preference_data_model.dart';
+import '../repository/preferences_repo.dart';
+import '../widgets/progress_dialog.dart';
+import '../../IrrigationProgram/widgets/custom_native_time_picker.dart';
+
+class StandAloneSettings extends StatefulWidget {
+  final int userId, customerId, selectedIndex;
+  final MasterControllerModel masterData;
+
+  const StandAloneSettings({
+    super.key,
+    required this.userId,
+    required this.customerId,
+    required this.masterData,
+    required this.selectedIndex,
+  });
+
+  @override
+  State<StandAloneSettings> createState() => _StandAloneSettingsState();
+}
+
+class _StandAloneSettingsState extends State<StandAloneSettings> {
+  final PreferenceRepository repository = PreferenceRepository(HttpService());
+  int _selectedSetting = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize provider data in initState
+    final provider = Provider.of<PreferenceProvider>(context, listen: false);
+    provider.getStandAloneSettings(
+      userId: widget.userId,
+      controllerId: widget.masterData.controllerId,
+      selectedIndex: widget.selectedIndex,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final valves = widget.masterData.configObjects.where((e) => e.objectId == 13).toList();
+    return Scaffold(
+      body: Consumer<PreferenceProvider>(
+        builder: (context, provider, child) {
+          return (provider.standaloneSettings == null || provider.programSettings == null)
+              ? const Center(child: CircularProgressIndicator())
+              : Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              children: [
+                if (widget.selectedIndex == 2) ...[
+                  CustomSegmentedControl(
+                    segmentTitles: const {0: "Valve settings", 1: "Moisture settings"},
+                    groupValue: _selectedSetting,
+                    onChanged: (value) => setState(() => _selectedSetting = value!),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+                Expanded(
+                  child: _selectedSetting == 0
+                      ? _buildValveSettings(context, valves, provider)
+                      : const MoistureSettings(),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+      floatingActionButton: FilledButton.icon(
+        onPressed: () => _sendSettings(context),
+        label: const Text('Send'),
+        icon: const Icon(Icons.send),
+      ),
+    );
+  }
+
+  Widget _buildValveSettings(BuildContext context, List valves, PreferenceProvider provider) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        IntrinsicWidth(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            height: 30,
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColorLight,
+              borderRadius: const BorderRadius.only(
+                topRight: Radius.circular(20),
+                topLeft: Radius.circular(3),
+              ),
+            ),
+            child: Center(
+              child: Text(
+                widget.selectedIndex == 1 ? "Standalone Settings" : "Program settings",
+                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.only(
+                topRight: Radius.circular(10),
+                bottomLeft: Radius.circular(10),
+                bottomRight: Radius.circular(10),
+              ),
+              color: Colors.white,
+              border: Border.all(color: Theme.of(context).primaryColorLight, width: 0.3),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: ResponsiveGridList(
+              desiredItemWidth: MediaQuery.of(context).size.width <= 500 ? 150 : 200,
+              minSpacing: 8,
+              children: widget.selectedIndex == 1
+                  ? List.generate(
+                valves.length + 1,
+                    (i) => _buildSettingTile(context, provider.standaloneSettings!.setting[i]),
+              )
+                  : List.generate(
+                valves.length + 4,
+                    (i) => _buildSettingTile(context, provider.programSettings!.setting[i]),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSettingTile(BuildContext context, WidgetSetting setting) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Theme.of(context).primaryColorLight, width: 0.3),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: widget.selectedIndex == 1
+          ? SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        title: Text(setting.title),
+        value: setting.value,
+        onChanged: (value) => setState(() => setting.value = value),
+      )
+          : ListTile(
+        contentPadding: EdgeInsets.zero,
+        title: Text(setting.title),
+        trailing: _buildTrailingWidget(context, setting),
+      ),
+    );
+  }
+
+  Widget _buildTrailingWidget(BuildContext context, WidgetSetting setting) {
+    switch (setting.widgetTypeId) {
+      case 3:
+        return CustomNativeTimePicker(
+          initialValue: setting.value!,
+          is24HourMode: true,
+          onChanged: (value) => setState(() => setting.value = value),
+        );
+      case 2:
+        return Switch(
+          value: setting.value,
+          onChanged: (value) => setState(() => setting.value = value),
+        );
+      default:
+        return SizedBox(
+          width: 80,
+          child: TextFormField(
+            initialValue: setting.value,
+            textAlign: TextAlign.center,
+            keyboardType: TextInputType.number,
+            onChanged: (value) => setState(() => setting.value = value),
+            onTapOutside: (_) => FocusScope.of(context).unfocus(),
+            decoration: const InputDecoration(
+              isDense: true,
+              hintText: "000",
+              contentPadding: EdgeInsets.symmetric(vertical: 5),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(8)),
+                borderSide: BorderSide.none,
+              ),
+              fillColor: Colors.grey,
+              filled: true,
+            ),
+          ),
+        );
+    }
+  }
+
+  Future<void> _sendSettings(BuildContext context) async {
+    final provider = Provider.of<PreferenceProvider>(context, listen: false);
+    Map<String, dynamic> rawPayload = {};
+    if (widget.selectedIndex == 1) {
+      rawPayload = {
+        "sentSms": 'standalone,${provider.standaloneSettings!.setting.map((e) => e.value ? '1' : '0').join(',')}'
+      };
+    } else {
+      if (_selectedSetting == 0) {
+        rawPayload = {
+          "sentSms":
+          'valvesetting,${provider.standaloneSettings!.setting.map((e) => e.widgetTypeId == 2 ? (e.value ? '1' : '0') : e.value).join(',')}'
+        };
+      } else {
+        rawPayload = {
+          "sentSms":
+          'moisturesetting,${provider.standaloneSettings!.setting.map((e) => e.widgetTypeId == 2 ? (e.value ? '1' : '0') : e.value).join(',')}'
+        };
+      }
+    }
+    final payload = jsonEncode({_selectedSetting == 0 ? "55" : "57": jsonEncode(rawPayload)});
+
+    final resultFromDialog = await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => PayloadProgressDialog(
+        payloads: [payload],
+        deviceId: widget.masterData.deviceId,
+        isToGem: false,
+        mqttService: MqttService(),
+        shouldSendFailedPayloads: false,
+      ),
+    );
+
+    Map<String, dynamic> userData = {
+      "userId": widget.customerId,
+      "controllerId": widget.masterData.controllerId,
+      "createUser": widget.userId,
+      "hardware": rawPayload,
+      if (_selectedSetting == 0)
+        widget.selectedIndex == 1 ? "valveStandalone" : "valveSetting": provider.standaloneSettings!.toJson()
+      else
+        "moistureSetting": provider.moistureSettings!.toJson()
+    };
+
+    if (resultFromDialog) {
+      try {
+        final result = widget.selectedIndex == 1
+            ? await repository.createUserPreferenceValveStandaloneSetting(userData)
+            : _selectedSetting == 0
+            ? await repository.createUserPreferenceValveSetting(userData)
+            : await repository.createUserPreferenceMoistureSetting(userData);
+        final response = jsonDecode(result.body);
+        showSnackBar(
+            message: response['message'], context: context, color: response['code'] == 200 ? Colors.green : Colors.red);
+      } catch (error, stackTrace) {
+        if (kDebugMode) {
+          print('Stack trace in the sending valve settings :: $stackTrace');
+        }
+        showSnackBar(message: '$error', context: context, color: Colors.red);
+      }
+    }
+  }
+}

@@ -29,6 +29,22 @@ class PreferenceRepository {
   }
 
   Future<http.Response> getUserPreferenceValveSetting(body) async {
-    return await apiService.postRequest('/user/preference/irrigation/get', body);
+    return await apiService.postRequest('/user/planning/irrigationSetting/get', body);
+  }
+
+  Future<http.Response> createUserPreferenceValveSetting(body) async {
+    return await apiService.postRequest('/user/planning/valveSetting/create', body);
+  }
+
+  Future<http.Response> createUserPreferenceMoistureSetting(body) async {
+    return await apiService.postRequest('/user/planning/moistureSetting/create', body);
+  }
+
+  Future<http.Response> getUserPreferenceValveStandaloneSetting(body) async {
+    return await apiService.postRequest('/user/planning/valveStandalone/get', body);
+  }
+
+  Future<http.Response> createUserPreferenceValveStandaloneSetting(body) async {
+    return await apiService.postRequest('/user/planning/valveStandalone/create', body);
   }
 }

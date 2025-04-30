@@ -10,50 +10,47 @@ class MoistureSettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          IntrinsicWidth(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              height: 30,
-              decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColorLight,
-                  borderRadius: const BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(3))
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        IntrinsicWidth(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            height: 30,
+            decoration: BoxDecoration(
+                color: Theme.of(context).primaryColorLight,
+                borderRadius: const BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(3))
+            ),
+            child: const Center(
+              child: Text(
+                "Moisture Settings",
+                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white,),
               ),
-              child: const Center(
-                child: Text(
-                  "Moisture Settings",
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white,),
+            ),
+          ),
+        ),
+        Flexible(
+          child: Container(
+            decoration: BoxDecoration(
+                borderRadius: const BorderRadius.only(topRight: Radius.circular(10), bottomLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
+                color: Colors.white,
+                border: Border.all(color: Theme.of(context).primaryColorLight, width: 0.3)
+              // boxShadow: AppProperties.customBoxShadowLiteTheme
+            ),
+            child: Consumer<PreferenceProvider>(
+              builder: (context, provider, _) => ListView.builder(
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                itemCount: provider.moistureSettings?.setting.length ?? 0,
+                itemBuilder: (context, index) => _buildSettingItem(
+                  context,
+                  provider,
+                  provider.moistureSettings!.setting[index],
                 ),
               ),
             ),
           ),
-          Flexible(
-            child: Container(
-              decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.only(topRight: Radius.circular(10), bottomLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
-                  color: Colors.white,
-                  border: Border.all(color: Theme.of(context).primaryColorLight, width: 0.3)
-                // boxShadow: AppProperties.customBoxShadowLiteTheme
-              ),
-              child: Consumer<PreferenceProvider>(
-                builder: (context, provider, _) => ListView.builder(
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                  itemCount: provider.moistureSettings?.setting.length ?? 0,
-                  itemBuilder: (context, index) => _buildSettingItem(
-                    context,
-                    provider,
-                    provider.moistureSettings!.setting[index],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

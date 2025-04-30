@@ -66,14 +66,12 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
         return {
           'payload': payload,
           'status': 'Pending',
-          'reference': widget.isToGem ? payload.split('+')[2] : '',
+          'reference': widget.isToGem ? payload.split('+')[2] : 'Device payload',
           'selected': true,
           'key': key,
         };
       }).toList();
     }
-
-    // _processPayloads();
   }
 
   void _checkAllProcessed() {
@@ -127,7 +125,7 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
         };
       }
 
-      // await widget.mqttService.topicToPublishAndItsMessage(widget.isToGem ? jsonEncode(gemPayload) : jsonDecode(payload)[key], "${Environment.mqttPublishTopic}/${widget.deviceId}",);
+      await widget.mqttService.topicToPublishAndItsMessage(widget.isToGem ? jsonEncode(gemPayload) : jsonDecode(payload)[key], "${Environment.mqttPublishTopic}/${widget.deviceId}",);
 
       bool isAcknowledged = false;
       int maxWaitTime = 10;
@@ -292,7 +290,7 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
         if(isAllProcessed && isAllSent)
           FilledButton(
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.of(context).pop(true);
             },
             child: const Text("Done"),
           )
@@ -300,7 +298,7 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
           FilledButton(
             onPressed: () {
               breakLoop = true;
-              Navigator.of(context).pop();
+              Navigator.of(context).pop(false);
             },
             child: const Text("Cancel"),
           ),
