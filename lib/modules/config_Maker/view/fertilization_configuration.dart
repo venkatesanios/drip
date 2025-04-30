@@ -65,7 +65,7 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             IntrinsicWidth(
-                              stepWidth: 200,
+                              stepWidth: 280,
                               child: ListTile(
                                 leading: SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_3.svg', color: themeMode ? Colors.black : Colors.white,),
                                 title: Text(fertilizationSite.commonDetails.name!),

@@ -29,6 +29,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     4 : 'Moisture Configuration',
     5 : 'Line Configuration',
   };
+
   Map<int, int> configurationTabObjectId = {
     0 : AppConstants.sourceObjectId,
     1 : AppConstants.pumpObjectId,
@@ -37,6 +38,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     4 : AppConstants.moistureObjectId,
     5 : AppConstants.irrigationLineObjectId,
   };
+
   int selectedConfigurationTab = 0;
   SelectionMode selectedSelectionMode = SelectionMode.auto;
   int selectedConnectionNo = 0;
