@@ -136,29 +136,25 @@ class PreferenceProvider extends ChangeNotifier {
     };
 
     try {
-      await Future.delayed(const Duration(seconds: 1));
-      if(selectedIndex == 1) {
-        final response = await repository.getUserPreferenceValveStandaloneSetting(userData);
-        if(response.statusCode == 200) {
-          // final result = standAloneSettingsSample;
-          final result = jsonDecode(response.body);
-          _standaloneSettings = SettingList.fromJson(Map<String, dynamic>.from(result['data']));
-        }
-      } else {
-        final response = await repository.getUserPreferenceValveSetting(userData);
-        if(response.statusCode == 200) {
-          // final result = programSettings;
-          final result = jsonDecode(response.body);
-          _programSettings = SettingList.fromJson(Map<String, dynamic>.from(result['data']['valveSetting']));
-          _moistureSettings = SettingList.fromJson(Map<String, dynamic>.from(result['data']['moistureSetting']));
-        }
+      final standAloneResponse = await repository.getUserPreferenceValveStandaloneSetting(userData);
+      if(standAloneResponse.statusCode == 200) {
+        // final result = standAloneSettingsSample;
+        final result = jsonDecode(standAloneResponse.body);
+        _standaloneSettings = SettingList.fromJson(Map<String, dynamic>.from(result['data']));
       }
+      final response = await repository.getUserPreferenceValveSetting(userData);
+      if(response.statusCode == 200) {
+        // final result = programSettings;
+        final result = jsonDecode(response.body);
+        _programSettings = SettingList.fromJson(Map<String, dynamic>.from(result['data']['valveSetting']));
+        _moistureSettings = SettingList.fromJson(Map<String, dynamic>.from(result['data']['moistureSetting']));
+      }
+      notifyListeners();
 
     } catch(error, stackTrace) {
       print("Error parsing setting data: $error");
       print("Stack trace setting data: $stackTrace");
     }
-    notifyListeners();
   }
 
   void getMode() {
