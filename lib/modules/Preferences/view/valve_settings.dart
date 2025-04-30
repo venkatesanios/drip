@@ -25,15 +25,15 @@ class _ValveSettingsState extends State<ValveSettings> {
     super.initState();
     if(mounted) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        // final provider = Provider.of<PreferenceProvider>(context, listen: false);
-       /* setState(() {
+        final provider = Provider.of<PreferenceProvider>(context, listen: false);
+        setState(() {
           if(widget.selectedMode == 1){
-            provider.valveSettings!.setting[4].value = true;
+            provider.standaloneSettings!.setting[4].value = true;
           } else {
-            provider.valveSettings!.setting[4].value = false;
+            provider.standaloneSettings!.setting[4].value = false;
           }
-        });*/
-        // provider.getMode();
+        });
+        provider.getMode();
       });
     }
   }
@@ -72,7 +72,7 @@ class _ValveSettingsState extends State<ValveSettings> {
               ),
               child: Consumer<PreferenceProvider>(
                 builder: (context, provider, _) {
-                  final settings = provider.valveSettings!.setting;
+                  final settings = provider.standaloneSettings!.setting;
                   final firstHalf = settings.sublist(0, 5);
                   final secondHalf = settings.sublist(widget.selectedMode == 2 ? 5 : 4, (widget.selectedMode == 2 ? 4 : 5)+valves.length);
 
@@ -197,9 +197,9 @@ class _ValveSettingsState extends State<ValveSettings> {
                 provider.updateSwitchValue(settingItem.title, newValue);
               } else {
                 setState(() {
-                  provider.valveSettings!.setting[4].value = newValue;
+                  provider.standaloneSettings!.setting[4].value = newValue;
                 });
-                print("Serial Number: ${settingItem.serialNumber}, Value: $newValue, updated : ${settingItem.value}, value in the :: ${provider.valveSettings!.setting[4].value}");
+                // print("Serial Number: ${settingItem.serialNumber}, Value: $newValue, updated : ${settingItem.value}, value in the :: ${provider.valveSettings!.setting[4].value}");
               }
             },
           )
