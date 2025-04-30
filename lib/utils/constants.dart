@@ -163,6 +163,7 @@ class AppConstants {
   static const String sumpFirst = "dp_sump_first.png";
   static const String sumpCenter = "dp_sump_center.png";
   static const String sumpLast = "dp_sump_last.png";
+  static const String sumpMobile = "dp_sump.png";
 
   static const String pumpOFF = "dp_irr_pump.png";
   static const String pumpON = "dp_irr_pump_g.gif";
@@ -319,11 +320,11 @@ class AppConstants {
   static String _getSourceImagePath(String position) {
     switch (position) {
       case 'First':
-        return kIsWeb? sumpFirst : sumpFirst;
+        return kIsWeb? sumpFirst : sumpMobile;
       case 'Center':
-        return kIsWeb? sumpCenter : sumpCenter;
+        return kIsWeb? sumpCenter : sumpMobile;
       case 'Last':
-        return kIsWeb? sumpLast : sumpLast;
+        return kIsWeb? sumpLast : sumpMobile;
       default:
         return '';
     }

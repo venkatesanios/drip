@@ -183,7 +183,7 @@ class CurrentProgram extends StatelessWidget {
 
   Widget buildMobileCard(BuildContext context, List<String> schedule) {
     return Card(
-      color: Colors.white,
+      color: Colors.green.shade50,
       margin: EdgeInsets.zero,
       shape: const RoundedRectangleBorder(),
       child: Column(

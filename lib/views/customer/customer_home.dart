@@ -75,7 +75,30 @@ class CustomerHome extends StatelessWidget {
         totalFilters + totalPressureIn + totalPressureOut +
         totalBoosterPump + totalChannels + totalAgitators;
 
-    return kIsWeb? SingleChildScrollView(
+    return kIsWeb
+        ? _buildWebLayout(context, grandTotal, waterSources, filterSite, fertilizerSite, linesToDisplay, totalValveCount, scheduledProgram)
+        : _buildMobileLayout(context, grandTotal, waterSources, filterSite, fertilizerSite, linesToDisplay, totalValveCount, scheduledProgram);
+  }
+
+  Widget displayLinearProgressIndicator() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 3, right: 3),
+      child: LinearProgressIndicator(
+        valueColor: const AlwaysStoppedAnimation<Color>(Colors.blueAccent),
+        backgroundColor: Colors.grey[200],
+        minHeight: 4,
+        borderRadius: BorderRadius.circular(5.0),
+      ),
+    );
+  }
+
+  Widget _buildWebLayout(
+      BuildContext context, grandTotal, List<WaterSourceModel> waterSources, filterSite,
+      fertilizerSite, linesToDisplay, totalValveCount, scheduledProgram) {
+
+    final viewModel = context.read<CustomerScreenControllerViewModel>();
+
+    return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,9 +107,9 @@ class CustomerHome extends StatelessWidget {
           context.watch<MqttPayloadProvider>().onRefresh ? displayLinearProgressIndicator() : const SizedBox(),
 
           (fertilizerSite.isEmpty && (grandTotal < 7 || totalValveCount < 25))
-              ? buildWidgetInHorizontal(context, waterSources, filterSite, fertilizerSite, linesToDisplay, grandTotal)
-              : buildWidgetInVertical(context, waterSources, filterSite, fertilizerSite, linesToDisplay, grandTotal,
-              deviceId, customerId, controllerId),
+              ? buildWidgetInHorizontal(context, waterSources, filterSite, fertilizerSite, linesToDisplay, grandTotal, false)
+              : buildWidgetInVertical(context, waterSources, filterSite, fertilizerSite, linesToDisplay, false),
+
           CurrentProgram(
             scheduledPrograms: scheduledProgram,
             deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,
@@ -108,15 +131,22 @@ class CustomerHome extends StatelessWidget {
           const SizedBox(height: 8),
         ],
       ),
-    ):
-    SingleChildScrollView(
+    );
+  }
+
+  Widget _buildMobileLayout(
+      BuildContext context, grandTotal, waterSources, filterSite,
+      fertilizerSite, linesToDisplay, totalValveCount, scheduledProgram) {
+
+    final viewModel = context.read<CustomerScreenControllerViewModel>();
+
+    return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           context.watch<MqttPayloadProvider>().onRefresh ? displayLinearProgressIndicator() : const SizedBox(),
-
           CurrentProgram(
             scheduledPrograms: scheduledProgram,
             deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,
@@ -124,32 +154,16 @@ class CustomerHome extends StatelessWidget {
             controllerId: controllerId,
             currentLineSNo: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine[viewModel.lIndex].sNo,
           ),
-
-          (fertilizerSite.isEmpty && (grandTotal < 7 || totalValveCount < 25))
-              ? buildWidgetInHorizontal(context, waterSources, filterSite, fertilizerSite, linesToDisplay, grandTotal)
-              : buildWidgetInVertical(context, waterSources, filterSite, fertilizerSite, linesToDisplay, grandTotal,
-              deviceId, customerId, controllerId),
-
+          NextSchedule(scheduledPrograms: scheduledProgram),
+          buildWidgetInVertical(context, waterSources, filterSite, fertilizerSite, linesToDisplay, true),
           const SizedBox(height: 8),
         ],
       ),
     );
   }
 
-  Widget displayLinearProgressIndicator() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 3, right: 3),
-      child: LinearProgressIndicator(
-        valueColor: const AlwaysStoppedAnimation<Color>(Colors.blueAccent),
-        backgroundColor: Colors.grey[200],
-        minHeight: 4,
-        borderRadius: BorderRadius.circular(5.0),
-      ),
-    );
-  }
-
   Widget buildWidgetInHorizontal(BuildContext context, waterSources, filterSite, fertilizerSite,
-      List<IrrigationLineModel> linesToDisplay, int grandTotal){
+      List<IrrigationLineModel> linesToDisplay, int grandTotal, bool isMobile){
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
@@ -157,7 +171,7 @@ class CustomerHome extends StatelessWidget {
         SizedBox(
             width: (grandTotal*70) + 20,
             child: PumpStationWidget(waterSources: waterSources, filterSite: filterSite, fertilizerSite: fertilizerSite, isLineRight: true,
-              deviceId: '', customerId: customerId, controllerId: controllerId,)
+              deviceId: deviceId, customerId: customerId, controllerId: controllerId, isMobile: isMobile,)
         ),
         ...linesToDisplay.map((lineObjects) => Padding(
           padding: const EdgeInsets.only(top: 8),
@@ -180,7 +194,7 @@ class CustomerHome extends StatelessWidget {
                 padding: const EdgeInsets.all(3.0),
                 child: LineObjects(valves: lineObjects.valveObjects, prsSwitch: lineObjects.prsSwitch,
                   pressureIn: lineObjects.pressureIn, waterMeter: lineObjects.waterMeter,
-                  customerId: customerId, controllerId: controllerId,),
+                  customerId: customerId, controllerId: controllerId, containerWidth: MediaQuery.sizeOf(context).width - ((grandTotal*70) + 168), isMobile: isMobile,),
               )
           ),
         )),
@@ -189,12 +203,17 @@ class CustomerHome extends StatelessWidget {
   }
 
   Widget buildWidgetInVertical(BuildContext context, waterSources, filterSite, fertilizerSite,
-      List<IrrigationLineModel> linesToDisplay,  int grandTotal, deviceId, customerId, controllerId)
+      List<IrrigationLineModel> linesToDisplay, bool isMobile)
   {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isWide = constraints.maxWidth > 600;
-        final cardWidth = isWide ? (constraints.maxWidth / 2) - 16 : constraints.maxWidth;
+        double containerWidth = 0.0;
+
+        if(linesToDisplay.length == 1 || isMobile){
+          containerWidth = constraints.maxWidth;
+        }else{
+          containerWidth = (constraints.maxWidth/linesToDisplay.length);
+        }
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -207,37 +226,47 @@ class CustomerHome extends StatelessWidget {
               deviceId: deviceId,
               customerId: customerId,
               controllerId: controllerId,
+              isMobile: isMobile,
             ),
-            linesToDisplay.length == 1? Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                width: constraints.maxWidth,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(
-                    color: Colors.grey.shade400,
-                    width: 0.5,
-                  ),
-                  borderRadius: const BorderRadius.all(Radius.circular(5)),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: LineObjects(
-                    valves: linesToDisplay[0].valveObjects,
-                    prsSwitch: linesToDisplay[0].prsSwitch,
-                    pressureIn: linesToDisplay[0].pressureIn,
-                    waterMeter: linesToDisplay[0].waterMeter,
-                    customerId: customerId,
-                    controllerId: controllerId,
-                  ),
-                ),
-              ),
-            ): Wrap(
+            isMobile? Column(
               children: linesToDisplay.map((lineObjects) {
                 return Padding(
-                  padding: const EdgeInsets.only(left: 8, top: 8, right: 0),
+                  padding: const EdgeInsets.only(left: 8, top: 8, right: 8),
                   child: SizedBox(
-                    width: cardWidth+4,
+                    width: containerWidth,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10, bottom: 2),
+                          child: Text(
+                            lineObjects.name,
+                            textAlign: TextAlign.start,
+                            style: TextStyle(color: isMobile?Colors.black87:Colors.black54, fontSize: 16),
+                          ),
+                        ),
+                        LineObjects(
+                          valves: lineObjects.valveObjects,
+                          prsSwitch: lineObjects.prsSwitch,
+                          pressureIn: lineObjects.pressureIn,
+                          waterMeter: lineObjects.waterMeter,
+                          customerId: customerId,
+                          controllerId: controllerId,
+                          containerWidth: containerWidth,
+                          isMobile: isMobile,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ):
+            Wrap(
+              children: linesToDisplay.map((lineObjects) {
+                return Padding(
+                  padding: const EdgeInsets.only(left: 8, top: 8),
+                  child: SizedBox(
+                    width: containerWidth-12,
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -252,15 +281,18 @@ class CustomerHome extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SizedBox(
+                            linesToDisplay.length != 1?SizedBox(
                               width: constraints.maxWidth,
                               child: Text(
                                 lineObjects.name,
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(color: Colors.black54),
                               ),
-                            ),
-                            const Divider(height: 5, color: Colors.black12),
+                            ):
+                            const SizedBox(),
+                            linesToDisplay.length != 1?
+                            const Divider(height: 5, color: Colors.black12):
+                            const SizedBox(),
                             LineObjects(
                               valves: lineObjects.valveObjects,
                               prsSwitch: lineObjects.prsSwitch,
@@ -268,6 +300,8 @@ class CustomerHome extends StatelessWidget {
                               waterMeter: lineObjects.waterMeter,
                               customerId: customerId,
                               controllerId: controllerId,
+                              containerWidth: containerWidth,
+                              isMobile: isMobile,
                             ),
                           ],
                         ),
@@ -290,6 +324,8 @@ class LineObjects extends StatelessWidget {
   final List<SensorModel> prsSwitch;
   final List<SensorModel> pressureIn;
   final List<SensorModel> waterMeter;
+  final double containerWidth;
+  final bool isMobile;
 
   const LineObjects({
     super.key,
@@ -299,6 +335,8 @@ class LineObjects extends StatelessWidget {
     required this.waterMeter,
     required this.customerId,
     required this.controllerId,
+    required this.containerWidth,
+    required this.isMobile,
   });
 
   @override
@@ -314,29 +352,33 @@ class LineObjects extends StatelessWidget {
       )),
     ];
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: kIsWeb? Container(
-        color: Colors.white,
-        child: Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: allItems,
-        ),
-      ) :
-      GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 6,
-          mainAxisSpacing: 8,
-          crossAxisSpacing: 8,
-          childAspectRatio: 1,
-        ),
-        itemCount: allItems.length,
-        itemBuilder: (context, index) => allItems[index],
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: (containerWidth / 85).round(),
+        mainAxisSpacing: 0,
+        crossAxisSpacing: 0,
+        childAspectRatio: isMobile? 1.0 : 1.30,
       ),
+      itemCount: allItems.length,
+      itemBuilder: (context, index) {
+        return isMobile? Card(
+          color: Colors.white,
+          elevation: 1,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
+          child: Padding(
+            padding: const EdgeInsets.only(left: 3, right: 3),
+            child: allItems[index],
+          ),
+        ):
+        Padding(
+          padding: const EdgeInsets.only(left: 3, right: 3),
+          child: allItems[index],
+        );
+      },
     );
+
   }
 
   List<Widget> _buildSensorItems(List<SensorModel> sensors, String type, String imagePath) {
@@ -359,6 +401,7 @@ class PumpStationWidget extends StatelessWidget {
   final bool isLineRight;
   final String deviceId;
   final int customerId, controllerId;
+  final bool isMobile;
 
   const PumpStationWidget({
     super.key,
@@ -366,7 +409,10 @@ class PumpStationWidget extends StatelessWidget {
     required this.filterSite,
     required this.fertilizerSite,
     required this.isLineRight,
-    required this.deviceId, required this.customerId, required this.controllerId,
+    required this.deviceId,
+    required this.customerId,
+    required this.controllerId,
+    required this.isMobile,
   });
 
   @override
@@ -383,11 +429,129 @@ class PumpStationWidget extends StatelessWidget {
       final source = sortedWaterSources[index];
       gridItems.add(_buildSourceColumn(context, source, index, sortedWaterSources.length));
       for (final pump in source.pumpObjects) {
-        gridItems.add(PumpWidget(pump: pump, isSourcePump: !source.isWaterInAndOut, deviceId: deviceId, customerId: customerId, controllerId: controllerId,));
+        gridItems.add(PumpWidget(pump: pump, isSourcePump: !source.isWaterInAndOut, deviceId: deviceId,
+          customerId: customerId, controllerId: controllerId, isMobile: isMobile,));
       }
     }
 
-    return Padding(
+
+    return isMobile? Padding(
+      padding: const EdgeInsets.only(left: 8, top: 8, right: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 10, bottom: 2),
+            child: Text(
+              'PUMP STATION',
+              textAlign: TextAlign.start,
+              style: TextStyle(color: isMobile ?Colors.black87:Colors.black54, fontSize: 16),
+            ),
+          ),
+          Wrap(
+            spacing: 0.0,
+            runSpacing: 0.0,
+            children: gridItems.map<Widget>((item) {
+              return Card(
+                color: Colors.white,
+                elevation: 1,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
+                child: SizedBox(
+                  width: 70,
+                  height: 85,
+                  child: item,
+                ),
+              );
+            }).toList(),
+          ),
+          filterSite.isNotEmpty? const Padding(
+            padding: EdgeInsets.only(left: 8, bottom: 2, top: 5),
+            child: Text(
+              'FILTER SITE',
+              textAlign: TextAlign.start,
+              style: TextStyle(color: Colors.black87, fontSize: 16),
+            ),
+          ):
+          const SizedBox(),
+          filterSite.isNotEmpty? Padding(
+            padding: const EdgeInsets.only(left: 5, top: 2),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(
+                  color: Colors.grey.shade400,
+                  width: 0.5,
+                ),
+                borderRadius: const BorderRadius.all(Radius.circular(5)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 8, bottom: 2, right: 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          for(int fIndex=0; fIndex<filterSite.length; fIndex++)
+                            FilterSiteView(filterSite: filterSite[fIndex]),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ):
+          const SizedBox(),
+          fertilizerSite.isNotEmpty? const Padding(
+            padding: EdgeInsets.only(left: 8, bottom: 2, top: 5),
+            child: Text(
+              'FERTILIZER SITE',
+              textAlign: TextAlign.start,
+              style: TextStyle(color: Colors.black87, fontSize: 16),
+            ),
+          ):
+          const SizedBox(),
+          fertilizerSite.isNotEmpty? Padding(
+            padding: const EdgeInsets.only(left: 5, top: 2),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(
+                  color: Colors.grey.shade400,
+                  width: 0.5,
+                ),
+                borderRadius: const BorderRadius.all(Radius.circular(5)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 8, bottom: 2, right: 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          for(int siteIndex=0; siteIndex<fertilizerSite.length; siteIndex++)
+                            FertilizerSiteView(fertilizerSite: fertilizerSite[siteIndex], siteIndex: siteIndex),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ):
+              const SizedBox(),
+        ],
+      ),
+    ):
+    Padding(
       padding: EdgeInsets.only(left: 8, top: 8, right: isLineRight? 0:8),
       child: Container(
         width: MediaQuery.sizeOf(context).width,
@@ -468,50 +632,57 @@ class PumpStationWidget extends StatelessWidget {
 
     return SizedBox(
       width: 70,
-      height: 100,
+      height: isMobile? 75 : 100,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Stack(
-            children: [
-              AppConstants.getAsset('source', 0, position),
-              if (hasLevel)
-                Positioned(
-                  top: 50,
-                  left: 2,
-                  right: 2,
-                  child: Consumer<MqttPayloadProvider>(
-                    builder: (_, provider, __) {
+          SizedBox(
+            width: 70,
+            height: isMobile ? 55:70,
+            child: Stack(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(left: isMobile? 8:0),
+                  child: AppConstants.getAsset('source', 0, position),
+                ),
+                if (hasLevel)
+                  Positioned(
+                    top: isMobile?37:50,
+                    left: 2,
+                    right: 2,
+                    child: Consumer<MqttPayloadProvider>(
+                      builder: (_, provider, __) {
 
-                      final sensorUpdate = provider.getSensorUpdatedValve(source.level[0].sNo.toString());
-                      final statusParts = sensorUpdate?.split(',') ?? [];
+                        final sensorUpdate = provider.getSensorUpdatedValve(source.level[0].sNo.toString());
+                        final statusParts = sensorUpdate?.split(',') ?? [];
 
-                      if (statusParts.length > 1) {
-                        source.level.first.value = statusParts[1];
-                      }
+                        if (statusParts.length > 1) {
+                          source.level.first.value = statusParts[1];
+                        }
 
-                      return Container(
-                        height: 17,
-                        decoration: BoxDecoration(
-                          color: Colors.yellow,
-                          borderRadius: BorderRadius.circular(2),
-                          border: Border.all(color: Colors.grey, width: 0.5),
-                        ),
-                        child: Center(
-                          child: Text(
-                            MyFunction().getUnitByParameter(context, 'Level Sensor', source.level.first.value.toString()) ?? '',
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
+                        return Container(
+                          height: 17,
+                          decoration: BoxDecoration(
+                            color: Colors.yellow,
+                            borderRadius: BorderRadius.circular(2),
+                            border: Border.all(color: Colors.grey, width: 0.5),
+                          ),
+                          child: Center(
+                            child: Text(
+                              MyFunction().getUnitByParameter(context, 'Level Sensor', source.level.first.value.toString()) ?? '',
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
           Text(
             source.name,
@@ -550,193 +721,186 @@ class SensorWidget extends StatelessWidget {
           sensor.value = statusParts[1];
         }
 
-        return Container(
+        return SizedBox(
           width: 85,
-          margin: const EdgeInsets.symmetric(horizontal: 4),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (sensorType != 'Pressure Switch') ...[
-                SizedBox(
-                  width: 85,
-                  child: Stack(
-                    children: [
-                      SizedBox(
-                        width: 85,
-                        height: 40,
-                        child: TextButton(
-                          onPressed: () async {
+                Stack(
+                  children: [
+                    SizedBox(
+                      width: 85,
+                      height: 40,
+                      child: TextButton(
+                        onPressed: () async {
 
-                            final sensors = await fetchSensorData();
-                            final sensorDataList = getSensorDataById(sensor.sNo.toString(), sensors);
+                          final sensors = await fetchSensorData();
+                          final sensorDataList = getSensorDataById(sensor.sNo.toString(), sensors);
 
-                            showPopover(
-                              context: context,
-                              bodyBuilder: (context) {
+                          showPopover(
+                            context: context,
+                            bodyBuilder: (context) {
 
-                                List<CartesianSeries<dynamic, String>> series = [
-                                  LineSeries<SensorHourlyData, String>(
-                                    dataSource: sensorDataList,
-                                    xValueMapper: (SensorHourlyData data, _) => data.hour,
-                                    yValueMapper: (SensorHourlyData data, _) {
-                                      try {
-                                        return double.parse(data.value);
-                                      } catch (_) {
-                                        return 0.0;
-                                      }
-                                    },
-                                    markerSettings: const MarkerSettings(isVisible: true),
-                                    dataLabelSettings: const DataLabelSettings(isVisible: false),
-                                    color: Colors.blueAccent,
-                                    name: sensor.name ?? 'Sensor',
+                              List<CartesianSeries<dynamic, String>> series = [
+                                LineSeries<SensorHourlyData, String>(
+                                  dataSource: sensorDataList,
+                                  xValueMapper: (SensorHourlyData data, _) => data.hour,
+                                  yValueMapper: (SensorHourlyData data, _) {
+                                    try {
+                                      return double.parse(data.value);
+                                    } catch (_) {
+                                      return 0.0;
+                                    }
+                                  },
+                                  markerSettings: const MarkerSettings(isVisible: true),
+                                  dataLabelSettings: const DataLabelSettings(isVisible: false),
+                                  color: Colors.blueAccent,
+                                  name: sensor.name ?? 'Sensor',
+                                ),
+                              ];
+
+                              return Row(
+                                children: [
+                                  SizedBox(
+                                    width: 450,
+                                    height: 175,
+                                    child: SfCartesianChart(
+                                      primaryXAxis: CategoryAxis(
+                                        title: AxisTitle(
+                                          text: sensorType == 'Moisture Sensor'
+                                              ? '${sensor.name}($sensorType) - Hours'
+                                              : '${sensor.name} - Hours',
+                                          textStyle: const TextStyle(fontSize: 12),
+                                        ),
+                                        majorGridLines: const MajorGridLines(width: 0),
+                                        axisLine: const AxisLine(width: 0),
+                                        labelStyle: const TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                      primaryYAxis: const NumericAxis(
+                                        labelStyle: TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                      tooltipBehavior: TooltipBehavior(enable: true),
+                                      series: series,
+                                    ),
                                   ),
-                                ];
-
-                                return Row(
-                                  children: [
-                                    SizedBox(
-                                      width: 450,
-                                      height: 175,
-                                      child: SfCartesianChart(
-                                        primaryXAxis: CategoryAxis(
-                                          title: AxisTitle(
-                                            text: sensorType == 'Moisture Sensor'
-                                                ? '${sensor.name}($sensorType) - Hours'
-                                                : '${sensor.name} - Hours',
-                                            textStyle: const TextStyle(fontSize: 12),
-                                          ),
-                                          majorGridLines: const MajorGridLines(width: 0),
-                                          axisLine: const AxisLine(width: 0),
-                                          labelStyle: const TextStyle(
-                                            fontSize: 11,
-                                            color: Colors.black54,
-                                          ),
-                                        ),
-                                        primaryYAxis: const NumericAxis(
-                                          labelStyle: TextStyle(
-                                            fontSize: 11,
-                                            color: Colors.black54,
-                                          ),
-                                        ),
-                                        tooltipBehavior: TooltipBehavior(enable: true),
-                                        series: series,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 100,
-                                      height: 100,
-                                      child: SfRadialGauge(
-                                        axes: <RadialAxis>[
-                                          RadialAxis(
-                                            minimum: 0,
-                                            maximum: sensorType=='Moisture Sensor'?200:sensorType=='Pressure Sensor'?12:100,
-                                            pointers: <GaugePointer>[
-                                              NeedlePointer(
-                                                  value: double.parse(sensor.value),
-                                                  needleEndWidth: 3, needleColor: Colors.black54),
-                                              RangePointer(
-                                                value: sensorType=='Moisture Sensor'?200.0:100.0,
-                                                width: 0.30,
-                                                sizeUnit: GaugeSizeUnit.factor,
-                                                color: const Color(0xFF494CA2),
-                                                animationDuration: 1000,
-                                                gradient: SweepGradient(
-                                                  colors: sensorType == "Water Meter" ? <Color>[
-                                                    Colors.teal.shade300,
-                                                    Colors.teal.shade400,
-                                                    Colors.teal.shade500,
-                                                    Colors.teal.shade600
-                                                  ]:
-                                                  <Color>[
-                                                    Colors.tealAccent,
-                                                    Colors.orangeAccent,
-                                                    Colors.redAccent,
-                                                    Colors.redAccent
-                                                  ],
-                                                  stops: const <double>[0.15, 0.50, 0.70, 1.00],
-                                                ),
-                                                enableAnimation: true,
+                                  SizedBox(
+                                    width: 100,
+                                    height: 100,
+                                    child: SfRadialGauge(
+                                      axes: <RadialAxis>[
+                                        RadialAxis(
+                                          minimum: 0,
+                                          maximum: sensorType=='Moisture Sensor'?200:sensorType=='Pressure Sensor'?12:100,
+                                          pointers: <GaugePointer>[
+                                            NeedlePointer(
+                                                value: double.parse(sensor.value),
+                                                needleEndWidth: 3, needleColor: Colors.black54),
+                                            RangePointer(
+                                              value: sensorType=='Moisture Sensor'?200.0:100.0,
+                                              width: 0.30,
+                                              sizeUnit: GaugeSizeUnit.factor,
+                                              color: const Color(0xFF494CA2),
+                                              animationDuration: 1000,
+                                              gradient: SweepGradient(
+                                                colors: sensorType == "Water Meter" ? <Color>[
+                                                  Colors.teal.shade300,
+                                                  Colors.teal.shade400,
+                                                  Colors.teal.shade500,
+                                                  Colors.teal.shade600
+                                                ]:
+                                                <Color>[
+                                                  Colors.tealAccent,
+                                                  Colors.orangeAccent,
+                                                  Colors.redAccent,
+                                                  Colors.redAccent
+                                                ],
+                                                stops: const <double>[0.15, 0.50, 0.70, 1.00],
                                               ),
-                                            ],
-                                            showFirstLabel: false,
-                                            annotations: <GaugeAnnotation>[
-                                              GaugeAnnotation(
-                                                widget: Text(
-                                                  sensor.value,
-                                                  style: const TextStyle(
-                                                      fontSize: 10, fontWeight: FontWeight.bold),
-                                                ),
-                                                angle: 90,
-                                                positionFactor: 0.8,
+                                              enableAnimation: true,
+                                            ),
+                                          ],
+                                          showFirstLabel: false,
+                                          annotations: <GaugeAnnotation>[
+                                            GaugeAnnotation(
+                                              widget: Text(
+                                                sensor.value,
+                                                style: const TextStyle(
+                                                    fontSize: 10, fontWeight: FontWeight.bold),
                                               ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
+                                              angle: 90,
+                                              positionFactor: 0.8,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                );
-                              },
-                              direction: PopoverDirection.bottom,
-                              width: 550,
-                              height: 175,
-                              arrowHeight: 15,
-                              arrowWidth: 30,
-                              barrierColor: Colors.black54,
-                              arrowDyOffset: -20,
-                            );
-                          },
-                          style: ButtonStyle(
-                            padding: WidgetStateProperty.all(EdgeInsets.zero),
-                            minimumSize: WidgetStateProperty.all(Size.zero),
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            backgroundColor: WidgetStateProperty.all(Colors.transparent),
-                          ),
-                          child: Image.asset(
-                            imagePath,
-                            width: 35,
-                            height: 35,
-                          ),
+                                  ),
+                                ],
+                              );
+                            },
+                            direction: PopoverDirection.bottom,
+                            width: 550,
+                            height: 175,
+                            arrowHeight: 15,
+                            arrowWidth: 30,
+                            barrierColor: Colors.black54,
+                            arrowDyOffset: -20,
+                          );
+                        },
+                        style: ButtonStyle(
+                          padding: WidgetStateProperty.all(EdgeInsets.zero),
+                          minimumSize: WidgetStateProperty.all(Size.zero),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          backgroundColor: WidgetStateProperty.all(Colors.transparent),
+                        ),
+                        child: Image.asset(
+                          imagePath,
+                          width: 35,
+                          height: 35,
                         ),
                       ),
-                      Positioned(
-                        top: 0,
-                        left: 0,
-                        right: 1,
-                        child: Container(
-                          width: 70,
-                          height: 17,
-                          decoration: BoxDecoration(
-                            color: Colors.yellow,
-                            borderRadius: BorderRadius.circular(2),
-                            border: Border.all(color: Colors.grey, width: 0.5),
-                          ),
-                          child: Center(
-                            child: Text(
-                              MyFunction().getUnitByParameter(context, sensorType, sensor.value.toString()) ?? '',
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
+                    ),
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 1,
+                      child: Container(
+                        width: 70,
+                        height: 17,
+                        decoration: BoxDecoration(
+                          color: Colors.yellow,
+                          borderRadius: BorderRadius.circular(2),
+                          border: Border.all(color: Colors.grey, width: 0.5),
+                        ),
+                        child: Center(
+                          child: Text(
+                            MyFunction().getUnitByParameter(context, sensorType, sensor.value.toString()) ?? '',
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ] else ...[
                 SizedBox(
                   width: 85,
-                  child: SizedBox(
+                  height: 40,
+                  child: Image.asset(
+                    imagePath,
                     width: 40,
                     height: 40,
-                    child: Image.asset(
-                      imagePath,
-                      width: 35,
-                      height: 35,
-                    ),
                   ),
                 ),
               ],
@@ -855,7 +1019,7 @@ class ValveWidget extends StatelessWidget {
               if (hasMoisture)
                 Positioned(
                   top: 0,
-                  left: 50,
+                  left: 47,
                   child: TextButton(
                     onPressed: () async {
 

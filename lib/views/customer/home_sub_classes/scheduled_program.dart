@@ -181,17 +181,17 @@ class ScheduledProgram extends StatelessWidget {
                                   ),
                                 ),
                                 /*filteredScheduleProgram[index].startCondition.condition.isNotEmpty ||
-                                  filteredScheduleProgram[index].stopCondition.condition.isNotEmpty?
-                              IconButton(
-                                tooltip: 'view condition',
-                                onPressed: () {
-                                  showAutoUpdateDialog(context,
-                                    filteredScheduleProgram[index].sNo,
-                                  );
-                                },
-                                icon: const Icon(Icons.visibility_outlined, color: Colors.teal,),
-                              ):
-                              const SizedBox(),*/
+                                    filteredScheduleProgram[index].stopCondition.condition.isNotEmpty?
+                                IconButton(
+                                  tooltip: 'view condition',
+                                  onPressed: () {
+                                    showAutoUpdateDialog(context,
+                                      filteredScheduleProgram[index].serialNumber,
+                                    );
+                                  },
+                                  icon: const Icon(Icons.visibility_outlined, color: Colors.teal,),
+                                ):
+                                const SizedBox(),*/
                               ],
                             )),
                             DataCell(Center(child: Text('${filteredScheduleProgram[index].sequence.length}'))),

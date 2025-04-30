@@ -14,7 +14,7 @@ class ConditionLibraryViewModel extends ChangeNotifier {
   bool isLoading = false;
   String errorMessage = "";
 
-  late ConditionLibraryModel conditionLibraryData;
+  late ConditionLibraryModel clData;
 
   List<String> connectingCondition = [];
   List<List<String>> connectedTo = [];
@@ -41,14 +41,14 @@ class ConditionLibraryViewModel extends ChangeNotifier {
           final jsonData = jsonDecode(response.body);
 
           if (jsonData["code"] == 200) {
-            conditionLibraryData = ConditionLibraryModel.fromJson(jsonData['data']);
-            conditionLibraryData.conditionLibrary.condition.sort((a, b) => (a.sNo).compareTo(b.sNo));
+            clData = ConditionLibraryModel.fromJson(jsonData['data']);
+            clData.cnLibrary.condition.sort((a, b) => (a.sNo).compareTo(b.sNo));
             vtTEVControllers = List.generate(
-              conditionLibraryData.conditionLibrary.condition.length,
+              clData.cnLibrary.condition.length,
                   (index) => TextEditingController(),
             );
             amTEVControllers = List.generate(
-              conditionLibraryData.conditionLibrary.condition.length,
+              clData.cnLibrary.condition.length,
                   (index) => TextEditingController(),
             );
             connectedTo = List.generate(5, (index) => []);
@@ -63,76 +63,76 @@ class ConditionLibraryViewModel extends ChangeNotifier {
   }
 
   void conTypeOnChange(String type, int index){
-    conditionLibraryData.conditionLibrary.condition[index].type = type;
-    conditionLibraryData.conditionLibrary.condition[index].component = '--';
-    conditionLibraryData.conditionLibrary.condition[index].parameter = '--';
-    conditionLibraryData.conditionLibrary.condition[index].threshold = '--';
-    conditionLibraryData.conditionLibrary.condition[index].value = '--';
-    conditionLibraryData.conditionLibrary.condition[index].reason = '--';
-    conditionLibraryData.conditionLibrary.condition[index].delayTime = '--';
-    conditionLibraryData.conditionLibrary.condition[index].alertMessage = '--';
+    clData.cnLibrary.condition[index].type = type;
+    clData.cnLibrary.condition[index].component = '--';
+    clData.cnLibrary.condition[index].parameter = '--';
+    clData.cnLibrary.condition[index].threshold = '--';
+    clData.cnLibrary.condition[index].value = '--';
+    clData.cnLibrary.condition[index].reason = '--';
+    clData.cnLibrary.condition[index].delayTime = '--';
+    clData.cnLibrary.condition[index].alertMessage = '--';
     notifyListeners();
   }
 
   void componentOnChange(String component, int index, String serialNo){
-    conditionLibraryData.conditionLibrary.condition[index].component = component;
-    conditionLibraryData.conditionLibrary.condition[index].componentSNo = serialNo;
-    conditionLibraryData.conditionLibrary.condition[index].parameter = '--';
-    conditionLibraryData.conditionLibrary.condition[index].threshold = '--';
-    conditionLibraryData.conditionLibrary.condition[index].value = '--';
-    conditionLibraryData.conditionLibrary.condition[index].reason = '--';
-    conditionLibraryData.conditionLibrary.condition[index].delayTime = '--';
-    conditionLibraryData.conditionLibrary.condition[index].alertMessage = '--';
+    clData.cnLibrary.condition[index].component = component;
+    clData.cnLibrary.condition[index].componentSNo = serialNo;
+    clData.cnLibrary.condition[index].parameter = '--';
+    clData.cnLibrary.condition[index].threshold = '--';
+    clData.cnLibrary.condition[index].value = '--';
+    clData.cnLibrary.condition[index].reason = '--';
+    clData.cnLibrary.condition[index].delayTime = '--';
+    clData.cnLibrary.condition[index].alertMessage = '--';
     notifyListeners();
   }
 
   void parameterOnChange(String param, int index){
-    conditionLibraryData.conditionLibrary.condition[index].parameter = param;
+    clData.cnLibrary.condition[index].parameter = param;
     notifyListeners();
 
   }
 
   void thresholdOnChange(String valT, int index){
-    conditionLibraryData.conditionLibrary.condition[index].threshold = valT;
+    clData.cnLibrary.condition[index].threshold = valT;
     if(valT.contains('Lower')){
-      conditionLibraryData.conditionLibrary.condition[index].delayTime = '10 Sec';
+      clData.cnLibrary.condition[index].delayTime = '10 Sec';
     }else{
-      conditionLibraryData.conditionLibrary.condition[index].delayTime = '3 Sec';
+      clData.cnLibrary.condition[index].delayTime = '3 Sec';
     }
     notifyListeners();
   }
 
   void valueOnChange(String val, int index){
-    conditionLibraryData.conditionLibrary.condition[index].value = val;
+    clData.cnLibrary.condition[index].value = val;
     notifyListeners();
   }
 
   void reasonOnChange(String reason, int index){
-    conditionLibraryData.conditionLibrary.condition[index].reason = reason;
+    clData.cnLibrary.condition[index].reason = reason;
 
-    conditionLibraryData.conditionLibrary.condition[index].alertMessage =
-    '${conditionLibraryData.conditionLibrary.condition[index].reason} detected in '
-        '${conditionLibraryData.conditionLibrary.condition[index].component}';
-    amTEVControllers[index].text = conditionLibraryData.conditionLibrary.condition[index].alertMessage;
+    clData.cnLibrary.condition[index].alertMessage =
+    '${clData.cnLibrary.condition[index].reason} detected in '
+        '${clData.cnLibrary.condition[index].component}';
+    amTEVControllers[index].text = clData.cnLibrary.condition[index].alertMessage;
 
-    conditionLibraryData.conditionLibrary.condition[index].rule =
-    '${conditionLibraryData.conditionLibrary.condition[index].parameter} of '
-        '${conditionLibraryData.conditionLibrary.condition[index].component} is '
-        '${conditionLibraryData.conditionLibrary.condition[index].threshold} '
-        '${conditionLibraryData.conditionLibrary.condition[index].value}';
+    clData.cnLibrary.condition[index].rule =
+    '${clData.cnLibrary.condition[index].parameter} of '
+        '${clData.cnLibrary.condition[index].component} is '
+        '${clData.cnLibrary.condition[index].threshold} '
+        '${clData.cnLibrary.condition[index].value}';
 
-    amTEVControllers[index].text = conditionLibraryData.conditionLibrary.condition[index].alertMessage;
+    amTEVControllers[index].text = clData.cnLibrary.condition[index].alertMessage;
 
     notifyListeners();
   }
 
   void delayTimeOnChange(String delayTime, int index){
-    conditionLibraryData.conditionLibrary.condition[index].delayTime = delayTime;
+    clData.cnLibrary.condition[index].delayTime = delayTime;
     notifyListeners();
   }
 
   void switchStateOnChange(bool status, int index){
-    conditionLibraryData.conditionLibrary.condition[index].status = status;
+    clData.cnLibrary.condition[index].status = status;
     notifyListeners();
   }
 
@@ -142,13 +142,13 @@ class ConditionLibraryViewModel extends ChangeNotifier {
   }
 
   List<String> getAvailableCondition(int index) {
-    buildConnectingConditions(conditionLibraryData.conditionLibrary.condition.length);
+    buildConnectingConditions(clData.cnLibrary.condition.length);
     if (index >= 0 && index < connectingCondition.length) {
       connectingCondition.removeAt(index);
     }
     List<String> available = List.from(connectingCondition);
-    if(conditionLibraryData.conditionLibrary.condition[index].component!='--'){
-      List<String> resultList = conditionLibraryData.conditionLibrary.condition[index].component.split(RegExp(r'\s*-\s*'));
+    if(clData.cnLibrary.condition[index].component!='--'){
+      List<String> resultList = clData.cnLibrary.condition[index].component.split(RegExp(r'\s*-\s*'));
       connectedTo[index] = resultList;
     }
     available.removeWhere((source) => connectedTo[index].contains(source));
@@ -162,13 +162,13 @@ class ConditionLibraryViewModel extends ChangeNotifier {
       connectedTo[index].add(source);
       List<String> cc = connectedTo[index];
       String result = cc.join(" - ");
-      conditionLibraryData.conditionLibrary.condition[index].component = result;
+      clData.cnLibrary.condition[index].component = result;
     }
     notifyListeners();
   }
 
   void createNewCondition() {
-    List<int> existingSerials = conditionLibraryData.conditionLibrary.condition
+    List<int> existingSerials = clData.cnLibrary.condition
         .map((c) => c.sNo ?? 0)
         .toList()
       ..sort();
@@ -198,14 +198,14 @@ class ConditionLibraryViewModel extends ChangeNotifier {
       alertMessage: "--",
     );
 
-    conditionLibraryData.conditionLibrary.condition.add(newCondition);
+    clData.cnLibrary.condition.add(newCondition);
 
     vtTEVControllers = List.generate(
-      conditionLibraryData.conditionLibrary.condition.length,
+      clData.cnLibrary.condition.length,
           (index) => TextEditingController(),
     );
     amTEVControllers = List.generate(
-      conditionLibraryData.conditionLibrary.condition.length,
+      clData.cnLibrary.condition.length,
           (index) => TextEditingController(),
     );
 
@@ -218,15 +218,15 @@ class ConditionLibraryViewModel extends ChangeNotifier {
       Map<String, dynamic> body = {
         "userId": customerId,
         "controllerId": controllerId,
-        "condition": conditionLibraryData.conditionLibrary.toJson(),
+        "condition": clData.cnLibrary.toJson(),
         "createUser": userId,
       };
 
-      print(conditionLibraryData.conditionLibrary.toJson());
+      print(clData.cnLibrary.toJson());
 
       List<Map<String, dynamic>> payloadList = [];
 
-      for (var condition in conditionLibraryData.conditionLibrary.condition) {
+      for (var condition in clData.cnLibrary.condition) {
         String input = condition.value;
         final match = RegExp(r'[\d.]+').firstMatch(input);
         String? numberOnly = match?.group(0);
@@ -247,24 +247,7 @@ class ConditionLibraryViewModel extends ChangeNotifier {
         });
       }
 
-      /*S_No
-      Name
-      ConditonOnOff
-      ScanTime
-      StartTime
-      StopTime
-      NotificationOnOff
-      ConditionCategory
-      Object_Condition1
-      Operator
-      SetValue_Condition2
-      ConditionBypass*/
-
-      /*"1,Soil Moisture_1,0,00:00:30,10:15:00,18:00:00,1,8,SM.1.1.1,4,100*/
-      /*1,1,Condition 1,00:00:03,1,Sensor,4*/
-
       String payloadString = payloadList.map((e) => e.values.join(',')).join(';');
-      print(payloadString);
 
       String payLoadFinal = jsonEncode({
         "1000": {"1001": payloadString}

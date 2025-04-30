@@ -1,22 +1,22 @@
 class ConditionLibraryModel {
-  final ConditionLibrary conditionLibrary;
+  final ConditionLibrary cnLibrary;
   final DefaultData defaultData;
 
   ConditionLibraryModel({
-    required this.conditionLibrary,
+    required this.cnLibrary,
     required this.defaultData,
   });
 
   factory ConditionLibraryModel.fromJson(Map<String, dynamic> json) {
     return ConditionLibraryModel(
-      conditionLibrary: ConditionLibrary.fromJson(json['conditionLibrary']),
+      cnLibrary: ConditionLibrary.fromJson(json['conditionLibrary']),
       defaultData: DefaultData.fromJson(json['default']),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'conditionLibrary': conditionLibrary,
+      'conditionLibrary': cnLibrary,
       'default': defaultData.toJson(),
     };
   }

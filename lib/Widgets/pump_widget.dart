@@ -20,8 +20,10 @@ class PumpWidget extends StatelessWidget {
   final bool isSourcePump;
   final String deviceId;
   final int customerId, controllerId;
+  final bool isMobile;
+
   PumpWidget({super.key, required this.pump, required this.isSourcePump,
-    required this.deviceId, required this.customerId, required this.controllerId});
+    required this.deviceId, required this.customerId, required this.controllerId, required this.isMobile});
 
   final ValueNotifier<int> popoverUpdateNotifier = ValueNotifier<int>(0);
 
@@ -80,7 +82,8 @@ class PumpWidget extends StatelessWidget {
               width: 70,
               height: 100,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: isMobile ? MainAxisAlignment.center:
+                MainAxisAlignment.start,
                 children: [
                   Builder(
                     builder: (buttonContext) => Tooltip(
@@ -123,13 +126,12 @@ class PumpWidget extends StatelessWidget {
                         child:
                         SizedBox(
                           width: 70,
-                          height: 70,
+                          height: isMobile ? 55 : 70,
                           child: AppConstants.getAsset('pump', pump.status, ''),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 4),
                   Text(
                     pump.name,
                     textAlign: TextAlign.center,
@@ -295,16 +297,13 @@ class PumpWidget extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 5),
-              child: Text(
-                pump.reason == '8' &&
-                    isTimeFormat(pump.actualValue.split('_').last)
-                    ? '${getContentByCode(int.parse(pump.reason))}, It will be restart automatically within ${pump.actualValue.split('_').last} (hh:mm:ss)'
-                    : getContentByCode(int.parse(pump.reason)),
-                style: const TextStyle(
-                    fontSize: 11, color: Colors.black87, fontWeight: FontWeight.normal),
-              ),
+            child: Text(
+              pump.reason == '8' &&
+                  isTimeFormat(pump.actualValue.split('_').last)
+                  ? '${getContentByCode(int.parse(pump.reason))}, It will be restart automatically within ${pump.actualValue.split('_').last} (hh:mm:ss)'
+                  : getContentByCode(int.parse(pump.reason)),
+              style: const TextStyle(
+                  fontSize: 11, color: Colors.black87, fontWeight: FontWeight.normal),
             ),
           ),
           if (!excludedReasons.contains(pump.reason))
@@ -350,11 +349,11 @@ class PumpWidget extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 7,
-                  backgroundColor: phase > i ? Colors.green : Colors.red.shade100,
+                  backgroundColor: phase > i ? Colors.green : Colors.grey.shade400,
                 ),
                 const VerticalDivider(color: Colors.transparent),
               ],
-            )
+            ),
         ],
       ),
     );
