@@ -60,7 +60,6 @@ class _NormalCriticalInConstantState extends State<NormalCriticalInConstant> {
                       }),
                     ],
                     rows: List.generate(widget.constPvd.normalCriticalAlarm[selectedIrrigationLine.value].normal.length, (row){
-                      print("row : $row");
                       AlarmInConstantModel normalAlarm = widget.constPvd.normalCriticalAlarm[selectedIrrigationLine.value].normal[row];
                       AlarmInConstantModel criticalAlarm = widget.constPvd.normalCriticalAlarm[selectedIrrigationLine.value].critical[row];
                       return DataRow2(

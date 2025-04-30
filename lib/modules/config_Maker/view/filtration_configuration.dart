@@ -91,27 +91,10 @@ class _FiltrationConfigurationState extends State<FiltrationConfiguration> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  if(filtrationSite.pressureIn != 0.0)
-                                    Container(
-                                      alignment: Alignment.centerLeft,
-                                      width: 250,
-                                      child: Image.asset(
-                                        'assets/Images/Png/objectId_24.png',
-                                        width: 30,
-                                        height: 30,
-                                      ),
-                                      // child: SvgPicture.asset(
-                                      //   '${AppConstants.svgObjectPath}objectId_24.svg',
-                                      //   width: 30,
-                                      //   height: 30,
-                                      //   color: Colors.red,
-                                      // ),
-                                    ),
                                   if(filtrationSite.filters.length == 1)
                                     FiltrationDashboardFormation(filtrationFormation: FiltrationFormation.singleFilter, filtrationSite: filtrationSite),
                                   if(filtrationSite.filters.length > 1)
                                     FiltrationDashboardFormation(filtrationFormation: FiltrationFormation.multipleFilter, filtrationSite: filtrationSite)
-
                                 ],
                               ),
                             ),
@@ -345,21 +328,7 @@ class _FiltrationDashboardFormationState extends State<FiltrationDashboardFormat
               height: 8 * configPvd.ratio,
             ),
           ),
-          if(widget.filtrationSite.pressureOut != 0.0)
-            Positioned(
-              bottom: 10,
-              child: Image.asset(
-                  'assets/Images/Png/objectId_24.png',
-                width: 30,
-                height: 30,
-              ),
-              // child: SvgPicture.asset(
-              //   '${AppConstants.svgObjectPath}objectId_24.svg',
-              //   width: 30,
-              //   height: 30,
-              //   color: Colors.red,
-              // ),
-            ),
+
         ],
       ),
     );
@@ -381,6 +350,26 @@ class _FiltrationDashboardFormationState extends State<FiltrationDashboardFormat
               top: 6 * configPvd.ratio,
               child: Text(getObjectName(widget.filtrationSite.filters[0], configPvd).name!,style: TextStyle(fontSize: 12 * configPvd.ratio, fontWeight: FontWeight.bold),),
             ),
+            if(widget.filtrationSite.pressureIn != 0.0)
+              Positioned(
+              top: 30,
+              left: 15,
+              child: Image.asset(
+                'assets/Images/Png/objectId_24.png',
+                width: 30,
+                height: 30,
+              ),
+            ),
+            if(widget.filtrationSite.pressureOut != 0.0)
+              Positioned(
+                right: 15,
+                bottom: 10,
+                child: Image.asset(
+                  'assets/Images/Png/objectId_24.png',
+                  width: 30,
+                  height: 30,
+                ),
+              ),
           ],
         ),
         secondHorizontalPipe(),

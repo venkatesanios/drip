@@ -1,6 +1,4 @@
 import 'dart:convert';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:oro_drip_irrigation/modules/constant/model/constant_menu_model.dart';
 import 'package:oro_drip_irrigation/modules/constant/model/constant_setting_model.dart';
@@ -9,7 +7,6 @@ import 'package:oro_drip_irrigation/modules/constant/model/normal_critical_alarm
 import 'package:oro_drip_irrigation/modules/constant/model/object_in_constant_model.dart';
 import 'package:oro_drip_irrigation/modules/constant/widget/arrow_tab.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
-
 import '../model/constant_setting_type_Model.dart';
 
 class ConstantProvider extends ChangeNotifier{
@@ -62,7 +59,6 @@ class ConstantProvider extends ChangeNotifier{
     print("name : $name");
     return name.isEmpty ? 'Location N/A' : name;
   }
-
 
   List<PopUpItemModel> generatePopUpItemModel({
     required Map<String, dynamic> defaultData,
@@ -362,8 +358,6 @@ class ConstantProvider extends ChangeNotifier{
     return value;
   }
 
-
-
   dynamic payloadValidate(value){
     if(value is bool){
       return value ? 1 : 0;
@@ -389,10 +383,18 @@ class ConstantProvider extends ChangeNotifier{
     }).map((setting) => payloadValidate(setting.value.value)).join(',');
   }
 
+  String serialNumberFormatForEcoGem(double sNo){
+    List<String> sNoSplitList = sNo.toString().split('.');
+    if(sNoSplitList[1].length == 2){
+      sNoSplitList[1] += '0';
+    }
+    return sNoSplitList.join(',');
+  }
+
   String getObjectInConstantPayload(List<ObjectInConstantModel> object){
     return object.map((object){
       bool isGem = AppConstants.gemModelList.contains(userData['modelId']);
-      var objectSno = isGem ? object.sNo : object.sNo.toString().split('.').join(',');
+      var objectSno = isGem ? object.sNo : serialNumberFormatForEcoGem(object.sNo);
       return [
         objectSno,
         ...object.setting.where((setting){
@@ -522,4 +524,5 @@ class ConstantProvider extends ChangeNotifier{
       ].join(',');
     }).join(';');
   }
+
 }
