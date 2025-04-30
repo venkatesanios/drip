@@ -362,8 +362,6 @@ class ConstantProvider extends ChangeNotifier{
     return value;
   }
 
-
-
   dynamic payloadValidate(value){
     if(value is bool){
       return value ? 1 : 0;

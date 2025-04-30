@@ -242,7 +242,7 @@ class _ConnectionState extends State<Connection> {
               setState(() {
                 // remove if there any old connection
                 for(var generatedObject in widget.configPvd.listOfGeneratedObject){
-                  if(widget.configPvd.selectedConnectionNo == generatedObject.connectionNo && selectedDevice.controllerId == generatedObject.controllerId){
+                  if(widget.configPvd.selectedConnectionNo == generatedObject.connectionNo && selectedDevice.controllerId == generatedObject.controllerId && generatedObject.type == object.type){
                     generatedObject.controllerId = null;
                     generatedObject.connectionNo = 0;
                     for(var connectionObject in widget.configPvd.listOfObjectModelConnection){
