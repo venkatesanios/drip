@@ -32,7 +32,6 @@ class FilterSiteView extends StatelessWidget {
                 child: ListView.builder(
                   itemCount: filterSite.filters.length,
                   scrollDirection: Axis.horizontal,
-                  //reverse: true,
                   itemBuilder: (BuildContext context, int flIndex) {
                     return FilterWidget(filter: filterSite.filters[flIndex], siteSno: filterSite.sNo.toString());
                   },

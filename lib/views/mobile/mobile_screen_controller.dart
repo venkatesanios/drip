@@ -7,13 +7,13 @@ import '../../Models/customer/site_model.dart';
 import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../modules/IrrigationProgram/view/program_library.dart';
-import '../../modules/PumpController/model/pump_controller_data_model.dart';
 import '../../modules/PumpController/view/node_settings.dart';
 import '../../modules/PumpController/view/pump_controller_home.dart';
-import '../../modules/PumpController/view/set_serial.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/formatters.dart';
+import '../../utils/routes.dart';
+import '../../utils/shared_preferences_helper.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../../view_models/nav_rail_view_model.dart';
 import '../customer/controller_settings.dart';
@@ -200,10 +200,10 @@ class MobileScreenController extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
 
-                          const SizedBox(width: 15),
-                          Container(
-                              width: 1, height: 20, color: Colors.white54),
-                          const SizedBox(width: 5),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8, right: 8),
+                            child: Container(width: 1, height: 20, color: Colors.white54),
+                          ),
 
                           vm.mySiteList.data[vm.sIndex].master.length > 1? PopupMenuButton<int>(
                             color: Theme.of(context).primaryColorLight,
@@ -224,22 +224,16 @@ class MobileScreenController extends StatelessWidget {
                                 final master = vm.mySiteList.data[vm.sIndex].master[index];
                                 return PopupMenuItem<int>(
                                   value: index,
-                                  child: Row(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      const Icon(Icons.home_max_sharp, size: 20, color: Colors.white),
-                                      const SizedBox(width: 8),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            master.categoryName,
-                                            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-                                          ),
-                                          Text(
-                                            master.modelName,
-                                            style: const TextStyle(fontSize: 12, color: Colors.white54),
-                                          ),
-                                        ],
+                                      Text(
+                                        master.categoryName,
+                                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                                      ),
+                                      Text(
+                                        master.modelName,
+                                        style: const TextStyle(fontSize: 12, color: Colors.white54),
                                       ),
                                     ],
                                   ),
@@ -252,13 +246,13 @@ class MobileScreenController extends StatelessWidget {
                           ):
                           Text(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
                             style: const TextStyle(fontSize: 12),),
-                          const SizedBox(width: 15),
-                          Container(
-                              width: 1, height: 20, color: Colors.white54),
-                          const SizedBox(width: 5),
 
-                          vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
-                              .categoryId == 1 &&
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8, right: 8),
+                            child: Container(width: 1, height: 20, color: Colors.white54),
+                          ),
+
+                          vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1 &&
                               vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
                                   .irrigationLine.length > 1
                               ? DropdownButton<int>(
@@ -271,7 +265,7 @@ class MobileScreenController extends StatelessWidget {
                                   value: index,
                                   child: Text(
                                     line.name,
-                                    style: const TextStyle(color: Colors.white, fontSize: 17),
+                                    style: const TextStyle(color: Colors.white, fontSize: 16),
                                   ),
                                 );
                               },
@@ -287,22 +281,14 @@ class MobileScreenController extends StatelessWidget {
                             iconDisabledColor: Colors.white,
                             focusColor: Colors.transparent,
                           )
-                              : vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
-                              .categoryId == 1
-                              ? Text(
-                            vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
-                                .irrigationLine.isNotEmpty
-                                ? vm.mySiteList.data[vm.sIndex].master[vm
-                                .mIndex].irrigationLine[0].name
-                                : 'Line empty',
-                            style: const TextStyle(fontSize: 15),
-                          )
                               : const SizedBox(),
 
-                          const SizedBox(width: 15),
-                          Container(
-                              width: 1, height: 20, color: Colors.white54),
-                          const SizedBox(width: 5),
+                          vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1 &&
+                              vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
+                                  .irrigationLine.length > 1 ?Padding(
+                            padding: const EdgeInsets.only(left: 8, right: 8),
+                            child: Container(width: 1, height: 20, color: Colors.white54),
+                          ):const SizedBox(),
 
                           Container(
                             decoration: BoxDecoration(
@@ -328,7 +314,7 @@ class MobileScreenController extends StatelessWidget {
                                     .mIndex].live?.cD} ${vm.mySiteList.data[vm
                                     .sIndex].master[vm.mIndex].live?.cT}')}',
                             style: const TextStyle(
-                                fontSize: 15, color: Colors.white54),
+                                fontSize: 14, color: Colors.white60),
                           ),
 
                           const SizedBox(width: 15),
@@ -460,7 +446,10 @@ class MobileScreenController extends StatelessWidget {
                     padding: const EdgeInsets.only(
                         left: 16, top: 16, right: 16),
                     child: TextButton.icon(
-                      onPressed: () {},
+                      onPressed: () async {
+                        await PreferenceHelper.clearAll();
+                        Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false,);
+                      },
                       icon: const Icon(Icons.logout, color: Colors.red),
                       label: const Text("Logout", style: TextStyle(color: Colors
                           .red, fontSize: 17)),
@@ -612,8 +601,6 @@ class MobileScreenController extends StatelessWidget {
                         context, 'option5', Icons.touch_app_outlined, 'Manual'),
                     _buildPopupItem(context, 'Sent & Received',
                         Icons.question_answer_outlined, 'Sent &\nReceived'),
-                    _buildPopupItem(context, 'option7', Icons.devices_other,
-                        'All my\ndevices'),
                   ]
               ),
             ) : null,
