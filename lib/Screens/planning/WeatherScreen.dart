@@ -11,6 +11,7 @@ import '../../Widgets/animated_cloud.dart';
 import '../../modules/IrrigationProgram/view/water_and_fertilizer_screen.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
+import 'WeatherScreenExternal.dart';
 
 class WeatherScreen extends StatefulWidget {
   const WeatherScreen(
@@ -74,7 +75,18 @@ class _WeatherScreenState extends State<WeatherScreen> {
     if (weathernewlive == null) {
       return const Center(child: CircularProgressIndicator());
     } else if (weathernewlive.stations.isEmpty) {
-      return const Center(child: Text('Currently No Weather Data Available'));
+      // return const Center(child: Text('Currently No Weather Data Available'));
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Center(
+              child: Text('Currently No Weather Data Available...')),
+          TextButton.icon(onPressed: (){
+            Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewExample(userid: widget.userId,controllerid: widget.controllerId,)));
+          }, label: Text('Click To Open External Weather Data')),
+
+        ],
+      );
     }else {
       return DefaultTabController(
         length: weathernewlive.stations.length,
