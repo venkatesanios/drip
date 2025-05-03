@@ -82,7 +82,7 @@ class FertilizerSiteView extends StatelessWidget {
             child: Column(
               children: [
                 SizedBox(
-                  height: 30,
+                  height: 25,
                   child: Row(
                     children: [
                       if(siteIndex!=0)
@@ -179,12 +179,8 @@ class FertilizerSiteView extends StatelessWidget {
                           ):
                           const SizedBox(),
 
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.green.shade50,
-                              borderRadius: BorderRadius.circular(3),
-                            ),
-                            width: (fertilizerSite.channel.length * 67) - (fertilizerSite.ec!.isNotEmpty ?
+                          SizedBox(
+                            width: (fertilizerSite.channel.length * 67)+40 - (fertilizerSite.ec!.isNotEmpty ?
                             fertilizerSite.ec!.length * 70 : fertilizerSite.ph!.length * 70),
                             child: Center(
                               child: Text(fertilizerSite.name, style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 11),),

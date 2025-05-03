@@ -189,12 +189,14 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     wifiStrength = ws;
 
     programRunning = cProgram[0].isNotEmpty;
-    payloadProvider.currentSchedule = cProgram;
+    if(programRunning){
+      payloadProvider.currentSchedule = cProgram;
+    }
 
     notifyListeners();
   }
 
-  void onRefreshClicked() async {
+  Future<void>  onRefreshClicked() async {
     if (mqttService.connectionState != MqttConnectionState.connected) {
       mqttConnectionCallbackMethod();
       return;

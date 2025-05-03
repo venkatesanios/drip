@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/Models/servicecustomermodel.dart';
+import 'package:oro_drip_irrigation/Screens/Dealer/sevicecustomer.dart';
 import 'package:oro_drip_irrigation/Screens/Logs/irrigation_and_pump_log.dart';
 import 'package:oro_drip_irrigation/Screens/planning/WeatherScreen.dart';
 import 'package:oro_drip_irrigation/modules/ScheduleView/view/schedule_view_screen.dart';
@@ -16,11 +18,14 @@ import '../../utils/routes.dart';
 import '../../utils/shared_preferences_helper.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../../view_models/nav_rail_view_model.dart';
+import '../account_settings.dart';
 import '../customer/controller_settings.dart';
 import '../customer/customer_home.dart';
 import '../customer/customer_product.dart';
 import '../customer/home_sub_classes/scheduled_program.dart';
+import '../customer/input_output_connection_details.dart';
 import '../customer/node_list.dart';
+import '../customer/stand_alone.dart';
 
 
 class MobileScreenController extends StatelessWidget {
@@ -160,7 +165,9 @@ class MobileScreenController extends StatelessWidget {
               bottom: PreferredSize(
                 preferredSize: const Size.fromHeight(50),
                 child: Container(
-                  color: Colors.black54,
+                  color: Theme
+                      .of(context)
+                      .primaryColor,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 7.0),
                     child: SingleChildScrollView(
@@ -371,7 +378,14 @@ class MobileScreenController extends StatelessWidget {
                     title: const Text("Profile",
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     trailing: const Icon(Icons.arrow_forward_rounded),
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AccountSettings(userId: customerId, customerId: customerId, userName: customerName, mobileNo: mobileNo, emailId: emailId),
+                        ),
+                      );
+                    },
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 40, right: 25),
@@ -423,7 +437,13 @@ class MobileScreenController extends StatelessWidget {
                     title: const Text("Service Request",
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     trailing: const Icon(Icons.arrow_forward_rounded),
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) =>  TicketHomePage(userId: userId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm
+                            .mIndex].controllerId,)),
+                      );
+                    },
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 40, right: 25),
@@ -436,7 +456,12 @@ class MobileScreenController extends StatelessWidget {
                     title: const Text("All my devices",
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     trailing: const Icon(Icons.arrow_forward_rounded),
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) =>  CustomerProduct(customerId: userId)),
+                      );
+                    },
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 40, right: 25),
@@ -475,8 +500,7 @@ class MobileScreenController extends StatelessWidget {
                 ],
               ),
             ),
-            floatingActionButtonLocation: FloatingActionButtonLocation
-                .miniEndFloat,
+            floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
             bottomNavigationBar: vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
                 .categoryId == 1 ? BottomNavigationBar(
               backgroundColor: Colors.white,
@@ -489,7 +513,7 @@ class MobileScreenController extends StatelessWidget {
               selectedItemColor: Theme
                   .of(context)
                   .primaryColorLight,
-              unselectedItemColor: Colors.grey,
+              unselectedItemColor: Colors.black87,
               items: const [
                 BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
                 BottomNavigationBarItem(
@@ -529,6 +553,16 @@ class MobileScreenController extends StatelessWidget {
                           ),
                         );
                         break;
+
+                      case 'I/O Connection':
+                        Navigator.push(context,
+                          MaterialPageRoute(
+                            builder: (context) => InputOutputConnectionDetails(masterInx: vm.mIndex,
+                                nodes: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList),
+                          ),
+                        );
+                        break;
+
                       case 'Sent & Received':
                         Navigator.push(
                           context,
@@ -562,7 +596,7 @@ class MobileScreenController extends StatelessWidget {
                             )
                         );
                         break;
-                      case 'option4':
+                      case 'ScheduleView':
                         Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -578,10 +612,26 @@ class MobileScreenController extends StatelessWidget {
                             )
                         );
                         break;
+
+                      case 'Manual':
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (BuildContext context) {
+                                  return StandAlone(siteId: vm.mySiteList.data[vm.sIndex].groupId,
+                                      controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                                      customerId: customerId,
+                                      deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                                      callbackFunction: callbackFunction, userId: userId, masterData: vm.mySiteList.data[vm.sIndex].master[vm.mIndex]);
+                                }
+                            )
+                        );
+                        break;
+
+
                     }
                   },
                   offset: const Offset(0, -180),
-                  // Move menu **above** FAB
                   color: Colors.white,
                   icon: const Icon(Icons.menu, color: Colors.white),
                   itemBuilder: (BuildContext context) =>
@@ -589,118 +639,123 @@ class MobileScreenController extends StatelessWidget {
                     _buildPopupItem(
                         context, 'Node Status', Icons.format_list_numbered,
                         'Node Status'),
-                    _buildPopupItem(context, 'option2',
+                    _buildPopupItem(context, 'I/O Connection',
                         Icons.settings_input_component_outlined,
                         'I/O\nConnection\ndetails'),
                     _buildPopupItem(
                         context, 'Program', Icons.list_alt, 'Program'),
                     _buildPopupItem(
-                        context, 'option4', Icons.view_list_outlined,
+                        context, 'ScheduleView', Icons.view_list_outlined,
                         'Scheduled\nprogram\ndetails'),
                     _buildPopupItem(
-                        context, 'option5', Icons.touch_app_outlined, 'Manual'),
+                        context, 'Manual', Icons.touch_app_outlined, 'Manual'),
                     _buildPopupItem(context, 'Sent & Received',
                         Icons.question_answer_outlined, 'Sent &\nReceived'),
                   ]
               ),
             ) : null,
-            body: Container(
-              decoration: BoxDecoration(
-                color: Theme
-                    .of(context)
-                    .scaffoldBackgroundColor,
-                borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(8), topRight: Radius.circular(8)),
-              ),
-              child: Column(
-                children: [
-                  if (vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1) ...[
-                    if (!isLiveSynced)
-                      Container(
-                        height: 20.0,
-                        decoration: BoxDecoration(
-                          color: Colors.red.shade300,
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(5),
-                            topRight: Radius.circular(5),
-                          ),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'NO COMMUNICATION TO CONTROLLER',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12.0,
+            body: RefreshIndicator(
+              onRefresh: () => _handleRefresh(vm),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme
+                      .of(context)
+                      .scaffoldBackgroundColor,
+                  borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+                ),
+                child: Column(
+                  children: [
+                    if (vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1) ...[
+                      if (!isLiveSynced)
+                        Container(
+                          height: 20.0,
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade300,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(5),
+                              topRight: Radius.circular(5),
                             ),
                           ),
-                        ),
-                      )
-                    else if (powerSupply == 0)
-                      Container(
-                        height: 23.0,
-                        decoration: BoxDecoration(
-                          color: Colors.red.shade300,
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(5),
-                            topRight: Radius.circular(5),
-                          ),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'NO POWER SUPPLY TO CONTROLLER',
-                            style: TextStyle(
-                              color: Colors.black87,
-                              fontSize: 12.0,
+                          child: const Center(
+                            child: Text(
+                              'NO COMMUNICATION TO CONTROLLER',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12.0,
+                              ),
                             ),
                           ),
-                        ),
-                      )
-                    else
-                      const SizedBox(),
+                        )
+                      else if (powerSupply == 0)
+                        Container(
+                          height: 23.0,
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade300,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(5),
+                              topRight: Radius.circular(5),
+                            ),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              'NO POWER SUPPLY TO CONTROLLER',
+                              style: TextStyle(
+                                color: Colors.black87,
+                                fontSize: 12.0,
+                              ),
+                            ),
+                          ),
+                        )
+                      else
+                        const SizedBox(),
+                    ],
+                    Expanded(
+                      child: vm.selectedIndex == 0 ?
+                      mainScreen(
+                          navViewModel.selectedIndex,
+                          vm.mySiteList.data[vm.sIndex].groupId,
+                          vm.mySiteList.data[vm.sIndex].groupName,
+                          vm.mySiteList.data[vm.sIndex].master,
+                          vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
+                              .controllerId,
+                          vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
+                              .categoryId,
+                          vm.mIndex,
+                          vm.sIndex,
+                        vm.isChanged,
+                        vm
+                      ) :
+                      vm.selectedIndex == 1 ?
+                      ScheduledProgram(
+                        userId: customerId,
+                        scheduledPrograms: vm.mySiteList.data[vm.sIndex].master[vm
+                            .mIndex].programList,
+                        controllerId: vm.mySiteList.data[vm.sIndex].master[vm
+                            .mIndex].controllerId,
+                        deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
+                            .deviceId,
+                        customerId: customerId,
+                        currentLineSNo: vm.mySiteList.data[vm.sIndex].master[vm
+                            .mIndex].irrigationLine[vm.lIndex].sNo,
+                      ) :
+                      ControllerSettings(customerId: customerId,
+                        userId: userId,
+                        masterController: vm.mySiteList.data[vm.sIndex].master[vm.mIndex],
+                    ),
+                    ),
                   ],
-
-                  Expanded(
-                    child: vm.selectedIndex == 0 ?
-                    mainScreen(
-                        navViewModel.selectedIndex,
-                        vm.mySiteList.data[vm.sIndex].groupId,
-                        vm.mySiteList.data[vm.sIndex].groupName,
-                        vm.mySiteList.data[vm.sIndex].master,
-                        vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
-                            .controllerId,
-                        vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
-                            .categoryId,
-                        vm.mIndex,
-                        vm.sIndex,
-                      vm.isChanged,
-                      vm
-                    ) :
-                    vm.selectedIndex == 1 ?
-                    ScheduledProgram(
-                      userId: customerId,
-                      scheduledPrograms: vm.mySiteList.data[vm.sIndex].master[vm
-                          .mIndex].programList,
-                      controllerId: vm.mySiteList.data[vm.sIndex].master[vm
-                          .mIndex].controllerId,
-                      deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
-                          .deviceId,
-                      customerId: customerId,
-                      currentLineSNo: vm.mySiteList.data[vm.sIndex].master[vm
-                          .mIndex].irrigationLine[vm.lIndex].sNo,
-                    ) :
-                    ControllerSettings(customerId: customerId,
-                      userId: userId,
-                      masterController: vm.mySiteList.data[vm.sIndex].master[vm.mIndex],
-                  ),
-                  ),
-                ],
+                ),
               ),
             ),
-
           );
         },
       ),
     );
+  }
+
+  Future<void> _handleRefresh(CustomerScreenControllerViewModel vm) async {
+    await vm.onRefreshClicked();
   }
 
   PopupMenuItem<String> _buildPopupItem(BuildContext context, String value, IconData icon, String label) {

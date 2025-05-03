@@ -1,6 +1,7 @@
 // lib/main.dart
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -122,7 +123,8 @@ class _TicketHomePageState extends State<TicketHomePage> {
 
       return Scaffold(
         backgroundColor: Colors.grey.shade100,
-
+        appBar: kIsWeb? null:
+        AppBar(title: const Text('Service Request')),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(

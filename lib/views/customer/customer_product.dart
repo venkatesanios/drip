@@ -1,4 +1,5 @@
 import 'package:data_table_2/data_table_2.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../repository/repository.dart';
@@ -15,7 +16,7 @@ class CustomerProduct extends StatelessWidget {
       create: (_) => CustomerProductViewModel(Repository(HttpService()))..getCustomerProducts(customerId),
       child: Consumer<CustomerProductViewModel>(
         builder: (context, viewModel, _) {
-          return Padding(
+          return kIsWeb?Padding(
             padding: const EdgeInsets.all(8.0),
             child: DataTable2(
               columnSpacing: 12,
@@ -67,6 +68,96 @@ class CustomerProduct extends StatelessWidget {
                 const Row(children: [CircleAvatar(backgroundColor: Colors.green, radius: 5,), SizedBox(width: 5,), Text('Active', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12))],))),
                 DataCell(Center(child: Text(viewModel.getDateTime(viewModel.productInventoryListCus[index].modifyDate), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)))),
               ])),
+            ),
+          ):
+          Scaffold(
+            appBar: AppBar(title: const Text('All my devices'),),
+            body: ListView.builder(
+              itemCount: viewModel.productInventoryListCus.length,
+              itemBuilder: (context, index) {
+                final device = viewModel.productInventoryListCus[index];
+
+                return  Card(
+                  color: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            const Flexible(
+                              flex: 1,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Device Category', style: TextStyle(fontSize: 13, color: Colors.black54),),
+                                  SizedBox(height: 5,),
+                                  Text('Model Name', style: TextStyle(fontSize: 13, color: Colors.black54)),
+                                  SizedBox(height: 5,),
+                                  Text('Device ID', style: TextStyle(fontSize: 13, color: Colors.black54)),
+                                  SizedBox(height: 5,),
+                                  Text('Site Name', style: TextStyle(fontSize: 13, color: Colors.black54),),
+                                  SizedBox(height: 5,),
+                                  Text('Status', style: TextStyle(fontSize: 13, color: Colors.black54),),
+                                  SizedBox(height: 5,),
+                                  Text('Modify Date', style: TextStyle(fontSize: 13, color: Colors.black54),),
+                                ],
+                              ),
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.only(left: 10, right: 10),
+                              child: SizedBox(
+                                width: 10,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(':'),
+                                    SizedBox(height: 5,),
+                                    Text(':'),
+                                    SizedBox(height: 5,),
+                                    Text(':'),
+                                    SizedBox(height: 5,),
+                                    Text(':'),
+                                    SizedBox(height: 5,),
+                                    Text(':'),
+                                    SizedBox(height: 5,),
+                                    Text(':'),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Flexible(
+                              flex: 2,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(device.categoryName),
+                                  const SizedBox(height: 5,),
+                                  Text(device.model, style: const TextStyle(fontSize: 14)),
+                                  const SizedBox(height: 5,),
+                                  Text(device.deviceId, style: const TextStyle(fontSize: 14)),
+                                  const SizedBox(height: 5,),
+                                  Text(device.siteName, style: const TextStyle(fontSize: 14)),
+                                  const SizedBox(height: 5,),
+                                  Center(child: device.productStatus==3? const Row(children: [CircleAvatar(backgroundColor: Colors.orange, radius: 5,), SizedBox(width: 5,),
+                                    Text('Free', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12))],):
+                                  const Row(children: [CircleAvatar(backgroundColor: Colors.green, radius: 5,), SizedBox(width: 5,), Text('Active', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12))],)),
+                                  const SizedBox(height: 5,),
+                                  Text(device.modifyDate, style: const TextStyle(fontSize: 14)),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+
+              },
             ),
           );
         },

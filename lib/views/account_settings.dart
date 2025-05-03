@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +19,8 @@ class AccountSettings extends StatelessWidget {
       child: Consumer<UserSettingViewModel>(
         builder: (context, viewModel, _) {
           return Scaffold(
-            body: Container(
+            appBar: AppBar(title: const Text('My Profile')),
+            body: kIsWeb?Container(
               color: Colors.blueGrey.shade50,
               child: Column(
                 children: [
@@ -418,6 +420,108 @@ class AccountSettings extends StatelessWidget {
                           ),
                         ],
                       ),
+                    ),
+                  ),
+                ],
+              ),
+            ):
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  InternationalPhoneNumberInput(
+                    onInputChanged: (PhoneNumber number) {
+                      //print(number.phoneNumber);
+                    },
+                    selectorConfig: const SelectorConfig(
+                      selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
+                      setSelectorButtonAsPrefixIcon: true,
+                      leadingPadding: 10,
+                      useEmoji: false,
+                    ),
+                    ignoreBlank: false,
+                    inputDecoration: InputDecoration(
+                      labelText: 'Mobile Number',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0), // Border radius
+                      ),
+                    ),
+                    autoValidateMode: AutovalidateMode.disabled,
+                    selectorTextStyle: const TextStyle(color: Colors.black),
+                    initialValue: PhoneNumber(isoCode: 'IN'),
+                    textFieldController: viewModel.controllerMblNo,
+                    formatInput: false,
+                    keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: true),
+                    onSaved: (PhoneNumber number) {
+                      //print('On Saved: $number');
+                    },
+                  ),
+                  Form(
+                    key: viewModel.formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        const SizedBox(height: 20),
+                        TextFormField(
+                          controller: viewModel.controllerUsrName,
+                          decoration: InputDecoration(
+                            labelText: 'Name',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0), // Border radius
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return 'Please enter your name';
+                            }
+                            return null;
+                          },
+                          onChanged: (value) {
+
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        TextFormField(
+                          controller: viewModel.controllerEmail,
+                          decoration: InputDecoration(
+                            labelText: 'Email Id',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0), // Border radius
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return 'Please enter your email id';
+                            }
+                            return null;
+                          },
+                          onChanged: (value) {
+
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            MaterialButton(
+                              color: Colors.grey,
+                              textColor: Colors.white,
+                              child: const Text('CANCEL'),
+                              onPressed: () {
+
+                              },
+                            ),
+                            const SizedBox(width: 20,),
+                            MaterialButton(
+                              color: Colors.blue,
+                              textColor: Colors.white,
+                              child: const Text('SAVE CHANGES'),
+                              onPressed: ()=> viewModel.updateUserDetails(context, customerId, userId),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ],

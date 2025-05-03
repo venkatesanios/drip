@@ -19,7 +19,7 @@ class CustomerProductModel
     categoryName: json['categoryName'],
     model: json['modelName'],
     deviceId: json['deviceId'],
-    siteName: json['siteName'] ?? '',
+    siteName: json['siteName'] ?? '--',
     modifyDate: json['dateOfManufacturing'],
   );
 

@@ -24,9 +24,9 @@ class LoginScreen extends StatelessWidget {
         builder: (context, viewModel, _) {
           return Scaffold(
             backgroundColor: Colors.white,
-            body: Row(
+            body: kIsWeb? Row(
               children: [
-                kIsWeb? Expanded(
+                Expanded(
                   flex:2,
                   child: Container(
                     width: double.infinity, height: double.infinity,
@@ -38,8 +38,7 @@ class LoginScreen extends StatelessWidget {
                     ):
                     const Image(image: AssetImage('assets/png/lk_login_left_picture.png'), fit: BoxFit.fill),
                   ),
-                ):
-                Container(),
+                ),
                 Expanded(
                     child: Container(
                       color: Colors.white,
@@ -160,6 +159,133 @@ class LoginScreen extends StatelessWidget {
                     )
                 ),
               ],
+            ):
+            Container(
+              width: MediaQuery.sizeOf(context).width,
+              height: MediaQuery.sizeOf(context).height,
+              color: Theme.of(context).primaryColor,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Column(
+                  children: [
+                    Stack(
+                      children: [
+                        Container(
+                          height: (MediaQuery.of(context).size.height / 2),
+                          width: double.infinity,
+                          color: Colors.white,
+                          child: F.appFlavor!.name.contains('oro')? Padding(
+                            padding: const EdgeInsets.all(50.0),
+                            child: SvgPicture.asset('assets/svg_images/login_left_picture.svg'),
+                          ):
+                          const Image(
+                            image: AssetImage('assets/png/lk_login_left_picture.png'),
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                        Positioned(
+                          top: 15,
+                          right: 1,
+                          left: (MediaQuery.of(context).size.width / 2),
+                          child: SvgPicture.asset('assets/svg_images/lk_login_top_corner.svg', fit: BoxFit.fitWidth),
+                        ),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 400),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            InternationalPhoneNumberInput(
+                              inputDecoration: InputDecoration(
+                                filled: true,
+                                fillColor: Colors.white,
+                                icon: const Icon(Icons.phone_outlined, color: Colors.white),
+                                labelText: 'Phone Number',
+                                labelStyle: const TextStyle(color: Colors.black),
+                                suffixIcon: IconButton(
+                                  icon: const Icon(Icons.clear, color: Colors.red),
+                                  onPressed: () => viewModel.mobileNoController.clear(),
+                                ),
+                              ),
+                              onInputChanged: (PhoneNumber number) {
+                                viewModel.countryCode = number.dialCode ?? '';
+                              },
+                              selectorConfig: const SelectorConfig(
+                                selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
+                                setSelectorButtonAsPrefixIcon: true,
+                                leadingPadding: 10,
+                                useEmoji: true,
+                              ),
+                              ignoreBlank: false,
+                              autoValidateMode: AutovalidateMode.disabled,
+                              initialValue: PhoneNumber(isoCode: 'IN'),
+                              textFieldController: viewModel.mobileNoController,
+                              formatInput: false,
+                              keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: true),
+                              onSaved: (_) {},
+                            ),
+                            const SizedBox(height: 15),
+                            TextField(
+                              controller: viewModel.passwordController,
+                              obscureText: viewModel.isObscure,
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: Colors.white,
+                                contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                                icon: const Icon(Icons.lock_outline, color: Colors.white), // Left-side icon
+                                labelText: 'Password',
+                                labelStyle: const TextStyle(color: Colors.black), // Optional: label text color
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    viewModel.isObscure ? Icons.visibility : Icons.visibility_off,
+                                    color: Colors.black87,
+                                  ),
+                                  onPressed: () => viewModel.onIsObscureChanged(),
+                                ),
+                              ),
+                              style: const TextStyle(color: Colors.black), // Text color inside TextField
+                            ),
+                            if (viewModel.errorMessage.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(left: 40, top: 8),
+                                child: Text(
+                                  viewModel.errorMessage,
+                                  textAlign: TextAlign.left,
+                                  style: const TextStyle(color: Colors.red),
+                                ),
+                              ),
+                            const SizedBox(height: 20),
+                            SizedBox(
+                              width: 200,
+                              height: 45.0,
+                              child: MaterialButton(
+                                color: Theme.of(context).primaryColorLight,
+                                textColor: Colors.white,
+                                child: const Text(
+                                  'CONTINUE',
+                                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                                ),
+                                onPressed: () => viewModel.login(),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            const Padding(
+                              padding: EdgeInsets.only(left: 5, right: 5, bottom: 5),
+                              child: Text(AppConstants.appShortContent,
+                                  style: TextStyle(color: Colors.white70, fontSize: 11),
+                                  textAlign: TextAlign.center),
+                            ),
+                          ],
+                        ),
+                      )
+                    ),
+
+                  ],
+                ),
+              ),
             ),
           );
         },

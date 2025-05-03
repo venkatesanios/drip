@@ -67,7 +67,7 @@ class NodeList extends StatelessWidget {
                 child: Column(
                   children: [
                     SizedBox(
-                      width:400,
+                      width: double.infinity,
                       height: 35,
                       child: DataTable2(
                         columnSpacing: 12,
@@ -400,7 +400,7 @@ class NodeList extends StatelessWidget {
       height: 50,
       child: Row(
         children: [
-          const SizedBox(width: 5),
+          const Spacer(),
           const Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -423,7 +423,7 @@ class NodeList extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(width: 10),
+          const Spacer(),
           const Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -446,7 +446,7 @@ class NodeList extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(width: 20),
+          const Spacer(),
           SizedBox(
             width: 40,
             child: IconButton(
@@ -486,6 +486,7 @@ class NodeList extends StatelessWidget {
                   : null,
             ),
           ),
+          const Spacer(),
           SizedBox(
             width: 40,
             child: IconButton(
@@ -504,6 +505,7 @@ class NodeList extends StatelessWidget {
                   : null,
             ),
           ),
+          const Spacer(),
         ],
       ),
     );

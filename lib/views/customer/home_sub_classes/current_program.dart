@@ -249,7 +249,7 @@ class CurrentProgram extends StatelessWidget {
           sentUserOperationToServer('${getProgramNameById(int.parse(values[0]))} - ${getSequenceName(int.parse(values[0]), values[1])} skipped manually', payLoadFinal);
           GlobalSnackBar.show(context, 'Comment sent successfully', 200);
         } : null,
-        child: const Text('Skip'),
+        child: const Text('Skip', style: TextStyle(color: Colors.black87)),
       );
     }
   }

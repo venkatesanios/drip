@@ -242,7 +242,7 @@ class CustomerHome extends StatelessWidget {
                           child: Text(
                             lineObjects.name,
                             textAlign: TextAlign.start,
-                            style: TextStyle(color: isMobile?Colors.black87:Colors.black54, fontSize: 16),
+                            style: const TextStyle(color: Colors.black54, fontSize: 16),
                           ),
                         ),
                         LineObjects(
@@ -352,31 +352,28 @@ class LineObjects extends StatelessWidget {
       )),
     ];
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: (containerWidth / 85).round(),
-        mainAxisSpacing: 0,
-        crossAxisSpacing: 0,
-        childAspectRatio: isMobile? 1.0 : 1.30,
-      ),
-      itemCount: allItems.length,
-      itemBuilder: (context, index) {
-        return isMobile? Card(
-          color: Colors.white,
-          elevation: 1,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
-          child: Padding(
+    return Card(
+      color: Colors.white,
+      surfaceTintColor: Colors.white,
+      elevation: isMobile ? 2 : 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: (containerWidth / 85).round(),
+          mainAxisSpacing: 0,
+          crossAxisSpacing: 0,
+          childAspectRatio: isMobile? 1.0 : 1.30,
+        ),
+        itemCount: allItems.length,
+        itemBuilder: (context, index) {
+          return Padding(
             padding: const EdgeInsets.only(left: 3, right: 3),
             child: allItems[index],
-          ),
-        ):
-        Padding(
-          padding: const EdgeInsets.only(left: 3, right: 3),
-          child: allItems[index],
-        );
-      },
+          );
+        },
+      ),
     );
 
   }
@@ -434,120 +431,179 @@ class PumpStationWidget extends StatelessWidget {
       }
     }
 
+    int totalFilters = filterSite.fold(0, (sum, site) => sum + (site.filters.length));
+    int totalPressureIn = filterSite.fold(0, (sum, site) => sum + (site.pressureIn!=null ? 1 : 0));
+    int totalPressureOut = filterSite.fold(0, (sum, site) => sum + (site.pressureOut!=null ? 1 : 0));
+    int totalBoosterPump = fertilizerSite.fold(0, (sum, site) => sum + (site.boosterPump.length));
+    int totalChannels = fertilizerSite.fold(0, (sum, site) => sum + (site.channel.length));
+    int totalAgitators = fertilizerSite.fold(0, (sum, site) => sum + (site.agitator.length));
+
+    int ffGrandTotal = totalFilters + totalPressureIn + totalPressureOut +
+        totalBoosterPump + totalChannels + totalAgitators;
+
 
     return isMobile? Padding(
       padding: const EdgeInsets.only(left: 8, top: 8, right: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 10, bottom: 2),
+          const Padding(
+            padding: EdgeInsets.only(left: 10, bottom: 2),
             child: Text(
               'PUMP STATION',
               textAlign: TextAlign.start,
-              style: TextStyle(color: isMobile ?Colors.black87:Colors.black54, fontSize: 16),
+              style: TextStyle(color: Colors.black54, fontSize: 16),
             ),
           ),
-          Wrap(
-            spacing: 0.0,
-            runSpacing: 0.0,
-            children: gridItems.map<Widget>((item) {
-              return Card(
-                color: Colors.white,
-                elevation: 1,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
-                child: SizedBox(
-                  width: 70,
-                  height: 85,
-                  child: item,
-                ),
-              );
-            }).toList(),
+          Card(
+            color: Colors.white,
+            surfaceTintColor: Colors.white,
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: (MediaQuery.sizeOf(context).width / 85).round(),
+                mainAxisSpacing: 0,
+                crossAxisSpacing: 0,
+                childAspectRatio: isMobile? 1.0 : 1.30,
+              ),
+              itemCount: gridItems.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.only(left: 3, right: 3),
+                  child: gridItems[index],
+                );
+              },
+            ),
           ),
-          filterSite.isNotEmpty? const Padding(
-            padding: EdgeInsets.only(left: 8, bottom: 2, top: 5),
-            child: Text(
-              'FILTER SITE',
-              textAlign: TextAlign.start,
-              style: TextStyle(color: Colors.black87, fontSize: 16),
-            ),
-          ):
-          const SizedBox(),
-          filterSite.isNotEmpty? Padding(
-            padding: const EdgeInsets.only(left: 5, top: 2),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(
-                  color: Colors.grey.shade400,
-                  width: 0.5,
-                ),
-                borderRadius: const BorderRadius.all(Radius.circular(5)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 8, bottom: 2, right: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          for(int fIndex=0; fIndex<filterSite.length; fIndex++)
-                            FilterSiteView(filterSite: filterSite[fIndex]),
-                        ],
+          if(ffGrandTotal < 6 && filterSite.isNotEmpty && fertilizerSite.isNotEmpty)...[
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                  children: [
+                    filterSite.isNotEmpty? const Padding(
+                      padding: EdgeInsets.only(left: 5, bottom: 2, top: 5),
+                      child: Text(
+                        'FILTER SITE',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(color: Colors.black54, fontSize: 16),
                       ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ):
-          const SizedBox(),
-          fertilizerSite.isNotEmpty? const Padding(
-            padding: EdgeInsets.only(left: 8, bottom: 2, top: 5),
-            child: Text(
-              'FERTILIZER SITE',
-              textAlign: TextAlign.start,
-              style: TextStyle(color: Colors.black87, fontSize: 16),
-            ),
-          ):
-          const SizedBox(),
-          fertilizerSite.isNotEmpty? Padding(
-            padding: const EdgeInsets.only(left: 5, top: 2),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(
-                  color: Colors.grey.shade400,
-                  width: 0.5,
-                ),
-                borderRadius: const BorderRadius.all(Radius.circular(5)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 8, bottom: 2, right: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          for(int siteIndex=0; siteIndex<fertilizerSite.length; siteIndex++)
-                            FertilizerSiteView(fertilizerSite: fertilizerSite[siteIndex], siteIndex: siteIndex),
-                        ],
+                    ):
+                    const SizedBox(),
+                    filterSite.isNotEmpty? Card(
+                      color: Colors.white,
+                      surfaceTintColor: Colors.white,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 8, bottom: 2, right: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              for(int fIndex=0; fIndex<filterSite.length; fIndex++)
+                                FilterSiteView(filterSite: filterSite[fIndex]),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ],
+                    ):
+                    const SizedBox(),
+                  ],
+                ),
+                Column(
+                  children: [
+                    fertilizerSite.isNotEmpty? const Padding(
+                      padding: EdgeInsets.only(left: 8, bottom: 2, top: 5),
+                      child: Text(
+                        'FERTILIZER SITE',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(color: Colors.black54, fontSize: 16),
+                      ),
+                    ):
+                    const SizedBox(),
+                    fertilizerSite.isNotEmpty? Card(
+                      color: Colors.white,
+                      surfaceTintColor: Colors.white,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 8, bottom: 2, right: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              for(int siteIndex=0; siteIndex<fertilizerSite.length; siteIndex++)
+                                FertilizerSiteView(fertilizerSite: fertilizerSite[siteIndex], siteIndex: siteIndex),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ):
+                    const SizedBox(),
+                  ],
+                )
+              ],
+            )
+          ] else...[
+            filterSite.isNotEmpty? const Padding(
+              padding: EdgeInsets.only(left: 5, bottom: 2, top: 5),
+              child: Text(
+                'FILTER SITE',
+                textAlign: TextAlign.start,
+                style: TextStyle(color: Colors.black54, fontSize: 16),
               ),
-            ),
-          ):
-              const SizedBox(),
+            ):
+            const SizedBox(),
+            filterSite.isNotEmpty? Card(
+              color: Colors.white,
+              surfaceTintColor: Colors.white,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8, bottom: 2, right: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for(int fIndex=0; fIndex<filterSite.length; fIndex++)
+                        FilterSiteView(filterSite: filterSite[fIndex]),
+                    ],
+                  ),
+                ),
+              ),
+            ):
+            const SizedBox(),
+            fertilizerSite.isNotEmpty? const Padding(
+              padding: EdgeInsets.only(left: 8, bottom: 2, top: 5),
+              child: Text(
+                'FERTILIZER SITE',
+                textAlign: TextAlign.start,
+                style: TextStyle(color: Colors.black54, fontSize: 16),
+              ),
+            ):
+            const SizedBox(),
+            fertilizerSite.isNotEmpty? Card(
+              color: Colors.white,
+              surfaceTintColor: Colors.white,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8, bottom: 2, right: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for(int siteIndex=0; siteIndex<fertilizerSite.length; siteIndex++)
+                        FertilizerSiteView(fertilizerSite: fertilizerSite[siteIndex], siteIndex: siteIndex),
+                    ],
+                  ),
+                ),
+              ),
+            ):
+            const SizedBox(),
+          ]
         ],
       ),
     ):
@@ -645,14 +701,13 @@ class PumpStationWidget extends StatelessWidget {
                   padding: EdgeInsets.only(left: isMobile? 8:0),
                   child: AppConstants.getAsset('source', 0, position),
                 ),
-                if (hasLevel)
+                if (hasLevel) ...[
                   Positioned(
-                    top: isMobile?37:50,
+                    top: isMobile ? 37 : 50,
                     left: 2,
                     right: 2,
                     child: Consumer<MqttPayloadProvider>(
                       builder: (_, provider, __) {
-
                         final sensorUpdate = provider.getSensorUpdatedValve(source.level[0].sNo.toString());
                         final statusParts = sensorUpdate?.split(',') ?? [];
 
@@ -681,6 +736,42 @@ class PumpStationWidget extends StatelessWidget {
                       },
                     ),
                   ),
+                  Positioned(
+                    top: isMobile ? 5 : 33,
+                    left: 18,
+                    right: 18,
+                    child: Consumer<MqttPayloadProvider>(
+                      builder: (_, provider, __) {
+                        final sensorUpdate = provider.getSensorUpdatedValve(source.level[0].sNo.toString());
+                        final statusParts = sensorUpdate?.split(',') ?? [];
+
+                        if (statusParts.length > 2) {
+                          source.level.first.value = statusParts[2];
+                        }
+
+                        return Container(
+                          height: 17,
+                          decoration: BoxDecoration(
+                            color: Colors.yellow,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.grey, width: 0.5),
+                          ),
+                          child: Center(
+                            child: Text(
+                              '${source.level.first.value}%',
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        );
+
+                      },
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -1087,11 +1178,11 @@ class ValveWidget extends StatelessWidget {
                                         NeedlePointer(
                                             value: double.parse(valve.moistureSensors[0].value),
                                             needleEndWidth: 3, needleColor: Colors.black54),
-                                        RangePointer(
+                                        const RangePointer(
                                           value: 200.0,
                                           width: 0.30,
                                           sizeUnit: GaugeSizeUnit.factor,
-                                          color: const Color(0xFF494CA2),
+                                          color: Color(0xFF494CA2),
                                           animationDuration: 1000,
                                           gradient: SweepGradient(
                                             colors:
@@ -1101,7 +1192,7 @@ class ValveWidget extends StatelessWidget {
                                               Colors.redAccent,
                                               Colors.redAccent
                                             ],
-                                            stops: const <double>[0.15, 0.50, 0.70, 1.00],
+                                            stops: <double>[0.15, 0.50, 0.70, 1.00],
                                           ),
                                           enableAnimation: true,
                                         ),

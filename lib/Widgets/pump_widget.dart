@@ -291,45 +291,48 @@ class PumpWidget extends StatelessWidget {
 
   Widget _buildReasonContainer(BuildContext context) {
     return Container(
-      width: 315,
+      width: 325,
       height: 33,
       color: Colors.orange.shade100,
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              pump.reason == '8' &&
-                  isTimeFormat(pump.actualValue.split('_').last)
-                  ? '${getContentByCode(int.parse(pump.reason))}, It will be restart automatically within ${pump.actualValue.split('_').last} (hh:mm:ss)'
-                  : getContentByCode(int.parse(pump.reason)),
-              style: const TextStyle(
-                  fontSize: 11, color: Colors.black87, fontWeight: FontWeight.normal),
-            ),
-          ),
-          if (!excludedReasons.contains(pump.reason))
-            SizedBox(
-              height: 23,
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.redAccent.shade200,
-                ),
-                onPressed: () {
-                  String payload = '${pump.sNo},1';
-                  String payLoadFinal = jsonEncode({
-                    "6300": {"6301": payload}
-                  });
-                  //print('${AppConstants.publishTopic}/$deviceId');
-                  MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-                  sentUserOperationToServer('${pump.name} Reset Manually', payLoadFinal);
-                  GlobalSnackBar.show(context, 'Reset comment sent successfully', 200);
-                  Navigator.pop(context);
-                },
-                child: const Text('Reset',
-                    style: TextStyle(fontSize: 12, color: Colors.white)),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 8),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                pump.reason == '8' &&
+                    isTimeFormat(pump.actualValue.split('_').last)
+                    ? '${getContentByCode(int.parse(pump.reason))}, It will be restart automatically within ${pump.actualValue.split('_').last} (hh:mm:ss)'
+                    : getContentByCode(int.parse(pump.reason)),
+                style: const TextStyle(
+                    fontSize: 11, color: Colors.black87, fontWeight: FontWeight.normal),
               ),
             ),
-          const SizedBox(width: 5),
-        ],
+            if (!excludedReasons.contains(pump.reason))
+              SizedBox(
+                height: 23,
+                child: TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.redAccent.shade200,
+                  ),
+                  onPressed: () {
+                    String payload = '${pump.sNo},1';
+                    String payLoadFinal = jsonEncode({
+                      "6300": {"6301": payload}
+                    });
+                    //print('${AppConstants.publishTopic}/$deviceId');
+                    MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
+                    sentUserOperationToServer('${pump.name} Reset Manually', payLoadFinal);
+                    GlobalSnackBar.show(context, 'Reset comment sent successfully', 200);
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Reset',
+                      style: TextStyle(fontSize: 12, color: Colors.white)),
+                ),
+              ),
+            const SizedBox(width: 5),
+          ],
+        ),
       ),
     );
   }
@@ -337,7 +340,7 @@ class PumpWidget extends StatelessWidget {
   Widget _buildPhaseInfo() {
     int phase = int.tryParse(pump.phase) ?? 0;
     return Container(
-      width: 300,
+      width: 310,
       height: 25,
       color: Colors.transparent,
       child: Row(

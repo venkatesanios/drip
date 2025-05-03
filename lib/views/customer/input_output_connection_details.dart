@@ -1,4 +1,5 @@
 import 'package:data_table_2/data_table_2.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '../../Models/customer/site_model.dart';
@@ -16,7 +17,7 @@ class InputOutputConnectionDetails extends StatelessWidget {
         title: const Text('Input/Output connection details'),
       ),
       body: MasonryGridView.count(
-        crossAxisCount: 4,
+        crossAxisCount: kIsWeb ? 4:1,
         mainAxisSpacing: 0,
         crossAxisSpacing: 0,
         itemCount: nodes.length,

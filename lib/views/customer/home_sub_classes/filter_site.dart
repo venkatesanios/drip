@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tuple/tuple.dart';
@@ -27,7 +28,7 @@ class FilterSiteView extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 1.9),
               child: SizedBox(
-                height: 91,
+                height: kIsWeb? 91:76,
                 width: filterSite.filters.length * 70,
                 child: ListView.builder(
                   itemCount: filterSite.filters.length,
@@ -45,12 +46,7 @@ class FilterSiteView extends StatelessWidget {
             const SizedBox(),
           ],
         ),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.green.shade50,
-            borderRadius: BorderRadius.circular(3),
-          ),
-
+        SizedBox(
           width: filterSite.pressureIn != null? filterSite.filters.length * 70+70:
           filterSite.filters.length * 70,
           height: 20,
@@ -98,13 +94,12 @@ class FilterWidget extends StatelessWidget {
               children: [
                 SizedBox(
                   width: 70,
-                  height: 70,
+                  height: kIsWeb ? 70 : 55,
                   child: AppConstants.getAsset('filter', filter.status,''),
                 ),
-
                 filter.onDelayLeft != '00:00:00' && siteStatus!=0?
                 Positioned(
-                  top: 55,
+                  top: kIsWeb? 55:35,
                   left: 7.5,
                   child: Container(
                     width: 55,
@@ -134,7 +129,7 @@ class FilterWidget extends StatelessWidget {
                       ),
                     ),
                   ),
-                ):
+                ) :
                 const SizedBox(),
               ],
             ),
@@ -176,13 +171,18 @@ class PressureSensorWidget extends StatelessWidget {
         }
 
         return Padding(
-          padding: const EdgeInsets.only(top: 2.5),
+          padding: kIsWeb?const EdgeInsets.only(top: 2.5):
+          const EdgeInsets.only(left: 0),
           child: SizedBox(
             width: 70,
             height: 70,
             child : Stack(
               children: [
-                Image.asset('assets/png/dp_prs_sensor.png',),
+                Center(
+                  child: kIsWeb
+                      ? Image.asset('assets/png/dp_prs_sensor.png')
+                      : Image.asset('assets/png/pressure_sensor.png', width: 35),
+                ),
                 Positioned(
                   top: 42,
                   left: 5,
