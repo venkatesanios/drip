@@ -181,7 +181,6 @@ class _GlobalAlarmInConstantState extends State<GlobalAlarmInConstant> {
                                       },
                                       title: 'Send',
                                     ),
-
                                 ],
                               );
                             }
