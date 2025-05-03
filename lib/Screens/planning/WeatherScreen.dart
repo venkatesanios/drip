@@ -74,20 +74,22 @@ class _WeatherScreenState extends State<WeatherScreen> {
     }
     if (weathernewlive == null) {
       return const Center(child: CircularProgressIndicator());
-    } else if (weathernewlive.stations.isEmpty) {
+    }
+    else if (weathernewlive.stations.isEmpty) {
       // return const Center(child: Text('Currently No Weather Data Available'));
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Center(
               child: Text('Currently No Weather Data Available...')),
-          TextButton.icon(onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewExample(userid: widget.userId,controllerid: widget.controllerId,)));
-          }, label: Text('Click To Open External Weather Data')),
+          // TextButton.icon(onPressed: (){
+            // Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewExample(userid: widget.userId,controllerid: widget.controllerId,)));
+          // }, label: Text('Click To Open External Weather Data')),
 
         ],
       );
-    }else {
+    }
+    else {
       return DefaultTabController(
         length: weathernewlive.stations.length,
         child: Scaffold(

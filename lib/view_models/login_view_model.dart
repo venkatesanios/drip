@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import '../repository/repository.dart';
 import '../utils/shared_preferences_helper.dart';
 
@@ -55,7 +56,7 @@ class LoginViewModel extends ChangeNotifier {
         'countryCode' : countryCode,
         'mobileNumber': mobileNumber,
         'password': password,
-        'isMobile' : false,
+        'isMobile' : kIsWeb? false : true,
       };
 
       final response = await repository.checkLoginAuth(body);
