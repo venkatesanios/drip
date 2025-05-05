@@ -33,6 +33,7 @@ class MyApp extends StatelessWidget {
     return FutureBuilder<String>(
       future: getInitialRoute(),
       builder: (context, snapshot) {
+        print('vfdv');
         /*print('ConnectionState.done:${snapshot.connectionState}  F.appFlavor : ${F.appFlavor}');
         // Show splash screen or loading while waiting for route or flavor
         if (snapshot.connectionState != ConnectionState.done || F.appFlavor == null) {
@@ -49,6 +50,7 @@ class MyApp extends StatelessWidget {
           theme: isOro ? OroTheme.lightTheme : SmartCommTheme.lightTheme,
           darkTheme: isOro ? OroTheme.darkTheme : SmartCommTheme.darkTheme,
           themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
+          // home: ConfigBasePage(masterData: {}),
           home: navigateToInitialScreen(snapshot.data ?? Routes.login),
           onGenerateRoute: Routes.generateRoute,
         );
@@ -67,6 +69,6 @@ Widget navigateToInitialScreen(String route) {
       // return const ConfigBasePage(masterData: {});
       return const ScreenController();
     default:
-      return const SplashScreen(); // Fallback screen
+      return const SplashScreen();
   }
 }

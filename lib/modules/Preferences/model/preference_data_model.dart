@@ -85,9 +85,23 @@ class WidgetSetting {
       }).toList();
     }
 
-    if (json['title'].toString().toUpperCase() == "2 PHASE" || json['title'].toString().toUpperCase() == "AUTO RESTART 2 PHASE") {
-      if(json['value'] is bool) {
-        json['value'] = List<bool>.filled(3, false);
+    dynamic value;
+    if (json['title'].toString().toUpperCase() == "2 PHASE" ||
+        json['title'].toString().toUpperCase() == "AUTO RESTART 2 PHASE") {
+      value = json['value'] is bool ? List<bool>.filled(3, false) : json['value'];
+    } else {
+      switch (json['widgetTypeId']) {
+        case 1:
+          value = json['value'] is String ? json['value'] : '0';
+          break;
+        case 2:
+          value = json['value'] is bool ? json['value'] : false;
+          break;
+        case 3:
+          value = (json['value'] is String && json['value'].isNotEmpty) ? json['value'] : '00:00:00';
+          break;
+        default:
+          value = json['value'];
       }
     }
 
@@ -97,7 +111,7 @@ class WidgetSetting {
       widgetTypeId: json['widgetTypeId'],
       iconCodePoint: json['iconCodePoint'],
       iconFontFamily: json['iconFontFamily'],
-      value: json['widgetTypeId'] != 3 ? json['value'] : json['value'] == '' ? "00:00:00" : json['value'],
+      value: value,
       rtcSettings: rtcSettings,
       hidden: json['hidden'],
     );

@@ -30,7 +30,7 @@ class _ConnectionState extends State<Connection> {
   @override
   void initState() {
     super.initState();
-    updateValuesConnectionPageInitialize = updateConnection(); // Initialize Future
+    updateValuesConnectionPageInitialize = updateConnection();
   }
 
   Future<bool> updateConnection() async {
@@ -53,7 +53,7 @@ class _ConnectionState extends State<Connection> {
       widget.configPvd.selectedCategory = listOfCategory[0];
 
       for (var device in widget.configPvd.listOfDeviceModel) {
-        if (device.categoryId == listOfCategory[0]) {
+        if (device.categoryId == listOfCategory[0] && device.masterId != null) {
           widget.configPvd.selectedModelControllerId = device.controllerId;
           break;
         }
@@ -61,6 +61,7 @@ class _ConnectionState extends State<Connection> {
 
       widget.configPvd.updateSelectedConnectionNoAndItsType(0, '');
       widget.configPvd.updateConnectionListTile();
+      print("widget.configPvd.selectedModelControllerId --- : ${widget.configPvd.selectedModelControllerId}");
 
       return true;
     } catch (e) {
@@ -451,22 +452,6 @@ class _ConnectionState extends State<Connection> {
     ) : Container();
   }
 
-  // Widget analogObject(){
-  //   DeviceModel selectedDevice = widget.configPvd.listOfDeviceModel.firstWhere((device) => device.controllerId == widget.configPvd.selectedModelControllerId);
-  //   List<int> filteredObjectList = widget.configPvd.listOfSampleObjectModel
-  //       .where((object) => (!['-', '1,2'].contains(object.type) && !['', '0', null].contains(object.count)))
-  //       .toList().where((object) => selectedDevice.connectingObjectId.contains(object.objectId)).toList().map((object) => object.objectId)
-  //       .toList();
-  //   List<DeviceObjectModel> filteredList = widget.configPvd.listOfObjectModelConnection.where((object)=> filteredObjectList.contains(object.objectId)).toList();
-  //   filteredList.sort((a, b) => a.type.compareTo(b.type));
-  //   return ConnectionGridListTile(
-  //     listOfObjectModel: filteredList,
-  //     title: 'Input Object',
-  //     configPvd: widget.configPvd,
-  //     selectedDevice: selectedDevice,
-  //   );
-  // }
-
   Widget getAvailableDeviceCategory(){
     List<int> listOfCategory = [];
     for(var device in widget.configPvd.listOfDeviceModel){
@@ -489,7 +474,7 @@ class _ConnectionState extends State<Connection> {
                   setState(() {
                     widget.configPvd.selectedCategory = categoryId;
                     for(var device in widget.configPvd.listOfDeviceModel){
-                      if(device.categoryId == categoryId){
+                      if(device.categoryId == categoryId && device.masterId != null){
                         widget.configPvd.selectedModelControllerId = device.controllerId;
                         break;
                       }

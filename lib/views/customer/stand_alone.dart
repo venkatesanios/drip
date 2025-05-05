@@ -38,7 +38,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
           ..getProgramList(),
         child: Consumer<StandAloneViewModel>(
           builder: (context, viewModel, _) {
-            return kIsWeb?Container(
+            return kIsWeb? Container(
               width: 400,
               height: MediaQuery.sizeOf(context).height,
               color: Colors.white,

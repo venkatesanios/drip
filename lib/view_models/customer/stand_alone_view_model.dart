@@ -281,7 +281,6 @@ class StandAloneViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-
   int findPositionByName(int sNo, List<ProgramModel> programList) {
     for (int i = 0; i < programList.length; i++) {
       if (programList[i].serialNumber == sNo) {
@@ -290,7 +289,6 @@ class StandAloneViewModel extends ChangeNotifier {
     }
     return -1;
   }
-
 
   void showDurationInputDialog(BuildContext context) {
     List<String> timeParts = durationValue.split(':');

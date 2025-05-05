@@ -106,7 +106,7 @@ class CustomerHome extends StatelessWidget {
         children: [
           context.watch<MqttPayloadProvider>().onRefresh ? displayLinearProgressIndicator() : const SizedBox(),
 
-          (fertilizerSite.isEmpty && (grandTotal < 7 || totalValveCount < 25))
+          (fertilizerSite.isEmpty && (grandTotal < 7 && totalValveCount < 25))
               ? buildWidgetInHorizontal(context, waterSources, filterSite, fertilizerSite, linesToDisplay, grandTotal, false)
               : buildWidgetInVertical(context, waterSources, filterSite, fertilizerSite, linesToDisplay, false),
 
@@ -345,10 +345,7 @@ class LineObjects extends StatelessWidget {
       ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch.png'),
       ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor.png'),
       ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter.png'),
-      ...valves.map((valve) => ValveWidget(
-        valve: valve,
-        customerId: customerId,
-        controllerId: controllerId,
+      ...valves.map((valve) => ValveWidget(valve: valve,customerId: customerId, controllerId: controllerId,
       )),
     ];
 

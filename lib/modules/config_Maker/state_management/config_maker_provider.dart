@@ -78,6 +78,16 @@ class ConfigMakerProvider extends ChangeNotifier{
     pump.clear();
     moisture.clear();
     line.clear();
+    selectedSelectionMode = SelectionMode.auto;
+    selectedConnectionNo = 0;
+    selectedType = '';
+    selectedCategory = 6;
+    selectedModelControllerId = 0;
+    selectedLineSno = 2.001;
+    noticeableObjectId = [];
+    listOfSelectedSno = [];
+    selectedSno = 0.0;
+    serialNumber = 0;
     notifyListeners();
   }
 
@@ -292,7 +302,6 @@ class ConfigMakerProvider extends ChangeNotifier{
       print('generated :: ${object.toJson()}');
     }
   }
-
 
   void updateObjectConnection(DeviceObjectModel selectedConnectionObject,int newCount){
     print('selectedConnectionObject  ${selectedConnectionObject.toJson()}');
@@ -788,7 +797,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         ...boosterList,
         ...channelList,
       ];
-    }else{
+    } else{
       objectListToSend = listOfGeneratedObject;
     }
 
@@ -809,7 +818,6 @@ class ConfigMakerProvider extends ChangeNotifier{
         }.entries.map((e) => e.value).join(","));
       }
     }
-
     return objectPayload.join(";");
   }
 
@@ -1154,4 +1162,5 @@ class ConfigMakerProvider extends ChangeNotifier{
     }
     return listOfPumpPayload;
   }
+
 }

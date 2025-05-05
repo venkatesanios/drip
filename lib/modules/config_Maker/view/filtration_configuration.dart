@@ -310,6 +310,16 @@ class _FiltrationDashboardFormationState extends State<FiltrationDashboardFormat
               height: 8 * configPvd.ratio,
             ),
           ),
+          if(widget.filtrationSite.pressureIn != 0.0)
+            Positioned(
+              top: 30,
+              left: 15,
+              child: Image.asset(
+                'assets/Images/Png/objectId_24.png',
+                width: 30,
+                height: 30,
+              ),
+            ),
         ],
       ),
     );
@@ -328,6 +338,16 @@ class _FiltrationDashboardFormationState extends State<FiltrationDashboardFormat
               height: 8 * configPvd.ratio,
             ),
           ),
+          if(widget.filtrationSite.pressureOut != 0.0)
+            Positioned(
+              right: 15,
+              bottom: 10,
+              child: Image.asset(
+                'assets/Images/Png/objectId_24.png',
+                width: 30,
+                height: 30,
+              ),
+            ),
 
         ],
       ),
@@ -350,26 +370,7 @@ class _FiltrationDashboardFormationState extends State<FiltrationDashboardFormat
               top: 6 * configPvd.ratio,
               child: Text(getObjectName(widget.filtrationSite.filters[0], configPvd).name!,style: TextStyle(fontSize: 12 * configPvd.ratio, fontWeight: FontWeight.bold),),
             ),
-            if(widget.filtrationSite.pressureIn != 0.0)
-              Positioned(
-              top: 30,
-              left: 15,
-              child: Image.asset(
-                'assets/Images/Png/objectId_24.png',
-                width: 30,
-                height: 30,
-              ),
-            ),
-            if(widget.filtrationSite.pressureOut != 0.0)
-              Positioned(
-                right: 15,
-                bottom: 10,
-                child: Image.asset(
-                  'assets/Images/Png/objectId_24.png',
-                  width: 30,
-                  height: 30,
-                ),
-              ),
+
           ],
         ),
         secondHorizontalPipe(),

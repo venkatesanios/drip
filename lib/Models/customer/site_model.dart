@@ -1131,6 +1131,30 @@ class ValveModel {
   }
 }
 
+class ValveSA {
+  final double sNo;
+  final String name;
+
+  ValveSA({
+    required this.sNo,
+    required this.name,
+  });
+
+  factory ValveSA.fromJson(Map<String, dynamic> json) {
+    return ValveSA(
+      sNo: (json['sNo'] as num).toDouble(),
+      name: json['name'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'sNo': sNo,
+      'name': name,
+    };
+  }
+}
+
 class Level {
   int? objectId;
   double? sNo;

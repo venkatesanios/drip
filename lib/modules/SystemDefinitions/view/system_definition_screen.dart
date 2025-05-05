@@ -68,8 +68,8 @@ class _SystemDefinitionState extends State<SystemDefinition> {
       child: Scaffold(
         appBar: screenSize <= 600
             ? AppBar(
-          title: Text("System Definition", style: TextStyle(color: Theme.of(context).primaryColor,fontWeight: FontWeight.bold)),
-          automaticallyImplyLeading: false,
+          title: const Text("System Definition"),
+          automaticallyImplyLeading: true,
           bottom: PreferredSize(
               preferredSize: const Size(double.maxFinite, 35),
               child: SingleChildScrollView(
@@ -512,7 +512,7 @@ class _SystemDefinitionState extends State<SystemDefinition> {
                   },
                   payload: dataToMqtt,
                   payloadCode: "2200",
-                  deviceId: overAllPvd.imeiNo
+                  deviceId: widget.deviceId
               );
               await Future.delayed(const Duration(seconds: 1), () async {
                 final createUserPlanningSystemDefinition = await repository.createUserPlanningSystemDefinition(userData);

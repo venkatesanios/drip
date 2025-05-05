@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/program_library.dart';
+import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/schedule_screen.dart';
 import 'package:oro_drip_irrigation/modules/Preferences/state_management/preference_provider.dart';
 import 'package:oro_drip_irrigation/modules/Preferences/view/moisture_settings.dart';
 import 'package:oro_drip_irrigation/modules/Preferences/widgets/custom_segmented_control.dart';
@@ -174,11 +175,11 @@ class _StandAloneSettingsState extends State<StandAloneSettings> {
           value: setting.value,
           onChanged: (value) => setState(() => setting.value = value),
         );
-      default:
+      case 1:
         return SizedBox(
           width: 80,
           child: TextFormField(
-            initialValue: setting.value,
+            initialValue: setting.value.toString(),
             textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
             onChanged: (value) => setState(() => setting.value = value),
@@ -191,11 +192,13 @@ class _StandAloneSettingsState extends State<StandAloneSettings> {
                 borderRadius: BorderRadius.all(Radius.circular(8)),
                 borderSide: BorderSide.none,
               ),
-              fillColor: Colors.grey,
+              fillColor: cardColor,
               filled: true,
             ),
           ),
         );
+      default:
+        return const Text("Unknown");
     }
   }
 

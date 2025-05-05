@@ -3148,11 +3148,11 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
               "no of zones": '${_irrigationLine!.sequence.length}',
               "PumpStationMode": '${isPumpStationMode ? 1 : 0}',
               "Pump": pumpPayload.join(','),
-              "DelayBetweenZones": delayBetweenZones.length == 5 ? "$delayBetweenZones:00" : delayBetweenZones,
+              "DelayBetweenZones": delayBetweenZones.length == 5 ? "${delayBetweenZones.replaceAll(':', ',')},00" : delayBetweenZones.replaceAll(':', ','),
               "ScaleFactor": adjustPercentage != "0" ? adjustPercentage : "100",
               "SchedulingMethod": '${selectedScheduleType == scheduleTypesForEcoGem[0]
                   ? 1 : 2}',
-              "IntervalBetweenCycles": selectedScheduleType == scheduleTypes[3] ? _sampleScheduleModel!.dayCountSchedule.schedule["interval"] : '00:00:00',/*IntervalBetweenCycles*/
+              "IntervalBetweenCycles": selectedScheduleType == scheduleTypes[3] ? _sampleScheduleModel!.dayCountSchedule.schedule["interval"].replaceAll(':', ',') : '00,00,00',/*IntervalBetweenCycles*/
               "CentralFilterSiteOperationMode": '${selectedCentralFiltrationMode == "TIME"
                   ? 1 : selectedCentralFiltrationMode == "DP"
                   ? 2

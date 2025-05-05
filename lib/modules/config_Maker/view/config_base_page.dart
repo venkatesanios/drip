@@ -36,6 +36,9 @@ class _ConfigBasePageState extends State<ConfigBasePage> {
     // listOfDevices = configPvd.fetchData({"userId":3,"customerId":8,"controllerId":23,"deviceId":"2CCF6773D07D","deviceName":"xMm","categoryId":1,"categoryName":"xMm","modelId":4,"modelName":"xMm2000ROOL","groupId":4,"groupName":"TESTING PURPOSE","connectingObjectId":["1","2","3","4","-"]});
     // listOfDevices = configPvd.fetchData({"userId":3,"customerId":8,"controllerId":75,"deviceId":"AACCEEAAEEDD","deviceName":"xMp","categoryId":2,"categoryName":"xMp","modelId":48,"modelName":"xMp1000GO3O","groupId":4,"groupName":"TESTING PURPOSE","connectingObjectId":["5","13","22","24","26","40"]});
     // listOfDevices = configPvd.fetchData({"userId":3,"customerId":8,"controllerId":115,"deviceId":"866308064396","deviceName":"xMm","categoryId":1,"categoryName":"xMm","modelId":3,"modelName":"xMm1000ROOE","groupId":4,"groupName":"TESTING PURPOSE","connectingObjectId":["1","2","3","4","13","14","22","23","24","26","40","41"]});
+
+    // New Site
+    // listOfDevices = configPvd.fetchData({"userId":3,"customerId":18,"controllerId":124,"deviceId":"2CCF676C5BFC","deviceName":"xMm","categoryId":1,"categoryName":"xMm","modelId":4,"modelName":"xMm2000ROOL","groupId":15,"groupName":"New Site","connectingObjectId":["1","2","3","4","-"]});
     listOfDevices = configPvd.fetchData(widget.masterData);
   }
 
