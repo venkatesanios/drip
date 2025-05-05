@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "749016956909",
+    "project_id": "smartcomm-6f42b",
+    "storage_bucket": "smartcomm-6f42b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:749016956909:android:80fcbb7804dd607c8831e4",
+        "android_client_info": {
+          "package_name": "com.example.oroDevelopment"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQkCbve4yDFg01SNQulw_RwLtxK3LUpT0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:749016956909:android:403a1e87b85ffcf98831e4",
+        "android_client_info": {
+          "package_name": "com.example.oro_drip_irrigation"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQkCbve4yDFg01SNQulw_RwLtxK3LUpT0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:749016956909:android:38c33f7cdb2e6e7f8831e4",
+        "android_client_info": {
+          "package_name": "com.example.smartComm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQkCbve4yDFg01SNQulw_RwLtxK3LUpT0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
