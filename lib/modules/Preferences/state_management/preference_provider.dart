@@ -104,23 +104,6 @@ class PreferenceProvider extends ChangeNotifier {
       print("Error parsing setting data: $error");
       print("Stack trace setting data: $stackTrace");
     }
-    /*if([48,49].contains(modelId)){
-      try {
-        final response = await repository.getUserPreferenceValveSetting(userData);
-        if(response.statusCode == 200) {
-          final result = programSettings;
-          // final result = jsonDecode(response.body);
-          _valveSettings = SettingList.fromJson(Map<String, dynamic>.from(result['data']['valveSetting']));
-          _moistureSettings = SettingList.fromJson(Map<String, dynamic>.from(result['data']['moistureSetting']));
-          if(_valveSettings != null) {
-            getMode();
-          }
-        }
-      } catch(error, stackTrace) {
-        print("Error parsing setting data: $error");
-        print("Stack trace setting data: $stackTrace");
-      }
-    }*/
     notifyListeners();
   }
 
