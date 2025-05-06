@@ -3,11 +3,11 @@ import 'dart:convert';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../Models/customer/site_model.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
+import '../../../modules/IrrigationProgram/view/irrigation_program_main.dart';
 import '../../../repository/repository.dart';
 import '../../../services/http_service.dart';
 import '../../../services/mqtt_service.dart';
@@ -15,11 +15,18 @@ import '../../../utils/constants.dart';
 import '../../../utils/snack_bar.dart';
 
 class ScheduledProgram extends StatelessWidget {
-  const ScheduledProgram({super.key, required this.userId, required this.scheduledPrograms, required this.controllerId, required this.deviceId, required this.customerId, required this.currentLineSNo});
-  final int userId, customerId, controllerId;
-  final String deviceId;
+  const ScheduledProgram({super.key, required this.userId,
+    required this.scheduledPrograms, required this.controllerId,
+    required this.deviceId, required this.customerId,
+    required this.currentLineSNo, required this.groupId,
+    required this.categoryId, required this.modelId,
+    required this.deviceName, required this.categoryName});
+
+  final int userId, customerId, controllerId, groupId, categoryId, modelId;
+  final String deviceId, deviceName, categoryName;
   final List<ProgramList> scheduledPrograms;
   final double currentLineSNo;
+
 
   @override
   Widget build(BuildContext context) {
@@ -263,22 +270,30 @@ class ScheduledProgram extends StatelessWidget {
                                         } else {
                                           prgType = 'Agitator Program';
                                         }
+
                                         /*if (siteData.master[masterInx].conditionLibraryCount > 0) {
-                                      conditionL = true;
-                                    }*/
-                                        /* Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => IrrigationProgram(
-                                          deviceId: siteData.master[masterInx].deviceId,
-                                          userId: siteData.customerId,
-                                          controllerId: siteData.master[masterInx].controllerId,
-                                          serialNumber: filteredScheduleProgram[index].sNo,
-                                          programType: prgType,
-                                          conditionsLibraryIsNotEmpty: conditionL,
-                                        ),
-                                      ),
-                                    );*/
+                                          conditionL = true;
+                                        }*/
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => IrrigationProgram(
+                                              deviceId: deviceId,
+                                              userId: userId,
+                                              controllerId: controllerId,
+                                              serialNumber: scheduledPrograms[index].serialNumber,
+                                              programType: prgType,
+                                              conditionsLibraryIsNotEmpty: conditionL,
+                                              fromDealer: false,
+                                              groupId: groupId,
+                                              categoryId: categoryId,
+                                              customerId: customerId,
+                                              modelId: modelId,
+                                              deviceName: deviceName,
+                                              categoryName: categoryName,
+                                            ),
+                                          ),
+                                        );
                                       }
                                     },
                                     itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
