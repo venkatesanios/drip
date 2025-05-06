@@ -738,6 +738,11 @@ class MobileScreenController extends StatelessWidget {
                         customerId: customerId,
                         currentLineSNo: vm.mySiteList.data[vm.sIndex].master[vm
                             .mIndex].irrigationLine[vm.lIndex].sNo,
+                        groupId: vm.mySiteList.data[vm.sIndex].groupId,
+                        categoryId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
+                        modelId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId,
+                        deviceName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceName,
+                        categoryName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
                       ) :
                       ControllerSettings(customerId: customerId,
                         userId: userId,
