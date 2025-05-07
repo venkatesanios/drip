@@ -35,7 +35,8 @@ class LoginViewModel extends ChangeNotifier {
     isLoading = true;
     errorMessage = "";
     notifyListeners();
-
+    mobileNoController.text = '1122334455';
+    passwordController.text = '123456';
     try {
       String mobileNumber = mobileNoController.text.trim();
       String password = passwordController.text.trim();

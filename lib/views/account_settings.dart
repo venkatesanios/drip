@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl_phone_number_input/intl_phone_number_input.dart';
  import 'package:provider/provider.dart';
 
 import '../repository/repository.dart';
@@ -428,33 +427,33 @@ class AccountSettings extends StatelessWidget {
               child: Column(
                 children: [
                   const SizedBox(height: 20),
-                  InternationalPhoneNumberInput(
-                    onInputChanged: (PhoneNumber number) {
-                      //print(number.phoneNumber);
-                    },
-                    selectorConfig: const SelectorConfig(
-                      selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
-                      setSelectorButtonAsPrefixIcon: true,
-                      leadingPadding: 10,
-                      useEmoji: false,
-                    ),
-                    ignoreBlank: false,
-                    inputDecoration: InputDecoration(
-                      labelText: 'Mobile Number',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0), // Border radius
-                      ),
-                    ),
-                    autoValidateMode: AutovalidateMode.disabled,
-                    selectorTextStyle: const TextStyle(color: Colors.black),
-                    initialValue: PhoneNumber(isoCode: 'IN'),
-                    textFieldController: viewModel.controllerMblNo,
-                    formatInput: false,
-                    keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: true),
-                    onSaved: (PhoneNumber number) {
-                      //print('On Saved: $number');
-                    },
-                  ),
+                  // InternationalPhoneNumberInput(
+                  //   onInputChanged: (PhoneNumber number) {
+                  //     //print(number.phoneNumber);
+                  //   },
+                  //   selectorConfig: const SelectorConfig(
+                  //     selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
+                  //     setSelectorButtonAsPrefixIcon: true,
+                  //     leadingPadding: 10,
+                  //     useEmoji: false,
+                  //   ),
+                  //   ignoreBlank: false,
+                  //   inputDecoration: InputDecoration(
+                  //     labelText: 'Mobile Number',
+                  //     border: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.circular(10.0), // Border radius
+                  //     ),
+                  //   ),
+                  //   autoValidateMode: AutovalidateMode.disabled,
+                  //   selectorTextStyle: const TextStyle(color: Colors.black),
+                  //   initialValue: PhoneNumber(isoCode: 'IN'),
+                  //   textFieldController: viewModel.controllerMblNo,
+                  //   formatInput: false,
+                  //   keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: true),
+                  //   onSaved: (PhoneNumber number) {
+                  //     //print('On Saved: $number');
+                  //   },
+                  // ),
                   Form(
                     key: viewModel.formKey,
                     child: Column(

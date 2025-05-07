@@ -1,12 +1,14 @@
 import 'dart:async';
+import 'package:az_notification_hub/az_notification_hub.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-
 import 'package:oro_drip_irrigation/app/app.dart';
 import 'package:oro_drip_irrigation/modules/PumpController/state_management/pump_controller_provider.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:provider/provider.dart';
-import 'Constants/notifi_service.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'Constants/notifications_service.dart';
 import 'Screens/Constant/ConstantPageProvider/changeNotifier_constantProvider.dart';
 import 'firebase_options.dart';
@@ -17,17 +19,53 @@ import 'modules/config_Maker/state_management/config_maker_provider.dart';
 import 'StateManagement/mqtt_payload_provider.dart';
 import 'StateManagement/overall_use.dart';
 import 'modules/constant/state_management/constant_provider.dart';
-import 'package:firebase_core/firebase_core.dart';
+
+// Initialize local notifications plugin
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+// Background message handler for Firebase
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print("Handling a background message: ${message.messageId}");
+}
 
 FutureOr<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  // debugPaintSizeEnabled = true;
-  MqttService mqttService = MqttService();
-  MqttPayloadProvider myMqtt = MqttPayloadProvider();
-  NotificationServiceCall().initialize();
+
+  try {
+    // Initialize Firebase
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+
+    // Request notification permissions
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    await messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    // Initialize local notifications
+    const AndroidInitializationSettings initializationSettingsAndroid =
+    AndroidInitializationSettings('@mipmap/ic_launcher');
+    final InitializationSettings initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+    );
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+    // Set up Firebase background message handler
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+    // Start Azure Notification Hub
+    await AzureNotificationHub.instance.start();
+  } catch (e) {
+    debugPrint('Initialization error: $e');
+  }
+
+  final mqttService = MqttService();
+  final myMqtt = MqttPayloadProvider();
+
   runApp(
     MultiProvider(
       providers: [
@@ -42,6 +80,6 @@ FutureOr<void> main() async {
         ChangeNotifierProvider(create: (_) => PumpControllerProvider()),
       ],
       child: MyApp(),
-      
     ),
-  );}
+  );
+}

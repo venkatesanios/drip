@@ -15,4 +15,6 @@
     <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
         <item name="android:windowBackground">?android:colorBackground</item>
     </style>
-</resources>
+         <string name="azure_notification_hub_connection_string">Endpoint=sb://imsapp-smartcommcloud.servicebus.windows.net/;SharedAccessKeyName=DefaultListenSharedAccessSignature;SharedAccessKey=your_secret_key_here</string>
+        <string name="azure_notification_hub_name">imsapp-smartcommcloud-hub</string>
+ </resources>

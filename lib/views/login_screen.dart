@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:provider/provider.dart';
 import '../flavors.dart';
 import '../repository/repository.dart';
@@ -218,35 +217,35 @@ class LoginScreen extends StatelessWidget {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            InternationalPhoneNumberInput(
-                              inputDecoration: InputDecoration(
-                                filled: true,
-                                fillColor: Colors.white,
-                                icon: const Icon(Icons.phone_outlined, color: Colors.white),
-                                labelText: 'Phone Number',
-                                labelStyle: const TextStyle(color: Colors.black),
-                                suffixIcon: IconButton(
-                                  icon: const Icon(Icons.clear, color: Colors.red),
-                                  onPressed: () => viewModel.mobileNoController.clear(),
-                                ),
-                              ),
-                              onInputChanged: (PhoneNumber number) {
-                                viewModel.countryCode = number.dialCode ?? '';
-                              },
-                              selectorConfig: const SelectorConfig(
-                                selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
-                                setSelectorButtonAsPrefixIcon: true,
-                                leadingPadding: 10,
-                                useEmoji: true,
-                              ),
-                              ignoreBlank: false,
-                              autoValidateMode: AutovalidateMode.disabled,
-                              initialValue: PhoneNumber(isoCode: 'IN'),
-                              textFieldController: viewModel.mobileNoController,
-                              formatInput: false,
-                              keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: true),
-                              onSaved: (_) {},
-                            ),
+                            // InternationalPhoneNumberInput(
+                            //   inputDecoration: InputDecoration(
+                            //     filled: true,
+                            //     fillColor: Colors.white,
+                            //     icon: const Icon(Icons.phone_outlined, color: Colors.white),
+                            //     labelText: 'Phone Number',
+                            //     labelStyle: const TextStyle(color: Colors.black),
+                            //     suffixIcon: IconButton(
+                            //       icon: const Icon(Icons.clear, color: Colors.red),
+                            //       onPressed: () => viewModel.mobileNoController.clear(),
+                            //     ),
+                            //   ),
+                            //   onInputChanged: (PhoneNumber number) {
+                            //     viewModel.countryCode = number.dialCode ?? '';
+                            //   },
+                            //   selectorConfig: const SelectorConfig(
+                            //     selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
+                            //     setSelectorButtonAsPrefixIcon: true,
+                            //     leadingPadding: 10,
+                            //     useEmoji: true,
+                            //   ),
+                            //   ignoreBlank: false,
+                            //   autoValidateMode: AutovalidateMode.disabled,
+                            //   initialValue: PhoneNumber(isoCode: 'IN'),
+                            //   textFieldController: viewModel.mobileNoController,
+                            //   formatInput: false,
+                            //   keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: true),
+                            //   onSaved: (_) {},
+                            // ),
                             const SizedBox(height: 15),
                             TextField(
                               controller: viewModel.passwordController,

@@ -64,6 +64,9 @@ dependencies:
   webview_flutter: ^4.11.0
   flutter_local_notifications: ^19.1.0
   firebase_messaging: ^15.2.5
+  az_notification_hub: ^1.1.2
+  flutter_dotenv: ^5.2.1
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:
@@ -99,6 +102,7 @@ flutter:
     - assets/mob_dashboard/
     - assets/gif/
     - assets/gif/dp_irr_pump_g.gif
+    - assets/.env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
