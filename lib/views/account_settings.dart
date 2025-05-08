@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
  import 'package:provider/provider.dart';
 
 import '../repository/repository.dart';
@@ -428,32 +428,29 @@ class AccountSettings extends StatelessWidget {
               child: Column(
                 children: [
                   const SizedBox(height: 20),
-                  InternationalPhoneNumberInput(
-                    onInputChanged: (PhoneNumber number) {
-                      //print(number.phoneNumber);
-                    },
-                    selectorConfig: const SelectorConfig(
-                      selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
-                      setSelectorButtonAsPrefixIcon: true,
-                      leadingPadding: 10,
-                      useEmoji: false,
-                    ),
-                    ignoreBlank: false,
-                    inputDecoration: InputDecoration(
-                      labelText: 'Mobile Number',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0), // Border radius
+                  IntlPhoneField(
+                    decoration: InputDecoration(
+                      labelText: null,
+                      border: const OutlineInputBorder(
+                        borderSide: BorderSide(),
                       ),
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.clear, color: Colors.red),
+                        onPressed: () => viewModel.controllerMblNo.clear(),
+                      ),
+                      icon: const Icon(Icons.phone_outlined, color: Colors.white),
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
+                      counterText: '',
                     ),
-                    autoValidateMode: AutovalidateMode.disabled,
-                    selectorTextStyle: const TextStyle(color: Colors.black),
-                    initialValue: PhoneNumber(isoCode: 'IN'),
-                    textFieldController: viewModel.controllerMblNo,
-                    formatInput: false,
-                    keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: true),
-                    onSaved: (PhoneNumber number) {
-                      //print('On Saved: $number');
+                    languageCode: "en",
+                    initialCountryCode: 'IN',
+                    controller: viewModel.controllerMblNo,
+                    onChanged: (phone) {
+                      print(phone.completeNumber);
                     },
+                    onCountryChanged: (country) => viewModel.countryCode = country.dialCode,
                   ),
                   Form(
                     key: viewModel.formKey,
