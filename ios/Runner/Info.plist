@@ -46,8 +46,14 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>NotificationHubConnectionString</key>
-    	<string>Endpoint=sb://....</string>
+    	<string>Endpoint=sb://imsapp-smartcommcloud.servicebus.windows.net/;SharedAccessKeyName=DefaultListenSharedAccessSignature;SharedAccessKey=4cRCWJKUbbyoW7J+zVGF7Nj6Kj7emAZqoTRJqGI0NQs=</string>
     	<key>NotificationHubName</key>
-    	<string>....</string>
+    	<string>imsapp-smartcommcloud-hub</string>
+   <key>UIBackgroundModes</key>
+   <array>
+     <string>remote-notification</string>
+   </array>
+   <key>FirebaseAppDelegateProxyEnabled</key>
+   <false/>
 </dict>
 </plist>

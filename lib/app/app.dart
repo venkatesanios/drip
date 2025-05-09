@@ -28,80 +28,12 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     if(!kIsWeb){
       NotificationServiceCall().initialize();
-      _configureFirebaseMessaging();
+      NotificationServiceCall().configureFirebaseMessaging();
     }
   }
 
-  void _configureFirebaseMessaging() {
-    // Handle foreground messages
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('Foreground message received: ${message.messageId}');
-      if (message.notification != null) {
-        _showNotification({
-          'notification': {
-            'title': message.notification?.title ?? 'Notification',
-            'body': message.notification?.body ?? 'New notification received',
-          },
-          'data': message.data,
-        });
-      }
-    });
 
-    // Handle notifications when the app is opened from a notification
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('Message opened app: ${message.messageId}');
-      _navigateToScreen({
-        'notification': {
-          'title': message.notification?.title,
-          'body': message.notification?.body,
-        },
-        'data': message.data,
-      });
-    });
 
-    // Handle initial message when the app is launched from a terminated state
-    FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message) {
-      if (message != null) {
-        print('Initial message: ${message.messageId}');
-        _navigateToScreen({
-          'notification': {
-            'title': message.notification?.title,
-            'body': message.notification?.body,
-          },
-          'data': message.data,
-        });
-      }
-    });
-
-  }
-
-  Future<void> _showNotification(Map<String, dynamic> notification) async {
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-    AndroidNotificationDetails(
-      'oro_channel_id',
-      'Oro Notifications',
-      importance: Importance.max,
-      priority: Priority.high,
-    );
-    const NotificationDetails platformChannelSpecifics =
-    NotificationDetails(android: androidPlatformChannelSpecifics);
-    await _flutterLocalNotificationsPlugin.show(
-      0,
-      notification['notification']['title'] ?? 'Notification',
-      notification['notification']['body'] ?? 'You have a new notification',
-      platformChannelSpecifics,
-      payload: notification['data']?.toString(),
-    );
-  }
-
-  void _navigateToScreen(Map<String, dynamic> notification) {
-    // Implement navigation logic based on notification data
-    print('Navigate based on: $notification');
-    // Example: Navigate to a specific screen if notification contains a route
-    // if (notification['data']['route'] != null) {
-    //   Navigator.pushNamed(context, notification['data']['route']);
-    // }
-  }
 
   /// Decide the initial route based on whether a token exists
   Future<String> getInitialRoute() async {
