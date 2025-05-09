@@ -191,8 +191,9 @@ class ScheduledProgram extends StatelessWidget {
                                 IconButton(
                                   tooltip: 'view condition',
                                   onPressed: () {
-                                    showAutoUpdateDialog(context,
-                                      filteredScheduleProgram[index].serialNumber,
+                                    showConditionDialog(context,
+                                      filteredScheduleProgram[index].programName,
+                                      filteredScheduleProgram[index].conditions,
                                     );
                                   },
                                   icon: const Icon(Icons.visibility_outlined, color: Colors.teal,),
@@ -287,9 +288,10 @@ class ScheduledProgram extends StatelessWidget {
                                           prgType = 'Agitator Program';
                                         }
 
-                                        /*if (siteData.master[masterInx].conditionLibraryCount > 0) {
+                                        if (filteredScheduleProgram[index].conditions.isNotEmpty) {
                                           conditionL = true;
-                                        }*/
+                                        }
+
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -436,28 +438,46 @@ class ScheduledProgram extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              Row(
                                 children: [
-                                  Text(program.programName),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: LinearProgressIndicator(
-                                          value: program.programStatusPercentage / 100.0,
-                                          borderRadius: const BorderRadius.all(Radius.circular(3)),
-                                          color: Colors.blue.shade300,
-                                          backgroundColor: Colors.grey.shade200,
-                                          minHeight: 3,
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(program.programName),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: LinearProgressIndicator(
+                                                value: program.programStatusPercentage / 100.0,
+                                                borderRadius: const BorderRadius.all(Radius.circular(3)),
+                                                color: Colors.blue.shade300,
+                                                backgroundColor: Colors.grey.shade200,
+                                                minHeight: 3,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 7),
+                                            Text(
+                                              '${program.programStatusPercentage}%',
+                                              style: const TextStyle(fontSize: 12, color: Colors.black45),
+                                            ),
+                                          ],
                                         ),
-                                      ),
-                                      const SizedBox(width: 7),
-                                      Text(
-                                        '${program.programStatusPercentage}%',
-                                        style: const TextStyle(fontSize: 12, color: Colors.black45),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
+                                  filteredScheduleProgram[index].conditions.isNotEmpty?
+                                  IconButton(
+                                    tooltip: 'view condition',
+                                    onPressed: () {
+                                      showConditionDialog(context,
+                                        filteredScheduleProgram[index].programName,
+                                        filteredScheduleProgram[index].conditions,
+                                      );
+                                    },
+                                    icon: const Icon(Icons.visibility_outlined, color: Colors.teal,),
+                                  ):
+                                  const SizedBox(),
                                 ],
                               ),
                               Text(filteredScheduleProgram[index].selectedSchedule, style: const TextStyle(fontSize: 11)),
@@ -549,8 +569,7 @@ class ScheduledProgram extends StatelessWidget {
                             child: Text(getButtonName(int.parse(program.prgPauseResume))),
                           ),
                           const SizedBox(width: 5),
-                          getPermissionStatusBySNo(context, 3)
-                              ? PopupMenuButton<String>(
+                          getPermissionStatusBySNo(context, 3)? PopupMenuButton<String>(
                             icon: const Icon(Icons.more_vert),
                             onSelected: (String result) {
                               if (result == 'Edit program') {
@@ -690,14 +709,37 @@ class ScheduledProgram extends StatelessWidget {
     return codeDescriptionMap[code] ?? 'Code not found';
   }
 
-  void showAutoUpdateDialog(BuildContext context, int prmSNo) {
+  void showConditionDialog(BuildContext context, String prgName,  List<ConditionModel> conditions) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Container(width: 100, height: 50,);
+        return AlertDialog(
+          title: Text(conditions.length>1?'Conditions of $prgName':'Condition of $prgName', style: const TextStyle(fontSize: 17)),
+          content: SizedBox(
+            width: 400,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: conditions.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(conditions[index].title,
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text(conditions[index].value.rule, style: const TextStyle(color: Colors.black54)),
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: const Text('Close'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        );
       },
     );
   }
+
 
   String getContentByCode(int code) {
     return GemProgramStartStopReasonCode.fromCode(code).content;
