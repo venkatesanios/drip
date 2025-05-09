@@ -187,8 +187,7 @@ class ScheduledProgram extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                                /*filteredScheduleProgram[index].startCondition.condition.isNotEmpty ||
-                                    filteredScheduleProgram[index].stopCondition.condition.isNotEmpty?
+                                filteredScheduleProgram[index].conditions.isNotEmpty?
                                 IconButton(
                                   tooltip: 'view condition',
                                   onPressed: () {
@@ -198,7 +197,7 @@ class ScheduledProgram extends StatelessWidget {
                                   },
                                   icon: const Icon(Icons.visibility_outlined, color: Colors.teal,),
                                 ):
-                                const SizedBox(),*/
+                                const SizedBox(),
                               ],
                             )),
                             DataCell(Center(child: Text('${filteredScheduleProgram[index].sequence.length}'))),
@@ -213,7 +212,6 @@ class ScheduledProgram extends StatelessWidget {
                                       color: int.parse(filteredScheduleProgram[index].prgOnOff) >= 0? isStop?Colors.red: isBypass?Colors.orange :Colors.green : Colors.grey.shade300,
                                       textColor: Colors.white,
                                       onPressed: () {
-
                                         if(getPermissionStatusBySNo(context, 3)){
                                           if (int.parse(filteredScheduleProgram[index].prgOnOff) >= 0) {
                                             String payload = '${filteredScheduleProgram[index].serialNumber},${filteredScheduleProgram[index].prgOnOff}';
@@ -240,20 +238,38 @@ class ScheduledProgram extends StatelessWidget {
                                   MaterialButton(
                                     color: getButtonName(int.parse(filteredScheduleProgram[index].prgPauseResume)) == 'Pause' ? Colors.orange : Colors.yellow,
                                     textColor: getButtonName(int.parse(filteredScheduleProgram[index].prgPauseResume)) == 'Pause' ? Colors.white : Colors.black,
-                                    onPressed: () {
-                                      if(getPermissionStatusBySNo(context, 3)){
-                                        String payload = '${filteredScheduleProgram[index].serialNumber},${filteredScheduleProgram[index].prgPauseResume}';
-                                        String payLoadFinal = jsonEncode({
-                                          "2900": {"2901": payload}
-                                        });
-                                        MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-                                        sentUserOperationToServer(
-                                          '${filteredScheduleProgram[index].programName} ${getDescription(int.parse(filteredScheduleProgram[index].prgPauseResume))}',
-                                          payLoadFinal,
-                                        );
-                                      }else{
-                                        GlobalSnackBar.show(context, 'Permission denied', 400);
-                                      }
+                                    onPressed: () async {
+                                      final confirmed = await showDialog<bool>(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: Text('Are you sure ! you want to ${getButtonName(int.parse(filteredScheduleProgram[index].prgPauseResume))} the ${filteredScheduleProgram[index].programName}'),
+                                          actions: [
+                                            TextButton(
+                                              child: const Text('Cancel'),
+                                              onPressed: () => Navigator.pop(context, false),
+                                            ),
+                                            TextButton(
+                                              child: const Text('Yes'),
+                                              onPressed: () {
+                                                if(getPermissionStatusBySNo(context, 3)){
+                                                  String payload = '${filteredScheduleProgram[index].serialNumber},${filteredScheduleProgram[index].prgPauseResume}';
+                                                  String payLoadFinal = jsonEncode({
+                                                    "2900": {"2901": payload}
+                                                  });
+                                                  MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
+                                                  sentUserOperationToServer(
+                                                    '${filteredScheduleProgram[index].programName} ${getDescription(int.parse(filteredScheduleProgram[index].prgPauseResume))}',
+                                                    payLoadFinal,
+                                                  );
+                                                }else{
+                                                  GlobalSnackBar.show(context, 'Permission denied', 400);
+                                                }
+                                                Navigator.pop(context, true);
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      );
 
                                     },
                                     child: Text(getButtonName(int.parse(filteredScheduleProgram[index].prgPauseResume))),
@@ -678,10 +694,7 @@ class ScheduledProgram extends StatelessWidget {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Container();
-        /*return ConditionDialog(
-          prmSNo: prmSNo,
-        );*/
+        return Container(width: 100, height: 50,);
       },
     );
   }

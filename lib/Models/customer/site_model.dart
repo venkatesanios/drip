@@ -157,7 +157,7 @@ class MasterControllerModel {
     };
 
     List<IrrigationLineModel> irrigationLines = irrigationLinesRaw
-        .map((item) => IrrigationLineModel.fromJson(item, configObjects, moistureSensorRaw))
+        .map((item) => IrrigationLineModel.fromJson(item, configObjects, moistureSensorRaw, waterSources))
         .toList();
 
     for (var line in irrigationLines) {
@@ -192,24 +192,13 @@ class MasterControllerModel {
     );
   }
 
-/*Map<String, dynamic> toJson() {
-    return {
-      'controllerId': controllerId,
-      'deviceId': deviceId,
-      'deviceName': deviceName,
-      'categoryId': categoryId,
-      'categoryName': categoryName,
-      'modelId': modelId,
-      'modelName': modelName,
-      'units': units.map((x) => x.toJson()).toList(),
-      'liveMessage': live?.toJson(),
-    };
-  }*/
 }
 
 class WaterSourceModel {
   final double sNo;
   final String name;
+  final List<PumpModel> inletPump;
+  final List<PumpModel> outletPump;
   final bool isWaterInAndOut;
   final List<double> outletPumpSno;
   final List<PumpModel> pumpObjects;
@@ -218,6 +207,8 @@ class WaterSourceModel {
   WaterSourceModel({
     required this.sNo,
     required this.name,
+    required this.inletPump,
+    required this.outletPump,
     required this.isWaterInAndOut,
     required this.outletPumpSno,
     required this.pumpObjects,
@@ -225,6 +216,17 @@ class WaterSourceModel {
   });
 
   factory WaterSourceModel.fromJson(Map<String, dynamic> json, List<ConfigObject> configObjects) {
+
+    final inletPumps = ((json['inletPump'] as List?) ?? []).map((e) => e).toSet();
+    final iPumps = configObjects.where((obj) => inletPumps.contains(obj.sNo))
+        .map(PumpModel.fromConfigObject)
+        .toList();
+
+    final outletPumps = ((json['outletPump'] as List?) ?? []).map((e) => e).toSet();
+    final oPumps = configObjects.where((obj) => outletPumps.contains(obj.sNo))
+        .map(PumpModel.fromConfigObject)
+        .toList();
+
 
     final pumpSNoSet = ((json['outletPump'] as List?) ?? []).map((e) => e).toSet();
     final pumps = configObjects
@@ -251,6 +253,8 @@ class WaterSourceModel {
     return WaterSourceModel(
       sNo: json['sNo']?.toDouble() ?? 0,
       name: json['name'],
+      inletPump: iPumps,
+      outletPump: oPumps,
       isWaterInAndOut: ((json['inletPump'] as List).isNotEmpty || sourceCount == 1),
       outletPumpSno: List<double>.from(json['outletPump'].map((e) => e.toDouble())),
       pumpObjects: pumps,
@@ -275,6 +279,7 @@ class IrrigationLineModel {
 
   final List<SensorModel> prsSwitch;
   final List<SensorModel> pressureIn;
+  final List<SensorModel> pressureOut;
   final List<SensorModel> waterMeter;
 
   IrrigationLineModel({
@@ -288,10 +293,17 @@ class IrrigationLineModel {
 
     required this.prsSwitch,
     required this.pressureIn,
+    required this.pressureOut,
     required this.waterMeter,
   });
 
-  factory IrrigationLineModel.fromJson(Map<String, dynamic> json, List<ConfigObject> configObjects, var moistureSensorRaw) {
+  factory IrrigationLineModel.fromJson(Map<String, dynamic> json, List<ConfigObject> configObjects, var moistureSensorRaw, List<WaterSourceModel> waterSources) {
+
+    final sPumpSNoSets = ((json['sourcePump'] as List?) ?? []).map((e) => e).toSet();
+    final iPumpSNoSets = ((json['irrigationPump'] as List?) ?? []).map((e) => e).toSet();
+
+    /*final iPumps = waterSources.where((obj) => iPumpSNoSets.contains(obj.sNo))
+        .map(WaterSourceModel.fromConfigObject).toList();*/
 
     final valveSNoSet = ((json['valve'] as List?) ?? []).map((e) => e).toSet();
     final valves = configObjects.where((obj) => valveSNoSet.contains(obj.sNo))
@@ -340,6 +352,17 @@ class IrrigationLineModel {
         .map(SensorModel.fromConfigObject)
         .toList();
 
+    final prsOutSNoSet = (json['pressureOut'] is List)
+        ? (json['pressureOut'] as List).map((e) => (e as num).toDouble()).toSet()
+        : (json['pressureOut'] is num)
+        ? {(json['pressureOut'] as num).toDouble()}
+        : <double>{};
+
+    final pressureOut = configObjects
+        .where((obj) => prsOutSNoSet.contains(obj.sNo))
+        .map(SensorModel.fromConfigObject)
+        .toList();
+
     final waterMeterSNoSet = (json['waterMeter'] is List)
         ? (json['waterMeter'] as List).map((e) => (e as num).toDouble()).toSet()
         : (json['waterMeter'] is num)
@@ -362,6 +385,7 @@ class IrrigationLineModel {
 
       prsSwitch: pressureSwitch,
       pressureIn: pressureIn,
+      pressureOut: pressureOut,
       waterMeter: waterMeter,
     );
   }
@@ -755,30 +779,6 @@ class FertilizerSiteModel {
     );
   }
 
-  /* factory FertilizerSiteModel.fromJson(Map<String, dynamic> json) {
-    return FertilizerSiteModel(
-      objectId: json['objectId'],
-      sNo: json['sNo'].toDouble(),
-      name: json['name'],
-      connectionNo: json['connectionNo'],
-      objectName: json['objectName'],
-      type: json['type'],
-      controllerId: json['controllerId'],
-      count: json['count'],
-      siteMode: json['siteMode'],
-      channel: (json['channel'] as List).map((e) => Channel.fromJson(e)).toList(),
-      boosterPump: (json['boosterPump'] as List).map((e) => BoosterPump.fromJson(e)).toList(),
-      agitator: (json['agitator'] as List).map((e) => Agitator.fromJson(e)).toList(),
-      selector: json['selector'] ?? [],
-      ec: (json['ec'] != null && json['ec'] is List && json['ec'].isNotEmpty)
-          ? (json['ec'] as List).map((e) => Ec.fromJson(e)).toList()
-          : [],
-      ph: (json['ph'] != null && json['ph'] is List && json['ph'].isNotEmpty)
-          ? (json['ph'] as List).map((e) => Ph.fromJson(e)).toList()
-          : [],
-    );
-  }*/
-
   Map<String, dynamic> toJson() {
     return {
       'objectId': objectId,
@@ -1061,7 +1061,6 @@ class MoistureSensorModel {
       'name': name,
     };
   }
-
 }
 
 class SensorModel {
@@ -1352,6 +1351,7 @@ class ProgramList {
   final List<Sequence> sequence;
   final String selectedSchedule;
   final List<dynamic> irrigationLine;
+  final List<ConditionModel> conditions;
 
   String startDate;
   String endDate;
@@ -1374,6 +1374,7 @@ class ProgramList {
     required this.sequence,
     required this.selectedSchedule,
     required this.irrigationLine,
+    required this.conditions,
 
     this.startDate ="-",
     this.endDate ="-",
@@ -1390,6 +1391,12 @@ class ProgramList {
 
   // Factory method to create an instance from JSON
   factory ProgramList.fromJson(Map<String, dynamic> json) {
+
+    List<dynamic> jsonList = json['condition'];
+    List<ConditionModel> conditions = jsonList
+        .map((item) => ConditionModel.fromJson(item))
+        .toList();
+
     return ProgramList(
       serialNumber: json['serialNumber'],
       programName: json['programName'] ?? '',
@@ -1400,6 +1407,7 @@ class ProgramList {
           .toList(),
       selectedSchedule: json['selectedSchedule'] ?? '',
       irrigationLine: json['irrigationLine'] ?? [],
+      conditions: conditions,
     );
   }
 
@@ -1444,6 +1452,66 @@ class Sequence {
     return {
       'sNo': sNo,
       'name': name,
+    };
+  }
+}
+
+class ConditionModel {
+  final int sNo;
+  final String title;
+  final ConditionValue value;
+  bool selected;
+
+  ConditionModel({
+    required this.sNo,
+    required this.title,
+    required this.value,
+    this.selected = false,
+  });
+
+  factory ConditionModel.fromJson(Map<String, dynamic> json) {
+    return ConditionModel(
+      sNo: json['sNo'],
+      title: json['title'],
+      value: ConditionValue.fromJson(json['value']),
+      selected: json['selected'] ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'sNo': sNo,
+      'title': title,
+      'value': value.toJson(),
+      'selected': selected,
+    };
+  }
+}
+
+class ConditionValue {
+  final int sNo;
+  final String name;
+  final String rule;
+
+  ConditionValue({
+    required this.sNo,
+    required this.name,
+    required this.rule,
+  });
+
+  factory ConditionValue.fromJson(Map<String, dynamic> json) {
+    return ConditionValue(
+      sNo: json['sNo'],
+      name: json['name'],
+      rule: json['rule'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'sNo': sNo,
+      'name': name,
+      'rule': rule,
     };
   }
 }

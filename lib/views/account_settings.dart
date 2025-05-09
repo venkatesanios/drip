@@ -473,7 +473,6 @@ class AccountSettings extends StatelessWidget {
                             return null;
                           },
                           onChanged: (value) {
-
                           },
                         ),
                         const SizedBox(height: 20),

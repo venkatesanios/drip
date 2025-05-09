@@ -199,7 +199,9 @@ class CustomerHome extends StatelessWidget {
                 padding: const EdgeInsets.all(3.0),
                 child: LineObjects(valves: lineObjects.valveObjects, prsSwitch: lineObjects.prsSwitch,
                   pressureIn: lineObjects.pressureIn, waterMeter: lineObjects.waterMeter,
-                  customerId: customerId, controllerId: controllerId, containerWidth: MediaQuery.sizeOf(context).width - ((grandTotal*70) + 168), isMobile: isMobile,),
+                  customerId: customerId, controllerId: controllerId,
+                  containerWidth: MediaQuery.sizeOf(context).width - ((grandTotal*70) + 168),
+                  isMobile: isMobile, pressureOut: lineObjects.pressureOut),
               )
           ),
         )),
@@ -259,6 +261,7 @@ class CustomerHome extends StatelessWidget {
                           controllerId: controllerId,
                           containerWidth: containerWidth,
                           isMobile: isMobile,
+                          pressureOut: lineObjects.pressureOut,
                         ),
                       ],
                     ),
@@ -307,6 +310,7 @@ class CustomerHome extends StatelessWidget {
                               controllerId: controllerId,
                               containerWidth: containerWidth,
                               isMobile: isMobile,
+                              pressureOut: lineObjects.pressureOut,
                             ),
                           ],
                         ),
@@ -328,6 +332,7 @@ class LineObjects extends StatelessWidget {
   final List<ValveModel> valves;
   final List<SensorModel> prsSwitch;
   final List<SensorModel> pressureIn;
+  final List<SensorModel> pressureOut;
   final List<SensorModel> waterMeter;
   final double containerWidth;
   final bool isMobile;
@@ -337,6 +342,7 @@ class LineObjects extends StatelessWidget {
     required this.valves,
     required this.prsSwitch,
     required this.pressureIn,
+    required this.pressureOut,
     required this.waterMeter,
     required this.customerId,
     required this.controllerId,
@@ -350,8 +356,8 @@ class LineObjects extends StatelessWidget {
       ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch.png'),
       ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor.png'),
       ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter.png'),
-      ...valves.map((valve) => ValveWidget(valve: valve,customerId: customerId, controllerId: controllerId,
-      )),
+      ...valves.map((valve) => ValveWidget(valve: valve,customerId: customerId, controllerId: controllerId)),
+      ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor.png'),
     ];
 
     return Card(
@@ -962,8 +968,8 @@ class SensorWidget extends StatelessWidget {
                     ),
                     Positioned(
                       top: 0,
-                      left: 0,
-                      right: 1,
+                      left: sensorType == 'Pressure Sensor'? 10:1,
+                      right: sensorType == 'Pressure Sensor'? 10:1,
                       child: Container(
                         width: 70,
                         height: 17,
