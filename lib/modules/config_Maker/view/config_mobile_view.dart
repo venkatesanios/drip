@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/Widgets/custom_buttons.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/view/product_limit.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/view/site_configure.dart';
+import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
 import '../../../Constants/dialog_boxes.dart';
 import '../model/device_model.dart';
@@ -117,7 +119,43 @@ ConfigMakerTabs updateConfigMakerTabs({
   required ConfigMakerTabs selectedTab,
 }){
   bool update = true;
-  if([ConfigMakerTabs.connection, ConfigMakerTabs.siteConfigure].contains(selectedTab)){
+  if(configPvd.selectedTab == ConfigMakerTabs.connection && selectedTab == ConfigMakerTabs.siteConfigure){
+    List<double> notConfiguredObject = configPvd.listOfGeneratedObject
+        .where((object) => (object.controllerId == null &&
+        ![
+          AppConstants.irrigationLineObjectId,
+          AppConstants.sourceObjectId,
+          AppConstants.fertilizerSiteObjectId,
+          AppConstants.filterSiteObjectId,
+        ].contains(object.objectId)))
+        .map((object) => object.sNo!).toList();
+    print("notConfiguredObject --- $notConfiguredObject");
+    if(notConfiguredObject.isNotEmpty){
+      update = false;
+      simpleDialogBox(
+          context: context,
+          title: 'Alert Message',
+          message: 'Please connect all object otherwise, Those are all remove from site.',
+          actionButton: [
+            CustomMaterialButton(
+              outlined: true,
+              child: const Text('Cancel'),
+            ),
+            CustomMaterialButton(
+              onPressed:(){
+                // delete process in siteConfiguration
+                configPvd.deleteOperationInSiteConfiguration(notConfiguredObject);
+                setState(() {
+                  configPvd.selectedTab = selectedTab;
+                });
+                Navigator.pop(context);
+              },
+            ),
+          ]
+      );
+    }
+  }
+  else if([ConfigMakerTabs.connection, ConfigMakerTabs.siteConfigure].contains(selectedTab)){
     final List<DeviceObjectModel> deviceObjects = configPvd.listOfSampleObjectModel;
     final pumpObject = getObjectById(deviceObjects, 5);
     final valveObject = getObjectById(deviceObjects, 13);
@@ -145,6 +183,7 @@ ConfigMakerTabs updateConfigMakerTabs({
     }
 
   }
+
   if(update){
     setState(() {
       configPvd.selectedTab = selectedTab;

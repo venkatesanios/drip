@@ -514,9 +514,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
     List<double> assigned = [];
     if(validateAllLine){
       for(var line in widget.configPvd.line){
-        List<double> lineParameter = parameter == LineParameter.source
-            ? line.source
-            : parameter == LineParameter.sourcePump
+        List<double> lineParameter = parameter == LineParameter.sourcePump
             ? line.sourcePump
             : parameter == LineParameter.irrigationPump
             ? line.irrigationPump
