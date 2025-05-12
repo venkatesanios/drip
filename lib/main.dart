@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:az_notification_hub/az_notification_hub.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/app/app.dart';
 import 'package:oro_drip_irrigation/modules/PumpController/state_management/pump_controller_provider.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:provider/provider.dart';
@@ -10,6 +9,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'Screens/Constant/ConstantPageProvider/changeNotifier_constantProvider.dart';
+import 'Screens/planning/test.dart';
 import 'firebase_options.dart';
 import 'modules/IrrigationProgram/state_management/irrigation_program_provider.dart';
 import 'modules/Preferences/state_management/preference_provider.dart';
@@ -82,7 +82,7 @@ FutureOr<void> main() async {
         ChangeNotifierProvider(create: (_) => ConstantProvider()),
         ChangeNotifierProvider(create: (_) => PumpControllerProvider()),
       ],
-      child: MyApp(),
+      child: MyAppgif(),
     ),
   );
 }

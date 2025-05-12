@@ -27,11 +27,11 @@ class Environment {
     'oroProduction': {
       'apiUrl': 'http://13.235.254.21:5000/api/v1',
       'apiKey': 'dev-api-key',
-      'mqttWebUrl': 'ws://13.235.254.21',
+      'mqttWebUrl': 'ws://13.235.254.21/mqtt',
       'mqttMobileUrl': '13.235.254.21',
       'publishTopic': 'OroAppToFirmware',
       'subscribeTopic': 'FirmwareToOroApp',
-      'mqttWebPort': 9001,
+      'mqttWebPort': 8083,
       'mqttMobilePort': 1883,
     },
   };
