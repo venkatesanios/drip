@@ -163,11 +163,9 @@ class ConstantProvider extends ChangeNotifier{
       for (var object in configObjectDataFromHttp) {
         if(object['objectId'] == AppConstants.pumpObjectId){
           listOfPumpObject.add(object);
-        }
-        else if(object['objectId'] == AppConstants.filterSiteObjectId){
+        }else if(object['objectId'] == AppConstants.filterSiteObjectId){
           listOfFilterSiteObject.add(object);
-        }
-        else if(object['objectId'] == AppConstants.filterObjectId){
+        }else if(object['objectId'] == AppConstants.filterObjectId){
           listOfFilterObject.add(object);
         }else if(object['objectId'] == AppConstants.mainValveObjectId){
           listOfMainValveObject.add(object);

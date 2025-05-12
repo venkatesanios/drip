@@ -126,6 +126,48 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
                                         getPumpSelection(source, pumpMode),
                                     ],
                                   if(![4,5].contains(source.sourceType))
+                                    Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      color: Theme.of(context).primaryColorLight.withOpacity(0.1),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_${AppConstants.valveObjectId}.svg', color: Colors.black,),
+                                        const SizedBox(width: 20,),
+                                        const Text('Valve : ', style: AppProperties.listTileBlackBoldStyle,),
+                                        Center(
+                                          child: Text(source.valves.map((sNo) => getObjectName(sNo, widget.configPvd).name!).join(', '), style: TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold),),
+                                        ),
+                                        IconButton(
+                                            onPressed: (){
+                                              setState(() {
+                                                widget.configPvd.listOfSelectedSno.clear();
+                                                widget.configPvd.listOfSelectedSno.addAll(source.valves);
+                                              });
+                                              selectionDialogBox(
+                                                  context: context,
+                                                  title: 'Select Valve',
+                                                  singleSelection: false,
+                                                  listOfObject: widget.configPvd.listOfGeneratedObject.where((object) => (object.objectId == AppConstants.valveObjectId)).toList(),
+                                                  onPressed: (){
+                                                    setState(() {
+                                                      source.valves.clear();
+                                                      source.valves.addAll(widget.configPvd.listOfSelectedSno);
+                                                      widget.configPvd.listOfSelectedSno.clear();
+                                                    });
+                                                    Navigator.pop(context);
+                                                  }
+                                              );
+                                            },
+                                            icon: Icon(Icons.touch_app, color: Theme.of(context).primaryColor, size: 20,)
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  if(![4,5].contains(source.sourceType))
                                     for(var mode in [1,2,3])
                                       getLevelAndFloatSelection(source, mode)
                                 ],
