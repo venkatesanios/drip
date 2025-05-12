@@ -308,6 +308,9 @@ class AppConstants {
     }
 
     if (imagePathFinal.contains('.gif')) {
+      return Image.network(
+        'http://52.172.214.208:5000/gif/dp_irr_pump_g.gif',
+      );
       return Image.asset(
         '$gifPath$imagePathFinal',
         key: UniqueKey(),
