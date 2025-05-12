@@ -1,8 +1,5 @@
 import 'dart:convert';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/utils/environment.dart';
 import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
 import 'package:tuple/tuple.dart';
@@ -321,7 +318,7 @@ class PumpWidget extends StatelessWidget {
                     String payLoadFinal = jsonEncode({
                       "6300": {"6301": payload}
                     });
-                    MqttService().topicToPublishAndItsMessage(payLoadFinal, '${Environment.mqttPublishTopic}/$deviceId');
+                    MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
                     sentUserOperationToServer('${pump.name} Reset Manually', payLoadFinal);
                     GlobalSnackBar.show(context, 'Reset comment sent successfully', 200);
                     Navigator.pop(context);
@@ -431,7 +428,7 @@ class PumpWidget extends StatelessWidget {
             onPressed: () {
               final payload = '${pump.sNo},1,1';
               final payLoadFinal = jsonEncode({"6200": {"6201": payload}});
-              MqttService().topicToPublishAndItsMessage(payLoadFinal, '${Environment.mqttPublishTopic}/$deviceId');
+              MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
               sentUserOperationToServer('${pump.name} Start Manually', payLoadFinal);
               GlobalSnackBar.show(context, 'Pump start comment sent successfully', 200);
               Navigator.pop(context);
@@ -445,7 +442,7 @@ class PumpWidget extends StatelessWidget {
             onPressed: () {
               final payload = '${pump.sNo},0,1';
               final payLoadFinal = jsonEncode({"6200": {"6201": payload}});
-              MqttService().topicToPublishAndItsMessage(payLoadFinal, '${Environment.mqttPublishTopic}/$deviceId');
+              MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
               sentUserOperationToServer('${pump.name} Stop Manually', payLoadFinal);
               GlobalSnackBar.show(context, 'Pump stop comment sent successfully', 200);
               Navigator.pop(context);

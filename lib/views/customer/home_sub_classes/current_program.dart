@@ -1,12 +1,9 @@
 
 import 'dart:convert';
-
 import 'package:data_table_2/data_table_2.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:oro_drip_irrigation/utils/environment.dart';
 import 'package:provider/provider.dart';
 import '../../../Models/customer/site_model.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
@@ -222,7 +219,7 @@ class CurrentProgram extends StatelessWidget {
           String payLoadFinal = jsonEncode({
             "800": {"801": '0,0,0,0,0'}
           });
-          MqttService().topicToPublishAndItsMessage(payLoadFinal, '${Environment.mqttPublishTopic}/$deviceId');
+          MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
           sentUserOperationToServer('${getProgramNameById(int.parse(values[0]))} Stopped manually', payLoadFinal);
           GlobalSnackBar.show(context, 'Comment sent successfully', 200);
         }: null,
@@ -238,7 +235,7 @@ class CurrentProgram extends StatelessWidget {
             "3900": {"3901": '0,${values[3]},${values[0]},'
                 '${values[1]},,,,,,,,,0,'}
           });
-          MqttService().topicToPublishAndItsMessage(payLoadFinal, '${Environment.mqttPublishTopic}/$deviceId');
+          MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
           sentUserOperationToServer('${getProgramNameById(int.parse(values[0]))} Stopped manually', payLoadFinal);
           GlobalSnackBar.show(context, 'Comment sent successfully', 200);
 
@@ -254,7 +251,7 @@ class CurrentProgram extends StatelessWidget {
           String payLoadFinal = jsonEncode({
             "3700": {"3701": payload}
           });
-          MqttService().topicToPublishAndItsMessage(payLoadFinal, '${Environment.mqttPublishTopic}/$deviceId');
+          MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
           sentUserOperationToServer('${getProgramNameById(int.parse(values[0]))} - ${getSequenceName(int.parse(values[0]), values[1])} skipped manually', payLoadFinal);
           GlobalSnackBar.show(context, 'Comment sent successfully', 200);
         } : null,

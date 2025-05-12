@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/utils/environment.dart';
 import '../../Models/customer/program_model.dart';
 import '../../Models/customer/site_model.dart';
 import '../../Models/customer/stand_alone_model.dart';
@@ -420,7 +419,7 @@ class StandAloneViewModel extends ChangeNotifier {
       String payLoadFinal = jsonEncode({
         "800": {"801": '0,0,0,0,0'}
       });
-      MqttService().topicToPublishAndItsMessage(payLoadFinal, '${Environment.mqttPublishTopic}/$deviceId');
+      MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
       Navigator.of(context).pop();
     }
   }
@@ -646,7 +645,7 @@ class StandAloneViewModel extends ChangeNotifier {
         "800": {"801": payload}
       });
 
-      MqttService().topicToPublishAndItsMessage(payLoadFinal, '${Environment.mqttPublishTopic}/$deviceId');
+      MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
       sentManualModeToServer(0, 1, standAloneMethod, strDuration, strFlow, standaloneSelection, payLoadFinal);
     }
   }
