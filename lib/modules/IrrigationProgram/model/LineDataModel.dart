@@ -53,7 +53,6 @@ class ProgramFertilizerSite {
   });
 
   factory ProgramFertilizerSite.fromJson(Map<String, dynamic> json) {
-    print('FertilizerSite.fromJson: $json');
     return ProgramFertilizerSite(
       fertilizerSite: DeviceObjectModel.fromJson(json),
       siteMode: json['siteMode'],

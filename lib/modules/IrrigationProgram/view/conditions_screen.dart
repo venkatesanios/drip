@@ -165,7 +165,8 @@ Widget buildListTile({
     child: ListTile(
       title: titleChild ?? Text(title, style: TextStyle(color: textColor, fontWeight: FontWeight.bold),),
       subtitle: subTitle != null ? Text(subTitle, style: TextStyle(color: textColor),) : null,
-      horizontalTitleGap: 30,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+      horizontalTitleGap: 15,
       leading: showLeading ? CircleAvatar(
         backgroundColor: Theme.of(context).primaryColor,
         child: leading != null ? Text(leading, style: const TextStyle(color: Colors.white),) : Icon(icon, color: Colors.white,),

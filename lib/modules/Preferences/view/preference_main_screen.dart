@@ -1270,7 +1270,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
       "400": {"401": onDelayTimer()}
     };
 
-    // print("payloadForSlave ==> ${payloadForSlave['400'][2]}");
+    print("payloadForSlave ==> $payloadForSlave");
 
     final payload = shouldSendFailedPayloads ? getFailedPayload(isToGem: isToGem, sendAll: false) : getPayload(isToGem: isToGem, sendAll: false);
     final payloadParts = payload.split("?")[0].split(';');
@@ -1284,7 +1284,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
         : payloadParts;
 
     try {
-      bool isLevelSettingChanged = preferenceProvider.individualPumpSetting!.any((pump) => pump.settingList.any((setting) => setting.type == 207 && setting.changed));
+     /* bool isLevelSettingChanged = preferenceProvider.individualPumpSetting!.any((pump) => pump.settingList.any((setting) => setting.type == 207 && setting.changed));
       bool isAnyOtherChanged = preferenceProvider.commonPumpSettings!.any((pump) => pump.settingList.any((setting) => setting.changed));
       bool resultFromDialog = false;
 
@@ -1388,7 +1388,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
           final message = jsonDecode(createUserPreference.body);
           await showSnackBar(message: message['message']);
         });
-      }
+      }*/
 
 
     } catch (error, stackTrace) {
@@ -1406,7 +1406,8 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
     List<String> result = [];
 
     preferenceProvider.individualPumpSetting!.forEach((element) {
-      String combinedResult = '${element.toGem()},${element.oDt()}';
+      // String combinedResult = '${element.toGem()},${element.oDt()}';
+      String combinedResult = element.oDt();
       result.add(combinedResult);
     });
 

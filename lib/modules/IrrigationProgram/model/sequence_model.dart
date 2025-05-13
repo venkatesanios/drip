@@ -414,20 +414,40 @@ class AdditionalData {
   };
 }
 
-class NewAlarmData{
+class AlarmData{
   final int sNo;
   final String name;
   final String unit;
   bool value;
+  final bool hidden;
+  final bool gemDisplay;
+  final bool gemPayload;
+  final bool ecoGemDisplay;
+  final bool ecoGemPayload;
 
-  NewAlarmData({required this.name, required this.unit, required this.value, required this.sNo});
+  AlarmData({
+    required this.name,
+    required this.unit,
+    required this.value,
+    required this.sNo,
+    required this.hidden,
+    required this.gemDisplay,
+    required this.gemPayload,
+    required this.ecoGemDisplay,
+    required this.ecoGemPayload,
+  });
 
-  factory NewAlarmData.fromJson(Map<String, dynamic> json) {
-    return NewAlarmData(
+  factory AlarmData.fromJson(Map<String, dynamic> json) {
+    return AlarmData(
         name: json['title'],
         unit: json['unit'],
         value: json['value'] ?? false,
-        sNo: json['sNo']
+        sNo: json['sNo'],
+        hidden: json['hidden'],
+        gemDisplay: json['gemDisplay'],
+        gemPayload: json['gemPayload'],
+        ecoGemDisplay: json['ecoGemDisplay'],
+        ecoGemPayload: json['ecoGemPayload']
     );
   }
 
@@ -442,19 +462,19 @@ class NewAlarmData{
 }
 
 class NewAlarmList {
-  List<NewAlarmData> alarmList;
-  List<NewAlarmData> defaultAlarm;
+  List<AlarmData> alarmList;
+  List<AlarmData> defaultAlarm;
 
   NewAlarmList({required this.alarmList, required this.defaultAlarm});
 
   factory NewAlarmList.fromJson(Map<String, dynamic> json) {
     List<dynamic> alarmJsonList = json['data']['alarm'];
     List<dynamic> defaultJsonList = json['data']['default']['globalAlarm'];
-    List<NewAlarmData> alarmList = alarmJsonList
-        .map((item) => NewAlarmData.fromJson(item))
+    List<AlarmData> alarmList = alarmJsonList
+        .map((item) => AlarmData.fromJson(item))
         .toList();
-    List<NewAlarmData> defaultAlarmList = defaultJsonList
-        .map((item) => NewAlarmData.fromJson(item))
+    List<AlarmData> defaultAlarmList = defaultJsonList
+        .map((item) => AlarmData.fromJson(item))
         .toList();
 
     return NewAlarmList(alarmList: alarmList, defaultAlarm: defaultAlarmList);
