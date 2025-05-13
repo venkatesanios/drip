@@ -3158,8 +3158,8 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
                   ? 2
                   : 3}',/*CentralFilterSiteOperationMode*/
               "CentralFilterSelection": centralFilterSite.isNotEmpty ? filterPayload.join(',') : '0,0',
-              // "AlarmOnOff": newAlarmList!.alarmList.map((e) => e.value == true ? 1 : 0).toList().join('_'),/*AlarmOnOff*/
-              "AlarmOnOff": '0,0,0,0,0,0',/*AlarmOnOff*/
+              "AlarmOnOff": newAlarmList!.alarmList.where((ele) => ele.ecoGemPayload).map((e) => e.value == true ? 1 : 0).toList().join('_'),/*AlarmOnOff*/
+              // "AlarmOnOff": '0,0,0,0,0,0',/*AlarmOnOff*/
               "Name": programName,
             }.entries.map((e) => e.value).join(","),
       }

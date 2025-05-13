@@ -160,7 +160,7 @@ class MqttService {
 
 
   void onMqttPayloadReceived(String payload) {
-     print('MqttPayloadReceived:$payload');
+     // print('MqttPayloadReceived:$payload');
     try {
       Map<String, dynamic> payloadMessage = jsonDecode(payload);
       acknowledgementPayload = payloadMessage;

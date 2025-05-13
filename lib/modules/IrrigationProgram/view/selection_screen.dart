@@ -5,6 +5,8 @@ import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/sequence_scre
 import 'package:provider/provider.dart';
 import '../state_management/irrigation_program_provider.dart';
 import '../widgets/custom_animated_switcher.dart';
+import '../widgets/custom_lShape_divider.dart';
+import '../widgets/custom_section_title.dart';
 import 'conditions_screen.dart';
 
 final purpleLight = const Color(0xff8833FF).withOpacity(0.05);
@@ -119,14 +121,14 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
 
         return SingleChildScrollView(
           child: Container(
-            margin: EdgeInsets.symmetric(
+            margin: MediaQuery.of(context).size.width >= 700 ? EdgeInsets.symmetric(
               horizontal: MediaQuery.of(context).size.width * 0.05,
               vertical: MediaQuery.of(context).size.width * 0.025,
-            ),
+            ) : const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                buildSectionTitle(title: "General"),
+                buildSectionTitle(title: "General", context: context),
                 buildSection(
                   title: "Main Valves",
                   dataList: irrigationLine!.map((e) => e.mainValve ?? []).expand((list) => list).toList(),
@@ -150,7 +152,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                       )
                   ),
                 if(irrigationProgramProvider.isPumpStationMode)
-                  const SizedBox(height: 30,),
+                  const SizedBox(height: 20,),
                 if(!isEcoGem)
                   CustomAnimatedSwitcher(
                     condition: irrigationLine.map((e) => e.irrigationPump ?? []).expand((list) => list).toList().length > 1 && irrigationProgramProvider.isPumpStationMode,
@@ -168,14 +170,14 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                     ),
                   ),
                 if(irrigationLine.map((e) => e.irrigationPump ?? []).expand((list) => list).toList().length > 1 && !isEcoGem)
-                  const SizedBox(height: 30,),
+                  const SizedBox(height: 15,),
                 CustomAnimatedSwitcher(
                     condition: !irrigationProgramProvider.isPumpStationMode,
                     child: buildSection(
-                        title: "Irrigation Pumps",
-                        dataList: irrigationLine.map((e) => e.irrigationPump ?? []).expand((list) => list).toList(),
-                        lightColor: redLight,
-                        darkColor: redDark
+                      title: "Irrigation Pumps",
+                      dataList: irrigationLine.map((e) => e.irrigationPump ?? []).expand((list) => list).toList(),
+                      lightColor: redLight,
+                      darkColor: redDark,
                     )
                 ),
                 if(!isEcoGem)
@@ -202,7 +204,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                   ),
                 if(irrigationLine.map((e) => e.centralFertilization != null ? [e.centralFertilization!] : []).expand((list) => list).whereType<DeviceObjectModel>().toList().isNotEmpty
                     || irrigationLine.map((e) => e.localFertilization != null ? [e.localFertilization!] : []).expand((list) => list).whereType<DeviceObjectModel>().toList().isNotEmpty)
-                  buildSectionTitle(title: "Fertilizer"),
+                  buildSectionTitle(title: "Fertilizer", context: context),
                 buildSection(
                     title: "Central fertilizer site",
                     dataList: irrigationLine.map((e) => e.centralFertilization != null ? [e.centralFertilization!] : []).expand((list) => list).whereType<DeviceObjectModel>().toList(),
@@ -212,7 +214,8 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                       'assets/Images/central_fertilizer_site2.png',
                     ),
                   siteMode: 1,
-                  connectedObject: 3
+                  connectedObject: 3,
+                  isTitle: true
                 ),
                 buildRow(
                     context: context,
@@ -223,7 +226,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                         .toList(),
                     lightColor: primaryColorLight,
                     darkColor: primaryColorDark,
-                    height: -70.00,
+                    height: -80.00,
                     condition: centralFertilizerSite.map((e) => e.selector != null ? List<DeviceObjectModel>.from(e.selector!) : [])
                         .expand((list) => list)
                         .whereType<DeviceObjectModel>()
@@ -242,7 +245,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                        .toList(),
                     lightColor: greenLight,
                     darkColor: greenDark,
-                    height: centralFertilizerSite.map((e) => e.selector).toList().isNotEmpty ? -140.00 : -70.00,
+                    height: centralFertilizerSite.map((e) => e.selector).toList().isNotEmpty ? -160.00 : -80.00,
                     condition: centralFertilizerSite
                         .map((e) => e.ec != null ? List<DeviceObjectModel>.from(e.ec!) : [])
                         .expand((list) => list)
@@ -261,7 +264,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                         .toList(),
                     lightColor: redLight,
                     darkColor: redDark,
-                    height: centralFertilizerSite.isNotEmpty ? -210.0 : -140.0,
+                    height: centralFertilizerSite.isNotEmpty ? -240.0 : -160.0,
                     condition: centralFertilizerSite
                         .map((e) => e.ph != null ? List<DeviceObjectModel>.from(e.ph!) : [])
                         .expand((list) => list)
@@ -276,7 +279,8 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                     lightColor: purpleLight,
                     darkColor: purpleDark,
                     siteMode: 2,
-                    connectedObject: 3
+                    connectedObject: 3,
+                    isTitle: true
                 ),
                 buildRow(
                     context: context,
@@ -288,7 +292,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                         .toList(),
                     lightColor: yellowLight,
                     darkColor: yellowDark,
-                    height: -70.0,
+                    height: -80.0,
                     condition: localFertilizerSite
                         .map((e) => e.selector != null ? List<DeviceObjectModel>.from(e.selector!) : [])
                         .expand((list) => list)
@@ -308,7 +312,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                         .toList(),
                     lightColor: greenLight,
                     darkColor: greenDark,
-                    height: localFertilizerSite.map((e) => e.selector).toList().isNotEmpty ? -140.0: -70.0,
+                    height: localFertilizerSite.map((e) => e.selector).toList().isNotEmpty ? -160.0: -80.0,
                     condition: localFertilizerSite
                         .map((e) => e.ec != null ? List<DeviceObjectModel>.from(e.ec!) : [])
                         .expand((list) => list)
@@ -327,7 +331,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                         .toList(),
                     lightColor: redLight,
                     darkColor: redDark,
-                    height: localFertilizerSite.map((e) => e.selector).toList().isNotEmpty ? -210.0: -70.0,
+                    height: localFertilizerSite.map((e) => e.selector).toList().isNotEmpty ? -240.0: -80.0,
                    condition: localFertilizerSite
                        .map((e) => e.ph != null ? List<DeviceObjectModel>.from(e.ph!) : [])
                        .expand((list) => list)
@@ -338,14 +342,15 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                 ),
                 if(irrigationLine.map((e) => e.centralFiltration != null ? [e.centralFiltration!] : []).expand((list) => list).whereType<DeviceObjectModel>().isNotEmpty
                     || irrigationLine.map((e) => e.localFiltration != null ? [e.localFiltration!] : []).expand((list) => list).whereType<DeviceObjectModel>().isNotEmpty)
-                  buildSectionTitle(title: "Filters"),
+                  buildSectionTitle(title: "Filters", context: context),
                 buildSection(
                     title: "Central filter site",
                     dataList: irrigationLine.map((e) => e.centralFiltration != null ? [e.centralFiltration!] : []).expand((list) => list).whereType<DeviceObjectModel>().toList(),
                     lightColor: yellowLight,
                     darkColor: yellowDark,
                     siteMode: 1,
-                    connectedObject: 4
+                    connectedObject: 4,
+                    isTitle: true
                 ),
                 buildRow(
                     context: context,
@@ -357,10 +362,10 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                       .toList(),
                     lightColor: greenLight,
                     darkColor: greenDark,
-                    height: -70.0,
+                    height: -80.0,
                     condition: centralFilterSite.isNotEmpty,
                     siteMode: 1,
-                    connectedObject: 4
+                    connectedObject: 4,
                 ),
                 if(MediaQuery.of(context).size.width > 1200)
                   buildRow(
@@ -369,7 +374,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                     dataList: [],
                     darkColor: Colors.black,
                     lightColor: Colors.black,
-                    height: -140.0,
+                    height: -160.0,
                     condition: centralFilterSite.isNotEmpty,
                     child: Row(
                       children: [
@@ -414,7 +419,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                     dataList: [],
                     darkColor: Colors.black,
                     lightColor: Colors.black,
-                    height: -140.0,
+                    height: -160.0,
                     condition: centralFilterSite.isNotEmpty,
                     child: buildListTile(
                       context: context,
@@ -432,7 +437,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                     ),
                   ),
                 if(MediaQuery.of(context).size.width < 1200 && centralFilterSite.isNotEmpty)
-                  const SizedBox(height: 30,),
+                  const SizedBox(height: 15,),
                 if(MediaQuery.of(context).size.width < 1200 && !isEcoGem)
                   buildRow(
                     context: context,
@@ -440,7 +445,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                     dataList: [],
                     darkColor: Colors.black,
                     lightColor: Colors.black,
-                    height: -210.0,
+                    height: -240.0,
                     condition: centralFilterSite.isNotEmpty,
                     child: buildListTile(
                         context: context,
@@ -455,7 +460,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                     ),
                   ),
                 if(centralFilterSite.isNotEmpty)
-                  const SizedBox(height: 30,),
+                  const SizedBox(height: 15,),
                 buildSection(
                     title: "Local filter site",
                     dataList: irrigationLine.map((e) => e.localFiltration != null ? [e.localFiltration!] : []).expand((list) => list).whereType<DeviceObjectModel>().toList(),
@@ -474,7 +479,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                         .toList(),
                     lightColor: purpleLight,
                     darkColor: purpleDark,
-                    height: -70.0,
+                    height: -80.0,
                     condition: localFilterSite.isNotEmpty,
                    siteMode: 1,
                    connectedObject: 4
@@ -486,7 +491,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                     dataList: [],
                     darkColor: Colors.black,
                     lightColor: Colors.black,
-                    height: -140.0,
+                    height: -160.0,
                     condition: localFilterSite.isNotEmpty,
                     child: Row(
                       children: [
@@ -530,7 +535,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                     dataList: [],
                     darkColor: Colors.black,
                     lightColor: Colors.black,
-                    height: -140.0,
+                    height: -160.0,
                     condition: localFilterSite.isNotEmpty,
                     child: buildListTile(
                       context: context,
@@ -548,7 +553,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                     ),
                   ),
                 if(MediaQuery.of(context).size.width < 1200)
-                  const SizedBox(height: 30,),
+                  const SizedBox(height: 15,),
                 if(MediaQuery.of(context).size.width < 1200)
                   buildRow(
                     context: context,
@@ -556,7 +561,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                     dataList: [],
                     darkColor: Colors.black,
                     lightColor: Colors.black,
-                    height: -210.0,
+                    height: -240.0,
                     condition: localFilterSite.isNotEmpty,
                     child: buildListTile(
                         context: context,
@@ -603,22 +608,31 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
     }
   }
 
-  Widget buildSection({required String title, required List<DeviceObjectModel> dataList,
-    required Color lightColor, required Color darkColor, bool showSubList = false, Widget? image, int? siteMode, int? connectedObject}) {
+  Widget buildSection({
+    required String title,
+    required List<DeviceObjectModel> dataList,
+    required Color lightColor,
+    required Color darkColor,
+    bool showSubList = false,
+    Widget? image,
+    int? siteMode,
+    int? connectedObject,
+    bool isTitle = false
+  }) {
     if (dataList.isNotEmpty) {
-      final data = dataList.fold<List<DeviceObjectModel>>([], (list, pump) {
-        if (!list.any((p) => p.sNo == pump.sNo)) {
-          list.add(pump);
+      final data = dataList.fold<List<DeviceObjectModel>>([], (list, element) {
+        if (!list.any((ele) => ele.sNo == element.sNo)) {
+          list.add(element);
         }
         return list;
       });
 
       return Column(
-        children: [buildLineAndValveContainerUpdated(
+        children: [
+          buildLineAndValveContainerUpdated(
             context: context,
             title: title,
-            // showSubList: showSubList,
-            // dataList: dataList,
+            isTitle: isTitle,
             leading: image != null
                 ? Container(
               padding: const EdgeInsets.all(5),
@@ -646,13 +660,14 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                       }
                     }
                   },
+                  selected: irrigationProgramProvider.selectedObjects!.any((element) => element.sNo == data[index].sNo),
                   itemName: data[index].name ?? "No name",
                   // containerColor: lightColor,
-                  containerColor: irrigationProgramProvider.selectedObjects!.any((element) => element.sNo == data[index].sNo) ? darkColor : lightColor,
+                  darkColor: darkColor,
                 )
             ],
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 20),
         ],
       );
     } else {
@@ -671,83 +686,17 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
           Expanded(
             flex: 15,
             child: child ?? buildSection(
-              showSubList: true,
-              title: title,
-              dataList: dataList,
-              lightColor: lightColor,
-              darkColor: darkColor,
-              siteMode: siteMode,
-              connectedObject: connectedObject
+                showSubList: true,
+                title: title,
+                isTitle: false,
+                dataList: dataList,
+                lightColor: lightColor,
+                darkColor: darkColor,
+                siteMode: siteMode,
+                connectedObject: connectedObject
             ),
           )
         ],
-      ),
-    );
-  }
-
-  Widget buildSectionTitle({required String title}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 10),
-      child: Text(title, style: TextStyle(color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold),),
-    );
-  }
-}
-
-class LShapeDivider extends CustomPainter{
-  BuildContext context;
-  double height;
-  double? ctrValue;
-  LShapeDivider({required this.context,required this.height, this.ctrValue});
-  @override
-  void paint(Canvas canvas, Size size) {
-    Paint paint = Paint();
-    paint.strokeWidth = 1;
-    paint.color = Theme.of(context).primaryColorDark  ;
-    canvas.drawLine(const Offset(20, 0), Offset(20+((size.width-20)*ctrValue!), 0), paint);
-    canvas.drawLine(const Offset(20, 0), Offset(20, height*ctrValue!), paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    // TODO: implement shouldRepaint
-    return true;
-  }
-}
-
-class AnimatedLShape extends StatefulWidget {
-  final double height;
-  const AnimatedLShape({super.key, required this.height});
-
-  @override
-  State<AnimatedLShape> createState() => _AnimatedLShapeState();
-}
-
-class _AnimatedLShapeState extends State<AnimatedLShape> with SingleTickerProviderStateMixin{
-  late AnimationController ctrlValue;
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    ctrlValue = AnimationController(vsync: this,duration: const Duration(seconds: 1));
-    ctrlValue.forward();
-  }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    ctrlValue.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 50,
-      height: 10,
-      child: CustomPaint(
-        painter: LShapeDivider(context: context, height: widget.height, ctrValue: ctrlValue.value),
-        size: const Size(1,1),
       ),
     );
   }
