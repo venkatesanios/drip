@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -21,7 +22,6 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
   late MqttPayloadProvider mqttPayloadProvider;
   final MqttService manager = MqttService();
 
-  // Form data map
   final Map<String, String> formData = {
     'MqttBroker': '13.235.254.21',
     'MqttUserName': '-',
@@ -41,7 +41,6 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
     'ServerTopic': 'FirmwareToApp',
   };
 
-  // Controllers for each field
   final Map<String, TextEditingController> _controllers = {
     'MqttBroker': TextEditingController(),
     'MqttUserName': TextEditingController(),
@@ -65,7 +64,12 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
   void initState() {
     super.initState();
     mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
-    // Debug MQTT provider state
+
+    // Initialize controllers with form data
+    _controllers.forEach((key, controller) {
+      controller.text = formData[key] ?? '';
+    });
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       print('mqttPayloadProvider state: ${mqttPayloadProvider.toString()}');
     });
@@ -100,7 +104,6 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
   }
 
   Future<void> _submitForm() async {
-    // Update formData from controllers
     _controllers.forEach((key, controller) {
       formData[key] = controller.text.trim();
       print('Captured $key: ${formData[key]}');
@@ -114,36 +117,22 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
       GlobalSnackBar.show(context, 'MQTT settings are required', 201);
       return;
     }
-    // Validate entire form
+
     if (!_formKey.currentState!.validate()) {
       print('Form validation failed');
       GlobalSnackBar.show(context, 'Please fill all required fields', 201);
       return;
     }
-    // Check for empty fields
+
     if (formData.values.any((value) => value.isEmpty)) {
       print('Form has empty fields: $formData');
       GlobalSnackBar.show(context, 'All fields must be filled', 201);
       return;
     }
-    // Validate entire form
-    if (_formKey.currentState!.validate()) {
-      // Check for any empty fields
-      if (formData.values.any((value) => value.isEmpty)) {
-        print('Form has empty fields: $formData');
-        GlobalSnackBar.show(context, 'All fields must be filled', 201);
-        return;
-      }
 
-
-
-      String mqttData = formData.values.join(',') + ';';
-      print('Built mqttData: $mqttData');
-      await _sendMqttData(mqttData);
-    } else {
-      print('Form validation failed');
-      GlobalSnackBar.show(context, 'Please fill all required fields', 201);
-    }
+    String mqttData = formData.values.join(',') + ';';
+    print('Built mqttData: $mqttData');
+    await _sendMqttData(mqttData);
   }
 
   Widget _buildTextField(String label, String key,
@@ -151,8 +140,7 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: TextFormField(
-        initialValue: formData[key]?.toString(),
-        controller: _controllers[key],
+        controller: _controllers[key], // ✅ only controller used
         decoration: InputDecoration(
           labelText: label,
           border: const OutlineInputBorder(),
@@ -183,25 +171,29 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
   }
 
   Widget _buildCard(String title, List<Widget> children) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      elevation: 3,
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+        margin: const EdgeInsets.symmetric(vertical: 8.0),
+        elevation: 5,
+        shadowColor: Colors.grey,
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
+                ),
               ),
-            ),
-            const SizedBox(height: 10),
-            ...children,
-          ],
+              const SizedBox(height: 10),
+              ...children,
+            ],
+          ),
         ),
       ),
     );
@@ -217,45 +209,48 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
         padding: const EdgeInsets.all(20.0),
         child: Form(
           key: _formKey,
-          child: ListView(
-            children: [
-              _buildCard('MQTT Settings', [
-                _buildTextField('Broker', 'MqttBroker'),
-                _buildTextField('Username', 'MqttUserName'),
-                _buildTextField('Password', 'MqttPasword', obscure: true),
-                _buildTextField('Port', 'MqttPort', isNumber: true),
-              ]),
-              _buildCard('Network Settings', [
-                _buildTextField('HTTP URL Hardware', 'HttpUrl_Hardware'),
-                _buildTextField('Static IP', 'StaticIp'),
-                _buildTextField('Subnet Mask', 'SubnetMask'),
-                _buildTextField('Default Gateway', 'DefaultGateway'),
-                _buildTextField('DNS Server', 'DNSServer'),
-              ]),
-              _buildCard('FTP Settings', [
-                _buildTextField('Broker', 'FtpBroker'),
-                _buildTextField('Username', 'FtpUserName'),
-                _buildTextField('Password', 'FtpPasword', obscure: true),
-                _buildTextField('Port', 'FtpPort', isNumber: true),
-              ]),
-              _buildCard('MQTT Topics', [
-                _buildTextField('Firmware to App Topic', 'FirmwareToAppTopic'),
-                _buildTextField('App to Firmware Topic', 'AppToFirmwareTopic'),
-                _buildTextField('Server Topic', 'ServerTopic'),
-              ]),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _submitForm,
-                child: const Text('Send Data'),
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white, // Text color
-                  backgroundColor: Theme.of(context).primaryColor, // Optional: Ensure background contrasts with white text
-                ),
+          child: Center(
+            child: SizedBox(
+              width: kIsWeb ? 600 : null,
+              child: ListView(
+                children: [
+                  _buildCard('MQTT Settings', [
+                    _buildTextField('Broker', 'MqttBroker'),
+                    _buildTextField('Username', 'MqttUserName'),
+                    _buildTextField('Password', 'MqttPasword', obscure: true),
+                    _buildTextField('Port', 'MqttPort', isNumber: true),
+                  ]),
+                  _buildCard('Network Settings', [
+                    _buildTextField('HTTP URL Hardware', 'HttpUrl_Hardware'),
+                    _buildTextField('Static IP', 'StaticIp'),
+                    _buildTextField('Subnet Mask', 'SubnetMask'),
+                    _buildTextField('Default Gateway', 'DefaultGateway'),
+                    _buildTextField('DNS Server', 'DNSServer'),
+                  ]),
+                  _buildCard('FTP Settings', [
+                    _buildTextField('Broker', 'FtpBroker'),
+                    _buildTextField('Username', 'FtpUserName'),
+                    _buildTextField('Password', 'FtpPasword', obscure: true),
+                    _buildTextField('Port', 'FtpPort', isNumber: true),
+                  ]),
+                  _buildCard('MQTT Topics', [
+                    _buildTextField('Firmware to App Topic', 'FirmwareToAppTopic'),
+                    _buildTextField('App to Firmware Topic', 'AppToFirmwareTopic'),
+                    _buildTextField('Server Topic', 'ServerTopic'),
+                  ]),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _submitForm,
+                    child: const Text('Send Data'),
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ],
               ),
-
-            ],
+            ),
           ),
-
         ),
       ),
     );
