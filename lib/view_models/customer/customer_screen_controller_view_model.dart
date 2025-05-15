@@ -33,7 +33,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
 
   bool programRunning = false;
 
-  String? selectedMode;
+  int? selectedMode;
   String? selectedDevice;
 
   List<String> pairedDevices = [
@@ -166,6 +166,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
 
   void updateMaster(sIdx, mIdx, lIdx){
     myCurrentMaster = mySiteList.data[sIdx].master[mIdx].categoryName;
+    selectedMode = mySiteList.data[sIdx].master[mIdx].communicationMode;
     //subscribeCurrentMaster(sIdx, mIdx);
     if(mySiteList.data[sIdx].master[mIdx].categoryId == 1){
       updateMasterLine(sIdx, mIdx, lIdx);

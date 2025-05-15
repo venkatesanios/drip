@@ -658,7 +658,8 @@ class MobileScreenController extends StatelessWidget {
                   backgroundColor: Theme.of(context).primaryColorLight,
                   onPressed: ()=>_showBottomSheet(context, vm),
                   tooltip: 'Second Action',
-                  child: Column(
+                  child: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].communicationMode == 1?
+                  Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -671,10 +672,13 @@ class MobileScreenController extends StatelessWidget {
                       Text('${vm.wifiStrength} %',style: const TextStyle(fontSize: 11.0, color: Colors.white70),
                       ),
                     ],
-                  ),
+                  ):
+                  const Icon(Icons.bluetooth,
+                  color: Colors.white),
                 ),
               ],
             ) : null,
+
             body: RefreshIndicator(
               onRefresh: () => _handleRefresh(vm),
               child: Container(
@@ -732,43 +736,35 @@ class MobileScreenController extends StatelessWidget {
                         const SizedBox(),
                     ],
                     Expanded(
-                      child: vm.selectedIndex == 0 ?
-                      mainScreen(
-                          navViewModel.selectedIndex,
-                          vm.mySiteList.data[vm.sIndex].groupId,
-                          vm.mySiteList.data[vm.sIndex].groupName,
-                          vm.mySiteList.data[vm.sIndex].master,
-                          vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
-                              .controllerId,
-                          vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
-                              .categoryId,
-                          vm.mIndex,
-                          vm.sIndex,
-                        vm.isChanged,
-                        vm
-                      ) :
-                      vm.selectedIndex == 1 ?
-                      ScheduledProgram(
-                        userId: customerId,
-                        scheduledPrograms: vm.mySiteList.data[vm.sIndex].master[vm
-                            .mIndex].programList,
-                        controllerId: vm.mySiteList.data[vm.sIndex].master[vm
-                            .mIndex].controllerId,
-                        deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
-                            .deviceId,
-                        customerId: customerId,
-                        currentLineSNo: vm.mySiteList.data[vm.sIndex].master[vm
-                            .mIndex].irrigationLine[vm.lIndex].sNo,
-                        groupId: vm.mySiteList.data[vm.sIndex].groupId,
-                        categoryId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
-                        modelId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId,
-                        deviceName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceName,
-                        categoryName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
-                      ) :
-                      ControllerSettings(customerId: customerId,
-                        userId: userId,
-                        masterController: vm.mySiteList.data[vm.sIndex].master[vm.mIndex],
-                    ),
+                      child: Builder(
+                        builder: (context) {
+                          return vm.selectedIndex == 0 ?
+                          CustomerHome(customerId: userId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                            deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,)
+                              : vm.selectedIndex == 1
+                              ? ScheduledProgram(
+                            userId: customerId,
+                            scheduledPrograms: vm.mySiteList.data[vm.sIndex].master[vm
+                                .mIndex].programList,
+                            controllerId: vm.mySiteList.data[vm.sIndex].master[vm
+                                .mIndex].controllerId,
+                            deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
+                                .deviceId,
+                            customerId: customerId,
+                            currentLineSNo: vm.mySiteList.data[vm.sIndex].master[vm
+                                .mIndex].irrigationLine[vm.lIndex].sNo,
+                            groupId: vm.mySiteList.data[vm.sIndex].groupId,
+                            categoryId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
+                            modelId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId,
+                            deviceName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceName,
+                            categoryName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
+                          )
+                              : ControllerSettings(customerId: customerId,
+                            userId: userId,
+                            masterController: vm.mySiteList.data[vm.sIndex].master[vm.mIndex],
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -873,12 +869,12 @@ class MobileScreenController extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.wifi),
                   title: const Text("Wi-Fi / MQTT"),
-                  trailing: vm.selectedMode == 'mqtt'
+                  trailing: vm.selectedMode == 1
                       ? Icon(Icons.check, color: Theme.of(context).primaryColorLight)
                       : null,
                   onTap: () {
                     setModalState(() {
-                      vm.selectedMode = 'mqtt';
+                      vm.selectedMode = 1;
                       vm.selectedDevice = null;
                     });
                   },
@@ -886,23 +882,23 @@ class MobileScreenController extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.bluetooth),
                   title: const Text("Bluetooth"),
-                  trailing: vm.selectedMode == 'bluetooth'
+                  trailing: vm.selectedMode == 2
                       ? Icon(Icons.check, color: Theme.of(context).primaryColorLight)
                       : null,
                   onTap: () {
                     setModalState(() {
-                      vm.selectedMode = 'bluetooth';
+                      vm.selectedMode = 2;
                       vm.selectedDevice = null;
                     });
                   },
                 ),
-                if (vm.selectedMode == 'bluetooth') ...[
+                if (vm.selectedMode == 1) ...[
                   const Divider(),
                   ListTile(
                     dense: true,
                     visualDensity: VisualDensity.compact,
                     contentPadding: EdgeInsets.zero,
-                    title: const Text("Select Paired Device", style: TextStyle(fontWeight: FontWeight.bold)),
+                    title: const Text("Connect System Paired Device", style: TextStyle(fontWeight: FontWeight.bold)),
                     trailing: IconButton(
                       icon: const Icon(Icons.search, color: Colors.black),
                       onPressed: () => manager.getDevices(),

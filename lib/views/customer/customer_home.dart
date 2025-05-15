@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:oro_drip_irrigation/views/customer/home_sub_classes/current_program.dart';
@@ -38,7 +39,8 @@ class CustomerHome extends StatelessWidget {
         ? irrigationLines.where((line) => line.name != viewModel.myCurrentIrrLine).toList()
         : irrigationLines.where((line) => line.name == viewModel.myCurrentIrrLine).toList();
 
-    return _buildWebLayoutNew(context, linesToDisplay, scheduledProgram, viewModel);
+    return kIsWeb ? _buildWebLayout(context, linesToDisplay, scheduledProgram, viewModel):
+    _buildMobileLayout(context, linesToDisplay, scheduledProgram);
   }
 
   Widget displayLinearProgressIndicator() {
@@ -53,9 +55,8 @@ class CustomerHome extends StatelessWidget {
     );
   }
 
-  Widget _buildWebLayoutNew(BuildContext context, List<IrrigationLineModel> irrigationLine,
+  Widget _buildWebLayout(BuildContext context, List<IrrigationLineModel> irrigationLine,
       scheduledProgram, CustomerScreenControllerViewModel viewModel) {
-
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: Column(
@@ -118,6 +119,59 @@ class CustomerHome extends StatelessWidget {
     );
   }
 
+  Widget _buildMobileLayout(
+      BuildContext context, List<IrrigationLineModel> irrigationLine, scheduledProgram) {
+
+    final viewModel = context.read<CustomerScreenControllerViewModel>();
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          context.watch<MqttPayloadProvider>().onRefresh ? displayLinearProgressIndicator() : const SizedBox(),
+          CurrentProgram(
+            scheduledPrograms: scheduledProgram,
+            deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,
+            customerId: customerId,
+            controllerId: controllerId,
+            currentLineSNo: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine[viewModel.lIndex].sNo,
+          ),
+          NextSchedule(scheduledPrograms: scheduledProgram),
+          ...irrigationLine.map((line) => Padding(
+            padding: const EdgeInsets.only(left: 8, top: 8, right: 8),
+            child: Column(
+              children: [
+                irrigationLine.length != 1 ? SizedBox(
+                  width: MediaQuery.sizeOf(context).width,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 8, bottom: 3),
+                    child: Text(
+                      line.name,
+                      textAlign: TextAlign.left,
+                      style: const TextStyle(color: Colors.black87, fontSize: 16),
+                    ),
+                  ),
+                ):
+                const SizedBox(),
+
+                Card(
+                    color: Colors.white,
+                    elevation: 0.5,
+                    child: buildIrrigationLine(context, line, viewModel.customerId, viewModel.controllerId)
+                ),
+              ],
+            ),
+          )),
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+
+
+
   Widget buildIrrigationLine(BuildContext context,
       IrrigationLineModel irrLine, int customerId, int controllerId){
 
@@ -137,7 +191,7 @@ class CustomerHome extends StatelessWidget {
       if (irrLine.centralFertilizerSite != null) irrLine.centralFertilizerSite!.sNo : irrLine.centralFertilizerSite!
     }.values.toList();
 
-    return SourcesAndFFWithLineObjects(
+    return PumpStationWithLine(
       inletWaterSources: inletWaterSources,
       outletWaterSources: outletWaterSources,
       filterSite: filterSite,
@@ -195,7 +249,7 @@ class CustomerHome extends StatelessWidget {
 
 }
 
-class SourcesAndFFWithLineObjects extends StatelessWidget {
+class PumpStationWithLine extends StatelessWidget {
   final int customerId, controllerId;
   final String deviceId;
   final List<WaterSourceModel> inletWaterSources;
@@ -210,7 +264,7 @@ class SourcesAndFFWithLineObjects extends StatelessWidget {
   final double containerWidth;
   final bool isMobile;
 
-  const SourcesAndFFWithLineObjects({
+  const PumpStationWithLine({
     super.key,
     required this.inletWaterSources,
     required this.outletWaterSources,
@@ -244,13 +298,13 @@ class SourcesAndFFWithLineObjects extends StatelessWidget {
         ..._buildFertilizer(context, fertilizerSite),
 
       ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch_wj.png', fertilizerSite.isNotEmpty),
-      ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png',fertilizerSite.isNotEmpty),
-      ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter_wj.png',fertilizerSite.isNotEmpty),
+      ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', fertilizerSite.isNotEmpty),
+      ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter_wj.png', fertilizerSite.isNotEmpty),
       ...valves.map((valve) => Padding(
-        padding: EdgeInsets.only(top: fertilizerSite.isNotEmpty? 30:0),
+        padding: EdgeInsets.only(top: fertilizerSite.isNotEmpty?30:0),
         child: ValveWidget(valve: valve,customerId: customerId, controllerId: controllerId),
       )),
-      ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png',fertilizerSite.isNotEmpty),
+      ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', fertilizerSite.isNotEmpty),
     ];
 
     return Align(
@@ -403,7 +457,7 @@ class SourcesAndFFWithLineObjects extends StatelessWidget {
   List<Widget> _buildSensorItems(List<SensorModel> sensors, String type, String imagePath, bool isAvailFertilizer) {
     return sensors.map((sensor) {
       return Padding(
-        padding: EdgeInsets.only(top: isAvailFertilizer? 30:0),
+        padding: EdgeInsets.only(top: isAvailFertilizer?30:0),
         child: SensorWidget(
           sensor: sensor,
           sensorType: type,
@@ -473,78 +527,6 @@ class SourcesAndFFWithLineObjects extends StatelessWidget {
 
       return widgets;
     }).expand((item) => item).toList().cast<Widget>(); // 👈 Cast the final list
-  }
-}
-
-class LineObjects extends StatelessWidget {
-  final int customerId, controllerId;
-  final List<ValveModel> valves;
-  final List<SensorModel> prsSwitch;
-  final List<SensorModel> pressureIn;
-  final List<SensorModel> pressureOut;
-  final List<SensorModel> waterMeter;
-  final double containerWidth;
-  final bool isMobile;
-
-  const LineObjects({
-    super.key,
-    required this.valves,
-    required this.prsSwitch,
-    required this.pressureIn,
-    required this.pressureOut,
-    required this.waterMeter,
-    required this.customerId,
-    required this.controllerId,
-    required this.containerWidth,
-    required this.isMobile,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final allItems = [
-      ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch.png'),
-      ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor.png'),
-      ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter.png'),
-      ...valves.map((valve) => ValveWidget(valve: valve,customerId: customerId, controllerId: controllerId)),
-      ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor.png'),
-    ];
-
-    return Card(
-      color: Colors.white,
-      surfaceTintColor: Colors.white,
-      elevation: isMobile ? 2 : 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: (containerWidth / 85).round(),
-          mainAxisSpacing: 0,
-          crossAxisSpacing: 0,
-          childAspectRatio: isMobile? 1.0 : 1.30,
-        ),
-        itemCount: allItems.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.only(left: 3, right: 3),
-            child: allItems[index],
-          );
-        },
-      ),
-    );
-
-  }
-
-  List<Widget> _buildSensorItems(List<SensorModel> sensors, String type, String imagePath) {
-    return sensors.map((sensor) {
-      return SensorWidget(
-        sensor: sensor,
-        sensorType: type,
-        imagePath: imagePath,
-        customerId: customerId,
-        controllerId: controllerId,
-      );
-    }).toList();
   }
 }
 

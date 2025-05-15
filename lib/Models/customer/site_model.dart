@@ -51,6 +51,7 @@ class MasterControllerModel {
   final String categoryName;
   final int modelId;
   final String modelName;
+  final int? communicationMode;
   List<ConfigObject> configObjects;
   List<NodeListModel> nodeList;
   //List<WaterSourceModel> waterSources = [];
@@ -68,6 +69,7 @@ class MasterControllerModel {
     required this.categoryName,
     required this.modelId,
     required this.modelName,
+    required this.communicationMode,
     required this.units,
     required this.irrigationLine,
     required this.nodeList,
@@ -175,6 +177,7 @@ class MasterControllerModel {
       categoryName: json['categoryName'] ?? '',
       modelId: json['modelId'] ?? 0,
       modelName: json['modelName'] ?? '',
+      communicationMode: json['communicationMode'] ?? 1,
       configObjects: configObjectsR,
       units: json['units'] != null
           ? List<Unit>.from(json['units'].map((x) => Unit.fromJson(x)))
