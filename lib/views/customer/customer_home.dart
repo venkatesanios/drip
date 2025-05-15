@@ -1,9 +1,6 @@
 import 'dart:convert';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:oro_drip_irrigation/Screens/Constant/modal_in_constant.dart';
 import 'package:oro_drip_irrigation/views/customer/home_sub_classes/current_program.dart';
 import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
@@ -246,9 +243,9 @@ class SourcesAndFFWithLineObjects extends StatelessWidget {
       if (fertilizerSite.isNotEmpty)
         ..._buildFertilizer(context, fertilizerSite),
 
-      ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch.png'),
+      ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch_wj.png'),
       ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png'),
-      ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter.png'),
+      ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter_wj.png'),
       ...valves.map((valve) => ValveWidget(valve: valve,customerId: customerId, controllerId: controllerId)),
       ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png'),
     ];
@@ -760,9 +757,9 @@ class SensorWidget extends StatelessWidget {
 
         return SizedBox(
           width: 70,
-          height: 93,
+          height: 100,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               if (sensorType != 'Pressure Switch') ...[
                 Stack(
@@ -932,14 +929,11 @@ class SensorWidget extends StatelessWidget {
                   ],
                 ),
               ] else ...[
-                SizedBox(
+                const SizedBox(height: 8),
+                Image.asset(
+                  imagePath,
                   width: 70,
                   height: 70,
-                  child: Image.asset(
-                    imagePath,
-                    width: 70,
-                    height: 70,
-                  ),
                 ),
               ],
               Text(
@@ -1056,7 +1050,7 @@ class ValveWidget extends StatelessWidget {
               ),
               if (hasMoisture)
                 Positioned(
-                  top: 10,
+                  top: 20,
                   left: 33,
                   child: TextButton(
                     onPressed: () async {

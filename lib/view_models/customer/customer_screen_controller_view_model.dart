@@ -89,7 +89,8 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
         if (jsonData["code"] == 200) {
           mySiteList = SiteModel.fromJson(jsonData);
 
-          updateMaster(sIndex, mIndex, 0);
+          updateSite(sIndex, mIndex, 0);
+          //updateMaster(sIndex, mIndex, 0);
           payloadProvider.saveUnits(Unit.toJsonList(mySiteList.data[0].master[0].units));
 
           var live = mySiteList.data[sIndex].master[mIndex].live;
@@ -99,9 +100,9 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
             payloadProvider.updateReceivedPayload(liveJson, true);
           } else {
             payloadProvider.updateReceivedPayload('''{  "cC": "00000000",
-  "cM": {"2401": "","2402": "","2403": "","2404": "", "2405": "", "2406": "", "2407": "", "2408": "",  "2409": "",
-    "2410": "",  "2411": "",  "2412": "",  "WifiStrength": 0, "Version": "",  "PowerSupply": 0 },
-  "cD": "0000-00-00", "cT": "00:00:00",  "mC": "2400" }''', true);
+            "cM": {"2401": "","2402": "","2403": "","2404": "", "2405": "", "2406": "", "2407": "", "2408": "",  "2409": "",
+            "2410": "",  "2411": "",  "2412": "",  "WifiStrength": 0, "Version": "",  "PowerSupply": 0 },
+            "cD": "0000-00-00", "cT": "00:00:00",  "mC": "2400" }''', true);
           }
 
           wifiStrength = mySiteList.data[sIndex].master[mIndex].live?.cM['WifiStrength'];
