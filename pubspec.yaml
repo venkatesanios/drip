@@ -137,28 +137,28 @@ flavorizr:
     ios:
       targets:
         Runner:
-          bundleId: "com.example"
+          bundleId: "com.niagaraautomations"
   flavors:
     oroDevelopment:
       app:
         name: "ORO"
       android:
-        applicationId: "com.example.oroDevelopment"
+        applicationId: "com.niagaraautomations.oroDevelopment"
     #      ios:
-    #        bundleId: "com.example.apple"
+    #        bundleId: "com.niagaraautomations.apple"
     oroProduction:
       app:
         name: "ORO"
       android:
-        applicationId: "com.example.oro_drip_irrigation"
+        applicationId: "com.niagaraautomations.oroDripirrigation"
     #      ios:
-    #        bundleId: "com.example.apple"
+    #        bundleId: "com.niagaraautomations.apple"
     smartComm:
       app:
         name: "SMART COMM"
       android:
-        applicationId: "com.example.SmartComm"
+        applicationId: "com.niagaraautomations.SmartComm"
 #      ios:
-#        bundleId: "com.example.banana"
+#        bundleId: "com.niagaraautomations.banana"
 #      macos:
-#        bundleId: "com.example.banana"
+#        bundleId: "com.niagaraautomations.banana"
