@@ -35,9 +35,9 @@ class ScheduledProgram extends StatelessWidget {
       _updateProgramsFromMqtt(spLive, scheduledPrograms);
     }
 
-    var filteredScheduleProgram = currentLineSNo == 0
-        ? scheduledPrograms
-        : scheduledPrograms.where((program) {
+    var filteredScheduleProgram = currentLineSNo == 0 ?
+    scheduledPrograms :
+    scheduledPrograms.where((program) {
       return program.irrigationLine.contains(currentLineSNo);
     }).toList();
 

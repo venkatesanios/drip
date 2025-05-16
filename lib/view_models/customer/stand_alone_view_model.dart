@@ -188,8 +188,8 @@ class StandAloneViewModel extends ChangeNotifier {
 
               if (serialNo == 5) {
                 for (var line in masterData.irrigationLine) {
-                  for (var waterSource in line.waterSources) {
-                    waterSource.pumpObjects.where((pump) => pump.sNo == item.sNo).forEach((pump) {
+                  for (var waterSource in line.outletSources) {
+                    waterSource.outletPump.where((pump) => pump.sNo == item.sNo).forEach((pump) {
                       pump.selected = true;
                     });
                   }
@@ -445,8 +445,8 @@ class StandAloneViewModel extends ChangeNotifier {
 
       Set<String> serialNoSet = {};
       for (var line in masterData.irrigationLine) {
-        for (var waterSource in line.waterSources) {
-          var srlNo = getSelectedRelaySrlNo(waterSource.pumpObjects);
+        for (var waterSource in line.outletSources) {
+          var srlNo = getSelectedRelaySrlNo(waterSource.outletPump);
           if (srlNo.isNotEmpty) {
             serialNoSet.addAll(srlNo.split(','));
           }

@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:oro_drip_irrigation/Constants/properties.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/model/LineDataModel.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/schedule_screen.dart';
+import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/selection_screen.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/widgets/custom_section_title.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
@@ -176,12 +177,14 @@ class _SequenceScreenState extends State<SequenceScreen> {
                   child: Container(
                     margin: _getResponsiveMargin(context),
                     child: Column(
-                      children: _buildIrrigationSections(context),
+                      children: [
+                        ..._buildIrrigationSections(context),
+                        const SizedBox(height: 60,),
+                      ],
                     ),
                   ),
                 ),
               ),
-              // const SizedBox(height: 50,),
             ],
           );
         }
@@ -798,13 +801,13 @@ class _SequenceScreenState extends State<SequenceScreen> {
           }
         },
         darkColor: (!isGroup && !isMainValve)
-            ? Theme.of(context).primaryColorLight.withAlpha(150)
+            ? greenDark
             : const Color(0xfffdce7f),
-        textColor: (!isGroup && !isMainValve)
+      /*  textColor: (!isGroup && !isMainValve)
             ? (sequence.isNotEmpty && sequence.any((element) => element['valve'].isNotEmpty) && sequence[indexToShow]['valve'].any((e) => e["sNo"] == item.sNo))
             ? Colors.white
             : null
-            : null,
+            : null,*/
         itemName: item.name,
     );
   }
@@ -820,7 +823,6 @@ Widget buildListOfContainer({
   required String itemName,
   EdgeInsets padding = const EdgeInsets.symmetric(vertical: 0, horizontal: 10)
 }) {
-
   Color getDarkerColor(Color? color) {
     if (color == null) return Colors.black;
     return Color.fromRGBO(
@@ -830,7 +832,6 @@ Widget buildListOfContainer({
       1.0,
     );
   }
-
   return ChoiceChip(
     label:Row(
       spacing: 4,

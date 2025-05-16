@@ -299,6 +299,17 @@ class LoginScreen extends StatelessWidget {
                           left: (MediaQuery.of(context).size.width / 2),
                           child: SvgPicture.asset('assets/svg_images/lk_login_top_corner.svg', fit: BoxFit.fitWidth),
                         ),
+                        const Positioned(
+                          bottom: 10,
+                          left: 25,
+                          right: 25,
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 5, right: 5, bottom: 5),
+                              child: Text(AppConstants.appShortContent,
+                                  style: TextStyle(color: Colors.white70, fontSize: 11),
+                                  textAlign: TextAlign.center),
+                            ),
+                        )
                       ],
                     ),
                     Padding(
@@ -376,13 +387,6 @@ class LoginScreen extends StatelessWidget {
                                   ),
                                   onPressed: () => viewModel.login(),
                                 ),
-                              ),
-                              const SizedBox(height: 16),
-                              const Padding(
-                                padding: EdgeInsets.only(left: 5, right: 5, bottom: 5),
-                                child: Text(AppConstants.appShortContent,
-                                    style: TextStyle(color: Colors.white70, fontSize: 11),
-                                    textAlign: TextAlign.center),
                               ),
                             ],
                           ),

@@ -1,4 +1,4 @@
- # Specify the minimum iOS version (required for google_maps_flutter_ios)
+  # Specify the minimum iOS version (required for google_maps_flutter_ios)
 platform :ios, '15.0'
 
 # Disable CocoaPods analytics to reduce build latency

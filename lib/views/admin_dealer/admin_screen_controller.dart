@@ -34,6 +34,8 @@ class AdminScreenController extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
+                    F.appFlavor!.name.contains('oro') ?
+                    const SizedBox():
                     Image.asset(
                       width: 140,
                       "assets/png/lk_logo_white.png",

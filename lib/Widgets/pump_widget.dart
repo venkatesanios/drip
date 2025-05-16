@@ -80,8 +80,6 @@ class PumpWidget extends StatelessWidget {
               width: 70,
               height: 100,
               child: Column(
-                mainAxisAlignment: isMobile ? MainAxisAlignment.center:
-                MainAxisAlignment.start,
                 children: [
                   Builder(
                     builder: (buttonContext) => Tooltip(
@@ -98,9 +96,9 @@ class PumpWidget extends StatelessWidget {
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        hasVoltage
-                                            ? _buildVoltagePopoverContent(context, voltages, columns)
-                                            : Container(),
+                                        hasVoltage?
+                                        _buildVoltagePopoverContent(context, voltages, columns) :
+                                        Container(),
                                         if (isSourcePump) _buildBottomControlButtons(context),
                                       ],
                                     ),
@@ -121,10 +119,8 @@ class PumpWidget extends StatelessWidget {
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           backgroundColor: WidgetStateProperty.all(Colors.transparent),
                         ),
-                        child:
-                        SizedBox(
-                          width: 70,
-                          height: isMobile ? 55 : 70,
+                        child: SizedBox(
+                          height : 70,
                           child: AppConstants.getAsset('pump', pump.status, ''),
                         ),
                       ),

@@ -9,6 +9,7 @@ import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../services/mqtt_service.dart';
+import 'configureMqttTopic.dart';
 import 'controllerlogfile.dart';
 
 class ResetVerssion extends StatefulWidget {
@@ -210,6 +211,27 @@ class _ResetVerssionState extends State<ResetVerssion> {
                             });
                           },
                           icon: const Icon(Icons.arrow_circle_right_outlined),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: IconButton(
+                            style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all(
+                                    Colors.teal.shade100)),
+                              onPressed: () {
+                                setState(() {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ConfigureMqtt(
+                                          deviceID: '${mergedList[index]['deviceId'
+                                          ]!}'),
+                                    ),
+                                  );
+                                });
+                              },
+                            icon: const Icon(Icons.settings_outlined),
+                          ),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),

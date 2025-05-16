@@ -225,7 +225,7 @@ class BoosterWidget extends StatelessWidget {
 
         return SizedBox(
             width: 70,
-            height: 120,
+            height: 119,
             child : Stack(
               children: [
                 AppConstants.getAsset('booster', fertilizerSite.boosterPump[0].status,''),
@@ -259,11 +259,6 @@ class BoosterWidget extends StatelessWidget {
                     height: 22,
                   ):
                   const SizedBox(),
-                ),
-                Positioned(
-                  top: 115,
-                  left: 8.3,
-                  child: Image.asset('assets/png/dp_frt_vertical_pipe.png', width: 9.5, height: 37,),
                 ),
               ],
             )

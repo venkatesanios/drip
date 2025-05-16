@@ -9,6 +9,7 @@ import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
 import '../../Models/customer/site_model.dart';
 import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
+import '../../flavors.dart';
 import '../../modules/IrrigationProgram/view/program_library.dart';
 import '../../modules/PumpController/view/node_settings.dart';
 import '../../modules/PumpController/view/pump_controller_home.dart';
@@ -78,8 +79,14 @@ class MobileScreenController extends StatelessWidget {
           return Scaffold(
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             appBar: AppBar(
-              title: Image.asset(
-                width: 140,
+              title: F.appFlavor!.name.contains('oro') ?
+              Image.asset(
+                width: 70,
+                "assets/png/oro_logo_white.png",
+                fit: BoxFit.fitWidth,
+              ):
+              Image.asset(
+                width: 100,
                 "assets/png/lk_logo_white.png",
                 fit: BoxFit.fitWidth,
               ),
@@ -250,13 +257,12 @@ class MobileScreenController extends StatelessWidget {
                               vm.masterOnChanged(index); // ✅ Pass only the index
                             },
                           ):
-                          Text(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
-                            style: const TextStyle(fontSize: 12),),
+                          const SizedBox(),
 
-                          Padding(
+                          vm.mySiteList.data[vm.sIndex].master.length > 1? Padding(
                             padding: const EdgeInsets.only(left: 8, right: 8),
                             child: Container(width: 1, height: 20, color: Colors.white54),
-                          ),
+                          ):const SizedBox(),
 
                           vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1 &&
                               vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
@@ -376,7 +382,7 @@ class MobileScreenController extends StatelessWidget {
                         .primaryColor),
                     title: const Text("Profile",
                         style: TextStyle(fontWeight: FontWeight.bold)),
-                    trailing: const Icon(Icons.arrow_forward_rounded),
+                    trailing: const Icon(Icons.keyboard_arrow_right_rounded),
                     onTap: () {
                       Navigator.push(
                         context,
@@ -396,7 +402,7 @@ class MobileScreenController extends StatelessWidget {
                         .primaryColor),
                     title: const Text("App Info",
                         style: TextStyle(fontWeight: FontWeight.bold)),
-                    trailing: const Icon(Icons.arrow_forward_rounded),
+                    trailing: const Icon(Icons.keyboard_arrow_right_rounded),
                     onTap: () {},
                   ),
                   Padding(
@@ -409,7 +415,7 @@ class MobileScreenController extends StatelessWidget {
                         .primaryColor),
                     title: const Text(
                         "Help", style: TextStyle(fontWeight: FontWeight.bold)),
-                    trailing: const Icon(Icons.arrow_forward_rounded),
+                    trailing: const Icon(Icons.keyboard_arrow_right_rounded),
                     onTap: () {},
                   ),
                   Padding(
@@ -422,7 +428,7 @@ class MobileScreenController extends StatelessWidget {
                         .primaryColor),
                     title: const Text("Send Feedback",
                         style: TextStyle(fontWeight: FontWeight.bold)),
-                    trailing: const Icon(Icons.arrow_forward_rounded),
+                    trailing: const Icon(Icons.keyboard_arrow_right_rounded),
                     onTap: () {},
                   ),
                   Padding(
@@ -435,7 +441,7 @@ class MobileScreenController extends StatelessWidget {
                         .primaryColor),
                     title: const Text("Service Request",
                         style: TextStyle(fontWeight: FontWeight.bold)),
-                    trailing: const Icon(Icons.arrow_forward_rounded),
+                    trailing: const Icon(Icons.keyboard_arrow_right_rounded),
                     onTap: () {
                       Navigator.push(
                         context,
@@ -454,7 +460,7 @@ class MobileScreenController extends StatelessWidget {
                         .primaryColor),
                     title: const Text("All my devices",
                         style: TextStyle(fontWeight: FontWeight.bold)),
-                    trailing: const Icon(Icons.arrow_forward_rounded),
+                    trailing: const Icon(Icons.keyboard_arrow_right_rounded),
                     onTap: () {
                       Navigator.push(
                         context,
@@ -488,6 +494,8 @@ class MobileScreenController extends StatelessWidget {
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       children: [
+                        F.appFlavor!.name.contains('oro') ?
+                        CircleAvatar(radius:30, child: Image.asset('assets/png/company_logo_nia.png')):
                         SizedBox(
                           height: 60,
                           child: Image.asset('assets/png/company_logo.png'),
@@ -658,7 +666,8 @@ class MobileScreenController extends StatelessWidget {
                   backgroundColor: Theme.of(context).primaryColorLight,
                   onPressed: ()=>_showBottomSheet(context, vm),
                   tooltip: 'Second Action',
-                  child: Column(
+                  child: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].communicationMode == 1?
+                  Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -671,10 +680,13 @@ class MobileScreenController extends StatelessWidget {
                       Text('${vm.wifiStrength} %',style: const TextStyle(fontSize: 11.0, color: Colors.white70),
                       ),
                     ],
-                  ),
+                  ):
+                  const Icon(Icons.bluetooth,
+                  color: Colors.white),
                 ),
               ],
             ) : null,
+
             body: RefreshIndicator(
               onRefresh: () => _handleRefresh(vm),
               child: Container(
@@ -732,43 +744,35 @@ class MobileScreenController extends StatelessWidget {
                         const SizedBox(),
                     ],
                     Expanded(
-                      child: vm.selectedIndex == 0 ?
-                      mainScreen(
-                          navViewModel.selectedIndex,
-                          vm.mySiteList.data[vm.sIndex].groupId,
-                          vm.mySiteList.data[vm.sIndex].groupName,
-                          vm.mySiteList.data[vm.sIndex].master,
-                          vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
-                              .controllerId,
-                          vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
-                              .categoryId,
-                          vm.mIndex,
-                          vm.sIndex,
-                        vm.isChanged,
-                        vm
-                      ) :
-                      vm.selectedIndex == 1 ?
-                      ScheduledProgram(
-                        userId: customerId,
-                        scheduledPrograms: vm.mySiteList.data[vm.sIndex].master[vm
-                            .mIndex].programList,
-                        controllerId: vm.mySiteList.data[vm.sIndex].master[vm
-                            .mIndex].controllerId,
-                        deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
-                            .deviceId,
-                        customerId: customerId,
-                        currentLineSNo: vm.mySiteList.data[vm.sIndex].master[vm
-                            .mIndex].irrigationLine[vm.lIndex].sNo,
-                        groupId: vm.mySiteList.data[vm.sIndex].groupId,
-                        categoryId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
-                        modelId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId,
-                        deviceName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceName,
-                        categoryName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
-                      ) :
-                      ControllerSettings(customerId: customerId,
-                        userId: userId,
-                        masterController: vm.mySiteList.data[vm.sIndex].master[vm.mIndex],
-                    ),
+                      child: Builder(
+                        builder: (context) {
+                          return vm.selectedIndex == 0 ?
+                          CustomerHome(customerId: userId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                            deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,)
+                              : vm.selectedIndex == 1
+                              ? ScheduledProgram(
+                            userId: customerId,
+                            scheduledPrograms: vm.mySiteList.data[vm.sIndex].master[vm
+                                .mIndex].programList,
+                            controllerId: vm.mySiteList.data[vm.sIndex].master[vm
+                                .mIndex].controllerId,
+                            deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
+                                .deviceId,
+                            customerId: customerId,
+                            currentLineSNo: vm.mySiteList.data[vm.sIndex].master[vm
+                                .mIndex].irrigationLine[vm.lIndex].sNo,
+                            groupId: vm.mySiteList.data[vm.sIndex].groupId,
+                            categoryId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
+                            modelId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId,
+                            deviceName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceName,
+                            categoryName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
+                          )
+                              : ControllerSettings(customerId: customerId,
+                            userId: userId,
+                            masterController: vm.mySiteList.data[vm.sIndex].master[vm.mIndex],
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -873,12 +877,12 @@ class MobileScreenController extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.wifi),
                   title: const Text("Wi-Fi / MQTT"),
-                  trailing: vm.selectedMode == 'mqtt'
+                  trailing: vm.selectedMode == 1
                       ? Icon(Icons.check, color: Theme.of(context).primaryColorLight)
                       : null,
                   onTap: () {
                     setModalState(() {
-                      vm.selectedMode = 'mqtt';
+                      vm.selectedMode = 1;
                       vm.selectedDevice = null;
                     });
                   },
@@ -886,23 +890,23 @@ class MobileScreenController extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.bluetooth),
                   title: const Text("Bluetooth"),
-                  trailing: vm.selectedMode == 'bluetooth'
+                  trailing: vm.selectedMode == 2
                       ? Icon(Icons.check, color: Theme.of(context).primaryColorLight)
                       : null,
                   onTap: () {
                     setModalState(() {
-                      vm.selectedMode = 'bluetooth';
+                      vm.selectedMode = 2;
                       vm.selectedDevice = null;
                     });
                   },
                 ),
-                if (vm.selectedMode == 'bluetooth') ...[
+                if (vm.selectedMode == 2) ...[
                   const Divider(),
                   ListTile(
                     dense: true,
                     visualDensity: VisualDensity.compact,
                     contentPadding: EdgeInsets.zero,
-                    title: const Text("Select Paired Device", style: TextStyle(fontWeight: FontWeight.bold)),
+                    title: const Text("Connect System Paired Device", style: TextStyle(fontWeight: FontWeight.bold)),
                     trailing: IconButton(
                       icon: const Icon(Icons.search, color: Colors.black),
                       onPressed: () => manager.getDevices(),

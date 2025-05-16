@@ -51,6 +51,7 @@ class MasterControllerModel {
   final String categoryName;
   final int modelId;
   final String modelName;
+  final int? communicationMode;
   List<ConfigObject> configObjects;
   List<NodeListModel> nodeList;
   //List<WaterSourceModel> waterSources = [];
@@ -68,6 +69,7 @@ class MasterControllerModel {
     required this.categoryName,
     required this.modelId,
     required this.modelName,
+    required this.communicationMode,
     required this.units,
     required this.irrigationLine,
     required this.nodeList,
@@ -164,7 +166,7 @@ class MasterControllerModel {
     for (var line in irrigationLines) {
       final matchedFilterSite = filterSiteMap[line.centralFiltration];
       final matchedFertilizerSite = fertilizerSiteMap[line.centralFertilization];
-      line.linkReferences(waterSources, matchedFilterSite, matchedFertilizerSite);
+      line.linkReferences(matchedFilterSite, matchedFertilizerSite);
     }
 
     return MasterControllerModel(
@@ -175,6 +177,7 @@ class MasterControllerModel {
       categoryName: json['categoryName'] ?? '',
       modelId: json['modelId'] ?? 0,
       modelName: json['modelName'] ?? '',
+      communicationMode: json['communicationMode'] ?? 1,
       configObjects: configObjectsR,
       units: json['units'] != null
           ? List<Unit>.from(json['units'].map((x) => Unit.fromJson(x)))
@@ -198,21 +201,25 @@ class MasterControllerModel {
 class WaterSourceModel {
   final double sNo;
   final String name;
+
+  final List<double> inletPumpSno;
+  final List<double> outletPumpSno;
+
   final List<PumpModel> inletPump;
   final List<PumpModel> outletPump;
+
   final bool isWaterInAndOut;
-  final List<double> outletPumpSno;
-  final List<PumpModel> pumpObjects;
   final List<SensorModel> level;
 
   WaterSourceModel({
     required this.sNo,
     required this.name,
+    required this.inletPumpSno,
+    required this.outletPumpSno,
+
     required this.inletPump,
     required this.outletPump,
     required this.isWaterInAndOut,
-    required this.outletPumpSno,
-    required this.pumpObjects,
     required this.level,
   });
 
@@ -225,13 +232,6 @@ class WaterSourceModel {
 
     final outletPumps = ((json['outletPump'] as List?) ?? []).map((e) => e).toSet();
     final oPumps = configObjects.where((obj) => outletPumps.contains(obj.sNo))
-        .map(PumpModel.fromConfigObject)
-        .toList();
-
-
-    final pumpSNoSet = ((json['outletPump'] as List?) ?? []).map((e) => e).toSet();
-    final pumps = configObjects
-        .where((obj) => pumpSNoSet.contains(obj.sNo))
         .map(PumpModel.fromConfigObject)
         .toList();
 
@@ -257,27 +257,25 @@ class WaterSourceModel {
       inletPump: iPumps,
       outletPump: oPumps,
       isWaterInAndOut: ((json['inletPump'] as List).isNotEmpty || sourceCount == 1),
+      inletPumpSno: List<double>.from(json['inletPump'].map((e) => e.toDouble())),
       outletPumpSno: List<double>.from(json['outletPump'].map((e) => e.toDouble())),
-      pumpObjects: pumps,
       level: levelSensor,
     );
   }
 
 }
 
+
 class IrrigationLineModel {
   final double sNo;
   final String name;
-  final List<double> spSerialNumbers;
-  final List<double> ipSerialNumbers;
+  final List<WaterSourceModel> inletSources;
+  final List<WaterSourceModel> outletSources;
   final double? centralFiltration;
   final double? centralFertilization;
-
-  List<WaterSourceModel> waterSources = [];
   FilterSiteModel? centralFilterSite;
   FertilizerSiteModel? centralFertilizerSite;
   final List<ValveModel> valveObjects;
-
   final List<SensorModel> prsSwitch;
   final List<SensorModel> pressureIn;
   final List<SensorModel> pressureOut;
@@ -286,12 +284,11 @@ class IrrigationLineModel {
   IrrigationLineModel({
     required this.sNo,
     required this.name,
-    required this.spSerialNumbers,
-    required this.ipSerialNumbers,
+    required this.inletSources,
+    required this.outletSources,
     required this.centralFiltration,
     required this.centralFertilization,
     required this.valveObjects,
-
     required this.prsSwitch,
     required this.pressureIn,
     required this.pressureOut,
@@ -300,11 +297,19 @@ class IrrigationLineModel {
 
   factory IrrigationLineModel.fromJson(Map<String, dynamic> json, List<ConfigObject> configObjects, var moistureSensorRaw, List<WaterSourceModel> waterSources) {
 
-    final sPumpSNoSets = ((json['sourcePump'] as List?) ?? []).map((e) => e).toSet();
-    final iPumpSNoSets = ((json['irrigationPump'] as List?) ?? []).map((e) => e).toSet();
+    final sourcePumpList = (json['sourcePump'] as List?) ?? [];
+    final sourcePumpSet = sourcePumpList.map((e) => (e as num).toDouble()).toSet();
+    final matchedInletSources = WaterSourceUtils.getWaterSourcesByOutletPump(
+      sourcePumpSet: sourcePumpSet,
+      allWaterSources: waterSources,
+    );
 
-    /*final iPumps = waterSources.where((obj) => iPumpSNoSets.contains(obj.sNo))
-        .map(WaterSourceModel.fromConfigObject).toList();*/
+    final irrPumpList = (json['irrigationPump'] as List?) ?? [];
+    final irrPumpSet = irrPumpList.map((e) => (e as num).toDouble()).toSet();
+    final matchedOutLetSources = WaterSourceUtils.getWaterSourcesByOutletPump(
+      sourcePumpSet: irrPumpSet,
+      allWaterSources: waterSources,
+    );
 
     final valveSNoSet = ((json['valve'] as List?) ?? []).map((e) => e).toSet();
     final valves = configObjects.where((obj) => valveSNoSet.contains(obj.sNo))
@@ -329,7 +334,6 @@ class IrrigationLineModel {
     for (var valve in valves) {
       valve.moistureSensors = valveToMoistureSensors[valve.sNo] ?? [];
     }
-
 
     final pressureSwitchSNoList = (json['pressureSwitch'] is List)
         ? (json['pressureSwitch'] as List).map((e) => (e as num).toDouble()).toSet()
@@ -380,10 +384,10 @@ class IrrigationLineModel {
       name: json['name'] ?? '',
       centralFiltration: (json['centralFiltration'] as num?)?.toDouble(),
       centralFertilization: (json['centralFertilization'] as num?)?.toDouble(),
-      spSerialNumbers: List<double>.from(json['sourcePump'].map((e) => e.toDouble())),
-      ipSerialNumbers: List<double>.from(json['irrigationPump'].map((e) => e.toDouble())),
-      valveObjects: valves,
 
+      inletSources: matchedInletSources,
+      outletSources: matchedOutLetSources,
+      valveObjects: valves,
       prsSwitch: pressureSwitch,
       pressureIn: pressureIn,
       pressureOut: pressureOut,
@@ -391,22 +395,10 @@ class IrrigationLineModel {
     );
   }
 
-  void linkReferences(List<WaterSourceModel> wtrSources,
-      FilterSiteModel? cFilterSite, FertilizerSiteModel? cFertilizerSite) {
-
-    waterSources.clear();
-    for (var ws in wtrSources) {
-      bool hasSourcePump = ws.outletPumpSno.any((pump) => spSerialNumbers.contains(pump));
-      bool hasIrrigationPump = ws.outletPumpSno.any((pump) => ipSerialNumbers.contains(pump));
-
-      if (hasSourcePump || hasIrrigationPump) {
-        waterSources.add(ws);
-      }
-    }
-
+  void linkReferences(FilterSiteModel? cFilterSite,
+      FertilizerSiteModel? cFertilizerSite) {
     centralFilterSite = cFilterSite;
     centralFertilizerSite = cFertilizerSite;
-
   }
 
 }
@@ -1515,4 +1507,32 @@ class ConditionValue {
       'rule': rule,
     };
   }
+}
+
+class WaterSourceUtils {
+
+  static List<WaterSourceModel> getWaterSourcesByOutletPump({
+    required Set<double> sourcePumpSet,
+    required List<WaterSourceModel> allWaterSources,
+  }) {
+    return allWaterSources.map((source) {
+      final matchingOutletPumps = source.outletPump
+          .where((pump) => sourcePumpSet.contains(pump.sNo))
+          .toList();
+
+      if (matchingOutletPumps.isEmpty) return null;
+
+      return WaterSourceModel(
+        sNo: source.sNo,
+        name: source.name,
+        inletPumpSno: [],
+        outletPumpSno: [],
+        inletPump: [],
+        outletPump: matchingOutletPumps,
+        isWaterInAndOut: false,
+        level: source.level,
+      );
+    }).whereType<WaterSourceModel>().toList();
+  }
+
 }

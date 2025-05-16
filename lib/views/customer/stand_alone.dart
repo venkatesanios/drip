@@ -495,8 +495,8 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
   Widget displayLineOrSequence(MasterControllerModel masterData, StandAloneViewModel vm, int ddPosition){
 
     final pumps = masterData.irrigationLine
-        .expand((line) => line.waterSources)
-        .expand((ws) => ws.pumpObjects ?? [])
+        .expand((line) => line.outletSources)
+        .expand((ws) => ws.outletPump ?? [])
         .toList();
 
     final allPumps = pumps.fold<Map<double, PumpModel>>({}, (map, pump) {

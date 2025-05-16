@@ -106,8 +106,15 @@ flutter:
     - assets/mob_dashboard/
     - assets/gif/
     - assets/gif/dp_irr_pump_g.gif
+    - assets/oro_store.png
+    - assets/playstore.png
     - assets/.env
-
+flutter_launcher_icons:
+    android: true
+    ios: true
+    image_path: "assets/playstore.png"
+    adaptive_icon_background: "#FFFFFF"
+    adaptive_icon_foreground: "assets/oro_store.png"
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
@@ -139,28 +146,28 @@ flavorizr:
     ios:
       targets:
         Runner:
-          bundleId: "com.example"
+          bundleId: "com.niagaraautomations"
   flavors:
     oroDevelopment:
       app:
         name: "ORO"
       android:
-        applicationId: "com.example.oroDevelopment"
+        applicationId: "com.niagaraautomations.oroDevelopment"
     #      ios:
-    #        bundleId: "com.example.apple"
+    #        bundleId: "com.niagaraautomations.apple"
     oroProduction:
       app:
         name: "ORO"
       android:
-        applicationId: "com.example.oro_drip_irrigation"
+        applicationId: "com.niagaraautomations.oroDripirrigation"
     #      ios:
-    #        bundleId: "com.example.apple"
+    #        bundleId: "com.niagaraautomations.apple"
     smartComm:
       app:
         name: "SMART COMM"
       android:
-        applicationId: "com.example.SmartComm"
+        applicationId: "com.niagaraautomations.SmartComm"
 #      ios:
-#        bundleId: "com.example.banana"
+#        bundleId: "com.niagaraautomations.banana"
 #      macos:
-#        bundleId: "com.example.banana"
+#        bundleId: "com.niagaraautomations.banana"

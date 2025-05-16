@@ -160,30 +160,20 @@ class AppConstants {
   static const String pngPath = "assets/png/";
   static const String gifPath = "assets/gif/";
 
+  static const String boreWell = "dp_bore_well.png";
   static const String sumpFirst = "dp_sump_first.png";
   static const String sumpCenter = "dp_sump_center.png";
   static const String sumpLast = "dp_sump_last.png";
-  static const String sumpMobile = "dp_sump.png";
 
   static const String pumpOFF = "dp_irr_pump.png";
   static const String pumpON = "dp_irr_pump_g.gif";
   static const String pumpNotON = "dp_irr_pump_y.png";
   static const String pumpNotOFF = "dp_irr_pump_r.png";
 
-  static const String pumpOFFm = "dp_irr_pump_m.png";
-  static const String pumpONm = "dp_irr_pump_g_m.gif";
-  static const String pumpNotONm = "dp_irr_pump_y_m.png";
-  static const String pumpNotOFFm = "dp_irr_pump_r_m.png";
-
   static const String filterOFF = "dp_filter.png";
   static const String filterON = "dp_filter_g.png";
   static const String filterNotON = "dp_filter_y.png";
   static const String filterNotOFF = "dp_filter_r.png";
-
-  static const String filterOFFM = "dp_filter_m.png";
-  static const String filterONM = "dp_filter_g_m.png";
-  static const String filterNotONM = "dp_filter_y_m.png";
-  static const String filterNotOFFM = "dp_filter_r_m.png";
 
   static const String boosterPumpOFF = "dp_frt_booster_pump.png";
   static const String boosterPumpON = "dp_frt_booster_pump_g.gif";
@@ -282,6 +272,9 @@ class AppConstants {
   static Widget getAsset(String imageKey, int status, String type) {
     String imagePathFinal;
     switch (imageKey) {
+      case 'BORE':
+        imagePathFinal = _getBoreWellImagePath();
+        break;
       case 'source':
         imagePathFinal = _getSourceImagePath(type);
         break;
@@ -308,26 +301,32 @@ class AppConstants {
     }
 
     if (imagePathFinal.contains('.gif')) {
-      return Image.network(
-        'http://52.172.214.208:5000/gif/dp_irr_pump_g.gif',
-      );
       return Image.asset(
         '$gifPath$imagePathFinal',
         key: UniqueKey(),
-        fit: BoxFit.contain,
+        fit: BoxFit.fill,
       );
     }
-    return Image.asset('$pngPath$imagePathFinal');
+    return Image.asset(
+      '$pngPath$imagePathFinal',
+      width: double.infinity,
+      height: double.infinity,
+      fit: BoxFit.fill,
+    );
+  }
+
+  static String _getBoreWellImagePath() {
+    return boreWell;
   }
 
   static String _getSourceImagePath(String position) {
     switch (position) {
       case 'First':
-        return kIsWeb? sumpFirst : sumpMobile;
+        return sumpFirst;
       case 'Center':
-        return kIsWeb? sumpCenter : sumpMobile;
+        return sumpCenter;
       case 'Last':
-        return kIsWeb? sumpLast : sumpMobile;
+        return sumpLast;
       default:
         return '';
     }
@@ -336,13 +335,13 @@ class AppConstants {
   static String _getIrrigationPumpImagePath(int status) {
     switch (status) {
       case 0:
-        return kIsWeb? pumpOFF : pumpOFFm;
+        return pumpOFF;
       case 1:
-        return kIsWeb? pumpON : pumpONm;
+        return pumpON;
       case 2:
-        return kIsWeb? pumpNotON : pumpNotONm;
+        return pumpNotON;
       case 3:
-        return kIsWeb? pumpNotOFF : pumpNotOFFm;
+        return pumpNotOFF;
       default:
         return '';
     }
@@ -351,13 +350,13 @@ class AppConstants {
   static String _getFilterImagePath(int status) {
     switch (status) {
       case 0:
-        return kIsWeb? filterOFF : filterOFFM;
+        return filterOFF;
       case 1:
-        return kIsWeb? filterON : filterONM;
+        return filterON;
       case 2:
-        return kIsWeb? filterNotON : filterNotONM;
+        return filterNotON;
       case 3:
-        return kIsWeb? filterNotOFF : filterNotOFFM;
+        return filterNotOFF;
       default:
         return '';
     }
