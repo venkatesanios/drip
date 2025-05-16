@@ -3,7 +3,8 @@ name: Build & Deploy to Play Store
 on:
   push:
     branches: [main]  # or your release branch
-
+    tags:
+      - '*'
 jobs:
   build:
     name: Build & Release AAB (oroProduction)
