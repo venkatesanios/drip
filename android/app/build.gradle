@@ -51,7 +51,7 @@ android {
     signingConfigs {
         release {
             if (System.getenv("CI")) {
-                def keystoreFile = file("$release-key.jks")
+                def keystoreFile = file("release-key.jks")
                 storeFile keystoreFile
                 storePassword System.getenv("KEYSTORE_PASSWORD")
                 keyAlias System.getenv("KEY_ALIAS")
