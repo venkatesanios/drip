@@ -47,20 +47,18 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   }
 
   void mqttConnectionCallbackMethod() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      mqttConfigureAndConnect(context);
-      await Future.delayed(const Duration(milliseconds: 3000));
-      final state = mqttService.isConnected;
-      if (state) {
+    mqttConfigureAndConnect(context);
+    MqttService().mqttConnectionStream.listen((state) {
+      if (state == MqttConnectionState.connected) {
+        print("MQTT Connected! Callback");
         onSubscribeTopic();
+      } else if (state == MqttConnectionState.connecting) {
+        print("MQTT Connecting... Callback");
+      } else {
+        print("MQTT Disconnected Callback");
       }
-      mqttSubscription ??= mqttService.mqttConnectionStream.listen((state) {
-        debugPrint("MQTT Connection Stream: $state");
-        if (state == MqttConnectionState.connected) {
-          onSubscribeTopic();
-        }
-      });
     });
+
   }
 
   void mqttConfigureAndConnect(BuildContext context) {
@@ -70,7 +68,6 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
 
   void onSubscribeTopic(){
     Future.delayed(const Duration(milliseconds: 2000), () {
-      print("device id :: ${mySiteList.data[sIndex].master[mIndex].deviceId}");
       mqttService.topicToSubscribe('${AppConstants.subscribeTopic}/${mySiteList.data[sIndex].master[mIndex].deviceId}');
       onRefreshClicked();
     });
@@ -210,14 +207,19 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   Future<void>  onRefreshClicked() async {
 
     String livePayload = '';
+    print(mySiteList.data[sIndex].master[mIndex].categoryId);
     if (mySiteList.data[sIndex].master[mIndex].categoryId == 1) {
       livePayload = jsonEncode({"3000": {"3001": ""}});
     } else {
       livePayload = jsonEncode({"sentSms": "#live"});
     }
 
+
+
     payloadProvider.liveSyncCall(true);
-    final result = await context.read<CommunicationService>().sendCommand(serverMsg:'', payload: livePayload);
+    final communicationService = context.read<CommunicationService>();
+    final result = await communicationService.sendCommand(serverMsg:'', payload: livePayload);
+
     if (result['http'] == true) {
       debugPrint("Payload sent to Server");
     }

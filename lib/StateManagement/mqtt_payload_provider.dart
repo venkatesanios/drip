@@ -1,9 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../Constants/data_convertion.dart';
 import '../Models/Weather_model.dart';
 import '../Models/customer/site_model.dart';
@@ -98,6 +95,7 @@ class MqttPayloadProvider with ChangeNotifier {
   List<String> nextSchedule = [];
   List<String> scheduledProgramPayload = [];
   List<String> lineLiveMessage = [];
+  List<String> alarmDL = [];
 
    final Map<String, String> _pumpOnOffStatusMap = {};
    final Map<String, String> _pumpOtherDetailMap = {};
@@ -514,6 +512,7 @@ class MqttPayloadProvider with ChangeNotifier {
         updateCurrentProgram(data['cM']['2408'].split(";"));
         updateNextProgram(data['cM']['2409'].split(";"));
         updateScheduledProgram(data['cM']['2410'].split(";"));
+        updateAlarm(data['cM']['2412'].split(";"));
 
         notifyListeners();
       }
@@ -720,6 +719,10 @@ class MqttPayloadProvider with ChangeNotifier {
   void updateNextProgram(List<String> program) {
     nextSchedule = program;
   }
+
+   void updateAlarm(List<String> alm) {
+     alarmDL = alm;
+   }
 
   void updateScheduledProgram(List<String> program) {
     scheduledProgramPayload = program;
