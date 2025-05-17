@@ -3,7 +3,7 @@ import 'package:oro_drip_irrigation/view_models/create_account_view_model.dart';
 import 'package:provider/provider.dart';
 import '../StateManagement/mqtt_payload_provider.dart';
 
-class MyFunction{
+class MyFunction {
 
   String? getUnitByParameter(BuildContext context, String parameter, String value) {
     MqttPayloadProvider payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
@@ -114,6 +114,69 @@ class MyFunction{
 
   double convertBarToKPa(double bar) {
     return bar * 100;
+  }
+
+  String getAlarmMessage(int alarmType) {
+    String msg = '';
+    switch (alarmType) {
+      case 1:
+        msg ='Low Flow';
+        break;
+      case 2:
+        msg ='High Flow';
+        break;
+      case 3:
+        msg ='No Flow';
+        break;
+      case 4:
+        msg ='Ec High';
+        break;
+      case 5:
+        msg ='Ph Low';
+        break;
+      case 6:
+        msg ='Ph High';
+        break;
+      case 7:
+        msg ='Pressure Low';
+        break;
+      case 8:
+        msg ='Pressure High';
+        break;
+      case 9:
+        msg ='No Power Supply';
+        break;
+      case 10:
+        msg ='No Communication';
+        break;
+      case 11:
+        msg ='Wrong Feedback';
+        break;
+      case 12:
+        msg ='Sump Tank Empty';
+        break;
+      case 13:
+        msg ='Top Tank Full';
+        break;
+      case 14:
+        msg ='Low Battery';
+        break;
+      case 15:
+        msg ='Ec Difference';
+        break;
+      case 16:
+        msg ='Ph Difference';
+        break;
+      case 17:
+        msg ='Pump Off Alarm';
+        break;
+      case 18:
+        msg ='Pressure Switch high';
+        break;
+      default:
+        msg ='alarmType default';
+    }
+    return msg;
   }
 
 }

@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:mqtt_client/mqtt_client.dart';
 import '../StateManagement/customer_provider.dart';
 import '../repository/repository.dart';
 import '../utils/constants.dart';
@@ -12,7 +14,7 @@ import 'mqtt_service.dart';
 
 class CommunicationService {
   final MqttService mqttService;
-  final BluetoothManager bluetoothManager;
+  final BluetoothManager? bluetoothManager;
   final CustomerProvider customerProvider;
 
   CommunicationService({
@@ -34,7 +36,18 @@ class CommunicationService {
         throw Exception('Payload is empty');
       }
 
-      if(customerProvider.controllerCommMode==1){
+      if(customerProvider.controllerCommMode==1 || kIsWeb){
+        if (mqttService.isConnected) {
+          try {
+            final topic = '${AppConstants.publishTopic}/${customerProvider.deviceId}';
+            debugPrint('Publishing to topic: $topic with payload: $payload');
+            await mqttService.topicToPublishAndItsMessage(payload, topic);
+            result['mqtt'] = true;
+          } catch (e) {
+            debugPrint('Failed to send via MQTT: $e');
+          }
+        }
+
         if (await NetworkUtils.isConnected() && serverMsg.isNotEmpty) {
           try {
             await sendCommandToServer(serverMsg, payload);
@@ -43,20 +56,10 @@ class CommunicationService {
             debugPrint('Failed to send via HTTP: $e');
           }
         }
-
-        if (mqttService.isConnected) {
-          try {
-            final topic = '${AppConstants.publishTopic}/${customerProvider.deviceId}';
-            await mqttService.topicToPublishAndItsMessage(payload, topic);
-            result['mqtt'] = true;
-          } catch (e) {
-            debugPrint('Failed to send via MQTT: $e');
-          }
-        }
       }else{
-        if (bluetoothManager.isConnected) {
+        if (bluetoothManager?.isConnected == true) {
           try {
-            await bluetoothManager.write(payload);
+            bluetoothManager?.write(payload);
             result['bluetooth'] = true;
           } catch (e) {
             debugPrint('Failed to send via Bluetooth: $e');

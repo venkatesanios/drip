@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:az_notification_hub/az_notification_hub.dart';
+import 'package:bluetooth_classic/bluetooth_classic.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/PumpController/state_management/pump_controller_provider.dart';
@@ -62,6 +63,7 @@ FutureOr<void> main() async {
 
       // Start Azure Notification Hub
       await AzureNotificationHub.instance.start();
+
     } catch (e) {
       debugPrint('Initialization error: $e');
     }
@@ -85,15 +87,20 @@ FutureOr<void> main() async {
         ChangeNotifierProvider(create: (_) => ConstantProviderMani()),
         ChangeNotifierProvider(create: (_) => ConstantProvider()),
         ChangeNotifierProvider(create: (_) => PumpControllerProvider()),
-        ChangeNotifierProvider(create: (_) => BluetoothManager()),
 
-        Provider<CommunicationService>(
-          create: (context) => CommunicationService(
-            mqttService: mqttService,
-            bluetoothManager: context.read<BluetoothManager>(),
-            customerProvider: context.read<CustomerProvider>(),
-          ),
+        if (!kIsWeb)
+          ChangeNotifierProvider<BluetoothManager>(create: (_) => BluetoothManager(),),
+
+        ProxyProvider2<BluetoothManager?, CustomerProvider, CommunicationService>(
+          update: (BuildContext context, BluetoothManager? bluetooth, CustomerProvider customer, CommunicationService? previous) {
+            return CommunicationService(
+              mqttService: mqttService,
+              bluetoothManager: bluetooth,
+              customerProvider: customer,
+            );
+          },
         ),
+
       ],
       child: const MyApp(),
     ),
