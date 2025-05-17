@@ -5,6 +5,7 @@ on:
     branches: [saravanan]
     tags:
       - '*'
+
 jobs:
   build:
     name: Build & Release AAB (oroProduction)
@@ -13,6 +14,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Full clone
+
+      - name: List files for debugging
+        run: ls -R lib/models/
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
