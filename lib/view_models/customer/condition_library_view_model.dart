@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/Models/customer/condition_library_model.dart';
+import 'package:oro_drip_irrigation/models/customer/condition_library_model.dart';
 import '../../repository/repository.dart';
 import '../../services/mqtt_service.dart';
 import '../../utils/constants.dart';

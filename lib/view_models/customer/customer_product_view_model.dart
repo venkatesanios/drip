@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
-import '../../Models/customer/customer_product_model.dart';
+import '../../models/customer/customer_product_model.dart';
 import '../../repository/repository.dart';
 
 class CustomerProductViewModel extends ChangeNotifier {

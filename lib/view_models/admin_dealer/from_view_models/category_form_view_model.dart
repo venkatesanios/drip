@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-import '../../../Models/entry_form/product_category_model.dart';
+import '../../../models/entry_form/product_category_model.dart';
 import '../../../repository/repository.dart';
 import '../../../utils/snack_bar.dart';
 

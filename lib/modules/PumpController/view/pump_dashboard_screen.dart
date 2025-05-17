@@ -11,7 +11,7 @@ import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:oro_drip_irrigation/utils/environment.dart';
 
-import '../../../Models/customer/site_model.dart';
+import '../../../models/customer/site_model.dart';
 import '../../../Screens/dashboard/wave_view.dart';
 import '../../../Widgets/sized_image.dart';
 import '../../../flavors.dart';

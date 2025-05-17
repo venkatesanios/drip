@@ -2,7 +2,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import '../../Models/customer/site_model.dart';
+import '../../models/customer/site_model.dart';
 
 class InputOutputConnectionDetails extends StatelessWidget {
   const InputOutputConnectionDetails({super.key, required this.masterInx, required this.nodes});

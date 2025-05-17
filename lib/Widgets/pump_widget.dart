@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
 import 'package:tuple/tuple.dart';
-import '../Models/customer/site_model.dart';
+import '../models/customer/site_model.dart';
 import '../StateManagement/duration_notifier.dart';
 import '../StateManagement/mqtt_payload_provider.dart';
 import '../repository/repository.dart';

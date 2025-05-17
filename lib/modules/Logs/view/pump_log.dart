@@ -6,7 +6,7 @@ import 'package:oro_drip_irrigation/modules/PumpController/state_management/pump
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
 
-import '../../../Models/customer/site_model.dart';
+import '../../../models/customer/site_model.dart';
 import '../../Preferences/widgets/custom_segmented_control.dart';
 import '../widgets/custom_calendar_mobile.dart';
 import '../widgets/time_line2.dart';

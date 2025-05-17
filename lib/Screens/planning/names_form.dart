@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../Models/names_model.dart';
+import '../../models/names_model.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/snack_bar.dart';

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../Models/admin_dealer/inventory_model.dart';
+import '../../models/admin_dealer/inventory_model.dart';
 import '../../models/admin_dealer/new_stock_model.dart';
 import '../../models/admin_dealer/stock_model.dart';
 import '../../repository/repository.dart';
@@ -118,7 +118,7 @@ class InventoryViewModel extends ChangeNotifier {
         "userType": userRole.name == 'admin' ? 1 : 2,
       };
 
-      var response = await repository.fetchAllCategoriesAndModels(body);
+      var response = await repository.fetchAllCategoriesAndmodels(body);
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
         if (responseBody["code"] == 200) {

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../Models/customer/sent_and_received_model.dart';
+import '../../models/customer/sent_and_received_model.dart';
 import '../../repository/repository.dart';
 import '../../utils/shared_preferences_helper.dart';
 

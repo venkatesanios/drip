@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:oro_drip_irrigation/view_models/customer/stand_alone_view_model.dart';
 import 'package:provider/provider.dart';
-import '../../Models/customer/site_model.dart';
-import '../../Models/customer/stand_alone_model.dart';
+import '../../models/customer/site_model.dart';
+import '../../models/customer/stand_alone_model.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 

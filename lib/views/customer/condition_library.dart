@@ -5,7 +5,7 @@ import 'package:loading_indicator/loading_indicator.dart';
 import 'package:oro_drip_irrigation/utils/my_function.dart';
 import 'package:oro_drip_irrigation/view_models/create_account_view_model.dart';
 import 'package:provider/provider.dart';
-import '../../Models/customer/condition_library_model.dart';
+import '../../models/customer/condition_library_model.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../view_models/customer/condition_library_view_model.dart';

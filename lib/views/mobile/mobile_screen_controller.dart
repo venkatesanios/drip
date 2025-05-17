@@ -5,7 +5,7 @@ import 'package:oro_drip_irrigation/Screens/Logs/irrigation_and_pump_log.dart';
 import 'package:oro_drip_irrigation/Screens/planning/WeatherScreen.dart';
 import 'package:oro_drip_irrigation/modules/ScheduleView/view/schedule_view_screen.dart';
 import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
-import '../../Models/customer/site_model.dart';
+import '../../models/customer/site_model.dart';
 import 'package:provider/provider.dart';
 import '../../StateManagement/customer_provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';

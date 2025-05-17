@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
-import '../../Models/admin_dealer/stock_model.dart';
+import '../../models/admin_dealer/stock_model.dart';
 import '../../repository/repository.dart';
 
 enum MasterController {gem1, gem2, gem3, gem4, gem5, gem6, gem7, gem8, gem9, gem10,}

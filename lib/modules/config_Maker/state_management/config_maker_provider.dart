@@ -1,7 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
-import 'package:oro_drip_irrigation/Models/customer/constant_model.dart';
-import 'package:oro_drip_irrigation/app.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/repository/config_maker_repository.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import '../model/device_model.dart';

@@ -66,7 +66,7 @@ class NewStockViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> getModelsByCategoryId() async {
+  Future<void> getmodelsByCategoryId() async {
     if (selectedCategoryId == 0) return;
 
     setLoading(true);

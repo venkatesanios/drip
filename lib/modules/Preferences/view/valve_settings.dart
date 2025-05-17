@@ -5,7 +5,7 @@ import 'package:oro_drip_irrigation/modules/Preferences/state_management/prefere
 import 'package:provider/provider.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 
-import '../../../Models/customer/site_model.dart';
+import '../../../models/customer/site_model.dart';
 import '../../IrrigationProgram/view/schedule_screen.dart';
 
 class ValveSettings extends StatefulWidget {

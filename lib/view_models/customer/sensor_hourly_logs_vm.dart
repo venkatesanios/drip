@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:intl/intl.dart';
-import '../../Models/customer/site_model.dart';
+import '../../models/customer/site_model.dart';
 import '../../repository/repository.dart';
 
 class SensorHourlyLogsVm extends ChangeNotifier {

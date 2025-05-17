@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Constants/properties.dart';
 import 'package:oro_drip_irrigation/modules/Logs/view/pump_log.dart';
 import 'package:oro_drip_irrigation/modules/Logs/view/voltage_log.dart';
-import '../../../Models/customer/site_model.dart';
+import '../../../models/customer/site_model.dart';
 import 'power_graph_screen.dart';
 
 class PumpList extends StatefulWidget {

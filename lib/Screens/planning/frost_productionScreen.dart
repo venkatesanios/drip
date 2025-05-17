@@ -9,7 +9,7 @@ import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../Models/frost_model.dart';
+import '../../models/frost_model.dart';
 import '../../StateManagement/overall_use.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';

@@ -59,7 +59,7 @@ class AddNewStock extends StatelessWidget {
                           viewModel.selectedCategoryId = newValue!.id;
                           viewModel.modelTextController.clear();
                           viewModel.selectedModelId = 0;
-                          viewModel.getModelsByCategoryId();
+                          viewModel.getmodelsByCategoryId();
                           viewModel.selectedCategory = newValue;
                         },
                       ),

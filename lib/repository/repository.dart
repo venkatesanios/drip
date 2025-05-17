@@ -25,7 +25,7 @@ class Repository{
     return await apiService.postRequest('/product/getInventory', body);
   }
 
-  Future<http.Response> fetchAllCategoriesAndModels(body) async {
+  Future<http.Response> fetchAllCategoriesAndmodels(body) async {
     return await apiService.postRequest('/product/getCategoryModelAndDeviceId', body);
   }
 

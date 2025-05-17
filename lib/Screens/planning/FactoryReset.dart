@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 
-import '../../Models/reset_AccumalationModel.dart';
+import '../../models/reset_AccumalationModel.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../services/mqtt_service.dart';

@@ -2,7 +2,7 @@ import 'dart:typed_data';
 import 'package:bluetooth_classic/models/device.dart';
 import 'package:flutter/material.dart';
 import 'package:bluetooth_classic/bluetooth_classic.dart';
-import '../Models/customer/blu_device.dart';
+import '../models/customer/blu_device.dart';
 
 class CustomDevice {
   final Device device;

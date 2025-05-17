@@ -1,4 +1,4 @@
-import 'package:oro_drip_irrigation/Models/customer/site_model.dart';
+import 'package:oro_drip_irrigation/models/customer/site_model.dart';
 
 class StandAloneModel
 {

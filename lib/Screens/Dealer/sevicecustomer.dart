@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../Models/servicecustomermodel.dart';
+import '../../models/servicecustomermodel.dart';
 import '../../StateManagement/overall_use.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';

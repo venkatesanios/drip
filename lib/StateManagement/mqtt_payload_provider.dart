@@ -5,8 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../Constants/data_convertion.dart';
-import '../Models/Weather_model.dart';
-import '../Models/customer/site_model.dart';
+import '../models/Weather_model.dart';
+import '../models/customer/site_model.dart';
 import '../Screens/Map/googlemap_model.dart';
 
 enum MQTTConnectionState { connected, disconnected, connecting }

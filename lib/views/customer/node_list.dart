@@ -1,7 +1,7 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/Models/customer/site_model.dart';
+import 'package:oro_drip_irrigation/models/customer/site_model.dart';
 import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../utils/snack_bar.dart';

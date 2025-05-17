@@ -5,7 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
 
-import '../../Models/customer/constant_model.dart';
+import '../../models/customer/constant_model.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../view_models/customer/constant_view_model.dart';

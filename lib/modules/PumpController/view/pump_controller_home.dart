@@ -8,7 +8,7 @@ import 'package:oro_drip_irrigation/view_models/customer/customer_screen_control
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import '../../../Models/customer/site_model.dart';
+import '../../../models/customer/site_model.dart';
 import '../../../views/customer/controller_settings.dart';
 import '../../Logs/view/power_graph_screen.dart';
 import '../../Logs/view/pump_log.dart';

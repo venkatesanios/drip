@@ -10,7 +10,7 @@ import 'package:oro_drip_irrigation/services/http_service.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_grid/responsive_grid.dart';
-import '../../../Models/customer/site_model.dart';
+import '../../../models/customer/site_model.dart';
 import '../model/preference_data_model.dart';
 import '../repository/preferences_repo.dart';
 import '../widgets/progress_dialog.dart';
