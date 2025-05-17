@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
-import '../models/admin&dealer/language_list.dart';
+import '../models/admin_dealer/language_list.dart';
 import '../repository/repository.dart';
 import '../utils/snack_bar.dart';
 

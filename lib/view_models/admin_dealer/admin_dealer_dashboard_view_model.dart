@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
-import '../../models/admin&dealer/customer_list_model.dart';
-import '../../models/admin&dealer/stock_model.dart';
+import '../../models/admin_dealer/customer_list_model.dart';
+import '../../models/admin_dealer/stock_model.dart';
 import '../../models/sales_data_model.dart';
 import '../../repository/repository.dart';
 import '../../views/admin_dealer/admin_dashboard.dart';

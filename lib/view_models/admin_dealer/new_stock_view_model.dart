@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../models/admin&dealer/new_stock_model.dart';
-import '../../models/admin&dealer/simple_category.dart';
+import '../../models/admin_dealer/new_stock_model.dart';
+import '../../models/admin_dealer/simple_category.dart';
 import '../../repository/repository.dart';
 
 class NewStockViewModel extends ChangeNotifier {

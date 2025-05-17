@@ -8,7 +8,7 @@ import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/constants.dart';
 import '../../utils/snack_bar.dart';
-import '../../view_models/admin&dealer/admin&dealer_dashboard_view_model.dart';
+import '../../view_models/admin_dealer/admin_dealer_dashboard_view_model.dart';
 import '../create_account.dart';
 import 'add_new_stock.dart';
 import 'dealer_device_list.dart';

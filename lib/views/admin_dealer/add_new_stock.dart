@@ -4,12 +4,12 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/selection_screen.dart';
 import 'package:provider/provider.dart';
-import '../../models/admin&dealer/new_stock_model.dart';
-import '../../models/admin&dealer/simple_category.dart';
+import '../../models/admin_dealer/new_stock_model.dart';
+import '../../models/admin_dealer/simple_category.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/snack_bar.dart';
-import '../../view_models/admin&dealer/new_stock_view_model.dart';
+import '../../view_models/admin_dealer/new_stock_view_model.dart';
 
 class AddNewStock extends StatelessWidget {
   const AddNewStock({super.key, required this.userId, required this.onStockCreated});
