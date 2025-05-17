@@ -169,13 +169,13 @@ class _EcoGemProgressDialogState extends State<EcoGemProgressDialog> {
   }
 
   Future<void> handleRetry() async {
-    if (widget.mqttService.connectionState != MqttConnectionState.connected) {
+    if (!widget.mqttService.isConnected) {
       setState(() {
         mqttError = 'MQTT Disconnected. Reconnecting...';
       });
 
       await widget.mqttService.connect().then((_) {
-        if (widget.mqttService.connectionState == MqttConnectionState.connected) {
+        if (widget.mqttService.isConnected) {
           setState(() {
             mqttError = '';
           });
