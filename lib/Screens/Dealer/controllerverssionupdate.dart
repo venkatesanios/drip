@@ -9,6 +9,7 @@ import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../services/mqtt_service.dart';
+import '../../utils/shared_preferences_helper.dart';
 import 'configureMqttTopic.dart';
 import 'controllerlogfile.dart';
 
@@ -37,6 +38,8 @@ class _ResetVerssionState extends State<ResetVerssion> {
   TextEditingController frequency2Controller = TextEditingController();
   TextEditingController sf1Controller = TextEditingController();
   TextEditingController sf2Controller = TextEditingController();
+  String? userRole;
+
 
   valAssing(List<dynamic> data) {
     mergedList = [];
@@ -97,7 +100,12 @@ class _ResetVerssionState extends State<ResetVerssion> {
     mqttPayloadProvider =
         Provider.of<MqttPayloadProvider>(context, listen: false);
     fetchData();
-  }
+    checkrole().then((role) {
+      setState(() {
+        userRole = role;
+      });
+    });
+   }
 
   ResetAll(int index) async {
     sendHttp("2","Controller Restart");
@@ -154,9 +162,23 @@ class _ResetVerssionState extends State<ResetVerssion> {
     return false; // versions are equal, so not greater
   }
 
+  Future<String?> checkrole() async {
+    String? role = await PreferenceHelper.getUserRole();
+    return role;
+  }
+
   @override
   Widget build(BuildContext context) {
-    mqttPayloadProvider =
+     bool checkRole = false;
+    checkrole().then((role) {
+      print(" then role $role");
+      if (role == 'admin') {
+        checkRole = true;
+      } else {
+        checkRole = false;
+      }
+    });
+     mqttPayloadProvider =
         Provider.of<MqttPayloadProvider>(context, listen: true);
     status();
     return Scaffold(
@@ -212,7 +234,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
                           },
                           icon: const Icon(Icons.arrow_circle_right_outlined),
                         ),
-                        Padding(
+                        userRole == 'admin' ?  Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: IconButton(
                             style: ButtonStyle(
@@ -232,7 +254,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
                               },
                             icon: const Icon(Icons.settings_outlined),
                           ),
-                        ),
+                        ) : Container(),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: IconButton(

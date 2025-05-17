@@ -22,57 +22,161 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
   late MqttPayloadProvider mqttPayloadProvider;
   final MqttService manager = MqttService();
 
-  final Map<String, String> formData = {
-    'MqttBroker': '13.235.254.21',
-    'MqttUserName': '-',
-    'MqttPasword': '-',
-    'MqttPort': '1883',
-    'HttpUrl_Hardware': 'http://13.235.254.21:3000/api/v1/hardware',
-    'StaticIp': '-',
-    'SubnetMask': '0',
-    'DefaultGateway': '0',
-    'DNSServer': '0',
-    'FtpBroker': '54.179.114.89',
-    'FtpUserName': 'niagara',
-    'FtpPasword': 'niagara@123',
-    'FtpPort': '1883',
-    'FirmwareToAppTopic': 'FirmwareToApp/',
-    'AppToFirmwareTopic': 'AppToFirmware/',
-    'ServerTopic': 'FirmwareToApp',
-  };
+  final Map<String, String> formData = {};
+  final Map<String, TextEditingController> _controllers = {};
 
-  final Map<String, TextEditingController> _controllers = {
-    'MqttBroker': TextEditingController(),
-    'MqttUserName': TextEditingController(),
-    'MqttPasword': TextEditingController(),
-    'MqttPort': TextEditingController(),
-    'HttpUrl_Hardware': TextEditingController(),
-    'StaticIp': TextEditingController(),
-    'SubnetMask': TextEditingController(),
-    'DefaultGateway': TextEditingController(),
-    'DNSServer': TextEditingController(),
-    'FtpBroker': TextEditingController(),
-    'FtpUserName': TextEditingController(),
-    'FtpPasword': TextEditingController(),
-    'FtpPort': TextEditingController(),
-    'FirmwareToAppTopic': TextEditingController(),
-    'AppToFirmwareTopic': TextEditingController(),
-    'ServerTopic': TextEditingController(),
-  };
+  final List<Map<String, String>> mqttConfigOptions = [
+    {
+      'name': 'oro old',
+      'MqttBroker': '13.235.254.21',
+      'MqttUserName': '-',
+      'MqttPasword': '-',
+      'HttpUrl_Hardware': 'http://13.235.254.21:3000',
+      'FtpBroker': '54.179.114.89',
+      'FtpUserName': 'niagara',
+      'FtpPasword': 'niagara@123',
+      'FirmwareToAppTopic': 'FirmwareToApp/',
+      'AppToFirmwareTopic': 'AppToFirmware/',
+      'ServerTopic': 'FirmwareToApp',
+    },
+    {
+      'name': 'oro AWS',
+      'MqttBroker': '13.235.254.21',
+      'MqttUserName': '-',
+      'MqttPasword': '-',
+      'HttpUrl_Hardware': 'http://13.235.254.21:3000',
+      'FtpBroker': '54.179.114.89',
+      'FtpUserName': 'niagara',
+      'FtpPasword': 'niagara@123',
+      'FirmwareToAppTopic': 'FirmwareToApps/',
+      'AppToFirmwareTopic': 'AppsToFirmware/',
+      'ServerTopic': 'FirmwareToApps',
+    },
+    {
+      'name': 'new oro aws',
+      'MqttBroker': '13.235.254.21',
+      'MqttUserName': '-',
+      'MqttPasword': '-',
+      'HttpUrl_Hardware': 'http://13.235.254.21:5000',
+      'FtpBroker': '54.179.114.89',
+      'FtpUserName': 'niagara',
+      'FtpPasword': 'niagara@123',
+      'SFtpBroker': '54.179.114.89',
+      'SFtpUserName': 'ubuntu',
+      'SFtpPasword': 'niagara@123',
+      'SFtpPort': '22',
+      'MqttsOnOff': '1',
+      'ReverseSshNameBroker': 'ec2-user@13.235.254.21',
+      'ReverseSshPort': '2222:localhost:22',
+      'FirmwareToAppTopic': 'FirmwareToOroApp/',
+      'AppToFirmwareTopic': 'OroAppToFirmware/',
+      'ServerTopic': 'FirmwareToOroApp',
+      'SFtpBroker':'54.179.114.89',
+      'SFtpUserName':'ubuntu',
+      'SFtpPasword':'niagara@123',
+      'SFtpPort':'22',
+      'MqttsPort':'8883',
+      'MqttsOnOff':'1',
+      'ReverseSshNameBroker':'ec2-user@13.235.254.21',
+      'ReverseSshPort':'2222:localhost:22',
+    },
+    {
+      'name': 'new oro azure',
+      'MqttBroker': '52.172.214.208',
+      'MqttUserName': 'imsmqtt',
+      'MqttPasword': '2L9((WonMr',
+      'HttpUrl_Hardware': 'http://52.172.214.208:8000',
+      'FtpBroker': '54.179.114.89',
+      'FtpUserName': 'niagara',
+      'FtpPasword': 'niagara@123',
+      'SFtpBroker': '54.179.114.89',
+      'SFtpUserName': 'ubuntu',
+      'SFtpPasword': 'niagara@123',
+      'SFtpPort': '22',
+      'MqttsOnOff': '1',
+      'ReverseSshNameBroker': 'ec2-user@13.235.254.21',
+      'ReverseSshPort': '2222:localhost:22',
+      'FirmwareToAppTopic': 'FirmwareToApp/',
+      'AppToFirmwareTopic': 'AppToFirmware/',
+      'ServerTopic': 'FirmwareToApp',
+      'SFtpBroker':'54.179.114.89',
+      'SFtpUserName':'ubuntu',
+      'SFtpPasword':'niagara@123',
+      'SFtpPort':'22',
+      'MqttsPort':'8883',
+      'MqttsOnOff':'1',
+      'ReverseSshNameBroker':'ec2-user@13.235.254.21',
+      'ReverseSshPort':'2222:localhost:22',
+    },
+    {
+      'name': 'new LK azure',
+      'MqttBroker': '52.172.214.208',
+      'MqttUserName': 'imsmqtt',
+      'MqttPasword': '2L9((WonMr',
+      'HttpUrl_Hardware': 'http://52.172.214.208:5000',
+      'FtpBroker': '54.179.114.89',
+      'FtpUserName': 'niagara',
+      'FtpPasword': 'niagara@123',
+      'SFtpBroker': '54.179.114.89',
+      'SFtpUserName': 'ubuntu',
+      'SFtpPasword': 'niagara@123',
+      'SFtpPort': '22',
+      'MqttsOnOff': '1',
+      'ReverseSshNameBroker': 'ec2-user@13.235.254.21',
+      'ReverseSshPort': '2222:localhost:22',
+      'FirmwareToAppTopic': 'FirmwareToApp/',
+      'AppToFirmwareTopic': 'AppToFirmware/',
+      'ServerTopic': 'FirmwareToApp',
+      'SFtpBroker':'54.179.114.89',
+      'SFtpUserName':'ubuntu',
+      'SFtpPasword':'niagara@123',
+      'SFtpPort':'22',
+      'MqttsPort':'8883',
+      'MqttsOnOff':'1',
+      'ReverseSshNameBroker':'ec2-user@13.235.254.21',
+      'ReverseSshPort':'2222:localhost:22',
+    },
+  ];
+
+  String? selectedConfig = 'oro old';
+
+  final List<String> formKeys = [
+    'MqttBroker',
+    'MqttUserName',
+    'MqttPasword',
+    'MqttPort',
+    'MqttsPort',
+    'HttpUrl_Hardware',
+    'StaticIp',
+    'SubnetMask',
+    'DefaultGateway',
+    'DNSServer',
+    'FtpBroker',
+    'FtpUserName',
+    'FtpPasword',
+    'FtpPort',
+    'FirmwareToAppTopic',
+    'AppToFirmwareTopic',
+    'ServerTopic',
+    'SFtpBroker',
+    'SFtpUserName',
+    'SFtpPasword',
+    'SFtpPort',
+    'MqttsOnOff',
+    'ReverseSshNameBroker',
+    'ReverseSshPort',
+  ];
 
   @override
   void initState() {
     super.initState();
     mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
-
-    // Initialize controllers with form data
-    _controllers.forEach((key, controller) {
-      controller.text = formData[key] ?? '';
-    });
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      print('mqttPayloadProvider state: ${mqttPayloadProvider.toString()}');
-    });
+    // Initialize formData and controllers
+    for (var key in formKeys) {
+      _controllers[key] = TextEditingController();
+      formData[key] = '';
+    }
+    _updateMqttFields(selectedConfig);
   }
 
   @override
@@ -81,9 +185,22 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
     super.dispose();
   }
 
+  void _updateMqttFields(String? configName) {
+    if (configName == null) return;
+    final config = mqttConfigOptions.firstWhere((c) => c['name'] == configName);
+
+    setState(() {
+      for (var key in config.keys) {
+        if (_controllers.containsKey(key)) {
+          _controllers[key]!.text = config[key] ?? '';
+          formData[key] = config[key] ?? '';
+        }
+      }
+      selectedConfig = configName;
+    });
+  }
+
   Future<void> _sendMqttData(String data) async {
-    print('Sending data to MQTT: $data');
-    print('MQTT connection status: ${manager.isConnected}');
     Map<String, dynamic> payLoadFinal = {
       '6100': {'6101': data},
     };
@@ -93,9 +210,11 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
         dialogContext: context,
         context: context,
         mqttPayloadProvider: mqttPayloadProvider,
-        acknowledgedFunction: () {},
+        acknowledgedFunction: () {
+          manager.topicToSubscribe('${Environment.mqttLogTopic}/${widget.deviceID}');
+        },
         payload: payLoadFinal,
-        payloadCode: '5700',
+        payloadCode: '6100',
         deviceId: widget.deviceID,
       );
     } else {
@@ -104,68 +223,49 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
   }
 
   Future<void> _submitForm() async {
-    _controllers.forEach((key, controller) {
-      formData[key] = controller.text.trim();
-      print('Captured $key: ${formData[key]}');
-    });
-
-    if (_controllers['MqttBroker']!.text.trim().isEmpty ||
-        _controllers['MqttUserName']!.text.trim().isEmpty ||
-        _controllers['MqttPasword']!.text.trim().isEmpty ||
-        _controllers['MqttPort']!.text.trim().isEmpty) {
-      print('MQTT settings validation failed');
-      GlobalSnackBar.show(context, 'MQTT settings are required', 201);
-      return;
+    for (var key in _controllers.keys) {
+      formData[key] = _controllers[key]!.text.trim();
     }
 
     if (!_formKey.currentState!.validate()) {
-      print('Form validation failed');
       GlobalSnackBar.show(context, 'Please fill all required fields', 201);
       return;
     }
 
-    if (formData.values.any((value) => value.isEmpty)) {
-      print('Form has empty fields: $formData');
+    if (formData.values.any((v) => v.isEmpty)) {
       GlobalSnackBar.show(context, 'All fields must be filled', 201);
       return;
     }
 
-    String mqttData = formData.values.join(',') + ';';
-    print('Built mqttData: $mqttData');
+    for (String portKey in ['MqttPort', 'MqttsPort', 'FtpPort', 'SFtpPort']) {
+      try {
+        final port = int.parse(formData[portKey]!);
+        if (port < 1 || port > 65535) {
+          GlobalSnackBar.show(context, '$portKey must be 1–65535', 201);
+          return;
+        }
+      } catch (e) {
+        GlobalSnackBar.show(context, 'Invalid $portKey format', 201);
+        return;
+      }
+    }
+
+    final mqttData = formData.values.join(',') + ';';
     await _sendMqttData(mqttData);
   }
 
-  Widget _buildTextField(String label, String key,
-      {bool isNumber = false, bool obscure = false}) {
+  Widget _buildTextField(String label, String key, {bool isNumber = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: TextFormField(
-        controller: _controllers[key], // ✅ only controller used
+        controller: _controllers[key],
         decoration: InputDecoration(
           labelText: label,
           border: const OutlineInputBorder(),
-          errorBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red),
-          ),
-          focusedErrorBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red),
-          ),
         ),
-        obscureText: obscure,
         keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-        validator: (value) {
-          if (value == null || value.trim().isEmpty) {
-            print('Validation failed for $key: Empty');
-            return 'Please enter $label';
-          }
-          return null;
-        },
-        onChanged: (value) {
-          print('TextField $key input: $value');
-        },
-        onTap: () {
-          print('TextField $key focused');
-        },
+        validator: (value) =>
+        value == null || value.trim().isEmpty ? 'Please enter $label' : null,
       ),
     );
   }
@@ -174,7 +274,6 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Card(
-        margin: const EdgeInsets.symmetric(vertical: 8.0),
         elevation: 5,
         shadowColor: Colors.grey,
         child: Padding(
@@ -182,14 +281,9 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue,
-                ),
-              ),
+              Text(title,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue)),
               const SizedBox(height: 10),
               ...children,
             ],
@@ -214,38 +308,68 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
               width: kIsWeb ? 600 : null,
               child: ListView(
                 children: [
+                  _buildCard('MQTT Configuration Selection', [
+                    DropdownButtonFormField<String>(
+                      value: selectedConfig,
+                      decoration: const InputDecoration(
+                        labelText: 'Select MQTT Configuration',
+                        border: OutlineInputBorder(),
+                      ),
+                      items: mqttConfigOptions.map((config) {
+                        return DropdownMenuItem<String>(
+                          value: config['name'],
+                          child: Text(config['name']!),
+                        );
+                      }).toList(),
+                      onChanged: (value) => _updateMqttFields(value),
+                    ),
+                  ]),
                   _buildCard('MQTT Settings', [
                     _buildTextField('Broker', 'MqttBroker'),
                     _buildTextField('Username', 'MqttUserName'),
-                    _buildTextField('Password', 'MqttPasword', obscure: true),
+                    _buildTextField('Password', 'MqttPasword'),
                     _buildTextField('Port', 'MqttPort', isNumber: true),
+                    _buildTextField('TLS Port', 'MqttsPort', isNumber: true),
                   ]),
                   _buildCard('Network Settings', [
                     _buildTextField('HTTP URL Hardware', 'HttpUrl_Hardware'),
-                    _buildTextField('Static IP', 'StaticIp'),
-                    _buildTextField('Subnet Mask', 'SubnetMask'),
-                    _buildTextField('Default Gateway', 'DefaultGateway'),
-                    _buildTextField('DNS Server', 'DNSServer'),
                   ]),
                   _buildCard('FTP Settings', [
                     _buildTextField('Broker', 'FtpBroker'),
                     _buildTextField('Username', 'FtpUserName'),
-                    _buildTextField('Password', 'FtpPasword', obscure: true),
+                    _buildTextField('Password', 'FtpPasword'),
                     _buildTextField('Port', 'FtpPort', isNumber: true),
                   ]),
+
                   _buildCard('MQTT Topics', [
                     _buildTextField('Firmware to App Topic', 'FirmwareToAppTopic'),
                     _buildTextField('App to Firmware Topic', 'AppToFirmwareTopic'),
                     _buildTextField('Server Topic', 'ServerTopic'),
                   ]),
+                  _buildCard('SFTP Settings', [
+                    _buildTextField('Broker', 'SFtpBroker'),
+                    _buildTextField('Username', 'SFtpUserName'),
+                    _buildTextField('Password', 'SFtpPasword'),
+                    _buildTextField('Port', 'SFtpPort', isNumber: true),
+                  ]),
+                  _buildCard('MQTT Advanced Settings', [
+                    _buildTextField('MqttsOnOff', 'MqttsOnOff'),
+                    _buildTextField('ReverseSshNameBroker', 'ReverseSshNameBroker'),
+                    _buildTextField('ReverseSshPort', 'ReverseSshPort'),
+                    _buildTextField('MqttsPort', 'MqttsPort', isNumber: true),
+                  ]),
+
+
+
+
                   const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: _submitForm,
-                    child: const Text('Send Data'),
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
                       backgroundColor: Theme.of(context).primaryColor,
                     ),
+                    child: const Text('Send Data'),
                   ),
                 ],
               ),
