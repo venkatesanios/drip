@@ -55,12 +55,12 @@ android {
                 def keystoreFile = file("$buildDir/keystore/release-key.jks")
 
                 // Decode base64 and save the keystore file to disk for CI
-                doLast {
+               /* doLast {
                     new File("$buildDir/keystore").mkdirs() // Ensure the directory exists
                     if (!keystoreFile.exists()) {
                         keystoreFile.write(new String(Base64.decoder.decode(keystoreBase64), "UTF-8"))
                     }
-                }
+                }*/
 
                 storeFile keystoreFile
                 storePassword = System.getenv("KEYSTORE_PASSWORD")
