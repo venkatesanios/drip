@@ -3,6 +3,7 @@ import 'package:az_notification_hub/az_notification_hub.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/PumpController/state_management/pump_controller_provider.dart';
+import 'package:oro_drip_irrigation/services/ble_service.dart';
 import 'package:oro_drip_irrigation/services/bluetooth_manager.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:provider/provider.dart';
@@ -68,8 +69,6 @@ FutureOr<void> main() async {
     }
   }
 
-
-
   final mqttService = MqttService();
   final myMqtt = MqttPayloadProvider();
 
@@ -86,6 +85,7 @@ FutureOr<void> main() async {
         ChangeNotifierProvider(create: (_) => ConstantProvider()),
         ChangeNotifierProvider(create: (_) => PumpControllerProvider()),
         ChangeNotifierProvider(create: (_) => BluetoothManager()),
+        ChangeNotifierProvider(create: (_) => BleService()),
       ],
       child: MyApp(),
     ),

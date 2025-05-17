@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/scan_screen.dart';
+import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/scan_screen.dart';
 
 import 'bluetooth_adapter_state_observe.dart';
 import 'bluetooth_off_screen.dart';
