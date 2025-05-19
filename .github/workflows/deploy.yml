@@ -10,7 +10,7 @@ jobs:
   build:
     name: Build & Release AAB (oroProduction)
     runs-on: macos-latest
-
+    environment: ORO IntelliIrrigate Deployment  # Add this line to specify the environment
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
