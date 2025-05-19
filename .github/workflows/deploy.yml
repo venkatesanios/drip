@@ -30,6 +30,16 @@ jobs:
       - name: Clear Flutter cache
         run: flutter clean
 
+      - name: Verify secrets existence
+        run: |
+          echo "Checking if secrets are set..."
+          if [ -z "${{ secrets.KEYSTORE_BASE64 }}" ]; then echo "KEYSTORE_BASE64 is not set"; exit 1; fi
+          if [ -z "${{ secrets.KEYSTORE_PASSWORD }}" ]; then echo "KEYSTORE_PASSWORD is not set"; exit 1; fi
+          if [ -z "${{ secrets.KEY_PASSWORD }}" ]; then echo "KEY_PASSWORD is not set"; exit 1; fi
+          if [ -z "${{ secrets.KEY_ALIAS }}" ]; then echo "KEY_ALIAS is not set"; exit 1; fi
+          if [ -z "${{ secrets.GOOGLE_PLAY_JSON }}" ]; then echo "GOOGLE_PLAY_JSON is not set"; exit 1; fi
+          echo "All secrets are set."
+
       - name: Decode keystore
         run: |
           mkdir -p android/app
@@ -37,19 +47,31 @@ jobs:
           chmod 644 android/app/release-key.jks
 
       - name: Verify keystore file
-        run: ls -l android/app/release-key.jks
+        run: |
+          ls -l android/app/release-key.jks
+          if [ ! -s android/app/release-key.jks ]; then echo "Keystore file is empty or not created"; exit 1; fi
+          echo "Keystore file exists and is non-empty."
 
-      - name: Create key.properties
+      - name: Verify key.properties creation
         run: |
           echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
           echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
           echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
           echo "storeFile=release-key.jks" >> android/key.properties
+          cat android/key.properties
+          if [ ! -s android/key.properties ]; then echo "key.properties file is empty or not created"; exit 1; fi
+          echo "key.properties file created successfully."
 
       - name: Build AAB (oroProduction flavor)
         env:
           CI: true
         run: flutter build appbundle --flavor oroProduction -t lib/main_oroProduction.dart
+
+      - name: Verify Google Play JSON
+        run: |
+          echo "${{ secrets.GOOGLE_PLAY_JSON }}" > google_play_credentials.json
+          if [ ! -s google_play_credentials.json ]; then echo "Google Play JSON file is empty or not created"; exit 1; fi
+          echo "Google Play JSON file created successfully."
 
       - name: Upload to Play Store (Internal testing)
         uses: r0adkll/upload-google-play@v1
