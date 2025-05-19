@@ -111,9 +111,9 @@ class CustomerHome extends StatelessWidget {
                                 textColor: Colors.black87,
                                 onPressed: () async {
                                   String payLoadFinal = jsonEncode({
-                                    "4900": [{
+                                    "4900": {
                                       "4901": "${line.sNo}, ${line.linePauseFlag==0?1:0}",
-                                    }]
+                                    }
                                   });
                                   final result = await context.read<CommunicationService>().sendCommand(payload: payLoadFinal,
                                       serverMsg: line.linePauseFlag==0 ? 'Paused the ${line.name}' : 'Resumed the ${line.name}');
