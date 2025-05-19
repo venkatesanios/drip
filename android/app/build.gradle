@@ -44,7 +44,7 @@ android {
         release {
             if (System.getenv("CI")) {
                 // Use the base64-encoded keystore for CI
-                def keystoreFile = file("$buildDir/app/keystore/release-key.jks")
+                def keystoreFile = file("android/app/release-key.jks")
                 storeFile keystoreFile
                 storePassword System.getenv("KEYSTORE_PASSWORD")
                 keyAlias System.getenv("KEY_ALIAS")
