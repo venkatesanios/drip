@@ -186,7 +186,8 @@ class ScheduledProgram extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                                filteredScheduleProgram[index].conditions.isNotEmpty?
+                                (filteredScheduleProgram[index].conditions.isNotEmpty &&
+                                    filteredScheduleProgram[index].conditions.every((c) => c.selected == true))?
                                 IconButton(
                                   tooltip: 'view condition',
                                   onPressed: () {

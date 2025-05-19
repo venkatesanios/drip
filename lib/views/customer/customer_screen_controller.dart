@@ -1224,7 +1224,7 @@ class AlarmListItems extends StatelessWidget {
         ]);
       }),
     ):
-    const Center(child: Text('Alarm not found'),);
+    const Center(child: Text('Alarm not found'));
   }
 
 }

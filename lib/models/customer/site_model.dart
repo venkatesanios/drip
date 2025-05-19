@@ -1453,13 +1453,13 @@ class ConditionModel {
   final int sNo;
   final String title;
   final ConditionValue value;
-  bool selected;
+  final bool selected;
 
   ConditionModel({
     required this.sNo,
     required this.title,
     required this.value,
-    this.selected = false,
+    required this.selected,
   });
 
   factory ConditionModel.fromJson(Map<String, dynamic> json) {
