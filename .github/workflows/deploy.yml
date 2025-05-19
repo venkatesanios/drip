@@ -2,7 +2,7 @@ name: Build & Deploy to Play Store
 
 on:
   push:
-    branches: [main]  # or your release branch
+    branches: [saravanan]  # or your release branch
     tags:
       - '*'
 jobs:
