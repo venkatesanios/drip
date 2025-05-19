@@ -43,12 +43,7 @@ android {
         println "Build directory: $buildDir/keystore/release-key.jks"
         release {
             if (System.getenv("CI")) {
-                def keystorePath = "${System.getenv('GITHUB_WORKSPACE')}/android/app/release-key.jks"
-                def keystoreFile = file(keystorePath)
-                if (!keystoreFile.exists()) {
-                    throw new GradleException("Keystore file not found at: ${keystorePath}")
-                }
-                storeFile keystoreFile
+                storeFile file("android/app/release-key.jks")
                 storePassword System.getenv("KEYSTORE_PASSWORD")
                 keyAlias System.getenv("KEY_ALIAS")
                 keyPassword System.getenv("KEY_PASSWORD")

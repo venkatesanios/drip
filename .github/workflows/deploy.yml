@@ -1,45 +1,101 @@
-name: Build & Deploy to Play Store
+name: Deploy ORO IntelliIrrigate to Play Store
 
 on:
   push:
-    branches: [saravanan]  # or your release branch
-    tags:
-      - '*'
-jobs:
-  build:
-    name: Build & Release AAB (oroProduction)
-    runs-on: ubuntu-latest
-    environment: ORO IntelliIrrigate Deployment
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    branches:
+      - saravanan
 
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest # Changed to ubuntu-latest for cost-efficiency
+    environment: ORO IntelliIrrigate Deployment
+    env:
+      FLUTTER_VERSION: "3.27.3" # Updated to a stable Flutter version; adjust as needed
+      JAVA_VERSION: "17" # Use Java 17 for compatibility with Java 8 target
+      FLAVOR: "oroProduction" # Matches oroProduction flavor
+      AAB_PATH: "build/app/outputs/bundle/oroProductionRelease/app-oroProduction-release.aab" # Corrected path
+
+    steps:
+      # Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Set up JDK
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: "zulu"
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: "gradle"
+
+      # Set up Flutter
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.27.3
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: "stable"
+          cache: true
 
-      - name: Install dependencies
+      # Install dependencies
+      - name: Install Dependencies
         run: flutter pub get
 
-      - name: Decode keystore
-        run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/release-key.jks
+      # Decode the keystore
+      - name: Decode Keystore
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/release-key.jks
 
-      - name: Create key.properties
-        run: |
-          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
-          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
-          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
-          echo "storeFile=release-key.jks" >> android/key.properties
+      # Build the App Bundle for the specified flavor
+      - name: Build App Bundle
+        run: flutter build appbundle --release --flavor ${{ env.FLAVOR }}
+        env:
+          CI: true # Ensures build.gradle uses environment variables for signing
 
-      - name: Build AAB (oroProduction flavor)
-        run: flutter build appbundle --flavor oroProduction -t lib/main_oroProduction.dart
-
-      - name: Upload to Play Store (Internal testing)
-        uses: r0adkll/upload-google-play@v1
+      # Set up Ruby for Fastlane
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
         with:
-          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_JSON }}
-          packageName: com.example.oro_drip_irrigation
-          releaseFiles: build/app/outputs/bundle/oroProductionRelease/app-oroProduction-release.aab
-          track: internal
+          ruby-version: "3.3.0"
+          bundler-cache: true
+
+      # Create Google Play JSON key file
+      - name: Create Google Play JSON Key
+        run: echo '${{ secrets.GOOGLE_PLAY_JSON }}' > android/google_play_api_key.json
+
+      # Set up Fastlane
+      - name: Set up Fastlane
+        run: |
+          cd android
+          gem install bundler
+          bundle install || bundle init && echo "gem 'fastlane'" > Gemfile && bundle install
+          bundle exec fastlane init
+        env:
+          FASTLANE_SKIP_UPDATE_CHECK: true
+
+      # Configure Fastlane files
+      - name: Configure Fastlane
+        run: |
+          cd android/fastlane
+          echo "json_key_file('../google_play_api_key.json')" > Appfile
+          echo "package_name('com.niagaraautomations.oroDripirrigation')" >> Appfile
+          cat > Fastfile << 'EOF'
+          default_platform(:android)
+          platform :android do
+            desc "Deploy to Play Store Internal Track"
+            lane :internal do
+              upload_to_play_store(
+                track: 'internal',
+                aab: '../../${{ env.AAB_PATH }}',
+                skip_upload_metadata: true,
+                skip_upload_images: true,
+                skip_upload_screenshots: true,
+                skip_upload_apk: true
+              )
+            end
+          end
+          EOF
+
+      # Deploy to Play Store
+      - name: Deploy to Play Store
+        run: |
+          cd android
+          bundle exec fastlane internal
