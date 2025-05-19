@@ -43,6 +43,7 @@ android {
         println "Build directory: $buildDir/keystore/release-key.jks"
         release {
             if (System.getenv("CI")) {
+                // Use the base64-encoded keystore for CI
                 def keystoreFile = file("android/app/release-key.jks")
                 storeFile keystoreFile
                 storePassword System.getenv("KEYSTORE_PASSWORD")
