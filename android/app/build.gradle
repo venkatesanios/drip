@@ -40,19 +40,16 @@ android {
     ndkVersion = flutter.ndkVersion
 
     signingConfigs {
-        println "Build directory: ${rootProject.projectDir}/app/release-key.jks"
         release {
-            if (System.getenv("CI")) {
-                storeFile file("/home/runner/work/drip/drip/android/app/release-key.jks")
-                storePassword System.getenv("KEYSTORE_PASSWORD")
-                keyAlias System.getenv("KEY_ALIAS")
-                keyPassword System.getenv("KEY_PASSWORD")
-            } else {
-                storeFile file("D:\\drip\\android\\app\\release-key.jks")
-                storePassword "Oro@321"
-                keyAlias "upload"
-                keyPassword "Oro@321"
+            def propsFile = rootProject.file('key.properties')
+            def props = new Properties()
+            if (propsFile.exists()) {
+                props.load(new FileInputStream(propsFile))
             }
+            storeFile file(props.getProperty('storeFile', 'app/release-key.jks'))
+            storePassword props.getProperty('storePassword')
+            keyAlias props.getProperty('keyAlias')
+            keyPassword props.getProperty('keyPassword')
         }
     }
 

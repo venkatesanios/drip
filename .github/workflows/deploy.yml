@@ -7,20 +7,18 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest # Changed to ubuntu-latest for cost-efficiency
+    runs-on: ubuntu-latest
     environment: ORO IntelliIrrigate Deployment
     env:
-      FLUTTER_VERSION: "3.27.3" # Updated to a stable Flutter version; adjust as needed
-      JAVA_VERSION: "17" # Use Java 17 for compatibility with Java 8 target
-      FLAVOR: "oroProduction" # Matches oroProduction flavor
-      AAB_PATH: "build/app/outputs/bundle/oroProductionRelease/app-oroProduction-release.aab" # Corrected path
+      FLUTTER_VERSION: "3.27.3"
+      JAVA_VERSION: "17"
+      FLAVOR: "oroProduction"
+      AAB_PATH: "build/app/outputs/bundle/oroProductionRelease/app-oroProduction-release.aab"
 
     steps:
-      # Checkout the repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Set up JDK
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
@@ -28,7 +26,6 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
           cache: "gradle"
 
-      # Set up Flutter
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -36,32 +33,50 @@ jobs:
           channel: "stable"
           cache: "true"
 
-      # Install dependencies
       - name: Install Dependencies
         run: flutter pub get
 
-      # Decode the keystore
+      - name: Clear Gradle Cache
+        run: |
+          rm -rf ~/.gradle/caches
+          flutter clean
+
       - name: Decode Keystore
         run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/release-key.jks
 
-      # Build the App Bundle for the specified flavor
-      - name: Build App Bundle
-        run: flutter build appbundle --release --flavor ${{ env.FLAVOR }}
-        env:
-          CI: true # Ensures build.gradle uses environment variables for signing
+      - name: Verify Keystore File
+        run: ls -l android/app/release-key.jks
 
-      # Set up Ruby for Fastlane
+      - name: Validate Keystore
+        run: keytool -list -keystore android/app/release-key.jks -storepass ${{ secrets.KEYSTORE_PASSWORD }} -v
+
+      - name: Create key.properties
+        run: |
+          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+          echo "storeFile=app/release-key.jks" >> android/key.properties
+
+      - name: Debug Environment Variables
+        run: |
+          echo "KEY_ALIAS is set: ${{ secrets.KEY_ALIAS != '' }}"
+          echo "KEYSTORE_PASSWORD is set: ${{ secrets.KEYSTORE_PASSWORD != '' }}"
+          echo "KEY_PASSWORD is set: ${{ secrets.KEY_PASSWORD != '' }}"
+
+      - name: Build App Bundle
+        run: flutter build appbundle --release --flavor ${{ env.FLAVOR }} --stacktrace
+        env:
+          CI: true
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.3.0"
           bundler-cache: true
 
-      # Create Google Play JSON key file
       - name: Create Google Play JSON Key
         run: echo '${{ secrets.GOOGLE_PLAY_JSON }}' > android/google_play_api_key.json
 
-      # Set up Fastlane
       - name: Set up Fastlane
         run: |
           cd android
@@ -71,7 +86,6 @@ jobs:
         env:
           FASTLANE_SKIP_UPDATE_CHECK: true
 
-      # Configure Fastlane files
       - name: Configure Fastlane
         run: |
           cd android/fastlane
@@ -94,7 +108,6 @@ jobs:
           end
           EOF
 
-      # Deploy to Play Store
       - name: Deploy to Play Store
         run: |
           cd android
