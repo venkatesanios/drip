@@ -9,35 +9,36 @@ on:
 jobs:
   build:
     name: Build & Release AAB (oroProduction)
-    runs-on: macos-latest
+    runs-on: ubuntu-latest # Switched to ubuntu-latest for cost efficiency
     environment: ORO IntelliIrrigate Deployment
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup JDK
-        uses: actions/checkout@v4
+        uses: actions/setup-java@v4 # Fixed to use setup-java
         with:
           java-version: '17'
           distribution: 'zulu'
-
+          cache: 'gradle'
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: 3.27.3
+          flutter-version: '3.27.3'
           architecture: x64
+          cache: true
       - run: flutter --version
 
       - name: Verify secrets existence
         run: |
           echo "Checking if secrets are set..."
-          [ -n "${{ secrets.KEYSTORE_BASE64 }}" ] || { echo "KEYSTORE_BASE64 is not set"; exit 1; }
-          [ -n "${{ secrets.KEYSTORE_PASSWORD }}" ] || { echo "KEYSTORE_PASSWORD is not set"; exit 1; }
-          [ -n "${{ secrets.KEY_PASSWORD }}" ] || { echo "KEY_PASSWORD is not set"; exit 1; }
-          [ -n "${{ secrets.KEY_ALIAS }}" ] || { echo "KEY_ALIAS is not set"; exit 1; }
-          [ -n "${{ secrets.GOOGLE_PLAY_JSON }}" ] || { echo "GOOGLE_PLAY_JSON is not set"; exit 1; }
+          if [ -z "${{ secrets.KEYSTORE_BASE64 }}" ]; then echo "KEYSTORE_BASE64 is not set"; exit 1; fi
+          if [ -z "${{ secrets.KEYSTORE_PASSWORD }}" ]; then echo "KEYSTORE_PASSWORD is not set"; exit 1; fi
+          if [ -z "${{ secrets.KEY_PASSWORD }}" ]; then echo "KEY_PASSWORD is not set"; exit 1; fi
+          if [ -z "${{ secrets.KEY_ALIAS }}" ]; then echo "KEY_ALIAS is not set"; exit 1; fi
+          if [ -z "${{ secrets.GOOGLE_PLAY_JSON }}" ]; then echo "GOOGLE_PLAY_JSON is not set"; exit 1; fi
           echo "All secrets are set."
 
       - name: Decode keystore
@@ -56,8 +57,6 @@ jobs:
         run: |
           keytool -list -keystore android/app/release-key.jks -storepass "${{ secrets.KEYSTORE_PASSWORD }}" -keypass "${{ secrets.KEY_PASSWORD }}" -alias "${{ secrets.KEY_ALIAS }}" || { echo "Invalid keystore or credentials"; exit 1; }
           echo "Keystore is valid."
-        env:
-          JAVA_HOME: /Users/runner/.jabba/jdk/adopt@1.8.0-292
 
       - name: Debug keystore path
         run: |
@@ -87,13 +86,20 @@ jobs:
       - name: Build AAB (oroProduction flavor)
         env:
           CI: true
-        run: flutter build appbundle --flavor oroProduction -t lib/main_oroProduction.dart --build-name=1.0.0 --build-number=2
+        run: flutter build appbundle --release --flavor oroProduction -t lib/main_oroProduction.dart --build-name=1.0.0 --build-number=2 --stacktrace
+
+      - name: Verify AAB file
+        run: |
+          ls -l build/app/outputs/bundle/oroProductionRelease/app-oroProduction-release.aab
+          if [ ! -s build/app/outputs/bundle/oroProductionRelease/app-oroProduction-release.aab ]; then echo "AAB file is empty or not created"; exit 1; fi
+          echo "AAB file exists and is non-empty."
 
       - name: Verify Google Play JSON
         run: |
           echo "${{ secrets.GOOGLE_PLAY_JSON }}" > google_play_credentials.json
           if [ ! -s google_play_credentials.json ]; then echo "Google Play JSON file is empty or not created"; exit 1; fi
-          echo "Google Play JSON file created successfully."
+          jq . google_play_credentials.json || { echo "Invalid JSON in google_play_credentials.json"; exit 1; }
+          echo "Google Play JSON file created and validated successfully."
 
       - name: Upload to Play Store (Internal testing)
         uses: r0adkll/upload-google-play@v1
