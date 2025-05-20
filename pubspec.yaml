@@ -65,7 +65,6 @@ dependencies:
   firebase_messaging: ^15.2.5
   intl_phone_field: ^3.2.0
   bluetooth_classic: ^0.0.3
-  az_notification_hub: ^1.1.2
   flutter_dotenv: ^5.2.1
   path_provider: ^2.1.5
   url_launcher: ^6.3.1

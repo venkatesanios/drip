@@ -41,14 +41,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
-  az_notification_hub:
-    dependency: "direct main"
-    description:
-      name: az_notification_hub
-      sha256: bba0db13cf500b4c3ca47d8f929d531eacc16d3ced412f9b77b2b3f84d396e61
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.2"
   bluetooth_classic:
     dependency: "direct main"
     description:

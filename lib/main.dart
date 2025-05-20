@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:az_notification_hub/az_notification_hub.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/PumpController/state_management/pump_controller_provider.dart';
@@ -61,7 +60,6 @@ FutureOr<void> main() async {
       FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
       // Start Azure Notification Hub
-      await AzureNotificationHub.instance.start();
     } catch (e) {
       debugPrint('Initialization error: $e');
     }
