@@ -80,13 +80,6 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Clear caches
-        run: |
-          flutter clean
-          rm -rf ~/.gradle/caches
-          ./android/gradlew --stop
-          ./android/gradlew clean
-
       - name: Build AAB (oroProduction flavor)
         env:
           CI: true
