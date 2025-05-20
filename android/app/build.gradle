@@ -46,7 +46,7 @@ android {
             if (propsFile.exists()) {
                 props.load(new FileInputStream(propsFile))
             }
-            storeFile file(props.getProperty('storeFile', 'app/release-key.jks'))
+            storeFile file(props.getProperty('storeFile', 'release-key.jks'))
             storePassword props.getProperty('storePassword')
             keyAlias props.getProperty('keyAlias')
             keyPassword props.getProperty('keyPassword')
