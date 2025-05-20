@@ -1,54 +1,72 @@
-name: Deploy ORO IntelliIrrigate to Play Store
+name: Build & Deploy to Play Store
 
 on:
   push:
-    branches:
-      - saravanan
+    branches: [saravanan]
+    tags:
+      - '*'
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+  build:
+    name: Build & Release AAB (oroProduction)
+    runs-on: macos-latest
     environment: ORO IntelliIrrigate Deployment
-    env:
-      FLUTTER_VERSION: "3.27.3"
-      JAVA_VERSION: "17"
-      FLAVOR: "oroProduction"
-      AAB_PATH: "build/app/outputs/bundle/oroProductionRelease/app-oroProduction-release.aab"
-
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Set up JDK
-        uses: actions/setup-java@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
         with:
-          distribution: "zulu"
-          java-version: ${{ env.JAVA_VERSION }}
-          cache: "gradle"
+          fetch-depth: 0
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: "stable"
-          cache: "true"
+          channel: stable
+          flutter-version: 3.27.3
+          architecture: x64
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: flutter pub get
 
-      - name: Clear Gradle Cache
+      - name: Clear Flutter cache
+        run: flutter clean
+
+      - name: Verify secrets existence
         run: |
-          rm -rf ~/.gradle/caches
-          flutter clean
+          echo "Checking if secrets are set..."
+          [ -n "${{ secrets.KEYSTORE_BASE64 }}" ] || { echo "KEYSTORE_BASE64 is not set"; exit 1; }
+          [ -n "${{ secrets.KEYSTORE_PASSWORD }}" ] || { echo "KEYSTORE_PASSWORD is not set"; exit 1; }
+          [ -n "${{ secrets.KEY_PASSWORD }}" ] || { echo "KEY_PASSWORD is not set"; exit 1; }
+          [ -n "${{ secrets.KEY_ALIAS }}" ] || { echo "KEY_ALIAS is not set"; exit 1; }
+          [ -n "${{ secrets.GOOGLE_PLAY_JSON }}" ] || { echo "GOOGLE_PLAY_JSON is not set"; exit 1; }
+          echo "All secrets are set."
 
-      - name: Decode Keystore
-        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/release-key.jks
+      - name: Decode keystore
+        run: |
+          mkdir -p android/app
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/release-key.jks
+          chmod 644 android/app/release-key.jks
 
-      - name: Verify Keystore File
-        run: ls -l android/app/release-key.jks
+      - name: Verify keystore file
+        run: |
+          ls -l android/app/release-key.jks
+          if [ ! -s android/app/release-key.jks ]; then echo "Keystore file is empty or not created"; exit 1; fi
+          echo "Keystore file exists and is non-empty."
 
-      - name: Validate Keystore
-        run: keytool -list -keystore android/app/release-key.jks -storepass ${{ secrets.KEYSTORE_PASSWORD }} -v
+      - name: Validate keystore integrity
+        run: |
+          keytool -list -keystore android/app/release-key.jks -storepass "${{ secrets.KEYSTORE_PASSWORD }}" -keypass "${{ secrets.KEY_PASSWORD }}" -alias "${{ secrets.KEY_ALIAS }}" || { echo "Invalid keystore or credentials"; exit 1; }
+          echo "Keystore is valid."
+        env:
+          JAVA_HOME: /Users/runner/.jabba/jdk/adopt@1.8.0-292
+
+      - name: Debug keystore path
+        run: |
+          echo "Keystore path expected by build.gradle: android/app/release-key.jks"
+          echo "Current working directory: $(pwd)"
+          echo "Listing android/app directory:"
+          ls -l android/app/
+          echo "Full path to keystore: $(realpath android/app/release-key.jks)"
+          if [ -f android/app/release-key.jks ]; then echo "Keystore file exists"; else echo "Keystore file missing"; exit 1; fi
 
       - name: Create key.properties
         run: |
@@ -56,59 +74,25 @@ jobs:
           echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
           echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
           echo "storeFile=app/release-key.jks" >> android/key.properties
+          cat android/key.properties
+          if [ ! -s android/key.properties ]; then echo "key.properties file is empty or not created"; exit 1; fi
+          echo "key.properties file created successfully."
 
-      - name: Debug Environment Variables
-        run: |
-          echo "KEY_ALIAS is set: ${{ secrets.KEY_ALIAS != '' }}"
-          echo "KEYSTORE_PASSWORD is set: ${{ secrets.KEYSTORE_PASSWORD != '' }}"
-          echo "KEY_PASSWORD is set: ${{ secrets.KEY_PASSWORD != '' }}"
-
-      - name: Build App Bundle
-        run: flutter build appbundle --release --flavor ${{ env.FLAVOR }} --stacktrace
+      - name: Build AAB (oroProduction flavor)
         env:
           CI: true
+        run: flutter build appbundle --flavor oroProduction -t lib/main_oroProduction.dart --stacktrace --debug
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Verify Google Play JSON
+        run: |
+          echo "${{ secrets.GOOGLE_PLAY_JSON }}" > google_play_credentials.json
+          if [ ! -s google_play_credentials.json ]; then echo "Google Play JSON file is empty or not created"; exit 1; fi
+          echo "Google Play JSON file created successfully."
+
+      - name: Upload to Play Store (Internal testing)
+        uses: r0adkll/upload-google-play@v1
         with:
-          ruby-version: "3.3.0"
-          bundler-cache: true
-
-      - name: Create Google Play JSON Key
-        run: echo '${{ secrets.GOOGLE_PLAY_JSON }}' > android/google_play_api_key.json
-
-      - name: Set up Fastlane
-        run: |
-          cd android
-          gem install bundler
-          bundle install || bundle init && echo "gem 'fastlane'" > Gemfile && bundle install
-          bundle exec fastlane init
-        env:
-          FASTLANE_SKIP_UPDATE_CHECK: true
-
-      - name: Configure Fastlane
-        run: |
-          cd android/fastlane
-          echo "json_key_file('../google_play_api_key.json')" > Appfile
-          echo "package_name('com.niagaraautomations.oroDripirrigation')" >> Appfile
-          cat > Fastfile << 'EOF'
-          default_platform(:android)
-          platform :android do
-            desc "Deploy to Play Store Internal Track"
-            lane :internal do
-              upload_to_play_store(
-                track: 'internal',
-                aab: '../../${{ env.AAB_PATH }}',
-                skip_upload_metadata: true,
-                skip_upload_images: true,
-                skip_upload_screenshots: true,
-                skip_upload_apk: true
-              )
-            end
-          end
-          EOF
-
-      - name: Deploy to Play Store
-        run: |
-          cd android
-          bundle exec fastlane internal
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_JSON }}
+          packageName: com.niagaraautomations.oroDripirrigation
+          releaseFiles: build/app/outputs/bundle/oroProductionRelease/app-oroProduction-release.aab
+          track: internal
