@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:bluetooth_classic/models/device.dart';
 import 'package:flutter/material.dart';
 import 'package:bluetooth_classic/bluetooth_classic.dart';
 import '../Models/customer/blu_device.dart';
+import '../StateManagement/mqtt_payload_provider.dart';
 
 class CustomDevice {
   final Device device;
@@ -14,8 +16,9 @@ class CustomDevice {
   bool get isConnecting => status == BluDevice.connecting;
 }
 
-class BluetoothManager with ChangeNotifier {
+class BluetoothManager extends ChangeNotifier {
   final _bluetoothClassicPlugin = BluetoothClassic();
+  MqttPayloadProvider? providerState;
 
   List<CustomDevice> _devices = [];
   Uint8List _data = Uint8List.fromList([]);
@@ -25,7 +28,11 @@ class BluetoothManager with ChangeNotifier {
   Uint8List get receivedData => _data;
   bool get isConnected => connectedDevice != null;
 
-  BluetoothManager() {
+  String _buffer = '';
+  final ValueNotifier<List<Map<String, dynamic>>> listOfWifi = ValueNotifier([]);
+
+  BluetoothManager({required MqttPayloadProvider? state}) {
+    providerState = state;
     _listenToEvents();
   }
 
@@ -46,12 +53,9 @@ class BluetoothManager with ChangeNotifier {
       notifyListeners();
     });
 
-
-    _bluetoothClassicPlugin.onDeviceDataReceived().listen((event) {
-      _data = Uint8List.fromList([..._data, ...event]);
-      notifyListeners();
-    });
+    listenToBluetoothData();
   }
+
 
   Future<void> initPermissions() async {
     await _bluetoothClassicPlugin.initPermissions();
@@ -96,8 +100,65 @@ class BluetoothManager with ChangeNotifier {
     }
   }
 
-  Future<void> write(String data) async {
-    await _bluetoothClassicPlugin.write(data);
+  Future<void> write(String payload) async {
+    String modifiedPayload = '*$payload#';
+    print('payload to bluetooth:$modifiedPayload');
+    await _bluetoothClassicPlugin.write(modifiedPayload);
+  }
+
+  void listenToBluetoothData() {
+    _bluetoothClassicPlugin.onDeviceDataReceived().listen((event) {
+      _buffer += utf8.decode(event); // Append incoming bytes to buffer
+
+      while (_buffer.contains('*') && _buffer.contains('#')) {
+        int startIndex = _buffer.indexOf('*');
+        int endIndex = _buffer.indexOf('#', startIndex);
+
+        if (startIndex != -1 && endIndex != -1 && endIndex > startIndex) {
+          String jsonString = _buffer.substring(startIndex + 1, endIndex);
+          _buffer = _buffer.substring(endIndex + 1); // Remove processed part
+
+          try {
+            Map<String, dynamic> jsonData = json.decode(jsonString);
+            String jsonStr = json.encode(jsonData); // Convert to valid JSON string
+            print('Parsed jsonStr: $jsonStr');
+
+            try {
+              Map<String, dynamic> data = jsonStr.isNotEmpty ? jsonDecode(jsonStr) : {};
+              if (data['mC']?.toString() == '7300') {
+                final rawList = data["cM"]?["7301"]?["ListOfWifi"];
+                if (rawList is List) {
+                  final wifiList = rawList
+                      .map<Map<String, dynamic>>((e) => Map<String, dynamic>.from(e))
+                      .toList();
+                  updateWifiList(wifiList);
+                } else {
+                  print('ListOfWifi is not a List');
+                }
+              }
+              else{
+                providerState?.updateReceivedPayload(jsonStr, true);
+              }
+            } catch (e) {
+              print('JSON parsing failed: $e');
+            }
+
+
+          } catch (e) {
+            print('JSON parsing failed: $e');
+          }
+        } else {
+          // Wait for more data
+          break;
+        }
+      }
+
+      //notifyListeners();
+    });
+  }
+
+  void updateWifiList(List<Map<String, dynamic>> newList) {
+    listOfWifi.value = newList;
   }
 
   void clearData() {

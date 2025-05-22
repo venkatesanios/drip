@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:oro_drip_irrigation/Screens/Map/MapAreaModel.dart';
-
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 

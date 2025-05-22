@@ -130,14 +130,16 @@ class NextSchedule extends StatelessWidget {
       children: [
         Container(
           width: MediaQuery.sizeOf(context).width,
-          height: 22,
-          color: Colors.orange.shade200,
+          height: 25,
+          color: Colors.orange.shade100,
           child: const Padding(
             padding: EdgeInsets.only(left: 8),
-            child: Text(
-              'NEXT IN QUEUE',
-              textAlign: TextAlign.start,
-              style: TextStyle(color: Colors.black54, fontSize: 15),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'NEXT IN QUEUE',
+                style: TextStyle(color: Colors.black54, fontSize: 14),
+              ),
             ),
           ),
         ),

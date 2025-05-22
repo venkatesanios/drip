@@ -79,7 +79,7 @@ class CustomerScreenController extends StatelessWidget {
 
           if (liveDataAndTime.isNotEmpty) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              vm.updateLivePayload(wifiStrength, liveDataAndTime, currentSchedule);
+              vm.updateLivePayload(wifiStrength, liveDataAndTime, currentSchedule, iLineLiveMessage);
             });
           } else {
             print("liveDataAndTime is empty.");
@@ -605,7 +605,7 @@ class CustomerScreenController extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 15),
-                          AlarmButton(payload: alarm, deviceID: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                          AlarmButton(alarmPayload: alarm, deviceID: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
                             customerId: customerId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,),
                           const SizedBox(height: 15),
                           CircleAvatar(
@@ -1114,8 +1114,8 @@ class BadgeButton extends StatelessWidget {
 }
 
 class AlarmButton extends StatelessWidget {
-  const AlarmButton({super.key, required this.payload, required this.deviceID, required this.customerId, required this.controllerId});
-  final List<String> payload;
+  const AlarmButton({super.key, required this.alarmPayload, required this.deviceID, required this.customerId, required this.controllerId});
+  final List<String> alarmPayload;
   final String deviceID;
   final int customerId, controllerId;
 
@@ -1132,17 +1132,17 @@ class AlarmButton extends StatelessWidget {
         onPressed: (){
           showPopover(
             context: context,
-            bodyBuilder: (context) => AlarmListItems(alarm : payload, deviceID:deviceID, customerId: customerId, controllerId: controllerId,),
+            bodyBuilder: (context) => AlarmListItems(alarm : alarmPayload, deviceID:deviceID, customerId: customerId, controllerId: controllerId,),
             onPop: () => print('Popover was popped!'),
             direction: PopoverDirection.left,
-            width: payload.isNotEmpty?600:250,
-            height: payload.isNotEmpty?(payload.length*45)+20:50,
+            width: alarmPayload[0].isNotEmpty?600:250,
+            height: alarmPayload[0].isNotEmpty?(alarmPayload.length*45)+20:50,
             arrowHeight: 15,
             arrowWidth: 30,
           );
         },
         icon: Icons.alarm,
-        badgeNumber: payload.length,
+        badgeNumber: alarmPayload[0].isNotEmpty? alarmPayload.length:0,
       ),
     );
   }
@@ -1157,7 +1157,7 @@ class AlarmListItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return alarm.isNotEmpty? DataTable2(
+    return alarm[0].isNotEmpty? DataTable2(
       columnSpacing: 12,
       horizontalMargin: 12,
       minWidth: 600,
@@ -1199,7 +1199,7 @@ class AlarmListItems extends StatelessWidget {
             onPressed: () async {
               String finalPayload =  values[0];
               String payLoadFinal = jsonEncode({
-                "4100": [{"4101": finalPayload}]
+                "4100": {"4101": finalPayload}
               });
 
               final result = await context.read<CommunicationService>().sendCommand(
@@ -1216,13 +1216,15 @@ class AlarmListItems extends StatelessWidget {
                 debugPrint("Payload sent via Bluetooth");
               }
 
+              Navigator.pop(context);
+
             },
             child: const Text('Reset'),
           ))),
         ]);
       }),
     ):
-    const Center(child: Text('Alarm not found'),);
+    const Center(child: Text('Alarm not found'));
   }
 
 }

@@ -279,6 +279,7 @@ class IrrigationLineModel {
   final List<SensorModel> pressureIn;
   final List<SensorModel> pressureOut;
   final List<SensorModel> waterMeter;
+  int? linePauseFlag;
 
   IrrigationLineModel({
     required this.sNo,
@@ -292,6 +293,7 @@ class IrrigationLineModel {
     required this.pressureIn,
     required this.pressureOut,
     required this.waterMeter,
+    this.linePauseFlag = 0,
   });
 
   factory IrrigationLineModel.fromJson(Map<String, dynamic> json, List<ConfigObject> configObjects, var moistureSensorRaw, List<WaterSourceModel> waterSources) {
@@ -383,7 +385,6 @@ class IrrigationLineModel {
       name: json['name'] ?? '',
       centralFiltration: (json['centralFiltration'] as num?)?.toDouble(),
       centralFertilization: (json['centralFertilization'] as num?)?.toDouble(),
-
       inletSources: matchedInletSources,
       outletSources: matchedOutLetSources,
       valveObjects: valves,
@@ -1452,13 +1453,19 @@ class ConditionModel {
   final int sNo;
   final String title;
   final ConditionValue value;
-  bool selected;
+  final bool selected;
+
+  int conditionStatus;
+  String actualValue;
 
   ConditionModel({
     required this.sNo,
     required this.title,
     required this.value,
-    this.selected = false,
+    required this.selected,
+
+    this.conditionStatus = 0,
+    this.actualValue = '0',
   });
 
   factory ConditionModel.fromJson(Map<String, dynamic> json) {

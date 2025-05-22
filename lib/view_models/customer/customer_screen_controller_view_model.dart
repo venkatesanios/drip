@@ -182,7 +182,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     }
   }
 
-  void updateLivePayload(int ws, String liveDataAndTime, List<String> cProgram) {
+  void updateLivePayload(int ws, String liveDataAndTime, List<String> cProgram, List<String> linePauseResume) {
     payloadProvider.wifiStrength = 0;
     payloadProvider.liveDateAndTime = '';
 
@@ -199,6 +199,24 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     if(programRunning){
       payloadProvider.currentSchedule = cProgram;
     }
+
+    for (String entry in linePauseResume) {
+      List<String> parts = entry.split(',');
+      if (parts.length == 2) {
+        double? serialNo = double.tryParse(parts[0]);
+        int? flag = int.tryParse(parts[1]);
+
+        if (serialNo != null && flag != null) {
+          for (var line in mySiteList.data[sIndex].master[mIndex].irrigationLine) {
+            if (line.sNo == serialNo) {
+              line.linePauseFlag = flag;
+              break;
+            }
+          }
+        }
+      }
+    }
+
 
     notifyListeners();
   }

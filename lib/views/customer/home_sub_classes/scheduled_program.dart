@@ -31,8 +31,9 @@ class ScheduledProgram extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final spLive = Provider.of<MqttPayloadProvider>(context).scheduledProgramPayload;
+    final conditionPayload = Provider.of<MqttPayloadProvider>(context).conditionPayload;
     if (spLive.isNotEmpty) {
-      _updateProgramsFromMqtt(spLive, scheduledPrograms);
+      _updateProgramsFromMqtt(spLive, scheduledPrograms, conditionPayload);
     }
 
     var filteredScheduleProgram = currentLineSNo == 0 ?
@@ -186,7 +187,8 @@ class ScheduledProgram extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                                filteredScheduleProgram[index].conditions.isNotEmpty?
+                                (filteredScheduleProgram[index].conditions.isNotEmpty &&
+                                    filteredScheduleProgram[index].conditions.every((c) => c.selected == true))?
                                 IconButton(
                                   tooltip: 'view condition',
                                   onPressed: () {
@@ -195,7 +197,7 @@ class ScheduledProgram extends StatelessWidget {
                                       filteredScheduleProgram[index].conditions,
                                     );
                                   },
-                                  icon: const Icon(Icons.visibility_outlined, color: Colors.teal,),
+                                  icon: const Icon(Icons.visibility_outlined),
                                 ):
                                 const SizedBox(),
                               ],
@@ -617,7 +619,8 @@ class ScheduledProgram extends StatelessWidget {
 
   }
 
-  void _updateProgramsFromMqtt(List<String> spLive, List<ProgramList> scheduledPrograms) {
+  void _updateProgramsFromMqtt(List<String> spLive, List<ProgramList> scheduledPrograms,
+      List<String> conditionPayloadList) {
 
 
     for (var sp in spLive) {
@@ -639,6 +642,25 @@ class ScheduledProgram extends StatelessWidget {
             ..prgOnOff = values[10]
             ..prgPauseResume = values[11]
             ..status = 1;
+
+          for (var payload in conditionPayloadList) {
+            List<String> parts = payload.split(",");
+            if (parts.length > 2) {
+              int? conditionSerialNo = int.tryParse(parts[0].trim());
+              int? conditionStatus = int.tryParse(parts[2].trim());
+              String? actualValue = parts[4].trim();
+
+              try {
+                final condition = scheduledPrograms[index]
+                    .conditions
+                    .firstWhere((c) => c.sNo == conditionSerialNo);
+                condition.conditionStatus = conditionStatus!;
+                condition.actualValue = actualValue;
+              } catch (e) {
+                // Not found — optionally handle or ignore
+              }
+            }
+          }
         }
       }
     }
@@ -722,8 +744,11 @@ class ScheduledProgram extends StatelessWidget {
               itemBuilder: (context, index) {
                 return ListTile(
                   title: Text(conditions[index].title,
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text(conditions[index].value.rule, style: const TextStyle(color: Colors.black54)),
+                      style: TextStyle(fontWeight: FontWeight.bold,
+                          color: conditions[index].conditionStatus==1? Colors.green : Colors.black)),
+                  subtitle: Text(conditions[index].value.rule,
+                      style: TextStyle(color: conditions[index].conditionStatus==1? Colors.green.shade700 : Colors.black54)),
+                  trailing: Text('Actual\n${conditions[index].actualValue}'),
                 );
               },
             ),

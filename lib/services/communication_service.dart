@@ -23,8 +23,8 @@ class CommunicationService {
     required this.customerProvider,
   });
 
-  Future<Map<String, bool>> sendCommand(
-      {required String serverMsg, required String payload}) async {
+  Future<Map<String, bool>> sendCommand({required String serverMsg,
+    required String payload}) async {
     final result = {
       'http': false,
       'mqtt': false,
