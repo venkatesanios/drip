@@ -14,7 +14,11 @@ if (localPropertiesFile.exists()) {
 def keyProperties = new Properties()
 def keyPropertiesFile = rootProject.file('android/key.properties')
 if (keyPropertiesFile.exists()) {
+    println "key.properties file found at: ${keyPropertiesFile.absolutePath}"
     keyProperties.load(keyPropertiesFile.newDataInputStream())
+    println "keyProperties loaded: ${keyProperties}"
+} else {
+    println "key.properties file not found at: ${keyPropertiesFile.absolutePath}"
 }
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode') ?: "1"
@@ -46,18 +50,16 @@ android {
     ndkVersion = flutter.ndkVersion
 
     signingConfigs {
-        println "Store Password: ${storePassword}"
-        println "Store file: ${file("/home/runner/work/drip/drip/android/app/release-key.jks")}"
-        println "KEYSTORE_PASSWORD: ${System.getenv("KEYSTORE_PASSWORD")}"
-        println "KEY_ALIAS: ${System.getenv("KEY_ALIAS")}"
-        println "KEY_PASSWORD: ${System.getenv("KEY_PASSWORD")}"
-
         release {
             if (System.getenv("CI")) {
-                storeFile file(keyProperties['storeFile'])
-                storePassword keyProperties['storePassword']
-                keyAlias keyProperties['keyAlias']
-                keyPassword keyProperties['keyPassword']
+                if (keyProperties['storeFile'] != null && keyPropertiesFile.exists()) {
+                    storeFile file("${projectDir}/${keyProperties['storeFile']}")
+                    storePassword keyProperties['storePassword']
+                    keyAlias keyProperties['keyAlias']
+                    keyPassword keyProperties['keyPassword']
+                } else {
+                    throw new GradleException("key.properties is missing or invalid in CI environment")
+                }
             } else {
                 storeFile file("D:\\drip\\android\\app\\release-key.jks")
                 storePassword "Oro@321"
@@ -65,7 +67,6 @@ android {
                 keyPassword "Oro@321"
             }
         }
-
     }
 
     compileOptions {

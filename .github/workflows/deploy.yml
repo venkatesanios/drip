@@ -73,13 +73,16 @@ jobs:
 
       - name: Create key.properties
         run: |
-          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
-          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
-          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
-          echo "storeFile=/home/runner/work/drip/drip/android/app/release-key.jks" >> android/key.properties
+          echo -e "storePassword=${{ secrets.KEYSTORE_PASSWORD }}\nkeyPassword=${{ secrets.KEY_PASSWORD }}\nkeyAlias=${{ secrets.KEY_ALIAS }}\nstoreFile=app/release-key.jks" > android/key.properties
           cat android/key.properties
           if [ ! -s android/key.properties ]; then echo "key.properties file is empty or not created"; exit 1; fi
           echo "key.properties file created successfully."
+
+      - name: Debug keystore file before build
+        run: |
+          echo "Checking keystore file before build..."
+          ls -l android/app/release-key.jks
+          if [ -f android/app/release-key.jks ]; then echo "Keystore file exists"; else echo "Keystore file missing"; exit 1; fi
 
       - name: Install dependencies
         run: flutter pub get
@@ -87,6 +90,7 @@ jobs:
       - name: Clear caches
         run: |
           flutter clean
+          rm -rf ~/.gradle/caches
 
       - name: Create gradle.properties (if needed)
         run: |
@@ -101,7 +105,7 @@ jobs:
       - name: Build AAB (oroProduction flavor)
         env:
           CI: true
-        run: flutter build appbundle --release --flavor oroProduction -t lib/main_oroProduction.dart --build-name=1.0.0 --build-number=2 --no-tree-shake-icons
+        run: flutter build appbundle --release --flavor oroProduction -t lib/main_oroProduction.dart --build-name=1.0.0 --build-number=2 --no-tree-shake-icons --verbose
 
       - name: Verify AAB file
         run: |
