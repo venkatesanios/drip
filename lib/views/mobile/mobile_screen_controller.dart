@@ -1,10 +1,15 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:bluetooth_classic/models/device.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Screens/Dealer/sevicecustomer.dart';
 import 'package:oro_drip_irrigation/Screens/Logs/irrigation_and_pump_log.dart';
 import 'package:oro_drip_irrigation/Screens/planning/WeatherScreen.dart';
 import 'package:oro_drip_irrigation/modules/ScheduleView/view/schedule_view_screen.dart';
 import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
+import 'package:popover/popover.dart';
 import '../../Models/customer/site_model.dart';
 import 'package:provider/provider.dart';
 import '../../StateManagement/customer_provider.dart';
@@ -15,8 +20,10 @@ import '../../modules/PumpController/view/node_settings.dart';
 import '../../modules/PumpController/view/pump_controller_home.dart';
 import '../../repository/repository.dart';
 import '../../services/bluetooth_manager.dart';
+import '../../services/communication_service.dart';
 import '../../services/http_service.dart';
 import '../../utils/formatters.dart';
+import '../../utils/my_function.dart';
 import '../../utils/routes.dart';
 import '../../utils/shared_preferences_helper.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
@@ -65,6 +72,7 @@ class MobileScreenController extends StatelessWidget {
           var currentSchedule = mqttProvider.currentSchedule;
           bool isLiveSynced = mqttProvider.isLiveSynced;
           var iLineLiveMessage = mqttProvider.lineLiveMessage;
+          var alarm = mqttProvider.alarmDL;
 
 
           if (liveDataAndTime.isNotEmpty) {
@@ -95,42 +103,8 @@ class MobileScreenController extends StatelessWidget {
               ),
               actions: [
                 if(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId != 2)...[
-                  Stack(
-                    children: [
-                      IconButton(
-                        tooltip: 'Alarms',
-                        onPressed: vm.onAlarmClicked,
-                        icon: const Icon(Icons.notifications_none),
-                        color: Colors.white,
-                        iconSize: 28.0,
-                      ),
-                      if (vm.unreadAlarmCount > 0)
-                        Positioned(
-                          right: 5,
-                          top: 10,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            constraints: const BoxConstraints(
-                              minWidth: 16,
-                              minHeight: 16,
-                            ),
-                            child: Text(
-                              '${vm.unreadAlarmCount}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
+                  AlarmButton(alarmPayload: alarm, deviceID: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                    customerId: customerId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId),
                 ],
                 if(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 2)...[
                   if(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList.isNotEmpty
@@ -642,7 +616,7 @@ class MobileScreenController extends StatelessWidget {
                         }
                       },
                       offset: const Offset(0, -180),
-                      color: Colors.blueGrey.shade50,
+                      color: Colors.blue.shade50,
                       icon: const Icon(Icons.menu, color: Colors.white),
                       itemBuilder: (BuildContext context) =>
                       [
@@ -728,20 +702,14 @@ class MobileScreenController extends StatelessWidget {
                         )
                       else if (powerSupply == 0)
                         Container(
-                          height: 23.0,
-                          decoration: BoxDecoration(
-                            color: Colors.red.shade300,
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(5),
-                              topRight: Radius.circular(5),
-                            ),
-                          ),
+                          height: 30,
+                          color: Colors.red.shade800,
                           child: const Center(
                             child: Text(
                               'NO POWER SUPPLY TO CONTROLLER',
                               style: TextStyle(
-                                color: Colors.black87,
-                                fontSize: 12.0,
+                                color: Colors.white,
+                                fontSize: 13.0,
                               ),
                             ),
                           ),
@@ -921,11 +889,24 @@ class MobileScreenController extends StatelessWidget {
                       return ListTile(
                         title: Text(d.device.name ??''),
                         subtitle: Text(d.device.address),
-                        trailing: TextButton(
+                        trailing: d.isConnected? Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextButton(
+                              onPressed:() => d.status == Device.disconnected?
+                              manager.connectToDevice(d) : null,
+                              child: const Text('Connected', style: TextStyle(color: Colors.green)),
+                            ),
+                            const SizedBox(width: 8),
+                            IconButton(onPressed:(){
+                              requestAndShowWifiList(context, false);
+                            }, icon: const Icon(CupertinoIcons.text_badge_checkmark)),
+                          ],
+                        ):
+                        TextButton(
                           onPressed:() => d.status == Device.disconnected?
                           manager.connectToDevice(d) : null,
-                          child: d.isConnected? const Text('Connected', style: TextStyle(color: Colors.green)) :
-                          const Text('Connect'),
+                          child: const Text('Connect'),
                         ),
                       );
                     })
@@ -938,6 +919,81 @@ class MobileScreenController extends StatelessWidget {
             ),
           );
         });
+      },
+    );
+  }
+
+  void requestAndShowWifiList(BuildContext context, bool visibleDg) {
+    final commService = Provider.of<CommunicationService>(context, listen: false);
+    String payLoadFinal = jsonEncode({"7200": {"7201": ''}});
+    commService.sendCommand(serverMsg: '', payload: payLoadFinal);
+    if(!visibleDg){
+      showWifiListDialog(context);
+    }
+  }
+
+  void showWifiListDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        final wifiNetworks = Provider.of<BluetoothManager>(context).listOfWifi;
+        return AlertDialog(
+          title: ListTile(
+            title: const Text("Available Networks"),
+            subtitle: const Text(
+              "Select a Wi-Fi network to change the controller's connection.",
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+            trailing: IconButton(onPressed: (){
+              requestAndShowWifiList(context, true);
+            }, icon: const Icon(Icons.refresh)),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20), // 👈 Set the corner radius here
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ValueListenableBuilder<List<Map<String, dynamic>>>(
+              valueListenable: wifiNetworks,
+              builder: (context, networks, _) {
+                if (networks.isEmpty) {
+                  return const Text("No networks found.");
+                }
+
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: networks.length,
+                  itemBuilder: (context, index) {
+                    final net = networks[index];
+                    return ListTile(
+                      leading: Icon(
+                        Icons.wifi,
+                        color: net["SIGNAL"] >= 75
+                            ? Colors.green
+                            : (net["SIGNAL"] >= 50 ? Colors.orange : Colors.red),
+                      ),
+                      title: Text(net["SSID"] ?? "Unknown"),
+                      subtitle: Text("Signal: ${net["SIGNAL"]}%"),
+                      trailing: net["IN-USE"] == "1"? const Icon(Icons.check_circle, color: Colors.blue)
+                          : null,
+                      onTap: () {
+                        Navigator.pop(context);
+                        print("Selected SSID: ${net["SSID"]}");
+                        // Handle selection logic here
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            )
+          ],
+        );
       },
     );
   }
@@ -993,4 +1049,111 @@ class BadgeButton extends StatelessWidget {
       ],
     );
   }
+}
+
+class AlarmButton extends StatelessWidget {
+  const AlarmButton({super.key, required this.alarmPayload, required this.deviceID, required this.customerId, required this.controllerId});
+  final List<String> alarmPayload;
+  final String deviceID;
+  final int customerId, controllerId;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 45,
+      height: 45,
+      decoration: const BoxDecoration(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.all(Radius.circular(5)),
+      ),
+      child: BadgeButton(
+        onPressed: (){
+          showPopover(
+            context: context,
+            bodyBuilder: (context) => AlarmListItems(alarm : alarmPayload, deviceID:deviceID, customerId: customerId, controllerId: controllerId,),
+            onPop: () => print('Popover was popped!'),
+            direction: PopoverDirection.bottom,
+            width: alarmPayload[0].isNotEmpty?400:250,
+            height: alarmPayload[0].isNotEmpty?(alarmPayload.length*80):50,
+            arrowHeight: 15,
+            arrowWidth: 30,
+          );
+        },
+        icon: Icons.notifications_none,
+        badgeNumber: alarmPayload[0].isNotEmpty? alarmPayload.length:0,
+      ),
+    );
+  }
+}
+
+class AlarmListItems extends StatelessWidget {
+  const AlarmListItems({super.key, required this.alarm, required this.deviceID, required this.customerId, required this.controllerId});
+  final List<String> alarm;
+
+  final String deviceID;
+  final int customerId, controllerId;
+
+  @override
+  Widget build(BuildContext context) {
+
+    return alarm[0].isNotEmpty? Container(
+      color: Colors.white,
+      child: Column(
+        children: List.generate(alarm.length * 2 - 1, (index) {
+          if (index.isEven) {
+            List<String> values = alarm[index ~/ 2].split(',');
+            return buildScheduleRow(context, values);
+          } else {
+            return const Padding(
+              padding: EdgeInsets.only(left: 8, right: 8),
+              child: Divider(color: Colors.black12),
+            );
+          }
+        }),
+      ),
+    ):
+    const Center(child: Text('Alarm not found'));
+
+  }
+
+  Widget buildScheduleRow(BuildContext context, List<String> values) {
+    return Column(
+      children: [
+        ListTile(
+          leading: Icon(Icons.warning_amber, color: values[7]=='1' ? Colors.orangeAccent : Colors.redAccent,),
+          title: Text(MyFunction().getAlarmMessage(int.parse(values[2]))),
+          subtitle: Text('Location : ${values[1]} \n DT:${values[5]} - ${values[6]}'),
+          trailing: MaterialButton(
+            color: Colors.redAccent,
+            textColor: Colors.white,
+            onPressed: () async {
+              String finalPayload =  values[0];
+              String payLoadFinal = jsonEncode({
+                "4100": {"4101": finalPayload}
+              });
+
+              final result = await context.read<CommunicationService>().sendCommand(
+                  serverMsg: 'Rested the ${MyFunction().getAlarmMessage(int.parse(values[2]))} alarm',
+                  payload: payLoadFinal);
+
+              if (result['http'] == true) {
+                debugPrint("Payload sent to Server");
+              }
+              if (result['mqtt'] == true) {
+                debugPrint("Payload sent to MQTT Box");
+              }
+              if (result['bluetooth'] == true) {
+                debugPrint("Payload sent via Bluetooth");
+              }
+
+              Navigator.pop(context);
+
+            },
+            child: const Text('Reset'),
+          ),
+        )
+      ],
+    );
+  }
+
 }

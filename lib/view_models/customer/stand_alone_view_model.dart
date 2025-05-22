@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../Models/customer/program_model.dart';
 import '../../Models/customer/site_model.dart';
 import '../../Models/customer/stand_alone_model.dart';
 import '../../repository/repository.dart';
+import '../../services/communication_service.dart';
 import '../../services/mqtt_service.dart';
 import '../../utils/constants.dart';
 
@@ -645,7 +647,12 @@ class StandAloneViewModel extends ChangeNotifier {
         "800": {"801": payload}
       });
 
-      MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
+      print(payLoadFinal);
+
+      final commService = Provider.of<CommunicationService>(context, listen: false);
+      commService.sendCommand(serverMsg: '', payload: payLoadFinal);
+
+      //MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
       sentManualModeToServer(0, 1, standAloneMethod, strDuration, strFlow, standaloneSelection, payLoadFinal);
     }
   }

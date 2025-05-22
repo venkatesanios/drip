@@ -71,8 +71,8 @@ FutureOr<void> main() async {
 
 
 
-  final mqttService = MqttService();
-  final myMqtt = MqttPayloadProvider();
+  /*final mqttService = MqttService();
+  final myMqtt = MqttPayloadProvider();*/
 
   runApp(
     MultiProvider(
@@ -80,7 +80,7 @@ FutureOr<void> main() async {
         ChangeNotifierProvider(create: (_) => CustomerProvider()),
         ChangeNotifierProvider(create: (_) => ConfigMakerProvider()),
         ChangeNotifierProvider(create: (_) => IrrigationProgramMainProvider()),
-        ChangeNotifierProvider(create: (_) => myMqtt),
+        ChangeNotifierProvider(create: (_) => MqttPayloadProvider()),
         ChangeNotifierProvider(create: (_) => OverAllUse()),
         ChangeNotifierProvider(create: (_) => PreferenceProvider()),
         ChangeNotifierProvider(create: (_) => SystemDefinitionProvider()),
@@ -89,12 +89,12 @@ FutureOr<void> main() async {
         ChangeNotifierProvider(create: (_) => PumpControllerProvider()),
 
         if (!kIsWeb)
-          ChangeNotifierProvider<BluetoothManager>(create: (_) => BluetoothManager(),),
+          ChangeNotifierProvider<BluetoothManager>(create: (_) => BluetoothManager(state: MqttPayloadProvider())),
 
         ProxyProvider2<BluetoothManager?, CustomerProvider, CommunicationService>(
           update: (BuildContext context, BluetoothManager? bluetooth, CustomerProvider customer, CommunicationService? previous) {
             return CommunicationService(
-              mqttService: mqttService,
+              mqttService: MqttService(),
               bluetoothManager: bluetooth,
               customerProvider: customer,
             );

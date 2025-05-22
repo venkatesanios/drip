@@ -1455,11 +1455,17 @@ class ConditionModel {
   final ConditionValue value;
   final bool selected;
 
+  int conditionStatus;
+  String actualValue;
+
   ConditionModel({
     required this.sNo,
     required this.title,
     required this.value,
     required this.selected,
+
+    this.conditionStatus = 0,
+    this.actualValue = '0',
   });
 
   factory ConditionModel.fromJson(Map<String, dynamic> json) {

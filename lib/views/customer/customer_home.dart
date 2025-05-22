@@ -70,79 +70,75 @@ class CustomerHome extends StatelessWidget {
 
           ...irrigationLine.map((line) => Padding(
             padding: const EdgeInsets.only(left: 8, right: 8, top:8, bottom: 5),
-            child: Column(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(
-                      color: Colors.grey.shade400,
-                      width: 0.5,
-                    ),
-                    borderRadius: const BorderRadius.all(Radius.circular(5)),
-                  ),
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        width: MediaQuery.sizeOf(context).width,
-                        height: 40,
-                        child: Card(
-                          color: Colors.white,
-                          elevation: 1,
-                          surfaceTintColor: Colors.white,
-                          margin: EdgeInsets.zero,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(5),
-                              topRight: Radius.circular(5),
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              const SizedBox(width: 16),
-                              Text(
-                                line.name,
-                                textAlign: TextAlign.left,
-                                style: const TextStyle(color: Colors.black87, fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
-                              const Spacer(),
-                              MaterialButton(
-                                color: line.linePauseFlag==0? Colors.orangeAccent : Colors.green,
-                                textColor: Colors.black87,
-                                onPressed: () async {
-                                  String payLoadFinal = jsonEncode({
-                                    "4900": {
-                                      "4901": "${line.sNo}, ${line.linePauseFlag==0?1:0}",
-                                    }
-                                  });
-                                  final result = await context.read<CommunicationService>().sendCommand(payload: payLoadFinal,
-                                      serverMsg: line.linePauseFlag==0 ? 'Paused the ${line.name}' : 'Resumed the ${line.name}');
-                                  if (result['http'] == true) {
-                                    debugPrint("Payload sent to Server");
-                                  }
-                                  if (result['mqtt'] == true) {
-                                    debugPrint("Payload sent to MQTT Box");
-                                  }
-                                  if (result['bluetooth'] == true) {
-                                    debugPrint("Payload sent via Bluetooth");
-                                  }
-                                },
-                                child: Text(
-                                  line.linePauseFlag==0?'PAUSE THE LINE':
-                                  'RESUME THE LINE',
-                                  style: const TextStyle(color: Colors.black54),
-                                ),
-                              ),
-                              const SizedBox(width: 10)
-                            ],
-                          ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(
+                  color: Colors.grey.shade400,
+                  width: 0.5,
+                ),
+                borderRadius: const BorderRadius.all(Radius.circular(5)),
+              ),
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: MediaQuery.sizeOf(context).width,
+                    height: 40,
+                    child: Card(
+                      color: Colors.white,
+                      elevation: 1,
+                      surfaceTintColor: Colors.white,
+                      margin: EdgeInsets.zero,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(5),
+                          topRight: Radius.circular(5),
                         ),
                       ),
-                      buildIrrigationLine(context, line, customerId, controllerId),
-                    ],
+                      child: Row(
+                        children: [
+                          const SizedBox(width: 16),
+                          Text(
+                            line.name,
+                            textAlign: TextAlign.left,
+                            style: const TextStyle(color: Colors.black87, fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          const Spacer(),
+                          MaterialButton(
+                            color: line.linePauseFlag==0? Colors.orangeAccent : Colors.green,
+                            textColor: Colors.black87,
+                            onPressed: () async {
+                              String payLoadFinal = jsonEncode({
+                                "4900": {
+                                  "4901": "${line.sNo}, ${line.linePauseFlag==0?1:0}",
+                                }
+                              });
+                              final result = await context.read<CommunicationService>().sendCommand(payload: payLoadFinal,
+                                  serverMsg: line.linePauseFlag==0 ? 'Paused the ${line.name}' : 'Resumed the ${line.name}');
+                              if (result['http'] == true) {
+                                debugPrint("Payload sent to Server");
+                              }
+                              if (result['mqtt'] == true) {
+                                debugPrint("Payload sent to MQTT Box");
+                              }
+                              if (result['bluetooth'] == true) {
+                                debugPrint("Payload sent via Bluetooth");
+                              }
+                            },
+                            child: Text(
+                              line.linePauseFlag==0?'PAUSE THE LINE':
+                              'RESUME THE LINE',
+                              style: const TextStyle(color: Colors.black54),
+                            ),
+                          ),
+                          const SizedBox(width: 10)
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                  buildIrrigationLine(context, line, customerId, controllerId),
+                ],
+              ),
             ),
           )),
 
@@ -198,23 +194,75 @@ class CustomerHome extends StatelessWidget {
             padding: const EdgeInsets.only(left: 8, top: 8, right: 8),
             child: Column(
               children: [
-                irrigationLine.length != 1 ? SizedBox(
-                  width: MediaQuery.sizeOf(context).width,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 8, bottom: 3),
-                    child: Text(
-                      line.name,
-                      textAlign: TextAlign.left,
-                      style: const TextStyle(color: Colors.black87, fontSize: 16),
-                    ),
-                  ),
-                ):
-                const SizedBox(),
-                Card(
-                  margin: EdgeInsets.zero,
+                Container(
+                  decoration: BoxDecoration(
                     color: Colors.white,
-                    elevation: 0.5,
-                    child: buildIrrigationLine(context, line, customerId, controllerId)
+                    border: Border.all(
+                      color: Colors.grey.shade400,
+                      width: 0.5,
+                    ),
+                    borderRadius: const BorderRadius.all(Radius.circular(5)),
+                  ),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        width: MediaQuery.sizeOf(context).width,
+                        height: 45,
+                        child: Card(
+                          color: Colors.white,
+                          elevation: 0,
+                          surfaceTintColor: Colors.white,
+                          margin: EdgeInsets.zero,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(5),
+                              topRight: Radius.circular(5),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              const SizedBox(width: 16),
+                              Text(
+                                line.name,
+                                textAlign: TextAlign.left,
+                                style: const TextStyle(color: Colors.black87, fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                              const Spacer(),
+                              MaterialButton(
+                                color: line.linePauseFlag==0? Colors.orangeAccent : Colors.green,
+                                textColor: Colors.black87,
+                                onPressed: () async {
+                                  String payLoadFinal = jsonEncode({
+                                    "4900": {
+                                      "4901": "${line.sNo}, ${line.linePauseFlag==0?1:0}",
+                                    }
+                                  });
+                                  final result = await context.read<CommunicationService>().sendCommand(payload: payLoadFinal,
+                                      serverMsg: line.linePauseFlag==0 ? 'Paused the ${line.name}' : 'Resumed the ${line.name}');
+                                  if (result['http'] == true) {
+                                    debugPrint("Payload sent to Server");
+                                  }
+                                  if (result['mqtt'] == true) {
+                                    debugPrint("Payload sent to MQTT Box");
+                                  }
+                                  if (result['bluetooth'] == true) {
+                                    debugPrint("Payload sent via Bluetooth");
+                                  }
+                                },
+                                child: Text(
+                                  line.linePauseFlag==0?'PAUSE THE LINE':
+                                  'RESUME THE LINE',
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ),
+                              const SizedBox(width: 5)
+                            ],
+                          ),
+                        ),
+                      ),
+                      buildIrrigationLine(context, line, customerId, controllerId),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -224,8 +272,6 @@ class CustomerHome extends StatelessWidget {
       ),
     );
   }
-
-
 
   Widget buildIrrigationLine(BuildContext context, IrrigationLineModel irrLine, int customerId, int controllerId){
 
@@ -341,6 +387,22 @@ class PumpStationWithLine extends StatelessWidget {
 
     if(kIsWeb)
     {
+      final valveWidgets = valves.asMap().entries.map((entry) {
+        final index = entry.key;
+        final valve = entry.value;
+        final isLastValve = index == valves.length - 1;
+
+        return Padding(
+          padding: EdgeInsets.only(top: fertilizerSite.isNotEmpty ? 30 : 0),
+          child: ValveWidget(
+            valve: valve,
+            customerId: customerId,
+            controllerId: controllerId,
+            isLastValve: isLastValve && pressureOut.isEmpty,
+          ),
+        );
+      }).toList();
+
       final allItems = [
         if (inletWaterSources.isNotEmpty)
           ..._buildWaterSource(context, inletWaterSources, true, true,fertilizerSite.isNotEmpty? true:false),
@@ -351,18 +413,16 @@ class PumpStationWithLine extends StatelessWidget {
         if (filterSite.isNotEmpty)
           ..._buildFilter(context, filterSite, fertilizerSite.isNotEmpty),
 
+
         if (fertilizerSite.isNotEmpty)
           ..._buildFertilizer(context, fertilizerSite),
-
-        ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch_wj.png', fertilizerSite.isNotEmpty),
-        ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', fertilizerSite.isNotEmpty),
-        ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter_wj.png', fertilizerSite.isNotEmpty),
-        ...valves.map((valve) => Padding(
-          padding: EdgeInsets.only(top: fertilizerSite.isNotEmpty? 30 : 0),
-          child: ValveWidget(valve: valve,customerId: customerId, controllerId: controllerId),
-        )),
-        ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', fertilizerSite.isNotEmpty),
+          ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch_wj.png', fertilizerSite.isNotEmpty),
+          ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', fertilizerSite.isNotEmpty),
+          ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter_wj.png', fertilizerSite.isNotEmpty),
+          ...valveWidgets,
+          ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', fertilizerSite.isNotEmpty),
       ];
+
       return Align(
         alignment: Alignment.topLeft,
         child: Wrap(
@@ -375,6 +435,19 @@ class PumpStationWithLine extends StatelessWidget {
     }
     else{
       if(fertilizerSite.isEmpty){
+
+        final valveWidgets = valves.asMap().entries.map((entry) {
+          final index = entry.key;
+          final valve = entry.value;
+          final isLastValve = index == valves.length - 1;
+          return ValveWidget(
+            valve: valve,
+            customerId: customerId,
+            controllerId: controllerId,
+            isLastValve : isLastValve && pressureOut.isEmpty,
+          );
+        }).toList();
+
         final allItems = [
           if (inletWaterSources.isNotEmpty)
             ..._buildWaterSource(context, inletWaterSources, true, true, false),
@@ -388,7 +461,7 @@ class PumpStationWithLine extends StatelessWidget {
           ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch_wj.png', false),
           ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', false),
           ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter_wj.png', false),
-          ...valves.map((valve) => ValveWidget(valve: valve,customerId: customerId, controllerId: controllerId)),
+          ...valveWidgets,
           ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', false),
         ];
         return Align(
@@ -416,11 +489,23 @@ class PumpStationWithLine extends StatelessWidget {
           ..._buildFertilizer(context, fertilizerSite),
         ];
 
+        final valveWidgets = valves.asMap().entries.map((entry) {
+          final index = entry.key;
+          final valve = entry.value;
+          final isLastValve = index == valves.length - 1;
+          return ValveWidget(
+            valve: valve,
+            customerId: customerId,
+            controllerId: controllerId,
+            isLastValve : isLastValve && pressureOut.isEmpty,
+          );
+        }).toList();
+
         final lineItems = [
           ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch_wj.png', false),
           ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', false),
           ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter_wj.png', false),
-          ...valves.map((valve) => ValveWidget(valve: valve,customerId: customerId, controllerId: controllerId)),
+          ...valveWidgets,
           ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', false),
         ];
 
@@ -1139,7 +1224,9 @@ class SensorWidget extends StatelessWidget {
 class ValveWidget extends StatelessWidget {
   final ValveModel valve;
   final int customerId, controllerId;
-  const ValveWidget({super.key, required this.valve, required this.customerId, required this.controllerId});
+  final bool isLastValve;
+  const ValveWidget({super.key, required this.valve, required this.customerId,
+    required this.controllerId, required this.isLastValve});
 
   @override
   Widget build(BuildContext context) {
@@ -1168,7 +1255,7 @@ class ValveWidget extends StatelessWidget {
                   SizedBox(
                     width: 70,
                     height: 70,
-                    child: AppConstants.getAsset('valve', valve.status, ''),
+                    child: AppConstants.getAsset(isLastValve? 'valve_lj' : 'valve', valve.status, ''),
                   ),
                   Text(
                     valve.name,

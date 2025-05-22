@@ -185,14 +185,16 @@ class CurrentProgram extends StatelessWidget {
       children: [
         Container(
           width: MediaQuery.sizeOf(context).width,
-          height: 22,
-          color: Colors.green.shade300,
+          height: 25,
+          color: Colors.green.shade100,
           child: const Padding(
             padding: EdgeInsets.only(left: 8),
-            child: Text(
-              'CURRENT SCHEDULE',
-              textAlign: TextAlign.start,
-              style: TextStyle(color: Colors.black54, fontSize: 15),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'CURRENT SCHEDULE',
+                style: TextStyle(color: Colors.black54, fontSize: 14),
+              ),
             ),
           ),
         ),
@@ -206,7 +208,7 @@ class CurrentProgram extends StatelessWidget {
               } else {
                 return const Padding(
                   padding: EdgeInsets.only(left: 8, right: 8),
-                  child: Divider(height: 1, color: Colors.grey),
+                  child: Divider(color: Colors.black12),
                 );
               }
             }),
@@ -262,7 +264,7 @@ class CurrentProgram extends StatelessWidget {
           sentUserOperationToServer('${getProgramNameById(int.parse(values[0]))} - ${getSequenceName(int.parse(values[0]), values[1])} skipped manually', payLoadFinal);
           GlobalSnackBar.show(context, 'Comment sent successfully', 200);
         } : null,
-        child: const Text('Skip', style: TextStyle(color: Colors.black87)),
+        child: const Text('Skip', style: TextStyle(color: Colors.white)),
       );
     }
   }
@@ -416,7 +418,7 @@ class CurrentProgram extends StatelessWidget {
                             Container(
                               width: 1,
                               height: 70,
-                              color: Colors.black26,
+                              color: Colors.black12,
                             ),
                             const Spacer(),
                             Column(

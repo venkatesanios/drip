@@ -159,6 +159,7 @@ class AppConstants {
 
   static const String pngPath = "assets/png/";
   static const String gifPath = "assets/gif/";
+  static const String svgObjectPath = 'assets/Images/Svg/';
 
   static const String boreWell = "dp_bore_well.png";
   static const String sumpFirst = "dp_sump_first.png";
@@ -193,6 +194,11 @@ class AppConstants {
   static const String valveON = "valve_green.png";
   static const String valveNotON = "valve_orange.png";
   static const String valveNotOFF = "valve_red.png";
+
+  static const String valveLjOFF = "valve_gray_lj.png";
+  static const String valveLjON = "valve_green_lj.png";
+  static const String valveLjNotON = "valve_orange_lj.png";
+  static const String valveLjNotOFF = "valve_red_lj.png";
 
   static const Map<UserRole, String> formTitle = {
     UserRole.admin: "Dealer Account Form",
@@ -296,6 +302,10 @@ class AppConstants {
       case 'valve':
         imagePathFinal = _getValveImagePath(status);
         break;
+      case 'valve_lj':
+        imagePathFinal = _getValveLjImagePath(status);
+        break;
+
       default:
         imagePathFinal = '';
     }
@@ -462,7 +472,20 @@ class AppConstants {
     }
   }
 
-  static const String svgObjectPath = 'assets/Images/Svg/';
+  static String _getValveLjImagePath(int status) {
+    switch (status) {
+      case 0:
+        return valveLjOFF;
+      case 1:
+        return valveLjON;
+      case 2:
+        return valveLjNotON;
+      case 3:
+        return valveLjNotOFF;
+      default:
+        return '';
+    }
+  }
 
   static dynamic payloadConversion(data) {
     dynamic dataFormation = {};

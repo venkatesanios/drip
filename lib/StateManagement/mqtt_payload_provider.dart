@@ -94,8 +94,10 @@ class MqttPayloadProvider with ChangeNotifier {
   List<String> currentSchedule = [];
   List<String> nextSchedule = [];
   List<String> scheduledProgramPayload = [];
+   List<String> conditionPayload = [];
   List<String> lineLiveMessage = [];
   List<String> alarmDL = [];
+
 
    final Map<String, String> _pumpOnOffStatusMap = {};
    final Map<String, String> _pumpOtherDetailMap = {};
@@ -475,7 +477,7 @@ class MqttPayloadProvider with ChangeNotifier {
 
 
 
-  void updateReceivedPayload(String payload,bool dataFromHttp) async{
+  void updateReceivedPayload(String payload, bool dataFromHttp) async{
     if (kDebugMode) {
       // print("updateReceivedPayload ====$payload");
 
@@ -512,12 +514,12 @@ class MqttPayloadProvider with ChangeNotifier {
         updateCurrentProgram(data['cM']['2408'].split(";"));
         updateNextProgram(data['cM']['2409'].split(";"));
         updateScheduledProgram(data['cM']['2410'].split(";"));
+        updateCondition(data['cM']['2411'].split(";"));
         updateAlarm(data['cM']['2412'].split(";"));
 
         notifyListeners();
       }
       else if(data.containsKey('3600') && data['3600'] != null && data['3600'].isNotEmpty){
-        // mySchedule.dataFromMqttConversion(payload);
         schedulePayload = payload;
       } else if(data.containsKey('5100') && data['5100'] != null && data['5100'].isNotEmpty){
         weatherModelinstance = WeatherModel.fromJson(data);
@@ -526,48 +528,46 @@ class MqttPayloadProvider with ChangeNotifier {
         viewSetting = data;
         if (!viewSettingsList.contains(jsonEncode(data['cM']))) {
           viewSettingsList.add(jsonEncode(data["cM"]));
-          // print("viewSettingsList ==> $viewSettingsList");
         }
       }
-      // Check if 'mC' is 4200
+
       if(data['cM'] is! List<dynamic>) {
         if (data['mC'] != null && data['cM'].containsKey('4201')) {
           messageFromHw = data['cM']['4201'];
         }
+      }
+      if(data.containsKey("cM") && data["cM"] is! List && (data["cM"] as Map).containsKey("6601")){
+        if(ctrllogtimecheck != data['cT']){
+          sheduleLog += "\n";
+          sheduleLog += data['cM']['6601'];
+          ctrllogtimecheck = data['cT'];
         }
 
-           if(data.containsKey("cM") && data["cM"] is! List && (data["cM"] as Map).containsKey("6601")){
-              if(ctrllogtimecheck != data['cT']){
-               sheduleLog += "\n";
-               sheduleLog += data['cM']['6601'];
-               ctrllogtimecheck = data['cT'];
-             }
+      }
+      if(data.containsKey("cM") && data["cM"] is! List && (data["cM"] as Map).containsKey("6602")){
 
-           }
-          if(data.containsKey("cM") && data["cM"] is! List && (data["cM"] as Map).containsKey("6602")){
+        if(ctrllogtimecheck != data['cT']) {
+          uardLog += "\n";
+          uardLog += data['cM']['6602'];
+          ctrllogtimecheck = data['cT'];
+        }
+      }
+      if(data.containsKey("cM") && data["cM"] is! List && (data["cM"] as Map).containsKey("6603")){
+        if(ctrllogtimecheck != data['cT']) {
+          uard0Log += "\n";
+          uard0Log += data['cM']['6603'];
+          ctrllogtimecheck = data['cT'];
+        }
 
-            if(ctrllogtimecheck != data['cT']) {
-              uardLog += "\n";
-              uardLog += data['cM']['6602'];
-              ctrllogtimecheck = data['cT'];
-            }
-          }
-          if(data.containsKey("cM") && data["cM"] is! List && (data["cM"] as Map).containsKey("6603")){
-             if(ctrllogtimecheck != data['cT']) {
-              uard0Log += "\n";
-              uard0Log += data['cM']['6603'];
-              ctrllogtimecheck = data['cT'];
-            }
+      }
+      if(data.containsKey("cM") && data["cM"] is! List && (data["cM"] as Map).containsKey("6604")){
+        if(ctrllogtimecheck != data['cT']) {
+          uard4Log += "\n";
+          uard4Log += data['cM']['6604'];
+          ctrllogtimecheck = data['cT'];
+        }
 
-          }
-          if(data.containsKey("cM") && data["cM"] is! List && (data["cM"] as Map).containsKey("6604")){
-             if(ctrllogtimecheck != data['cT']) {
-              uard4Log += "\n";
-              uard4Log += data['cM']['6604'];
-              ctrllogtimecheck = data['cT'];
-            }
-
-          }
+      }
 
 
 
@@ -616,6 +616,7 @@ class MqttPayloadProvider with ChangeNotifier {
     onRefresh = status;
     notifyListeners();
   }
+
 
   void updateNodeLiveMessage(List<String> message) {
     nodeLiveMessage = message;
@@ -727,6 +728,10 @@ class MqttPayloadProvider with ChangeNotifier {
   void updateScheduledProgram(List<String> program) {
     scheduledProgramPayload = program;
   }
+
+   void updateCondition(List<String> con) {
+     conditionPayload = con;
+   }
 
   void saveUnits(List<dynamic> units) {
     unitList = units;
