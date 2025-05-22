@@ -30,6 +30,7 @@ class BluetoothManager extends ChangeNotifier {
 
   String _buffer = '';
   final ValueNotifier<List<Map<String, dynamic>>> listOfWifi = ValueNotifier([]);
+  ValueNotifier<String?> wifiMessage = ValueNotifier<String?>(null);
 
   BluetoothManager({required MqttPayloadProvider? state}) {
     providerState = state;
@@ -135,6 +136,18 @@ class BluetoothManager extends ChangeNotifier {
                 } else {
                   print('ListOfWifi is not a List');
                 }
+              }
+              else if (data['mC']?.toString() == '4200'){
+                print('kamaraj.....');
+                final cM = data['cM'] as Map<String, dynamic>?;
+                if (cM != null && cM.isNotEmpty) {
+                  final firstEntry = cM.entries.first.value as Map<String, dynamic>;
+                  final message = firstEntry['Message'];
+                  print('Message: $message');
+                  wifiMessage.value = message;
+
+                }
+
               }
               else{
                 providerState?.updateReceivedPayload(jsonStr, true);
