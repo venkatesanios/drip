@@ -73,16 +73,20 @@ jobs:
 
       - name: Create key.properties
         run: |
+          echo "Creating key.properties..."
+          mkdir -p android
           echo -e "storePassword=${{ secrets.KEYSTORE_PASSWORD }}\nkeyPassword=${{ secrets.KEY_PASSWORD }}\nkeyAlias=${{ secrets.KEY_ALIAS }}\nstoreFile=app/release-key.jks" > android/key.properties
           cat android/key.properties
+          ls -l android/key.properties
           if [ ! -s android/key.properties ]; then echo "key.properties file is empty or not created"; exit 1; fi
           echo "key.properties file created successfully."
 
-      - name: Debug keystore file before build
+      - name: Debug key.properties before build
         run: |
-          echo "Checking keystore file before build..."
-          ls -l android/app/release-key.jks
-          if [ -f android/app/release-key.jks ]; then echo "Keystore file exists"; else echo "Keystore file missing"; exit 1; fi
+          echo "Checking key.properties before build..."
+          ls -l android/key.properties
+          cat android/key.properties
+          if [ -f android/key.properties ]; then echo "key.properties file exists"; else echo "key.properties file missing"; exit 1; fi
 
       - name: Install dependencies
         run: flutter pub get

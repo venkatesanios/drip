@@ -14,11 +14,11 @@ if (localPropertiesFile.exists()) {
 def keyProperties = new Properties()
 def keyPropertiesFile = rootProject.file('android/key.properties')
 if (keyPropertiesFile.exists()) {
-    println "key.properties file found at: ${keyPropertiesFile.absolutePath}"
+    println "key.properties found at: ${keyPropertiesFile.absolutePath}"
     keyProperties.load(keyPropertiesFile.newDataInputStream())
-    println "keyProperties loaded: ${keyProperties}"
+    println "keyProperties content: ${keyProperties}"
 } else {
-    println "key.properties file not found at: ${keyPropertiesFile.absolutePath}"
+    println "key.properties not found at: ${keyPropertiesFile.absolutePath}"
 }
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode') ?: "1"
@@ -52,15 +52,23 @@ android {
     signingConfigs {
         release {
             if (System.getenv("CI")) {
-                if (keyProperties['storeFile'] != null && keyPropertiesFile.exists()) {
-                    storeFile file("${projectDir}/${keyProperties['storeFile']}")
-                    storePassword keyProperties['storePassword']
-                    keyAlias keyProperties['keyAlias']
-                    keyPassword keyProperties['keyPassword']
+                if (keyPropertiesFile.exists() && keyProperties['storeFile'] && keyProperties['storePassword'] && keyProperties['keyAlias'] && keyProperties['keyPassword']) {
+                    def storeFilePath = "${projectDir}/${keyProperties['storeFile']}"
+                    println "CI environment: Attempting to load storeFile at ${storeFilePath}"
+                    if (file(storeFilePath).exists()) {
+                        storeFile file(storeFilePath)
+                        storePassword keyProperties['storePassword']
+                        keyAlias keyProperties['keyAlias']
+                        keyPassword keyProperties['keyPassword']
+                        println "CI environment: Successfully configured signing with storeFile ${storeFilePath}"
+                    } else {
+                        throw new GradleException("Keystore file not found at: ${storeFilePath}")
+                    }
                 } else {
-                    throw new GradleException("key.properties is missing or invalid in CI environment")
+                    throw new GradleException("key.properties is missing or incomplete in CI environment. Found at: ${keyPropertiesFile.absolutePath}, Content: ${keyProperties}")
                 }
             } else {
+                println "Local environment: Using hardcoded signing configuration"
                 storeFile file("D:\\drip\\android\\app\\release-key.jks")
                 storePassword "Oro@321"
                 keyAlias "upload"
