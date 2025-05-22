@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -104,8 +103,8 @@ class _MapScreenAllAreaState extends State<MapScreenAllArea> {
             strokeColor: strokeColor,
             strokeWidth: 1,
             fillColor: valve.status == 1
-                ? Colors.green.withOpacity(0.3)
-                : Colors.red.withOpacity(0.3),
+                ? Colors.green.withOpacity(0.7)
+                : Colors.red.withOpacity(0.7),
           ),
         );
 

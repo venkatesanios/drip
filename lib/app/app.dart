@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
  import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:oro_drip_irrigation/Constants/notifications_service.dart';
+import '../Screens/planning/QRCode_Scaner.dart';
 import '../flavors.dart';
 import '../utils/Theme/smart_comm_theme.dart';
 import '../utils/Theme/oro_theme.dart';
@@ -78,6 +79,7 @@ Widget navigateToInitialScreen(String route) {
   print("route:-->$route");
   switch (route) {
     case Routes.login:
+      // return const QRCodeScan();
       return const LoginScreen();
     case Routes.dashboard:
       return const ScreenController();

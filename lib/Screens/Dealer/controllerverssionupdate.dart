@@ -171,8 +171,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
   Widget build(BuildContext context) {
      bool checkRole = false;
     checkrole().then((role) {
-      print(" then role $role");
-      if (role == 'admin') {
+       if (role == 'admin') {
         checkRole = true;
       } else {
         checkRole = false;

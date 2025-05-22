@@ -211,8 +211,6 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
     );
   }
 
-
-
   Future<void> ftpstatus(BuildContext context) async{
     showDialog(
       context: context,
@@ -260,68 +258,6 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
     }
 
   }
-
-  // Future<void> ftpstatus(BuildContext context) async {
-  //   bool isSuccess = false;
-  //    print("isSuccess---->$isSuccess");
-  //   showDialog(
-  //     context: context,
-  //     barrierDismissible: false,
-  //     builder: (BuildContext context) {
-  //       return StatefulBuilder(
-  //         builder: (context, setState) {
-  //           return Dialog(
-  //             child: Padding(
-  //               padding: EdgeInsets.all(16.0),
-  //               child: Column(
-  //                 mainAxisSize: MainAxisSize.min,
-  //                 children: [
-  //                   // Show success icon or progress indicator based on status
-  //                   isSuccess
-  //                       ? Icon(Icons.check_circle, color: Colors.green, size: 50)
-  //                       : CircularProgressIndicator(),
-  //                   SizedBox(height: 16),
-  //
-  //                   // Show success text or waiting text based on status
-  //                   Text(isSuccess ? "Success" : "Please wait..."),
-  //
-  //                   SizedBox(height: 16),
-  //                   Text(logString), // Display the log string
-  //
-  //                   TextButton(
-  //                     onPressed: () {
-  //                       Navigator.of(context).pop(); // Dismiss dialog
-  //                     },
-  //                     // Change button text based on status
-  //                     child: Text(isSuccess ? "OK" : "Cancel"),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //           );
-  //         },
-  //       );
-  //     },
-  //   );
-  //
-  //   bool dialogOpen = true;
-  //
-  //   while (dialogOpen) {
-  //     await Future.delayed(Duration(seconds: 1));
-  //
-  //     // Check for success condition
-  //     if (logString.contains("Success") || logString.contains("Won")) {
-  //       setState(() {
-  //         print("Success inside");
-  //         isSuccess = true; // Update the state to show success
-  //       });
-  //       // await Future.delayed(Duration(seconds: 2)); // Optionally wait a bit
-  //       // dialogOpen = false;
-  //       // Navigator.of(context).pop(); // Close dialog after success
-  //     }
-  //   }
-  // }
-
 
   status() {
     Map<String, dynamic>? ctrldata = mqttPayloadProvider.messageFromHw;
@@ -393,7 +329,6 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
     super.dispose();
   }
 }
-
 
 class ScrollableTextWithSearch extends StatefulWidget {
   final String text;
