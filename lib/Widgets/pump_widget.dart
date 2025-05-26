@@ -245,8 +245,6 @@ class PumpWidget extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildHeader(),
-        const Divider(height: 0),
         if (int.tryParse(pump.reason) != null &&
             int.parse(pump.reason) > 0 &&
             int.parse(pump.reason) != 31)
@@ -259,27 +257,6 @@ class PumpWidget extends StatelessWidget {
         _buildVoltageCurrentInfo('Current', columns, ['RC', 'YC', 'BC']),
         const SizedBox(height: 7),
       ],
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      width: 300,
-      height: 35,
-      color: Colors.white,
-      child: const Row(
-        children: [
-          SizedBox(width: 8),
-          Text.rich(
-            TextSpan(
-              text: 'Version : ',
-              style: TextStyle(color: Colors.black54),
-            ),
-          ),
-          Spacer(),
-          SizedBox(width: 8),
-        ],
-      ),
     );
   }
 

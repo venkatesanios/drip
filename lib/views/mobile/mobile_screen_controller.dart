@@ -1029,8 +1029,6 @@ class MobileScreenController extends StatelessWidget {
                                 connectingNetwork.value = null;*/
                               }
 
-
-
                               /*// Close the current dialog FIRST
                               Navigator.pop(dialogContext); // use dialogContext here
 
