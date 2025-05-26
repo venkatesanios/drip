@@ -109,7 +109,7 @@ class BluetoothManager extends ChangeNotifier {
 
   void listenToBluetoothData() {
     _bluetoothClassicPlugin.onDeviceDataReceived().listen((event) {
-      _buffer += utf8.decode(event); // Append incoming bytes to buffer
+      _buffer += utf8.decode(event);
 
       while (_buffer.contains('*') && _buffer.contains('#')) {
         int startIndex = _buffer.indexOf('*');
@@ -117,11 +117,11 @@ class BluetoothManager extends ChangeNotifier {
 
         if (startIndex != -1 && endIndex != -1 && endIndex > startIndex) {
           String jsonString = _buffer.substring(startIndex + 1, endIndex);
-          _buffer = _buffer.substring(endIndex + 1); // Remove processed part
+          _buffer = _buffer.substring(endIndex + 1);
 
           try {
             Map<String, dynamic> jsonData = json.decode(jsonString);
-            String jsonStr = json.encode(jsonData); // Convert to valid JSON string
+            String jsonStr = json.encode(jsonData);
             print('Parsed jsonStr: $jsonStr');
 
             try {
@@ -145,9 +145,7 @@ class BluetoothManager extends ChangeNotifier {
                   final message = firstEntry['Message'];
                   print('Message: $message');
                   wifiMessage.value = message;
-
                 }
-
               }
               else{
                 providerState?.updateReceivedPayload(jsonStr, true);

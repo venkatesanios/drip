@@ -7,6 +7,7 @@ import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
+import 'package:table_calendar/table_calendar.dart';
 import '../../Models/customer/sensor_hourly_data_model.dart';
 import '../../Models/customer/site_model.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
@@ -452,34 +453,44 @@ class PumpStationWithLine extends StatelessWidget {
     else{
       if(fertilizerSite.isEmpty){
 
-        final valveWidgets = valves.asMap().entries.map((entry) {
+        double myDouble = MediaQuery.sizeOf(context).width / 70;
+        int itemsPerRow = myDouble.toInt();
+
+        final valveWidgetEntries = valves.asMap().entries.toList();
+
+        final allItemsWithoutValves = [
+          if (inletWaterSources.isNotEmpty)
+            ..._buildWaterSource(context, inletWaterSources, true, true, false),
+          if (outletWaterSources.isNotEmpty)
+            ..._buildWaterSource(context, outletWaterSources, inletWaterSources.isNotEmpty, false, false),
+          if (filterSite.isNotEmpty)
+            ..._buildFilter(context, filterSite, false),
+          ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch_wj.png', false),
+          ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', false),
+          ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter_wj.png', false),
+        ];
+
+        final valveWidgets = valveWidgetEntries.map((entry) {
           final index = entry.key;
           final valve = entry.value;
-          final isLastValve = index == valves.length - 1;
+          final totalOffset = allItemsWithoutValves.length;
+          final globalIndex = totalOffset + index;
+          final isLastValveInRow = (globalIndex + 1) % itemsPerRow == 0;
+
           return ValveWidget(
             valve: valve,
             customerId: customerId,
             controllerId: controllerId,
-            isLastValve : isLastValve && pressureOut.isEmpty,
+            isLastValve: isLastValveInRow && pressureOut.isEmpty,
           );
         }).toList();
 
         final allItems = [
-          if (inletWaterSources.isNotEmpty)
-            ..._buildWaterSource(context, inletWaterSources, true, true, false),
-
-          if (outletWaterSources.isNotEmpty)
-            ..._buildWaterSource(context, outletWaterSources, inletWaterSources.isNotEmpty? true : false, false, false),
-
-          if (filterSite.isNotEmpty)
-            ..._buildFilter(context, filterSite, false),
-
-          ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch_wj.png', false),
-          ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', false),
-          ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter_wj.png', false),
+          ...allItemsWithoutValves,
           ...valveWidgets,
           ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', false),
         ];
+
         return Align(
           alignment: Alignment.topLeft,
           child: Wrap(
@@ -797,7 +808,7 @@ class BuildInletSource extends StatelessWidget {
     }
 
     return Padding(
-      padding: EdgeInsets.only(left: 8, top: 8, right: 0),
+      padding: const EdgeInsets.only(left: 8, top: 8, right: 0),
       child: Container(
         width: MediaQuery.sizeOf(context).width,
         decoration: BoxDecoration(
@@ -806,11 +817,11 @@ class BuildInletSource extends StatelessWidget {
             color: Colors.grey.shade400,
             width: 0.5,
           ),
-          borderRadius: BorderRadius.only(
-            topRight: const Radius.circular(0),
-            topLeft: const Radius.circular(5),
-            bottomLeft: const Radius.circular(5),
-            bottomRight: const Radius.circular(0),
+          borderRadius: const BorderRadius.only(
+            topRight: Radius.circular(0),
+            topLeft: Radius.circular(5),
+            bottomLeft: Radius.circular(5),
+            bottomRight: Radius.circular(0),
           ),
         ),
         child: ScrollConfiguration(
@@ -818,13 +829,13 @@ class BuildInletSource extends StatelessWidget {
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Padding(
-              padding: EdgeInsets.only(left: 8, right: 8),
+              padding: const EdgeInsets.only(left: 8, right: 8),
               child: Row(
                 children: [
                   Row(
                     children: gridItems.map<Widget>((item) {
                       return Padding(
-                        padding: EdgeInsets.only(top: 10),
+                        padding: const EdgeInsets.only(top: 10),
                         child: SizedBox(
                           width: 70,
                           height: 100,
@@ -833,7 +844,6 @@ class BuildInletSource extends StatelessWidget {
                       );
                     }).toList(),
                   ),
-
                 ],
               ),
             ),
@@ -869,7 +879,7 @@ class BuildInletSource extends StatelessWidget {
             child: Stack(
               children: [
                 Padding(
-                  padding: EdgeInsets.only(left: 0),
+                  padding: const EdgeInsets.only(left: 0),
                   child: AppConstants.getAsset('source', 0, position),
                 ),
                 if (hasLevel) ...[
@@ -938,7 +948,6 @@ class BuildInletSource extends StatelessWidget {
                             ),
                           ),
                         );
-
                       },
                     ),
                   ),
@@ -1023,10 +1032,10 @@ class SensorWidget extends StatelessWidget {
                                 ),
                               ];
 
-                              return Row(
+                              return kIsWeb? Row(
                                 children: [
                                   SizedBox(
-                                    width: 450,
+                                    width: kIsWeb? 450 : 250,
                                     height: 175,
                                     child: SfCartesianChart(
                                       primaryXAxis: CategoryAxis(
@@ -1106,11 +1115,120 @@ class SensorWidget extends StatelessWidget {
                                     ),
                                   ),
                                 ],
+                              ):
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 8),
+                                    child: Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 100,
+                                          height: 100,
+                                          child: SfRadialGauge(
+                                            axes: <RadialAxis>[
+                                              RadialAxis(
+                                                minimum: 0,
+                                                maximum: sensorType=='Moisture Sensor'?200:sensorType=='Pressure Sensor'?12:100,
+                                                pointers: <GaugePointer>[
+                                                  NeedlePointer(
+                                                      value: double.parse(sensor.value),
+                                                      needleEndWidth: 3, needleColor: Colors.black54),
+                                                  RangePointer(
+                                                    value: sensorType=='Moisture Sensor'?200.0:100.0,
+                                                    width: 0.30,
+                                                    sizeUnit: GaugeSizeUnit.factor,
+                                                    color: const Color(0xFF494CA2),
+                                                    animationDuration: 1000,
+                                                    gradient: SweepGradient(
+                                                      colors: sensorType == "Water Meter" ? <Color>[
+                                                        Colors.teal.shade300,
+                                                        Colors.teal.shade400,
+                                                        Colors.teal.shade500,
+                                                        Colors.teal.shade600
+                                                      ]:
+                                                      <Color>[
+                                                        Colors.tealAccent,
+                                                        Colors.orangeAccent,
+                                                        Colors.redAccent,
+                                                        Colors.redAccent
+                                                      ],
+                                                      stops: const <double>[0.15, 0.50, 0.70, 1.00],
+                                                    ),
+                                                    enableAnimation: true,
+                                                  ),
+                                                ],
+                                                showFirstLabel: false,
+                                                annotations: <GaugeAnnotation>[
+                                                  GaugeAnnotation(
+                                                    widget: Text(
+                                                      sensor.value,
+                                                      style: const TextStyle(
+                                                          fontSize: 10, fontWeight: FontWeight.bold),
+                                                    ),
+                                                    angle: 90,
+                                                    positionFactor: 0.8,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width : MediaQuery.sizeOf(context).width-128,
+                                          height : 132,
+                                          child: TableCalendar(
+                                            focusedDay: DateTime.now(),
+                                            firstDay: DateTime.utc(2020, 1, 1),
+                                            lastDay: DateTime.utc(2030, 12, 31),
+                                            calendarFormat: CalendarFormat.week,
+                                            availableCalendarFormats: const {
+                                              CalendarFormat.week: 'Week',
+                                            },
+                                            onDaySelected: (selectedDay, focusedDay) {
+                                              print("Selected: $selectedDay");
+                                            },
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: MediaQuery.sizeOf(context).width,
+                                    height: 175,
+                                    child: SfCartesianChart(
+                                      primaryXAxis: CategoryAxis(
+                                        title: AxisTitle(
+                                          text: sensorType == 'Moisture Sensor'
+                                              ? '${sensor.name}($sensorType) - Hours'
+                                              : '${sensor.name} - Hours',
+                                          textStyle: const TextStyle(fontSize: 12),
+                                        ),
+                                        majorGridLines: const MajorGridLines(width: 0),
+                                        axisLine: const AxisLine(width: 0),
+                                        labelStyle: const TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                      primaryYAxis: const NumericAxis(
+                                        labelStyle: TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                      tooltipBehavior: TooltipBehavior(enable: true),
+                                      series: series,
+                                    ),
+                                  ),
+
+                                ],
                               );
                             },
                             direction: PopoverDirection.bottom,
-                            width: 550,
-                            height: 175,
+                            width: kIsWeb ? 550: MediaQuery.sizeOf(context).width-20,
+                            height: kIsWeb ? 175 : 310,
                             arrowHeight: 15,
                             arrowWidth: 30,
                             barrierColor: Colors.black54,
@@ -1161,7 +1279,7 @@ class SensorWidget extends StatelessWidget {
                 Image.asset(
                   imagePath,
                   width: 70,
-                  height: 70,
+                  height: 56,
                 ),
               ],
               Text(

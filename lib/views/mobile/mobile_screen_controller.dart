@@ -719,7 +719,7 @@ class MobileScreenController extends StatelessWidget {
                       else if (powerSupply == 0)
                         Container(
                           height: 30,
-                          color: Colors.red.shade800,
+                          color: Colors.red.shade300,
                           child: const Center(
                             child: Text(
                               'NO POWER SUPPLY TO CONTROLLER',
@@ -1170,7 +1170,7 @@ class AlarmButton extends StatelessWidget {
             bodyBuilder: (context) => AlarmListItems(alarm : alarmPayload, deviceID:deviceID, customerId: customerId, controllerId: controllerId,),
             onPop: () => print('Popover was popped!'),
             direction: PopoverDirection.bottom,
-            width: alarmPayload[0].isNotEmpty?400:250,
+            width: alarmPayload[0].isNotEmpty?400:150,
             height: alarmPayload[0].isNotEmpty?(alarmPayload.length*80):50,
             arrowHeight: 15,
             arrowWidth: 30,
@@ -1209,7 +1209,7 @@ class AlarmListItems extends StatelessWidget {
         }),
       ),
     ):
-    const Center(child: Text('Alarm not found'));
+    const Center(child: Text('No active alarms.', style: TextStyle(color: Colors.black54)));
 
   }
 

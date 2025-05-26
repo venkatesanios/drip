@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
 import '../../repository/repository.dart';
-import '../../services/bluetooth_manager.dart';
 import '../../services/http_service.dart';
 import '../../view_models/customer/general_setting_view_model.dart';
 
