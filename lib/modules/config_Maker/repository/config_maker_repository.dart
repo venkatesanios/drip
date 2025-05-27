@@ -12,4 +12,8 @@ class ConfigMakerRepository{
     return await httpService.postRequest('/user/configMaker/create', body);
   }
 
+  Future<http.Response> updateProduct(body) async {
+    return await httpService.putRequest('/product/update', body);
+  }
+
 }
