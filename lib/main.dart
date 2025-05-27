@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:az_notification_hub/az_notification_hub.dart';
 import 'package:bluetooth_classic/bluetooth_classic.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -60,10 +59,6 @@ FutureOr<void> main() async {
 
       // Set up Firebase background message handler
       FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-      // Start Azure Notification Hub
-      await AzureNotificationHub.instance.start();
-
     } catch (e) {
       debugPrint('Initialization error: $e');
     }
