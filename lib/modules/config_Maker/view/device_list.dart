@@ -187,51 +187,7 @@ class _DeviceListState extends State<DeviceList> {
                                       }
                                     },
                                   ),
-                                  IconButton(
-                                    icon: const Icon(Icons.edit_note_outlined,),
-                                    onPressed: (){
-                                      setState(() {
-                                        replaceDeviceId = device.deviceId;
-                                      });
-                                      showDialog(
-                                          context: context,
-                                          builder: (context){
-                                            return AlertDialog(
-                                              title: const Text('Replace Device ID'),
-                                              content: TextFormField(
-                                                initialValue: device.deviceId,
-                                                decoration: InputDecoration(
-                                                  border: OutlineInputBorder()
-                                                ),
-                                                onChanged: (value){
-                                                  setState(() {
-                                                    replaceDeviceId = value;
-                                                  });
-                                                },
-                                              ),
-                                              actions: [
-                                                CustomMaterialButton(
-                                                  title: 'Replace',
-                                                  onPressed: ()async{
-                                                    print("replaceDeviceId : $replaceDeviceId");
-                                                    print("device : ${device.toJson()}");
-                                                    Navigator.pop(context);
-                                                    loadingDialog();
-                                                    int status = await changeDeviceId(device);
-                                                    if(status == 200){
-                                                      setState(() {
-                                                        device.deviceId = replaceDeviceId;
-                                                      });
-                                                    }
-                                                    Navigator.pop(context);
-                                                  },
-                                                )
-                                              ],
-                                            );
-                                          }
-                                      );
-                                    },
-                                  ),
+                                  replaceDeviceIdWidget(masterOrNode: 2, device: device)
                                 ],
                               ),
                             ),
@@ -247,14 +203,71 @@ class _DeviceListState extends State<DeviceList> {
     );
   }
 
-  Future<int> changeDeviceId(DeviceModel device)async {
+  Widget replaceDeviceIdWidget({required int masterOrNode, DeviceModel? device}){
+    return IconButton(
+      icon: const Icon(Icons.edit_note_outlined,),
+      onPressed: (){
+        if(device != null){
+          print("device : ${device!.toJson()}");
+        }
+        setState(() {
+          replaceDeviceId = masterOrNode == 1 ? configPvd.masterData['deviceId'] : device!.deviceId;
+        });
+        showDialog(
+            context: context,
+            builder: (context){
+              return AlertDialog(
+                title: const Text('Replace Device ID'),
+                content: TextFormField(
+                  initialValue: replaceDeviceId,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder()
+                  ),
+                  onChanged: (value){
+                    setState(() {
+                      replaceDeviceId = value;
+                    });
+                  },
+                ),
+                actions: [
+                  CustomMaterialButton(
+                    title: 'Replace',
+                    onPressed: ()async{
+                      Navigator.pop(context);
+                      loadingDialog();
+                      int status = await changeDeviceId(
+                          productId: masterOrNode == 1 ? configPvd.masterData['productId'] : device!.productId,
+                          modelId: masterOrNode == 1 ? configPvd.masterData['modelId'] : device!.modelId,
+                      );
+                      if(status == 200){
+                        setState(() {
+                          if(masterOrNode == 1){
+                            configPvd.masterData['deviceId'] = replaceDeviceId;
+                          }else{
+                            device!.deviceId = replaceDeviceId;
+                          }
+                        });
+                      }
+                      Navigator.pop(context);
+                    },
+                  )
+                ],
+              );
+            }
+        );
+      },
+    );
+  }
+
+  Future<int> changeDeviceId({required int productId, required int modelId})async {
     try{
       var body = {
-        "productId": device.productId,
-        "modelId": device.modelId,
+        "productId": productId,
+        "modelId": modelId,
         "deviceId": replaceDeviceId,
         "modifyUser": configPvd.masterData['userId'],
       };
+      print("body : $body");
       var response = await ConfigMakerRepository().updateProduct(body);
       if(response.statusCode == 200){
         Map<String, dynamic> jsonData = jsonDecode(response.body);
@@ -341,7 +354,13 @@ class _DeviceListState extends State<DeviceList> {
         contentPadding: const EdgeInsets.all(0),
         leading: SizedImageMedium(imagePath: 'assets/Images/Png/${F.name.contains('oro') ? 'Oro' : 'SmartComm'}/category_${configPvd.masterData['categoryId']}.png'),
         title: Text('${configPvd.masterData['deviceName']}', style: themeData.textTheme.bodyLarge,),
-        subtitle: SelectableText('${configPvd.masterData['deviceId']}', style: themeData.textTheme.bodySmall,),
+        subtitle: Row(
+          spacing: 20,
+          children: [
+            SelectableText('${configPvd.masterData['deviceId']}', style: themeData.textTheme.bodySmall,),
+            replaceDeviceIdWidget(masterOrNode: 1)
+          ],
+        ),
         trailing: IntrinsicWidth(
           child: CustomMaterialButton(
               onPressed: (){
