@@ -76,8 +76,8 @@ android {
                 keyPassword = System.getenv("KEY_PASSWORD")
             } else {
 //                 Local development configuration (this can stay as it is)
-//                storeFile file("D:\\drip\\android\\app\\release-key.jks")
-                storeFile = file("/Users/user/Documents/drip/android/local.properties")
+                storeFile file("D:\\drip\\android\\app\\release-key.jks")
+//                storeFile = file("/Users/user/Documents/drip/android/local.properties")
                 storePassword = "Oro@321"
                 keyAlias = "upload"
                 keyPassword = "Oro@321"
