@@ -31,7 +31,7 @@ class ObjectInConstantModel{
         sNo: objectData['sNo'],
         name: objectData['name'],
         objectName: objectData['objectName'],
-        location: objectData['location'],
+        location: objectData['location'] == 0 ? 0.0 : objectData['location'],
         controllerId: objectData['controllerId'],
         connectionNo: objectData['connectionNo'],
         setting : defaultSetting.map((setting){
