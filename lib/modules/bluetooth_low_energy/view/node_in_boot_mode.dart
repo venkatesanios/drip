@@ -268,7 +268,7 @@ class _NodeInBootModeState extends State<NodeInBootMode> {
                     "Firmware updated successfully!"
                     : bleService.fileMode == FileMode.bootFail
                     ? "Firmware updated Failed!"
-                    : "Please wait firmware updating..",
+                    : "Please wait firmware updating...",
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold), textAlign: TextAlign.center,),
               if(![FileMode.bootPass.name, FileMode.bootFail.name].contains(bleService.fileMode.name))
                 const SizedBox(
