@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
  import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:oro_drip_irrigation/Constants/notifications_service.dart';
 import '../flavors.dart';
+import '../modules/crop_advisory/view/crop_advisory_screen.dart';
 import '../utils/Theme/smart_comm_theme.dart';
 import '../utils/Theme/oro_theme.dart';
 import '../utils/routes.dart';
@@ -76,6 +77,7 @@ class _MyAppState extends State<MyApp> {
 /// Helper function to navigate to the appropriate screen
 Widget navigateToInitialScreen(String route) {
   print("route:-->$route");
+  return const CropAdvisoryScreen();
   switch (route) {
     case Routes.login:
       return const LoginScreen();
