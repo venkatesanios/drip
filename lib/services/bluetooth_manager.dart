@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:bluetooth_classic/models/device.dart';
 import 'package:flutter/material.dart';
 import 'package:bluetooth_classic/bluetooth_classic.dart';
+import 'package:flutter/services.dart';
 import '../Models/customer/blu_device.dart';
 import '../StateManagement/mqtt_payload_provider.dart';
 
@@ -69,7 +71,7 @@ class BluetoothManager extends ChangeNotifier {
   }
 
   Future<void> getDevices() async {
-    _devices.clear();
+    //_devices.clear();
     notifyListeners();
 
     await _scanSubscription?.cancel();
@@ -96,13 +98,26 @@ class BluetoothManager extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _bluetoothClassicPlugin.connect(
-          customDevice.device.address,
-          "00001101-0000-1000-8000-00805f9b34fb"
+      // Optional: Disconnect any existing connection first
+      await _bluetoothClassicPlugin.stopScan();
+
+      // Optional: small delay to ensure clean disconnection
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      // Attempt to connect
+      await _bluetoothClassicPlugin
+          .connect(
+        customDevice.device.address,
+        "00001101-0000-1000-8000-00805f9b34fb",
       ).timeout(const Duration(seconds: 5));
 
       customDevice.status = BluDevice.connected;
+    } on TimeoutException {
+      debugPrint("Connection timed out.");
+      customDevice.status = BluDevice.disconnected;
+      _connectedAddress = null;
     } catch (e) {
+      debugPrint("Connection failed: $e");
       customDevice.status = BluDevice.disconnected;
       _connectedAddress = null;
     }
@@ -173,6 +188,7 @@ class BluetoothManager extends ChangeNotifier {
                 }
               }
               else{
+                print('updateReceivedPayload');
                 providerState?.updateReceivedPayload(jsonStr, true);
               }
             } catch (e) {

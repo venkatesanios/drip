@@ -485,8 +485,10 @@ class MqttPayloadProvider with ChangeNotifier {
 
       if(data['mC']=='2400'){
         print('blue live------>:$data');
+        print('${data['cD']} ${data['cT']}');
         isLiveSynced = true;
         liveDateAndTime = '${data['cD']} ${data['cT']}';
+        print('liveDateAndTimePV:$liveDateAndTime');
         wifiStrength = data['cM']['WifiStrength'];
         powerSupply = data['cM']['PowerSupply'];
         updateNodeLiveMessage(data['cM']['2401'].split(";"));

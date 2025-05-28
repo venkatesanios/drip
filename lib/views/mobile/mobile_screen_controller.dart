@@ -68,6 +68,7 @@ class MobileScreenController extends StatelessWidget {
 
           int wifiStrength = mqttProvider.wifiStrength;
           String liveDataAndTime = mqttProvider.liveDateAndTime;
+          print('liveDataAndTime:$liveDataAndTime');
           int powerSupply = mqttProvider.powerSupply;
           var currentSchedule = mqttProvider.currentSchedule;
           bool isLiveSynced = mqttProvider.isLiveSynced;
@@ -77,8 +78,7 @@ class MobileScreenController extends StatelessWidget {
 
           if (liveDataAndTime.isNotEmpty) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              vm.updateLivePayload(
-                  wifiStrength, liveDataAndTime, currentSchedule, iLineLiveMessage);
+              vm.updateLivePayload(wifiStrength, liveDataAndTime, currentSchedule, iLineLiveMessage);
             });
           }
 
