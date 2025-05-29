@@ -115,20 +115,10 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
       appBar: AppBar(
         title: Column(
           children: [
-            Text('${widget.nodeData['deviceName']}',style: TextStyle(fontSize: 16),),
-            Text('${widget.nodeData['deviceId']}',style: TextStyle(fontSize: 14),),
+            Text('${widget.nodeData['deviceName']}',style: const TextStyle(fontSize: 16),),
+            Text('${widget.nodeData['deviceId']}',style: const TextStyle(fontSize: 14),),
           ],
         ),
-        actions: [
-          FilledButton(
-              onPressed: (){
-                bleService.onDisconnect();
-              },
-              child: Text('DisConnect')
-          ),
-          Text(bleService.connectionState(), style: TextStyle(color: Colors.white),),
-          const SizedBox(width: 20,)
-        ],
       ),
       body: Center(
         child: FutureBuilder<int>(
@@ -228,7 +218,7 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
         const SizedBox(height: 12),
         Text(
           widget.nodeData['deviceName'],
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 18,
             color: Colors.black,
           ),
@@ -285,7 +275,7 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
           spacing: 20,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircleAvatar(
+            const CircleAvatar(
               backgroundColor: Colors.green,
                 child: Icon(Icons.check, color: Colors.white,)
             ),
@@ -347,8 +337,11 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('Click to Not connect device', style: TextStyle(fontSize: 16)),
-        SizedBox(height: 30,),
+        Image.asset(
+          'assets/Images/Png/bluetooth_connecting.png',
+          height: 300,
+        ),
+        const SizedBox(height: 24),
         ElevatedButton(
             onPressed: (){
               bleService.autoConnect();

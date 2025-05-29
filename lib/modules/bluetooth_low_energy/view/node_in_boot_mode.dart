@@ -123,8 +123,14 @@ class _NodeInBootModeState extends State<NodeInBootMode> {
     );
   }
 
-  num getPercent(){
-    return ((bleService.currentLine/bleService.totalNoOfLines)*100).round();
+  num getPercent() {
+    if (bleService.totalNoOfLines == 0) return 0;
+
+    double result = (bleService.currentLine / bleService.totalNoOfLines) * 100;
+
+    if (result.isNaN || result.isInfinite) return 0;
+
+    return result.round();
   }
 
   Widget sendButton(){
@@ -268,7 +274,7 @@ class _NodeInBootModeState extends State<NodeInBootMode> {
                     "Firmware updated successfully!"
                     : bleService.fileMode == FileMode.bootFail
                     ? "Firmware updated Failed!"
-                    : "Please wait firmware updating...",
+                    : "Please wait firmware is updating...",
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold), textAlign: TextAlign.center,),
               if(![FileMode.bootPass.name, FileMode.bootFail.name].contains(bleService.fileMode.name))
                 const SizedBox(

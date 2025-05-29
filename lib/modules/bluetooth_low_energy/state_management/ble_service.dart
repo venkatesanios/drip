@@ -258,6 +258,12 @@ class BleProvider extends ChangeNotifier {
           //     success: false);
         }
         _isDiscoveringServices = false;
+      }else if(state == BluetoothConnectionState.disconnected && bleNodeState != BleNodeState.connecting){
+        print("state ::: $state");
+        print("bleNodeState.name ::: ${bleNodeState.name}");
+        clearBluetoothDeviceState();
+        bleNodeState = BleNodeState.disConnected;
+        notifyListeners();
       }
       if (state == BluetoothConnectionState.connected && _rssi == null) {
         _rssi = await device!.readRssi();
@@ -605,15 +611,16 @@ class BleProvider extends ChangeNotifier {
   }
 
   void requestingMacUntilBootModeToApp()async{
-    for(var waitLoop = 0;waitLoop < 15;waitLoop++){
-      if(nodeDataFromHw['BOOT'] == '30'){
-        break;
-      }
-      await Future.delayed(const Duration(seconds: 2));
-      requestingMac();
-      print("userShouldWaitForBootModeToApp seconds : ${waitLoop + 1}");
-      print("nodeDataFromHw : ${nodeDataFromHw}");
-    }
+    onDisconnect();
+    // for(var waitLoop = 0;waitLoop < 15;waitLoop++){
+    //   if(nodeDataFromHw['BOOT'] == '30'){
+    //     break;
+    //   }
+    //   await Future.delayed(const Duration(seconds: 2));
+    //   requestingMac();
+    //   print("userShouldWaitForBootModeToApp seconds : ${waitLoop + 1}");
+    //   print("nodeDataFromHw : ${nodeDataFromHw}");
+    // }
   }
 
   Future onConnect() async {
@@ -646,8 +653,10 @@ class BleProvider extends ChangeNotifier {
     try {
       await device!.disconnectAndUpdateStream();
       clearBluetoothDeviceState();
-
-      // Snackbar.show(ABC.c, "Disconnect: Success", success: true);
+      bleNodeState = BleNodeState.disConnected;
+      notifyListeners();
+      // Snackbar.show(ABC.c, "Disconne
+      // ct: Success", success: true);
     } catch (e, backtrace) {
       // Snackbar.show(ABC.c, prettyException("Disconnect Error:", e), success: false);
       print("$e backtrace: $backtrace");
