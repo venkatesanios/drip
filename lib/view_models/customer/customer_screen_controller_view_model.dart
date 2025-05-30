@@ -144,13 +144,16 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void siteOnChanged(String siteName) {
+  Future<void> siteOnChanged(String siteName) async{
     int index = mySiteList.data.indexWhere((site) => site.groupName == siteName);
     if (index != -1) {
       sIndex = index;
       fromWhere = 'site';
       updateSite(index, 0, 0);
     }
+    isChanged = false;
+    await Future.delayed(const Duration(seconds: 1));
+    isChanged = true;
   }
 
   Future<void> masterOnChanged(int index) async {
