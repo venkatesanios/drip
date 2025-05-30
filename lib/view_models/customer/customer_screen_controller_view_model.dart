@@ -85,10 +85,11 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     });
   }
 
-  void _subscribeToTopic() {
+  void _subscribeToTopic() async{
+    await Future.delayed(Duration(seconds: 1));
+    final deviceId = mySiteList.data[sIndex].master[mIndex].deviceId;
+    await mqttService.topicToSubscribe('${AppConstants.subscribeTopic}/$deviceId');
     Future.delayed(const Duration(seconds: 2), () {
-      final deviceId = mySiteList.data[sIndex].master[mIndex].deviceId;
-      mqttService.topicToSubscribe('${AppConstants.subscribeTopic}/$deviceId');
       onRefreshClicked();
     });
   }
@@ -153,13 +154,11 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   }
 
   Future<void> masterOnChanged(int index) async {
-    if (mySiteList.data[sIndex].master.length > 1) {
-      mIndex = index;
-      lIndex = 0;
-      fromWhere = 'master';
-      updateMaster(sIndex, index, lIndex);
-      _subscribeToTopic();
-    }
+    mIndex = index;
+    lIndex = 0;
+    fromWhere = 'master';
+    updateMaster(sIndex, index, lIndex);
+
     isChanged = false;
     await Future.delayed(const Duration(seconds: 1));
     isChanged = true;
@@ -189,7 +188,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     if (mySiteList.data[sIdx].master[mIdx].categoryId == 1) {
       updateMasterLine(sIdx, mIdx, lIdx);
     }
-
+    _subscribeToTopic();
     notifyListeners();
   }
 
@@ -240,6 +239,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
         ? jsonEncode({"3000": {"3001": ""}})
         : jsonEncode({"sentSms": "#live"});
 
+    print("live request sent :: $payload");
     mqttProvider.liveSyncCall(true);
 
     final result = await context.read<CommunicationService>().sendCommand(

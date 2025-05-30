@@ -781,7 +781,9 @@ class MqttPayloadProvider with ChangeNotifier {
 
   void updateMQTTConnectionState(MQTTConnectionState state) {
     _appConnectionState = state;
-    notifyListeners();
+    Future.delayed(Duration.zero, () {
+      notifyListeners();
+    });
   }
 
    String? getPumpOnOffStatus(String sNo) => _pumpOnOffStatusMap[sNo];

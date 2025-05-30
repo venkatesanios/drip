@@ -141,7 +141,7 @@ class MqttService {
     }
   }
 
-  void topicToSubscribe(String topic) {
+  Future<void> topicToSubscribe(String topic) async{
     if (currentTopic != null && currentTopic != topic) {
       _client?.unsubscribe(currentTopic!);
     }
@@ -174,6 +174,7 @@ class MqttService {
       final payloadMessage = jsonDecode(payload);
       acknowledgementPayload = payloadMessage;
 
+      print("payloadMessage :: ${payloadMessage['mC']}");
       switch (payloadMessage['mC']) {
         case 'SMS':
           preferenceAck = payloadMessage;
