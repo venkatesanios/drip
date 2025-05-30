@@ -57,6 +57,8 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+
+    print('Flavor is: ${F.appFlavor}');
     bool isDarkMode = false;
     return FutureBuilder<String>(
       future: getInitialRoute(),
