@@ -272,26 +272,70 @@ class CurrentProgram extends StatelessWidget {
 
   Widget buildScheduleRow(BuildContext context, List<String> values) {
     final programName = getProgramNameById(int.parse(values[0]));
-    return SizedBox(
-      width: MediaQuery.sizeOf(context).width,
-      height: 143,
-      child: Padding(
-        padding: const EdgeInsets.only(left: 8),
-        child: Column(
-          children: [
-            SizedBox(
-              width: MediaQuery.sizeOf(context).width,
-              height: 35,
-              child: Row(
+    return Card(
+      color: Colors.white,
+      child: SizedBox(
+        width: MediaQuery.sizeOf(context).width,
+        height: 143,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 8),
+          child: Column(
+            children: [
+              SizedBox(
+                width: MediaQuery.sizeOf(context).width,
+                height: 35,
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(left: 3),
+                      child: SizedBox(
+                        width: 105,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Name & Method',
+                              style: TextStyle(
+                                color: Colors.black45,
+                                fontWeight: FontWeight.w200,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(':'),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('$programName - ${scheduledPrograms[0].selectedSchedule}'),
+                          Text(getContentByCode(int.parse(values[17])), style: const TextStyle(fontSize: 11, color: Colors.black54),),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Row(
                 children: [
                   const Padding(
                     padding: EdgeInsets.only(left: 3),
                     child: SizedBox(
-                      width: 110,
+                      width: 105,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Name & Method', style: TextStyle(color: Colors.black45)),
+                          Text('Current Zone', style: TextStyle(color: Colors.black45)),
+                          SizedBox(height: 2),
                         ],
                       ),
                     ),
@@ -302,6 +346,7 @@ class CurrentProgram extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(':'),
+                        SizedBox(height: 2),
                       ],
                     ),
                   ),
@@ -309,150 +354,114 @@ class CurrentProgram extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('$programName - ${scheduledPrograms[0].selectedSchedule}'),
-                        Text(getContentByCode(int.parse(values[17])), style: const TextStyle(fontSize: 11, color: Colors.black54),),
+                        Text(programName == 'StandAlone - Manual' ? '--' :
+                        getSequenceName(int.parse(values[0]), values[1]) ?? '--',),
+                        const SizedBox(height: 3),
                       ],
                     ),
                   )
                 ],
               ),
-            ),
-            Row(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(left: 3),
-                  child: SizedBox(
-                    width: 110,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Current Zone', style: TextStyle(color: Colors.black45)),
-                        SizedBox(height: 2),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  width: 10,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(':'),
-                      SizedBox(height: 2),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(programName == 'StandAlone - Manual' ? '--' :
-                      getSequenceName(int.parse(values[0]), values[1]) ?? '--',),
-                      const SizedBox(height: 3),
-                    ],
-                  ),
-                )
-              ],
-            ),
-            Row(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(left: 3),
-                  child: SizedBox(
-                    width: 110,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Started at', style: TextStyle(color: Colors.black45)),
-                        SizedBox(height: 2),
-                        Text('Current Zone', style: TextStyle(color: Colors.black45)),
-                        SizedBox(height: 2),
-                        Text('Rtc & Cyclic', style: TextStyle(color: Colors.black45)),
-                        SizedBox(height: 2),
-                        Text('Set Value', style: TextStyle(color: Colors.black45)),
-                        SizedBox(height: 2),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  width: 10,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(':'),
-                      SizedBox(height: 2),
-                      Text(':'),
-                      SizedBox(height: 2),
-                      Text(':'),
-                      SizedBox(height: 2),
-                      Text(':'),
-                      SizedBox(height: 2),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Row(
-                    children: [
-                      Column(
+              Row(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(left: 3),
+                    child: SizedBox(
+                      width: 105,
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(convert24HourTo12Hour(values[11])),
-                          const SizedBox(height: 2),
-                          Text('${values[10]} of ${values[9]}'),
-                          const SizedBox(height: 1),
-                          Text('${formatRtcValues(values[6], values[5])} - ${formatRtcValues(values[8], values[7])}'),
-                          const SizedBox(height: 3),
-                          Text(programName == 'StandAlone - Manual' && (values[3] == '00:00:00' || values[3] == '0')
-                              ? 'Timeless'
-                              : values[3]),
-                          const SizedBox(height: 2),
+                          Text('Started at', style: TextStyle(color: Colors.black45)),
+                          SizedBox(height: 2),
+                          Text('Current Zone', style: TextStyle(color: Colors.black45)),
+                          SizedBox(height: 2),
+                          Text('Rtc & Cyclic', style: TextStyle(color: Colors.black45)),
+                          SizedBox(height: 2),
+                          Text('Set Value', style: TextStyle(color: Colors.black45)),
+                          SizedBox(height: 2),
                         ],
                       ),
-                      SizedBox(
-                        width: 225,
-                        child: Row(
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(':'),
+                        SizedBox(height: 2),
+                        Text(':'),
+                        SizedBox(height: 2),
+                        Text(':'),
+                        SizedBox(height: 2),
+                        Text(':'),
+                        SizedBox(height: 2),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Spacer(),
-                            Container(
-                              width: 1,
-                              height: 70,
-                              color: Colors.black12,
-                            ),
-                            const Spacer(),
-                            Column(
-                              children: [
-                                const Text('Remaining', style: TextStyle(color: Colors.black45)),
-                                Padding(
-                                  padding: const EdgeInsets.only(top:2, bottom: 5),
-                                  child: Container(
-                                    width: 75,
-                                    height: 1,
-                                    color: Colors.black12,
-                                  ),
-                                ),
-                                Center(child: Text(
-                                  getProgramNameById(int.parse(values[0])) == 'StandAlone - Manual' &&
-                                      (values[3] == '00:00:00' || values[3] == '0')
-                                      ? '----'
-                                      : values[4],
-                                  style: const TextStyle(fontSize: 20),
-                                )),
-                              ],
-                            ),
-                            const Spacer(),
-                            buildActionButton(context, values),
-                            const Spacer(),
+                            Text(convert24HourTo12Hour(values[11])),
+                            const SizedBox(height: 2),
+                            Text('${values[10]} of ${values[9]}'),
+                            const SizedBox(height: 1),
+                            Text('${formatRtcValues(values[6], values[5])} - ${formatRtcValues(values[8], values[7])}'),
+                            const SizedBox(height: 3),
+                            Text(programName == 'StandAlone - Manual' && (values[3] == '00:00:00' || values[3] == '0')
+                                ? 'Timeless'
+                                : values[3]),
+                            const SizedBox(height: 2),
                           ],
                         ),
-                      ),
-                    ],
+                        SizedBox(
+                          width: 225,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Spacer(),
+                              Container(
+                                width: 1,
+                                height: 70,
+                                color: Colors.black12,
+                              ),
+                              const Spacer(),
+                              Column(
+                                children: [
+                                  const Text('Remaining', style: TextStyle(color: Colors.black45)),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top:2, bottom: 5),
+                                    child: Container(
+                                      width: 75,
+                                      height: 1,
+                                      color: Colors.black12,
+                                    ),
+                                  ),
+                                  Center(child: Text(
+                                    getProgramNameById(int.parse(values[0])) == 'StandAlone - Manual' &&
+                                        (values[3] == '00:00:00' || values[3] == '0')
+                                        ? '----'
+                                        : values[4],
+                                    style: const TextStyle(fontSize: 20),
+                                  )),
+                                ],
+                              ),
+                              const Spacer(),
+                              buildActionButton(context, values),
+                              const Spacer(),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

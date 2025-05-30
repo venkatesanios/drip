@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/selection_screen.dart';
 
 Color primaryDark = const Color(0xFF004265);
 Color primary = const Color(0xFF004265);
@@ -50,7 +51,7 @@ class SmartCommTheme {
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
           if (states.contains(WidgetState.selected)) {
-            return primary;
+            return primaryLight;
           }
           return primaryLight.withOpacity(0.1);
         },

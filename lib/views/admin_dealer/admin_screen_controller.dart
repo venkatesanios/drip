@@ -22,7 +22,7 @@ class _AdminScreenControllerState extends State<AdminScreenController> {
 
   int selectedIndex = 0;
   int hoveredIndex = -1;
-  final List<String> menuTitles = ['Dashboard', 'All Products', 'Stock'];
+  final List<String> menuTitles = ['Dashboard', 'Products', 'Stock'];
 
   @override
   Widget build(BuildContext context) {
@@ -43,48 +43,60 @@ class _AdminScreenControllerState extends State<AdminScreenController> {
                   fit: BoxFit.fitWidth,
                 ),
               ),
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: List.generate(menuTitles.length, (index) {
-                  final isSelected = selectedIndex == index;
-                  final isHovered = hoveredIndex == index;
+              title: Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: List.generate(menuTitles.length, (index) {
+                    final isSelected = selectedIndex == index;
+                    final isHovered = hoveredIndex == index;
 
-                  return Padding(
-                    padding: const EdgeInsets.only(left: 8, right: 8),
-                    child: MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      onEnter: (_) => setState(() => hoveredIndex = index),
-                      onExit: (_) => setState(() => hoveredIndex = -1),
-                      child: InkWell(
-                        onTap: () {
-                          setState(() {
-                            selectedIndex = index;
-                          });
-                        },
-                        borderRadius: BorderRadius.circular(4),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? Colors.teal
-                                : isHovered
-                                ? Colors.white24
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-                          child: Text(
-                            menuTitles[index],
-                            style: TextStyle(
-                              color: isSelected ? Colors.white : Colors.white70,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                              fontSize: 16,
+                    return Padding(
+                      padding: const EdgeInsets.only(left: 5, right: 5),
+                      child: MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: InkWell(
+                          onTap: () {
+                            setState(() {
+                              selectedIndex = index;
+                            });
+                          },
+                          borderRadius: BorderRadius.circular(4),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? F.appFlavor!.name.contains('oro') ? Colors.teal:
+                                    Theme.of(context).primaryColorLight
+                                  : isHovered
+                                  ? Colors.white24
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  index==0?Icons.dashboard_outlined:index==1? Icons.format_list_numbered:Icons.playlist_add_circle_outlined,
+                                  size: 18,
+                                  color: isSelected?Colors.white:Colors.white54,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  menuTitles[index],
+                                  style: TextStyle(
+                                    color: isSelected ? Colors.white : Colors.white70,
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  );
-                }),
+                    );
+                  }),
+                ),
               ),
               actions: <Widget>[
                 Container(
@@ -101,18 +113,19 @@ class _AdminScreenControllerState extends State<AdminScreenController> {
                       IconButton(
                         icon: Icon(Icons.search),
                         onPressed: () {},
-                        padding: EdgeInsets.zero, // Optional: removes default padding
+                        padding: EdgeInsets.all(4), // Optional: removes default padding
                         constraints: BoxConstraints(), // Optional: tightens layout
                       ),
                       IconButton(
                         icon: Icon(Icons.filter_alt_outlined),
                         onPressed: () {},
-                        padding: EdgeInsets.zero,
+                        padding: EdgeInsets.all(4),
                         constraints: BoxConstraints(),
                       ),
                     ],
                   ),
                 ),
+                SizedBox(width: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [

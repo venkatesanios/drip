@@ -1872,7 +1872,8 @@ class AlarmButton extends StatelessWidget {
           );
         },
         icon: Icons.notifications_none,
-        badgeNumber: alarmPayload[0].isNotEmpty? alarmPayload.length:0,
+        badgeNumber: (alarmPayload.isNotEmpty && alarmPayload[0].isNotEmpty) ?
+        alarmPayload.length : 0,
       ),
     );
   }

@@ -50,7 +50,7 @@ class OroTheme {
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
           if (states.contains(WidgetState.selected)) {
-            return primary;
+            return primaryLight;
           }
           return primaryLight.withOpacity(0.1);
         },

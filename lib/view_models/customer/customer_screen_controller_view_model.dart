@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:provider/provider.dart';
 import '../../Models/customer/site_model.dart';
@@ -67,7 +68,9 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   void _initializeMqttConnection() {
     mqttService.initializeMQTTClient(state: mqttProvider);
     mqttService.connect();
-    blueService.initializeBluService(state: mqttProvider);
+    if(!kIsWeb){
+      blueService.initializeBluService(state: mqttProvider);
+    }
 
     mqttSubscription = mqttService.mqttConnectionStream.listen((state) {
       switch (state) {
