@@ -42,4 +42,12 @@ class Formatters {
     return timeRegex.hasMatch(input);
   }
 
+  String formatRtcValues(dynamic value1, dynamic value2) {
+    if (value1 == 0 && value2 == 0) {
+      return '--';
+    } else {
+      return '${value1.toString()}/${value2.toString()}';
+    }
+  }
+
 }
