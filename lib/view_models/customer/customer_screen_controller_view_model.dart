@@ -102,6 +102,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     try {
       final response = await repository.fetchAllMySite({"userId": customerId});
       if (response.statusCode == 200) {
+        print(response.body);
         final jsonData = jsonDecode(response.body);
         if (jsonData["code"] == 200) {
           mySiteList = SiteModel.fromJson(jsonData);
