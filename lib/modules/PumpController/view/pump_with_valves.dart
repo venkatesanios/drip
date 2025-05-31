@@ -206,7 +206,7 @@ class PumpWithValves extends StatelessWidget {
                               return InkWell(
                                 onTap: () => _showDetails(i, valveContext),
                                 child: Image.asset(
-                                  'assets/png/valve_gray.png',
+                                  'assets/png/independent_valve_gray.png',
                                   height: 40,
                                   color: valveItem.status == '1'
                                       ? Colors.greenAccent

@@ -40,12 +40,12 @@ class _BounceEffectButtonState extends State<BounceEffectButton> with SingleTick
   }
 
   void _handleTap() {
-    // if (widget.onTap != null) {
+    if (widget.onTap != null) {
       _controller.forward().then((_) {
         _controller.reverse();
         widget.onTap!();
       });
-    // }
+    }
   }
 
   @override

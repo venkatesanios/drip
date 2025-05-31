@@ -8,18 +8,18 @@ import '../repository/repository.dart';
 import '../utils/constants.dart';
 import '../utils/network_utils.dart';
 import '../utils/shared_preferences_helper.dart';
-import 'bluetooth_manager.dart';
+import 'bluetooth_sevice.dart';
 import 'http_service.dart';
 import 'mqtt_service.dart';
 
 class CommunicationService {
   final MqttService mqttService;
-  final BluetoothManager? bluetoothManager;
+  final BluService blueService;
   final CustomerProvider customerProvider;
 
   CommunicationService({
     required this.mqttService,
-    required this.bluetoothManager,
+    required this.blueService,
     required this.customerProvider,
   });
 
@@ -57,9 +57,9 @@ class CommunicationService {
           }
         }
       }else{
-        if (bluetoothManager?.isConnected == true) {
+        if (blueService.isConnected == true) {
           try {
-            bluetoothManager?.write(payload);
+            blueService.write(payload);
             result['bluetooth'] = true;
           } catch (e) {
             debugPrint('Failed to send via Bluetooth: $e');

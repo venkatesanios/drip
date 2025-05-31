@@ -9,10 +9,20 @@ import '../../view_models/nav_rail_view_model.dart';
 import '../account_settings.dart';
 import 'admin_dashboard.dart';
 
-class AdminScreenController extends StatelessWidget {
+class AdminScreenController extends StatefulWidget {
   const AdminScreenController({super.key, required this.userId, required this.userName, required this.mobileNo, required this.emailId});
   final int userId;
   final String userName, mobileNo, emailId;
+
+  @override
+  State<AdminScreenController> createState() => _AdminScreenControllerState();
+}
+
+class _AdminScreenControllerState extends State<AdminScreenController> {
+
+  int selectedIndex = 0;
+  int hoveredIndex = -1;
+  final List<String> menuTitles = ['Dashboard', 'Products', 'Stock'];
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +33,162 @@ class AdminScreenController extends StatelessWidget {
           return Scaffold(
             backgroundColor: Colors.white,
             appBar: AppBar(
+              leading: Padding(
+                padding: const EdgeInsets.only(left: 15),
+                child: Image.asset(
+                  width: F.appFlavor!.name.contains('oro') ? 75:150,
+                  F.appFlavor!.name.contains('oro')
+                      ? "assets/png/oro_logo_white.png"
+                      : "assets/png/company_logo.png",
+                  fit: BoxFit.fitWidth,
+                ),
+              ),
+              title: Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: List.generate(menuTitles.length, (index) {
+                    final isSelected = selectedIndex == index;
+                    final isHovered = hoveredIndex == index;
+
+                    return Padding(
+                      padding: const EdgeInsets.only(left: 5, right: 5),
+                      child: MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: InkWell(
+                          onTap: () {
+                            setState(() {
+                              selectedIndex = index;
+                            });
+                          },
+                          borderRadius: BorderRadius.circular(4),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? F.appFlavor!.name.contains('oro') ? Colors.teal:
+                                    Theme.of(context).primaryColorLight
+                                  : isHovered
+                                  ? Colors.white24
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  index==0?Icons.dashboard_outlined:index==1? Icons.format_list_numbered:Icons.playlist_add_circle_outlined,
+                                  size: 18,
+                                  color: isSelected?Colors.white:Colors.white54,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  menuTitles[index],
+                                  style: TextStyle(
+                                    color: isSelected ? Colors.white : Colors.white70,
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ),
+              actions: <Widget>[
+                Container(
+                  width: 350,
+                  height: 40,
+                  padding: const EdgeInsets.symmetric(horizontal: 3),
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Row(
+                    children: [
+                      SearchFieldWithResults(),
+                      IconButton(
+                        icon: Icon(Icons.filter_alt_outlined),
+                        onPressed: () {},
+                        padding: EdgeInsets.all(4), // Optional: removes default padding
+                        constraints: BoxConstraints(), // Optional: tightens layout
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 5),
+                Container(
+                  width: 40,
+                  height: 40,
+                  padding: const EdgeInsets.symmetric(horizontal: 3),
+                  decoration: BoxDecoration(
+                    color: Colors.black12,
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.refresh_outlined),
+                        onPressed: () {},
+                        padding: EdgeInsets.all(4),
+                        constraints: BoxConstraints(),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    F.appFlavor!.name.contains('oro') ?
+                    const SizedBox():
+                    Image.asset(
+                      width: 140,
+                      "assets/png/lk_logo_white.png",
+                      fit: BoxFit.fitWidth,
+                    ),
+                    const SizedBox(width: 10),
+                    Container(
+                      width: 200,
+                      height: 36,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          bottomLeft: Radius.circular(20),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const SizedBox(width: 2),
+                          const CircleAvatar(
+                            radius: 18,
+                            backgroundImage: AssetImage("assets/png/user_thumbnail.png"),
+                          ),
+                          const SizedBox(width: 5),
+                          //Text(userName, style: const TextStyle(fontWeight: FontWeight.bold))
+                        ],
+                      ),
+                    ),
+                  ],),
+              ],
+              centerTitle: false,
+              elevation: 10,
+              leadingWidth: F.appFlavor!.name.contains('oro') ? 75:110,
+            ),
+            /*body: IndexedStack(
+              index: selectedIndex,
+              children: const [
+                Center(child: Text('Home Page')),
+                Center(child: Text('Product List')),
+                Center(child: Text('Stock Page')),
+              ],
+            ),*/
+            /*appBar: AppBar(
               title: Image.asset(
                 width: F.appFlavor!.name.contains('oro')?70:110,
                 F.appFlavor!.name.contains('oro')
@@ -64,19 +230,36 @@ class AdminScreenController extends StatelessWidget {
                         ],
                       ),
                     )
-                    /*Text(viewModel.userName!, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                    *//*Text(viewModel.userName!, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
                     const SizedBox(width: 08),
                     const CircleAvatar(
                       radius: 23,
                       backgroundImage: AssetImage("assets/png/user_thumbnail.png"),
-                    ),*/
+                    ),*//*
                   ],),
               ],
+            ),*/
+
+            body: IndexedStack(
+              index: selectedIndex,
+              children:  [
+                AdminDashboard(
+                  userId: widget.userId,
+                  userName: widget.userName, mobileNo: widget.mobileNo,
+                ),
+                ProductInventory(
+                  userId: widget.userId,
+                  userName: widget.userName,
+                  userRole: UserRole.admin,
+                ),
+                ProductEntry(userId: widget.userId),
+              ],
             ),
-            body: Row(
+           /* body: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                NavigationRail(
+                 const Card(elevation: 10),
+                *//*NavigationRail(
                   selectedIndex: viewModel.selectedIndex,
                   labelType: NavigationRailLabelType.all,
                   elevation: 5,
@@ -101,12 +284,12 @@ class AdminScreenController extends StatelessWidget {
                     viewModel.onDestinationSelectingChange(index);
                   },
                   destinations: getNavigationDestinations(),
-                ),
+                ),*//*
                 Expanded(
-                  child: mainMenu(viewModel.selectedIndex, userId, userName),
+                  child: mainMenu(viewModel.selectedIndex, widget.userId, widget.userName),
                 ),
               ],
-            ),
+            ),*/
           );
         },
       ),
@@ -151,7 +334,7 @@ class AdminScreenController extends StatelessWidget {
       case 0:
         return AdminDashboard(
           userId: userId,
-          userName: userName, mobileNo: mobileNo,
+          userName: userName, mobileNo: widget.mobileNo,
         );
       case 1:
         return ProductInventory(
@@ -162,11 +345,81 @@ class AdminScreenController extends StatelessWidget {
       case 2:
         return ProductEntry(userId: userId);
       case 3:
-        return AccountSettings(userId: userId, userName: userName, mobileNo: mobileNo, emailId: emailId, customerId: userId);
+        return AccountSettings(userId: userId, userName: userName, mobileNo: widget.mobileNo, emailId: widget.emailId, customerId: userId);
       case 4:
         return ServiceRequestAdmin(userId: userId,);
        default:
         return const SizedBox();
     }
+  }
+}
+
+class SearchFieldWithResults extends StatefulWidget {
+  const SearchFieldWithResults({super.key});
+
+  @override
+  _SearchFieldWithResultsState createState() => _SearchFieldWithResultsState();
+}
+
+class _SearchFieldWithResultsState extends State<SearchFieldWithResults> {
+  final TextEditingController _controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
+  bool _showResults = false;
+  List<String> allItems = ['Device 001', 'Person A', 'Device 002', 'Person B'];
+  List<String> filteredItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    _focusNode.addListener(() {
+      setState(() {
+        _showResults = _focusNode.hasFocus;
+      });
+    });
+  }
+
+  void _filterResults(String query) {
+    setState(() {
+      filteredItems = allItems
+          .where((item) => item.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    });
+  }
+
+  void _onItemSelected(String value) {
+    _controller.text = value;
+    setState(() {
+      _showResults = false;
+    });
+    FocusScope.of(context).unfocus(); // hide keyboard
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 300,
+      child: TextField(
+        controller: _controller,
+        focusNode: _focusNode,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          prefixIcon: const Icon(Icons.search, color: Colors.white54),
+          suffixIcon: _controller.text.isNotEmpty
+              ? IconButton(
+            icon: const Icon(Icons.clear, color: Colors.redAccent),
+            onPressed: () {
+              _controller.clear();
+              _filterResults('');
+            },
+          )
+              : null,
+          hintText: 'Search by device id / person',
+          hintStyle: const TextStyle(color: Colors.white24),
+          border: InputBorder.none,
+        ),
+        onChanged: _filterResults,
+      ),
+    );
   }
 }

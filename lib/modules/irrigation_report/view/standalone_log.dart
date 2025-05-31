@@ -28,18 +28,18 @@ class _StandaloneLogState extends State<StandaloneLog> {
   late LinkedScrollControllerGroup _scrollable2;
   late ScrollController _horizontalScroll1;
   late ScrollController _horizontalScroll2;
-  List<String> standaloneColumn = ['Program','Method','Start Time','Zone Name','Others'];
+  List<String> standaloneColumn = ['Program','Method','Start Time','Zone Name','Device Id','Others'];
   String _selectedDate = '';
   DateRange? selectedDateRange;
   DateRange? lastSelectedDateRange;
   List<dynamic> parameters = [
-    'Date','ProgramCategory','SequenceData','ScheduledStartTime','S_No','ZoneName','IrrigationMethod'
+    'Date','ProgramCategory','SequenceData','ScheduledStartTime','S_No','ZoneName','IrrigationMethod','MacAddress'
   ];
   dynamic standaloneData = {
     'fixedColumnData' : [],
     'standaloneColumnData' : []
   };
-  dynamic nameData = {};
+  List<dynamic> configObject = [];
   int httpError = 0;
   int noOfRowsPerPage = 20;
   int totalPages = 0;
@@ -56,7 +56,7 @@ class _StandaloneLogState extends State<StandaloneLog> {
     _scrollable2 = LinkedScrollControllerGroup();
     _horizontalScroll1 = _scrollable2.addAndGet();
     _horizontalScroll2 = _scrollable2.addAndGet();
-    // getUserName();
+    getUserName();
     getStandaloneData();
 
     super.initState();
@@ -67,28 +67,22 @@ class _StandaloneLogState extends State<StandaloneLog> {
   }
 
 
-  // void getUserName()async{
-  //   var overAllPvd = Provider.of<OverAllUse>(context,listen: false);
-  //   HttpService service = HttpService();
-  //   try{
-  //     var response = await service.postRequest('getUserName', {'userId' : overAllPvd.userId,'controllerId' : overAllPvd.controllerId});
-  //     var jsonData = jsonDecode(response.body);
-  //     for(var nameType in jsonData['data']){
-  //       for(var name in nameType['userName']){
-  //         nameData['${name['sNo']}'] = name['name'];
-  //       }
-  //     }
-  //     setState(() {
-  //       httpError = 0;
-  //     });
-  //   }catch(e,stackTrace){
-  //     setState(() {
-  //       httpError = 1;
-  //     });
-  //     print('error in name = > ${e.toString()}');
-  //     print('error in name stackTrace= > $stackTrace');
-  //   }
-  // }
+  void getUserName()async{
+    try{
+      var body = {
+        "userId": widget.userData['userId'],
+        "controllerId": widget.userData['controllerId'],
+      };
+      var response = await IrrigationRepository().getUserNames(body);
+      Map<String, dynamic> configData = jsonDecode(response.body);
+      print("jsonData : ${configData}");
+      configObject = configData['data']['configObject'];
+
+    }catch(e,stackTrace){
+      print('error in name = > ${e.toString()}');
+      print('error in name stackTrace= > $stackTrace');
+    }
+  }
 
   void getStandaloneData()async{
     print('data request to the server.............');
@@ -142,10 +136,15 @@ class _StandaloneLogState extends State<StandaloneLog> {
             list.add(method == 1 ? 'Time' : method == 2 ? 'Flow' : 'TimeLess');
             list.add(standaloneDataFromHttp[date]['standalone']['ScheduledStartTime'][schedule]);
             list.add(standaloneDataFromHttp[date]['standalone']['ZoneName'][schedule]);
+            list.add(standaloneDataFromHttp[date]['standalone']['MacAddress'][schedule]);
             var valveName = '';
             for(var valve in standaloneDataFromHttp[date]['standalone']['SequenceData'][schedule].split('_')){
               valveName += valveName.isNotEmpty ? '__' : '';
-              valveName += '${nameData[valve] ?? valve}';
+              var objectData = configObject.firstWhere(
+                    (element) => element['sNo'].toString() == valve,
+                orElse: () => null,
+              );
+              valveName += '${objectData != null ? objectData['name'] : valve}';
             }
             list.add(valveName);
             standaloneData['standaloneColumnData'].add(list);
@@ -216,7 +215,7 @@ class _StandaloneLogState extends State<StandaloneLog> {
                                           color: Color(0xffDCF3DD),
                                           padding: const EdgeInsets.only(left: 8),
                                           width: 100,
-                                          height: 60,
+                                          height: 70,
                                           alignment: Alignment.center,
                                           child: Text('${standaloneData['fixedColumnData'][i]}'),
                                         ),
@@ -297,7 +296,7 @@ class _StandaloneLogState extends State<StandaloneLog> {
                                                   children: [
                                                     SizedBox(
                                                       width: 0,
-                                                      height: 60,
+                                                      height: 70,
                                                       child: CustomPaint(
                                                         painter: VerticalDotBorder(),
                                                         size: Size(10,50),
@@ -306,14 +305,14 @@ class _StandaloneLogState extends State<StandaloneLog> {
                                                     for(var j = 0;j < standaloneData['standaloneColumnData'][i].length;j++)
                                                       Container(
                                                         padding: const EdgeInsets.only(left: 8),
-                                                        width: j == 4 ? 1000 : 100,
-                                                        height: 60,
+                                                        width: j == 5 ? 1000 : 100,
+                                                        height: 70,
                                                         alignment: Alignment.centerLeft,
                                                         child: Text('${standaloneData['standaloneColumnData'][i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),),
                                                       ),
                                                     SizedBox(
                                                       width: 0,
-                                                      height: 60,
+                                                      height: 70,
                                                       child: CustomPaint(
                                                         painter: VerticalDotBorder(),
                                                         size: Size(0,50),

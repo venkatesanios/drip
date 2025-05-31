@@ -49,6 +49,7 @@ class AdminDashboard extends StatelessWidget {
                         SizedBox(
                           height: 350,
                           child: Card(
+                            color: Colors.white,
                             child: Padding(
                               padding: const EdgeInsets.all(3.0),
                               child: Column(

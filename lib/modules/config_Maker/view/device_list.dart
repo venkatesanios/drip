@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
@@ -6,6 +8,7 @@ import '../../../Constants/communication_codes.dart';
 import '../../../Constants/dialog_boxes.dart';
 import '../../../Constants/properties.dart';
 import '../model/device_model.dart';
+import '../repository/config_maker_repository.dart';
 import '../state_management/config_maker_provider.dart';
 import '../../../Widgets/custom_buttons.dart';
 import '../../../Widgets/custom_drop_down_button.dart';
@@ -29,6 +32,7 @@ class _DeviceListState extends State<DeviceList> {
   bool selectAllNode = false;
   late ThemeData themeData;
   late bool themeMode;
+  String replaceDeviceId = '';
 
   @override
   void initState() {
@@ -53,7 +57,7 @@ class _DeviceListState extends State<DeviceList> {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: SizedBox(
-          width: screenWidth > 500 ? 880 : screenWidth,
+          width: screenWidth > 500 ? 950 : screenWidth,
           child: Column(
             children: [
               masterBox(
@@ -62,7 +66,7 @@ class _DeviceListState extends State<DeviceList> {
               const SizedBox(height: 20,),
               Expanded(
                 child: DataTable2(
-                    minWidth: 950,
+                    minWidth: 1000,
                     headingRowColor: WidgetStatePropertyAll(themeData.colorScheme.onBackground),
                     dataRowColor: const WidgetStatePropertyAll(Colors.white),
                     fixedLeftColumns: 2,
@@ -88,9 +92,10 @@ class _DeviceListState extends State<DeviceList> {
                         label: Text('INTERVAL', style: themeData.textTheme.headlineLarge,),
                       ),
                       const DataColumn2(
-                        fixedWidth: 100,
+                        fixedWidth: 150,
                         label: Text(''),
                       ),
+
                     ],
                     rows: widget.listOfDevices
                         .where((node) => node.masterId == configPvd.masterData['controllerId'])
@@ -148,37 +153,42 @@ class _DeviceListState extends State<DeviceList> {
                               ),
                             ),
                             DataCell(
-                              IconButton(
-                                icon: const Icon(Icons.delete, color: Colors.red,),
-                                onPressed: (){
-                                  bool configured = configPvd.listOfGeneratedObject.any((object) => object.controllerId == device.controllerId);
-                                  int valveCount = configPvd.listOfGeneratedObject.where((object) => object.objectId == AppConstants.valveObjectId).length;
-                                  int moistureCount = configPvd.listOfGeneratedObject.where((object) => object.objectId == AppConstants.moistureObjectId).length;
+                              Row(
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.delete, color: Colors.red,),
+                                    onPressed: (){
+                                      bool configured = configPvd.listOfGeneratedObject.any((object) => object.controllerId == device.controllerId);
+                                      int valveCount = configPvd.listOfGeneratedObject.where((object) => object.objectId == AppConstants.valveObjectId).length;
+                                      int moistureCount = configPvd.listOfGeneratedObject.where((object) => object.objectId == AppConstants.moistureObjectId).length;
 
-                                  if(configured){
-                                    simpleDialogBox(context: context, title: 'Alert', message: '${device.deviceName} cannot be removed. Please detach all connected objects first.');
-                                  }else if(
-                                      AppConstants.pumpWithValveModelList.contains(configPvd.masterData['modelId'])
-                                      &&
-                                      ((AppConstants.senseModelList.contains(device.modelId) && moistureCount != 0) || (![...AppConstants.pumpWithValveModelList, ...AppConstants.senseModelList].contains(device.modelId) && valveCount > 2))){
-                                    if(AppConstants.senseModelList.contains(device.modelId) && moistureCount != 0){
-                                      simpleDialogBox(context: context, title: 'Alert', message: '${device.deviceName} cannot be removed. Because Moisture connected to ${device.deviceName}.');
-                                    }else if(valveCount > 2){
-                                      simpleDialogBox(context: context, title: 'Alert', message: '${device.deviceName} cannot be removed. Because valve connected to ${device.deviceName}');
-                                    }
-                                  }else{
-                                    setState(() {
-                                      device.masterId = null;
-                                      if(device.categoryId == 10){
-                                        for(var d in configPvd.listOfDeviceModel){
-                                          if(d.extendControllerId!= null && d.extendControllerId == device.masterId){
-                                            d.extendControllerId = null;
-                                          }
+                                      if(configured){
+                                        simpleDialogBox(context: context, title: 'Alert', message: '${device.deviceName} cannot be removed. Please detach all connected objects first.');
+                                      }else if(
+                                          AppConstants.pumpWithValveModelList.contains(configPvd.masterData['modelId'])
+                                          &&
+                                          ((AppConstants.senseModelList.contains(device.modelId) && moistureCount != 0) || (![...AppConstants.pumpWithValveModelList, ...AppConstants.senseModelList].contains(device.modelId) && valveCount > 2))){
+                                        if(AppConstants.senseModelList.contains(device.modelId) && moistureCount != 0){
+                                          simpleDialogBox(context: context, title: 'Alert', message: '${device.deviceName} cannot be removed. Because Moisture connected to ${device.deviceName}.');
+                                        }else if(valveCount > 2){
+                                          simpleDialogBox(context: context, title: 'Alert', message: '${device.deviceName} cannot be removed. Because valve connected to ${device.deviceName}');
                                         }
+                                      }else{
+                                        setState(() {
+                                          device.masterId = null;
+                                          if(device.categoryId == 10){
+                                            for(var d in configPvd.listOfDeviceModel){
+                                              if(d.extendControllerId!= null && d.extendControllerId == device.masterId){
+                                                d.extendControllerId = null;
+                                              }
+                                            }
+                                          }
+                                        });
                                       }
-                                    });
-                                  }
-                                },
+                                    },
+                                  ),
+                                  replaceDeviceIdWidget(masterOrNode: 2, device: device)
+                                ],
                               ),
                             ),
                           ]
@@ -192,6 +202,117 @@ class _DeviceListState extends State<DeviceList> {
       ),
     );
   }
+
+  Widget replaceDeviceIdWidget({required int masterOrNode, DeviceModel? device}){
+    return IconButton(
+      icon: const Icon(Icons.edit_note_outlined,),
+      onPressed: (){
+        if(device != null){
+          print("device : ${device!.toJson()}");
+        }
+        setState(() {
+          replaceDeviceId = masterOrNode == 1 ? configPvd.masterData['deviceId'] : device!.deviceId;
+        });
+        showDialog(
+            context: context,
+            builder: (context){
+              return AlertDialog(
+                title: const Text('Replace Device ID'),
+                content: TextFormField(
+                  initialValue: replaceDeviceId,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder()
+                  ),
+                  onChanged: (value){
+                    setState(() {
+                      replaceDeviceId = value;
+                    });
+                  },
+                ),
+                actions: [
+                  CustomMaterialButton(
+                    title: 'Replace',
+                    onPressed: ()async{
+                      Navigator.pop(context);
+                      loadingDialog();
+                      int status = await changeDeviceId(
+                          productId: masterOrNode == 1 ? configPvd.masterData['productId'] : device!.productId,
+                          modelId: masterOrNode == 1 ? configPvd.masterData['modelId'] : device!.modelId,
+                      );
+                      if(status == 200){
+                        setState(() {
+                          if(masterOrNode == 1){
+                            configPvd.masterData['deviceId'] = replaceDeviceId;
+                          }else{
+                            device!.deviceId = replaceDeviceId;
+                          }
+                        });
+                      }
+                      Navigator.pop(context);
+                    },
+                  )
+                ],
+              );
+            }
+        );
+      },
+    );
+  }
+
+  Future<int> changeDeviceId({required int productId, required int modelId})async {
+    try{
+      var body = {
+        "productId": productId,
+        "modelId": modelId,
+        "deviceId": replaceDeviceId,
+        "modifyUser": configPvd.masterData['userId'],
+      };
+      print("body : $body");
+      var response = await ConfigMakerRepository().updateProduct(body);
+      if(response.statusCode == 200){
+        Map<String, dynamic> jsonData = jsonDecode(response.body);
+        print("jsonData : $jsonData");
+        String message = jsonData['message'];
+        Navigator.pop(context);
+        simpleDialogBox(context: context, title: jsonData['code'] == 200 ? 'Success' : 'Failed', message: message);
+        return jsonData['code'];
+      }else{
+        simpleDialogBox(context: context, title: 'Failed', message: 'Product not updated..');
+        return 404;
+      }
+    }catch (e, stackTrace){
+      simpleDialogBox(context: context, title: 'Failed', message: e.toString());
+      print('Error on converting to device model :: $e');
+      print('stackTrace on converting to device model :: $stackTrace');
+      return 404;
+    }
+  }
+
+  void loadingDialog(){
+    showDialog(
+        context: context,
+        builder: (context){
+          return PopScope(
+            canPop: false,
+            child: const AlertDialog(
+              content: Row(
+                spacing: 20,
+                children: [
+                  SizedBox(
+                    width: 30,
+                      height: 30,
+                      child: CircularProgressIndicator()
+                  ),
+                  Text('Please wait...')
+                ],
+              ),
+            ),
+          );
+        }
+    );
+  }
+
+
 
   String getInitialExtendValue(int? extendControllerId){
     String value;
@@ -233,7 +354,13 @@ class _DeviceListState extends State<DeviceList> {
         contentPadding: const EdgeInsets.all(0),
         leading: SizedImageMedium(imagePath: 'assets/Images/Png/${F.name.contains('oro') ? 'Oro' : 'SmartComm'}/category_${configPvd.masterData['categoryId']}.png'),
         title: Text('${configPvd.masterData['deviceName']}', style: themeData.textTheme.bodyLarge,),
-        subtitle: SelectableText('${configPvd.masterData['deviceId']}', style: themeData.textTheme.bodySmall,),
+        subtitle: Row(
+          spacing: 20,
+          children: [
+            SelectableText('${configPvd.masterData['deviceId']}', style: themeData.textTheme.bodySmall,),
+            replaceDeviceIdWidget(masterOrNode: 1)
+          ],
+        ),
         trailing: IntrinsicWidth(
           child: CustomMaterialButton(
               onPressed: (){

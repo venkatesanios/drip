@@ -1,45 +1,45 @@
-name: Build & Deploy to Play Store
-
-on:
-  push:
-    branches: [main]  # or your release branch
-    tags:
-      - '*'
-jobs:
-  build:
-    name: Build & Release AAB (oroProduction)
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: 3.27.3
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Decode keystore
-        run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/release-key.jks
-
-      - name: Create key.properties
-        run: |
-          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
-          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
-          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
-          echo "storeFile=release-key.jks" >> android/key.properties
-
-      - name: Build AAB (oroProduction flavor)
-        run: flutter build appbundle --flavor oroProduction -t lib/main_oroProduction.dart
-
-      - name: Upload to Play Store (Internal testing)
-        uses: r0adkll/upload-google-play@v1
-        with:
-          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_JSON }}
-          packageName: com.example.oro_drip_irrigation
-          releaseFiles: build/app/outputs/bundle/oroProductionRelease/app-oroProduction-release.aab
-          track: internal
+#name: Build & Deploy to Play Store
+#
+#on:
+#  push:
+#    branches: [main]  # or your release branch
+#    tags:
+#      - '*'
+#jobs:
+#  build:
+#    name: Build & Release AAB (oroProduction)
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#
+#      - name: Set up Flutter
+#        uses: subosito/flutter-action@v2
+#        with:
+#          flutter-version: 3.27.3
+#
+#      - name: Install dependencies
+#        run: flutter pub get
+#
+#      - name: Decode keystore
+#        run: |
+#          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/release-key.jks
+#
+#      - name: Create key.properties
+#        run: |
+#          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
+#          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+#          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+#          echo "storeFile=release-key.jks" >> android/key.properties
+#
+#      - name: Build AAB (oroProduction flavor)
+#        run: flutter build appbundle --flavor oroProduction -t lib/main_oroProduction.dart
+#
+#      - name: Upload to Play Store (Internal testing)
+#        uses: r0adkll/upload-google-play@v1
+#        with:
+#          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_JSON }}
+#          packageName: com.example.oro_drip_irrigation
+#          releaseFiles: build/app/outputs/bundle/oroProductionRelease/app-oroProduction-release.aab
+#          track: internal

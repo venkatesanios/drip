@@ -33,7 +33,7 @@ class OroTheme {
         ),
       ),
     ),
-    dialogTheme: DialogTheme(
+    dialogTheme: DialogThemeData(
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(0)
       ),
@@ -50,7 +50,7 @@ class OroTheme {
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
           if (states.contains(WidgetState.selected)) {
-            return primary;
+            return primaryLight;
           }
           return primaryLight.withOpacity(0.1);
         },
@@ -100,7 +100,7 @@ class OroTheme {
       bodyMedium: GoogleFonts.roboto(fontSize: 13, color: Colors.black, fontWeight: FontWeight.bold),
       bodySmall: GoogleFonts.roboto(fontSize: 12, color: Colors.black, fontWeight: FontWeight.bold),
     ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: Colors.grey[100],
       shadowColor: Colors.black,
       surfaceTintColor: Colors.teal[200],
@@ -145,7 +145,7 @@ class OroTheme {
         color: Colors.white,
       ),
     ),
-    tabBarTheme: const TabBarTheme(
+    tabBarTheme: const TabBarThemeData(
       indicatorColor: Colors.white70,
       labelColor: Colors.white70,
       unselectedLabelColor: Colors.white54,
@@ -174,7 +174,7 @@ class OroTheme {
       ),
     ),
     dialogBackgroundColor: Colors.white,
-    dialogTheme: DialogTheme(
+    dialogTheme: DialogThemeData(
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(0)
       ),
@@ -234,7 +234,7 @@ class OroTheme {
       bodyMedium: GoogleFonts.roboto(fontSize: 13, color: Colors.black, fontWeight: FontWeight.bold),
       bodySmall: GoogleFonts.roboto(fontSize: 12, color: Colors.black, fontWeight: FontWeight.bold),
     ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: Colors.white24,
       shadowColor: Colors.black,
       surfaceTintColor: Colors.teal[200],

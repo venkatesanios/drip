@@ -41,8 +41,9 @@ class ProductInventory extends StatelessWidget {
               child: Column(
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
+                      TextButton(onPressed: (){}, child: Text('Add Item')),
                       viewModel.totalProduct > 25 ?Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [

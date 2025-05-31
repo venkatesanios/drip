@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:mqtt_client/mqtt_browser_client.dart';
-import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
+import 'package:mqtt_client/mqtt_server_client.dart' if (dart.library.html) 'package:mqtt_client/mqtt_browser_client.dart';import 'package:mqtt_client/mqtt_client.dart';
 import 'package:oro_drip_irrigation/utils/environment.dart';
 import 'package:uuid/uuid.dart';
 import '../Constants/constants.dart';
@@ -129,7 +129,19 @@ class MqttService {
     }
   }
 
-  void topicToSubscribe(String topic) {
+  Future<void> disConnect() async {
+    assert(_client != null);
+    if (isConnected) {
+      try {
+        _client!.disconnect();
+      } catch (e, stackTrace) {
+        debugPrint('MQTT Disconnect Exception: $e');
+        debugPrint('$stackTrace');
+      }
+    }
+  }
+
+  Future<void> topicToSubscribe(String topic) async{
     if (currentTopic != null && currentTopic != topic) {
       _client?.unsubscribe(currentTopic!);
     }
@@ -162,6 +174,7 @@ class MqttService {
       final payloadMessage = jsonDecode(payload);
       acknowledgementPayload = payloadMessage;
 
+      print("payloadMessage :: ${payloadMessage['mC']}");
       switch (payloadMessage['mC']) {
         case 'SMS':
           preferenceAck = payloadMessage;

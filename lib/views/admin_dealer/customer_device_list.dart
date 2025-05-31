@@ -495,6 +495,7 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
                                                             "userId": widget.userId,
                                                             "customerId": widget.customerId,
                                                             "controllerId": masterData.controllerId,
+                                                            "productId": masterData.productId,
                                                             "deviceId": masterData.deviceId,
                                                             "deviceName": masterData.deviceName,
                                                             "categoryId": masterData.categoryId,
