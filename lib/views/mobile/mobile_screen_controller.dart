@@ -81,6 +81,22 @@ class MobileScreenController extends StatelessWidget {
               ),
               actions: [
                 if(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId != 2)...[
+                  Consumer<CustomerScreenControllerViewModel>(
+                    builder: (context, vm, child) {
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          vm.programRunning
+                              ? CircleAvatar(
+                            radius: 15,
+                            backgroundImage: const AssetImage('assets/gif/water_drop_ani.gif'),
+                            backgroundColor: Colors.blue.shade100,
+                          )
+                              : const SizedBox(),
+                        ],
+                      );
+                    },
+                  ),
                   AlarmButton(alarmPayload: vm.alarmDL, deviceID: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
                       customerId: customerId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId),
                 ],

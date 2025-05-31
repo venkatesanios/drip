@@ -245,13 +245,9 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
         ? jsonEncode({"3000": {"3001": ""}})
         : jsonEncode({"sentSms": "#live"});
 
-    print("live request sent :: $payload");
     mqttProvider.liveSyncCall(true);
 
-    final result = await context.read<CommunicationService>().sendCommand(
-      serverMsg: '',
-      payload: payload,
-    );
+    final result = await context.read<CommunicationService>().sendCommand(serverMsg: '', payload: payload,);
 
     if (result['http'] == true) debugPrint("Payload sent to Server");
     if (result['mqtt'] == true) debugPrint("Payload sent to MQTT Box");

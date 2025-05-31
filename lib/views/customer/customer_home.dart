@@ -106,7 +106,7 @@ class CustomerHome extends StatelessWidget {
                           ),
                           const Spacer(),
                           MaterialButton(
-                            color: line.linePauseFlag==0? Colors.orangeAccent : Colors.green,
+                            color: line.linePauseFlag==0? Colors.amber : Colors.green,
                             textColor: Colors.black87,
                             onPressed: () async {
                               String payLoadFinal = jsonEncode({
@@ -230,7 +230,7 @@ class CustomerHome extends StatelessWidget {
                               ),
                               const Spacer(),
                               MaterialButton(
-                                color: line.linePauseFlag==0? Colors.orangeAccent : Colors.green,
+                                color: line.linePauseFlag==0? Colors.amber : Colors.green,
                                 textColor: Colors.black87,
                                 onPressed: () async {
                                   String payLoadFinal = jsonEncode({
@@ -253,7 +253,7 @@ class CustomerHome extends StatelessWidget {
                                 child: Text(
                                   line.linePauseFlag==0?'PAUSE THE LINE':
                                   'RESUME THE LINE',
-                                  style: const TextStyle(color: Colors.white),
+                                  style: const TextStyle(color: Colors.black),
                                 ),
                               ),
                               const SizedBox(width: 5)
