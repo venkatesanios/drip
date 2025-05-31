@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/PumpController/state_management/pump_controller_provider.dart';
@@ -9,10 +10,12 @@ import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'Screens/Constant/ConstantPageProvider/changeNotifier_constantProvider.dart';
 import 'app/app.dart';
 import 'StateManagement/customer_provider.dart';
 import 'firebase_options.dart';
+import 'flavors.dart';
 import 'modules/IrrigationProgram/state_management/irrigation_program_provider.dart';
 import 'modules/Preferences/state_management/preference_provider.dart';
 import 'modules/SystemDefinitions/state_management/system_definition_provider.dart';
@@ -33,14 +36,18 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 FutureOr<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if(!kIsWeb){
+  F.appFlavor = Flavor.oroProduction;
+  if (!kIsWeb) {
     try {
       // Initialize Firebase
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
 
-      // Request notification permissions
+      // Set background handler
+      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+      // Request permission
       FirebaseMessaging messaging = FirebaseMessaging.instance;
       await messaging.requestPermission(
         alert: true,
@@ -48,25 +55,103 @@ FutureOr<void> main() async {
         sound: true,
       );
 
+      // Print FCM token
+      String? token = await messaging.getToken();
+      print("🔑 FCM Token: $token");
+
+      if (token != null) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('deviceToken', token);
+        debugPrint('FCM Token: $token');
+      }
+
+      // Setup Android notification channel
+      const AndroidNotificationChannel channel = AndroidNotificationChannel(
+        'high_importance_channel',
+        'High Importance Notifications',
+        description: 'This channel is used for important notifications.',
+        importance: Importance.high,
+      );
+
+      final AndroidFlutterLocalNotificationsPlugin? androidPlatform =
+      flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+
+      await androidPlatform?.createNotificationChannel(channel);
+
       // Initialize local notifications
       const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('@mipmap/ic_launcher');
-      final InitializationSettings initializationSettings = InitializationSettings(
-        android: initializationSettingsAndroid,
+
+      // Add iOS initialization settings
+      const DarwinInitializationSettings initializationSettingsIOS =
+      DarwinInitializationSettings(
+        requestAlertPermission: true,
+        requestBadgePermission: true,
+        requestSoundPermission: true,
       );
+
+      // Combine Android and iOS settings
+      const InitializationSettings initializationSettings = InitializationSettings(
+        android: initializationSettingsAndroid,
+        iOS: initializationSettingsIOS,
+      );
+
+      // Initialize the local notifications plugin
       await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
-      // Set up Firebase background message handler
-      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-    } catch (e) {
-      debugPrint('Initialization error: $e');
+      // Foreground message handler
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        print("📩 Foreground message: ${message.messageId}");
+
+        RemoteNotification? notification = message.notification;
+        AndroidNotification? android = message.notification?.android;
+        AppleNotification? apple = message.notification?.apple;
+
+        if (notification != null) {
+          if (android != null && !kIsWeb && Platform.isAndroid) {
+            flutterLocalNotificationsPlugin.show(
+              notification.hashCode,
+              notification.title,
+              notification.body,
+              NotificationDetails(
+                android: AndroidNotificationDetails(
+                  channel.id,
+                  channel.name,
+                  channelDescription: channel.description,
+                  importance: Importance.high,
+                  priority: Priority.high,
+                  icon: '@mipmap/ic_launcher',
+                ),
+              ),
+            );
+          } else if (apple != null && !kIsWeb && Platform.isIOS) {
+            flutterLocalNotificationsPlugin.show(
+              notification.hashCode,
+              notification.title,
+              notification.body,
+              const NotificationDetails(
+                iOS: DarwinNotificationDetails(
+                  presentAlert: true,
+                  presentBadge: true,
+                  presentSound: true,
+                ),
+              ),
+            );
+          }
+        }
+      });
+
+      // Notification opened handler
+      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+        print("🚀 Notification caused app to open: ${message.messageId}");
+        // Navigate to specific screen here if needed
+      });
+    } catch (e, stacktrace) {
+      debugPrint("🔥 Firebase initialization error: $e");
+      debugPrint("🔥 Firebase stacktrace error: $stacktrace");
     }
   }
-
-
-
-  /*final mqttService = MqttService();
-  final myMqtt = MqttPayloadProvider();*/
 
   runApp(
     MultiProvider(
@@ -91,7 +176,6 @@ FutureOr<void> main() async {
             );
           },
         ),
-
       ],
       child: const MyApp(),
     ),
