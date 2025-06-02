@@ -137,6 +137,8 @@ class AppConstants {
   static String mqttUrl = Environment.mqttWebUrl;
   static int mqttWebPort = Environment.mqttWebPort;
   static int mqttMobilePort = Environment.mqttMobilePort;
+  static String mqttUserName = Environment.mqttUserName;
+  static String mqttPassword = Environment.mqttPassword;
 
   static String publishTopic = Environment.mqttPublishTopic;
   static String subscribeTopic = Environment.mqttSubscribeTopic;
