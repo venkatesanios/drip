@@ -19,9 +19,13 @@ class UserSettingViewModel extends ChangeNotifier {
   final TextEditingController controllerMblNo = TextEditingController();
   final TextEditingController controllerUsrName = TextEditingController();
   final TextEditingController controllerEmail = TextEditingController();
-  final TextEditingController controllerPwd = TextEditingController();
+
+  final TextEditingController controllerOldPwd = TextEditingController();
+  final TextEditingController controllerNewPwd = TextEditingController();
+  final TextEditingController controllerConfirmPwd = TextEditingController();
 
   final formKey = GlobalKey<FormState>();
+  final formSKey = GlobalKey<FormState>();
 
   UserSettingViewModel(this.repository, this.userName, this.mobileNo, this.emailId) {
     _setupInitialValues();
@@ -30,7 +34,6 @@ class UserSettingViewModel extends ChangeNotifier {
   void _setupInitialValues() {
     controllerUsrName.text = userName;
     controllerEmail.text = emailId;
-    controllerPwd.text = '123456';
     countryCode = getCountryCode(mobileNo);
     String phoneWithoutCountryCode = removeCountryCode(mobileNo);
     controllerMblNo.text = phoneWithoutCountryCode;
@@ -77,7 +80,7 @@ class UserSettingViewModel extends ChangeNotifier {
   {
     if (formKey.currentState!.validate()) {
       final body = {"userId": customerId, "userName": controllerUsrName.text, "countryCode": countryCode, "mobileNumber": controllerMblNo.text,
-        "emailAddress": controllerEmail.text,"password": controllerPwd.text, "modifyUser": userId};
+        "emailAddress": controllerEmail.text, "modifyUser": userId};
       setLoading(true);
       try {
         var response = await repository.updateUserDetails(body);
@@ -107,7 +110,9 @@ class UserSettingViewModel extends ChangeNotifier {
     controllerMblNo.dispose();
     controllerUsrName.dispose();
     controllerEmail.dispose();
-    controllerPwd.dispose();
+    controllerOldPwd.dispose();
+    controllerNewPwd.dispose();
+    controllerConfirmPwd.dispose();
     super.dispose();
   }
 

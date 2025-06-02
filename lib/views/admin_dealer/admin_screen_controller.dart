@@ -190,9 +190,20 @@ class _AdminScreenControllerState extends State<AdminScreenController> {
                               ],
                             ).then((value) async {
                               if (value == 'profile') {
+                                showModalBottomSheet(
+                                  context: context,
+                                  elevation: 10,
+                                  isScrollControlled: true,
+                                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5))),
+                                  builder: (BuildContext context) {
+                                    return AccountSettings(userId: widget.userId, userName: widget.userName,
+                                        mobileNo: widget.mobileNo, emailId: widget.emailId, customerId: widget.userId);
+                                  },
+                                );
                               } else if (value == 'logout') {
                                 await viewModel.logout(context);
                               }
+                              //AccountSettings(userId: userId, userName: userName, mobileNo: widget.mobileNo, emailId: widget.emailId, customerId: userId)
                             });
                           },
                           child: Container(

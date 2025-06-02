@@ -84,6 +84,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
         case MqttConnectionState.disconnected:
         default:
           debugPrint("MQTT Disconnected Callback");
+          mqttService.connect();
       }
     });
   }
