@@ -39,6 +39,7 @@ class _InterfaceSettingState extends State<InterfaceSetting> {
     bleService = Provider.of<BleProvider>(context, listen: false);
     // TODO: implement initState
     super.initState();
+    bleService.onRefresh();
     frequencyFocus.addListener(() {
       if(frequencyFocus.hasFocus == false){
         var value = double.parse(bleService.frequency.text == '' ? '0' : bleService.frequency.text);
@@ -68,25 +69,35 @@ class _InterfaceSettingState extends State<InterfaceSetting> {
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    frequencyFocus.dispose();
+    spreadingFactorFocus.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Interface Setting'),
       ),
-      body: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            SvgPicture.asset(
-              'assets/Images/Svg/SmartComm/interface_setting.svg',
-              height: 150,
-            ),
-            loraSetting()
-
-          ],
+      body: RefreshIndicator(
+        onRefresh: bleService.onRefresh,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              SvgPicture.asset(
+                'assets/Images/Svg/SmartComm/interface_setting.svg',
+                height: 150,
+              ),
+              loraSetting()
+            ],
+          ),
         ),
       ),
     );
@@ -175,6 +186,7 @@ class _InterfaceSettingState extends State<InterfaceSetting> {
                     print('crc : ${sumOfAscii % 256}');
                     print('payload : ${payload}');
                     bleService.sendDataToHw(listOfBytes);
+                    loadingDialog();
                   },
                   icon: const Icon(Icons.send, color: Colors.white,),
                   label: const Text("Submit", style: TextStyle(color: Colors.white),),
@@ -192,5 +204,29 @@ class _InterfaceSettingState extends State<InterfaceSetting> {
         ),
       ),
     );
+  }
+
+  void loadingDialog()async{
+    showDialog(
+        barrierDismissible: false,
+        context: context, builder: (context){
+      return const PopScope(
+        canPop: false,
+        child: AlertDialog(
+          content: Row(
+            spacing: 20,
+            children: [
+              CircularProgressIndicator(),
+              Text('Please wait...')
+            ],
+          ),
+        ),
+      );
+    }
+    );
+    await Future.delayed(Duration(seconds: 2), (){
+      Navigator.pop(context);
+    });
+    simpleDialogBox(context: context, title: 'Success', message: 'Interface Setting Sent Successfully...');
   }
 }

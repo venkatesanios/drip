@@ -101,6 +101,9 @@ class BleProvider extends ChangeNotifier {
   ScrollController traceScrollController = ScrollController();
   TextEditingController frequency = TextEditingController();
   TextEditingController spreadFactor = TextEditingController();
+  TextEditingController ip = TextEditingController();
+  TextEditingController name = TextEditingController();
+  TextEditingController password = TextEditingController();
 
 
 
