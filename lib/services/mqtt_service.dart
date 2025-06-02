@@ -57,6 +57,8 @@ class MqttService {
   final BehaviorSubject<PumpControllerData?> _pumpDashboardPayloadController = BehaviorSubject<PumpControllerData?>();
   Stream<PumpControllerData?> get pumpDashboardPayloadStream => _pumpDashboardPayloadController.stream;
 
+  StreamSubscription? _subscription;
+
   set pumpDashboardPayload(PumpControllerData? newPayload) {
     if (newPayload != null) {
       _pumpDashboardPayload = newPayload;
@@ -107,7 +109,7 @@ class MqttService {
           .withClientIdentifier(uniqueId)
           .withWillTopic('will-topic')
           .withWillMessage('My Will message')
-          .authenticateAs('imsmqtt', '2L9((WonMr')
+          .authenticateAs(AppConstants.mqttUserName, AppConstants.mqttPassword)
           .startClean()
           .withWillQos(MqttQos.atLeastOnce);
 
@@ -141,27 +143,34 @@ class MqttService {
     }
   }
 
-  Future<void> topicToSubscribe(String topic) async{
-    if (currentTopic != null && currentTopic != topic) {
-      _client?.unsubscribe(currentTopic!);
-    }
+  Future<void> topicToSubscribe(String topic) async {
+    try {
+      if (currentTopic != null && currentTopic != topic) {
+        _client?.unsubscribe(currentTopic!);
+      }
+      await _subscription?.cancel();
+      await Future.delayed(const Duration(milliseconds: 1000));
 
-    _client!.updates?.listen(null).cancel();
-
-    Future.delayed(const Duration(milliseconds: 1000), () {
-      _client!.subscribe(topic, MqttQos.atLeastOnce);
+      _client?.subscribe(topic, MqttQos.atLeastOnce);
       currentTopic = topic;
-    });
 
-    _client!.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
-      final MqttPublishMessage recMess = c![0].payload as MqttPublishMessage;
-      final String pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-      onMqttPayloadReceived(pt);
-    });
+      _subscription = _client?.updates?.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
+        if (c != null && c.isNotEmpty) {
+          final MqttPublishMessage recMess = c[0].payload as MqttPublishMessage;
+          final String pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+          onMqttPayloadReceived(pt);
+        }
+      });
+    } catch (e, stacktrace) {
+      print('MQTT subscribe error: $e\n$stacktrace');
+    }
   }
 
   void topicToUnSubscribe(String topic) {
-    if (currentTopic != null) {
+    if (_client == null) return;
+    _subscription?.cancel();
+    _subscription = null;
+    if (currentTopic != null && currentTopic == topic) {
       _client!.unsubscribe(currentTopic!);
       currentTopic = null;
     } else {

@@ -106,11 +106,7 @@ class ConstantProvider extends ChangeNotifier{
       print("configMakerData : ${jsonEncode(configMakerData)}");
       constantDataFromHttp = constantData['data'];
       userData = userDataAndMasterData;
-      configObjectDataFromHttp = (configMakerData['data']['configObject'] as List<dynamic>).where((object) => object['controllerId'] != null || [
-        AppConstants.filterSiteObjectId,
-        AppConstants.fertilizerSiteObjectId,
-        AppConstants.irrigationLineObjectId,
-      ].contains(object['objectId'])).toList();
+      configObjectDataFromHttp = configMakerData['data']['configObject'];
 
       Map<String, dynamic> defaultData = constantDataFromHttp['default'];
       deviceList = defaultData['nodeList'];
@@ -161,6 +157,7 @@ class ConstantProvider extends ChangeNotifier{
       List<dynamic> listOfIrrigationLineObject = [];
 
       for (var object in configObjectDataFromHttp) {
+        print("objectId : ${object['objectId']} == ${object['name']}");
         if(object['objectId'] == AppConstants.pumpObjectId){
           listOfPumpObject.add(object);
         }else if(object['objectId'] == AppConstants.filterSiteObjectId){
@@ -245,6 +242,7 @@ class ConstantProvider extends ChangeNotifier{
 
 
       //update pump
+      print("listOfPumpObject : $listOfPumpObject");
       defaultPumpSetting = generateDefaultSetting(defaultData: defaultData, keyName: 'pump');
       pump = generateObjectInConstantModel(listOfObject: listOfPumpObject, defaultData: defaultData, constantOldData: constantOldData, keyName: 'pump');
       if (kDebugMode) {

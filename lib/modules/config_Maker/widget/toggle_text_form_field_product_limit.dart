@@ -218,6 +218,9 @@ class _ToggleTextFormFieldForProductLimitState extends State<ToggleTextFormField
         visible = false;
       }
     }
+    if(widget.object.objectId == AppConstants.pumpObjectId && AppConstants.ecoGemModelList.contains(widget.configPvd.masterData['modelId'])){
+      visible = true;
+    }
     return visible;
   }
 

@@ -13,6 +13,8 @@ class Environment {
       'subscribeTopic': 'FirmwareToApp',
       'mqttWebPort': 9001,
       'mqttMobilePort': 1883,
+      "mqttUserName" : '',
+      "mqttPassword" : '',
     },
     'smartComm' : {
       'apiUrl': 'http://52.172.214.208:5000/api/v1',
@@ -26,6 +28,8 @@ class Environment {
       'sftpIpAddress': '54.179.114.89',
       'sftpPort': 22,
       'privateKeyPath': 'assets/ssh/smartComm/id_rsa',
+      "mqttUserName" : 'imsmqtt',
+      "mqttPassword" : '2L9((WonMr',
     },
     'oroProduction': {
       'apiUrl': 'http://13.235.254.21:5000/api/v1',
@@ -36,6 +40,8 @@ class Environment {
       'subscribeTopic': 'FirmwareToOroApp',
       'mqttWebPort': 8083,
       'mqttMobilePort': 1883,
+      "mqttUserName" : '',
+      "mqttPassword" : '',
     },
   };
 
@@ -47,6 +53,8 @@ class Environment {
 
   static int get mqttWebPort => config[F.name]?['mqttWebPort'] ?? 0;
   static int get mqttMobilePort => config[F.name]?['mqttMobilePort'] ?? 0;
+  static String get mqttUserName => config[F.name]?['mqttUserName'] ?? 0;
+  static String get mqttPassword => config[F.name]?['mqttPassword'] ?? 0;
 
   static String get mqttSubscribeTopic => config[F.name]?['subscribeTopic'] ?? '';
   static String get mqttPublishTopic => config[F.name]?['publishTopic'] ?? '';

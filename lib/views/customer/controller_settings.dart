@@ -105,11 +105,11 @@ class ControllerSettings extends StatelessWidget {
                 ),
                 title: Text(
                   title,
-                  style: Theme.of(context).listTileTheme.titleTextStyle,
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Text(
                   getSubTitle(title),
-                  style: const TextStyle(color: Colors.black45, fontSize: 12),
+                  style: TextStyle(color: Colors.black45),
                 ),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: () => _navigateToScreen(context, title),

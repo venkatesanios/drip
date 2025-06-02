@@ -417,7 +417,7 @@ class PumpStationWithLine extends StatelessWidget {
           ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', fertilizerSite.isNotEmpty),
           ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter_wj.png', fertilizerSite.isNotEmpty),
           ...valveWidgets,
-          ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', fertilizerSite.isNotEmpty),
+          ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor_wjl.png', fertilizerSite.isNotEmpty),
       ];
 
       return Align(
@@ -776,6 +776,24 @@ class PumpStationWithLine extends StatelessWidget {
           siteSno: site.sNo.toString(),
         ));
       }
+
+      widgets.add(SizedBox(
+        width: 4.5,
+        height: 130,
+        child: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 42, bottom: 4.5),
+              child: VerticalDivider(width: 0, color: Colors.grey.shade300,),
+            ),
+            const SizedBox(width: 4.5,),
+            Padding(
+              padding: const EdgeInsets.only(top: 45, bottom: 1),
+              child: VerticalDivider(width: 0, color: Colors.grey.shade300,),
+            ),
+          ],
+        ),
+      ));
 
       return widgets;
     }).expand((item) => item).toList().cast<Widget>(); // 👈 Cast the final list

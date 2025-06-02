@@ -7,8 +7,6 @@ class SiteModel {
   SiteModel({required this.data});
 
   factory SiteModel.fromJson(Map<String, dynamic> json) {
-    print("json data :: ${json['data']}");
-
     return SiteModel(
       data: List<Group>.from(json['data'].map((x) => Group.fromJson(x))),
     );

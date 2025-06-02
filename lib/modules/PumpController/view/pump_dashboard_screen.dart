@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:mqtt_client/mqtt_client.dart';
 import 'package:oro_drip_irrigation/Constants/constants.dart';
 import 'package:oro_drip_irrigation/Constants/properties.dart';
 import 'package:oro_drip_irrigation/modules/PumpController/view/pump_with_valves.dart';
@@ -152,191 +151,189 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
               if (!snapshot.hasData || snapshot.data == null) {
                 return const Center(child: Text('Data not available'));
               }
-              return SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 10,),
-                    ConnectionErrorToast(dataFetchingStatus: snapshot.data!.dataFetchingStatus),
-                    Container(
-                      width: MediaQuery.of(context).size.width <= 500 ? MediaQuery.of(context).size.width : 400,
-                      margin: const EdgeInsets.symmetric(horizontal: 10),
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      decoration: const BoxDecoration(
-                          color: Colors.white,
-                          // boxShadow: AppProperties.customBoxShadowLiteTheme
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          SizedImageMedium(imagePath: 'assets/Images/Png/${F.name.contains('oro') ? 'Oro' : 'SmartComm'}/category_${2}.png'),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+              return ListView(
+                // mainAxisAlignment: MainAxisAlignment.start,
+                // crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 10,),
+                  ConnectionErrorToast(dataFetchingStatus: snapshot.data!.dataFetchingStatus),
+                  Container(
+                    width: MediaQuery.of(context).size.width <= 500 ? MediaQuery.of(context).size.width : 400,
+                    margin: const EdgeInsets.symmetric(horizontal: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: const BoxDecoration(
+                        color: Colors.white,
+                        // boxShadow: AppProperties.customBoxShadowLiteTheme
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedImageMedium(imagePath: 'assets/Images/Png/${F.name.contains('oro') ? 'Oro' : 'SmartComm'}/category_${2}.png'),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                spacing: 5,
+                                children: [
+                                  Text(widget.masterData.deviceName, style: themeData.textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),),
+                                  Badge(
+                                    alignment: const Alignment(-3.5, -1),
+                                    smallSize: 0.1,
+                                    backgroundColor: Colors.transparent,
+                                    label: Text("${snapshot.data?.signalStrength ?? "0"}%", style: const TextStyle(fontSize: 8, color: Colors.red, fontWeight: FontWeight.bold),),
+                                    child: getIcon(snapshot.data!.signalStrength),
+                                  ),
+                                  // SelectableText(widget.deviceId, style: themeData.textTheme.titleSmall!.copyWith(fontWeight: FontWeight.normal, fontSize: 12),),
+                                ],
+                              ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                spacing: 5,
+                                children: [
+                                  SelectableText(widget.masterData.deviceId, style: themeData.textTheme.titleSmall!.copyWith(fontWeight: FontWeight.normal, fontSize: 12),),
+                                  ([30, 31].contains(snapshot.data!.pumps[0].reasonCode)) ?
+                                  Container(
+                                    decoration: BoxDecoration(
+                                        color: snapshot.data!.pumps[0].reasonCode == 30 ? Colors.red : Colors.green,
+                                        borderRadius: BorderRadius.circular(5)
+                                    ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 5,),
+                                    child: FadeTransition(
+                                      opacity: snapshot.data!.pumps[0].reasonCode == 30
+                                          ? _animation2
+                                          : const AlwaysStoppedAnimation(1.0),
+                                      child: Row(
+                                        children: [
+                                          const Icon(Icons.electric_bolt, color: Colors.white,),
+                                          Text(snapshot.data!.pumps[0].reasonCode == 30 ? "Power off" : "Power on", style: const TextStyle(color: Colors.white),)
+                                        ],
+                                      ),
+                                    ),
+                                  ) : Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    spacing: 5,
+                                    children: [
+                                      Container(
+                                        decoration: BoxDecoration(
+                                            color: const Color(0xffFFFACD),
+                                            border: Border.all(color: const Color(0xffEB7C17)),
+                                            borderRadius: BorderRadius.circular(10)
+                                        ),
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                        child: Text('CVS : ${getCommunicationType(snapshot.data!.version.toString().split(',').length > 1
+                                            ? snapshot.data!.version.toString().split(',')[0]
+                                            : snapshot.data!.version)}', style: const TextStyle(fontSize: 8, color: Color(0xffEB7C17)),),
+                                      ),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                            color: const Color(0xffFFFACD),
+                                            border: Border.all(color: const Color(0xffEB7C17)),
+                                            borderRadius: BorderRadius.circular(10)
+                                        ),
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                        child: Text('MVS : ${getCommunicationType(snapshot.data!.version.toString().split(',').length > 1
+                                            ? snapshot.data!.version.toString().split(',')[1]
+                                            : snapshot.data!.version)}', style: const TextStyle(fontSize: 8, color: Color(0xffEB7C17)),),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  Container(
+                    color: Colors.white,
+                    width: MediaQuery.of(context).size.width <= 500 ? MediaQuery.of(context).size.width : 400,
+                    padding: const EdgeInsets.only(bottom: 10),
+                    margin: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            for(var index = 0; index < 3; index++)
+                              buildContainer(
+                                title: snapshot.data!.powerFactor == null
+                                    ? ["RY", "YB", "BR"][index]
+                                    : ["RN ${double.parse(snapshot.data!.voltage.split(',')[0]).toStringAsFixed(0)}",
+                                  "YN ${double.parse(snapshot.data!.voltage.split(',')[1]).toStringAsFixed(0)}",
+                                  "BN ${double.parse(snapshot.data!.voltage.split(',')[2]).toStringAsFixed(0)}"][index],
+                                value: snapshot.data!.powerFactor == null
+                                    ? double.parse(snapshot.data!.voltage.split(',')[index]).toStringAsFixed(0)
+                                    : ["RPF ${double.parse(snapshot.data!.powerFactor.split(',')[0]).toStringAsFixed(0)}",
+                                  "YPF ${double.parse(snapshot.data!.powerFactor.split(',')[1]).toStringAsFixed(0)}",
+                                  "BPF ${double.parse(snapshot.data!.powerFactor.split(',')[2]).toStringAsFixed(0)}"][index],
+                                value2: snapshot.data!.power != null
+                                    ? ["RP ${double.parse(snapshot.data!.power.split(',')[0]).toStringAsFixed(0)}",
+                                  "YP ${double.parse(snapshot.data!.power.split(',')[1]).toStringAsFixed(0)}",
+                                  "BP ${double.parse(snapshot.data!.power.split(',')[2]).toStringAsFixed(0)}"][index]
+                                    : null,
+                                // value: snapshot.data!.voltage.split(',')[index],
+                                color1: [
+                                  Colors.redAccent.shade100,
+                                  Colors.amberAccent.shade100,
+                                  Colors.lightBlueAccent.shade100,
+                                ][index],
+                                color2: [
+                                  Colors.redAccent.shade700,
+                                  Colors.amberAccent.shade700,
+                                  Colors.lightBlueAccent.shade700,
+                                ][index],
+                              )
+                          ],
+                        ),
+                        if(snapshot.data!.energyParameters != null && snapshot.data!.energyParameters.isNotEmpty)
+                          const SizedBox(height: 8,),
+                        if(snapshot.data!.energyParameters != null && snapshot.data!.energyParameters.isNotEmpty)
+                          Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  spacing: 5,
-                                  children: [
-                                    Text(widget.masterData.deviceName, style: themeData.textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),),
-                                    Badge(
-                                      alignment: const Alignment(-3.5, -1),
-                                      smallSize: 0.1,
-                                      backgroundColor: Colors.transparent,
-                                      label: Text("${snapshot.data?.signalStrength ?? "0"}%", style: const TextStyle(fontSize: 8, color: Colors.red, fontWeight: FontWeight.bold),),
-                                      child: getIcon(snapshot.data!.signalStrength),
-                                    ),
-                                    // SelectableText(widget.deviceId, style: themeData.textTheme.titleSmall!.copyWith(fontWeight: FontWeight.normal, fontSize: 12),),
-                                  ],
+                                RichText(
+                                    text: TextSpan(
+                                        children: [
+                                          TextSpan(text: "Instant Energy:", style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15, fontWeight: FontWeight.bold)),
+                                          TextSpan(text: " ${snapshot.data!.energyParameters.split(',')[0]}", style: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold)),
+                                        ]
+                                    )
                                 ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  spacing: 5,
-                                  children: [
-                                    SelectableText(widget.masterData.deviceId, style: themeData.textTheme.titleSmall!.copyWith(fontWeight: FontWeight.normal, fontSize: 12),),
-                                    ([30, 31].contains(snapshot.data!.pumps[0].reasonCode)) ?
-                                    Container(
-                                      decoration: BoxDecoration(
-                                          color: snapshot.data!.pumps[0].reasonCode == 30 ? Colors.red : Colors.green,
-                                          borderRadius: BorderRadius.circular(5)
-                                      ),
-                                      padding: const EdgeInsets.symmetric(horizontal: 5,),
-                                      child: FadeTransition(
-                                        opacity: snapshot.data!.pumps[0].reasonCode == 30
-                                            ? _animation2
-                                            : const AlwaysStoppedAnimation(1.0),
-                                        child: Row(
-                                          children: [
-                                            const Icon(Icons.electric_bolt, color: Colors.white,),
-                                            Text(snapshot.data!.pumps[0].reasonCode == 30 ? "Power off" : "Power on", style: const TextStyle(color: Colors.white),)
-                                          ],
-                                        ),
-                                      ),
-                                    ) : Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      spacing: 5,
-                                      children: [
-                                        Container(
-                                          decoration: BoxDecoration(
-                                              color: const Color(0xffFFFACD),
-                                              border: Border.all(color: const Color(0xffEB7C17)),
-                                              borderRadius: BorderRadius.circular(10)
-                                          ),
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                          child: Text('CVS : ${getCommunicationType(snapshot.data!.version.toString().split(',').length > 1
-                                              ? snapshot.data!.version.toString().split(',')[0]
-                                              : snapshot.data!.version)}', style: const TextStyle(fontSize: 8, color: Color(0xffEB7C17)),),
-                                        ),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                              color: const Color(0xffFFFACD),
-                                              border: Border.all(color: const Color(0xffEB7C17)),
-                                              borderRadius: BorderRadius.circular(10)
-                                          ),
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                          child: Text('MVS : ${getCommunicationType(snapshot.data!.version.toString().split(',').length > 1
-                                              ? snapshot.data!.version.toString().split(',')[1]
-                                              : snapshot.data!.version)}', style: const TextStyle(fontSize: 8, color: Color(0xffEB7C17)),),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                RichText(
+                                    text: TextSpan(
+                                        children: [
+                                          TextSpan(text: "Cumulative Energy:", style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15, fontWeight: FontWeight.bold)),
+                                          TextSpan(text: " ${snapshot.data!.energyParameters.split(',')[1]}", style: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold)),
+                                        ]
+                                    )
                                 ),
                               ],
                             ),
                           )
-                        ],
-                      ),
+                      ],
                     ),
-                    Container(
-                      color: Colors.white,
-                      width: MediaQuery.of(context).size.width <= 500 ? MediaQuery.of(context).size.width : 400,
-                      padding: const EdgeInsets.only(bottom: 10),
-                      margin: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              for(var index = 0; index < 3; index++)
-                                buildContainer(
-                                  title: snapshot.data!.powerFactor == null
-                                      ? ["RY", "YB", "BR"][index]
-                                      : ["RN ${double.parse(snapshot.data!.voltage.split(',')[0]).toStringAsFixed(0)}",
-                                    "YN ${double.parse(snapshot.data!.voltage.split(',')[1]).toStringAsFixed(0)}",
-                                    "BN ${double.parse(snapshot.data!.voltage.split(',')[2]).toStringAsFixed(0)}"][index],
-                                  value: snapshot.data!.powerFactor == null
-                                      ? double.parse(snapshot.data!.voltage.split(',')[index]).toStringAsFixed(0)
-                                      : ["RPF ${double.parse(snapshot.data!.powerFactor.split(',')[0]).toStringAsFixed(0)}",
-                                    "YPF ${double.parse(snapshot.data!.powerFactor.split(',')[1]).toStringAsFixed(0)}",
-                                    "BPF ${double.parse(snapshot.data!.powerFactor.split(',')[2]).toStringAsFixed(0)}"][index],
-                                  value2: snapshot.data!.power != null
-                                      ? ["RP ${double.parse(snapshot.data!.power.split(',')[0]).toStringAsFixed(0)}",
-                                    "YP ${double.parse(snapshot.data!.power.split(',')[1]).toStringAsFixed(0)}",
-                                    "BP ${double.parse(snapshot.data!.power.split(',')[2]).toStringAsFixed(0)}"][index]
-                                      : null,
-                                  // value: snapshot.data!.voltage.split(',')[index],
-                                  color1: [
-                                    Colors.redAccent.shade100,
-                                    Colors.amberAccent.shade100,
-                                    Colors.lightBlueAccent.shade100,
-                                  ][index],
-                                  color2: [
-                                    Colors.redAccent.shade700,
-                                    Colors.amberAccent.shade700,
-                                    Colors.lightBlueAccent.shade700,
-                                  ][index],
-                                )
-                            ],
-                          ),
-                          if(snapshot.data!.energyParameters != null && snapshot.data!.energyParameters.isNotEmpty)
-                            const SizedBox(height: 8,),
-                          if(snapshot.data!.energyParameters != null && snapshot.data!.energyParameters.isNotEmpty)
-                            Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 10),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  RichText(
-                                      text: TextSpan(
-                                          children: [
-                                            TextSpan(text: "Instant Energy:", style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15, fontWeight: FontWeight.bold)),
-                                            TextSpan(text: " ${snapshot.data!.energyParameters.split(',')[0]}", style: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold)),
-                                          ]
-                                      )
-                                  ),
-                                  RichText(
-                                      text: TextSpan(
-                                          children: [
-                                            TextSpan(text: "Cumulative Energy:", style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15, fontWeight: FontWeight.bold)),
-                                            TextSpan(text: " ${snapshot.data!.energyParameters.split(',')[1]}", style: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold)),
-                                          ]
-                                      )
-                                  ),
-                                ],
-                              ),
-                            )
-                        ],
-                      ),
+                  ),
+                  const Divider(),
+                  const SizedBox(height: 15,),
+                  for(var index = 0; index < int.parse(snapshot.data!.numberOfPumps); index++)
+                    buildNewPumpDetails(index: index, pumpData: snapshot.data!,),
+                  if(AppConstants.pumpWithValveModelList.contains(widget.masterData.modelId))
+                    PumpWithValves(
+                      valveData: snapshot.data!.pumps.firstWhere((pump) => pump is PumpValveModel) as PumpValveModel,
+                      dataFetchingStatus: snapshot.data!.dataFetchingStatus,
+                      userId: widget.userId,
+                      customerId: widget.customerId,
+                      masterData: widget.masterData,
                     ),
-                    const Divider(),
-                    const SizedBox(height: 15,),
-                    for(var index = 0; index < int.parse(snapshot.data!.numberOfPumps); index++)
-                      buildNewPumpDetails(index: index, pumpData: snapshot.data!,),
-                    if(AppConstants.pumpWithValveModelList.contains(widget.masterData.modelId))
-                      PumpWithValves(
-                        valveData: snapshot.data!.pumps.firstWhere((pump) => pump is PumpValveModel) as PumpValveModel,
-                        dataFetchingStatus: snapshot.data!.dataFetchingStatus,
-                        userId: widget.userId,
-                        customerId: widget.customerId,
-                        masterData: widget.masterData,
-                      ),
-                    const SizedBox(height: 20,),
-                  ],
-                ),
+                  const SizedBox(height: 20,),
+                ],
               );
             },
           ),
