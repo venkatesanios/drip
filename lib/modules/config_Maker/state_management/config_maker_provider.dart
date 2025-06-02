@@ -66,9 +66,19 @@ class ConfigMakerProvider extends ChangeNotifier{
     listOfSampleObjectModel = (defaultDataFromHttp['objectType'] as List<dynamic>).map(mapToDeviceObject).toList();
     listOfObjectModelConnection = (defaultDataFromHttp['objectType'] as List<dynamic>).map(mapToDeviceObject).toList();
     for(var i in listOfDeviceModel){
-      i.masterId = null;
-      i.serialNumber = null;
-      i.extendControllerId = null;
+      if(AppConstants.ecoGemModelList.contains(masterData['modelId'])){
+        if(i.masterId != masterData['controllerId']){
+          print('clear EC25');
+          i.masterId = null;
+          i.serialNumber = null;
+          i.extendControllerId = null;
+        }
+      }else{
+        print('clear gem');
+        i.masterId = null;
+        i.serialNumber = null;
+        i.extendControllerId = null;
+      }
     }
     serialNumber = 0;
     listOfGeneratedObject.clear();
@@ -267,6 +277,7 @@ class ConfigMakerProvider extends ChangeNotifier{
           List<double> filteredList = listOfGeneratedObject
               .where((available) => (available.objectId == object.objectId))
               .map((e) => e.sNo!).toList();
+          print("filteredList :::: $filteredList");
           filteredList = filteredList.sublist(filteredList.length - howManyObjectToDelete, filteredList.length);
           listOfGeneratedObject.removeWhere((e) => filteredList.contains(e.sNo));
           filtration.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
@@ -274,8 +285,12 @@ class ConfigMakerProvider extends ChangeNotifier{
           source.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
           moisture.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
           line.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
+          pump.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
 
           /* this process is to delete object from sites while delete operation in product limit */
+          for(var pump in pump){
+            pump.updateObjectIdIfDeletedInProductLimit(filteredList);
+          }
           for(var filterSite in filtration){
             filterSite.updateObjectIdIfDeletedInProductLimit(filteredList);
           }
