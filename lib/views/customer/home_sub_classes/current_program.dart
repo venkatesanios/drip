@@ -335,7 +335,7 @@ class CurrentProgram extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('$programName - ${scheduledPrograms[0].selectedSchedule}'),
+                        // Text('$programName - ${scheduledPrograms[0].selectedSchedule}'),
                         Text(getContentByCode(int.parse(values[17])), style: const TextStyle(fontSize: 11, color: Colors.black54),),
                       ],
                     ),

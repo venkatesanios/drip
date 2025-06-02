@@ -99,6 +99,8 @@ class BleProvider extends ChangeNotifier {
 
   /*controller variable*/
   ScrollController traceScrollController = ScrollController();
+  TextEditingController frequency = TextEditingController();
+  TextEditingController spreadFactor = TextEditingController();
 
 
 
@@ -425,6 +427,12 @@ class BleProvider extends ChangeNotifier {
                 }else{
                   readFromHardwareStringValue = '';
                 }
+              }
+              if (nodeDataFromHw.containsKey('FRQ')) {
+                frequency.text = '${int.parse(nodeDataFromHw['FRQ']) / 10}';
+              }
+              if (nodeDataFromHw.containsKey('SF')) {
+                spreadFactor.text = nodeDataFromHw['SF'];
               }
               print("nodeDataFromHw : $nodeDataFromHw");
               notifyListeners();
@@ -802,6 +810,43 @@ class BleProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future onRefresh() async{
+    var payload = '\$:5:146:';
+    List<int> listOfBytes = [];
+    var sumOfAscii = 0;
+    for (var i in payload.split('')) {
+      var bytes = i.codeUnitAt(0);
+      // listOfBytes.add(bytes);
+      sumOfAscii += bytes;
+    }
+    payload += '${sumOfAscii % 256}:\r';
+    for (var i in payload.split('')) {
+      var bytes = i.codeUnitAt(0);
+      listOfBytes.add(bytes);
+    }
 
-  
+    if (kDebugMode) {
+      print('listOfBytes : $listOfBytes');
+      print('sumOfAscii : $sumOfAscii');
+      print('crc : ${sumOfAscii % 256}');
+      print('payload : $payload');
+    }
+
+    await sendToHardware?.write(listOfBytes,
+    withoutResponse:
+    sendToHardware!.properties.writeWithoutResponse);
+    return Future.delayed(const Duration(seconds: 1));
+  }
+
+  void sendDataToHw(List<int> dataToSend) async {
+    if (sendToHardware != null) {
+      await sendToHardware?.write(dataToSend,
+          withoutResponse:
+          sendToHardware!.properties.writeWithoutResponse);
+    }
+    Snackbar.show(ABC.c, prettyException("Success", 'Successfully sent....'),
+        success: true);
+    notifyListeners();
+  }
+
 }

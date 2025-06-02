@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:oro_drip_irrigation/Widgets/custom_buttons.dart';
+import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/interface_setting.dart';
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/node_in_boot_mode.dart';
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/trace_screen.dart';
 import 'package:provider/provider.dart';
@@ -26,51 +27,57 @@ class _NodeDashboardState extends State<NodeDashboard> {
     bleService = Provider.of<BleProvider>(context, listen: false);
   }
 
-
   @override
   Widget build(BuildContext context) {
     bleService = Provider.of<BleProvider>(context, listen: true);
     if(bleService.nodeDataFromHw['BOOT'] == '31'){
       return const NodeInBootMode();
     }
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const SizedBox(height: 20,),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ResponsiveGridList(
-              minSpacing: 20,
-                desiredItemWidth: 120,
-                children: [
-                  gridItemWidget(
-                      imagePath: 'assets/Images/Svg/SmartComm/bootMode.svg',
-                      title: 'Update Firmware',
-                    onTap: (){
-                      userAcknowledgementForUpdatingFirmware();
-                    }
-                  ),
-                  // gridItemWidget(
-                  //     imagePath: 'assets/Images/Svg/SmartComm/interface_setting.svg',
-                  //     title: 'Interface Setting',
-                  //     onTap: () {  }
-                  // ),
-                  gridItemWidget(
-                      imagePath: 'assets/Images/Svg/SmartComm/trace_file.svg',
-                      title: 'Trace',
-                    onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context){
-                          return TraceScreen(nodeData: widget.nodeData,);
-                        }));
-                    },
-                  ),
-                ]
+    return RefreshIndicator(
+      onRefresh: bleService.onRefresh,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 20,),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ResponsiveGridList(
+                  minSpacing: 20,
+                  desiredItemWidth: 120,
+                  children: [
+                    gridItemWidget(
+                        imagePath: 'assets/Images/Svg/SmartComm/bootMode.svg',
+                        title: 'Update Firmware',
+                      onTap: (){
+                        userAcknowledgementForUpdatingFirmware();
+                      }
+                    ),
+                    gridItemWidget(
+                        imagePath: 'assets/Images/Svg/SmartComm/interface_setting.svg',
+                        title: 'Interface Setting',
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context){
+                            return const InterfaceSetting();
+                          }));
+                        }
+                    ),
+                    gridItemWidget(
+                        imagePath: 'assets/Images/Svg/SmartComm/trace_file.svg',
+                        title: 'Trace',
+                      onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context){
+                            return TraceScreen(nodeData: widget.nodeData,);
+                          }));
+                      },
+                    ),
+                  ]
+              ),
             ),
           ),
-        ),
-        // NodeInBootMode()
-      ],
+          // NodeInBootMode()
+        ],
+      ),
     );
   }
 

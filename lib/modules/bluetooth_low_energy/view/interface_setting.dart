@@ -1,0 +1,196 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:oro_drip_irrigation/Constants/dialog_boxes.dart';
+import 'package:provider/provider.dart';
+
+import '../state_management/ble_service.dart';
+
+class InterfaceSetting extends StatefulWidget {
+  const InterfaceSetting({super.key});
+
+  @override
+  State<InterfaceSetting> createState() => _InterfaceSettingState();
+}
+
+class _InterfaceSettingState extends State<InterfaceSetting> {
+  late BleProvider bleService;
+  FocusNode frequencyFocus = FocusNode();
+  FocusNode spreadingFactorFocus = FocusNode();
+  final inputDecoration = InputDecoration(
+    filled: true,
+    fillColor: Colors.white,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16),
+      borderSide: BorderSide(color: Colors.grey.shade300),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16),
+      borderSide: BorderSide(color: Colors.grey.shade300),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(color: Colors.blue, width: 2),
+    ),
+  );
+
+  @override
+  void initState() {
+    bleService = Provider.of<BleProvider>(context, listen: false);
+    // TODO: implement initState
+    super.initState();
+    frequencyFocus.addListener(() {
+      if(frequencyFocus.hasFocus == false){
+        var value = double.parse(bleService.frequency.text == '' ? '0' : bleService.frequency.text);
+        if(value > 850.0 && value < 1000.0){
+
+        }else{
+          setState(() {
+            bleService.frequency.text = '850.0';
+          });
+          simpleDialogBox(message: 'Frequency should be in the range of 850.0 to 880.0',context: context,title: 'Alert');
+        }
+      }
+    });
+    spreadingFactorFocus.addListener(() {
+      if(spreadingFactorFocus.hasFocus == false){
+        var value = int.parse(bleService.spreadFactor.text == '' ? '0' : bleService.spreadFactor.text);
+        if(value >= 7.0 && value <= 12.0){
+
+        }else{
+          setState(() {
+            bleService.spreadFactor.text = '7';
+          });
+          simpleDialogBox(message: 'Spreading factor should be in the range of 7 to 12',context: context, title: 'Alert');
+        }
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Interface Setting'),
+      ),
+      body: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            SvgPicture.asset(
+              'assets/Images/Svg/SmartComm/interface_setting.svg',
+              height: 150,
+            ),
+            loraSetting()
+
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget loraSetting(){
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        elevation: 8,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                "Enter Signal Parameters",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 30),
+              TextFormField(
+                focusNode: frequencyFocus,
+                controller: bleService.frequency,
+                keyboardType: TextInputType.number,
+                decoration: inputDecoration.copyWith(
+                  labelText: "Frequency",
+                  hintText: "Enter frequency",
+                  prefixIcon: const Icon(Icons.waves),
+                  suffixText: "Hz",
+                ),
+              ),
+              const SizedBox(height: 20),
+              TextFormField(
+                focusNode: spreadingFactorFocus,
+                controller: bleService.spreadFactor,
+                keyboardType: TextInputType.number,
+                decoration: inputDecoration.copyWith(
+                  labelText: "Spread Factor",
+                  hintText: "Enter spread factor",
+                  prefixIcon: const Icon(Icons.scatter_plot),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Enable Repeater",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  Switch(
+                    value: bleService.nodeDataFromHw['REP'] == '0' ? false : true,
+                    activeColor: Colors.blueAccent,
+                    onChanged: (value) {
+                      print('value ==> $value');
+                      setState(() {
+                        bleService.nodeDataFromHw['REP'] = (value ? '1' : '0');
+                      });
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 30),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: (){
+                    var payload = '${bleService.nodeDataFromServer['settingCommand']['loraSettingCommand']}${(double.parse(bleService.frequency.text)*10).toInt()}:${bleService.spreadFactor.text}:${bleService.nodeDataFromHw['REP']}:';
+                    List<int> listOfBytes = [];
+                    var sumOfAscii = 0;
+                    for(var i in payload.split('')){
+                      var bytes = i.codeUnitAt(0);
+                      sumOfAscii += bytes;
+                    }
+                    for(var i = 0;i < (3 - '${sumOfAscii % 256}'.split('').length);i++){
+                      payload += '0';
+                    }
+                    payload += '${sumOfAscii % 256}:\r';
+                    for(var i in payload.split('')){
+                      var bytes = i.codeUnitAt(0);
+                      listOfBytes.add(bytes);
+                    }
+                    print('listOfBytes : $listOfBytes');
+                    print('sumOfAscii : $sumOfAscii');
+                    print('crc : ${sumOfAscii % 256}');
+                    print('payload : ${payload}');
+                    bleService.sendDataToHw(listOfBytes);
+                  },
+                  icon: const Icon(Icons.send, color: Colors.white,),
+                  label: const Text("Submit", style: TextStyle(color: Colors.white),),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
