@@ -111,6 +111,8 @@ flutter:
     - assets/oro_store.png
     - assets/playstore.png
     - assets/ic_launcher.png
+    - assets/smartcomm_playstore.png
+    - assets/smartcomm_launcher.png
     - assets/.env
 flutter_launcher_icons:
     android: true
