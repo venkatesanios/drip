@@ -41,6 +41,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
 
   late SiteModel mySiteList = SiteModel(data: []);
   StreamSubscription<MqttConnectionState>? mqttSubscription;
+  bool _isReconnecting = false;
 
   List<String> pairedDevices = ['Device A', 'Device B', 'Device C'];
 
@@ -68,7 +69,8 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   void _initializeMqttConnection() {
     mqttService.initializeMQTTClient(state: mqttProvider);
     mqttService.connect();
-    if(!kIsWeb){
+
+    if (!kIsWeb) {
       blueService.initializeBluService(state: mqttProvider);
     }
 
@@ -76,17 +78,38 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
       switch (state) {
         case MqttConnectionState.connected:
           debugPrint("MQTT Connected! Callback");
+          _isReconnecting = false;
           _subscribeToTopic();
           break;
+
         case MqttConnectionState.connecting:
           debugPrint("MQTT Connecting... Callback");
           break;
+
         case MqttConnectionState.disconnected:
         default:
           debugPrint("MQTT Disconnected Callback");
-          mqttService.connect();
+          _handleMqttReconnection();
       }
     });
+  }
+
+  Future<void> _handleMqttReconnection() async {
+    if (_isReconnecting) return;
+
+    _isReconnecting = true;
+    const retryDelay = Duration(seconds: 3);
+    int retries = 0;
+    const maxRetries = 5;
+
+    while (mqttService.mqttConnectionState != MqttConnectionState.connected && retries < maxRetries) {
+      debugPrint("Trying to reconnect to MQTT...");
+      await mqttService.connect();
+      await Future.delayed(retryDelay);
+      retries++;
+    }
+
+    _isReconnecting = false;
   }
 
   void _subscribeToTopic() async{
@@ -242,15 +265,28 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
 
 
   Future<void> onRefreshClicked() async {
+    if (!mqttService.isConnected) {
+      debugPrint("MQTT not connected. Attempting to reconnect...");
+      await _handleMqttReconnection();
+
+      if (!mqttService.isConnected) {
+        debugPrint("Failed to reconnect to MQTT.");
+        return;
+      }
+    }
+
     final isCategory1 = mySiteList.data[sIndex].master[mIndex].categoryId == 1;
     final payload = isCategory1
         ? jsonEncode({"3000": {"3001": ""}})
         : jsonEncode({"sentSms": "#live"});
 
     mqttProvider.liveSyncCall(true);
+    final result = await context.read<CommunicationService>().sendCommand(
+      serverMsg: '',
+      payload: payload,
+    );
 
-    final result = await context.read<CommunicationService>().sendCommand(serverMsg: '', payload: payload,);
-
+    // Step 4: Handle Responses
     if (result['http'] == true) debugPrint("Payload sent to Server");
     if (result['mqtt'] == true) debugPrint("Payload sent to MQTT Box");
     if (result['bluetooth'] == true) debugPrint("Payload sent via Bluetooth");
