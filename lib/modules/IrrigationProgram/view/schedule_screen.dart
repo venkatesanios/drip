@@ -41,14 +41,16 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   final PageController pageController = PageController();
   String tempNoOfDays = '';
   final iconList = [Icons.playlist_remove_rounded, Icons.timer, Icons.water_drop, Icons.local_florist];
+  late List<Color> iconColor;
 
   @override
   void initState() {
+    super.initState();
     irrigationProgramProvider = Provider.of<IrrigationProgramMainProvider>(context, listen: false);
     Future.delayed(Duration.zero, () {
       irrigationProgramProvider.updateCurrentRtcIndex(0);
+      iconColor = [Colors.red, Theme.of(context).primaryColor, Theme.of(context).primaryColorLight, Colors.purple];
     });
-    super.initState();
   }
 
   void addTab(rtcType) {
@@ -130,7 +132,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         builder: (BuildContext context, BoxConstraints constraints){
           return SingleChildScrollView(
             child: Container(
-              margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.05, vertical: MediaQuery.of(context).size.width * 0.025),
+              margin: MediaQuery.of(context).size.width >= 700 ? EdgeInsets.symmetric(
+                horizontal: MediaQuery.of(context).size.width * 0.05,
+                vertical: MediaQuery.of(context).size.width * 0.025,
+              ) : const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
               child: Column(
                 children: [
                   /*irrigationProgramProvider.selectedScheduleType == irrigationProgramProvider.scheduleTypes[0]
@@ -192,7 +197,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         );
                       },
                       child: Card(
-                        color: cardColor,
+                        color: Colors.white,
+                        surfaceTintColor: Colors.white,
                         child: ListTile(
                           title: Text(irrigationProgramProvider.selectedScheduleType),
                           subtitle: const Text("Select schedule type"),
@@ -601,216 +607,208 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               )
           ],
         )
-            : Container(
+            : SizedBox(
           height: (scheduleType == irrigationProgramProvider.scheduleTypes[2]) ? 260 : 230,
           child: Row(
             children: [
               Expanded(
-                child: Container(
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: buildScheduleItem(
-                            context: context,
-                            color: lightColor4,
-                            iconColor: darkColor4,
-                            backGroundColor: darkColor2.withOpacity(0.3),
-                            title: "Stop on end date",
-                            icon: Icons.stop,
-                            showIcon: !isForceToEndDate,
-                            subTitle: "Description",
-                            showSubTitle: !isForceToEndDate,
-                            additionalInfo: !isForceToEndDate ? "Not Needed" : "Needed",
-                            child: Switch(
-                              value: isForceToEndDate,
-                              activeColor: Colors.white,
-                              activeTrackColor: darkColor4,
-                              onChanged: (newValue) {
-                                irrigationProgramProvider.updateForceToEndDate2(newValue: newValue);
-                              },
-                            )
-                        ),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: buildScheduleItem(
+                          context: context,
+                          color: lightColor4,
+                          iconColor: darkColor4,
+                          backGroundColor: darkColor2.withOpacity(0.3),
+                          title: "Stop on end date",
+                          icon: Icons.stop,
+                          showIcon: !isForceToEndDate,
+                          subTitle: "Description",
+                          showSubTitle: !isForceToEndDate,
+                          additionalInfo: !isForceToEndDate ? "Not Needed" : "Needed",
+                          child: Switch(
+                            value: isForceToEndDate,
+                            activeColor: Colors.white,
+                            activeTrackColor: darkColor4,
+                            onChanged: (newValue) {
+                              irrigationProgramProvider.updateForceToEndDate2(newValue: newValue);
+                            },
+                          )
                       ),
-                      // if(isForceToEndDate)
-                      // const SizedBox(height: 10,),
-                      if(isForceToEndDate)
-                        Expanded(
-                          child: Container(
-                            child: DatePickerField(
-                              value: endDate,
-                              firstDate: firstDate,
-                              onChanged: (newDate) => irrigationProgramProvider.updateDate(newDate, "endDate"),
-                              child: buildScheduleItem(
-                                  context: context,
-                                  color: cardColor,
-                                  backGroundColor: lightColor4,
-                                  title: "End date",
-                                  iconColor: darkColor1,
-                                  icon: Icons.date_range,
-                                  // additionalInfo: "",
-                                  child: Text(dateFormat.format(endDate))
-                              ),
-                            ),
+                    ),
+                    // if(isForceToEndDate)
+                    // const SizedBox(height: 10,),
+                    if(isForceToEndDate)
+                      Expanded(
+                        child: DatePickerField(
+                          value: endDate,
+                          firstDate: firstDate,
+                          onChanged: (newDate) => irrigationProgramProvider.updateDate(newDate, "endDate"),
+                          child: buildScheduleItem(
+                              context: context,
+                              color: cardColor,
+                              backGroundColor: lightColor4,
+                              title: "End date",
+                              iconColor: darkColor1,
+                              icon: Icons.date_range,
+                              // additionalInfo: "",
+                              child: Text(dateFormat.format(endDate))
                           ),
                         ),
-                    ],
-                  ),
+                      ),
+                  ],
                 ),
               ),
               // const SizedBox(width: 10,),
               Expanded(
-                child: Container(
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          child: DatePickerField(
-                            value: DateTime.parse(irrigationProgramProvider.startDate(serialNumber: widget.serialNumber)),
-                            firstDate: DateTime.now(),
-                            onChanged: (newDate) => irrigationProgramProvider.updateDate(newDate, "startDate"),
-                            child: buildScheduleItem(
-                                context: context,
-                                color: lightColor1,
-                                backGroundColor: lightColor4,
-                                title: "Start date",
-                                iconColor: darkColor1,
-                                icon: Icons.calendar_today,
-                                additionalInfo: "",
-                                child: Text(dateFormat.format(DateTime.parse(irrigationProgramProvider.startDate(serialNumber: widget.serialNumber))))
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: DatePickerField(
+                        value: DateTime.parse(irrigationProgramProvider.startDate(serialNumber: widget.serialNumber)),
+                        firstDate: DateTime.now(),
+                        onChanged: (newDate) => irrigationProgramProvider.updateDate(newDate, "startDate"),
+                        child: buildScheduleItem(
+                            context: context,
+                            color: lightColor1,
+                            backGroundColor: lightColor4,
+                            title: "Start date",
+                            iconColor: darkColor1,
+                            icon: Icons.calendar_today,
+                            additionalInfo: "",
+                            child: Text(dateFormat.format(DateTime.parse(irrigationProgramProvider.startDate(serialNumber: widget.serialNumber))))
+                        ),
+                      ),
+                    ),
+                    // const SizedBox(height: 10,),
+                    if(scheduleType == irrigationProgramProvider.scheduleTypes[1])
+                      InkWell(
+                        onTap: () {
+                          _textEditingController.text = noOfDays;
+                          _textEditingController.selection = TextSelection(
+                            baseOffset: 0,
+                            extentOffset: _textEditingController.text.length,
+                          );
+                          showAdaptiveDialog(
+                            context: context,
+                            builder: (ctx) => Consumer<IrrigationProgramMainProvider>(
+                              builder: (context, irrigationProgramProvider, child) {
+                                return AlertDialog(
+                                  title: const Text("Number of days"),
+                                  content: TextFormField(
+                                    keyboardType: TextInputType.number,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.deny(RegExp('[^0-9a-zA-Z]')),
+                                      LengthLimitingTextInputFormatter(2),
+                                    ],
+                                    controller: _textEditingController,
+                                    autofocus: true,
+                                    onChanged: (newValue) {
+                                      tempNoOfDays = newValue;
+                                      irrigationProgramProvider.validateInputAndSetErrorText(tempNoOfDays, runListLimit);
+                                      irrigationProgramProvider.initializeDropdownValues(tempNoOfDays == '' ? '0' : tempNoOfDays, noOfDays, schedule['type']);
+                                    },
+                                    decoration: InputDecoration(
+                                      errorText: irrigationProgramProvider.errorText,
+                                    ),
+                                  ),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () => Navigator.of(ctx).pop(),
+                                      child: const Text("CANCEL", style: TextStyle(color: Colors.red),),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        // irrigationProgramProvider.updateNumberOfDays(tempNoOfDays, 'noOfDays', irrigationProgramProvider.sampleScheduleModel!.scheduleAsRunList);
+                                        if (irrigationProgramProvider.errorText == null) {
+                                          Navigator.of(context).pop();
+                                          irrigationProgramProvider.updateNumberOfDays(tempNoOfDays, 'noOfDays', irrigationProgramProvider.sampleScheduleModel!.scheduleAsRunList);
+                                        }
+                                      },
+                                      child: const Text("OKAY"),
+                                    ),
+                                  ],
+                                );
+                              },
                             ),
+                          );
+                        },
+                        child: buildScheduleItem(
+                          context: context,
+                          color: lightColor2,
+                          iconColor: darkColor2,
+                          backGroundColor: lightColor3,
+                          icon: Icons.event_repeat,
+                          title: "Number of days",
+                          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 10,),
+                              Text(noOfDays, style: Theme.of(context).textTheme.bodyMedium,),
+                            ],
+                          ),
+                        ),
+                        // child: Text(noOfDays, style: Theme.of(context).textTheme.bodyMedium,),
+                      ),
+                    if(scheduleType == irrigationProgramProvider.scheduleTypes[2])
+                      buildScheduleItem(
+                        context: context,
+                        color: lightColor2,
+                        backGroundColor: lightColor4,
+                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                        title: "Run days",
+                        iconColor: darkColor2,
+                        icon: Icons.water_drop,
+                        additionalInfo: "",
+                        child: SizedBox(
+                          height: 20,
+                          width: 50,
+                          child: TextFormField(
+                            decoration: const InputDecoration(
+                              contentPadding: EdgeInsets.symmetric(vertical: 10),
+                            ),
+                            enableInteractiveSelection: false,
+                            textAlign: TextAlign.center,
+                            initialValue: runDays,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.deny(RegExp('[^0-9]')),
+                              LengthLimitingTextInputFormatter(2),
+                            ],
+                            onChanged: (newValue) => irrigationProgramProvider.updateNumberOfDays(newValue, 'runDays', irrigationProgramProvider.sampleScheduleModel!.scheduleByDays),
                           ),
                         ),
                       ),
-                      // const SizedBox(height: 10,),
-                      if(scheduleType == irrigationProgramProvider.scheduleTypes[1])
-                        InkWell(
-                          onTap: () {
-                            _textEditingController.text = noOfDays;
-                            _textEditingController.selection = TextSelection(
-                              baseOffset: 0,
-                              extentOffset: _textEditingController.text.length,
-                            );
-                            showAdaptiveDialog(
-                              context: context,
-                              builder: (ctx) => Consumer<IrrigationProgramMainProvider>(
-                                builder: (context, irrigationProgramProvider, child) {
-                                  return AlertDialog(
-                                    title: const Text("Number of days"),
-                                    content: TextFormField(
-                                      keyboardType: TextInputType.number,
-                                      inputFormatters: [
-                                        FilteringTextInputFormatter.deny(RegExp('[^0-9a-zA-Z]')),
-                                        LengthLimitingTextInputFormatter(2),
-                                      ],
-                                      controller: _textEditingController,
-                                      autofocus: true,
-                                      onChanged: (newValue) {
-                                        tempNoOfDays = newValue;
-                                        irrigationProgramProvider.validateInputAndSetErrorText(tempNoOfDays, runListLimit);
-                                        irrigationProgramProvider.initializeDropdownValues(tempNoOfDays == '' ? '0' : tempNoOfDays, noOfDays, schedule['type']);
-                                      },
-                                      decoration: InputDecoration(
-                                        errorText: irrigationProgramProvider.errorText,
-                                      ),
-                                    ),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        onPressed: () => Navigator.of(ctx).pop(),
-                                        child: const Text("CANCEL", style: TextStyle(color: Colors.red),),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          // irrigationProgramProvider.updateNumberOfDays(tempNoOfDays, 'noOfDays', irrigationProgramProvider.sampleScheduleModel!.scheduleAsRunList);
-                                          if (irrigationProgramProvider.errorText == null) {
-                                            Navigator.of(context).pop();
-                                            irrigationProgramProvider.updateNumberOfDays(tempNoOfDays, 'noOfDays', irrigationProgramProvider.sampleScheduleModel!.scheduleAsRunList);
-                                          }
-                                        },
-                                        child: const Text("OKAY"),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
-                            );
-                          },
-                          child: buildScheduleItem(
-                            context: context,
-                            color: lightColor2,
-                            iconColor: darkColor2,
-                            backGroundColor: lightColor3,
-                            icon: Icons.event_repeat,
-                            title: "Number of days",
-                            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                            child: Column(
-                              children: [
-                                const SizedBox(height: 10,),
-                                Text(noOfDays, style: Theme.of(context).textTheme.bodyMedium,),
-                              ],
+                    if(scheduleType == irrigationProgramProvider.scheduleTypes[2])
+                      buildScheduleItem(
+                        context: context,
+                        color: Colors.white70,
+                        backGroundColor: lightColor4,
+                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                        title: "Skip days",
+                        iconColor: Colors.grey,
+                        icon: Icons.skip_next,
+                        additionalInfo: "",
+                        child: SizedBox(
+                          height: 20,
+                          width: 50,
+                          child: TextFormField(
+                            decoration: const InputDecoration(
+                              contentPadding: EdgeInsets.symmetric(vertical: 10),
                             ),
-                          ),
-                          // child: Text(noOfDays, style: Theme.of(context).textTheme.bodyMedium,),
-                        ),
-                      if(scheduleType == irrigationProgramProvider.scheduleTypes[2])
-                        buildScheduleItem(
-                          context: context,
-                          color: lightColor2,
-                          backGroundColor: lightColor4,
-                          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                          title: "Run days",
-                          iconColor: darkColor2,
-                          icon: Icons.water_drop,
-                          additionalInfo: "",
-                          child: SizedBox(
-                            height: 20,
-                            width: 50,
-                            child: TextFormField(
-                              decoration: const InputDecoration(
-                                contentPadding: EdgeInsets.symmetric(vertical: 10),
-                              ),
-                              enableInteractiveSelection: false,
-                              textAlign: TextAlign.center,
-                              initialValue: runDays,
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.deny(RegExp('[^0-9]')),
-                                LengthLimitingTextInputFormatter(2),
-                              ],
-                              onChanged: (newValue) => irrigationProgramProvider.updateNumberOfDays(newValue, 'runDays', irrigationProgramProvider.sampleScheduleModel!.scheduleByDays),
-                            ),
+                            enableInteractiveSelection: false,
+                            textAlign: TextAlign.center,
+                            initialValue: skipDays,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.deny(RegExp('[^0-9]')),
+                              LengthLimitingTextInputFormatter(2),
+                            ],
+                            onChanged: (newValue) => irrigationProgramProvider.updateNumberOfDays(newValue, 'skipDays', irrigationProgramProvider.sampleScheduleModel!.scheduleByDays),
                           ),
                         ),
-                      if(scheduleType == irrigationProgramProvider.scheduleTypes[2])
-                        buildScheduleItem(
-                          context: context,
-                          color: Colors.white70,
-                          backGroundColor: lightColor4,
-                          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                          title: "Skip days",
-                          iconColor: Colors.grey,
-                          icon: Icons.skip_next,
-                          additionalInfo: "",
-                          child: SizedBox(
-                            height: 20,
-                            width: 50,
-                            child: TextFormField(
-                              decoration: const InputDecoration(
-                                contentPadding: EdgeInsets.symmetric(vertical: 10),
-                              ),
-                              enableInteractiveSelection: false,
-                              textAlign: TextAlign.center,
-                              initialValue: skipDays,
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.deny(RegExp('[^0-9]')),
-                                LengthLimitingTextInputFormatter(2),
-                              ],
-                              onChanged: (newValue) => irrigationProgramProvider.updateNumberOfDays(newValue, 'skipDays', irrigationProgramProvider.sampleScheduleModel!.scheduleByDays),
-                            ),
-                          ),
-                        )
-                    ],
-                  ),
+                      )
+                  ],
                 ),
               ),
             ],
@@ -825,61 +823,76 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  color: cardColor,
+                  color: Colors.white,
                   // boxShadow: customBoxShadow
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text("Set All Days", style: TextStyle(fontWeight: FontWeight.bold),),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          for(int i = 0; i < irrigationProgramProvider.scheduleOptions.length; i++)
-                            ElevatedButton(
-                              onPressed: () => irrigationProgramProvider.setAllSame(i),
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateColor.resolveWith((Set<MaterialState> states) {
-                                  bool areAllItemsSame = irrigationProgramProvider.sampleScheduleModel?.scheduleAsRunList.schedule['type']!.every((item) {
-                                    return item == irrigationProgramProvider.scheduleOptions[i];
-                                  });
-                                  if (irrigationProgramProvider.selectedButtonIndex == i || areAllItemsSame) {
-                                    return Theme.of(context).colorScheme.primary;
-                                  } else {
-                                    return Colors.white;
-                                  }
-                                }),
-                                surfaceTintColor: MaterialStateColor.resolveWith((Set<MaterialState> states) {
-                                  bool areAllItemsSame = irrigationProgramProvider.sampleScheduleModel?.scheduleAsRunList.schedule['type']!.every((item) {
-                                    return item == irrigationProgramProvider.scheduleOptions[i];
-                                  });
-                                  if (irrigationProgramProvider.selectedButtonIndex == i || areAllItemsSame) {
-                                    return Theme.of(context).colorScheme.primary;
-                                  } else {
-                                    return Colors.white;
-                                  }
-                                }),
-                                elevation: MaterialStateProperty.all(3),
-                                // side: MaterialStateProperty.all(BorderSide(color: Theme.of(context).primaryColor,  width: 0.3)),
-                                foregroundColor: MaterialStateColor.resolveWith((Set<MaterialState> states) {
-                                  bool areAllItemsSame = irrigationProgramProvider.sampleScheduleModel?.scheduleAsRunList.schedule['type']!.every((item) {
-                                    return item == irrigationProgramProvider.scheduleOptions[i];
-                                  });
-                                  if (irrigationProgramProvider.selectedButtonIndex == i || areAllItemsSame) {
-                                    return Colors.white;
-                                  } else {
-                                    return Theme.of(context).colorScheme.primary;
-                                  }
-                                }),
-                              ),
-                              child: MediaQuery.of(context).size.width > 800 ? Text(irrigationProgramProvider.scheduleOptions[i]) : Icon(iconList[i]),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("Set All Days", style: TextStyle(fontWeight: FontWeight.bold),),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        for(int i = 0; i < irrigationProgramProvider.scheduleOptions.length; i++)
+                          ChoiceChip(
+                            label:  MediaQuery.of(context).size.width > 800
+                                ? Text(irrigationProgramProvider.scheduleOptions[i])
+                                : Icon(iconList[i], color: iconColor[i],),
+                            showCheckmark: false,
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              side: BorderSide(color: iconColor[i], width: 0.8),
                             ),
-                        ],
-                      )
-                    ],
-                  ),
+                            backgroundColor: Colors.white,
+                            selectedColor: Colors.white,
+                            shadowColor: iconColor[i],
+                            elevation: irrigationProgramProvider.sampleScheduleModel?.scheduleAsRunList.schedule['type']!.every((item) => item == irrigationProgramProvider.scheduleOptions[i]) ? 4 : 0,
+                            padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                            selected: irrigationProgramProvider.sampleScheduleModel?.scheduleAsRunList.schedule['type']!.every((item) => item == irrigationProgramProvider.scheduleOptions[i]),
+                            onSelected: (newValue) => irrigationProgramProvider.setAllSame(i),
+                          ),
+                          /*OutlinedButton(
+                            onPressed: () => irrigationProgramProvider.setAllSame(i),
+                            style: ButtonStyle(
+                              backgroundColor: WidgetStateColor.resolveWith((Set<WidgetState> states) {
+                                bool areAllItemsSame = irrigationProgramProvider.sampleScheduleModel?.scheduleAsRunList.schedule['type']!.every((item) {
+                                  return item == irrigationProgramProvider.scheduleOptions[i];
+                                });
+                                if (irrigationProgramProvider.selectedButtonIndex == i || areAllItemsSame) {
+                                  return Theme.of(context).colorScheme.primary;
+                                } else {
+                                  return Colors.white;
+                                }
+                              }),
+                              surfaceTintColor: WidgetStateColor.resolveWith((Set<WidgetState> states) {
+                                bool areAllItemsSame = irrigationProgramProvider.sampleScheduleModel?.scheduleAsRunList.schedule['type']!.every((item) {
+                                  return item == irrigationProgramProvider.scheduleOptions[i];
+                                });
+                                if (irrigationProgramProvider.selectedButtonIndex == i || areAllItemsSame) {
+                                  return Theme.of(context).colorScheme.primary;
+                                } else {
+                                  return Colors.white;
+                                }
+                              }),
+                              elevation: WidgetStateProperty.all(3),
+                              foregroundColor: WidgetStateColor.resolveWith((Set<WidgetState> states) {
+                                bool areAllItemsSame = irrigationProgramProvider.sampleScheduleModel?.scheduleAsRunList.schedule['type']!.every((item) => item == irrigationProgramProvider.scheduleOptions[i]);
+                                if (irrigationProgramProvider.selectedButtonIndex == i || areAllItemsSame) {
+                                  return Colors.white;
+                                } else {
+                                  return Theme.of(context).colorScheme.primary;
+                                }
+                              }),
+                            ),
+                            child: MediaQuery.of(context).size.width > 800
+                                ? Text(irrigationProgramProvider.scheduleOptions[i])
+                                : Icon(iconList[i]),
+                          ),*/
+                      ],
+                    )
+                  ],
                 ),
               ),
             ),
@@ -891,84 +904,93 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                Container(
-                  // margin: const EdgeInsets.symmetric(horizontal: 30),
-                  child: GestureDetector(
-                    onHorizontalDragUpdate: (details) {
-                      _scrollController.jumpTo(_scrollController.offset - details.primaryDelta! / 2);
-                    },
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      controller: _scrollController,
-                      child: Center(
-                        child: Row(
-                          children: [
-                            for(var index = 0; index < int.parse(noOfDays); index++)
-                              Row(
-                                children: [
-                                  buildPopUpMenuButton(
-                                      context: context,
-                                      dataList: irrigationProgramProvider.scheduleOptions,
-                                      selected: (type != null && type.isNotEmpty) ? type[index] : irrigationProgramProvider.scheduleOptions[2],
-                                      onSelected: (newValue) {
-                                        irrigationProgramProvider.updateDropdownValue(index, newValue);
-                                      },
-                                      child: Card(
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(10)
-                                        ),
-                                        surfaceTintColor: cardColor,
-                                        color: cardColor,
-                                        elevation: 3,
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Padding(
-                                                    padding: const EdgeInsets.all(8.0),
-                                                    child: Text(days[index]),
-                                                  ),
-                                                  Padding(
-                                                    padding: const EdgeInsets.all(8.0),
-                                                    child: Text('${(type != null && type.isNotEmpty) ? type[index] : irrigationProgramProvider.scheduleOptions[2]}', style: TextStyle(color: Theme.of(context).primaryColor),),
-                                                  )
-                                                ],
-                                              ),
-                                              const SizedBox(width: 10,),
-                                              Container(
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    gradient: AppProperties.linearGradientLeading,
-                                                  ),
-                                                  child: CircleAvatar(
-                                                    backgroundColor: Colors.transparent,
-                                                    radius: 20,
-                                                    child: Icon((type != null && type.isNotEmpty) ? (type[index] == irrigationProgramProvider.scheduleOptions[0]
-                                                        ? iconList[0]
+                GestureDetector(
+                  onHorizontalDragUpdate: (details) {
+                    _scrollController.jumpTo(_scrollController.offset - details.primaryDelta! / 2);
+                  },
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    controller: _scrollController,
+                    child: Center(
+                      child: Row(
+                        children: [
+                          for(var index = 0; index < int.parse(noOfDays); index++)
+                            Row(
+                              children: [
+                                buildPopUpMenuButton(
+                                    context: context,
+                                    dataList: irrigationProgramProvider.scheduleOptions,
+                                    selected: (type != null && type.isNotEmpty) ? type[index] : irrigationProgramProvider.scheduleOptions[2],
+                                    onSelected: (newValue) {
+                                      irrigationProgramProvider.updateDropdownValue(index, newValue);
+                                    },
+                                    child: Card(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(10)
+                                      ),
+                                      surfaceTintColor: Colors.white,
+                                      color: Colors.white,
+                                      elevation: 3,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Padding(
+                                                  padding: const EdgeInsets.all(8.0),
+                                                  child: Text(days[index]),
+                                                ),
+                                                Padding(
+                                                  padding: const EdgeInsets.all(8.0),
+                                                  child: Text('${(type != null && type.isNotEmpty) ? type[index] : irrigationProgramProvider.scheduleOptions[2]}', style: TextStyle(color: Theme.of(context).primaryColor),),
+                                                )
+                                              ],
+                                            ),
+                                            const SizedBox(width: 10,),
+                                            Container(
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: ((type != null && type.isNotEmpty) ? (type[index] == irrigationProgramProvider.scheduleOptions[0]
+                                                      ? iconColor[0]
+                                                      : type[index] == irrigationProgramProvider.scheduleOptions[1]
+                                                      ? iconColor[1]
+                                                      : type[index] == irrigationProgramProvider.scheduleOptions[2]
+                                                      ? iconColor[2]
+                                                      : iconColor[3]) : iconColor[2]).withAlpha(20)
+                                                ),
+                                                child: CircleAvatar(
+                                                  backgroundColor: Colors.transparent,
+                                                  radius: 20,
+                                                  child: Icon((type != null && type.isNotEmpty) ? (type[index] == irrigationProgramProvider.scheduleOptions[0]
+                                                      ? iconList[0]
+                                                      : type[index] == irrigationProgramProvider.scheduleOptions[1]
+                                                      ? iconList[1]
+                                                      : type[index] == irrigationProgramProvider.scheduleOptions[2]
+                                                      ? iconList[2]
+                                                      : iconList[3]) : iconList[2],
+                                                    color: (type != null && type.isNotEmpty) ? (type[index] == irrigationProgramProvider.scheduleOptions[0]
+                                                        ? iconColor[0]
                                                         : type[index] == irrigationProgramProvider.scheduleOptions[1]
-                                                        ? iconList[1]
+                                                        ? iconColor[1]
                                                         : type[index] == irrigationProgramProvider.scheduleOptions[2]
-                                                        ? iconList[2]
-                                                        : iconList[3]) : iconList[2],
-                                                      color: Colors.white,),
-                                                    // child: Text('${index + 1}', style: const TextStyle(color: Colors.white)),
-                                                  )
-                                              )
-                                            ],
-                                          ),
+                                                        ? iconColor[2]
+                                                        : iconColor[3]) : iconColor[2]),
+                                                  // child: Text('${index + 1}', style: const TextStyle(color: Colors.white)),
+                                                )
+                                            )
+                                          ],
                                         ),
-                                      )
-                                  ),
-                                  const SizedBox(width: 10,)
-                                ],
-                              )
-                          ],
-                        ),
+                                      ),
+                                    )
+                                ),
+                                const SizedBox(width: 10,)
+                              ],
+                            )
+                        ],
                       ),
                     ),
                   ),
@@ -1082,6 +1104,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       initialValue: data['noOfCycles'],
                       keyboardType: TextInputType.number,
                       enableInteractiveSelection: false,
+                      decoration: const InputDecoration(
+                        isDense: false
+                      ),
                       inputFormatters: [
                         FilteringTextInputFormatter.deny(RegExp('[^0-9]')),
                         LengthLimitingTextInputFormatter(2),
@@ -1161,7 +1186,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   }) {
     int pageCount = rtcType.rtc.keys.length;
 
-    return Container(
+    return SizedBox(
       height: 300,
       child: Column(
         children: [
@@ -1263,11 +1288,12 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 15),
             height: 220,
-            width: MediaQuery.of(context).size.width - 60,
+            width: MediaQuery.of(context).size.width - 35,
             margin: const EdgeInsets.symmetric(horizontal: 15),
             decoration: BoxDecoration(
-              gradient: AppProperties.linearGradientLeading,
-              color: Theme.of(context).primaryColor.withOpacity(0.2),
+              // gradient: AppProperties.linearGradientLeading,
+              color: Colors.white,
+              border: Border.all(color: Colors.grey),
               // boxShadow: customBoxShadow,
               borderRadius: BorderRadius.circular(20),
             ),
@@ -1347,7 +1373,11 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             child: TextFormField(
                               decoration: const InputDecoration(
                                 contentPadding: EdgeInsets.symmetric(vertical: 10),
+                                isDense: false
                               ),
+                              onTapOutside: (PointerDownEvent event) {
+                                FocusManager.instance.primaryFocus?.unfocus();
+                              },
                               enableInteractiveSelection: false,
                               textAlign: TextAlign.center,
                               initialValue: rtcType.rtc.values.toList()[index]['noOfCycles'],
@@ -1397,16 +1427,16 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           ),
         ),
         Positioned(
-          top: 0,
+          top: 5,
           child: Container(
             decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
+              color: Colors.white,
               borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: Colors.white),
+              border: Border.all(color: Theme.of(context).primaryColorLight),
             ),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-              child: Text("RTC ${index + 1}", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              child: Text("RTC ${index + 1}", style: TextStyle(color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold)),
             ),
           ),
         ),
@@ -1433,7 +1463,7 @@ Widget buildScheduleItem({
     child: Container(
       padding: padding ?? const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        color: color,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(10),
         // boxShadow: customBoxShadow,
       ),
@@ -1442,11 +1472,11 @@ Widget buildScheduleItem({
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           if(showIcon)
-            CircleAvatar(backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1), child: Icon(icon, color: iconColor,)),
+            CircleAvatar(backgroundColor: color.withAlpha(150), child: Icon(icon, color: iconColor,)),
           Row(
             children: [
               if(!showIcon)
-                CircleAvatar(backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1), child: Icon(icon, color: iconColor,)),
+                CircleAvatar(backgroundColor: color.withAlpha(150), child: Icon(icon, color: iconColor,)),
               if(!showIcon)
                 const SizedBox(width: 10,),
               Expanded(child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold,),)),
@@ -1472,14 +1502,14 @@ Widget buildCardSection({required String title, required BuildContext context,
   bool isColumn = true, required Widget child, Color? color}) {
   return Card(
     // color: const Color(0xffE7F0F2),
-    color: color,
+    color: Colors.white,
     // surfaceTintColor: const Color(0xffE7F0F2),
-    surfaceTintColor: color,
+    surfaceTintColor: Colors.white,
     child: Container(
       padding: EdgeInsets.symmetric(vertical: isColumn ? 5 : 12, horizontal: 10),
       decoration: BoxDecoration(
         // color: const Color(0xffE7F0F2),
-        color: color,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(10),
       ),
       child: isColumn

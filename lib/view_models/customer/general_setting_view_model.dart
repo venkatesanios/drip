@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:timezone/standalone.dart' as tz;
-import '../../Models/admin&dealer/language_list.dart';
+import '../../Models/admin_dealer/language_list.dart';
 import '../../Models/customer/notification_list_model.dart';
 import '../../repository/repository.dart';
 import '../../utils/snack_bar.dart';

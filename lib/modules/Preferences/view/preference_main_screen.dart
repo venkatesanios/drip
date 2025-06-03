@@ -184,8 +184,8 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
   bool breakLoop = false;
   bool viewConfig = false;
   final PreferenceRepository repository = PreferenceRepository(HttpService());
-  late TabController tabController1;
-  late TabController tabController2;
+  late TabController commonPumpTabController;
+  late TabController individualPumpTabController;
   int selectedSetting = 0;
   bool doCalibration = false;
   TextEditingController passwordController = TextEditingController();
@@ -201,14 +201,22 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
     preferenceProvider = Provider.of<PreferenceProvider>(context, listen: false);
     mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
     preferenceProvider.getUserPreference(userId: widget.customerId, controllerId: widget.masterData.controllerId, modelId: widget.masterData.modelId).then((_) {
-      tabController1 = TabController(
+      commonPumpTabController = TabController(
           length: preferenceProvider.commonPumpSettings?.length ?? 0,
           vsync: this
       );
-      tabController2 = TabController(
+      individualPumpTabController = TabController(
           length: preferenceProvider.individualPumpSetting?.length ?? 0,
           vsync: this
       );
+      setState(() {
+        if (preferenceProvider.commonPumpSettings?.isEmpty ?? true) {
+          selectedSetting = 1;
+        }
+        if (isValveSetting) {
+          selectedSetting = 3;
+        }
+      });
     });
     preferenceProvider.updateTabIndex(0);
     mqttPayloadProvider.viewSettingsList.clear();
@@ -216,20 +224,6 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
     isPumpWithValveModel = AppConstants.pumpWithValveModelList.contains(widget.masterData.modelId);
     isPumpOnly = widget.masterData.categoryId == 2 && AppConstants.pumpModelList.contains(widget.masterData.modelId);
     isValveSetting = [1, 2].contains(widget.selectedIndex);
-    if(mounted) {
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        if(preferenceProvider.commonPumpSettings?.isEmpty ?? false) {
-          setState(() {
-            selectedSetting = 1;
-          });
-        }
-        if(isValveSetting) {
-          setState(() {
-            selectedSetting = 3;
-          });
-        }
-      });
-    }
     super.initState();
   }
 
@@ -278,7 +272,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                 child: Column(
                   children: [
                     const SizedBox(height: 10,),
-                    if(preferenceProvider.commonPumpSettings!.isNotEmpty && !isValveSetting) ...[
+                    if(!isValveSetting) ...[
                       Container(
                         margin: const EdgeInsets.symmetric(horizontal: 10),
                         child: Row(
@@ -362,7 +356,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                               Expanded(
                                 child: _getDefaultTabController(),
                               ),
-                            if(MediaQuery.of(context).size.width > 500)
+                            if(MediaQuery.of(context).size.width > 500 && preferenceProvider.commonPumpSettings!.isNotEmpty)
                               IconButton(
                                   onPressed: (){
                                     setState(() {
@@ -382,14 +376,14 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                     if(selectedSetting != 2)
                       Expanded(
                           child: TabBarView(
-                            controller: selectedSetting != 1 ? tabController1 : tabController2,
+                            controller: selectedSetting != 1 ? commonPumpTabController : individualPumpTabController,
                             physics: const NeverScrollableScrollPhysics(),
                             children: [
                               if(viewConfig)
-                                for(int i = 0; i < tabController1.length; i++)
+                                for(int i = 0; i < commonPumpTabController.length; i++)
                                   ViewConfig(
                                     userId: widget.userId,
-                                    isLora: preferenceProvider.commonPumpSettings![tabController1.index].interfaceTypeId == 1,
+                                    isLora: preferenceProvider.commonPumpSettings![commonPumpTabController.index].interfaceTypeId == 1,
                                     modelId: widget.masterData.modelId,
                                   )
                               else if(selectedSetting == 0)
@@ -421,7 +415,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                     if(selectedSetting == 2 && (preferenceProvider.passwordValidationCode == 200))
                       Expanded(
                           child: TabBarView(
-                            controller: selectedSetting != 1 ? tabController1 : tabController2,
+                            controller: selectedSetting != 1 ? commonPumpTabController : individualPumpTabController,
                             physics: const NeverScrollableScrollPhysics(),
                             children: [
                               for(var calibrationSettingIndex = 0; calibrationSettingIndex < preferenceProvider.calibrationSetting!.length; calibrationSettingIndex++)
@@ -634,7 +628,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
             Container(
               color: Theme.of(context).primaryColor,
               child: TabBar(
-                controller: selectedSetting != 1 ? tabController1 : tabController2,
+                controller: selectedSetting != 1 ? commonPumpTabController : individualPumpTabController,
                 labelPadding: const EdgeInsets.symmetric(horizontal: 10.0),
                 indicatorColor: Colors.white,
                 tabAlignment: TabAlignment.start,
@@ -644,14 +638,14 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                 dividerColor: Colors.transparent,
                 isScrollable: true,
                 onTap: (value) {
-                  preferenceProvider.updateTabIndex(tabController1.index);
+                  preferenceProvider.updateTabIndex(commonPumpTabController.index);
                   if(selectedSetting == 2 && isToGem) {
                     mqttPayloadProvider.viewSettingsList.clear();
-                    final oroPumpSerialNumber = preferenceProvider.commonPumpSettings![tabController1.index].serialNumber;
-                    final referenceNumber = preferenceProvider.commonPumpSettings![tabController1.index].referenceNumber;
-                    final deviceId = preferenceProvider.commonPumpSettings![tabController1.index].deviceId;
-                    final interfaceType = preferenceProvider.commonPumpSettings![tabController1.index].interfaceTypeId;
-                    final categoryId = preferenceProvider.commonPumpSettings![tabController1.index].categoryId;
+                    final oroPumpSerialNumber = preferenceProvider.commonPumpSettings![commonPumpTabController.index].serialNumber;
+                    final referenceNumber = preferenceProvider.commonPumpSettings![commonPumpTabController.index].referenceNumber;
+                    final deviceId = preferenceProvider.commonPumpSettings![commonPumpTabController.index].deviceId;
+                    final interfaceType = preferenceProvider.commonPumpSettings![commonPumpTabController.index].interfaceTypeId;
+                    final categoryId = preferenceProvider.commonPumpSettings![commonPumpTabController.index].categoryId;
                     final payload = jsonEncode({"sentSms": "viewconfig"});
                     final payload2 = jsonEncode({"0": payload});
                     final viewConfig = {"5900": {
@@ -1197,6 +1191,8 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                           children: [
                             for(var i = 0; i < preferenceProvider.commonPumpSettings!.length; i++)
                               CheckboxListTile(
+                                dense: false,
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
                                   title: Text(preferenceProvider.commonPumpSettings![i].deviceName),
                                   subtitle: Text(preferenceProvider.commonPumpSettings![i].deviceId),
                                   value: selectedOroPumpList.contains(preferenceProvider.commonPumpSettings![i].deviceId),
@@ -1270,7 +1266,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
       "400": {"401": onDelayTimer()}
     };
 
-    // print("payloadForSlave ==> ${payloadForSlave['400'][2]}");
+    // print("payloadForSlave ==> $payloadForSlave");
 
     final payload = shouldSendFailedPayloads ? getFailedPayload(isToGem: isToGem, sendAll: false) : getPayload(isToGem: isToGem, sendAll: false);
     final payloadParts = payload.split("?")[0].split(';');
@@ -1382,13 +1378,11 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
           'controllerReadStatus': preferenceProvider.generalData!.controllerReadStatus,
         });
       });
-      if(resultFromDialog) {
-        await Future.delayed(Duration.zero, () async {
-          final createUserPreference = await repository.createUserPreference(userData);
-          final message = jsonDecode(createUserPreference.body);
-          await showSnackBar(message: message['message']);
-        });
-      }
+      await Future.delayed(Duration.zero, () async {
+        final createUserPreference = await repository.createUserPreference(userData);
+        final message = jsonDecode(createUserPreference.body);
+        await showSnackBar(message: message['message']);
+      });
 
 
     } catch (error, stackTrace) {
@@ -1407,6 +1401,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
 
     preferenceProvider.individualPumpSetting!.forEach((element) {
       String combinedResult = '${element.toGem()},${element.oDt()}';
+      // String combinedResult = element.oDt();
       result.add(combinedResult);
     });
 

@@ -23,9 +23,9 @@ class ScreenControllerViewModel extends ChangeNotifier {
   }
 
   Future<void> fetchUserPreferences() async {
-    userRole = await PreferenceHelper.getUserRole();
     userId = await PreferenceHelper.getUserId();
     userName = await PreferenceHelper.getUserName();
+    userRole = await PreferenceHelper.getUserRole();
     String? countyCode = await PreferenceHelper.getCountryCode();
     mobileNo = await PreferenceHelper.getMobileNumber();
     mobileNo = countyCode != null ? "+$countyCode $mobileNo":mobileNo;

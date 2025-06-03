@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../Models/customer/sent_and_received_model.dart';
 import '../../repository/repository.dart';
+import '../../utils/shared_preferences_helper.dart';
 
 class SentAndReceivedViewModel extends ChangeNotifier {
 
@@ -22,6 +23,10 @@ class SentAndReceivedViewModel extends ChangeNotifier {
 
   Future<void> getSentAndReceivedData(customerId, controllerId, date) async {
     setLoading(true);
+    String? userRole = await PreferenceHelper.getUserRole();
+    if(userRole != 'customer'){
+      hasPayloadViewPermission = true;
+    }
     try {
       Map<String, Object> body = {"userId": customerId, "controllerId": controllerId, "fromDate":date, "toDate":date};
       final response = await repository.fetchSentAndReceivedData(body);

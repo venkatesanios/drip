@@ -102,7 +102,7 @@ class _GeneralScreenState extends State<GeneralScreen> {
           "messageStatus": "${payload.contains('frequency') ? 'LoRa Frequency' : 'LoRa Key'} updated successfully",
           "createUser": widget.userId
         };
-        final result = await repository.createUserSentAndReceivedMessageManually(body);
+        final result = await repository.sendManualOperationToServer(body);
         Navigator.of(context).pop();
       } else {
         _showSnackBar('Failed to update settings: ${data['message'] ?? 'Unknown error'}');

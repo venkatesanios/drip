@@ -7,10 +7,9 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../Models/customer/site_model.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
-import '../../../repository/repository.dart';
-import '../../../services/http_service.dart';
-import '../../../services/mqtt_service.dart';
+import '../../../services/communication_service.dart';
 import '../../../utils/constants.dart';
+import '../../../utils/formatters.dart';
 import '../../../utils/snack_bar.dart';
 import '../../../view_models/customer/current_program_view_model.dart';
 
@@ -138,8 +137,8 @@ class CurrentProgram extends StatelessWidget {
                               ? '--'
                               : getSequenceName(int.parse(values[0]), values[1]) ?? '--',
                         )),
-                        DataCell(Center(child: Text(formatRtcValues(values[6], values[5])))),
-                        DataCell(Center(child: Text(formatRtcValues(values[8], values[7])))),
+                        DataCell(Center(child: Text(Formatters().formatRtcValues(values[6], values[5])))),
+                        DataCell(Center(child: Text(Formatters().formatRtcValues(values[8], values[7])))),
                         DataCell(Center(child: Text(convert24HourTo12Hour(values[11])))),
                         DataCell(Center(child: Text(getProgramNameById(int.parse(values[0])) == 'StandAlone - Manual' &&
                             (values[3] == '00:00:00' || values[3] == '0') ? 'Timeless' : values[3]))),
@@ -183,27 +182,36 @@ class CurrentProgram extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 9, top: 8),
-          child: Container(
-            width: MediaQuery.sizeOf(context).width-15,
-            height: 22,
-            color: Colors.green.shade300,
-            child: const Padding(
-              padding: EdgeInsets.only(left: 8),
+        Container(
+          width: MediaQuery.sizeOf(context).width,
+          height: 25,
+          color: Colors.green.shade100,
+          child: const Padding(
+            padding: EdgeInsets.only(left: 8),
+            child: Align(
+              alignment: Alignment.centerLeft,
               child: Text(
                 'CURRENT SCHEDULE',
-                textAlign: TextAlign.start,
-                style: TextStyle(color: Colors.black54, fontSize: 15),
+                style: TextStyle(color: Colors.black54, fontSize: 14),
               ),
             ),
           ),
         ),
-        Column(
-          children: List.generate(schedule.length, (index) {
-            List<String> values = schedule[index].split(',');
-            return buildScheduleRow(context, values);
-          }),
+        Container(
+          color: Colors.white,
+          child: Column(
+            children: List.generate(schedule.length * 2 - 1, (index) {
+              if (index.isEven) {
+                List<String> values = schedule[index ~/ 2].split(',');
+                return buildScheduleRow(context, values);
+              } else {
+                return const Padding(
+                  padding: EdgeInsets.only(left: 8, right: 8),
+                  child: Divider(color: Colors.black12),
+                );
+              }
+            }),
+          ),
         ),
       ],
     );
@@ -215,12 +223,19 @@ class CurrentProgram extends StatelessWidget {
       return MaterialButton(
         color: Colors.redAccent,
         textColor: Colors.white,
-        onPressed: values[17]=='1'? (){
+        onPressed: values[17]=='1'? () async {
           String payLoadFinal = jsonEncode({
             "800": {"801": '0,0,0,0,0'}
           });
-          MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-          sentUserOperationToServer('${getProgramNameById(int.parse(values[0]))} Stopped manually', payLoadFinal);
+
+          final result = await context.read<CommunicationService>().sendCommand(
+            serverMsg: '${getProgramNameById(int.parse(values[0]))} Stopped manually',
+            payload: payLoadFinal);
+
+          if (result['http'] == true) debugPrint("Payload sent to Server");
+          if (result['mqtt'] == true) debugPrint("Payload sent to MQTT Box");
+          if (result['bluetooth'] == true) debugPrint("Payload sent via Bluetooth");
+
           GlobalSnackBar.show(context, 'Comment sent successfully', 200);
         }: null,
         child: const Text('Stop'),
@@ -235,8 +250,15 @@ class CurrentProgram extends StatelessWidget {
             "3900": {"3901": '0,${values[3]},${values[0]},'
                 '${values[1]},,,,,,,,,0,'}
           });
-          MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-          sentUserOperationToServer('${getProgramNameById(int.parse(values[0]))} Stopped manually', payLoadFinal);
+
+          final result = await context.read<CommunicationService>().sendCommand(
+            serverMsg: '${getProgramNameById(int.parse(values[0]))} Stopped manually',
+            payload: payLoadFinal);
+
+          if (result['http'] == true) debugPrint("Payload sent to Server");
+          if (result['mqtt'] == true) debugPrint("Payload sent to MQTT Box");
+          if (result['bluetooth'] == true) debugPrint("Payload sent via Bluetooth");
+
           GlobalSnackBar.show(context, 'Comment sent successfully', 200);
 
         },
@@ -244,18 +266,25 @@ class CurrentProgram extends StatelessWidget {
       );
     }else{
       return MaterialButton(
-        color: Colors.orange,
+        color: Colors.amber,
         textColor: Colors.white,
-        onPressed: values[17]=='1' ? (){
+        onPressed: values[17]=='1' ? () async {
           String payload = '${values[18]},0';
           String payLoadFinal = jsonEncode({
             "3700": {"3701": payload}
           });
-          MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-          sentUserOperationToServer('${getProgramNameById(int.parse(values[0]))} - ${getSequenceName(int.parse(values[0]), values[1])} skipped manually', payLoadFinal);
+
+          final result = await context.read<CommunicationService>().sendCommand(
+            serverMsg: '${getProgramNameById(int.parse(values[0]))} - ${getSequenceName(int.parse(values[0]), values[1])} skipped manually',
+            payload: payLoadFinal);
+
+          if (result['http'] == true) debugPrint("Payload sent to Server");
+          if (result['mqtt'] == true) debugPrint("Payload sent to MQTT Box");
+          if (result['bluetooth'] == true) debugPrint("Payload sent via Bluetooth");
+
           GlobalSnackBar.show(context, 'Comment sent successfully', 200);
         } : null,
-        child: const Text('Skip', style: TextStyle(color: Colors.black87)),
+        child: const Text('Skip', style: TextStyle(color: Colors.black)),
       );
     }
   }
@@ -263,134 +292,191 @@ class CurrentProgram extends StatelessWidget {
 
   Widget buildScheduleRow(BuildContext context, List<String> values) {
     final programName = getProgramNameById(int.parse(values[0]));
-    return Padding(
-      padding: const EdgeInsets.only(left: 5, right: 8),
-      child: Card(
-        margin: const EdgeInsets.only(left: 4.5, bottom: 5),
-        color: Colors.white,
-        child: Row(
+    return SizedBox(
+      width: MediaQuery.sizeOf(context).width,
+      height: 143,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 8),
+        child: Column(
           children: [
-            Container(
-              width: 3,
-              height: 125,
-              color: Colors.green.shade300,
-            ),
             SizedBox(
-              width: MediaQuery.sizeOf(context).width - 28,
-              height: 125,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 8, top: 5),
-                child: Row(
-                  children: [
-                    Expanded(
+              width: MediaQuery.sizeOf(context).width,
+              height: 35,
+              child: Row(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(left: 3),
+                    child: SizedBox(
+                      width: 105,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          RichText(
-                            text: TextSpan(
-                              text: '$programName - ',
-                              style: const TextStyle(color:Colors.black, fontWeight: FontWeight.bold, fontSize: 15),
-                              children: <TextSpan>[
-                                TextSpan(
-                                  text: programName == 'StandAlone - Manual' ? '--' :
-                                  getSequenceName(int.parse(values[0]), values[1]) ?? '--',
-                                  style: const TextStyle(fontWeight: FontWeight.normal, color: Colors.blue),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Text(getContentByCode(int.parse(values[17])), style: const TextStyle(color: Colors.black54)),
-                          const SizedBox(height: 5),
-                          RichText(
-                            text: TextSpan(
-                              text: 'Started at         :  ',
-                              style: const TextStyle(color:Colors.black, fontWeight: FontWeight.normal),
-                              children: <TextSpan>[
-                                TextSpan(
-                                  text: convert24HourTo12Hour(values[11]),
-                                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          RichText(
-                            text: TextSpan(
-                              text: 'Current Zone   :  ',
-                              style: const TextStyle(color:Colors.black, fontWeight: FontWeight.normal),
-                              children: <TextSpan>[
-                                TextSpan(
-                                  text: '${values[10]} of ${values[9]}',
-                                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          RichText(
-                            text: TextSpan(
-                              text: 'Rtc & Cyclic     :  ',
-                              style: const TextStyle(color:Colors.black, fontWeight: FontWeight.normal),
-                              children: <TextSpan>[
-                                TextSpan(
-                                  text: '${formatRtcValues(values[6], values[5])} - ${formatRtcValues(values[8], values[7])}',
-                                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          RichText(
-                            text: TextSpan(
-                              text: 'Set Value         :  ',
-                              style: const TextStyle(color:Colors.black, fontWeight: FontWeight.normal),
-                              children: <TextSpan>[
-                                TextSpan(
-                                  text: programName == 'StandAlone - Manual' && (values[3] == '00:00:00' || values[3] == '0')
-                                      ? 'Timeless'
-                                      : values[3],
-                                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-                                ),
-                              ],
+                          Text(
+                            'Name & Method',
+                            style: TextStyle(
+                              color: Colors.black45,
+                              fontWeight: FontWeight.w200,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    SizedBox(
-                      width: 130,
-                      child: Column(
-                        children: [
-                          const Spacer(),
-                          Column(
-                            children: [
-                              const Text('Remaining', style: TextStyle(color: Colors.black45)),
-                              Padding(
-                                padding: const EdgeInsets.only(top:2, bottom: 5),
-                                child: Container(
-                                  width: 75,
-                                  height: 1,
-                                  color: Colors.black12,
-                                ),
-                              ),
-                              Center(child: Text(
-                                getProgramNameById(int.parse(values[0])) == 'StandAlone - Manual' &&
-                                    (values[3] == '00:00:00' || values[3] == '0')
-                                    ? '----'
-                                    : values[4],
-                                style: const TextStyle(fontSize: 20),
-                              )),
-                            ],
-                          ),
-                          const Spacer(),
-                          buildActionButton(context, values),
-                          const Spacer(),
-                        ],
-                      ),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(':'),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('$programName - ${scheduledPrograms[0].selectedSchedule}'),
+                        Text(getContentByCode(int.parse(values[17])), style: const TextStyle(fontSize: 11, color: Colors.black54),),
+                      ],
+                    ),
+                  )
+                ],
               ),
+            ),
+            Row(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(left: 3),
+                  child: SizedBox(
+                    width: 105,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Current Zone', style: TextStyle(color: Colors.black45)),
+                        SizedBox(height: 2),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  width: 10,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(':'),
+                      SizedBox(height: 2),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(programName == 'StandAlone - Manual' ? '--' :
+                      getSequenceName(int.parse(values[0]), values[1]) ?? '--',),
+                      const SizedBox(height: 3),
+                    ],
+                  ),
+                )
+              ],
+            ),
+            Row(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(left: 3),
+                  child: SizedBox(
+                    width: 105,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Started at', style: TextStyle(color: Colors.black45)),
+                        SizedBox(height: 2),
+                        Text('Current Zone', style: TextStyle(color: Colors.black45)),
+                        SizedBox(height: 2),
+                        Text('Rtc & Cyclic', style: TextStyle(color: Colors.black45)),
+                        SizedBox(height: 2),
+                        Text('Set Value', style: TextStyle(color: Colors.black45)),
+                        SizedBox(height: 2),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  width: 10,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(':'),
+                      SizedBox(height: 2),
+                      Text(':'),
+                      SizedBox(height: 2),
+                      Text(':'),
+                      SizedBox(height: 2),
+                      Text(':'),
+                      SizedBox(height: 2),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(convert24HourTo12Hour(values[11])),
+                          const SizedBox(height: 2),
+                          Text('${values[10]} of ${values[9]}'),
+                          const SizedBox(height: 1),
+                          Text('${Formatters().formatRtcValues(values[6], values[5])} - ${Formatters().formatRtcValues(values[8], values[7])}'),
+                          const SizedBox(height: 3),
+                          Text(programName == 'StandAlone - Manual' && (values[3] == '00:00:00' || values[3] == '0')
+                              ? 'Timeless'
+                              : values[3]),
+                          const SizedBox(height: 2),
+                        ],
+                      ),
+                      SizedBox(
+                        width: 225,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Spacer(),
+                            Container(
+                              width: 1,
+                              height: 70,
+                              color: Colors.black12,
+                            ),
+                            const Spacer(),
+                            Column(
+                              children: [
+                                const Text('Remaining', style: TextStyle(color: Colors.black45)),
+                                Padding(
+                                  padding: const EdgeInsets.only(top:2, bottom: 5),
+                                  child: Container(
+                                    width: 75,
+                                    height: 1,
+                                    color: Colors.black12,
+                                  ),
+                                ),
+                                Center(child: Text(
+                                  getProgramNameById(int.parse(values[0])) == 'StandAlone - Manual' &&
+                                      (values[3] == '00:00:00' || values[3] == '0')
+                                      ? '----'
+                                      : values[4],
+                                  style: const TextStyle(fontSize: 20),
+                                )),
+                              ],
+                            ),
+                            const Spacer(),
+                            buildActionButton(context, values),
+                            const Spacer(),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -430,14 +516,6 @@ class CurrentProgram extends StatelessWidget {
     }
   }
 
-  String formatRtcValues(dynamic value1, dynamic value2) {
-    if (value1 == 0 && value2 == 0) {
-      return '--';
-    } else {
-      return '${value1.toString()}/${value2.toString()}';
-    }
-  }
-
   String convert24HourTo12Hour(String timeString) {
     if(timeString=='-'){
       return '-';
@@ -447,24 +525,8 @@ class CurrentProgram extends StatelessWidget {
     return formattedTime;
   }
 
-  String formatTime(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, "0");
-    return "${twoDigits(duration.inHours)}:${twoDigits(duration.inMinutes.remainder(60))}:${twoDigits(duration.inSeconds.remainder(60))}";
-  }
-
   String getContentByCode(int code) {
     return GemProgramStartStopReasonCode.fromCode(code).content;
-  }
-
-  void sentUserOperationToServer(String msg, String data) async
-  {
-    Map<String, Object> body = {"userId": customerId, "controllerId": controllerId, "messageStatus": msg, "hardware": jsonDecode(data), "createUser": customerId};
-    final response = await Repository(HttpService()).createUserSentAndReceivedMessageManually(body);
-    if (response.statusCode == 200) {
-      print(response.body);
-    } else {
-      throw Exception('Failed to load data');
-    }
   }
 
 }

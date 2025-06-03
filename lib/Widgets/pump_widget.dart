@@ -80,8 +80,6 @@ class PumpWidget extends StatelessWidget {
               width: 70,
               height: 100,
               child: Column(
-                mainAxisAlignment: isMobile ? MainAxisAlignment.center:
-                MainAxisAlignment.start,
                 children: [
                   Builder(
                     builder: (buttonContext) => Tooltip(
@@ -98,9 +96,9 @@ class PumpWidget extends StatelessWidget {
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        hasVoltage
-                                            ? _buildVoltagePopoverContent(context, voltages, columns)
-                                            : Container(),
+                                        hasVoltage?
+                                        _buildVoltagePopoverContent(context, voltages, columns) :
+                                        Container(),
                                         if (isSourcePump) _buildBottomControlButtons(context),
                                       ],
                                     ),
@@ -121,10 +119,8 @@ class PumpWidget extends StatelessWidget {
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           backgroundColor: WidgetStateProperty.all(Colors.transparent),
                         ),
-                        child:
-                        SizedBox(
-                          width: 70,
-                          height: isMobile ? 55 : 70,
+                        child: SizedBox(
+                          height : 70,
                           child: AppConstants.getAsset('pump', pump.status, ''),
                         ),
                       ),
@@ -249,8 +245,6 @@ class PumpWidget extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildHeader(),
-        const Divider(height: 0),
         if (int.tryParse(pump.reason) != null &&
             int.parse(pump.reason) > 0 &&
             int.parse(pump.reason) != 31)
@@ -263,27 +257,6 @@ class PumpWidget extends StatelessWidget {
         _buildVoltageCurrentInfo('Current', columns, ['RC', 'YC', 'BC']),
         const SizedBox(height: 7),
       ],
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      width: 300,
-      height: 35,
-      color: Colors.white,
-      child: const Row(
-        children: [
-          SizedBox(width: 8),
-          Text.rich(
-            TextSpan(
-              text: 'Version : ',
-              style: TextStyle(color: Colors.black54),
-            ),
-          ),
-          Spacer(),
-          SizedBox(width: 8),
-        ],
-      ),
     );
   }
 
@@ -467,7 +440,7 @@ class PumpWidget extends StatelessWidget {
   void sentUserOperationToServer(String msg, String data) async
   {
     Map<String, Object> body = {"userId": customerId, "controllerId": controllerId, "messageStatus": msg, "hardware": jsonDecode(data), "createUser": customerId};
-    final response = await Repository(HttpService()).createUserSentAndReceivedMessageManually(body);
+    final response = await Repository(HttpService()).sendManualOperationToServer(body);
     if (response.statusCode == 200) {
       print(response.body);
     } else {

@@ -21,7 +21,7 @@ class ValveLog extends StatelessWidget {
           return ExpansionTile(
             backgroundColor: Colors.white,
             childrenPadding: const EdgeInsets.symmetric(horizontal: 5),
-            tilePadding: const EdgeInsets.symmetric(horizontal: 8),
+            tilePadding: const EdgeInsets.symmetric(horizontal: 15),
             title: _buildHeader(group['header']!, theme),
             children: group['valves']!
                 .map<Widget>((valve) => _buildValveLog(event: valve, theme: theme))

@@ -27,17 +27,17 @@ class DefaultFirebaseOptions {
       case TargetPlatform.macOS:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
+              'you can reconfigure this by running the FlutterFire CLI again.',
         );
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
+              'you can reconfigure this by running the FlutterFire CLI again.',
         );
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
+              'you can reconfigure this by running the FlutterFire CLI again.',
         );
       default:
         throw UnsupportedError(
@@ -48,17 +48,17 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyBal6CkpHA1WDwLk-rCZPc9VRXK-uvsT2M',
-    appId: '1:749016956909:web:2e046fd5b622332c8831e4',
+    appId: '1:749016956909:web:c9ecf74fcd72bc828831e4',
     messagingSenderId: '749016956909',
     projectId: 'smartcomm-6f42b',
     authDomain: 'smartcomm-6f42b.firebaseapp.com',
     storageBucket: 'smartcomm-6f42b.firebasestorage.app',
-    measurementId: 'G-7PPSY35R9P',
+    measurementId: 'G-VK7YGQJBRJ',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDQkCbve4yDFg01SNQulw_RwLtxK3LUpT0',
-    appId: '1:749016956909:android:80fcbb7804dd607c8831e4',
+    appId: '1:749016956909:android:4d37f215a8fbee828831e4',
     messagingSenderId: '749016956909',
     projectId: 'smartcomm-6f42b',
     storageBucket: 'smartcomm-6f42b.firebasestorage.app',
@@ -66,10 +66,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBMJi4_w-shxRfKJcqiDAd61g5w1CmxS48',
-    appId: '1:749016956909:ios:789a353896f28c688831e4',
+    appId: '1:749016956909:ios:c7860b788252f2068831e4',
     messagingSenderId: '749016956909',
     projectId: 'smartcomm-6f42b',
     storageBucket: 'smartcomm-6f42b.firebasestorage.app',
-    iosBundleId: 'com.example.drip.oroProduction',
+    iosBundleId: 'com.niagaraautomations.oroDevelopment',
   );
+
 }

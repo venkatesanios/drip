@@ -71,8 +71,8 @@ class LoginViewModel extends ChangeNotifier {
         await PreferenceHelper.saveUserDetails(
           token: user['accessToken'],
           userId: user['userId'],
-          role: user['userType']=='1'? 'admin' : user['userType']=='2' ? 'dealer' :'customer',
           userName: user['userName'],
+          role: user['userType']=='1'? 'admin' : user['userType']=='2' ? 'dealer' :'customer',
           countryCode: countryCodeFinal,
           mobileNumber: mobileNumber,
           email: user['email'],

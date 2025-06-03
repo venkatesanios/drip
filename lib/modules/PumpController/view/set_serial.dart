@@ -103,7 +103,7 @@ class _SetSerialScreenState extends State<SetSerialScreen> {
                             color: Theme.of(context).primaryColor,
                             textColor: Colors.white,
                             onPressed: () {
-                              MqttService().topicToPublishAndItsMessage(jsonEncode({'sentSms': '3'}), '${Environment.mqttPublishTopic}/${widget.deviceId}');
+                              MqttService().topicToPublishAndItsMessage(jsonEncode({'sentSms': 'setserial,3'}), '${Environment.mqttPublishTopic}/${widget.deviceId}');
                               Navigator.of(context).pop();
                             },
                             child: const Text('Yes'),
@@ -294,7 +294,7 @@ class _SetSerialScreenState extends State<SetSerialScreen> {
                                         final pump = mqttService.pumpDashboardPayload!.pumps.firstWhere((pump) => pump is PumpValveModel) as PumpValveModel;
                                         List<String> flags = pump.setSerialFlag.split(',');
                                         flags[index] = '2';
-                                        pump.setSerialFlag = flags.join(','); // ✅ update the actual value
+                                        pump.setSerialFlag = flags.join(',');
                                       });
 
                                     },

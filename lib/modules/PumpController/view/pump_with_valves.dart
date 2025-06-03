@@ -123,7 +123,7 @@ class PumpWithValves extends StatelessWidget {
                                 "messageStatus": "Change to successfully for ${valves[i].name}",
                                 "createUser": userId
                               };
-                              await repository.createUserSentAndReceivedMessageManually(body);
+                              await repository.sendManualOperationToServer(body);
                             } : null,
                             child: Text(valves[i].name),
                           ),
@@ -206,7 +206,7 @@ class PumpWithValves extends StatelessWidget {
                               return InkWell(
                                 onTap: () => _showDetails(i, valveContext),
                                 child: Image.asset(
-                                  'assets/png/valve_gray.png',
+                                  'assets/png/independent_valve_gray.png',
                                   height: 40,
                                   color: valveItem.status == '1'
                                       ? Colors.greenAccent

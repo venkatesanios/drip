@@ -6,7 +6,7 @@ import '../utils/shared_preferences_helper.dart';
 
 class HttpService
 {
-  Future<http.Response> getRequest(String endpoint, {Map<String, String>? queryParams}) async {
+  Future<http.Response> getRequest(String endpoint, {String? type,Map<String, String>? queryParams}) async {
     final token = await PreferenceHelper.getToken();
 
     debugPrint('${AppConstants.apiUrl}$endpoint');
@@ -17,8 +17,8 @@ class HttpService
       'Content-Type': 'application/json',
       'auth_token': token?.isNotEmpty == true ? token! : 'default_token',
     };
-
-    return await http.get(uri, headers: headers);
+print('MQTTCONFIG ${http.get(Uri.parse(endpoint), headers: headers).toString()}');
+    return await type == 'MQTTCONFIG' ? http.get(Uri.parse(endpoint), headers: headers) : http.get(uri, headers: headers);
   }
 
   Future<http.Response> postRequest(String endpoint, Map<String, dynamic> bodyData) async {

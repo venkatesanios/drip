@@ -8,7 +8,7 @@ import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/constants.dart';
 import '../../utils/snack_bar.dart';
-import '../../view_models/admin&dealer/admin&dealer_dashboard_view_model.dart';
+import '../../view_models/admin_dealer/admin_dealer_dashboard_view_model.dart';
 import '../create_account.dart';
 import 'add_new_stock.dart';
 import 'dealer_device_list.dart';
@@ -47,8 +47,9 @@ class AdminDashboard extends StatelessWidget {
                     child: Column(
                       children: [
                         SizedBox(
-                          height: 350,
+                          height: 360,
                           child: Card(
+                            color: Colors.white,
                             child: Padding(
                               padding: const EdgeInsets.all(3.0),
                               child: Column(
@@ -123,19 +124,27 @@ class AdminDashboard extends StatelessWidget {
                                       viewModel.mySalesData.total!.length, (index) =>
                                         Chip(
                                           avatar: CircleAvatar(
-                                              backgroundColor: viewModel.mySalesData
-                                                  .total![index].color),
-                                          shape: const LinearBorder(),
-                                          color:  WidgetStateProperty.resolveWith<Color>((states) => Colors.blueGrey.shade50),
+                                            backgroundColor: viewModel.mySalesData.total![index].color,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(20),
+                                            side: const BorderSide(
+                                              color: Colors.black12,
+                                              width: 0.1,
+                                            ),
+                                          ),
+                                          color: WidgetStateProperty.resolveWith<Color>(
+                                                (states) => Colors.blueGrey.shade50,
+                                          ),
                                           label: Text(
-                                            '${index + 1} - ${viewModel.mySalesData
-                                                .total![index].categoryName}',
+                                            '${index + 1} - ${viewModel.mySalesData.total![index].categoryName}',
                                             style: const TextStyle(fontSize: 11),
                                           ),
                                           visualDensity: VisualDensity.compact,
                                         ),
                                     ),
                                   ),
+                                  SizedBox(height: 8),
                                 ],
                               ),
                             ),
@@ -305,7 +314,6 @@ class AdminDashboard extends StatelessWidget {
                                       'SOLD OUT', style: TextStyle(fontSize: 20),)),
                                   ),
                                 ),
-
                               ],
                             ),
                           ),

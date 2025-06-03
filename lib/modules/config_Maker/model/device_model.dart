@@ -1,7 +1,7 @@
 class DeviceModel {
   final int controllerId;
   final int productId;
-  final String deviceId;
+  String deviceId;
   final String deviceName;
   final int categoryId;
   final String categoryName;

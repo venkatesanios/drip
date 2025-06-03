@@ -66,9 +66,19 @@ class ConfigMakerProvider extends ChangeNotifier{
     listOfSampleObjectModel = (defaultDataFromHttp['objectType'] as List<dynamic>).map(mapToDeviceObject).toList();
     listOfObjectModelConnection = (defaultDataFromHttp['objectType'] as List<dynamic>).map(mapToDeviceObject).toList();
     for(var i in listOfDeviceModel){
-      i.masterId = null;
-      i.serialNumber = null;
-      i.extendControllerId = null;
+      if(AppConstants.ecoGemModelList.contains(masterData['modelId'])){
+        if(i.masterId != masterData['controllerId']){
+          print('clear EC25');
+          i.masterId = null;
+          i.serialNumber = null;
+          i.extendControllerId = null;
+        }
+      }else{
+        print('clear gem');
+        i.masterId = null;
+        i.serialNumber = null;
+        i.extendControllerId = null;
+      }
     }
     serialNumber = 0;
     listOfGeneratedObject.clear();
@@ -152,7 +162,7 @@ class ConfigMakerProvider extends ChangeNotifier{
           .map((devices) {
         Map<String, dynamic> deviceProperty = defaultData['productModel'].firstWhere((product) => devices['modelId'] == product['modelId']);
           var inputObjectId = deviceProperty['inputObjectId'] == '-' ? [] : deviceProperty['inputObjectId'].split(',').map((e) => int.parse(e.toString())).toList();
-          var outputObjectId = deviceProperty['outputObjectId'] == '-' ? [] : deviceProperty['outputObjectId'].split(',').map((e) => int.parse(e.toString())).toList();
+        var outputObjectId = deviceProperty['outputObjectId'] == '-' ? [] : deviceProperty['outputObjectId'].split(',').map((e) => int.parse(e.toString())).toList();
         return DeviceModel(
           productId: devices['productId'],
           controllerId: devices['controllerId'],
@@ -187,6 +197,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         if(b.serialNumber == null) return -1;
         return a.serialNumber!.compareTo(b.serialNumber!);
       });
+      print("listOfDeviceModel : ${listOfDeviceModel.length}");
 
       listOfSampleObjectModel = configMakerData['productLimit'].isNotEmpty
           ? (configMakerData['productLimit'] as List<dynamic>).map((object) => DeviceObjectModel.fromJson(object)).toList()
@@ -266,6 +277,7 @@ class ConfigMakerProvider extends ChangeNotifier{
           List<double> filteredList = listOfGeneratedObject
               .where((available) => (available.objectId == object.objectId))
               .map((e) => e.sNo!).toList();
+          print("filteredList :::: $filteredList");
           filteredList = filteredList.sublist(filteredList.length - howManyObjectToDelete, filteredList.length);
           listOfGeneratedObject.removeWhere((e) => filteredList.contains(e.sNo));
           filtration.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
@@ -273,7 +285,28 @@ class ConfigMakerProvider extends ChangeNotifier{
           source.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
           moisture.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
           line.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
-         deleteOperationInSiteConfiguration(filteredList);
+          pump.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
+
+          /* this process is to delete object from sites while delete operation in product limit */
+          for(var pump in pump){
+            pump.updateObjectIdIfDeletedInProductLimit(filteredList);
+          }
+          for(var filterSite in filtration){
+            filterSite.updateObjectIdIfDeletedInProductLimit(filteredList);
+          }
+          for(var fertilizerSite in fertilization){
+            fertilizerSite.updateObjectIdIfDeletedInProductLimit(filteredList);
+          }
+          for(var src in source){
+            src.updateObjectIdIfDeletedInProductLimit(filteredList);
+          }
+          for(var ms in moisture){
+            ms.updateObjectIdIfDeletedInProductLimit(filteredList);
+          }
+          for(var il in line){
+            il.updateObjectIdIfDeletedInProductLimit(filteredList);
+          }
+          /* this process is to delete object from sites while delete operation in product limit */
         }
       }
     }
@@ -285,27 +318,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     }
   }
 
-  void deleteOperationInSiteConfiguration(List<double> filteredList){
-    /* this process is to delete object from sites while delete operation in product limit */
-    for(var filterSite in filtration){
-      filterSite.updateObjectIdIfDeletedInProductLimit(filteredList);
-    }
-    for(var fertilizerSite in fertilization){
-      fertilizerSite.updateObjectIdIfDeletedInProductLimit(filteredList);
-    }
-    for(var src in source){
-      src.updateObjectIdIfDeletedInProductLimit(filteredList);
-    }
-    for(var ms in moisture){
-      ms.updateObjectIdIfDeletedInProductLimit(filteredList);
-    }
-    for(var il in line){
-      il.updateObjectIdIfDeletedInProductLimit(filteredList);
-    }
-    /* this process is to delete object from sites while delete operation in product limit */
-  }
-
-  void updateObjectConnection(DeviceObjectModel selectedConnectionObject, int newCount){
+  void updateObjectConnection(DeviceObjectModel selectedConnectionObject,int newCount){
     print('selectedConnectionObject  ${selectedConnectionObject.toJson()}');
     print('newCount : ${newCount}');
 
@@ -388,13 +401,11 @@ class ConfigMakerProvider extends ChangeNotifier{
         }
       }
     }
-
     for(var connectionObject in listOfObjectModelConnection){
       if(connectionObject.objectId == selectedConnectionObject.objectId){
         connectionObject.count = newCount.toString();
       }
     }
-
     // for(var object in listOfGeneratedObject){
     //   print('generated :: ${object.name} , ${object.sNo}  connection :: ${object.connectionNo}  deviceId :: ${object.deviceId}');
     // }
@@ -408,7 +419,9 @@ class ConfigMakerProvider extends ChangeNotifier{
     //   print('generated : ${obj.toJson()}');
     // }
 
+
     notifyListeners();
+
   }
 
   void noticeObjectForTemporary(List<int> listOfObjectId){
@@ -452,6 +465,7 @@ class ConfigMakerProvider extends ChangeNotifier{
   }
 
   void updateSelectedConnectionNoAndItsType(int no, String type){
+    print("no : $no, type : $type");
     selectedConnectionNo = no;
     selectedType = type;
     notifyListeners();
@@ -670,6 +684,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         "SumpTankFloatLow" : sumpTankLevel == null ? '' : serialNoOrEmpty(sumpTankLevel.bottomFloat),
         "IrrigationLine" : line.where((line) => (line.sourcePump.contains(pumpModelObject.commonDetails.sNo) || line.irrigationPump.contains(pumpModelObject.commonDetails.sNo))).map((line) => line.commonDetails.sNo).join('_'),
       };
+
       pumpPayload.add(payload.entries.map((e) => e.value).join(","));
     }
 

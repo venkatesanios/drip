@@ -142,11 +142,11 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                               spacing: 10,
                               children: [
                                 CircleAvatar(
-                                  backgroundColor: mqttService.connectionState == MqttConnectionState.connected ? Colors.greenAccent : Colors.red,
+                                  backgroundColor: mqttService.isConnected ? Colors.greenAccent : Colors.red,
                                   radius: 20,
                                   child: const Icon(Icons.computer, color: Colors.white,),
                                 ),
-                                Text('MQTT ${mqttService.connectionState.name}', style: const TextStyle(color: Colors.white),)
+                                Text('MQTT ${mqttService.mqttConnectionState.name}', style: const TextStyle(color: Colors.white),)
       
                               ],
                             );
@@ -349,7 +349,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                               }
                               await Future.delayed(const Duration(seconds: 1));
                               print("${payload['hardwareType']}\n sec ${sec + 1}   -- ${payload['deviceId']} \n ${mqttService.acknowledgementPayload }");
-                              if(mqttService.connectionState == MqttConnectionState.connected && mqttAttempt == true){
+                              if(mqttService.isConnected && mqttAttempt == true){
                                 mqttService.topicToPublishAndItsMessage(payload['payload'], '${Environment.mqttPublishTopic}/${configPvd.masterData['deviceId']}');
                                 mqttAttempt = false;
 

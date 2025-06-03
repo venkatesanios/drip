@@ -157,6 +157,11 @@ class Repository{
   Future<http.Response> fetchAllMySite(body) async {
      return await apiService.postRequest('/user/dashboard', body);
   }
+
+  Future<http.Response> updateControllerCommunicationMode(body) async {
+    return await apiService.putRequest('/user/deviceList/updateCommunicationMode', body);
+  }
+
   Future<http.Response> getUserFilterBackwasing(body) async {
     return await apiService.postRequest('/user/planning/filterBackwashing/get', body);
   }
@@ -347,7 +352,7 @@ class Repository{
     return await apiService.postRequest('/user/sequencePriority/update', body);
   }
 
-  Future<http.Response> createUserSentAndReceivedMessageManually(body) async {
+  Future<http.Response> sendManualOperationToServer(body) async {
     return await apiService.postRequest('/user/sentAndReceivedMessage/createManually', body);
   }
 
@@ -412,6 +417,8 @@ class Repository{
   Future<http.Response> updategeographyArea(body) async {
     return await apiService.putRequest('/user/deviceList/valveGeographyArea/update', body);
   }
-
+  Future<http.Response> getMqttConfigure() async {
+    return await apiService.getRequest('http://13.235.254.21:9000/getConfigs',type: "MQTTCONFIG");
+  }
 }
 

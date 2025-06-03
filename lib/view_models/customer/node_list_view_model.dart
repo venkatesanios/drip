@@ -211,7 +211,7 @@ class NodeListViewModel extends ChangeNotifier {
   void sentToServer(String msg, String data, int customerId, int controllerId, int userId) async
   {
     Map<String, Object> body = {"userId": customerId, "controllerId": controllerId, "messageStatus": msg, "hardware": jsonDecode(data), "createUser": userId};
-    final response = await Repository(HttpService()).createUserSentAndReceivedMessageManually(body);
+    final response = await Repository(HttpService()).sendManualOperationToServer(body);
     if (response.statusCode == 200) {
       print(response.body);
     } else {

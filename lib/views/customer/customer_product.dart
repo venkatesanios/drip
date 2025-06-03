@@ -60,7 +60,9 @@ class CustomerProduct extends StatelessWidget {
                 DataCell(Center(child: Text('${index + 1}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)))),
                 DataCell(Text(viewModel.productInventoryListCus[index].categoryName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12))),
                 DataCell(Text(viewModel.productInventoryListCus[index].model, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12))),
-                DataCell(Text(viewModel.productInventoryListCus[index].deviceId, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12))),
+                DataCell(SelectableText(
+                    viewModel.productInventoryListCus[index].deviceId, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)
+                )),
                 DataCell(Center(child: Text(viewModel.productInventoryListCus[index].productStatus==3? '-' :
                 viewModel.productInventoryListCus[index].siteName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)))),
                 DataCell(Center(child: viewModel.productInventoryListCus[index].productStatus==3? const Row(children: [CircleAvatar(backgroundColor: Colors.orange, radius: 5,), SizedBox(width: 5,),

@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/constants.dart';
-import '../../view_models/admin&dealer/inventory_view_model.dart';
+import '../../view_models/admin_dealer/inventory_view_model.dart';
 
 class ProductInventory extends StatelessWidget {
   const ProductInventory({super.key, required this.userId, required this.userName, required this.userRole});
@@ -41,8 +41,9 @@ class ProductInventory extends StatelessWidget {
               child: Column(
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
+                      TextButton(onPressed: (){}, child: Text('Add Item')),
                       viewModel.totalProduct > 25 ?Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [

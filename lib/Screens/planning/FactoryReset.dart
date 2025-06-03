@@ -60,7 +60,7 @@ class _Reset_AccumalationState extends State<Reset_Accumalation>
    createUserSentAndReceivedMessageManually(String hw) async {
     try{
       final Repository repository = Repository(HttpService());
-      var getUserDetails = await repository.createUserSentAndReceivedMessageManually(
+      var getUserDetails = await repository.sendManualOperationToServer(
         {"userId": widget.userId, "controllerId": widget.controllerId, "messageStatus": "Factory Reset", "hardware": hw, "createUser": widget.userId}
       );
 

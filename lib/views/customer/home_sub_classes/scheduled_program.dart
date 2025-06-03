@@ -8,8 +8,8 @@ import '../../../Models/customer/site_model.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../modules/IrrigationProgram/view/irrigation_program_main.dart';
 import '../../../repository/repository.dart';
+import '../../../services/communication_service.dart';
 import '../../../services/http_service.dart';
-import '../../../services/mqtt_service.dart';
 import '../../../utils/constants.dart';
 import '../../../utils/snack_bar.dart';
 
@@ -31,13 +31,14 @@ class ScheduledProgram extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final spLive = Provider.of<MqttPayloadProvider>(context).scheduledProgramPayload;
+    final conditionPayload = Provider.of<MqttPayloadProvider>(context).conditionPayload;
     if (spLive.isNotEmpty) {
-      _updateProgramsFromMqtt(spLive, scheduledPrograms);
+      _updateProgramsFromMqtt(spLive, scheduledPrograms, conditionPayload);
     }
 
-    var filteredScheduleProgram = currentLineSNo == 0
-        ? scheduledPrograms
-        : scheduledPrograms.where((program) {
+    var filteredScheduleProgram = currentLineSNo == 0 ?
+    scheduledPrograms :
+    scheduledPrograms.where((program) {
       return program.irrigationLine.contains(currentLineSNo);
     }).toList();
 
@@ -186,7 +187,8 @@ class ScheduledProgram extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                                filteredScheduleProgram[index].conditions.isNotEmpty?
+                                (filteredScheduleProgram[index].conditions.isNotEmpty &&
+                                    filteredScheduleProgram[index].conditions.every((c) => c.selected == true))?
                                 IconButton(
                                   tooltip: 'view condition',
                                   onPressed: () {
@@ -195,7 +197,7 @@ class ScheduledProgram extends StatelessWidget {
                                       filteredScheduleProgram[index].conditions,
                                     );
                                   },
-                                  icon: const Icon(Icons.visibility_outlined, color: Colors.teal,),
+                                  icon: const Icon(Icons.visibility_outlined),
                                 ):
                                 const SizedBox(),
                               ],
@@ -218,11 +220,10 @@ class ScheduledProgram extends StatelessWidget {
                                             String payLoadFinal = jsonEncode({
                                               "2900": {"2901": payload}
                                             });
-                                            MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-                                            sentUserOperationToServer(
-                                              '${filteredScheduleProgram[index].programName} ${getDescription(int.parse(filteredScheduleProgram[index].prgOnOff))}',
-                                              payLoadFinal,
-                                            );
+
+                                            final commService = Provider.of<CommunicationService>(context, listen: false);
+                                            commService.sendCommand(serverMsg: '${filteredScheduleProgram[index].programName} ${getDescription(int.parse(filteredScheduleProgram[index].prgOnOff))}', payload: payLoadFinal);
+
                                           }
                                         }else{
                                           GlobalSnackBar.show(context, 'Permission denied', 400);
@@ -256,11 +257,10 @@ class ScheduledProgram extends StatelessWidget {
                                                   String payLoadFinal = jsonEncode({
                                                     "2900": {"2901": payload}
                                                   });
-                                                  MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-                                                  sentUserOperationToServer(
-                                                    '${filteredScheduleProgram[index].programName} ${getDescription(int.parse(filteredScheduleProgram[index].prgPauseResume))}',
-                                                    payLoadFinal,
-                                                  );
+
+                                                  final commService = Provider.of<CommunicationService>(context, listen: false);
+                                                  commService.sendCommand(serverMsg: '${filteredScheduleProgram[index].programName} ${getDescription(int.parse(filteredScheduleProgram[index].prgPauseResume))}', payload: payLoadFinal);
+
                                                 }else{
                                                   GlobalSnackBar.show(context, 'Permission denied', 400);
                                                 }
@@ -328,11 +328,10 @@ class ScheduledProgram extends StatelessWidget {
                                             String payLoadFinal = jsonEncode({
                                               "6700": {"6701": payload}
                                             });
-                                            MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-                                            sentUserOperationToServer(
-                                              '${filteredScheduleProgram[index].programName} ${'Changed to $selectedItem'}',
-                                              payLoadFinal,
-                                            );
+
+                                            final commService = Provider.of<CommunicationService>(context, listen: false);
+                                            commService.sendCommand(serverMsg: '${filteredScheduleProgram[index].programName} ${'Changed to $selectedItem'}', payload: payLoadFinal);
+
                                             Navigator.pop(context);
                                           },
                                         ),
@@ -538,8 +537,9 @@ class ScheduledProgram extends StatelessWidget {
                                   String payLoadFinal = jsonEncode({
                                     "2900": {"2901": payload}
                                   });
-                                  MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-                                  sentUserOperationToServer('${program.programName} ${getDescription(int.parse(program.prgOnOff))}', payLoadFinal);
+
+                                  final commService = Provider.of<CommunicationService>(context, listen: false);
+                                  commService.sendCommand(serverMsg: '${program.programName} ${getDescription(int.parse(program.prgOnOff))}', payload: payLoadFinal);
                                   GlobalSnackBar.show(context, 'Comment sent successfully', 200);
                                 } else {
                                   GlobalSnackBar.show(context, 'Permission denied', 400);
@@ -558,8 +558,9 @@ class ScheduledProgram extends StatelessWidget {
                                 String payLoadFinal = jsonEncode({
                                   "2900": {"2901": payload}
                                 });
-                                MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-                                sentUserOperationToServer('${program.programName} ${getDescription(int.parse(program.prgPauseResume))}', payLoadFinal);
+
+                                final commService = Provider.of<CommunicationService>(context, listen: false);
+                                commService.sendCommand(serverMsg: '${program.programName} ${getDescription(int.parse(program.prgPauseResume))}', payload: payLoadFinal);
                                 GlobalSnackBar.show(context, 'Comment sent successfully', 200);
                               } else {
                                 GlobalSnackBar.show(context, 'Permission denied', 400);
@@ -590,8 +591,9 @@ class ScheduledProgram extends StatelessWidget {
                                     String payLoadFinal = jsonEncode({
                                       "6700": {"6701": payload}
                                     });
-                                    MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-                                    sentUserOperationToServer('${program.programName} Changed to $selectedItem', payLoadFinal);
+
+                                    final commService = Provider.of<CommunicationService>(context, listen: false);
+                                    commService.sendCommand(serverMsg: '${program.programName} Changed to $selectedItem', payload: payLoadFinal);
                                     GlobalSnackBar.show(context, 'Comment sent successfully', 200);
                                     Navigator.pop(context);
                                   },
@@ -617,8 +619,8 @@ class ScheduledProgram extends StatelessWidget {
 
   }
 
-  void _updateProgramsFromMqtt(List<String> spLive, List<ProgramList> scheduledPrograms) {
-
+  void _updateProgramsFromMqtt(List<String> spLive,
+      List<ProgramList> scheduledPrograms, List<String> conditionPayloadList) {
 
     for (var sp in spLive) {
       List<String> values = sp.split(",");
@@ -639,6 +641,25 @@ class ScheduledProgram extends StatelessWidget {
             ..prgOnOff = values[10]
             ..prgPauseResume = values[11]
             ..status = 1;
+
+          for (var payload in conditionPayloadList) {
+            List<String> parts = payload.split(",");
+            if (parts.length > 2) {
+              int? conditionSerialNo = int.tryParse(parts[0].trim());
+              int? conditionStatus = int.tryParse(parts[2].trim());
+              String? actualValue = parts[4].trim();
+
+              try {
+                final condition = scheduledPrograms[index]
+                    .conditions
+                    .firstWhere((c) => c.sNo == conditionSerialNo);
+                condition.conditionStatus = conditionStatus!;
+                condition.actualValue = actualValue;
+              } catch (e) {
+                // Not found — optionally handle or ignore
+              }
+            }
+          }
         }
       }
     }
@@ -722,8 +743,11 @@ class ScheduledProgram extends StatelessWidget {
               itemBuilder: (context, index) {
                 return ListTile(
                   title: Text(conditions[index].title,
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text(conditions[index].value.rule, style: const TextStyle(color: Colors.black54)),
+                      style: TextStyle(fontWeight: FontWeight.bold,
+                          color: conditions[index].conditionStatus==1? Colors.green : Colors.black)),
+                  subtitle: Text(conditions[index].value.rule,
+                      style: TextStyle(color: conditions[index].conditionStatus==1? Colors.green.shade700 : Colors.black54)),
+                  trailing: Text('Actual\n${conditions[index].actualValue}'),
                 );
               },
             ),
@@ -746,7 +770,7 @@ class ScheduledProgram extends StatelessWidget {
 
   Future<void> sentToServer(String msg, dynamic payLoad, int userId, int controllerId, int customerId) async {
     Map<String, Object> body = {"userId": customerId, "controllerId": controllerId, "messageStatus": msg.isNotEmpty ? msg : 'Just sent without changes', "data": payLoad, "hardware": payLoad, "createUser": userId};
-    final response = await Repository(HttpService()).createUserSentAndReceivedMessageManually(body);
+    final response = await Repository(HttpService()).sendManualOperationToServer(body);
     if (response.statusCode == 200) {
       print(response.body);
     } else {
@@ -754,16 +778,6 @@ class ScheduledProgram extends StatelessWidget {
     }
   }
 
-  void sentUserOperationToServer(String msg, String data) async
-  {
-    Map<String, Object> body = {"userId": customerId, "controllerId": controllerId, "messageStatus": msg, "hardware": jsonDecode(data), "createUser": userId};
-    final response = await Repository(HttpService()).createUserSentAndReceivedMessageManually(body);
-    if (response.statusCode == 200) {
-      print(response.body);
-    } else {
-      throw Exception('Failed to load data');
-    }
-  }
 
   bool getPermissionStatusBySNo(BuildContext context, int sNo) {
     MqttPayloadProvider payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);

@@ -88,64 +88,58 @@ class FilterWidget extends StatelessWidget {
           filter.onDelayLeft = otherParts[2];
         }
 
-        return Column(
-          children: [
-            Stack(
-              children: [
-                SizedBox(
-                  width: 70,
-                  height: kIsWeb ? 70 : 55,
-                  child: AppConstants.getAsset('filter', filter.status,''),
-                ),
-                filter.onDelayLeft != '00:00:00' && siteStatus!=0?
-                Positioned(
-                  top: kIsWeb? 55:35,
-                  left: 7.5,
-                  child: Container(
-                    width: 55,
-                    decoration: BoxDecoration(
-                      color:Colors.greenAccent,
-                      borderRadius: const BorderRadius.all(Radius.circular(2)),
-                      border: Border.all(color: Colors.grey, width: .50,),
-                    ),
-                    child: ChangeNotifierProvider(
-                      create: (_) => DecreaseDurationNotifier(filter.onDelayLeft),
-                      child: Stack(
-                        children: [
-                          Consumer<DecreaseDurationNotifier>(
-                            builder: (context, durationNotifier, _) {
-                              return Center(
-                                child: Text(durationNotifier.onDelayLeft,
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
+        return SizedBox(
+          width: 70,
+          height: 100,
+          child: Column(
+            children: [
+              Stack(
+                children: [
+                  SizedBox(width:70, height: 70,child: AppConstants.getAsset('filter', filter.status,'')),
+                  filter.onDelayLeft != '00:00:00' && siteStatus!=0?
+                  Positioned(
+                    top: kIsWeb? 55:35,
+                    left: 7.5,
+                    child: Container(
+                      width: 55,
+                      decoration: BoxDecoration(
+                        color:Colors.greenAccent,
+                        borderRadius: const BorderRadius.all(Radius.circular(2)),
+                        border: Border.all(color: Colors.grey, width: .50,),
+                      ),
+                      child: ChangeNotifierProvider(
+                        create: (_) => DecreaseDurationNotifier(filter.onDelayLeft),
+                        child: Stack(
+                          children: [
+                            Consumer<DecreaseDurationNotifier>(
+                              builder: (context, durationNotifier, _) {
+                                return Center(
+                                  child: Text(durationNotifier.onDelayLeft,
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ) :
-                const SizedBox(),
-              ],
-            ),
-            SizedBox(
-              width: 70,
-              height: 20,
-              child: Center(
-                child: Text(filter.name, style: const TextStyle(
-                  color: Colors.black54,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
-                ),
+                  ) :
+                  const SizedBox(),
+                ],
               ),
-            ),
-          ],
+              Text(filter.name, style: const TextStyle(
+                color: Colors.black54,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+              ),
+            ],
+          ),
         );
       },
     );
@@ -169,43 +163,36 @@ class PressureSensorWidget extends StatelessWidget {
         if(statusParts.isNotEmpty){
           sensor.value = statusParts[1];
         }
-
-        return Padding(
-          padding: kIsWeb?const EdgeInsets.only(top: 2.5):
-          const EdgeInsets.only(left: 0),
-          child: SizedBox(
-            width: 70,
-            height: 70,
-            child : Stack(
-              children: [
-                Center(
-                  child: kIsWeb
-                      ? Image.asset('assets/png/dp_prs_sensor.png')
-                      : Image.asset('assets/png/pressure_sensor.png', width: 35),
-                ),
-                Positioned(
-                  top: 42,
-                  left: 5,
-                  child: Container(
-                    width: 60,
-                    height: 17,
-                    decoration: BoxDecoration(
-                      color:Colors.yellow,
-                      borderRadius: const BorderRadius.all(Radius.circular(2)),
-                      border: Border.all(color: Colors.grey, width: .50,),
+        return SizedBox(
+          width: 70,
+          height: 70,
+          child : Stack(
+            children: [
+              Center(
+                child: Image.asset('assets/png/dp_prs_sensor.png'),
+              ),
+              Positioned(
+                top: 42,
+                left: 5,
+                child: Container(
+                  width: 60,
+                  height: 17,
+                  decoration: BoxDecoration(
+                    color:Colors.yellow,
+                    borderRadius: const BorderRadius.all(Radius.circular(2)),
+                    border: Border.all(color: Colors.grey, width: .50,),
+                  ),
+                  child: Center(
+                    child: Text('${sensor.value} bar', style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
                     ),
-                    child: Center(
-                      child: Text('${sensor.value} bar', style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      ),
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },

@@ -1,14 +1,16 @@
+import 'dart:convert';
+
+import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Screens/Dealer/sevicecustomer.dart';
 import 'package:oro_drip_irrigation/Screens/Logs/irrigation_and_pump_log.dart';
-import 'package:oro_drip_irrigation/Screens/Map/MapDeviceList.dart';
 import 'package:oro_drip_irrigation/Screens/planning/WeatherScreen.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/program_library.dart';
-import 'package:oro_drip_irrigation/views/customer/program_schedule.dart';
 import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
 import 'package:oro_drip_irrigation/views/customer/site_config.dart';
 import 'package:oro_drip_irrigation/views/customer/stand_alone.dart';
+import 'package:popover/popover.dart';
 import '../../Models/customer/site_model.dart';
 import 'package:provider/provider.dart';
 import '../../Screens/Dealer/controllerverssionupdate.dart';
@@ -17,13 +19,15 @@ import '../../Screens/Map/allAreaBoundry.dart';
 import '../../Screens/planning/FactoryReset.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../flavors.dart';
-import '../../modules/PumpController/model/pump_controller_data_model.dart';
 import '../../modules/PumpController/view/node_settings.dart';
 import '../../modules/ScheduleView/view/schedule_view_screen.dart';
 import '../../modules/PumpController/view/pump_controller_home.dart';
 import '../../repository/repository.dart';
+import '../../services/bluetooth_sevice.dart';
+import '../../services/communication_service.dart';
 import '../../services/http_service.dart';
 import '../../utils/formatters.dart';
+import '../../utils/my_function.dart';
 import '../../utils/routes.dart';
 import '../../utils/shared_preferences_helper.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
@@ -51,35 +55,17 @@ class CustomerScreenController extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String _correctPassword = 'Oro@321';
-
-
+    MqttPayloadProvider mqttProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => NavRailViewModel()),
         ChangeNotifierProvider(
-          create: (_) => CustomerScreenControllerViewModel(context, Repository(HttpService()))..getAllMySites(context, customerId),
+          create: (_) => CustomerScreenControllerViewModel(context, Repository(HttpService()), mqttProvider)
+            ..getAllMySites(context, customerId),
         ),
       ],
       child: Consumer2<NavRailViewModel, CustomerScreenControllerViewModel>(
         builder: (context, navViewModel, vm, _) {
-          final mqttProvider = Provider.of<MqttPayloadProvider>(context);
-
-          int wifiStrength = mqttProvider.wifiStrength;
-          String liveDataAndTime = mqttProvider.liveDateAndTime;
-          var iLineLiveMessage = mqttProvider.lineLiveMessage;
-          int powerSupply = mqttProvider.powerSupply;
-          var currentSchedule = mqttProvider.currentSchedule;
-          bool isLiveSynced = mqttProvider.isLiveSynced;
-
-          if (liveDataAndTime.isNotEmpty) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              vm.updateLivePayload(wifiStrength, liveDataAndTime, currentSchedule);
-            });
-          } else {
-            print("liveDataAndTime is empty.");
-          }
-
           if(vm.isLoading){
             return const Scaffold(body: Center(child: Text('Site loading please waite....')));
           }
@@ -90,9 +76,9 @@ class CustomerScreenController extends StatelessWidget {
                   fromLogin ?const SizedBox():
                   const SizedBox(width: 10),
                   fromLogin ? Image(
-                    image: F.appFlavor!.name.contains('oro')?const AssetImage("assets/png/oro_logo_white.png"):
+                    image: F.appFlavor!.name.contains('oro')? const AssetImage("assets/png/oro_logo_white.png"):
                     const AssetImage("assets/png/company_logo.png"),
-                    width: 110,
+                    width: F.appFlavor!.name.contains('oro')? 70:110,
                     fit: BoxFit.fitWidth,
                   ):
                   const SizedBox(),
@@ -279,21 +265,17 @@ class CustomerScreenController extends StatelessWidget {
 
                     const SizedBox(width: 10,),
 
-                    (iLineLiveMessage.isNotEmpty &&
+                    (vm.lineLiveMessage.isNotEmpty &&
                         vm.mySiteList.data[vm.sIndex].master[vm.mIndex].irrigationLine.length > 1)?
                     Builder(
                       builder: (context) {
-                        bool allPaused = iLineLiveMessage.every((line) {
+                        bool allPaused = vm.lineLiveMessage.every((line) {
                           final parts = line.split(',');
                           return parts.length > 1 && parts[1] == '1';
                         });
 
                         return TextButton(
-                          onPressed: () => vm.linePauseOrResume(
-                            iLineLiveMessage,
-                            customerId,
-                            vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                          ),
+                          onPressed: () => vm.linePauseOrResume(vm.lineLiveMessage),
                           style: ButtonStyle(
                             backgroundColor: WidgetStateProperty.all<Color>(
                               allPaused ? Colors.green : Colors.orange,
@@ -509,7 +491,7 @@ class CustomerScreenController extends StatelessWidget {
                     child: Column(
                       children: [
                         if (vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1) ...[
-                          if (!isLiveSynced)
+                          if (!vm.isLiveSynced)
                             Container(
                               height: 20.0,
                               decoration: BoxDecoration(
@@ -529,7 +511,7 @@ class CustomerScreenController extends StatelessWidget {
                                 ),
                               ),
                             )
-                          else if (powerSupply == 0)
+                          else if (vm.powerSupply == 0)
                             Container(
                               height: 23.0,
                               decoration: BoxDecoration(
@@ -604,30 +586,8 @@ class CustomerScreenController extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 15),
-                          Container(
-                            width: 45,
-                            height: 45,
-                            decoration: const BoxDecoration(
-                              color: Colors.transparent,
-                              borderRadius: BorderRadius.all(Radius.circular(5)),
-                            ),
-                            child: BadgeButton(
-                              onPressed: (){
-                                /*showPopover(
-                                context: context,
-                                bodyBuilder: (context) => AlarmListItems(payload:payload, deviceID:deviceID, customerId: customerId, controllerId: controllerId,),
-                                onPop: () => print('Popover was popped!'),
-                                direction: PopoverDirection.left,
-                                width: payload.alarmList.isNotEmpty?600:250,
-                                height: payload.alarmList.isNotEmpty?(payload.alarmList.length*45)+20:50,
-                                arrowHeight: 15,
-                                arrowWidth: 30,
-                              );*/
-                              },
-                              icon: Icons.alarm,
-                              badgeNumber: 0,
-                            ),
-                          ),
+                          AlarmButton(alarmPayload: vm.alarmDL, deviceID: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                            customerId: customerId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,),
                           const SizedBox(height: 15),
                           CircleAvatar(
                             radius: 20,
@@ -884,11 +844,11 @@ class CustomerScreenController extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Enter Password'),
+          title: const Text('Enter Password'),
           content: TextField(
             controller: passwordController,
             obscureText: true,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: 'Password',
               border: OutlineInputBorder(),
             ),
@@ -898,14 +858,14 @@ class CustomerScreenController extends StatelessWidget {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
                 final enteredPassword = passwordController.text;
 
                 if (enteredPassword == correctPassword) {
-                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).pop();
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) =>  ResetVerssion(userId: userId, controllerId: controllerID, deviceID: imeiNumber,)),
@@ -915,7 +875,7 @@ class CustomerScreenController extends StatelessWidget {
                   showErrorDialog(context);
                 }
               },
-              child: Text('Submit'),
+              child: const Text('Submit'),
             ),
           ],
         );
@@ -928,14 +888,14 @@ class CustomerScreenController extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Error'),
-          content: Text('Incorrect password. Please try again.'),
+          title: const Text('Error'),
+          content: const Text('Incorrect password. Please try again.'),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('OK'),
+              child: const Text('OK'),
             ),
           ],
         );
@@ -1132,4 +1092,121 @@ class BadgeButton extends StatelessWidget {
       ],
     );
   }
+}
+
+class AlarmButton extends StatelessWidget {
+  const AlarmButton({super.key, required this.alarmPayload, required this.deviceID, required this.customerId, required this.controllerId});
+  final List<String> alarmPayload;
+  final String deviceID;
+  final int customerId, controllerId;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 45,
+      height: 45,
+      decoration: const BoxDecoration(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.all(Radius.circular(5)),
+      ),
+      child: BadgeButton(
+        onPressed: (){
+          showPopover(
+            context: context,
+            bodyBuilder: (context) => AlarmListItems(alarm : alarmPayload, deviceID:deviceID, customerId: customerId, controllerId: controllerId,),
+            onPop: () => print('Popover was popped!'),
+            direction: PopoverDirection.left,
+            width: alarmPayload[0].isNotEmpty?600:150,
+            height: alarmPayload[0].isNotEmpty?(alarmPayload.length*45)+20:50,
+            arrowHeight: 15,
+            arrowWidth: 30,
+          );
+        },
+        icon: Icons.alarm,
+        badgeNumber: (alarmPayload.isNotEmpty && alarmPayload[0].isNotEmpty) ?
+        alarmPayload.length : 0,
+      ),
+    );
+  }
+}
+
+class AlarmListItems extends StatelessWidget {
+  const AlarmListItems({super.key, required this.alarm, required this.deviceID, required this.customerId, required this.controllerId});
+  final List<String> alarm;
+
+  final String deviceID;
+  final int customerId, controllerId;
+
+  @override
+  Widget build(BuildContext context) {
+    return alarm[0].isNotEmpty? DataTable2(
+      columnSpacing: 12,
+      horizontalMargin: 12,
+      minWidth: 600,
+      dataRowHeight: 45.0,
+      headingRowHeight: 35.0,
+      headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withOpacity(0.1)),
+      columns: const [
+        DataColumn2(
+          label: Text('', style: TextStyle(fontSize: 13)),
+          fixedWidth: 40,
+        ),
+        DataColumn2(
+            label: Text('Message', style: TextStyle(fontSize: 13),),
+            size: ColumnSize.L
+        ),
+        DataColumn2(
+            label: Text('Location', style: TextStyle(fontSize: 13),),
+            size: ColumnSize.M
+        ),
+        DataColumn2(
+            label: Text('Date-time', style: TextStyle(fontSize: 13),),
+            size: ColumnSize.L
+        ),
+        DataColumn2(
+          label: Center(child: Text('', style: TextStyle(fontSize: 13),)),
+          fixedWidth: 80,
+        ),
+      ],
+      rows: List<DataRow>.generate(alarm.length, (index) {
+        List<String> values = alarm[index].split(',');
+        return DataRow(cells: [
+          DataCell(Icon(Icons.warning_amber, color: values[7]=='1' ? Colors.orangeAccent : Colors.redAccent,)),
+          DataCell(Text(MyFunction().getAlarmMessage(int.parse(values[2])))),
+          DataCell(Text(values[1])),
+          DataCell(Text('${values[5]} - ${values[6]}')),
+          DataCell(Center(child: MaterialButton(
+            color: Colors.redAccent,
+            textColor: Colors.white,
+            onPressed: () async {
+              String finalPayload =  values[0];
+              String payLoadFinal = jsonEncode({
+                "4100": {"4101": finalPayload}
+              });
+
+              final result = await context.read<CommunicationService>().sendCommand(
+                  serverMsg: 'Rested the ${MyFunction().getAlarmMessage(int.parse(values[2]))} alarm',
+                  payload: payLoadFinal);
+
+              if (result['http'] == true) {
+                debugPrint("Payload sent to Server");
+              }
+              if (result['mqtt'] == true) {
+                debugPrint("Payload sent to MQTT Box");
+              }
+              if (result['bluetooth'] == true) {
+                debugPrint("Payload sent via Bluetooth");
+              }
+
+              Navigator.pop(context);
+
+            },
+            child: const Text('Reset'),
+          ))),
+        ]);
+      }),
+    ):
+    const Center(child: Text('Alarm not found'));
+  }
+
 }

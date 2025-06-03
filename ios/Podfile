@@ -1,4 +1,5 @@
- # Specify the minimum iOS version (required for google_maps_flutter_ios)
+
+  # Specify the minimum iOS version (required for google_maps_flutter_ios)
 platform :ios, '15.0'
 
 # Disable CocoaPods analytics to reduce build latency
@@ -33,6 +34,7 @@ target 'Runner' do
 
   # Firebase dependencies (uncomment firebase_messaging if needed)
   pod 'Firebase', :modular_headers => true
+  pod 'Firebase/Auth', :modular_headers => true
   pod 'FirebaseCore', :modular_headers => true
   # pod 'firebase_messaging', :modular_headers => true
 

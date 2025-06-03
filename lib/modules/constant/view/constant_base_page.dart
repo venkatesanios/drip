@@ -93,7 +93,9 @@ class _ConstantBasePageState extends State<ConstantBasePage> with SingleTickerPr
             return Text('Error: ${snapshot.error}'); // Error state
           } else if (snapshot.hasData) {
             return Scaffold(
-              backgroundColor: Theme.of(context).primaryColor.withOpacity(0.03),
+              appBar: MediaQuery.of(context).size.width < 500 ? AppBar(
+                title: Text('Constant'),
+              ): null,
               floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
               floatingActionButton: Row(
                 spacing: 20,

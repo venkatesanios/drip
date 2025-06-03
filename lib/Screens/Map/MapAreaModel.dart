@@ -190,6 +190,7 @@ ValveResponseModel valveResponseModelFromJson(String str) =>
     for (final value in values) {
       if (value.startsWith(serialNumber)) {
         final parts = value.split(',');
+        print('getvalvestatus----$serialNumber--->${parts[1]}');
         return int.parse(parts[1]);
       }
     }

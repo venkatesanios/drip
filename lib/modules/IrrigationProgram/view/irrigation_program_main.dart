@@ -579,12 +579,12 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
             ? conditionsLibraryIsNotEmpty
             ? SelectionScreen(modelId: widget.modelId,)
             : WaterAndFertilizerScreen(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram, modelId: widget.modelId,)
-            : const AlarmScreen();
+            : AlarmScreen(modelId: widget.modelId,);
       case 4:
         return isIrrigationProgram
             ? conditionsLibraryIsNotEmpty
             ? WaterAndFertilizerScreen(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram, modelId: widget.modelId,)
-            : const AlarmScreen()
+            : AlarmScreen(modelId: widget.modelId,)
             : AdditionalDataScreen(
             userId: widget.customerId, controllerId: widget.controllerId, deviceId: widget.deviceId,
             serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer,
@@ -593,7 +593,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
       case 5:
         return isIrrigationProgram
             ? conditionsLibraryIsNotEmpty
-            ? const AlarmScreen()
+            ? AlarmScreen(modelId: widget.modelId,)
             : AdditionalDataScreen(
           userId: widget.customerId, controllerId: widget.controllerId, deviceId: widget.deviceId,
           serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer,

@@ -1,16 +1,17 @@
 import 'dart:async';
-import 'package:az_notification_hub/az_notification_hub.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/app/app.dart';
 import 'package:oro_drip_irrigation/modules/PumpController/state_management/pump_controller_provider.dart';
-import 'package:oro_drip_irrigation/services/bluetooth_manager.dart';
+import 'package:oro_drip_irrigation/services/bluetooth_sevice.dart';
+import 'package:oro_drip_irrigation/services/communication_service.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'Screens/Constant/ConstantPageProvider/changeNotifier_constantProvider.dart';
+import 'app/app.dart';
+import 'StateManagement/customer_provider.dart';
 import 'firebase_options.dart';
 import 'modules/IrrigationProgram/state_management/irrigation_program_provider.dart';
 import 'modules/Preferences/state_management/preference_provider.dart';
@@ -57,9 +58,6 @@ FutureOr<void> main() async {
 
       // Set up Firebase background message handler
       FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-      // Start Azure Notification Hub
-      await AzureNotificationHub.instance.start();
     } catch (e) {
       debugPrint('Initialization error: $e');
     }
@@ -67,24 +65,35 @@ FutureOr<void> main() async {
 
 
 
-  final mqttService = MqttService();
-  final myMqtt = MqttPayloadProvider();
+  /*final mqttService = MqttService();
+  final myMqtt = MqttPayloadProvider();*/
 
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => CustomerProvider()),
         ChangeNotifierProvider(create: (_) => ConfigMakerProvider()),
         ChangeNotifierProvider(create: (_) => IrrigationProgramMainProvider()),
-        ChangeNotifierProvider(create: (_) => myMqtt),
+        ChangeNotifierProvider(create: (_) => MqttPayloadProvider()),
         ChangeNotifierProvider(create: (_) => OverAllUse()),
         ChangeNotifierProvider(create: (_) => PreferenceProvider()),
         ChangeNotifierProvider(create: (_) => SystemDefinitionProvider()),
         ChangeNotifierProvider(create: (_) => ConstantProviderMani()),
         ChangeNotifierProvider(create: (_) => ConstantProvider()),
         ChangeNotifierProvider(create: (_) => PumpControllerProvider()),
-        ChangeNotifierProvider(create: (_) => BluetoothManager()),
+
+        ProxyProvider2<MqttPayloadProvider, CustomerProvider, CommunicationService>(
+          update: (BuildContext context, MqttPayloadProvider mqttService, CustomerProvider customer, CommunicationService? previous) {
+            return CommunicationService(
+              mqttService: MqttService(),
+              blueService: BluService(),
+              customerProvider: customer,
+            );
+          },
+        ),
+
       ],
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }

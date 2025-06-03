@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../Constants/data_convertion.dart';
 import '../Models/Weather_model.dart';
 import '../Models/customer/site_model.dart';
 import '../Screens/Map/googlemap_model.dart';
+import '../services/bluetooth_sevice.dart';
 
 enum MQTTConnectionState { connected, disconnected, connecting }
 
@@ -25,16 +23,12 @@ class MqttPayloadProvider with ChangeNotifier {
   List viewSettingsList = [];
   List cCList = [];
   Map<String, dynamic> viewSetting = {};
-  // bool isCommunicatable = false;
-  // bool isWaiting = false;
   int dataFetchingStatus = 2;
   List<dynamic> unitList = [];
 
   //Todo : Dashboard start
   int tryingToGetPayload = 0;
-
   String version = '';
-
   dynamic listOfSite = [];
   dynamic listOfSharedUser = {};
   bool httpError = false;
@@ -85,8 +79,16 @@ class MqttPayloadProvider with ChangeNotifier {
   String ctrllogtimecheck = '';
   List<dynamic> userPermission = [];
   List<dynamic> units = [];
+   Map<String, dynamic> mqttUpdateSettings = {};
+   Set<String> scheduleMessagesSet = {};
+   Set<String> uardMessagesSet = {};
+   Set<String> uard0MessagesSet = {};
+   Set<String> uard4MessagesSet = {};
 
   //kamaraj
+   String _receivedPayload = '';
+   String get receivedPayload => _receivedPayload;
+
   int powerSupply = 0;
   bool onRefresh = false;
   bool isLiveSynced = false;
@@ -97,23 +99,67 @@ class MqttPayloadProvider with ChangeNotifier {
   List<String> currentSchedule = [];
   List<String> nextSchedule = [];
   List<String> scheduledProgramPayload = [];
+   List<String> conditionPayload = [];
   List<String> lineLiveMessage = [];
+  List<String> alarmDL = [];
 
    final Map<String, String> _pumpOnOffStatusMap = {};
    final Map<String, String> _pumpOtherDetailMap = {};
-
    final Map<String, String> _filterOnOffStatusMap = {};
    final Map<String, String> _filterOtherDetailMap = {};
-
    final Map<String, String> _channelOnOffStatusMap = {};
    final Map<String, String> _channelOtherDetailMap = {};
-
    final Map<String, String> _valveOnOffStatusMap = {};
-
    final Map<String, String> _sensorValueMap = {};
-
    final Map<String, String> _boosterPumpOnOffStatusMap = {};
 
+   //for blue service
+   CustomDevice? _connectedDevice;
+   CustomDevice? get connectedDevice => _connectedDevice;
+
+   List<CustomDevice> _pairedDevices = [];
+   List<CustomDevice> get pairedDevices => _pairedDevices;
+
+   List<Map<String, dynamic>> _wifiList = [];
+   String? _wifiMessage;
+
+   List<Map<String, dynamic>> get wifiList => _wifiList;
+   String? get wifiMessage => _wifiMessage;
+
+   void updateConnectedDeviceStatus(CustomDevice? device) {
+     _connectedDevice = device;
+     notifyListeners();
+   }
+
+   void updatePairedDevices(List<CustomDevice> devices) {
+     _pairedDevices = devices;
+     notifyListeners();
+   }
+
+   void updateDeviceStatus(String address, int status) {
+     for (var device in _pairedDevices) {
+       if (device.device.address == address) {
+         device.status = status;
+         notifyListeners();
+         break;
+       }
+     }
+   }
+
+   void updateWifiList(List<Map<String, dynamic>> list) {
+     _wifiList = list;
+     notifyListeners();
+   }
+
+   void updateWifiMessage(String? message) {
+     _wifiMessage = message;
+     notifyListeners();
+   }
+
+   void clearWifiMessage() {
+     _wifiMessage = null;
+     notifyListeners();
+   }
 
   void updateMapData(data){
     print("updateMapData $data");
@@ -158,7 +204,6 @@ class MqttPayloadProvider with ChangeNotifier {
     }
     notifyListeners();
   }
-
 
   void updateLocalFertigationSite(){
     if(timerForLocalFertigation != null){
@@ -475,114 +520,115 @@ class MqttPayloadProvider with ChangeNotifier {
 
   }
 
+  void updateReceivedPayload(String newPayload, bool dataFromHttp) async{
 
+    if (_receivedPayload != newPayload) {
+      _receivedPayload = newPayload;
 
-  void updateReceivedPayload(String payload,bool dataFromHttp) async{
-    if (kDebugMode) {
-      // print("updateReceivedPayload ====$payload");
+      if(!dataFromHttp) {
+        dataFetchingStatus = 1;
+      } else {
+        dataFetchingStatus = 3;
+      }
 
-    }
-    if(!dataFromHttp) {
-      dataFetchingStatus = 1;
-    } else {
-      dataFetchingStatus = 3;
-    }
-    try {
-      // Todo : Dashboard payload start
-      Map<String, dynamic> data = payload.isNotEmpty? jsonDecode(payload) : {};
-      //print('\ncheck contain ${data.containsKey('6603')}');
-      final prettyJson = const JsonEncoder.withIndent('  ').convert(data);
-      // print('Live Payload:\n$prettyJson');
-      //live payload
-      if(data['mC']=='2400'){
-        isLiveSynced = true;
-        liveDateAndTime = '${data['cD']} ${data['cT']}';
-        wifiStrength = data['cM']['WifiStrength'];
-        powerSupply = data['cM']['PowerSupply'];
-        updateNodeLiveMessage(data['cM']['2401'].split(";"));
-        updateOutputStatusPayload(data['cM']['2402'].split(";"));
+      try {
+        Map<String, dynamic> data = _receivedPayload.isNotEmpty? jsonDecode(_receivedPayload) : {};
+        print('_receivedPayload------>:$_receivedPayload');
 
-        updateAllPumpPayloads(data['cM']['2402'].split(";"), data['cM']['2404'].split(";"));
-        updateFilterSitePayloads(data['cM']['2402'].split(";"), data['cM']['2406'].split(";"));
-        updateFertilizerSitePayloads(data['cM']['2402'].split(";"), data['cM']['2407'].split(";"));
+        if(data['mC']=='2400'){
+          isLiveSynced = true;
+          liveDateAndTime = '${data['cD']} ${data['cT']}';
+          wifiStrength = data['cM']['WifiStrength'];
+          powerSupply = data['cM']['PowerSupply'];
+          updateNodeLiveMessage(data['cM']['2401'].split(";"));
+          updateOutputStatusPayload(data['cM']['2402'].split(";"));
 
-        updateValveStatus(data['cM']['2402'].split(";"));
-        updateSensorValue(data['cM']['2403'].split(";"));
-        updateBoosterPumpStatus(data['cM']['2402'].split(";"));
+          updateAllPumpPayloads(data['cM']['2402'].split(";"), data['cM']['2404'].split(";"));
+          updateFilterSitePayloads(data['cM']['2402'].split(";"), data['cM']['2406'].split(";"));
+          updateFertilizerSitePayloads(data['cM']['2402'].split(";"), data['cM']['2407'].split(";"));
 
-        updateLineLiveMessage(data['cM']['2405'].split(";"));
-        updateCurrentProgram(data['cM']['2408'].split(";"));
-        updateNextProgram(data['cM']['2409'].split(";"));
-        updateScheduledProgram(data['cM']['2410'].split(";"));
+          updateValveStatus(data['cM']['2402'].split(";"));
+          updateSensorValue(data['cM']['2403'].split(";"));
+          updateBoosterPumpStatus(data['cM']['2402'].split(";"));
 
+          updateLineLiveMessage(data['cM']['2405'].split(";"));
+          updateCurrentProgram(data['cM']['2408'].split(";"));
+          updateNextProgram(data['cM']['2409'].split(";"));
+          updateScheduledProgram(data['cM']['2410'].split(";"));
+          updateAlarm(data['cM']['2412'].split(";"));
+          notifyListeners();
+        }
+
+        else if(data.containsKey('3600') && data['3600'] != null && data['3600'].isNotEmpty){
+          schedulePayload = _receivedPayload;
+        }
+        else if(data.containsKey('5100') && data['5100'] != null && data['5100'].isNotEmpty){
+          weatherModelinstance = WeatherModel.fromJson(data);
+        }
+        else if(data['mC'] != null && data["mC"].contains("VIEW")) {
+          cCList = {...cCList, data['cC']}.toList();
+          viewSetting = data;
+          if (!viewSettingsList.contains(jsonEncode(data['cM']))) {
+            viewSettingsList.add(jsonEncode(data["cM"]));
+            // print("viewSettingsList ==> $viewSettingsList");
+          }
+        }
+        if(data['cM'] is! List<dynamic>) {
+          if (data['mC'] != null && data['cM'].containsKey('4201')) {
+            messageFromHw = data['cM']['4201'];
+          }
+        }
+        if(data.containsKey("cM") && data["cM"] is! List && (data["cM"] as Map).containsKey("6601")){
+          if(ctrllogtimecheck != data['cT']){
+            sheduleLog += "\n";
+            sheduleLog += data['cM']['6601'];
+            ctrllogtimecheck = data['cT'];
+          }
+
+        }
+        if(data.containsKey("cM") && data["cM"] is! List && (data["cM"] as Map).containsKey("6602")){
+          if(ctrllogtimecheck != data['cT']) {
+            uardLog += "\n";
+            uardLog += data['cM']['6602'];
+            ctrllogtimecheck = data['cT'];
+          }
+        }
+        if(data.containsKey("cM") && data["cM"] is! List && (data["cM"] as Map).containsKey("6603"))
+        {
+          if(ctrllogtimecheck != data['cT']) {
+            uard0Log += "\n";
+            uard0Log += data['cM']['6603'];
+            ctrllogtimecheck = data['cT'];
+          }
+
+        }
+        if(data.containsKey("cM") && data["cM"] is! List && (data["cM"] as Map).containsKey("6604"))
+        {
+          if(ctrllogtimecheck != data['cT']) {
+            uard4Log += "\n";
+            uard4Log += data['cM']['6604'];
+            ctrllogtimecheck = data['cT'];
+          }
+        }
+        if(data['cM'].containsKey("6801")){
+          mqttUpdateSettings = data['cM']['6801'];
+        }
+      } catch (e, stackTrace) {
+        print('Error parsing JSON: $e');
+        print('Stacktrace while parsing json : $stackTrace');
+      }
+      finally{
         notifyListeners();
       }
-      else if(data.containsKey('3600') && data['3600'] != null && data['3600'].isNotEmpty){
-        // mySchedule.dataFromMqttConversion(payload);
-        schedulePayload = payload;
-      } else if(data.containsKey('5100') && data['5100'] != null && data['5100'].isNotEmpty){
-        weatherModelinstance = WeatherModel.fromJson(data);
-      } else if(data['mC'] != null && data["mC"].contains("VIEW")) {
-         cCList = {...cCList, data['cC']}.toList();
-        viewSetting = data;
-        if (!viewSettingsList.contains(jsonEncode(data['cM']))) {
-          viewSettingsList.add(jsonEncode(data["cM"]));
-          // print("viewSettingsList ==> $viewSettingsList");
-        }
-      }
-      // Check if 'mC' is 4200
-      if(data['cM'] is! List<dynamic>) {
-        if (data['mC'] != null && data['cM'].containsKey('4201')) {
-          messageFromHw = data['cM']['4201'];
-        }
-        }
-
-           if(data.containsKey("cM") && data["cM"] is! List && (data["cM"] as Map).containsKey("6601")){
-              if(ctrllogtimecheck != data['cT']){
-               sheduleLog += "\n";
-               sheduleLog += data['cM']['6601'];
-               ctrllogtimecheck = data['cT'];
-             }
-
-           }
-          if(data.containsKey("cM") && data["cM"] is! List && (data["cM"] as Map).containsKey("6602")){
-
-            if(ctrllogtimecheck != data['cT']) {
-              uardLog += "\n";
-              uardLog += data['cM']['6602'];
-              ctrllogtimecheck = data['cT'];
-            }
-          }
-          if(data.containsKey("cM") && data["cM"] is! List && (data["cM"] as Map).containsKey("6603")){
-             if(ctrllogtimecheck != data['cT']) {
-              uard0Log += "\n";
-              uard0Log += data['cM']['6603'];
-              ctrllogtimecheck = data['cT'];
-            }
-
-          }
-          if(data.containsKey("cM") && data["cM"] is! List && (data["cM"] as Map).containsKey("6604")){
-             if(ctrllogtimecheck != data['cT']) {
-              uard4Log += "\n";
-              uard4Log += data['cM']['6604'];
-              ctrllogtimecheck = data['cT'];
-            }
-
-          }
-
-
-
-    } catch (e, stackTrace) {
-      print('Error parsing JSON: $e');
-      print('Stacktrace while parsing json : $stackTrace');
     }
+
+
     if(irrigationPump.isEmpty){
       loading = true;
     }else{
       loading = false;
     }
     tryingToGetPayload = 0;
-    notifyListeners();
 
 
     updateSourcePump();
@@ -591,8 +637,6 @@ class MqttPayloadProvider with ChangeNotifier {
     updateCentralFertigationSite();
     updateCentralFiltrationSite();
     updateLocalFiltrationSite();
-    // updateCurrentSchedule();
-    notifyListeners();
   }
 
   //Todo : Dashboard stop
@@ -682,7 +726,6 @@ class MqttPayloadProvider with ChangeNotifier {
      }
    }
 
-
    void updateValveStatus(List<String> valveOnOffPayload) {
      for (final entry in valveOnOffPayload) {
        if (!entry.startsWith('13.')) continue;
@@ -712,7 +755,6 @@ class MqttPayloadProvider with ChangeNotifier {
      }
    }
 
-
   void updateCurrentProgram(List<String> program) {
     currentSchedule = program;
   }
@@ -721,9 +763,17 @@ class MqttPayloadProvider with ChangeNotifier {
     nextSchedule = program;
   }
 
+   void updateAlarm(List<String> alm) {
+     alarmDL = alm;
+   }
+
   void updateScheduledProgram(List<String> program) {
     scheduledProgramPayload = program;
   }
+
+   void updateCondition(List<String> con) {
+     conditionPayload = con;
+   }
 
   void saveUnits(List<dynamic> units) {
     unitList = units;
@@ -731,12 +781,13 @@ class MqttPayloadProvider with ChangeNotifier {
 
   void updateMQTTConnectionState(MQTTConnectionState state) {
     _appConnectionState = state;
-    notifyListeners();
+    Future.delayed(Duration.zero, () {
+      notifyListeners();
+    });
   }
 
-
-  String? getPumpOnOffStatus(String sNo) => _pumpOnOffStatusMap[sNo];
-  String? getPumpOtherData(String sNo) => _pumpOtherDetailMap[sNo];
+   String? getPumpOnOffStatus(String sNo) => _pumpOnOffStatusMap[sNo];
+   String? getPumpOtherData(String sNo) => _pumpOtherDetailMap[sNo];
    String? getFilterOnOffStatus(String sNo) => _filterOnOffStatusMap[sNo];
    String? getFilterOtherData(String sNo) => _filterOtherDetailMap[sNo];
    String? getChannelOnOffStatus(String sNo) => _channelOnOffStatusMap[sNo];
@@ -744,7 +795,6 @@ class MqttPayloadProvider with ChangeNotifier {
    String? getValveOnOffStatus(String sNo) => _valveOnOffStatusMap[sNo];
    String? getSensorUpdatedValve(String sNo) => _sensorValueMap[sNo];
    String? getBoosterPumpOnOffStatus(String sNo) => _boosterPumpOnOffStatusMap[sNo];
-
 
   String get receivedDashboardPayload => dashBoardPayload;
   String get receivedSchedulePayload => schedulePayload;

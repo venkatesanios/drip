@@ -61,15 +61,18 @@ dependencies:
   shared_preferences: ^2.5.3
   connectivity_plus: ^6.1.4
   webview_flutter: ^4.11.0
-  flutter_local_notifications: ^19.1.0
   firebase_messaging: ^15.2.5
   intl_phone_field: ^3.2.0
   bluetooth_classic: ^0.0.3
-  az_notification_hub: ^1.1.2
   flutter_dotenv: ^5.2.1
   path_provider: ^2.1.5
   url_launcher: ^6.3.1
   package_info_plus: ^8.3.0
+  flutter_launcher_icons: ^0.14.3
+  qr_code_scanner_plus: ^2.0.10+1
+  vibration: ^3.1.3
+  mobile_scanner: ^6.0.10
+  flutter_local_notifications: ^19.2.1
 
 dev_dependencies:
   flutter_test:
@@ -105,8 +108,18 @@ flutter:
     - assets/mob_dashboard/
     - assets/gif/
     - assets/gif/dp_irr_pump_g.gif
+    - assets/oro_store.png
+    - assets/playstore.png
+    - assets/ic_launcher.png
+    - assets/smartcomm_playstore.png
+    - assets/smartcomm_launcher.png
     - assets/.env
-
+flutter_launcher_icons:
+    android: true
+    ios: true
+    image_path: "assets/playstore.png"
+    adaptive_icon_background: "#FFFFFF"
+    adaptive_icon_foreground: "assets/oro_store.png"
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
@@ -138,28 +151,28 @@ flavorizr:
     ios:
       targets:
         Runner:
-          bundleId: "com.example"
+          bundleId: "com.niagaraautomations"
   flavors:
     oroDevelopment:
       app:
         name: "ORO"
       android:
-        applicationId: "com.example.oroDevelopment"
+        applicationId: "com.niagaraautomations.oroDevelopment"
     #      ios:
-    #        bundleId: "com.example.apple"
+    #        bundleId: "com.niagaraautomations.apple"
     oroProduction:
       app:
         name: "ORO"
       android:
-        applicationId: "com.example.oro_drip_irrigation"
+        applicationId: "com.niagaraautomations.oroDripirrigation"
     #      ios:
-    #        bundleId: "com.example.apple"
+    #        bundleId: "com.niagaraautomations.apple"
     smartComm:
       app:
         name: "SMART COMM"
       android:
-        applicationId: "com.example.SmartComm"
+        applicationId: "com.niagaraautomations.SmartComm"
 #      ios:
-#        bundleId: "com.example.banana"
+#        bundleId: "com.niagaraautomations.banana"
 #      macos:
-#        bundleId: "com.example.banana"
+#        bundleId: "com.niagaraautomations.banana"
