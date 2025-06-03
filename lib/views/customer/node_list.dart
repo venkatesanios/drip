@@ -124,7 +124,7 @@ class NodeList extends StatelessWidget {
                                       },
                                     )));
                                   },
-                                    child: const Icon(Icons.info_outline,)
+                                    child: const Icon(Icons.bluetooth,)
                                 ),
                                 IconButton(
                                   onPressed: () {

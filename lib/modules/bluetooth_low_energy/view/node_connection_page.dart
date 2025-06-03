@@ -111,31 +111,75 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
   @override
   Widget build(BuildContext context) {
     bleService = Provider.of<BleProvider>(context, listen: true);
-    return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          children: [
-            Text('${widget.nodeData['deviceName']}',style: const TextStyle(fontSize: 16),),
-            Text('${widget.nodeData['deviceId']}',style: const TextStyle(fontSize: 14),),
-          ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, result) async{
+        print("didPop : $didPop");
+        print("result : $result");
+        if (bleService.bleConnectionState == BluetoothConnectionState.connected) {
+          bool shouldLeave = await showDialog(
+            context: context,
+            builder: (alertBoxContext) => AlertDialog(
+              title: const Text("Alert", style: TextStyle(fontSize: 16, color: Colors.red)),
+              content: const Text("Do you really want to leave?", style: TextStyle(fontSize: 14),),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(alertBoxContext).pop(false);
+                  }, // Stay on page
+                  child: const Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    bleService.onDisconnect(clearAll: true);
+                    Navigator.of(alertBoxContext).pop(true);
+                  },
+                  child: const Text("Disconnect and leave"),
+                ),
+              ],
+            ),
+          );
+          if(shouldLeave){
+            Navigator.of(context).pop(result);
+          }
+        }
+        else{
+          Navigator.of(context).pop(result);
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: InkWell(
+            onTap: (){
+              setState(() {
+                bleService.developerOption++;
+              });
+            },
+            child: Column(
+              children: [
+                Text('${widget.nodeData['deviceName']}',style: const TextStyle(fontSize: 16),),
+                Text('${widget.nodeData['deviceId']}',style: const TextStyle(fontSize: 14),),
+              ],
+            ),
+          ),
         ),
-      ),
-      body: Center(
-        child: FutureBuilder<int>(
-            future: nodeBluetoothResponse,
-            builder: (context, snapshot){
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator()); // Loading state
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}'); // Error state
-              } else if (snapshot.hasData) {
-                return Center(
-                  child: _buildContent(),
-                );
-              } else {
-                return const Text('No data'); // Shouldn't reach here normally
+        body: Center(
+          child: FutureBuilder<int>(
+              future: nodeBluetoothResponse,
+              builder: (context, snapshot){
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator()); // Loading state
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}'); // Error state
+                } else if (snapshot.hasData) {
+                  return Center(
+                    child: _buildContent(),
+                  );
+                } else {
+                  return const Text('No data'); // Shouldn't reach here normally
+                }
               }
-            }
+          ),
         ),
       ),
     );

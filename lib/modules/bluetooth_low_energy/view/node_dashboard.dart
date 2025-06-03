@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:oro_drip_irrigation/Widgets/custom_buttons.dart';
+import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/ble_sent_and_receive.dart';
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/interface_setting.dart';
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/node_in_boot_mode.dart';
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/trace_screen.dart';
@@ -80,6 +81,16 @@ class _NodeDashboardState extends State<NodeDashboard> {
                           }));
                       },
                     ),
+                    if(bleService.developerOption >= 10)
+                      gridItemWidget(
+                        imagePath: 'assets/Images/Svg/SmartComm/sent_and_receive.svg',
+                        title: 'Sent And Receive',
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context){
+                            return const BleSentAndReceive();
+                          }));
+                        },
+                      ),
                   ]
               ),
             ),
@@ -184,7 +195,7 @@ class _NodeDashboardState extends State<NodeDashboard> {
           children: [
             SvgPicture.asset(
               imagePath,
-              height: 80,
+              height: 100,
             ),
             Text(title, style: const TextStyle(fontSize: 14),textAlign: TextAlign.center,)
           ],

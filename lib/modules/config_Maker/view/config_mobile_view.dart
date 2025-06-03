@@ -107,7 +107,6 @@ class _ConfigMobileViewState extends State<ConfigMobileView>
       ),
     );
   }
-
 }
 
 ConfigMakerTabs updateConfigMakerTabs({

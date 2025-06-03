@@ -70,7 +70,7 @@ class BleProvider extends ChangeNotifier {
   BluetoothDevice? device;
   int? _rssi;
   int? _mtuSize;
-  BluetoothConnectionState _connectionState = BluetoothConnectionState.disconnected;
+  BluetoothConnectionState bleConnectionState = BluetoothConnectionState.disconnected;
   List<BluetoothService> _services = [];
   bool _isDiscoveringServices = false;
   bool _isConnecting = false;
@@ -84,7 +84,6 @@ class BleProvider extends ChangeNotifier {
   BluetoothService? myService;
   BluetoothCharacteristic? sendToHardware;
   BluetoothCharacteristic? readFromHardware;
-  String sentAndReceive = '';
   List<int> sendToHardwareListeningValue = [];
   List<int> readFromHardwareListeningValue = [];
   late StreamSubscription<List<int>> sendToHardwareSubscription;
@@ -96,6 +95,9 @@ class BleProvider extends ChangeNotifier {
   int totalNoOfLines = 0;
   int currentLine = 0;
   final List<String> traceData = [];
+  final List<String> sentAndReceive = [];
+  int developerOption = 0;
+
 
   /*controller variable*/
   ScrollController traceScrollController = ScrollController();
@@ -117,9 +119,9 @@ class BleProvider extends ChangeNotifier {
 
 
   String connectionState(){
-    if(_connectionState == BluetoothConnectionState.connected){
+    if(bleConnectionState == BluetoothConnectionState.connected){
       return "Connected";
-    }else if(_connectionState == BluetoothConnectionState.disconnected){
+    }else if(bleConnectionState == BluetoothConnectionState.disconnected){
       return "DisConnected";
     }else{
       return "Connecting...";
@@ -229,7 +231,7 @@ class BleProvider extends ChangeNotifier {
     for(var connectLoop = 0;connectLoop < 30;connectLoop++){
       await Future.delayed(const Duration(seconds: 1));
       print("connecting seconds :: ${connectLoop+1}");
-      if(_connectionState == BluetoothConnectionState.connected){
+      if(bleConnectionState == BluetoothConnectionState.connected){
         bleNodeState = BleNodeState.connected;
         notifyListeners();
         await Future.delayed(const Duration(seconds: 2));
@@ -248,7 +250,7 @@ class BleProvider extends ChangeNotifier {
     onConnect();
     _connectionStateSubscription = device!.connectionState.listen((state) async {
       print("connection state :: $state");
-      _connectionState = state;
+      bleConnectionState = state;
       notifyListeners();
       if (state == BluetoothConnectionState.connected) {
         gettingStatusAfterConnect();
@@ -377,7 +379,10 @@ class BleProvider extends ChangeNotifier {
     if (characteristic != null) {
       sendToHardwareSubscription =
           characteristic.lastValueStream.listen((value) {
-            print('AppToHardware =>  ${String.fromCharCodes(value)}');
+            String convertToString = String.fromCharCodes(value);
+            print('AppToHardware =>  ${convertToString}');
+            sentAndReceive.add('AppToHardware =>  ${convertToString}');
+
             // if (fileTraceControl != 'File') {
             // sentAndReceive +=
             // 'AppToHardware ==> \n ${String.fromCharCodes(value)}\n len ${String.fromCharCodes(value).length}\n';
@@ -405,6 +410,7 @@ class BleProvider extends ChangeNotifier {
             String convertToString = String.fromCharCodes(value);
             print("read :: $convertToString");
             if(traceMode == TraceMode.traceOff){
+              sentAndReceive.add("hardwareToApp = > ${convertToString}");
               if(convertToString == "PASS"){
                 fileMode = FileMode.crcPass;
                 notifyListeners();
@@ -483,7 +489,7 @@ class BleProvider extends ChangeNotifier {
 
   void requestingMacUntilBootModeToApp()async{
     await Future.delayed(const Duration(seconds: 3));
-    onDisconnect();
+    onDisconnect(clearAll: false);
     // for(var waitLoop = 0;waitLoop < 15;waitLoop++){
     //   if(nodeDataFromHw['BOOT'] == '30'){
     //     break;
@@ -521,11 +527,15 @@ class BleProvider extends ChangeNotifier {
     }
   }
 
-  Future onDisconnect() async {
+  Future onDisconnect({required bool clearAll}) async {
     try {
       await device!.disconnectAndUpdateStream();
       clearBluetoothDeviceState();
-      bleNodeState = BleNodeState.disConnected;
+      if(clearAll){
+        bleNodeState = BleNodeState.bluetoothOff;
+      }else{
+        bleNodeState = BleNodeState.disConnected;
+      }
       notifyListeners();
       // Snackbar.show(ABC.c, "Disconne
       // ct: Success", success: true);
@@ -779,13 +789,13 @@ class BleProvider extends ChangeNotifier {
       await sendToHardware?.write(finalOutPutOfCrcAndFileSize,
           withoutResponse:
           sendToHardware!.properties.writeWithoutResponse);
-      sentAndReceive +=
-      'before conversion :: $crcNameStr$addingResult$fileLengthStr$fileSize';
+      sentAndReceive.add('before conversion :: $crcNameStr$addingResult$fileLengthStr$fileSize');
       for (var crc in finalOutPutOfCrcAndFileSize) {
-        sentAndReceive += '${crc.toRadixString(16).padLeft(2, '0')}';
+        sentAndReceive.add('${crc.toRadixString(16).padLeft(2, '0')}');
       }
 
-      sentAndReceive += 'file size ==> ${fileSize}';
+      sentAndReceive.add('file size ==> ${fileSize}');
+      notifyListeners();
 
     } catch (e) {
       print('Error on crc & others => ${e.toString()}');
