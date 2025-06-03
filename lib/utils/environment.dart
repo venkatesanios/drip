@@ -53,9 +53,8 @@ class Environment {
 
   static int get mqttWebPort => config[F.name]?['mqttWebPort'] ?? 0;
   static int get mqttMobilePort => config[F.name]?['mqttMobilePort'] ?? 0;
-  static String get mqttUserName => config[F.name]?['mqttUserName'] ?? 0;
-  static String get mqttPassword => config[F.name]?['mqttPassword'] ?? 0;
-
+  static String get mqttUserName => config[F.name]?['mqttUserName'] ?? '';
+  static String get mqttPassword => config[F.name]?['mqttPassword'] ?? '';
   static String get mqttSubscribeTopic => config[F.name]?['subscribeTopic'] ?? '';
   static String get mqttPublishTopic => config[F.name]?['publishTopic'] ?? '';
 

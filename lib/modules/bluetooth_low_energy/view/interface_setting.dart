@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:oro_drip_irrigation/Constants/dialog_boxes.dart';
+import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
 
 import '../state_management/ble_service.dart';
@@ -16,6 +17,10 @@ class _InterfaceSettingState extends State<InterfaceSetting> {
   late BleProvider bleService;
   FocusNode frequencyFocus = FocusNode();
   FocusNode spreadingFactorFocus = FocusNode();
+  final _formKey = GlobalKey<FormState>();
+  String userName = '';
+  String password = '';
+
   final inputDecoration = InputDecoration(
     filled: true,
     fillColor: Colors.white,
@@ -84,22 +89,33 @@ class _InterfaceSettingState extends State<InterfaceSetting> {
       ),
       body: RefreshIndicator(
         onRefresh: bleService.onRefresh,
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              SvgPicture.asset(
-                'assets/Images/Svg/SmartComm/interface_setting.svg',
-                height: 150,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 30,
+                  children: [
+                    const SizedBox(height: 30),
+                    SvgPicture.asset(
+                      'assets/Images/Svg/SmartComm/interface_setting.svg',
+                      height: 150,
+                    ),
+                    if (bleService.nodeDataFromHw['IFT'] == '1') loraSetting(),
+                    if (bleService.nodeDataFromHw['IFT'] == '2') mqttSetting(),
+                    if (bleService.nodeDataFromHw['IFT'] == '4') wifiSetting(),
+                  ],
+                ),
               ),
-              loraSetting()
-            ],
-          ),
+            );
+          },
         ),
       ),
+
     );
   }
 
@@ -200,6 +216,163 @@ class _InterfaceSettingState extends State<InterfaceSetting> {
                 ),
               )
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget mqttSetting(){
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        elevation: 8,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            spacing: 20,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Fields are hidden for security purposes.",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+                textAlign: TextAlign.center,
+              ),
+              for(var field in ['Mqtt Port', 'Mqtt User Name', 'Mqtt Password'])
+                SizedBox(
+                  width: double.infinity,
+                  child:  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(field, style: const TextStyle(fontSize: 16),),
+                      const Text('******************', style: TextStyle(fontSize: 14, color: Colors.black54))
+                    ],
+                  ),
+                ),
+
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: (){
+                    var payload = '${bleService.nodeDataFromServer['settingCommand']['mqttSettingCommand']}${AppConstants.mqttUrlMobile}:${AppConstants.mqttUserName}:${AppConstants.mqttPassword}:';
+                    List<int> listOfBytes = [];
+                    var sumOfAscii = 0;
+                    for(var i in payload.split('')){
+                      var bytes = i.codeUnitAt(0);
+                      // listOfBytes.add(bytes);
+                      sumOfAscii += bytes;
+                    }
+                    for(var i = 0;i < (3 - '${sumOfAscii % 256}'.split('').length);i++){
+                      payload += '0';
+                    }
+                    payload += '${sumOfAscii % 256}:\r';
+                    for(var i in payload.split('')){
+                      var bytes = i.codeUnitAt(0);
+                      listOfBytes.add(bytes);
+                    }
+                    print('listOfBytes : $listOfBytes');
+                    print('sumOfAscii : $sumOfAscii');
+                    print('crc : ${sumOfAscii % 256}');
+                    print('payload : ${payload}');
+                    bleService.sendDataToHw(listOfBytes);
+                    loadingDialog();
+                  },
+                  icon: const Icon(Icons.send, color: Colors.white,),
+                  label: const Text("Submit", style: TextStyle(color: Colors.white),),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget wifiSetting(){
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        elevation: 8,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  "Enter Signal Parameters",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 30),
+                TextFormField(
+                  controller: bleService.wifiSsid,
+                  decoration: inputDecoration.copyWith(
+                    labelText: "Wifi SSID",
+                    hintText: "Enter SSID",
+                    prefixIcon: const Icon(Icons.wifi),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: bleService.wifiPassword,
+                  decoration: inputDecoration.copyWith(
+                    labelText: "Wifi Password",
+                    hintText: "Enter Password",
+                    prefixIcon: const Icon(Icons.password),
+                  ),
+                ),
+                const SizedBox(height: 30),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      String staticIp = '0:0:0:0';
+                      String subNetMask = '0:0:0:0';
+                      String gateWay = '0:0:0:0';
+                      String dnsServer = '0:0:0:0';
+                      String serverIp = '0:0:0:0';
+                      var payload = '\$:29:210:${bleService.wifiSsid.text}:${bleService.wifiPassword.text}:${AppConstants.mqttUserName}:${AppConstants.mqttPassword}:$staticIp:$subNetMask:$gateWay:$dnsServer:$serverIp:';
+                      List<int> listOfBytes = [];
+                      var sumOfAscii = 0;
+                      for(var i in payload.split('')){
+                        var bytes = i.codeUnitAt(0);
+                        sumOfAscii += bytes;
+                      }
+                      payload += '${sumOfAscii % 256}:\r';
+                      for(var i in payload.split('')){
+                        var bytes = i.codeUnitAt(0);
+                        listOfBytes.add(bytes);
+                      }
+                      print('listOfBytes : $listOfBytes');
+                      print('sumOfAscii : $sumOfAscii');
+                      print('crc : ${sumOfAscii % 256}');
+                      print('payload : ${payload}');
+                      bleService.sendDataToHw(listOfBytes);
+                      loadingDialog();
+                    },
+                    icon: const Icon(Icons.send, color: Colors.white,),
+                    label: const Text("Submit", style: TextStyle(color: Colors.white),),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),

@@ -101,9 +101,8 @@ class BleProvider extends ChangeNotifier {
   ScrollController traceScrollController = ScrollController();
   TextEditingController frequency = TextEditingController();
   TextEditingController spreadFactor = TextEditingController();
-  TextEditingController ip = TextEditingController();
-  TextEditingController name = TextEditingController();
-  TextEditingController password = TextEditingController();
+  TextEditingController wifiSsid = TextEditingController();
+  TextEditingController wifiPassword = TextEditingController();
 
 
 
@@ -380,15 +379,15 @@ class BleProvider extends ChangeNotifier {
           characteristic.lastValueStream.listen((value) {
             print('AppToHardware =>  ${String.fromCharCodes(value)}');
             // if (fileTraceControl != 'File') {
-            sentAndReceive +=
-            'AppToHardware ==> \n ${String.fromCharCodes(value)}\n len ${String.fromCharCodes(value).length}\n';
+            // sentAndReceive +=
+            // 'AppToHardware ==> \n ${String.fromCharCodes(value)}\n len ${String.fromCharCodes(value).length}\n';
+            // // }
+            // if (value.isNotEmpty) {
+            //   sentAndReceive += '${value.toString()} \n len ${value.length} \n';
+            //   // await Future.delayed(Duration(seconds: 1));
+            //   print('swListeningValue == > $value');
+            //   // notifyListeners();
             // }
-            if (value.isNotEmpty) {
-              sentAndReceive += '${value.toString()} \n len ${value.length} \n';
-              // await Future.delayed(Duration(seconds: 1));
-              print('swListeningValue == > $value');
-              // notifyListeners();
-            }
           });
     } else {
       print('sending characteristic is null');
@@ -437,6 +436,12 @@ class BleProvider extends ChangeNotifier {
               if (nodeDataFromHw.containsKey('SF')) {
                 spreadFactor.text = nodeDataFromHw['SF'];
               }
+              if (nodeDataFromHw.containsKey('WIFISSID')) {
+                wifiSsid.text = nodeDataFromHw['WIFISSID'];
+              }
+              if (nodeDataFromHw.containsKey('WIFIPASS')) {
+                wifiPassword.text = nodeDataFromHw['WIFIPASS'];
+              }
               print("nodeDataFromHw : $nodeDataFromHw");
               notifyListeners();
             }else if(traceMode == TraceMode.traceOn){
@@ -460,7 +465,7 @@ class BleProvider extends ChangeNotifier {
   }
 
   void timeOutForBootMessage()async{
-    int totalTimeOut = 60;
+    int totalTimeOut = 100;
     for(var second = 0;second < totalTimeOut;second++){
       if(fileMode == FileMode.bootPass || fileMode == FileMode.bootFail){
         requestingMacUntilBootModeToApp();
@@ -468,7 +473,7 @@ class BleProvider extends ChangeNotifier {
       }
       await Future.delayed(const Duration(seconds: 1));
       print("waiting for boot pass ${second+1}");
-      if(second == 59){
+      if(second == (totalTimeOut - 1)){
         fileMode = FileMode.bootFail;
         notifyListeners();
         break;

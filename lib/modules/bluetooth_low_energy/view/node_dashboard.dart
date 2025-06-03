@@ -54,6 +54,15 @@ class _NodeDashboardState extends State<NodeDashboard> {
                       }
                     ),
                     gridItemWidget(
+                      imagePath: 'assets/Images/Svg/SmartComm/control.svg',
+                      title: 'Control',
+                      onTap: () {
+                        // Navigator.push(context, MaterialPageRoute(builder: (context){
+                        //   return TraceScreen(nodeData: widget.nodeData,);
+                        // }));
+                      },
+                    ),
+                    gridItemWidget(
                         imagePath: 'assets/Images/Svg/SmartComm/interface_setting.svg',
                         title: 'Interface Setting',
                         onTap: () {
