@@ -877,7 +877,8 @@ class MobileScreenController extends StatelessWidget {
                 ),
                 if (commMode == 2) ...[
                   const Divider(),
-                  ListTile(
+                  BluetoothScanTile(vm: vm),
+                  /*ListTile(
                     dense: true,
                     visualDensity: VisualDensity.compact,
                     contentPadding: EdgeInsets.zero,
@@ -887,7 +888,7 @@ class MobileScreenController extends StatelessWidget {
                       icon: const Icon(Icons.refresh_outlined, color: Colors.black),
                       onPressed: () => vm.blueService.getDevices(),
                     ),
-                  ),
+                  ),*/
                   const SizedBox(height: 10),
                   Consumer<MqttPayloadProvider>(
                     builder: (context, provider, _) {
@@ -1285,6 +1286,72 @@ class _PasswordFieldState extends State<PasswordField> {
               _obscureText = !_obscureText;
             });
           },
+        ),
+      ),
+    );
+  }
+}
+
+class BluetoothScanTile extends StatefulWidget {
+  final CustomerScreenControllerViewModel vm;
+
+  const BluetoothScanTile({super.key, required this.vm});
+
+  @override
+  State<BluetoothScanTile> createState() => _BluetoothScanTileState();
+}
+
+class _BluetoothScanTileState extends State<BluetoothScanTile>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  bool isScanning = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    )..repeat();
+    _controller.stop();
+  }
+
+  Future<void> _startScan() async {
+    if (isScanning) return;
+
+    setState(() {
+      isScanning = true;
+    });
+    _controller.repeat();
+
+    await widget.vm.blueService.getDevices();
+    setState(() {
+      isScanning = false;
+    });
+    _controller.stop();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      dense: true,
+      visualDensity: VisualDensity.compact,
+      contentPadding: EdgeInsets.zero,
+      title: const Text(
+        "Scan for Bluetooth Devices and Connect",
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+      ),
+      trailing: RotationTransition(
+        turns: _controller,
+        child: IconButton(
+          icon: Icon(Icons.refresh_outlined, color: isScanning? Colors.blue:Colors.black),
+          onPressed: _startScan,
         ),
       ),
     );

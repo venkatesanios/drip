@@ -47,7 +47,7 @@ class AdminDashboard extends StatelessWidget {
                     child: Column(
                       children: [
                         SizedBox(
-                          height: 350,
+                          height: 360,
                           child: Card(
                             color: Colors.white,
                             child: Padding(
@@ -124,19 +124,27 @@ class AdminDashboard extends StatelessWidget {
                                       viewModel.mySalesData.total!.length, (index) =>
                                         Chip(
                                           avatar: CircleAvatar(
-                                              backgroundColor: viewModel.mySalesData
-                                                  .total![index].color),
-                                          shape: const LinearBorder(),
-                                          color:  WidgetStateProperty.resolveWith<Color>((states) => Colors.blueGrey.shade50),
+                                            backgroundColor: viewModel.mySalesData.total![index].color,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(20),
+                                            side: const BorderSide(
+                                              color: Colors.black12,
+                                              width: 0.1,
+                                            ),
+                                          ),
+                                          color: WidgetStateProperty.resolveWith<Color>(
+                                                (states) => Colors.blueGrey.shade50,
+                                          ),
                                           label: Text(
-                                            '${index + 1} - ${viewModel.mySalesData
-                                                .total![index].categoryName}',
+                                            '${index + 1} - ${viewModel.mySalesData.total![index].categoryName}',
                                             style: const TextStyle(fontSize: 11),
                                           ),
                                           visualDensity: VisualDensity.compact,
                                         ),
                                     ),
                                   ),
+                                  SizedBox(height: 8),
                                 ],
                               ),
                             ),
@@ -306,7 +314,6 @@ class AdminDashboard extends StatelessWidget {
                                       'SOLD OUT', style: TextStyle(fontSize: 20),)),
                                   ),
                                 ),
-
                               ],
                             ),
                           ),

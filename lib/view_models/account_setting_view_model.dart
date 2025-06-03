@@ -23,6 +23,7 @@ class UserSettingViewModel extends ChangeNotifier {
   final TextEditingController controllerOldPwd = TextEditingController();
   final TextEditingController controllerNewPwd = TextEditingController();
   final TextEditingController controllerConfirmPwd = TextEditingController();
+  bool isObscure = true;
 
   final formKey = GlobalKey<FormState>();
   final formSKey = GlobalKey<FormState>();
@@ -55,6 +56,11 @@ class UserSettingViewModel extends ChangeNotifier {
     return phoneNumber.replaceAll(regExp, '');  // Removes the matched country code
   }
 
+  void onIsObscureChanged() {
+    isObscure = !isObscure;
+    notifyListeners();
+  }
+
   Future<void> getLanguage() async
   {
     setLoading(true);
@@ -76,7 +82,7 @@ class UserSettingViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> updateUserDetails(BuildContext context, int customerId, userId) async
+  Future<void> updateUserProfile(BuildContext context, int customerId, userId) async
   {
     if (formKey.currentState!.validate()) {
       final body = {"userId": customerId, "userName": controllerUsrName.text, "countryCode": countryCode, "mobileNumber": controllerMblNo.text,
@@ -96,7 +102,6 @@ class UserSettingViewModel extends ChangeNotifier {
         setLoading(false);
       }
     }
-
   }
 
 
