@@ -119,20 +119,20 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
         if (bleService.bleConnectionState == BluetoothConnectionState.connected) {
           bool shouldLeave = await showDialog(
             context: context,
-            builder: (alertBoxContext) => AlertDialog(
+            builder: (context) => AlertDialog(
               title: const Text("Alert", style: TextStyle(fontSize: 16, color: Colors.red)),
               content: const Text("Do you really want to leave?", style: TextStyle(fontSize: 14),),
               actions: [
                 TextButton(
                   onPressed: () {
-                    Navigator.of(alertBoxContext).pop(false);
+                    Navigator.of(context).pop(false);
                   }, // Stay on page
                   child: const Text("Cancel"),
                 ),
                 TextButton(
                   onPressed: () {
                     bleService.onDisconnect(clearAll: true);
-                    Navigator.of(alertBoxContext).pop(true);
+                    Navigator.of(context).pop(true);
                   },
                   child: const Text("Disconnect and leave"),
                 ),
@@ -186,6 +186,7 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
   }
 
   Widget _buildContent() {
+    return _deviceConnected();
     switch (bleService.bleNodeState) {
       case BleNodeState.loading:
         return _loading();
@@ -311,7 +312,7 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Image.asset(
-          'assets/Images/Png/bluetooth_connected.png',
+          'assets/Images/Png/SmartComm/bluetooth_connected.png',
           height: 300,
         ),
         const SizedBox(height: 24),
