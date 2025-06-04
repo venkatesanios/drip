@@ -74,6 +74,21 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
     );
   }
 
+  Widget _buildScrollableText(String text) {
+
+    final ScrollController scrollController = ScrollController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (scrollController.hasClients) {
+        scrollController.jumpTo(scrollController.position.maxScrollExtent);
+      }
+    });
+    return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child:  ScrollableTextWithSearch(text: text.isNotEmpty ? text : "Waiting...",)   //SelectableText(),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: true);
@@ -121,11 +136,12 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
                 child: TabBarView(
                   controller: _tabController,
                   children: [
-                    _buildLogView(mqttPayloadProvider.sheduleLog),
-                    _buildLogView(mqttPayloadProvider.uardLog),
-                    _buildLogView(mqttPayloadProvider.uard0Log),
-                    _buildLogView(mqttPayloadProvider.uard4Log),
-                    _buildLogView(""),
+
+                    _buildScrollableText(mqttPayloadProvider.sheduleLog),
+                    _buildScrollableText(mqttPayloadProvider.uardLog),
+                    _buildScrollableText(mqttPayloadProvider.uard0Log),
+                    _buildScrollableText(mqttPayloadProvider.uard4Log),
+                    _buildScrollableText(""),
                   ],
                 ),
               ),
@@ -145,10 +161,11 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
       elevation: 4,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: ScrollableTextWithSearch(
-          key: ValueKey(text), // Ensure widget rebuilds on text change
-          text: text.isNotEmpty ? text : "Waiting...",
-        ),
+        child :_buildScrollableText(text.isNotEmpty ? text : "Waiting..."),
+        // child: ScrollableTextWithSearch(
+        //   key: ValueKey(text), // Ensure widget rebuilds on text change
+        //   text: text.isNotEmpty ? text : "Waiting...",
+        // ),
       ),
     );
   }
@@ -380,95 +397,46 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
 class ScrollableTextWithSearch extends StatefulWidget {
   final String text;
 
-  const ScrollableTextWithSearch({Key? key, required this.text}) : super(key: key);
+  ScrollableTextWithSearch({
+    required this.text,
+  });
 
   @override
-  _ScrollableTextWithSearchState createState() => _ScrollableTextWithSearchState();
+  _ScrollableTextWithSearchState createState() =>
+      _ScrollableTextWithSearchState();
 }
 
 class _ScrollableTextWithSearchState extends State<ScrollableTextWithSearch> {
-  final ScrollController _scrollController = ScrollController();
-  final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
-  List<int> _matches = [];
-  int _currentMatchIndex = -1;
+  String _searchQuery = '';  // Query text to match
+  ScrollController _scrollController = ScrollController();
+  List<int> _matches = [];   // List of match positions
+  TextEditingController _searchController = TextEditingController();
   int _matchCount = 0;
-  bool _isUserScrolling = false;
-  String _lastText = '';
 
   @override
   void initState() {
     super.initState();
+    // Add listener to the searchController to update the search query when text changes
     _searchController.addListener(_onSearchChanged);
-    _scrollController.addListener(_onScroll);
-    // Initial scroll to bottom
-    WidgetsBinding.instance.addPostFrameCallback((_) => _autoScroll());
-  }
-
-  @override
-  void didUpdateWidget(ScrollableTextWithSearch oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Check if text has changed
-    if (widget.text != _lastText) {
-      _lastText = widget.text;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        // Update matches and auto-scroll if not searching or manually scrolling
-        _matches = _findMatches(widget.text, _searchQuery);
-        _matchCount = _matches.length;
-        if (_searchQuery.isEmpty && !_isUserScrolling) {
-          _autoScroll();
-        }
-      });
-    }
   }
 
   @override
   void dispose() {
-    _scrollController.removeListener(_onScroll);
+    // Always dispose controllers when done
     _scrollController.dispose();
     _searchController.removeListener(_onSearchChanged);
-    _searchController.dispose();
     super.dispose();
   }
 
-  void _onScroll() {
-    // Detect if user is scrolling
-    if (_scrollController.hasClients) {
-      final maxScroll = _scrollController.position.maxScrollExtent;
-      final currentScroll = _scrollController.position.pixels;
-      // Consider user scrolling if not near the bottom
-      _isUserScrolling = (maxScroll - currentScroll) > 50.0;
-    }
-  }
-
+  // Handle search query change from the controller
   void _onSearchChanged() {
     setState(() {
       _searchQuery = _searchController.text;
       _matches = _findMatches(widget.text, _searchQuery);
-      _currentMatchIndex = -1;
-      _matchCount = _matches.length;
-      // Disable auto-scroll when searching
-      _isUserScrolling = _searchQuery.isNotEmpty;
     });
   }
 
-  List<int> _findMatches(String text, String query) {
-    List<int> matches = [];
-    if (query.isEmpty) return matches;
-
-    String lowerText = text.toLowerCase();
-    String lowerQuery = query.toLowerCase();
-    int start = 0;
-
-    while (start < lowerText.length) {
-      start = lowerText.indexOf(lowerQuery, start);
-      if (start == -1) break;
-      matches.add(start);
-      start += lowerQuery.length;
-    }
-    return matches;
-  }
-
+  // Highlights the matched text and returns a list of TextSpan
   List<TextSpan> _highlightText(String text, List<int> matchPositions) {
     List<TextSpan> children = [];
     int start = 0;
@@ -479,10 +447,7 @@ class _ScrollableTextWithSearchState extends State<ScrollableTextWithSearch> {
       }
       children.add(TextSpan(
         text: text.substring(matchPositions[i], matchPositions[i] + _searchQuery.length),
-        style: TextStyle(
-          backgroundColor: Colors.yellow,
-          fontWeight: _currentMatchIndex == i ? FontWeight.bold : null,
-        ),
+        style: TextStyle(backgroundColor: Colors.yellow), // Highlight color
       ));
       start = matchPositions[i] + _searchQuery.length;
     }
@@ -490,101 +455,67 @@ class _ScrollableTextWithSearchState extends State<ScrollableTextWithSearch> {
     if (start < text.length) {
       children.add(TextSpan(text: text.substring(start)));
     }
+
     return children;
   }
 
-  void _scrollToMatch(int index) {
-    if (index < 0 || index >= _matches.length) return;
-    final matchPosition = _matches[index];
-    const fontSize = 16.0;
-    const lineHeight = fontSize * 1.5;
-    final estimatedLine = (matchPosition / 50).floor();
-    final offset = estimatedLine * lineHeight;
+  // Finds matches and returns a list of start positions of the matches
+  List<int> _findMatches(String text, String query) {
+    List<int> matches = [];
+    int start = 0;
 
-    _scrollController.animateTo(
-      offset,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
-    setState(() {
-      _currentMatchIndex = index;
-      _isUserScrolling = true; // Prevent auto-scroll during match navigation
-    });
-  }
+    String lowerText = text.toLowerCase();
+    String lowerQuery = query.toLowerCase();
 
-  void _autoScroll() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
+    while (start < lowerText.length) {
+      start = lowerText.indexOf(lowerQuery, start);
+      if (start == -1) break;
+      matches.add(start);
+      start += lowerQuery.length;
     }
+
+    return matches;
   }
 
   @override
   Widget build(BuildContext context) {
+    // Get the list of match positions
+    final List<int> matches = _searchQuery.isEmpty
+        ? []
+        : _findMatches(widget.text, _searchQuery);
+    _matchCount = matches.length;
+
+    // Scroll to the first match if needed
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      }
+    });
+
     return Column(
       children: [
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    labelText: 'Search Logs',
-                    border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        _searchController.clear();
-                        setState(() {
-                          _searchQuery = '';
-                          _matches = [];
-                          _currentMatchIndex = -1;
-                          _isUserScrolling = false; // Re-enable auto-scroll
-                          _autoScroll();
-                        });
-                      },
-                    ),
-                  ),
-                ),
+          child: TextField(
+            controller: _searchController,  // Use passed controller
+            decoration: InputDecoration(
+              labelText: 'Search',
+              border: OutlineInputBorder(),
+              suffixIcon: IconButton(
+                icon: Icon(Icons.search),
+                onPressed: () {
+                  setState(() {
+                    _searchQuery = _searchController.text;
+                    _matches = _findMatches(widget.text, _searchQuery);
+                  });
+                },
               ),
-              if (_matches.isNotEmpty) ...[
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.arrow_upward),
-                  tooltip: 'Previous Match',
-                  onPressed: () {
-                    setState(() {
-                      _currentMatchIndex = (_currentMatchIndex - 1) % _matches.length;
-                      if (_currentMatchIndex < 0) _currentMatchIndex = _matches.length - 1;
-                      _scrollToMatch(_currentMatchIndex);
-                    });
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.arrow_downward),
-                  tooltip: 'Next Match',
-                  onPressed: () {
-                    setState(() {
-                      _currentMatchIndex = (_currentMatchIndex + 1) % _matches.length;
-                      _scrollToMatch(_currentMatchIndex);
-                    });
-                  },
-                ),
-              ],
-            ],
+            ),
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Text(
-            'Matches found: $_matchCount',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
+          padding: const EdgeInsets.all(8.0),
+          child: Text('Matches found: $_matchCount', style: TextStyle(fontSize: 16)),
         ),
         Expanded(
           child: SingleChildScrollView(
@@ -592,8 +523,9 @@ class _ScrollableTextWithSearchState extends State<ScrollableTextWithSearch> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: SelectableText.rich(
-                TextSpan(children: _highlightText(widget.text, _matches)),
-                style: const TextStyle(fontSize: 16),
+                TextSpan(
+                  children: _highlightText(widget.text, matches),
+                ),
               ),
             ),
           ),
