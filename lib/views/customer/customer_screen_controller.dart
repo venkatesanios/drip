@@ -587,7 +587,8 @@ class CustomerScreenController extends StatelessWidget {
                           ),
                           const SizedBox(height: 15),
                           AlarmButton(alarmPayload: vm.alarmDL, deviceID: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                            customerId: customerId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,),
+                            customerId: customerId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                            irrigationLine: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].irrigationLine),
                           const SizedBox(height: 15),
                           CircleAvatar(
                             radius: 20,
@@ -1095,10 +1096,11 @@ class BadgeButton extends StatelessWidget {
 }
 
 class AlarmButton extends StatelessWidget {
-  const AlarmButton({super.key, required this.alarmPayload, required this.deviceID, required this.customerId, required this.controllerId});
+  const AlarmButton({super.key, required this.alarmPayload, required this.deviceID, required this.customerId, required this.controllerId, required this.irrigationLine});
   final List<String> alarmPayload;
   final String deviceID;
   final int customerId, controllerId;
+  final List<IrrigationLineModel> irrigationLine;
 
   @override
   Widget build(BuildContext context) {
@@ -1113,7 +1115,7 @@ class AlarmButton extends StatelessWidget {
         onPressed: (){
           showPopover(
             context: context,
-            bodyBuilder: (context) => AlarmListItems(alarm : alarmPayload, deviceID:deviceID, customerId: customerId, controllerId: controllerId,),
+            bodyBuilder: (context) => AlarmListItems(alarm : alarmPayload, deviceID:deviceID, customerId: customerId, controllerId: controllerId, irrigationLine: irrigationLine),
             onPop: () => print('Popover was popped!'),
             direction: PopoverDirection.left,
             width: alarmPayload[0].isNotEmpty?600:150,
@@ -1131,8 +1133,9 @@ class AlarmButton extends StatelessWidget {
 }
 
 class AlarmListItems extends StatelessWidget {
-  const AlarmListItems({super.key, required this.alarm, required this.deviceID, required this.customerId, required this.controllerId});
+  const AlarmListItems({super.key, required this.alarm, required this.deviceID, required this.customerId, required this.controllerId, required this.irrigationLine});
   final List<String> alarm;
+  final List<IrrigationLineModel> irrigationLine;
 
   final String deviceID;
   final int customerId, controllerId;
@@ -1149,7 +1152,7 @@ class AlarmListItems extends StatelessWidget {
       columns: const [
         DataColumn2(
           label: Text('', style: TextStyle(fontSize: 13)),
-          fixedWidth: 40,
+          fixedWidth: 25,
         ),
         DataColumn2(
             label: Text('Message', style: TextStyle(fontSize: 13),),
@@ -1160,8 +1163,8 @@ class AlarmListItems extends StatelessWidget {
             size: ColumnSize.M
         ),
         DataColumn2(
-            label: Text('Date-time', style: TextStyle(fontSize: 13),),
-            size: ColumnSize.L
+            label: Text('Time', style: TextStyle(fontSize: 13)),
+            size: ColumnSize.S
         ),
         DataColumn2(
           label: Center(child: Text('', style: TextStyle(fontSize: 13),)),
@@ -1173,8 +1176,10 @@ class AlarmListItems extends StatelessWidget {
         return DataRow(cells: [
           DataCell(Icon(Icons.warning_amber, color: values[7]=='1' ? Colors.orangeAccent : Colors.redAccent,)),
           DataCell(Text(MyFunction().getAlarmMessage(int.parse(values[2])))),
-          DataCell(Text(values[1])),
-          DataCell(Text('${values[5]} - ${values[6]}')),
+          DataCell(Text(irrigationLine.firstWhere(
+                (line) => line.sNo.toString() == values[1],
+          ).name)),
+          DataCell(Text(Formatters().formatRelativeTime('${values[5]} ${values[6]}'))),
           DataCell(Center(child: MaterialButton(
             color: Colors.redAccent,
             textColor: Colors.white,

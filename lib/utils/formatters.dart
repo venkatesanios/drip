@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 
 class Formatters {
@@ -48,6 +49,11 @@ class Formatters {
     } else {
       return '${value1.toString()}/${value2.toString()}';
     }
+  }
+
+  String formatRelativeTime(String rawDateTime) {
+    DateTime dateTime = DateTime.parse(rawDateTime);
+    return timeago.format(dateTime);
   }
 
 }

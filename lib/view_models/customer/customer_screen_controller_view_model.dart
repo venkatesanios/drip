@@ -345,16 +345,12 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     }
   }
 
-  void disposeMqtt() {
-    mqttSubscription?.cancel();
-    mqttService.disConnect();
-  }
-
 
   @override
   void dispose() {
-    mqttProvider.removeListener(_onPayloadReceived);
-    disposeMqtt();
     super.dispose();
+    mqttProvider.removeListener(_onPayloadReceived);
+    mqttSubscription?.cancel();
+    mqttService.disConnect();
   }
 }
