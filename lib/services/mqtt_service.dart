@@ -189,6 +189,7 @@ class MqttService {
           break;
         case 'LD01':
           pumpDashboardPayload = PumpControllerData.fromJson(payloadMessage, "cM", 1);
+          providerState?.updateLastSyncDateFromPumpControllerPayload(payload);
           break;
         case '3600':
           schedulePayload = Constants.dataConversionForScheduleView(payloadMessage['cM']['3601']);
