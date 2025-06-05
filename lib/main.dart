@@ -59,7 +59,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   bool notificationsEnabled = false;
-  F.appFlavor = Flavor.oroProduction;
+  // F.appFlavor = Flavor.oroProduction;
 
   if (!kIsWeb) {
     try {
