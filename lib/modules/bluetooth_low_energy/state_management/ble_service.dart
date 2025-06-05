@@ -9,7 +9,6 @@ import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/utils/extra.dar
 import 'package:path_provider/path_provider.dart';
 import '../../../services/sftp_service.dart';
 import '../utils/snackbar.dart';
-import '../view/node_connection_page.dart';
 
 enum BleNodeState {
   loading,
@@ -65,7 +64,6 @@ class BleProvider extends ChangeNotifier {
   List<ScanResult> _scanResults = [];
   bool _isScanning = false;
 
-
   /* connecting variables*/
   BluetoothDevice? device;
   int? _rssi;
@@ -105,7 +103,6 @@ class BleProvider extends ChangeNotifier {
   TextEditingController spreadFactor = TextEditingController();
   TextEditingController wifiSsid = TextEditingController();
   TextEditingController wifiPassword = TextEditingController();
-
 
 
   /* server variable*/
@@ -430,7 +427,9 @@ class BleProvider extends ChangeNotifier {
               }
               if(value[value.length - 1] == 125){
                 if(readFromHardwareStringValue[0] == '{'){
-                  nodeDataFromHw = jsonDecode(readFromHardwareStringValue);
+                  if(readFromHardwareStringValue.contains('MID')){
+                    nodeDataFromHw = jsonDecode(readFromHardwareStringValue);
+                  }
                   readFromHardwareStringValue = '';
                 }else{
                   readFromHardwareStringValue = '';
@@ -533,6 +532,7 @@ class BleProvider extends ChangeNotifier {
       clearBluetoothDeviceState();
       if(clearAll){
         bleNodeState = BleNodeState.bluetoothOff;
+        clearVariables();
       }else{
         bleNodeState = BleNodeState.disConnected;
       }
@@ -543,6 +543,14 @@ class BleProvider extends ChangeNotifier {
       // Snackbar.show(ABC.c, prettyException("Disconnect Error:", e), success: false);
       print("$e backtrace: $backtrace");
     }
+  }
+
+  void clearVariables(){
+    nodeDataFromHw = {};
+    traceData.clear();
+    sentAndReceive.clear();
+    fileMode = FileMode.idle;
+    notifyListeners();
   }
 
   Future onRequestMtuPressed() async {

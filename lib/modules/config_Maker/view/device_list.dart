@@ -445,7 +445,7 @@ class _DeviceListState extends State<DeviceList> {
                                           .where((node) => node.masterId == null)
                                           .where((node) {
                                             List<int> nodeUnderPumpWithValveModel = [15, 17, 23, 25, 42];
-                                            List<int> nodeUnderEcoGemModel = [36, 50, 51];
+                                            List<int> nodeUnderEcoGemModel = [36, 50, 42];
                                             List<int> nodeNotUnderGemModel = [48, 49];
                                             print('modelId : ${node.modelId}');
                                             if(AppConstants.pumpWithValveModelList.contains(configPvd.masterData['modelId']) && nodeUnderPumpWithValveModel.contains(node.modelId)){

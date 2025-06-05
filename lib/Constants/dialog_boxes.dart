@@ -13,6 +13,7 @@ void simpleDialogBox({
   required BuildContext context,
   required String title,
   required String message,
+  List<Widget>? actionButton,
 }){
   showDialog(
       context: context,
@@ -52,7 +53,10 @@ void simpleDialogBox({
             ],
           ),
           actions: [
-            CustomMaterialButton()
+            if(actionButton != null)
+              ...actionButton
+            else
+              CustomMaterialButton()
           ],
         );
       }

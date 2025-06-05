@@ -152,7 +152,7 @@ class _ProductLimitGridListTileState extends State<ProductLimitGridListTile> wit
       if (kDebugMode) {
         print('master ::: eco gem');
       }
-      List<int> objectThatConfigureToEcoGemModel = [1, 2, 3, 4, 5, 7, 10, 11, 13, 22, 24, 26, 40];
+      List<int> objectThatConfigureToEcoGemModel = [1, 2, 3, 4, 5, 7, 10, 11, 13, 22, 24, 25, 26, 30, 40];
       if(objectThatConfigureToEcoGemModel.contains(objectId)){
         visible = true;
       }else{

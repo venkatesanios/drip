@@ -83,6 +83,7 @@ class _InterfaceSettingState extends State<InterfaceSetting> {
 
   @override
   Widget build(BuildContext context) {
+    bleService = Provider.of<BleProvider>(context, listen: true);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Interface Setting'),
