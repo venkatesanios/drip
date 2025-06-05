@@ -121,7 +121,6 @@ class MqttService {
     assert(_client != null);
     if (!isConnected) {
       try {
-        providerState?.updateMQTTConnectionState(MQTTConnectionState.connecting);
         _connectionController.add(MqttConnectionState.connecting);
         await _client!.connect();
       } catch (e, stackTrace) {
@@ -213,13 +212,11 @@ class MqttService {
 
   void onDisconnected() {
     debugPrint('MQTT disconnected');
-    providerState?.updateMQTTConnectionState(MQTTConnectionState.disconnected);
     _connectionController.add(MqttConnectionState.disconnected);
   }
 
   void onConnected() {
     debugPrint('MQTT connected');
-    providerState?.updateMQTTConnectionState(MQTTConnectionState.connected);
     _connectionController.add(MqttConnectionState.connected);
   }
 }

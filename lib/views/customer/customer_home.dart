@@ -410,7 +410,6 @@ class PumpStationWithLine extends StatelessWidget {
         if (filterSite.isNotEmpty)
           ..._buildFilter(context, filterSite, fertilizerSite.isNotEmpty),
 
-
         if (fertilizerSite.isNotEmpty)
           ..._buildFertilizer(context, fertilizerSite),
           ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch_wj.png', fertilizerSite.isNotEmpty),
@@ -618,9 +617,7 @@ class PumpStationWithLine extends StatelessWidget {
             child: Stack(
               children: [
                 Positioned.fill(
-                  child: source.name=='BORE'?
-                  AppConstants.getAsset(source.name, 0, position):
-                  AppConstants.getAsset('source', 0, position),
+                  child: AppConstants.getAsset('source', source.sourceType, position),
                 ),
                 if (hasLevel) ...[
                   Positioned(
@@ -1051,10 +1048,87 @@ class SensorWidget extends StatelessWidget {
                                 ),
                               ];
 
-                              return kIsWeb? Row(
+                              return kIsWeb? Column(
                                 children: [
+                                  Row(
+                                    children: [
+                                      const SizedBox(width: 16),
+                                      SizedBox(
+                                        width: 100,
+                                        height: 100,
+                                        child: SfRadialGauge(
+                                          axes: <RadialAxis>[
+                                            RadialAxis(
+                                              minimum: 0,
+                                              maximum: sensorType=='Moisture Sensor'?200:sensorType=='Pressure Sensor'?12:100,
+                                              pointers: <GaugePointer>[
+                                                NeedlePointer(
+                                                    value: double.parse(sensor.value),
+                                                    needleEndWidth: 3, needleColor: Colors.black54),
+                                                RangePointer(
+                                                  value: sensorType=='Moisture Sensor'?200.0:100.0,
+                                                  width: 0.30,
+                                                  sizeUnit: GaugeSizeUnit.factor,
+                                                  color: const Color(0xFF494CA2),
+                                                  animationDuration: 1000,
+                                                  gradient: SweepGradient(
+                                                    colors: sensorType == "Water Meter" ? <Color>[
+                                                      Colors.teal.shade300,
+                                                      Colors.teal.shade400,
+                                                      Colors.teal.shade500,
+                                                      Colors.teal.shade600
+                                                    ]:
+                                                    <Color>[
+                                                      Colors.tealAccent,
+                                                      Colors.orangeAccent,
+                                                      Colors.redAccent,
+                                                      Colors.redAccent
+                                                    ],
+                                                    stops: const <double>[0.15, 0.50, 0.70, 1.00],
+                                                  ),
+                                                  enableAnimation: true,
+                                                ),
+                                              ],
+                                              showFirstLabel: false,
+                                              annotations: <GaugeAnnotation>[
+                                                GaugeAnnotation(
+                                                  widget: Text(
+                                                    sensor.value,
+                                                    style: const TextStyle(
+                                                        fontSize: 10, fontWeight: FontWeight.bold),
+                                                  ),
+                                                  angle: 90,
+                                                  positionFactor: 0.8,
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 8, right: 8),
+                                        child: Container(width: 1, height: 110, color: Colors.black12),
+                                      ),
+                                      SizedBox(
+                                        width : 415,
+                                        height : 132,
+                                        child: TableCalendar(
+                                          focusedDay: DateTime.now(),
+                                          firstDay: DateTime.utc(2020, 1, 1),
+                                          lastDay: DateTime.utc(2030, 12, 31),
+                                          calendarFormat: CalendarFormat.week,
+                                          availableCalendarFormats: const {
+                                            CalendarFormat.week: 'Week',
+                                          },
+                                          onDaySelected: (selectedDay, focusedDay) {
+                                            print("Selected: $selectedDay");
+                                          },
+                                        ),
+                                      )
+                                    ],
+                                  ),
                                   SizedBox(
-                                    width: kIsWeb? 450 : 250,
+                                    width: 550,
                                     height: 175,
                                     child: SfCartesianChart(
                                       primaryXAxis: CategoryAxis(
@@ -1079,58 +1153,6 @@ class SensorWidget extends StatelessWidget {
                                       ),
                                       tooltipBehavior: TooltipBehavior(enable: true),
                                       series: series,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 100,
-                                    height: 100,
-                                    child: SfRadialGauge(
-                                      axes: <RadialAxis>[
-                                        RadialAxis(
-                                          minimum: 0,
-                                          maximum: sensorType=='Moisture Sensor'?200:sensorType=='Pressure Sensor'?12:100,
-                                          pointers: <GaugePointer>[
-                                            NeedlePointer(
-                                                value: double.parse(sensor.value),
-                                                needleEndWidth: 3, needleColor: Colors.black54),
-                                            RangePointer(
-                                              value: sensorType=='Moisture Sensor'?200.0:100.0,
-                                              width: 0.30,
-                                              sizeUnit: GaugeSizeUnit.factor,
-                                              color: const Color(0xFF494CA2),
-                                              animationDuration: 1000,
-                                              gradient: SweepGradient(
-                                                colors: sensorType == "Water Meter" ? <Color>[
-                                                  Colors.teal.shade300,
-                                                  Colors.teal.shade400,
-                                                  Colors.teal.shade500,
-                                                  Colors.teal.shade600
-                                                ]:
-                                                <Color>[
-                                                  Colors.tealAccent,
-                                                  Colors.orangeAccent,
-                                                  Colors.redAccent,
-                                                  Colors.redAccent
-                                                ],
-                                                stops: const <double>[0.15, 0.50, 0.70, 1.00],
-                                              ),
-                                              enableAnimation: true,
-                                            ),
-                                          ],
-                                          showFirstLabel: false,
-                                          annotations: <GaugeAnnotation>[
-                                            GaugeAnnotation(
-                                              widget: Text(
-                                                sensor.value,
-                                                style: const TextStyle(
-                                                    fontSize: 10, fontWeight: FontWeight.bold),
-                                              ),
-                                              angle: 90,
-                                              positionFactor: 0.8,
-                                            ),
-                                          ],
-                                        ),
-                                      ],
                                     ),
                                   ),
                                 ],
@@ -1247,11 +1269,11 @@ class SensorWidget extends StatelessWidget {
                             },
                             direction: PopoverDirection.bottom,
                             width: kIsWeb ? 550: MediaQuery.sizeOf(context).width-20,
-                            height: kIsWeb ? 175 : 310,
+                            height: 310,
                             arrowHeight: 15,
                             arrowWidth: 30,
                             barrierColor: Colors.black54,
-                            arrowDyOffset: -20,
+                            arrowDyOffset: -40,
                           );
                         },
                         style: ButtonStyle(
@@ -1268,7 +1290,7 @@ class SensorWidget extends StatelessWidget {
                       ),
                     ),
                     Positioned(
-                      top: 48,
+                      top: 17,
                       left: sensorType == 'Pressure Sensor'? 10:1,
                       right: sensorType == 'Pressure Sensor'? 10:1,
                       child: Container(

@@ -52,9 +52,9 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   }
 
 
-  void _onPayloadReceived() {
-    final mqttProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
 
+  void _onPayloadReceived() {
+    final activeDeviceId = mqttProvider.activeDeviceId;
     final liveDateAndTime = mqttProvider.liveDateAndTime;
     final wifiStrength = mqttProvider.wifiStrength;
     final currentSchedule = mqttProvider.currentSchedule;
@@ -63,7 +63,10 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     isLiveSynced = mqttProvider.isLiveSynced;
     alarmDL = mqttProvider.alarmDL;
 
-    updateLivePayload(wifiStrength, liveDateAndTime, currentSchedule, lineLiveMessage);
+    if(activeDeviceId == mySiteList.data[sIndex].master[mIndex].deviceId){
+      updateLivePayload(wifiStrength, liveDateAndTime, currentSchedule, lineLiveMessage);
+    }
+
   }
 
   void _initializeMqttConnection() {
@@ -119,6 +122,39 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     Future.delayed(const Duration(seconds: 2), () {
       onRefreshClicked();
     });
+  }
+
+  void updateLivePayload(int ws, String liveDataAndTime, List<String> cProgram, List<String> linePauseResume) {
+
+    final parts = liveDataAndTime.split(' ');
+    if (parts.length == 2) {
+      mySiteList.data[sIndex].master[mIndex].live?.cD = parts[0];
+      mySiteList.data[sIndex].master[mIndex].live?.cT = parts[1];
+    }
+
+    wifiStrength = ws;
+    programRunning = cProgram.isNotEmpty && cProgram[0].isNotEmpty;
+    if (programRunning) {
+      mqttProvider.currentSchedule = cProgram;
+    }
+
+    for (final entry in linePauseResume) {
+      final parts = entry.split(',');
+      if (parts.length == 2) {
+        final serialNo = double.tryParse(parts[0]);
+        final flag = int.tryParse(parts[1]);
+        if (serialNo != null && flag != null) {
+          for (var line in mySiteList.data[sIndex].master[mIndex].irrigationLine) {
+            if (line.sNo == serialNo) {
+              line.linePauseFlag = flag;
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    notifyListeners();
   }
 
   Future<void> getAllMySites(BuildContext context, int customerId) async {
@@ -229,40 +265,6 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
-
-  void updateLivePayload(int ws, String liveDataAndTime, List<String> cProgram, List<String> linePauseResume) {
-
-    final parts = liveDataAndTime.split(' ');
-    if (parts.length == 2) {
-      mySiteList.data[sIndex].master[mIndex].live?.cD = parts[0];
-      mySiteList.data[sIndex].master[mIndex].live?.cT = parts[1];
-    }
-
-    wifiStrength = ws;
-    programRunning = cProgram.isNotEmpty && cProgram[0].isNotEmpty;
-    if (programRunning) {
-      mqttProvider.currentSchedule = cProgram;
-    }
-
-    for (final entry in linePauseResume) {
-      final parts = entry.split(',');
-      if (parts.length == 2) {
-        final serialNo = double.tryParse(parts[0]);
-        final flag = int.tryParse(parts[1]);
-        if (serialNo != null && flag != null) {
-          for (var line in mySiteList.data[sIndex].master[mIndex].irrigationLine) {
-            if (line.sNo == serialNo) {
-              line.linePauseFlag = flag;
-              break;
-            }
-          }
-        }
-      }
-    }
-
-    notifyListeners();
-  }
-
 
   Future<void> onRefreshClicked() async {
     if (!mqttService.isConnected) {

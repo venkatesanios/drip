@@ -149,134 +149,25 @@ class MobileScreenController extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 7.0),
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
-                      // Enables horizontal scrolling
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const SizedBox(width: 15),
-
-                          vm.mySiteList.data.length > 1
-                              ? DropdownButton(
-                            isExpanded: false,
-                            underline: Container(),
-                            items: (vm.mySiteList.data ?? []).map((site) {
-                              return DropdownMenuItem(
-                                value: site.groupName,
-                                child: Text(
-                                  site.groupName,
-                                  style: const TextStyle(
-                                      color: Colors.white, fontSize: 17),
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (siteName) =>
-                                vm.siteOnChanged(siteName!),
-                            value: vm.myCurrentSite,
-                            dropdownColor: Theme.of(context).primaryColorLight,
-                            iconEnabledColor: Colors.white,
-                            iconDisabledColor: Colors.white,
-                            focusColor: Colors.transparent,
-                          )
-                              : Text(
-                            vm.mySiteList.data[vm.sIndex].groupName,
-                            style: const TextStyle(
-                                fontSize: 15, color: Colors.white54),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8, right: 8),
-                            child: Container(width: 1, height: 20, color: Colors.white54),
-                          ),
-
-                          vm.mySiteList.data[vm.sIndex].master.length > 1? PopupMenuButton<int>(
-                            color: Theme.of(context).primaryColorLight,
-                            tooltip: 'master controller',
-                            child: MaterialButton(
-                              onPressed: null,
-                              textColor: Colors.white,
-                              child: Row(
-                                children: [
-                                  Text(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName),
-                                  const SizedBox(width: 3),
-                                  const Icon(Icons.arrow_drop_down, color: Colors.white),
-                                ],
-                              ),
-                            ),
-                            itemBuilder: (context) {
-                              return List.generate(vm.mySiteList.data[vm.sIndex].master.length, (index) {
-                                final master = vm.mySiteList.data[vm.sIndex].master[index];
-                                return PopupMenuItem<int>(
-                                  value: index,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        master.categoryName,
-                                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-                                      ),
-                                      Text(
-                                        master.modelName,
-                                        style: const TextStyle(fontSize: 12, color: Colors.white54),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              });
-                            },
-                            onSelected: (index) {
-                              vm.masterOnChanged(index); // ✅ Pass only the index
-                            },
-                          ):
-                          const SizedBox(),
-
-                          vm.mySiteList.data[vm.sIndex].master.length > 1? Padding(
-                            padding: const EdgeInsets.only(left: 8, right: 8),
-                            child: Container(width: 1, height: 20, color: Colors.white54),
-                          ):const SizedBox(),
-
-                          vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1 &&
-                              vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
-                                  .irrigationLine.length > 1
-                              ? DropdownButton<int>(
-                            underline: Container(),
-                            items: List.generate(
-                              vm.mySiteList.data[vm.sIndex].master[vm.mIndex].irrigationLine.length,
-                                  (index) {
-                                final line = vm.mySiteList.data[vm.sIndex].master[vm.mIndex].irrigationLine[index];
-                                return DropdownMenuItem<int>(
-                                  value: index,
-                                  child: Text(
-                                    line.name,
-                                    style: const TextStyle(color: Colors.white, fontSize: 16),
-                                  ),
-                                );
-                              },
-                            ),
-                            onChanged: (selectedIndex) {
-                              if (selectedIndex != null) {
-                                vm.lineOnChanged(selectedIndex); // Pass index to your function
-                              }
-                            },
-                            value: vm.lIndex,
-                            dropdownColor: Theme.of(context).primaryColorLight,
-                            iconEnabledColor: Colors.white,
-                            iconDisabledColor: Colors.white,
-                            focusColor: Colors.transparent,
-                          )
-                              : const SizedBox(),
-
-                          vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1 &&
-                              vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
-                                  .irrigationLine.length > 1 ?Padding(
-                            padding: const EdgeInsets.only(left: 8, right: 8),
-                            child: Container(width: 1, height: 20, color: Colors.white54),
-                          ):const SizedBox(),
+                          SiteSelectorWidget(vm: vm, context: context),
+                          const VerticalDividerWhite(),
+                          MasterSelectorWidget(vm: vm, sIndex: vm.sIndex, mIndex: vm.mIndex),
+                          if (vm.mySiteList.data[vm.sIndex].master.length > 1)
+                            const VerticalDividerWhite(),
+                          IrrigationLineSelectorWidget(vm: vm),
+                          if (vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1 &&
+                              vm.mySiteList.data[vm.sIndex].master[vm.mIndex].irrigationLine.length > 1)
+                            const VerticalDividerWhite(),
 
                           Container(
                             decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5),
-                                color: Colors.transparent),
+                              borderRadius: BorderRadius.circular(5),
+                              color: Colors.transparent,
+                            ),
                             width: 45,
                             height: 45,
                             child: IconButton(
@@ -285,19 +176,16 @@ class MobileScreenController extends StatelessWidget {
                               icon: const Icon(Icons.refresh),
                               color: Colors.white,
                               iconSize: 24.0,
-                              hoverColor: Theme
-                                  .of(context)
-                                  .primaryColorLight,
+                              hoverColor: Theme.of(context).primaryColorLight,
                             ),
                           ),
 
                           Text(
                             'Last sync @ - ${Formatters.formatDateTime(
-                                '${vm.mySiteList.data[vm.sIndex].master[vm
-                                    .mIndex].live?.cD} ${vm.mySiteList.data[vm
-                                    .sIndex].master[vm.mIndex].live?.cT}')}',
-                            style: const TextStyle(
-                                fontSize: 14, color: Colors.white60),
+                              '${vm.mySiteList.data[vm.sIndex].master[vm.mIndex].live?.cD} '
+                                  '${vm.mySiteList.data[vm.sIndex].master[vm.mIndex].live?.cT}',
+                            )}',
+                            style: const TextStyle(fontSize: 14, color: Colors.white60),
                           ),
 
                           const SizedBox(width: 15),
@@ -845,7 +733,6 @@ class MobileScreenController extends StatelessWidget {
       backgroundColor: Colors.white,
       builder: (_) {
         return StatefulBuilder(builder: (context, setModalState) {
-          //final manager = Provider.of<BluService>(context);
           final commMode = Provider.of<CustomerProvider>(context).controllerCommMode;
           return Padding(
             padding: const EdgeInsets.all(16.0),
@@ -878,17 +765,6 @@ class MobileScreenController extends StatelessWidget {
                 if (commMode == 2) ...[
                   const Divider(),
                   BluetoothScanTile(vm: vm),
-                  /*ListTile(
-                    dense: true,
-                    visualDensity: VisualDensity.compact,
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text("Scan for Bluetooth Devices and Connect",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.refresh_outlined, color: Colors.black),
-                      onPressed: () => vm.blueService.getDevices(),
-                    ),
-                  ),*/
                   const SizedBox(height: 10),
                   Consumer<MqttPayloadProvider>(
                     builder: (context, provider, _) {
@@ -979,9 +855,9 @@ class MobileScreenController extends StatelessWidget {
                     TextButton(
                       onPressed: () {
                         context.read<MqttPayloadProvider>().clearWifiMessage();
-                        Navigator.of(context).pop(); // Close message dialog
-                        Navigator.of(context).pop(); // Close main Wi-Fi dialog
-                        showWifiListDialog(context); // Reopen
+                        Navigator.of(context).pop();
+                        Navigator.of(context).pop();
+                        showWifiListDialog(context);
                       },
                       child: const Text("OK"),
                     ),
@@ -1354,6 +1230,164 @@ class _BluetoothScanTileState extends State<BluetoothScanTile>
           onPressed: _startScan,
         ),
       ),
+    );
+  }
+}
+
+class VerticalDividerWhite extends StatelessWidget {
+  const VerticalDividerWhite({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 8),
+      child: SizedBox(
+        width: 1,
+        height: 20,
+        child: DecoratedBox(
+          decoration: BoxDecoration(color: Colors.white54),
+        ),
+      ),
+    );
+  }
+}
+
+class SiteSelectorWidget extends StatelessWidget {
+  final CustomerScreenControllerViewModel vm;
+  final BuildContext context;
+
+  const SiteSelectorWidget({
+    super.key,
+    required this.vm,
+    required this.context,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if ((vm.mySiteList.data.length ?? 0) > 1) {
+      return DropdownButton(
+        isExpanded: false,
+        underline: Container(),
+        items: (vm.mySiteList.data ?? []).map((site) {
+          return DropdownMenuItem(
+            value: site.groupName,
+            child: Text(
+              site.groupName,
+              style: const TextStyle(color: Colors.white, fontSize: 17),
+            ),
+          );
+        }).toList(),
+        onChanged: (siteName) => vm.siteOnChanged(siteName!),
+        value: vm.myCurrentSite,
+        dropdownColor: Theme.of(context).primaryColorLight,
+        iconEnabledColor: Colors.white,
+        iconDisabledColor: Colors.white,
+        focusColor: Colors.transparent,
+      );
+    } else {
+      return Text(
+        vm.mySiteList.data[vm.sIndex].groupName,
+        style: const TextStyle(fontSize: 15, color: Colors.white54),
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+  }
+}
+
+class MasterSelectorWidget extends StatelessWidget {
+  final CustomerScreenControllerViewModel vm;
+  final int sIndex;
+  final int mIndex;
+
+  const MasterSelectorWidget({
+    super.key,
+    required this.vm,
+    required this.sIndex,
+    required this.mIndex,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final masterList = vm.mySiteList.data[sIndex].master;
+    if (masterList.length <= 1) return const SizedBox();
+    return PopupMenuButton<int>(
+      color: Theme.of(context).primaryColorLight,
+      tooltip: 'master controller',
+      child: MaterialButton(
+        onPressed: null,
+        textColor: Colors.white,
+        child: Row(
+          children: [
+            Text(masterList[mIndex].categoryName),
+            const SizedBox(width: 3),
+            const Icon(Icons.arrow_drop_down, color: Colors.white),
+          ],
+        ),
+      ),
+      itemBuilder: (context) {
+        return List.generate(masterList.length, (index) {
+          final master = masterList[index];
+          return PopupMenuItem<int>(
+            value: index,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  master.categoryName,
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+                Text(
+                  master.modelName,
+                  style: const TextStyle(fontSize: 12, color: Colors.white54),
+                ),
+              ],
+            ),
+          );
+        });
+      },
+      onSelected: (index) {
+        vm.masterOnChanged(index);
+      },
+    );
+  }
+}
+
+class IrrigationLineSelectorWidget extends StatelessWidget {
+  final CustomerScreenControllerViewModel vm;
+
+  const IrrigationLineSelectorWidget({
+    super.key,
+    required this.vm,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final master = vm.mySiteList.data[vm.sIndex].master[vm.mIndex];
+    if (master.categoryId != 1 || master.irrigationLine.length <= 1) {
+      return const SizedBox();
+    }
+    return DropdownButton<int>(
+      underline: Container(),
+      items: List.generate(master.irrigationLine.length, (index) {
+        final line = master.irrigationLine[index];
+        return DropdownMenuItem<int>(
+          value: index,
+          child: Text(
+            line.name,
+            style: const TextStyle(color: Colors.white, fontSize: 16),
+          ),
+        );
+      }),
+      onChanged: (selectedIndex) {
+        if (selectedIndex != null) {
+          vm.lineOnChanged(selectedIndex);
+        }
+      },
+      value: vm.lIndex,
+      dropdownColor: Theme.of(context).primaryColorLight,
+      iconEnabledColor: Colors.white,
+      iconDisabledColor: Colors.white,
+      focusColor: Colors.transparent,
     );
   }
 }
