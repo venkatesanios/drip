@@ -1,3 +1,4 @@
+
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -22,34 +23,53 @@ import 'modules/config_Maker/state_management/config_maker_provider.dart';
 import 'StateManagement/mqtt_payload_provider.dart';
 import 'StateManagement/overall_use.dart';
 import 'modules/constant/state_management/constant_provider.dart';
-import 'Constants/notifications_service.dart';
 
-// Global instance of FlutterLocalNotificationsPlugin
+// Initialize local notifications plugin
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
 // Background message handler for Firebase
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  debugPrint("Handling a background message: ${message.messageId}");
+  await Firebase.initializeApp();
+  print("Handling a background message: ${message.messageId}");
 }
 
-Future<void> main() async {
+FutureOr<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   F.appFlavor = Flavor.oroProduction;
-
-  // Initialize Firebase and notifications for non-web platforms
-  if (!kIsWeb) {
+  if(!kIsWeb){
     try {
-      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-      // Initialize notifications and Firebase messaging handlers
-      await NotificationServiceCall().initialize();
+      // Initialize Firebase
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
 
+      // Request notification permissions
+      FirebaseMessaging messaging = FirebaseMessaging.instance;
+      await messaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+
+      // Initialize local notifications
+      const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+      final InitializationSettings initializationSettings = InitializationSettings(
+        android: initializationSettingsAndroid,
+      );
+      await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+      // Set up Firebase background message handler
       FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-    } catch (e, stackTrace) {
-      debugPrint('Firebase initialization failed: $e\n$stackTrace');
-      // Optionally, implement fallback logic or user notification
+    } catch (e) {
+      debugPrint('Initialization error: $e');
     }
   }
+
+
+
+  /*final mqttService = MqttService();
+  final myMqtt = MqttPayloadProvider();*/
 
   runApp(
     MultiProvider(
@@ -59,7 +79,6 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => IrrigationProgramMainProvider()),
         ChangeNotifierProvider(create: (_) => MqttPayloadProvider()),
         ChangeNotifierProvider(create: (_) => OverAllUse()),
-        ChangeNotifierProvider(create: (_) => NotificationCheck(notificationsEnabled: false)),
         ChangeNotifierProvider(create: (_) => PreferenceProvider()),
         ChangeNotifierProvider(create: (_) => SystemDefinitionProvider()),
         ChangeNotifierProvider(create: (_) => ConstantProviderMani()),
@@ -80,20 +99,4 @@ Future<void> main() async {
       child: const MyApp(),
     ),
   );
-}
-
-// Renamed from NotifigationCheck to fix typo
-class NotificationCheck with ChangeNotifier {
-  final bool notificationsEnabled;
-
-  NotificationCheck({required this.notificationsEnabled});
-
-  void updateIrrigationStatus(String status) {
-    if (notificationsEnabled) {
-      debugPrint('Sending push notification: $status');
-    } else {
-      debugPrint('Notifications disabled, using fallback: $status');
-      notifyListeners();
-    }
-  }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:oro_drip_irrigation/Constants/notifications_service.dart';
 import '../flavors.dart';
 import '../utils/Theme/smart_comm_theme.dart';
@@ -18,62 +19,49 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
   @override
   void initState() {
     super.initState();
-    if (!kIsWeb) {
-      // Initialize notifications and request permissions
+    if(!kIsWeb){
       NotificationServiceCall().initialize();
       NotificationServiceCall().configureFirebaseMessaging();
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        NotificationServiceCall.requestPermission(context);
-      });
     }
   }
 
-  /// Show a custom dialog to ask for notification permission
-  Future<bool> showNotificationPrompt(BuildContext context) async {
-    return await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Allow Notifications'),
-        content: const Text('Would you like to receive push notifications from this app?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Skip'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Allow'),
-          ),
-        ],
-      ),
-    ) ?? false;
-  }
 
-  /// Determine initial route based on token
+
+
+  /// Decide the initial route based on whether a token exists
   Future<String> getInitialRoute() async {
     try {
+      print("getInitialRoute---");
       final token = await PreferenceHelper.getToken();
-      return (token != null && token.trim().isNotEmpty) ? Routes.dashboard : Routes.login;
+      print("token--->$token");
+      // Check if token is valid
+      if (token != null && token.trim().isNotEmpty) {
+        print("Navigating to dashboard");
+        return Routes.dashboard;
+      } else {
+        print("No valid token, navigating to login");
+        return Routes.login;
+      }
     } catch (e) {
-      debugPrint("Error in getInitialRoute: $e");
+      print("Error in getInitialRoute: $e");
       return Routes.login;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final isOro = F.appFlavor?.name.contains('oro') ?? false;
-    final isDarkMode = MediaQuery.of(context).platformBrightness == Brightness.dark;
 
+    print('Flavor is: ${F.appFlavor}');
+    bool isDarkMode = false;
     return FutureBuilder<String>(
       future: getInitialRoute(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
+        var isOro = F.appFlavor?.name.contains('oro') ?? false;
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: isOro ? OroTheme.lightTheme : SmartCommTheme.lightTheme,
@@ -87,9 +75,12 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
+/// Helper function to navigate to the appropriate screen
 Widget navigateToInitialScreen(String route) {
+  print("route:-->$route");
   switch (route) {
     case Routes.login:
+    // return const QRCodeScan();
       return const LoginScreen();
     case Routes.dashboard:
       return const ScreenController();

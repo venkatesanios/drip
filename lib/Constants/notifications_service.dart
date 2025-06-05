@@ -14,7 +14,7 @@ class NotificationServiceCall {
   Future<void> initialize() async {
 
     // Request notification permissions
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (Platform.isAndroid) {
       final status = await Permission.notification.request();
       if (status.isPermanentlyDenied) {
         await openAppSettings();
@@ -138,41 +138,5 @@ class NotificationServiceCall {
     // }
   }
 
-
-  /// Request notification permissions with a custom prompt
-  static Future<void> requestPermission(BuildContext context) async {
-    final shouldRequest = await _showNotificationPrompt(context);
-    if (shouldRequest) {
-      final settings = await FirebaseMessaging.instance.requestPermission(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-      debugPrint('Notification permission status: ${settings.authorizationStatus}');
-    } else {
-      debugPrint('User skipped notification permission.');
-    }
-  }
-
-  /// Show a custom dialog to ask for notification permission
-  static Future<bool> _showNotificationPrompt(BuildContext context) async {
-    return await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Allow Notifications'),
-        content: const Text('Would you like to receive push notifications from this app?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Skip'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Allow'),
-          ),
-        ],
-      ),
-    ) ?? false;
-  }
 
 }

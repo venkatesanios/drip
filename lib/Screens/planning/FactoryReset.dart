@@ -144,7 +144,7 @@ class _Reset_AccumalationState extends State<Reset_Accumalation>
                           child: const Text("RESET ALL"),
                           onPressed: () async {
                             setState(() {
-                              ResetAll();
+                              ResetAll(_resetModel.data!.accumulation!);
                             });
                           },
                         ),
@@ -362,8 +362,8 @@ class _Reset_AccumalationState extends State<Reset_Accumalation>
 
   Request(){
     String payLoadFinal = jsonEncode({
-      "3000":
-        {"3001": "#GETAACCUMALATION"},
+      "5300":
+        {"5301": "1"},
     });
     MqttService().topicToPublishAndItsMessage(payLoadFinal, "${Environment.mqttPublishTopic}/${widget.deviceID}");
 
@@ -371,24 +371,33 @@ class _Reset_AccumalationState extends State<Reset_Accumalation>
 
   Reset(int Srno)   {
     String payLoadFinal = jsonEncode({
-      "3100":
-        {"3101": Srno},
+      "5400":
+      {"5401": '${Srno},1;'},
     });
     MqttService().topicToPublishAndItsMessage(payLoadFinal, "${Environment.mqttPublishTopic}/${widget.deviceID}");
     createUserSentAndReceivedMessageManually(payLoadFinal);
   }
-  ResetAll()   {
-    String payLoadFinal = jsonEncode({
-      "3100":
-        {"3101": "RESETALL"},
-    });
-    MqttService().topicToPublishAndItsMessage(payLoadFinal, "${Environment.mqttPublishTopic}/${widget.deviceID}");
-    createUserSentAndReceivedMessageManually(payLoadFinal);
+  ResetAll(List<Accumulation>? data)   {
+    String restsrn = '';
+
+    for (var j = 0; j < data!.length; j++) {
+      restsrn += "${data[j].list?[0].sNo},1;";
+    }
+    Map<String, dynamic> payLoadFinal = {
+      "5400":
+        {"5401": restsrn}
+    };
+
+
+
+
+    MqttService().topicToPublishAndItsMessage(jsonEncode(payLoadFinal), "${Environment.mqttPublishTopic}/${widget.deviceID}");
+    createUserSentAndReceivedMessageManually(jsonEncode(payLoadFinal));
   }
   FResetAll()   {
     String payLoadFinal = jsonEncode({
-      "3200":
-        {"3201": "FRESET"},
+      "5300":
+        {"5301": "2"},
     });
     MqttService().topicToPublishAndItsMessage(payLoadFinal, "${Environment.mqttPublishTopic}/${widget.deviceID}");
     createUserSentAndReceivedMessageManually(payLoadFinal);
