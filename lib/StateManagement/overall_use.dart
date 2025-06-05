@@ -23,8 +23,7 @@ class OverAllUse extends ChangeNotifier{
   bool fromDealer = false;
   int selectedMenu = 0;
   List<int> menuIdList = [80, 78, 72, 79, 127, 75, 74, 69, 67, 68, 66, 71];
-
-  String getTime(){
+   String getTime(){
     return '${hrs.toString().padLeft(2, '0')}'
         ':${min.toString().padLeft(2, '0')}'
         ':${sec.toString().padLeft(2, '0')}';

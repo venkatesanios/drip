@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
+import '../../flavors.dart';
 import '../../services/mqtt_service.dart';
 import '../../utils/environment.dart';
 
@@ -22,6 +23,14 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
   bool isLoading = true;
   String errorMessage = '';
   String? formattedConfig;
+
+  // New fields
+  String macAddress = '';
+  String? selectedPlatform;
+  String? selectedVersion;
+
+  final List<String> platforms = ['AWS', 'Azure'];
+  final List<String> versions = ['Version 1.0', 'Version 1.1'];
 
   @override
   void initState() {
@@ -106,7 +115,7 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
     }
   }
 
-  void sendSelectedProject() {
+  void sendSelectedProjectw() {
     if (selectedIndex == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please select a project")),
@@ -118,7 +127,9 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
     final formatted = formatConfig(selectedConfig);
 
     final payload = {
-      "6100": {"6101": formatted},
+      "6100": {
+        "6101": formatted,
+       },
     };
 
     print("Selected config index: $selectedIndex");
@@ -126,7 +137,6 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
     print("Formatted: $formatted");
     print('jsonEncode(payload): ${jsonEncode(payload)}');
 
-    // Uncomment this when ready to send
     MqttService().topicToPublishAndItsMessage(
       jsonEncode(payload),
       "${Environment.mqttPublishTopic}/${widget.deviceID}",
@@ -137,15 +147,109 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
     );
   }
 
-  void updateCode() {
-    final payload = {
-      "5700": {"5701": "28"},
-    };
+  void sendSelectedProject() {
+    if (selectedIndex == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please select a project")),
+      );
+      return;
+    }
+     final selectedConfig = configs[selectedIndex!];
+    final formatted = formatConfig(selectedConfig);
+    if(selectedPlatform == 'AWS') {
+      if (selectedVersion == 'Version 1.0') {
+        final payload = {
+          "6100": [{
+            "6101": formatted,
+          }]
+        };
 
-    MqttService().topicToPublishAndItsMessage(
-      jsonEncode(payload),
-      "${Environment.mqttPublishTopic}/${widget.deviceID}",
-    );
+        MqttService().topicToPublishAndItsMessage(
+          jsonEncode(payload),
+          "AppToFirmware/${macAddress}",
+        );
+      }
+      else {
+        final payload = {
+          "6100": {
+            "6101": formatted,
+          },
+        };
+        MqttService().topicToPublishAndItsMessage(
+          jsonEncode(payload),
+          "OroAppToFirmware/${macAddress}",
+        );
+      }
+    }
+    else
+    if (selectedVersion == 'Version 1.0') {
+      final payload = {
+        "6100": [{
+          "6101": formatted,
+        }]
+      };
+      MqttService().topicToPublishAndItsMessage(
+        jsonEncode(payload),
+        "OroAppToFirmware/${macAddress}",
+      );
+    }
+    else {
+      final payload = {
+        "6100": {
+          "6101": formatted,
+        },
+      };
+      MqttService().topicToPublishAndItsMessage(
+        jsonEncode(payload),
+        "OroAppToFirmware/${macAddress}",
+      );
+    }
+
+  }
+
+
+
+  void updateCode() {
+    if(selectedPlatform == 'AWS') {
+      if (selectedVersion == 'Version 1.0') {
+        final payload = {
+          "5700": [{"5701": "28"},]
+        };
+        MqttService().topicToPublishAndItsMessage(
+          jsonEncode(payload),
+          "AppToFirmware/${macAddress}",
+        );
+      }
+      else {
+        final payload = {
+          "5700": {"5701": "28"},
+        };
+        MqttService().topicToPublishAndItsMessage(
+          jsonEncode(payload),
+          "AppToFirmware/${macAddress}",
+        );
+      }
+    }
+    else
+    if (selectedVersion == 'Version 1.0') {
+      final payload = {
+        "5700": [{"5701": "28"},]
+      };
+      MqttService().topicToPublishAndItsMessage(
+        jsonEncode(payload),
+        "OroAppToFirmware/${macAddress}",
+      );
+    }
+    else {
+      final payload = {
+        "5700": {"5701": "28"},
+      };
+      MqttService().topicToPublishAndItsMessage(
+        jsonEncode(payload),
+        "OroAppToFirmware/${macAddress}",
+      );
+    }
+
   }
 
   @override
@@ -160,72 +264,130 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
             ? const Center(child: CircularProgressIndicator())
             : errorMessage.isNotEmpty
             ? Center(child: Text(errorMessage))
-            : Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            DropdownButton<int>(
-              value: selectedIndex,
-              isExpanded: true,
-              hint: const Text('Select Project'),
-              items: List.generate(configs.length, (index) {
-                final config = configs[index];
-                return DropdownMenuItem<int>(
-                  value: index,
-                  child: Text('${config['PROJECT_NAME']} - ${config['SERVER_NAME']}'),
-                );
-              }),
-              onChanged: (index) {
-                setState(() {
-                  selectedIndex = index;
-                  formattedConfig = index != null
-                      ? formatConfig(configs[index])
-                      : null;
-                });
-              },
-            ),
-            const SizedBox(height: 20),
-            if (formattedConfig != null)
-              Container(
-                padding: const EdgeInsets.all(12.0),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(8),
+            : SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // MAC Address
+              TextField(
+                decoration: const InputDecoration(
+                  labelText: 'MAC Address',
+                  border: OutlineInputBorder(),
                 ),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Text(
-                    formattedConfig!,
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 14,
+                onChanged: (value) {
+                  macAddress = value;
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // Platform Dropdown
+              DropdownButtonFormField<String>(
+                value: selectedPlatform,
+                decoration: const InputDecoration(
+                  labelText: 'Select Platform',
+                  border: OutlineInputBorder(),
+                ),
+                items: platforms.map((platform) {
+                  return DropdownMenuItem<String>(
+                    value: platform,
+                    child: Text(platform),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    value == 'AWS' ? F.appFlavor = Flavor.oroProduction : F.appFlavor = Flavor.smartComm;
+                     selectedPlatform = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // Version Dropdown
+              DropdownButtonFormField<String>(
+                value: selectedVersion,
+                decoration: const InputDecoration(
+                  labelText: 'Select Version',
+                  border: OutlineInputBorder(),
+                ),
+                items: versions.map((version) {
+                  return DropdownMenuItem<String>(
+                    value: version,
+                    child: Text(version),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedVersion = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // Project Config Selection
+              DropdownButton<int>(
+                value: selectedIndex,
+                isExpanded: true,
+                hint: const Text('Select Project'),
+                items: List.generate(configs.length, (index) {
+                  final config = configs[index];
+                  return DropdownMenuItem<int>(
+                    value: index,
+                    child: Text('${config['PROJECT_NAME']} - ${config['SERVER_NAME']}'),
+                  );
+                }),
+                onChanged: (index) {
+                  setState(() {
+                    selectedIndex = index;
+                    formattedConfig = index != null ? formatConfig(configs[index]) : null;
+                  });
+                },
+              ),
+              const SizedBox(height: 20),
+
+              if (formattedConfig != null)
+                Container(
+                  padding: const EdgeInsets.all(12.0),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Text(
+                      formattedConfig!,
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 14,
+                      ),
                     ),
                   ),
                 ),
+              const SizedBox(height: 20),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.blue,
+                    ),
+                    onPressed: sendSelectedProject,
+                    child: const Text('Settings Update'),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.green,
+                    ),
+                    onPressed: updateCode,
+                    child: const Text('Update HW Code'),
+                  ),
+                ],
               ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.blue,
-                  ),
-                  onPressed: sendSelectedProject,
-                  child: const Text('Settings Update'),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.green,
-                  ),
-                  onPressed: updateCode,
-                  child: const Text('Update HW Code'),
-                ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

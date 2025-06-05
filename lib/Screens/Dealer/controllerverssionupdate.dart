@@ -221,6 +221,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
                                   Colors.teal.shade100)),
                           onPressed: () {
                             setState(() {
+                              selectindex = index;
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -241,6 +242,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
                                     Colors.teal.shade100)),
                               onPressed: () {
                                 setState(() {
+                                  selectindex = index;
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -262,6 +264,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
                                     Colors.teal.shade100)),
                             onPressed: () {
                               setState(() {
+                                selectindex = index;
                                 _showFrequencyDialog(context, index, true);
 
                               });
@@ -400,9 +403,9 @@ class _ResetVerssionState extends State<ResetVerssion> {
 
   sendHttp(String val, String msgstatus) async {
     Map<String, dynamic> payLoadFinal = {
-      "5700": [
+      "5700":
         {"5701": "$val"},
-      ]
+
     };
     Map<String, dynamic> body = {
       "userId": widget.userId,
@@ -515,9 +518,9 @@ class _ResetVerssionState extends State<ResetVerssion> {
     sf1 = sf1.isEmpty ? "0" : sf1;
     sf2 = sf2.isEmpty ? "0" : sf2;
     Map<String, dynamic> payLoadFinal = {
-      "6500": [
+      "6500":
         {"6501": "$firstfreequnce1,$sf1,$firstfreequnce2,$sf2"},
-      ]
+
     };
     Map<String, dynamic> body = {
       "userId": widget.userId,
@@ -538,9 +541,11 @@ class _ResetVerssionState extends State<ResetVerssion> {
         _showSnackBar(data["message"]);
       }
     }
+    print("selectindex----$selectindex");
 
-
-    MqttService().topicToPublishAndItsMessage('${frequency1Controller.text},${sf1Controller.text},${frequency2Controller.text},${sf2Controller.text}', '${Environment.mqttPublishTopic}/${mergedList[selectindex ?? 0]["deviceId"]}');
+    print("payLoadFinal----$payLoadFinal");
+print("payLoadFinal----${Environment.mqttPublishTopic}/${mergedList[selectindex!]["deviceId"]}");
+    MqttService().topicToPublishAndItsMessage(jsonEncode(payLoadFinal), '${Environment.mqttPublishTopic}/${mergedList[selectindex ?? 0]["deviceId"]}');
      fetchData();
   }
   bool _isValidFrequency(String freq) {

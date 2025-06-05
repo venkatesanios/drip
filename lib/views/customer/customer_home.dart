@@ -106,7 +106,7 @@ class CustomerHome extends StatelessWidget {
                           ),
                           const Spacer(),
                           MaterialButton(
-                            color: line.linePauseFlag==0? Colors.orangeAccent : Colors.green,
+                            color: line.linePauseFlag==0? Colors.amber : Colors.green,
                             textColor: Colors.black87,
                             onPressed: () async {
                               String payLoadFinal = jsonEncode({
@@ -230,7 +230,7 @@ class CustomerHome extends StatelessWidget {
                               ),
                               const Spacer(),
                               MaterialButton(
-                                color: line.linePauseFlag==0? Colors.orangeAccent : Colors.green,
+                                color: line.linePauseFlag==0? Colors.amber : Colors.green,
                                 textColor: Colors.black87,
                                 onPressed: () async {
                                   String payLoadFinal = jsonEncode({
@@ -253,7 +253,7 @@ class CustomerHome extends StatelessWidget {
                                 child: Text(
                                   line.linePauseFlag==0?'PAUSE THE LINE':
                                   'RESUME THE LINE',
-                                  style: const TextStyle(color: Colors.white),
+                                  style: const TextStyle(color: Colors.black),
                                 ),
                               ),
                               const SizedBox(width: 5)
@@ -417,7 +417,7 @@ class PumpStationWithLine extends StatelessWidget {
           ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', fertilizerSite.isNotEmpty),
           ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter_wj.png', fertilizerSite.isNotEmpty),
           ...valveWidgets,
-          ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', fertilizerSite.isNotEmpty),
+          ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor_wjl.png', fertilizerSite.isNotEmpty),
       ];
 
       return Align(
@@ -430,7 +430,7 @@ class PumpStationWithLine extends StatelessWidget {
             final index = entry.key;
             final item = entry.value;
             if(fertilizerSite.isNotEmpty){
-              int itemsPerRow = ((MediaQuery.sizeOf(context).width - 140) / 70).floor();
+              int itemsPerRow = ((MediaQuery.sizeOf(context).width - 140) / 67).floor();
 
               if (item is ValveWidget && index < itemsPerRow) {
                 return Padding(
@@ -776,6 +776,24 @@ class PumpStationWithLine extends StatelessWidget {
           siteSno: site.sNo.toString(),
         ));
       }
+
+      widgets.add(SizedBox(
+        width: 4.5,
+        height: 130,
+        child: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 42, bottom: 4.5),
+              child: VerticalDivider(width: 0, color: Colors.grey.shade300,),
+            ),
+            const SizedBox(width: 4.5,),
+            Padding(
+              padding: const EdgeInsets.only(top: 45, bottom: 1),
+              child: VerticalDivider(width: 0, color: Colors.grey.shade300,),
+            ),
+          ],
+        ),
+      ));
 
       return widgets;
     }).expand((item) => item).toList().cast<Widget>(); // 👈 Cast the final list

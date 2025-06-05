@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/views/admin_dealer/product_entry.dart';
 import 'package:oro_drip_irrigation/views/admin_dealer/product_inventory.dart';
+import 'package:oro_drip_irrigation/views/admin_dealer/stock_entry.dart';
 import 'package:provider/provider.dart';
 import '../../Screens/Dealer/ServicerequestAdmin.dart';
 import '../../flavors.dart';
@@ -36,7 +37,7 @@ class _AdminScreenControllerState extends State<AdminScreenController> {
               leading: Padding(
                 padding: const EdgeInsets.only(left: 15),
                 child: Image.asset(
-                  width: F.appFlavor!.name.contains('oro') ? 75:110,
+                  width: F.appFlavor!.name.contains('oro') ? 75:150,
                   F.appFlavor!.name.contains('oro')
                       ? "assets/png/oro_logo_white.png"
                       : "assets/png/company_logo.png",
@@ -99,33 +100,6 @@ class _AdminScreenControllerState extends State<AdminScreenController> {
                 ),
               ),
               actions: <Widget>[
-                Container(
-                  width: 100,
-                  height: 40,
-                  padding: const EdgeInsets.symmetric(horizontal: 3),
-                  decoration: BoxDecoration(
-                    color: Colors.black12,
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.search),
-                        onPressed: () {},
-                        padding: EdgeInsets.all(4), // Optional: removes default padding
-                        constraints: BoxConstraints(), // Optional: tightens layout
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.filter_alt_outlined),
-                        onPressed: () {},
-                        padding: EdgeInsets.all(4),
-                        constraints: BoxConstraints(),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(width: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -137,26 +111,88 @@ class _AdminScreenControllerState extends State<AdminScreenController> {
                       fit: BoxFit.fitWidth,
                     ),
                     const SizedBox(width: 10),
-                    Container(
-                      width: 200,
-                      height: 36,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          bottomLeft: Radius.circular(20),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          const SizedBox(width: 2),
-                          const CircleAvatar(
-                            radius: 18,
-                            backgroundImage: AssetImage("assets/png/user_thumbnail.png"),
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            bottomLeft: Radius.circular(20),
                           ),
-                          const SizedBox(width: 5),
-                          //Text(userName, style: const TextStyle(fontWeight: FontWeight.bold))
-                        ],
+                          onTapDown: (TapDownDetails details) {
+                            final offset = details.globalPosition;
+                            showMenu(
+                              context: context,
+                              position: RelativeRect.fromLTRB(offset.dx, offset.dy, offset.dx, 0),
+                              items: [
+                                const PopupMenuItem(
+                                  value: 'profile',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.person_outline),
+                                      SizedBox(width: 8),
+                                      Text('Profile Settings'),
+                                    ],
+                                  ),
+                                ),
+                                const PopupMenuItem(
+                                  value: 'logout',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.logout, color: Colors.redAccent),
+                                      SizedBox(width: 5),
+                                      Text('Logout'),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ).then((value) async {
+                              if (value == 'profile') {
+                                showModalBottomSheet(
+                                  context: context,
+                                  elevation: 10,
+                                  isScrollControlled: true,
+                                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5))),
+                                  builder: (BuildContext context) {
+                                    return AccountSettings(userId: widget.userId, userName: widget.userName,
+                                        mobileNo: widget.mobileNo, emailId: widget.emailId, customerId: widget.userId);
+                                  },
+                                );
+                              } else if (value == 'logout') {
+                                await viewModel.logout(context);
+                              }
+                              //AccountSettings(userId: userId, userName: userName, mobileNo: widget.mobileNo, emailId: widget.emailId, customerId: userId)
+                            });
+                          },
+                          child: Container(
+                            width: 230,
+                            height: 36,
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(20),
+                                bottomLeft: Radius.circular(20),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                const SizedBox(width: 2),
+                                const CircleAvatar(
+                                  radius: 18,
+                                  backgroundImage: AssetImage("assets/png/user_thumbnail.png"),
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  widget.userName,
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                const Spacer(),
+                                const Icon(Icons.arrow_drop_down_sharp, color: Colors.black54),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],),
@@ -225,19 +261,27 @@ class _AdminScreenControllerState extends State<AdminScreenController> {
               ],
             ),*/
 
-            body: IndexedStack(
-              index: selectedIndex,
-              children:  [
-                AdminDashboard(
-                  userId: widget.userId,
-                  userName: widget.userName, mobileNo: widget.mobileNo,
+            body: Row(
+              children: [
+                Card(),
+                Expanded(
+                  child: IndexedStack(
+                    index: selectedIndex,
+                    children:  [
+                      AdminDashboard(
+                        userId: widget.userId,
+                        userName: widget.userName, mobileNo: widget.mobileNo,
+                      ),
+                      ProductInventory(
+                        userId: widget.userId,
+                        userName: widget.userName,
+                        userRole: UserRole.admin,
+                      ),
+                      StockEntry(userId: widget.userId),
+                    ],
+                  ),
                 ),
-                ProductInventory(
-                  userId: widget.userId,
-                  userName: widget.userName,
-                  userRole: UserRole.admin,
-                ),
-                ProductEntry(userId: widget.userId),
+                Card(),
               ],
             ),
            /* body: Row(

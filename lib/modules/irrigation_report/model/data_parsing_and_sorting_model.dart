@@ -372,7 +372,7 @@ class IrrigationLogModel {
                             planned: date['irrigation']['IrrigationDuration_Quantity'][howManyValve],
                             actualDuration: date['irrigation']['IrrigationDurationCompleted'][howManyValve],
                             actualLiters: date['irrigation']['IrrigationQuantityCompleted'][howManyValve],
-                            flowRate: date['irrigation']['ValveFlowrate'][howManyValve],
+                        flowRate: date['irrigation']['ValveFlowrate'][howManyValve],
                             name: '${date['irrigation']['Date'][howManyValve]}\n${date['irrigation']['ScheduledStartTime'][howManyValve]}'
                         )
                     );

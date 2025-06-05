@@ -2,6 +2,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Models/customer/site_model.dart';
+import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/node_connection_page.dart';
 import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../utils/snack_bar.dart';
@@ -112,7 +113,19 @@ class NodeList extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 vm.nodeList[index].rlyStatus.any((rly) => rly.status == 2 || rly.status == 3)? const Icon(Icons.warning, color: Colors.orangeAccent):
-                                const Icon(Icons.info_outline,),
+                                InkWell(
+                                  onTap: (){
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => NodeConnectionPage(
+                                      nodeData: vm.nodeList[index].toJson(),
+                                      masterData: {
+                                        "userId" : userId,
+                                        "customerId" : customerId,
+                                        "controllerId" : controllerId
+                                      },
+                                    )));
+                                  },
+                                    child: const Icon(Icons.bluetooth,)
+                                ),
                                 IconButton(
                                   onPressed: () {
                                     vm.showEditProductDialog(context, vm.nodeList[index].deviceName, vm.nodeList[index].controllerId, index);

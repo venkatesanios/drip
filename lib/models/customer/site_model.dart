@@ -7,8 +7,6 @@ class SiteModel {
   SiteModel({required this.data});
 
   factory SiteModel.fromJson(Map<String, dynamic> json) {
-    print("json data :: ${json['data']}");
-
     return SiteModel(
       data: List<Group>.from(json['data'].map((x) => Group.fromJson(x))),
     );
@@ -1319,7 +1317,7 @@ class NodeListModel{
   Map<String, dynamic> toJson() {
     return {
       'controllerId': controllerId,
-      'DeviceId': deviceId,
+      'deviceId': deviceId,
       'deviceName': deviceName,
       'categoryId': categoryId,
       'categoryName': categoryName,

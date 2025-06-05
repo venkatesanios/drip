@@ -2367,12 +2367,21 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       final jsonData = json.decode(response.body);
       _additionalData = null;
       _selectedObjects = null;
-      if(jsonData['data']['selection']['selected'] != null) {
+      if (jsonData['data']['selection']['selected'] != null) {
+        _selectedObjects = (jsonData['data']['selection']['selected'] as List)
+            .map((e) => DeviceObjectModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+
+        _selectedObjects!.removeWhere((element) => !configObjects.any((element2) => element2['sNo'] == element.sNo));
+      } else {
+        _selectedObjects = [];
+      }
+      /*if(jsonData['data']['selection']['selected'] != null) {
         _selectedObjects = (jsonData['data']['selection']['selected'] as List).map((e) => DeviceObjectModel.fromJson(e as Map<String, dynamic>)).toList();
         // _selectedObjects!.removeWhere((element) => configObjects.any((element2) => element2['sNo'] != element.sNo));
       } else {
         _selectedObjects = [];
-      }
+      }*/
       _additionalData = AdditionalData.fromJson(jsonData['data']);
       // print(_additionalData?.toJson());
     } catch (e) {

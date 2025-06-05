@@ -578,36 +578,44 @@ class MqttPayloadProvider with ChangeNotifier {
             messageFromHw = data['cM']['4201'];
           }
         }
-        if(data.containsKey("cM") && data["cM"] is! List && (data["cM"] as Map).containsKey("6601")){
-          if(ctrllogtimecheck != data['cT']){
-            sheduleLog += "\n";
-            sheduleLog += data['cM']['6601'];
-            ctrllogtimecheck = data['cT'];
+        if (data.containsKey("cM") && data["cM"] is! List) {
+          Map cM = data["cM"];
+
+          if (cM.containsKey("6601")) {
+            String msg = cM["6601"];
+            if (!scheduleMessagesSet.contains(msg)) {
+              sheduleLog += "\n" + msg;
+              scheduleMessagesSet.add(msg);
+            }
           }
 
-        }
-        if(data.containsKey("cM") && data["cM"] is! List && (data["cM"] as Map).containsKey("6602")){
-          if(ctrllogtimecheck != data['cT']) {
-            uardLog += "\n";
-            uardLog += data['cM']['6602'];
-            ctrllogtimecheck = data['cT'];
-          }
-        }
-        if(data.containsKey("cM") && data["cM"] is! List && (data["cM"] as Map).containsKey("6603"))
-        {
-          if(ctrllogtimecheck != data['cT']) {
-            uard0Log += "\n";
-            uard0Log += data['cM']['6603'];
-            ctrllogtimecheck = data['cT'];
+          if (cM.containsKey("6602")) {
+            String msg = cM["6602"];
+            if (!uardMessagesSet.contains(msg)) {
+              uardLog += "\n" + msg;
+              uardMessagesSet.add(msg);
+            }
           }
 
-        }
-        if(data.containsKey("cM") && data["cM"] is! List && (data["cM"] as Map).containsKey("6604"))
-        {
-          if(ctrllogtimecheck != data['cT']) {
-            uard4Log += "\n";
-            uard4Log += data['cM']['6604'];
-            ctrllogtimecheck = data['cT'];
+          if (cM.containsKey("6603")) {
+            String msg = cM["6603"];
+            if (!uard0MessagesSet.contains(msg)) {
+              print('\n6603 data-->$msg');
+              uard0Log += "\n" + msg;
+              uard0MessagesSet.add(msg);
+            }
+          }
+
+          if (cM.containsKey("6604")) {
+            String msg = cM["6604"];
+            if (!uard4MessagesSet.contains(msg)) {
+              uard4Log += "\n" + msg;
+              uard4MessagesSet.add(msg);
+            }
+          }
+
+          if (cM.containsKey("6801")) {
+            mqttUpdateSettings = cM['6801'];
           }
         }
         if(data['cM'].containsKey("6801")){

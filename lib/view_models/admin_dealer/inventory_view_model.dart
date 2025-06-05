@@ -26,7 +26,6 @@ class InventoryViewModel extends ChangeNotifier {
 
   TextEditingController txtFldSearch = TextEditingController();
 
-  String searchedChipName = '';
   bool filterActive = false;
   bool searched = false;
   bool showSearchButton = false;
@@ -595,7 +594,6 @@ class InventoryViewModel extends ChangeNotifier {
 
   void clearSearch() {
     txtFldSearch.clear();
-    searchedChipName = '';
     filterActive = false;
     searched = false;
     filterProductInventoryList.clear();

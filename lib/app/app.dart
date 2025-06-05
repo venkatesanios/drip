@@ -2,9 +2,8 @@
 import 'package:flutter/material.dart';
  import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:oro_drip_irrigation/Constants/notifications_service.dart';
-import 'package:oro_drip_irrigation/modules/config_Maker/view/config_base_page.dart';
-import '../Screens/planning/QRCode_Scaner.dart';
 import '../flavors.dart';
+import '../main.dart';
 import '../utils/Theme/smart_comm_theme.dart';
 import '../utils/Theme/oro_theme.dart';
 import '../utils/routes.dart';
@@ -32,9 +31,6 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-
-
-
   /// Decide the initial route based on whether a token exists
   Future<String> getInitialRoute() async {
     try {
@@ -57,6 +53,9 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showNotificationPrompt(context);
+    });
 
     print('Flavor is: ${F.appFlavor}');
     bool isDarkMode = false;

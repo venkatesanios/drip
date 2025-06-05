@@ -66,9 +66,19 @@ class ConfigMakerProvider extends ChangeNotifier{
     listOfSampleObjectModel = (defaultDataFromHttp['objectType'] as List<dynamic>).map(mapToDeviceObject).toList();
     listOfObjectModelConnection = (defaultDataFromHttp['objectType'] as List<dynamic>).map(mapToDeviceObject).toList();
     for(var i in listOfDeviceModel){
-      i.masterId = null;
-      i.serialNumber = null;
-      i.extendControllerId = null;
+      if(AppConstants.ecoGemModelList.contains(masterData['modelId'])){
+        if(i.masterId != masterData['controllerId']){
+          print('clear EC25');
+          i.masterId = null;
+          i.serialNumber = null;
+          i.extendControllerId = null;
+        }
+      }else{
+        print('clear gem');
+        i.masterId = null;
+        i.serialNumber = null;
+        i.extendControllerId = null;
+      }
     }
     serialNumber = 0;
     listOfGeneratedObject.clear();
@@ -101,8 +111,8 @@ class ConfigMakerProvider extends ChangeNotifier{
   }
 
   Future<List<DeviceModel>> fetchData(masterDataFromSiteConfigure)async {
-
     await Future.delayed(const Duration(seconds: 0));
+
     try{
       var body = {
         "userId" : masterDataFromSiteConfigure['customerId'],
@@ -187,7 +197,6 @@ class ConfigMakerProvider extends ChangeNotifier{
         if(b.serialNumber == null) return -1;
         return a.serialNumber!.compareTo(b.serialNumber!);
       });
-      print("listOfDeviceModel : ${listOfDeviceModel.length}");
 
       listOfSampleObjectModel = configMakerData['productLimit'].isNotEmpty
           ? (configMakerData['productLimit'] as List<dynamic>).map((object) => DeviceObjectModel.fromJson(object)).toList()
@@ -202,11 +211,11 @@ class ConfigMakerProvider extends ChangeNotifier{
       pump = (configMakerData['pump'] as List<dynamic>).map((pumpObject) => PumpModel.fromJson(pumpObject)).toList();
       moisture = (configMakerData['moistureSensor'] as List<dynamic>).map((moistureObject) => MoistureModel.fromJson(moistureObject)).toList();
       line = (configMakerData['irrigationLine'] as List<dynamic>).map((lineObject) => IrrigationLineModel.fromJson(lineObject)).toList();
-
-    }catch (e, stackTrace){
+    } catch (e, stackTrace){
       print('Error on converting to device model :: $e');
       print('stackTrace on converting to device model :: $stackTrace');
     }
+
     notifyListeners();
     return listOfDeviceModel;
   }
@@ -267,6 +276,7 @@ class ConfigMakerProvider extends ChangeNotifier{
           List<double> filteredList = listOfGeneratedObject
               .where((available) => (available.objectId == object.objectId))
               .map((e) => e.sNo!).toList();
+          print("filteredList :::: $filteredList");
           filteredList = filteredList.sublist(filteredList.length - howManyObjectToDelete, filteredList.length);
           listOfGeneratedObject.removeWhere((e) => filteredList.contains(e.sNo));
           filtration.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
@@ -274,8 +284,12 @@ class ConfigMakerProvider extends ChangeNotifier{
           source.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
           moisture.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
           line.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
+          pump.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
 
           /* this process is to delete object from sites while delete operation in product limit */
+          for(var pump in pump){
+            pump.updateObjectIdIfDeletedInProductLimit(filteredList);
+          }
           for(var filterSite in filtration){
             filterSite.updateObjectIdIfDeletedInProductLimit(filteredList);
           }
@@ -729,7 +743,6 @@ class ConfigMakerProvider extends ChangeNotifier{
   }
 
   String getFertilizerPayload() {
-
     List<dynamic> fertilizerPayload = [];
     for(var i = 0;i < fertilization.length;i++){
       var fertilizer = fertilization[i];
@@ -744,9 +757,6 @@ class ConfigMakerProvider extends ChangeNotifier{
         "Name" : fertilizer.commonDetails.name
       }.entries.map((e) => e.value).join(","));
     }
-
-
-
     return fertilizerPayload.join(";");
   }
 
@@ -1068,7 +1078,7 @@ class ConfigMakerProvider extends ChangeNotifier{
           "Tank high pin float" : tankHighConnectionNo,
           "level sensor" : levelConnectionNo,
           "waterMeter" : availableOfWaterMeter,
-          "pressure" : availableOfPressure
+          "pressureIn" : availableOfPressure
         }.entries.map((e) => e.value).join(','));
       }
       int fixedLengthOfTankPayload = 3;

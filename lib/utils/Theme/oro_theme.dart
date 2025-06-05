@@ -8,7 +8,6 @@ Color primaryBackground = const Color(0xFFEFEFEF);
 Color primaryTextColor = const Color(0xFF3C3C3C);
 Color secondaryTextColor = const Color(0xFF7E7E7E);
 
-
 class OroTheme {
   static ThemeData lightTheme = ThemeData.light().copyWith(
     primaryColorDark: primaryDark,
@@ -38,7 +37,6 @@ class OroTheme {
           borderRadius: BorderRadius.circular(0)
       ),
     ),
-
     navigationRailTheme: NavigationRailThemeData(
       backgroundColor: primary,
       elevation: 1,

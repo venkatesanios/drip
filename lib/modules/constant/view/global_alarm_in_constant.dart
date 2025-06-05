@@ -1,11 +1,8 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/app.dart';
 import 'package:oro_drip_irrigation/modules/constant/state_management/constant_provider.dart';
 import 'package:oro_drip_irrigation/modules/constant/widget/find_suitable_widget.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
-
 import '../../../StateManagement/overall_use.dart';
 import '../../../Widgets/custom_buttons.dart';
 import '../../../Widgets/status_box.dart';
@@ -15,7 +12,6 @@ import '../../../utils/environment.dart';
 import '../../IrrigationProgram/widgets/custom_sliding_button.dart';
 import '../../config_Maker/view/config_web_view.dart';
 import '../repository/constant_repository.dart';
-
 
 class GlobalAlarmInConstant extends StatefulWidget {
   final ConstantProvider constPvd;

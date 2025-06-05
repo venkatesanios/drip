@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/PumpController/state_management/pump_controller_provider.dart';
+import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/state_management/ble_service.dart';
 import 'package:oro_drip_irrigation/services/bluetooth_sevice.dart';
 import 'package:oro_drip_irrigation/services/communication_service.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
@@ -10,7 +10,6 @@ import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'Screens/Constant/ConstantPageProvider/changeNotifier_constantProvider.dart';
 import 'app/app.dart';
 import 'StateManagement/customer_provider.dart';
@@ -29,14 +28,39 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterL
 
 // Background message handler for Firebase
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  print("Handling a background message: ${message.messageId}");
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  debugPrint("Handling a background message: ${message.messageId}");
 }
 
-FutureOr<void> main() async {
+// Show a user-friendly dialog before requesting notification permissions
+Future<bool> showNotificationPrompt(BuildContext context) async {
+  bool? shouldRequest = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Enable Notifications'),
+      content: const Text(
+          'Allow notifications to receive real-time updates on irrigation status and system alerts.'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Skip'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: const Text('Allow'),
+        ),
+      ],
+    ),
+  );
+  return shouldRequest ?? false;
+}
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  bool notificationsEnabled = false;
   F.appFlavor = Flavor.oroProduction;
+
   if (!kIsWeb) {
     try {
       // Initialize Firebase
@@ -44,112 +68,70 @@ FutureOr<void> main() async {
         options: DefaultFirebaseOptions.currentPlatform,
       );
 
-      // Set background handler
-      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-      // Request permission
+      // Request notification permissions with user consent
       FirebaseMessaging messaging = FirebaseMessaging.instance;
-      await messaging.requestPermission(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-
-      // Print FCM token
-      String? token = await messaging.getToken();
-      print("🔑 FCM Token: $token");
-
-      if (token != null) {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('deviceToken', token);
-        debugPrint('FCM Token: $token');
+      bool shouldRequest = true; // In a real app, call showNotificationPrompt(context) in a widget
+      if (shouldRequest) {
+        NotificationSettings settings = await messaging.requestPermission(
+          alert: true,
+          badge: true,
+          sound: true,
+          provisional: true, // Enable provisional notifications for iOS
+        );
+        debugPrint('Notification permission status: ${settings.authorizationStatus}');
+        notificationsEnabled = settings.authorizationStatus == AuthorizationStatus.authorized ||
+            settings.authorizationStatus == AuthorizationStatus.provisional;
       }
-
-      // Setup Android notification channel
-      const AndroidNotificationChannel channel = AndroidNotificationChannel(
-        'high_importance_channel',
-        'High Importance Notifications',
-        description: 'This channel is used for important notifications.',
-        importance: Importance.high,
-      );
-
-      final AndroidFlutterLocalNotificationsPlugin? androidPlatform =
-      flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>();
-
-      await androidPlatform?.createNotificationChannel(channel);
 
       // Initialize local notifications
       const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('@mipmap/ic_launcher');
-
-      // Add iOS initialization settings
-      const DarwinInitializationSettings initializationSettingsIOS =
-      DarwinInitializationSettings(
-        requestAlertPermission: true,
-        requestBadgePermission: true,
-        requestSoundPermission: true,
+      const DarwinInitializationSettings initializationSettingsIOS = DarwinInitializationSettings(
+        requestAlertPermission: false,
+        requestBadgePermission: false,
+        requestSoundPermission: false,
+        requestCriticalPermission: false,
       );
-
-      // Combine Android and iOS settings
-      const InitializationSettings initializationSettings = InitializationSettings(
+      final InitializationSettings initializationSettings = InitializationSettings(
         android: initializationSettingsAndroid,
         iOS: initializationSettingsIOS,
       );
+      bool? localNotificationsInitialized = await flutterLocalNotificationsPlugin.initialize(
+        initializationSettings,
+        onDidReceiveNotificationResponse: (NotificationResponse response) {
+          debugPrint('Local notification response: ${response.payload}');
+          // Handle notification tap (e.g., navigate to specific screen)
+        },
+      );
+      debugPrint('Local notifications initialized: $localNotificationsInitialized');
 
-      // Initialize the local notifications plugin
-      await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+      // Set up Firebase background message handler
+      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-      // Foreground message handler
+      // Handle foreground messages
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        print("📩 Foreground message: ${message.messageId}");
-
-        RemoteNotification? notification = message.notification;
-        AndroidNotification? android = message.notification?.android;
-        AppleNotification? apple = message.notification?.apple;
-
-        if (notification != null) {
-          if (android != null && !kIsWeb && Platform.isAndroid) {
-            flutterLocalNotificationsPlugin.show(
-              notification.hashCode,
-              notification.title,
-              notification.body,
-              NotificationDetails(
-                android: AndroidNotificationDetails(
-                  channel.id,
-                  channel.name,
-                  channelDescription: channel.description,
-                  importance: Importance.high,
-                  priority: Priority.high,
-                  icon: '@mipmap/ic_launcher',
-                ),
+        debugPrint('Received foreground message: ${message.messageId}');
+        if (message.notification != null) {
+          // Show local notification for foreground messages
+          flutterLocalNotificationsPlugin.show(
+            message.hashCode,
+            message.notification!.title,
+            message.notification!.body,
+            const NotificationDetails(
+              android: AndroidNotificationDetails(
+                'oro_drip_channel',
+                'Oro Drip Notifications',
+                importance: Importance.high,
+                priority: Priority.high,
               ),
-            );
-          } else if (apple != null && !kIsWeb && Platform.isIOS) {
-            flutterLocalNotificationsPlugin.show(
-              notification.hashCode,
-              notification.title,
-              notification.body,
-              const NotificationDetails(
-                iOS: DarwinNotificationDetails(
-                  presentAlert: true,
-                  presentBadge: true,
-                  presentSound: true,
-                ),
-              ),
-            );
-          }
+              iOS: DarwinNotificationDetails(),
+            ),
+          );
         }
       });
-
-      // Notification opened handler
-      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-        print("🚀 Notification caused app to open: ${message.messageId}");
-        // Navigate to specific screen here if needed
-      });
-    } catch (e, stacktrace) {
-      debugPrint("🔥 Firebase initialization error: $e");
-      debugPrint("🔥 Firebase stacktrace error: $stacktrace");
+    } catch (e) {
+      debugPrint('Initialization error: $e');
+      // Ensure app continues even if Firebase initialization fails
     }
   }
 
@@ -161,14 +143,16 @@ FutureOr<void> main() async {
         ChangeNotifierProvider(create: (_) => IrrigationProgramMainProvider()),
         ChangeNotifierProvider(create: (_) => MqttPayloadProvider()),
         ChangeNotifierProvider(create: (_) => OverAllUse()),
+        ChangeNotifierProvider(create: (_) => NotifigationCheck(notificationsEnabled: notificationsEnabled)),
         ChangeNotifierProvider(create: (_) => PreferenceProvider()),
         ChangeNotifierProvider(create: (_) => SystemDefinitionProvider()),
         ChangeNotifierProvider(create: (_) => ConstantProviderMani()),
         ChangeNotifierProvider(create: (_) => ConstantProvider()),
         ChangeNotifierProvider(create: (_) => PumpControllerProvider()),
-
+        ChangeNotifierProvider(create: (_) => BleProvider()),
         ProxyProvider2<MqttPayloadProvider, CustomerProvider, CommunicationService>(
-          update: (BuildContext context, MqttPayloadProvider mqttService, CustomerProvider customer, CommunicationService? previous) {
+          update: (BuildContext context, MqttPayloadProvider mqttService,
+              CustomerProvider customer, CommunicationService? previous) {
             return CommunicationService(
               mqttService: MqttService(),
               blueService: BluService(),
@@ -180,4 +164,22 @@ FutureOr<void> main() async {
       child: const MyApp(),
     ),
   );
+}
+
+
+class NotifigationCheck with ChangeNotifier {
+  final bool notificationsEnabled;
+
+  NotifigationCheck({required this.notificationsEnabled});
+
+  void updateIrrigationStatus(String status) {
+    if (notificationsEnabled) {
+      // Send push notification via Firebase
+      debugPrint('Sending push notification: $status');
+    } else {
+      // Fallback: Update UI or use MQTT/Bluetooth
+      debugPrint('Notifications disabled, using MQTT fallback: $status');
+      notifyListeners();
+    }
+  }
 }
