@@ -261,47 +261,56 @@ class PumpWidget extends StatelessWidget {
   }
 
   Widget _buildReasonContainer(BuildContext context) {
-    return Container(
-      width: 325,
-      height: 33,
-      color: Colors.orange.shade100,
-      child: Padding(
-        padding: const EdgeInsets.only(left: 8),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                pump.reason == '8' &&
-                    isTimeFormat(pump.actualValue.split('_').last)
-                    ? '${getContentByCode(int.parse(pump.reason))}, It will be restart automatically within ${pump.actualValue.split('_').last} (hh:mm:ss)'
-                    : getContentByCode(int.parse(pump.reason)),
-                style: const TextStyle(
-                    fontSize: 11, color: Colors.black87, fontWeight: FontWeight.normal),
-              ),
-            ),
-            if (!excludedReasons.contains(pump.reason))
-              SizedBox(
-                height: 23,
-                child: TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.redAccent.shade200,
-                  ),
-                  onPressed: () {
-                    String payload = '${pump.sNo},1';
-                    String payLoadFinal = jsonEncode({
-                      "6300": {"6301": payload}
-                    });
-                    MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-                    sentUserOperationToServer('${pump.name} Reset Manually', payLoadFinal);
-                    GlobalSnackBar.show(context, 'Reset comment sent successfully', 200);
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Reset',
-                      style: TextStyle(fontSize: 12, color: Colors.white)),
+    return Padding(
+      padding: const EdgeInsets.all(3.0),
+      child: Container(
+        width: 325,
+        height: 35,
+        decoration: BoxDecoration(
+          color: Colors.deepOrange.shade50,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(5),
+            topRight: Radius.circular(5),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  pump.reason == '8' &&
+                      isTimeFormat(pump.actualValue.split('_').last)
+                      ? '${getContentByCode(int.parse(pump.reason))}, It will be restart automatically within ${pump.actualValue.split('_').last} (hh:mm:ss)'
+                      : getContentByCode(int.parse(pump.reason)),
+                  style: const TextStyle(
+                      fontSize: 11, color: Colors.deepOrange, fontWeight: FontWeight.normal),
                 ),
               ),
-            const SizedBox(width: 5),
-          ],
+              if (!excludedReasons.contains(pump.reason))
+                SizedBox(
+                  height: 23,
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.redAccent.shade200,
+                    ),
+                    onPressed: () {
+                      String payload = '${pump.sNo},1';
+                      String payLoadFinal = jsonEncode({
+                        "6300": {"6301": payload}
+                      });
+                      MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
+                      sentUserOperationToServer('${pump.name} Reset Manually', payLoadFinal);
+                      GlobalSnackBar.show(context, 'Reset comment sent successfully', 200);
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Reset',
+                        style: TextStyle(fontSize: 12, color: Colors.white)),
+                  ),
+                ),
+              const SizedBox(width: 5),
+            ],
+          ),
         ),
       ),
     );

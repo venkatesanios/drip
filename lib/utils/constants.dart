@@ -163,7 +163,13 @@ class AppConstants {
   static const String gifPath = "assets/gif/";
   static const String svgObjectPath = 'assets/Images/Svg/';
 
-  static const String boreWell = "dp_bore_well.png";
+  static const String boreWellFirst = "dp_bore_well_first.png";
+  static const String boreWellCenter = "dp_bore_well_center.png";
+
+  static const String wellFirst = "dp_well_first.png";
+  static const String wellCenter = "dp_well_center.png";
+  static const String wellLast = "dp_well_last.png";
+
   static const String sumpFirst = "dp_sump_first.png";
   static const String sumpCenter = "dp_sump_center.png";
   static const String sumpLast = "dp_sump_last.png";
@@ -277,35 +283,32 @@ class AppConstants {
   static String getAddressError(UserRole role) =>
       getErrorMessage(role, addressErrors);
 
-  static Widget getAsset(String imageKey, int status, String type) {
+  static Widget getAsset(String keyOne, int keyTwo, String keyThree) {
     String imagePathFinal;
-    switch (imageKey) {
-      case 'BORE':
-        imagePathFinal = _getBoreWellImagePath();
-        break;
+    switch (keyOne) {
       case 'source':
-        imagePathFinal = _getSourceImagePath(type);
+        imagePathFinal = _getSourceImagePath(keyTwo, keyThree);
         break;
       case 'pump':
-        imagePathFinal = _getIrrigationPumpImagePath(status);
+        imagePathFinal = _getIrrigationPumpImagePath(keyTwo);
         break;
       case 'filter':
-        imagePathFinal = _getFilterImagePath(status);
+        imagePathFinal = _getFilterImagePath(keyTwo);
         break;
       case 'booster':
-        imagePathFinal = _getBoosterImagePath(status);
+        imagePathFinal = _getBoosterImagePath(keyTwo);
         break;
       case 'sensor':
-        imagePathFinal = _getSensorImagePath(type);
+        imagePathFinal = _getSensorImagePath(keyThree);
         break;
       case 'agitator':
-        imagePathFinal = _getAgitatorImagePath(status);
+        imagePathFinal = _getAgitatorImagePath(keyTwo);
         break;
       case 'valve':
-        imagePathFinal = _getValveImagePath(status);
+        imagePathFinal = _getValveImagePath(keyTwo);
         break;
       case 'valve_lj':
-        imagePathFinal = _getValveLjImagePath(status);
+        imagePathFinal = _getValveLjImagePath(keyTwo);
         break;
 
       default:
@@ -327,18 +330,14 @@ class AppConstants {
     );
   }
 
-  static String _getBoreWellImagePath() {
-    return boreWell;
-  }
-
-  static String _getSourceImagePath(String position) {
+  static String _getSourceImagePath(int type, String position) {
     switch (position) {
       case 'First':
-        return sumpFirst;
+        return type==4?boreWellFirst:type==3?wellFirst:sumpFirst;
       case 'Center':
-        return sumpCenter;
+        return type==4?boreWellCenter:type==3?wellCenter:sumpCenter;
       case 'Last':
-        return sumpLast;
+        return type==3?wellLast:sumpLast;
       default:
         return '';
     }

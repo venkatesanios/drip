@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:oro_drip_irrigation/Constants/dialog_boxes.dart';
 import '../model/device_model.dart';
 import '../model/device_object_model.dart';
 import '../state_management/config_maker_provider.dart';
@@ -99,6 +100,7 @@ class _ToggleTextFormFieldForConnectionState extends State<ToggleTextFormFieldFo
     }
   }
 
+
   int getNoFixedConnectionCount(){
     int fixedConnectionCount = 0;
     if(widget.object.type == '3'){
@@ -126,6 +128,8 @@ class _ToggleTextFormFieldForConnectionState extends State<ToggleTextFormFieldFo
 
     return fixedConnectionCount;
   }
+
+
 
   bool updateConnectionForFixedInputs({
     required int oldCount,

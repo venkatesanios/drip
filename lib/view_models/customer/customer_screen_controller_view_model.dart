@@ -52,9 +52,9 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   }
 
 
-  void _onPayloadReceived() {
-    final mqttProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
 
+  void _onPayloadReceived() {
+    final activeDeviceId = mqttProvider.activeDeviceId;
     final liveDateAndTime = mqttProvider.liveDateAndTime;
     final wifiStrength = mqttProvider.wifiStrength;
     final currentSchedule = mqttProvider.currentSchedule;
@@ -63,7 +63,10 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     isLiveSynced = mqttProvider.isLiveSynced;
     alarmDL = mqttProvider.alarmDL;
 
-    updateLivePayload(wifiStrength, liveDateAndTime, currentSchedule, lineLiveMessage);
+    if(activeDeviceId == mySiteList.data[sIndex].master[mIndex].deviceId){
+      updateLivePayload(wifiStrength, liveDateAndTime, currentSchedule, lineLiveMessage);
+    }
+
   }
 
   void _initializeMqttConnection() {
@@ -79,7 +82,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
         case MqttConnectionState.connected:
           debugPrint("MQTT Connected! Callback");
           _isReconnecting = false;
-          _subscribeToTopic();
+          _subscribeToDeviceTopic();
           break;
 
         case MqttConnectionState.connecting:
@@ -89,36 +92,77 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
         case MqttConnectionState.disconnected:
         default:
           debugPrint("MQTT Disconnected Callback");
-          _handleMqttReconnection();
+          //_handleMqttReconnection();
       }
     });
   }
 
-  Future<void> _handleMqttReconnection() async {
-    if (_isReconnecting) return;
+  Future<void> _handleReconnection() async {
+    if (_isReconnecting || mqttService.isConnected) return;
 
     _isReconnecting = true;
-    const retryDelay = Duration(seconds: 3);
-    int retries = 0;
-    const maxRetries = 5;
+    const int maxRetries = 5;
+    const Duration delay = Duration(seconds: 3);
+    int attempt = 0;
 
-    while (mqttService.mqttConnectionState != MqttConnectionState.connected && retries < maxRetries) {
-      debugPrint("Trying to reconnect to MQTT...");
+    while (!mqttService.isConnected && attempt < maxRetries) {
+      attempt++;
+      debugPrint('MQTT reconnect attempt $attempt...');
       await mqttService.connect();
-      await Future.delayed(retryDelay);
-      retries++;
+      await Future.delayed(delay);
+    }
+
+    if (!mqttService.isConnected) {
+      debugPrint("MQTT reconnection failed after $maxRetries attempts.");
     }
 
     _isReconnecting = false;
   }
 
-  void _subscribeToTopic() async{
-    await Future.delayed(Duration(seconds: 1));
+  void _subscribeToDeviceTopic() async {
     final deviceId = mySiteList.data[sIndex].master[mIndex].deviceId;
-    await mqttService.topicToSubscribe('${AppConstants.subscribeTopic}/$deviceId');
-    Future.delayed(const Duration(seconds: 2), () {
-      onRefreshClicked();
-    });
+    if (deviceId.isEmpty) {
+      debugPrint("No device ID found");
+      return;
+    }
+
+    final topic = '${AppConstants.subscribeTopic}/$deviceId';
+    await mqttService.topicToSubscribe(topic);
+
+    Future.delayed(const Duration(seconds: 2), onRefreshClicked);
+  }
+
+  void updateLivePayload(int ws, String liveDataAndTime, List<String> cProgram, List<String> linePauseResume) {
+
+    final parts = liveDataAndTime.split(' ');
+    if (parts.length == 2) {
+      mySiteList.data[sIndex].master[mIndex].live?.cD = parts[0];
+      mySiteList.data[sIndex].master[mIndex].live?.cT = parts[1];
+    }
+
+    wifiStrength = ws;
+    programRunning = cProgram.isNotEmpty && cProgram[0].isNotEmpty;
+    if (programRunning) {
+      mqttProvider.currentSchedule = cProgram;
+    }
+
+    for (final entry in linePauseResume) {
+      final parts = entry.split(',');
+      if (parts.length == 2) {
+        final serialNo = double.tryParse(parts[0]);
+        final flag = int.tryParse(parts[1]);
+        if (serialNo != null && flag != null) {
+          for (var line in mySiteList.data[sIndex].master[mIndex].irrigationLine) {
+            if (line.sNo == serialNo) {
+              line.linePauseFlag = flag;
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    notifyListeners();
   }
 
   Future<void> getAllMySites(BuildContext context, int customerId) async {
@@ -219,7 +263,8 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     if (mySiteList.data[sIdx].master[mIdx].categoryId == 1) {
       updateMasterLine(sIdx, mIdx, lIdx);
     }
-    _subscribeToTopic();
+
+    _subscribeToDeviceTopic();
     notifyListeners();
   }
 
@@ -230,49 +275,22 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     }
   }
 
-  void updateLivePayload(int ws, String liveDataAndTime, List<String> cProgram, List<String> linePauseResume) {
-
-    final parts = liveDataAndTime.split(' ');
-    if (parts.length == 2) {
-      mySiteList.data[sIndex].master[mIndex].live?.cD = parts[0];
-      mySiteList.data[sIndex].master[mIndex].live?.cT = parts[1];
-    }
-
-    wifiStrength = ws;
-    programRunning = cProgram.isNotEmpty && cProgram[0].isNotEmpty;
-    if (programRunning) {
-      mqttProvider.currentSchedule = cProgram;
-    }
-
-    for (final entry in linePauseResume) {
-      final parts = entry.split(',');
-      if (parts.length == 2) {
-        final serialNo = double.tryParse(parts[0]);
-        final flag = int.tryParse(parts[1]);
-        if (serialNo != null && flag != null) {
-          for (var line in mySiteList.data[sIndex].master[mIndex].irrigationLine) {
-            if (line.sNo == serialNo) {
-              line.linePauseFlag = flag;
-              break;
-            }
-          }
-        }
-      }
-    }
-
-    notifyListeners();
-  }
-
-
   Future<void> onRefreshClicked() async {
     if (!mqttService.isConnected) {
       debugPrint("MQTT not connected. Attempting to reconnect...");
-      await _handleMqttReconnection();
+      await _handleReconnection();
 
       if (!mqttService.isConnected) {
         debugPrint("Failed to reconnect to MQTT.");
         return;
       }
+    }
+
+    if (mySiteList.data.isEmpty ||
+        sIndex >= mySiteList.data.length ||
+        mIndex >= mySiteList.data[sIndex].master.length) {
+      debugPrint("Invalid site/master index.");
+      return;
     }
 
     final isCategory1 = mySiteList.data[sIndex].master[mIndex].categoryId == 1;
@@ -281,15 +299,19 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
         : jsonEncode({"sentSms": "#live"});
 
     mqttProvider.liveSyncCall(true);
-    final result = await context.read<CommunicationService>().sendCommand(
-      serverMsg: '',
-      payload: payload,
-    );
 
-    // Step 4: Handle Responses
-    if (result['http'] == true) debugPrint("Payload sent to Server");
-    if (result['mqtt'] == true) debugPrint("Payload sent to MQTT Box");
-    if (result['bluetooth'] == true) debugPrint("Payload sent via Bluetooth");
+    try {
+      final result = await context.read<CommunicationService>().sendCommand(
+        serverMsg: '',
+        payload: payload,
+      );
+
+      if (result['http'] == true) debugPrint("Payload sent to Server");
+      if (result['mqtt'] == true) debugPrint("Payload sent to MQTT Box");
+      if (result['bluetooth'] == true) debugPrint("Payload sent via Bluetooth");
+    } catch (e) {
+      debugPrint("Error sending command: $e");
+    }
 
     await Future.delayed(const Duration(seconds: 1));
     mqttProvider.liveSyncCall(false);
@@ -343,16 +365,12 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     }
   }
 
-  void disposeMqtt() {
-    mqttSubscription?.cancel();
-    mqttService.disConnect();
-  }
-
 
   @override
   void dispose() {
-    mqttProvider.removeListener(_onPayloadReceived);
-    disposeMqtt();
     super.dispose();
+    mqttProvider.removeListener(_onPayloadReceived);
+    mqttSubscription?.cancel();
+    mqttService.disConnect();
   }
 }

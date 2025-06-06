@@ -267,7 +267,7 @@ class ConfigMakerProvider extends ChangeNotifier{
               );
             }else if(deviceObjectModel.objectId == AppConstants.irrigationLineObjectId){
               line.add(
-                  IrrigationLineModel(commonDetails: deviceObjectModel, source: [], sourcePump: [], irrigationPump: [], valve: [], mainValve: [], fan: [], fogger: [], pesticides: [], heater: [], screen: [], vent: [], moisture: [], temperature: [], soilTemperature: [], humidity: [], co2: [], weatherStation: [])
+                  IrrigationLineModel(commonDetails: deviceObjectModel, sourcePump: [], irrigationPump: [], valve: [], mainValve: [], fan: [], fogger: [], pesticides: [], heater: [], screen: [], vent: [], moisture: [], temperature: [], soilTemperature: [], humidity: [], co2: [], weatherStation: [])
               );
             }
           }
@@ -798,11 +798,15 @@ class ConfigMakerProvider extends ChangeNotifier{
       List<DeviceObjectModel> filterList = listOfGeneratedObject.where((object) => object.objectId == AppConstants.filterObjectId).toList();
       List<DeviceObjectModel> boosterList = listOfGeneratedObject.where((object) => object.objectId == AppConstants.boosterObjectId).toList();
       List<DeviceObjectModel> channelList = listOfGeneratedObject.where((object) => object.objectId == AppConstants.channelObjectId).toList();
+      List<DeviceObjectModel> moistureList = listOfGeneratedObject.where((object) => object.objectId == AppConstants.moistureObjectId).toList();
+      List<DeviceObjectModel> soilTemperatureList = listOfGeneratedObject.where((object) => object.objectId == AppConstants.soilTemperatureObjectId).toList();
       objectListToSend = [
         ...valveList,
         ...filterList,
         ...boosterList,
         ...channelList,
+        ...moistureList,
+        ...soilTemperatureList
       ];
     }
     else{

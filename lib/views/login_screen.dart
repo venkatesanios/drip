@@ -340,9 +340,11 @@ class LoginScreen extends StatelessWidget {
                                 initialCountryCode: 'IN',
                                 controller: viewModel.mobileNoController,
                                 onChanged: (phone) {
-                                  print(phone.completeNumber);
+                                  if (kDebugMode) {
+                                    print(phone.completeNumber);
+                                  }
                                 },
-                                onCountryChanged: (country) => viewModel.countryCode = country.dialCode,
+                                onCountryChanged: (country) => viewModel.countryCode = country.dialCode
                               ),
                               const SizedBox(height: 15),
                               TextField(

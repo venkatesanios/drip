@@ -95,7 +95,7 @@ class CurrentProgram extends StatelessWidget {
                         fixedWidth: 75,
                       ),
                       DataColumn2(
-                        label: Center(child: Text('Start Time', style: TextStyle(fontSize: 13))),
+                        label: Center(child: Text('Started at', style: TextStyle(fontSize: 13))),
                         size: ColumnSize.S,
                       ),
                       DataColumn2(
@@ -284,7 +284,7 @@ class CurrentProgram extends StatelessWidget {
 
           GlobalSnackBar.show(context, 'Comment sent successfully', 200);
         } : null,
-        child: const Text('Skip', style: TextStyle(color: Colors.black)),
+        child: const Text('Skip', style: TextStyle(color: Colors.black54)),
       );
     }
   }
