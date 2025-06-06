@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:oro_drip_irrigation/Widgets/custom_buttons.dart';
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/ble_sent_and_receive.dart';
+import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/control_node.dart';
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/interface_setting.dart';
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/node_in_boot_mode.dart';
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/trace_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_grid/responsive_grid.dart';
-
 import '../state_management/ble_service.dart';
 
 class NodeDashboard extends StatefulWidget {
@@ -58,9 +58,9 @@ class _NodeDashboardState extends State<NodeDashboard> {
                       imagePath: 'assets/Images/Svg/SmartComm/control.svg',
                       title: 'Control',
                       onTap: () {
-                        // Navigator.push(context, MaterialPageRoute(builder: (context){
-                        //   return TraceScreen(nodeData: widget.nodeData,);
-                        // }));
+                        Navigator.push(context, MaterialPageRoute(builder: (context){
+                          return ControlNode();
+                        }));
                       },
                     ),
                     gridItemWidget(
@@ -195,7 +195,7 @@ class _NodeDashboardState extends State<NodeDashboard> {
           children: [
             SvgPicture.asset(
               imagePath,
-              height: 100,
+              height: 80,
             ),
             Text(title, style: const TextStyle(fontSize: 14),textAlign: TextAlign.center,)
           ],

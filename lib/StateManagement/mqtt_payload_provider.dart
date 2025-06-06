@@ -94,6 +94,8 @@ class MqttPayloadProvider with ChangeNotifier {
   bool isLiveSynced = false;
   int wifiStrength = 0;
   String liveDateAndTime = '';
+   String activeDeviceId = '';
+  String liveControllerID = '';
   List<String> nodeLiveMessage = [];
   List<String> outputOnOffPayload = [];
   List<String> currentSchedule = [];
@@ -520,6 +522,29 @@ class MqttPayloadProvider with ChangeNotifier {
 
   }
 
+   void updateLastSyncDateFromPumpControllerPayload(String payload) async{
+
+     if (_receivedPayload != payload) {
+       _receivedPayload = payload;
+
+       try {
+         Map<String, dynamic> data = _receivedPayload.isNotEmpty ? jsonDecode(
+             _receivedPayload) : {};
+         print('_pcReceivedPayload------>:$_receivedPayload');
+
+         liveDateAndTime = '${data['cD']} ${data['cT']}';
+         activeDeviceId = data['cC'];
+
+         notifyListeners();
+       }
+       catch (e, stackTrace) {
+         print('Error parsing JSON: $e');
+         print('Stacktrace while parsing json : $stackTrace');
+       }
+
+     }
+   }
+
   void updateReceivedPayload(String newPayload, bool dataFromHttp) async{
 
     if (_receivedPayload != newPayload) {
@@ -538,6 +563,7 @@ class MqttPayloadProvider with ChangeNotifier {
         if(data['mC']=='2400'){
           isLiveSynced = true;
           liveDateAndTime = '${data['cD']} ${data['cT']}';
+          activeDeviceId = data['cC'];
           wifiStrength = data['cM']['WifiStrength'];
           powerSupply = data['cM']['PowerSupply'];
           updateNodeLiveMessage(data['cM']['2401'].split(";"));
@@ -787,12 +813,6 @@ class MqttPayloadProvider with ChangeNotifier {
     unitList = units;
   }
 
-  void updateMQTTConnectionState(MQTTConnectionState state) {
-    _appConnectionState = state;
-    Future.delayed(Duration.zero, () {
-      notifyListeners();
-    });
-  }
 
    String? getPumpOnOffStatus(String sNo) => _pumpOnOffStatusMap[sNo];
    String? getPumpOtherData(String sNo) => _pumpOtherDetailMap[sNo];

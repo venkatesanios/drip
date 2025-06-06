@@ -199,6 +199,7 @@ class MasterControllerModel {
 class WaterSourceModel {
   final double sNo;
   final String name;
+  final int sourceType;
 
   final List<double> inletPumpSno;
   final List<double> outletPumpSno;
@@ -212,6 +213,8 @@ class WaterSourceModel {
   WaterSourceModel({
     required this.sNo,
     required this.name,
+    required this.sourceType,
+
     required this.inletPumpSno,
     required this.outletPumpSno,
 
@@ -252,6 +255,7 @@ class WaterSourceModel {
     return WaterSourceModel(
       sNo: json['sNo']?.toDouble() ?? 0,
       name: json['name'],
+      sourceType: json['sourceType'],
       inletPump: iPumps,
       outletPump: oPumps,
       isWaterInAndOut: ((json['inletPump'] as List).isNotEmpty || sourceCount == 1),
@@ -1531,6 +1535,7 @@ class WaterSourceUtils {
       return WaterSourceModel(
         sNo: source.sNo,
         name: source.name,
+        sourceType: source.sourceType,
         inletPumpSno: [],
         outletPumpSno: [],
         inletPump: [],

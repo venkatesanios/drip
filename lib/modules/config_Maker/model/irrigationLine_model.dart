@@ -3,7 +3,6 @@ import 'device_object_model.dart';
 
 class IrrigationLineModel{
   DeviceObjectModel commonDetails;
-  List<double> source;
   List<double> sourcePump;
   List<double> irrigationPump;
   double centralFiltration;
@@ -32,7 +31,6 @@ class IrrigationLineModel{
 
   IrrigationLineModel({
     required this.commonDetails,
-    required this.source,
     required this.sourcePump,
     required this.irrigationPump,
     this.centralFiltration = 0.00,
@@ -67,7 +65,6 @@ class IrrigationLineModel{
 
     return IrrigationLineModel(
         commonDetails: deviceObjectModel,
-        source: (data['source'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         sourcePump: (data['sourcePump'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         irrigationPump: (data['irrigationPump'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         centralFiltration: intOrDoubleValidate(data['centralFiltration']),
@@ -99,7 +96,6 @@ class IrrigationLineModel{
   Map<String, dynamic> toJson(){
     var commonInfo = commonDetails.toJson();
     commonInfo.addAll({
-      'source' : source,
       'sourcePump' : sourcePump,
       'irrigationPump' : irrigationPump,
       'centralFiltration' : centralFiltration,
@@ -130,7 +126,6 @@ class IrrigationLineModel{
   }
 
   void updateObjectIdIfDeletedInProductLimit(List<double> objectIdToBeDeleted){
-    source = source.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
     sourcePump = sourcePump.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
     irrigationPump = irrigationPump.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
     valve = valve.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
