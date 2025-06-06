@@ -8,14 +8,14 @@ import '../../flavors.dart';
 import '../../services/mqtt_service.dart';
 import '../../utils/constants.dart';
 
-class ConfigureMqtt extends StatefulWidget {
+class ConfigureHw extends StatefulWidget {
 
 
   @override
-  _ConfigureMqttState createState() => _ConfigureMqttState();
+  _ConfigureHwState createState() => _ConfigureHwState();
 }
 
-class _ConfigureMqttState extends State<ConfigureMqtt> {
+class _ConfigureHwState extends State<ConfigureHw> {
   late MqttPayloadProvider mqttPayloadProvider;
   List<Map<String, dynamic>> configs = [];
   int? selectedIndex;
