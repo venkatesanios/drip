@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' hide Category;
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
@@ -35,7 +36,7 @@ class DealerDefinitionInConfigState extends State<DealerDefinitionInConfig> {
   @override
   Widget build(BuildContext context) {
     // return wideLayout(data, context);
-    if (MediaQuery.sizeOf(context).width <= 800) {
+    if (!kIsWeb) {
       return Material(
         child: Scaffold(
           appBar: AppBar(title: Text('Dealer Definition'),),

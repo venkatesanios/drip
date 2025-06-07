@@ -87,7 +87,7 @@ class CustomerHome extends StatelessWidget {
                     height: 40,
                     child: Card(
                       color: Colors.white,
-                      elevation: 1,
+                      elevation: 1.0,
                       surfaceTintColor: Colors.white,
                       margin: EdgeInsets.zero,
                       shape: const RoundedRectangleBorder(
@@ -102,7 +102,7 @@ class CustomerHome extends StatelessWidget {
                           Text(
                             line.name,
                             textAlign: TextAlign.left,
-                            style: const TextStyle(color: Colors.black87, fontSize: 16, fontWeight: FontWeight.bold),
+                            style: const TextStyle(color: Colors.black54, fontSize: 17, fontWeight: FontWeight.bold),
                           ),
                           const Spacer(),
                           MaterialButton(
@@ -150,7 +150,9 @@ class CustomerHome extends StatelessWidget {
             controllerId: controllerId,
             currentLineSNo: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine[viewModel.lIndex].sNo,
           ),
-          NextSchedule(scheduledPrograms: scheduledProgram),
+          if (scheduledProgram.isNotEmpty)
+            NextSchedule(scheduledPrograms: scheduledProgram),
+
           if (scheduledProgram.isNotEmpty)
             ScheduledProgram(
               userId: customerId,
@@ -208,10 +210,10 @@ class CustomerHome extends StatelessWidget {
                     children: [
                       SizedBox(
                         width: MediaQuery.sizeOf(context).width,
-                        height: 45,
+                        height: 47,
                         child: Card(
                           color: Colors.white,
-                          elevation: 0,
+                          elevation: 0.5,
                           surfaceTintColor: Colors.white,
                           margin: EdgeInsets.zero,
                           shape: const RoundedRectangleBorder(
@@ -226,12 +228,12 @@ class CustomerHome extends StatelessWidget {
                               Text(
                                 line.name,
                                 textAlign: TextAlign.left,
-                                style: const TextStyle(color: Colors.black87, fontSize: 16, fontWeight: FontWeight.bold),
+                                style: const TextStyle(color: Colors.black54, fontSize: 17, fontWeight: FontWeight.bold),
                               ),
                               const Spacer(),
                               MaterialButton(
                                 color: line.linePauseFlag==0? Colors.amber : Colors.green,
-                                textColor: Colors.black87,
+                                textColor: Colors.black54,
                                 onPressed: () async {
                                   String payLoadFinal = jsonEncode({
                                     "4900": {
@@ -253,7 +255,7 @@ class CustomerHome extends StatelessWidget {
                                 child: Text(
                                   line.linePauseFlag==0?'PAUSE THE LINE':
                                   'RESUME THE LINE',
-                                  style: const TextStyle(color: Colors.black),
+                                  style: const TextStyle(color: Colors.black54),
                                 ),
                               ),
                               const SizedBox(width: 5)

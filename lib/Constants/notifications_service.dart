@@ -14,7 +14,7 @@ class NotificationServiceCall {
   Future<void> initialize() async {
 
     // Request notification permissions
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (Platform.isAndroid) {
       final status = await Permission.notification.request();
       if (status.isPermanentlyDenied) {
         await openAppSettings();

@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
-import 'package:bluetooth_classic/models/device.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Screens/Dealer/sevicecustomer.dart';
@@ -10,7 +8,6 @@ import 'package:oro_drip_irrigation/Screens/planning/WeatherScreen.dart';
 import 'package:oro_drip_irrigation/modules/ScheduleView/view/schedule_view_screen.dart';
 import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
 import 'package:popover/popover.dart';
-import '../../Models/customer/blu_device.dart';
 import '../../Models/customer/site_model.dart';
 import 'package:provider/provider.dart';
 import '../../StateManagement/customer_provider.dart';
@@ -28,7 +25,6 @@ import '../../utils/my_function.dart';
 import '../../utils/routes.dart';
 import '../../utils/shared_preferences_helper.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
-import '../../view_models/nav_rail_view_model.dart';
 import '../account_settings.dart';
 import '../customer/controller_settings.dart';
 import '../customer/customer_home.dart';
@@ -368,21 +364,38 @@ class MobileScreenController extends StatelessWidget {
             ),
             floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
             bottomNavigationBar: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1 ?
-            BottomNavigationBar(
-              backgroundColor: Colors.white,
-              type: BottomNavigationBarType.fixed,
-              selectedFontSize: 14,
-              unselectedFontSize: 12,
-              currentIndex: vm.selectedIndex,
-              onTap: vm.onItemTapped,
-              selectedItemColor: Theme.of(context).primaryColorLight,
-              unselectedItemColor: Colors.black87,
-              items: [
-                const BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-                const BottomNavigationBarItem(icon: Icon(Icons.list), label: "Scheduled Program"),
-                const BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), label: "Settings"),
-              ],
-            ) : null,
+            Container(
+              margin: const EdgeInsets.only(top: 4),
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow:  const [
+                  BoxShadow(
+                    color: Colors.black26,
+                    offset: Offset(0, -1),
+                    blurRadius: 1,
+                    spreadRadius: 1,
+                  ),
+                ],
+              ),
+              child: BottomNavigationBar(
+                backgroundColor: Theme.of(context).primaryColor,
+                type: BottomNavigationBarType.fixed,
+                selectedFontSize: 14,
+                unselectedFontSize: 12,
+                currentIndex: vm.selectedIndex,
+                onTap: vm.onItemTapped,
+                selectedItemColor: Colors.white,
+                unselectedItemColor: Colors.white70,
+                items: const [
+                  BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+                  BottomNavigationBarItem(icon: Icon(Icons.list), label: "Scheduled Program"),
+                  BottomNavigationBarItem(icon: Icon(Icons.report_gmailerrorred), label: "Log"),
+                  BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), label: "Settings"),
+                ],
+              ),
+            )
+            : null,
             floatingActionButton: vm.mySiteList.data[vm.sIndex].master[vm
                 .mIndex].categoryId == 1 ?
             Column(
@@ -666,7 +679,7 @@ class MobileScreenController extends StatelessWidget {
             const SizedBox(height: 8),
             CircleAvatar(
               radius: 20,
-              backgroundColor: Theme.of(context).primaryColor,
+              backgroundColor: Theme.of(context).primaryColorLight,
               child: Icon(icon, color: Colors.white),
             ),
             const SizedBox(height: 8),
@@ -1273,7 +1286,7 @@ class SiteSelectorWidget extends StatelessWidget {
             value: site.groupName,
             child: Text(
               site.groupName,
-              style: const TextStyle(color: Colors.white, fontSize: 17),
+              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             ),
           );
         }).toList(),
@@ -1287,7 +1300,7 @@ class SiteSelectorWidget extends StatelessWidget {
     } else {
       return Text(
         vm.mySiteList.data[vm.sIndex].groupName,
-        style: const TextStyle(fontSize: 15, color: Colors.white54),
+        style: const TextStyle(fontSize: 15, color: Colors.white54, fontWeight: FontWeight.bold),
         overflow: TextOverflow.ellipsis,
       );
     }
@@ -1374,7 +1387,7 @@ class IrrigationLineSelectorWidget extends StatelessWidget {
           value: index,
           child: Text(
             line.name,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
           ),
         );
       }),

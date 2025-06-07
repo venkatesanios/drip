@@ -522,6 +522,29 @@ class MqttPayloadProvider with ChangeNotifier {
 
   }
 
+   void updateLastSyncDateFromPumpControllerPayload(String payload) async{
+
+     if (_receivedPayload != payload) {
+       _receivedPayload = payload;
+
+       try {
+         Map<String, dynamic> data = _receivedPayload.isNotEmpty ? jsonDecode(
+             _receivedPayload) : {};
+         print('_pcReceivedPayload------>:$_receivedPayload');
+
+         liveDateAndTime = '${data['cD']} ${data['cT']}';
+         activeDeviceId = data['cC'];
+
+         notifyListeners();
+       }
+       catch (e, stackTrace) {
+         print('Error parsing JSON: $e');
+         print('Stacktrace while parsing json : $stackTrace');
+       }
+
+     }
+   }
+
   void updateReceivedPayload(String newPayload, bool dataFromHttp) async{
 
     if (_receivedPayload != newPayload) {

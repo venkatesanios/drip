@@ -2945,10 +2945,11 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
                 List valveSerialNumbers = e['valve'].map((valve) => valve['sNo']).toList();
                 return valveSerialNumbers.join('_');
               }).toList().join("+")}',/*ProgramCategory*/
-              "Sequence": '${_irrigationLine?.sequence.map((e) {
+              /*"Sequence": '${_irrigationLine?.sequence.map((e) {
                 List valveSerialNumbers = e['valve'].map((valve) => valve['sNo']).toList();
                 return valveSerialNumbers.join('_');
-              }).toList().join("+")}',/*Sequence*/
+              }).toList().join("+")}',*//*Sequence*/
+              "Sequence": '${_irrigationLine?.sequence.map((e) => e['sNo']).toList().join("_")}',/*Sequence*/
               "PumpStationMode": '${isPumpStationMode ? 1 : 0}',/*PumpStationMode*/
               "Pump": selectedObjects!.where((pump) => pump.objectId == 5).map((e) => e.sNo).toList().join('_'),/*Pump*/
               "MainValve": selectedObjects!.where((pump) => pump.objectId == 14).map((e) => e.sNo).toList().join('_'),/*MainValve*/
@@ -3102,7 +3103,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
               }).toList().join("+")}',/*HeadUnitToPause*/
               "Name": programName,/*Name*/
             }.entries.map((e) => e.value).join(",")
-        };",
+        };"
       }
     };
   }

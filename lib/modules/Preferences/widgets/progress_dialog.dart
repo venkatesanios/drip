@@ -128,7 +128,7 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
       await widget.mqttService.topicToPublishAndItsMessage(widget.isToGem ? jsonEncode(gemPayload) : jsonDecode(payload)[key], "${Environment.mqttPublishTopic}/${widget.deviceId}",);
 
       bool isAcknowledged = false;
-      int maxWaitTime = 10;
+      int maxWaitTime = 20;
       int elapsedTime = 0;
       int oroPumpIndex = 0;
       if(widget.isToGem) {

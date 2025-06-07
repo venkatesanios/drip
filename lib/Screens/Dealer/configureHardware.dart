@@ -8,16 +8,14 @@ import '../../flavors.dart';
 import '../../services/mqtt_service.dart';
 import '../../utils/constants.dart';
 
-class ConfigureMqtt extends StatefulWidget {
-  final String deviceID;
+class ConfigureHw extends StatefulWidget {
 
-  const ConfigureMqtt({Key? key, required this.deviceID}) : super(key: key);
 
   @override
-  _ConfigureMqttState createState() => _ConfigureMqttState();
+  _ConfigureHwState createState() => _ConfigureHwState();
 }
 
-class _ConfigureMqttState extends State<ConfigureMqtt> {
+class _ConfigureHwState extends State<ConfigureHw> {
   late MqttPayloadProvider mqttPayloadProvider;
   List<Map<String, dynamic>> configs = [];
   int? selectedIndex;
@@ -41,9 +39,7 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
     super.initState();
     mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
     fetchData();
-    _macController.text = widget.deviceID;
-    macAddress = widget.deviceID;
-  }
+   }
 
   Future<void> fetchData() async {
     final url = Uri.parse('http://13.235.254.21:9000/getConfigs');
@@ -161,23 +157,23 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
 
   List<String> getMqttTopic(String selectedPlatform,String selectedVersion,String selecteddealer) {
     if(selecteddealer == 'ORO')
+    {
+      if(selectedPlatform == 'AWS')
       {
-        if(selectedPlatform == 'AWS')
-          {
-            print('return ORO AWS');
-            if(selectedVersion == 'Version 1.0')
-                return ['AppToFirmware/','1'];
-            else
-                return ['OroAppToFirmware/','0'];
-          }
-
+        print('return ORO AWS');
+        if(selectedVersion == 'Version 1.0')
+          return ['AppToFirmware/','1'];
+        else
+          return ['OroAppToFirmware/','0'];
       }
+
+    }
     else
     {
       if(selectedPlatform == 'AWS')
       {  print('return LK AWS');
-        if(selectedVersion == 'Version 1.0')
-          return ['AppsToFirmware/','1'];
+      if(selectedVersion == 'Version 1.0')
+        return ['AppsToFirmware/','1'];
 
       }else
       {
@@ -190,10 +186,10 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
     }
     print('return else');
     return  ['AppToFirmware/','0'];
-   }
+  }
 
 
-   void viewsettings() {
+  void viewsettings() {
     List checkTopic =   getMqttTopic(selectedPlatform!, selectedVersion!, selectedDealer!);
     String topic = checkTopic[0];
     String oldnewcheck = checkTopic[1];
@@ -220,30 +216,30 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
   }
 
   void updateCode() {
-   List checkTopic =   getMqttTopic(selectedPlatform!, selectedVersion!, selectedDealer!);
+    List checkTopic =   getMqttTopic(selectedPlatform!, selectedVersion!, selectedDealer!);
     String topic = checkTopic[0];
-   String oldnewcheck = checkTopic[1];
-if(oldnewcheck == '1') {
-  final payload = {
-    "5700": [{"5701": "27"},]
-  };
-  MqttService().topicToPublishAndItsMessage(
-    jsonEncode(payload),
-    "$topic${macAddress}",
-  );
-  print('payload $payload  \n $topic${macAddress}');
-}
-else
-  {
-    final payload = {
-      "5700": {"5701": "28"}
-    };
-    MqttService().topicToPublishAndItsMessage(
-      jsonEncode(payload),
-      "$topic${macAddress}",
-    );
-    print('payload $payload  \n $topic${macAddress}');
-  }
+    String oldnewcheck = checkTopic[1];
+    if(oldnewcheck == '1') {
+      final payload = {
+        "5700": [{"5701": "27"},]
+      };
+      MqttService().topicToPublishAndItsMessage(
+        jsonEncode(payload),
+        "$topic${macAddress}",
+      );
+      print('payload $payload  \n $topic${macAddress}');
+    }
+    else
+    {
+      final payload = {
+        "5700": {"5701": "28"}
+      };
+      MqttService().topicToPublishAndItsMessage(
+        jsonEncode(payload),
+        "$topic${macAddress}",
+      );
+      print('payload $payload  \n $topic${macAddress}');
+    }
 
   }
 
@@ -315,7 +311,7 @@ else
                     print('flaVOR ${F.appFlavor}');
                     print('flaVOR ${F.appFlavor}');
                     print('${AppConstants.mqttUrl}');
-                     selectedPlatform = value;
+                    selectedPlatform = value;
                   });
                 },
               ),

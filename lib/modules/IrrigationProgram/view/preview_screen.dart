@@ -497,6 +497,8 @@ class _PreviewScreenState extends State<PreviewScreen> {
       };
       userData.addAll(dataToSend);
       // print("ecoGemWFPayloadList :: $ecoGemWFPayloadList");
+      // print("dataToMqtt :: ${dataToMqtt['2500']['2501']}");
+      // print("dataToMqtt :: ${dataToMqtt['2500']['2502']}");
       try {
         if(AppConstants.ecoGemModelList.contains(widget.modelId)) {
           final result = await showDialog<String>(

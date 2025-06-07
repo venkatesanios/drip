@@ -429,7 +429,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
     }
   }
 
-  status() {
+   status() {
      if (selectindex != null) {
       Map<String, dynamic>? ctrldata = mqttPayloadProvider.messageFromHw;
        if ((ctrldata != null && ctrldata.isNotEmpty)) {
