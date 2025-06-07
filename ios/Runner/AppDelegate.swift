@@ -24,7 +24,7 @@ import FirebaseMessaging
     }
 
     GeneratedPluginRegistrant.register(with: self)
-    GMSServices.provideAPIKey("AIzaSyArnaC47cL0a68Pi2p8K6vUjpoku-DWlPM")
+    GMSServices.provideAPIKey("AIzaSyCfMo2V0inDY3xpp91BjfIrD4s-v6PPSzw")
 
     if #available(iOS 10.0, *) {
       UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
