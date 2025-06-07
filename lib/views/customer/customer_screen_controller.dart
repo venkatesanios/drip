@@ -58,7 +58,7 @@ class CustomerScreenController extends StatelessWidget {
     MqttPayloadProvider mqttProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => NavRailViewModel()),
+        ChangeNotifierProvider(create: (_) => NavRailViewModel(Repository(HttpService()))),
         ChangeNotifierProvider(
           create: (_) => CustomerScreenControllerViewModel(context, Repository(HttpService()), mqttProvider)
             ..getAllMySites(context, customerId),

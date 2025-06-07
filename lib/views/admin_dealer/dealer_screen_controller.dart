@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/views/admin_dealer/product_inventory.dart';
 import 'package:provider/provider.dart';
 import '../../flavors.dart';
+import '../../repository/repository.dart';
+import '../../services/http_service.dart';
 import '../../utils/constants.dart';
 import '../../view_models/nav_rail_view_model.dart';
 import '../account_settings.dart';
@@ -16,7 +18,7 @@ class DealerScreenController extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => NavRailViewModel(),
+      create: (_) => NavRailViewModel(Repository(HttpService())),
       child: Consumer<NavRailViewModel>(
         builder: (context, viewModel, _) {
           return Scaffold(
