@@ -11,6 +11,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'Screens/Constant/ConstantPageProvider/changeNotifier_constantProvider.dart';
+import 'StateManagement/search_provider.dart';
 import 'app/app.dart';
 import 'StateManagement/customer_provider.dart';
 import 'firebase_options.dart';
@@ -150,6 +151,8 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => ConstantProvider()),
         ChangeNotifierProvider(create: (_) => PumpControllerProvider()),
         ChangeNotifierProvider(create: (_) => BleProvider()),
+        ChangeNotifierProvider(create: (_) => SearchProvider()),
+
         ProxyProvider2<MqttPayloadProvider, CustomerProvider, CommunicationService>(
           update: (BuildContext context, MqttPayloadProvider mqttService,
               CustomerProvider customer, CommunicationService? previous) {

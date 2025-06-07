@@ -30,8 +30,6 @@ class InventoryViewModel extends ChangeNotifier {
   bool searched = false;
   bool showSearchButton = false;
 
-  late Map<String, dynamic> jsonDataMap;
-
   late List<DropdownMenuEntry<ProductModel>> selectedModel;
   List<ProductModel> activeModelList = <ProductModel>[];
   ProductModel? initialSelectedModel;
@@ -106,30 +104,6 @@ class InventoryViewModel extends ChangeNotifier {
     } finally {
       isLoading = false;
       isLoadingMore = false;
-      notifyListeners();
-    }
-  }
-
-  Future<void> getCategoryModelList() async {
-    try {
-      Map<String, dynamic> body = {
-        "userId": userId,
-        "userType": userRole.name == 'admin' ? 1 : 2,
-      };
-
-      var response = await repository.fetchAllCategoriesAndModels(body);
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
-        if (responseBody["code"] == 200) {
-          jsonDataMap = responseBody;
-        } else {
-          debugPrint("API Error: ${responseBody['message']}");
-        }
-      }
-    } catch (error) {
-      debugPrint("Error: $error");
-    } finally {
-      isLoading = false;
       notifyListeners();
     }
   }

@@ -1,19 +1,22 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 
+import '../repository/repository.dart';
+import '../utils/constants.dart';
 import '../utils/routes.dart';
 import '../utils/shared_preferences_helper.dart';
 
 class NavRailViewModel extends ChangeNotifier {
+
+  final Repository repository;
+  late Map<String, dynamic> jsonDataMap;
+
   late int selectedIndex;
-
   TextEditingController txtFldSearch = TextEditingController();
-
-  String searchedChipName = '';
-  bool filterActive = false;
   bool searched = false;
-  bool showSearchButton = false;
 
-  NavRailViewModel(){
+  NavRailViewModel(this.repository){
     initState();
   }
 
@@ -27,6 +30,29 @@ class NavRailViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> getCategoryModelList(int userId, UserRole userRole) async {
+    try {
+      Map<String, dynamic> body = {
+        "userId": userId,
+        "userType": userRole.name == 'admin' ? 1 : 2,
+      };
+
+      var response = await repository.fetchAllCategoriesAndModels(body);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        if (responseBody["code"] == 200) {
+          jsonDataMap = responseBody;
+        } else {
+          debugPrint("API Error: ${responseBody['message']}");
+        }
+      }
+    } catch (error) {
+      debugPrint("Error: $error");
+    } finally {
+      notifyListeners();
+    }
+  }
+
   Future<void> logout(context) async {
     await PreferenceHelper.clearAll();
     Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false,);
@@ -34,11 +60,7 @@ class NavRailViewModel extends ChangeNotifier {
 
   void clearSearch() {
     txtFldSearch.clear();
-    searchedChipName = '';
-    filterActive = false;
     searched = false;
-    //filterProductInventoryList.clear();
-    showSearchButton = false;
     notifyListeners();
   }
 

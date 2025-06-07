@@ -78,6 +78,8 @@ class MasterControllerModel {
 
   factory MasterControllerModel.fromJson(Map<String, dynamic> json) {
 
+    print(json);
+
     final config = json['config'] ?? json;
 
     final configObjectsRaw = (config['configObject'] as List?) ?? [];
@@ -750,7 +752,13 @@ class FertilizerSiteModel {
         .map(BoosterPump.fromConfigObject)
         .toList();
 
+    final ecSNoSet = ((json['ec'] as List?) ?? []).map((e) => e).toSet();
+    final ecSensor = configObjects.where((obj) => ecSNoSet.contains(obj.sNo))
+        .map(Ec.fromConfigObject).toList();
 
+    final phSNoSet = ((json['ph'] as List?) ?? []).map((e) => e).toSet();
+    final phSensor = configObjects.where((obj) => phSNoSet.contains(obj.sNo))
+        .map(Ph.fromConfigObject).toList();
 
     return FertilizerSiteModel(
       objectId: json['objectId'],
@@ -766,12 +774,8 @@ class FertilizerSiteModel {
       boosterPump: boosterPump,
       agitator: (json['agitator'] as List).map((e) => Agitator.fromJson(e)).toList(),
       selector: json['selector'] ?? [],
-      ec: (json['ec'] != null && json['ec'] is List && json['ec'].isNotEmpty)
-          ? (json['ec'] as List).map((e) => Ec.fromJson(e)).toList()
-          : [],
-      ph: (json['ph'] != null && json['ph'] is List && json['ph'].isNotEmpty)
-          ? (json['ph'] as List).map((e) => Ph.fromJson(e)).toList()
-          : [],
+      ec: ecSensor,
+      ph: phSensor,
     );
   }
 
@@ -845,102 +849,80 @@ class Channel {
 }
 
 class Ec {
-  final int objectId;
   final double sNo;
   final String name;
   final int? connectionNo;
-  final String objectName;
-  final String type;
   final int? controllerId;
-  final int? count;
   String value;
 
   Ec({
-    required this.objectId,
     required this.sNo,
     required this.name,
     required this.connectionNo,
-    required this.objectName,
-    required this.type,
     required this.controllerId,
-    this.count,
     this.value = '0',
   });
 
-  factory Ec.fromJson(Map<String, dynamic> json) {
+  factory Ec.fromConfigObject(ConfigObject obj) {
     return Ec(
-      objectId: json['objectId'],
-      sNo: json['sNo'].toDouble(),
-      name: json['name'],
-      connectionNo: json['connectionNo'],
-      objectName: json['objectName'],
-      type: json['type'],
-      controllerId: json['controllerId'],
-      count: json['count'],
+      sNo: obj.sNo,
+      name: obj.name,
+      connectionNo: obj.connectionNo,
+      controllerId: obj.controllerId
     );
   }
 
+
   Map<String, dynamic> toJson() {
     return {
-      'objectId': objectId,
       'sNo': sNo,
       'name': name,
       'connectionNo': connectionNo,
-      'objectName': objectName,
-      'type': type,
       'controllerId': controllerId,
-      'count': count,
     };
   }
 
 }
 
 class Ph {
-  final int objectId;
   final double sNo;
   final String name;
   final int? connectionNo;
-  final String objectName;
-  final String type;
   final int? controllerId;
-  final int? count;
   String value;
 
   Ph({
-    required this.objectId,
     required this.sNo,
     required this.name,
     required this.connectionNo,
-    required this.objectName,
-    required this.type,
     required this.controllerId,
-    this.count,
     this.value = '0',
   });
 
+  factory Ph.fromConfigObject(ConfigObject obj) {
+    return Ph(
+        sNo: obj.sNo,
+        name: obj.name,
+        connectionNo: obj.connectionNo,
+        controllerId: obj.controllerId
+    );
+  }
+
   factory Ph.fromJson(Map<String, dynamic> json) {
     return Ph(
-      objectId: json['objectId'],
       sNo: json['sNo'].toDouble(),
       name: json['name'],
       connectionNo: json['connectionNo'],
-      objectName: json['objectName'],
-      type: json['type'],
       controllerId: json['controllerId'],
-      count: json['count'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'objectId': objectId,
       'sNo': sNo,
       'name': name,
       'connectionNo': connectionNo,
-      'objectName': objectName,
-      'type': type,
       'controllerId': controllerId,
-      'count': count,
     };
   }
 
