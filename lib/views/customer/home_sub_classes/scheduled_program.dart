@@ -279,13 +279,7 @@ class ScheduledProgram extends StatelessWidget {
                                     icon: const Icon(Icons.more_vert),
                                     onSelected: (String result) {
                                       if(result=='Edit program'){
-                                        String prgType = '';
                                         bool conditionL = false;
-                                        if (filteredScheduleProgram[index].prgCategory.contains('IL')) {
-                                          prgType = 'Irrigation Program';
-                                        } else {
-                                          prgType = 'Agitator Program';
-                                        }
 
                                         if (filteredScheduleProgram[index].conditions.isNotEmpty) {
                                           conditionL = true;
@@ -299,9 +293,10 @@ class ScheduledProgram extends StatelessWidget {
                                               userId: userId,
                                               controllerId: controllerId,
                                               serialNumber: scheduledPrograms[index].serialNumber,
-                                              programType: prgType,
+                                              programType: filteredScheduleProgram[index].programType,
                                               conditionsLibraryIsNotEmpty: conditionL,
                                               fromDealer: false,
+                                              toDashboard: true,
                                               groupId: groupId,
                                               categoryId: categoryId,
                                               customerId: customerId,
