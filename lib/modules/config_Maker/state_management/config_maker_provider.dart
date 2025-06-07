@@ -160,6 +160,7 @@ class ConfigMakerProvider extends ChangeNotifier{
 
       listOfDeviceModel = (defaultData['deviceList'] as List<dynamic>).where((device) => !senseNodeNotToAddInDeviceList.contains(device['modelId']))
           .map((devices) {
+            print("devices['modelId'] : ${devices['modelId']}");
         Map<String, dynamic> deviceProperty = defaultData['productModel'].firstWhere((product) => devices['modelId'] == product['modelId']);
           var inputObjectId = deviceProperty['inputObjectId'] == '-' ? [] : deviceProperty['inputObjectId'].split(',').map((e) => int.parse(e.toString())).toList();
         var outputObjectId = deviceProperty['outputObjectId'] == '-' ? [] : deviceProperty['outputObjectId'].split(',').map((e) => int.parse(e.toString())).toList();
@@ -312,9 +313,11 @@ class ConfigMakerProvider extends ChangeNotifier{
     Future.delayed(Duration.zero, () {
       notifyListeners();
     });
+
     for(var object in listOfGeneratedObject){
       print('generated :: ${object.toJson()}');
     }
+
   }
 
   void updateObjectConnection(DeviceObjectModel selectedConnectionObject,int newCount){

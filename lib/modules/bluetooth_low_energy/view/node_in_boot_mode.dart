@@ -39,7 +39,7 @@ class _NodeInBootModeState extends State<NodeInBootMode> {
           children: [
             SvgPicture.asset(
               'assets/Images/Svg/SmartComm/bootMode.svg',
-              height: 200,
+              height: 300,
             ),
             Text(
               'Hardware is in boot mode.\nPlease update the firmware to proceed.',
@@ -50,7 +50,6 @@ class _NodeInBootModeState extends State<NodeInBootMode> {
               ),
               textAlign: TextAlign.center,
             ),
-
             FilledButton.icon(
               icon: const Icon(Icons.system_update_alt_rounded),
               onPressed: () {
@@ -67,7 +66,6 @@ class _NodeInBootModeState extends State<NodeInBootMode> {
                 ),
               ),
             ),
-
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
