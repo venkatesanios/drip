@@ -74,12 +74,12 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
       WidgetsBinding.instance.addPostFrameCallback((_) {
         irrigationProvider.updateTabIndex(0);
         irrigationProvider.getUserProgramSequence(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, groupId: widget.groupId, categoryId: widget.categoryId);
-        irrigationProvider.getWaterAndFertData(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber);
         irrigationProvider.scheduleData(widget.customerId, widget.controllerId, widget.serialNumber);
         irrigationProvider.getUserProgramCondition(widget.customerId, widget.controllerId, widget.serialNumber);
+        irrigationProvider.getWaterAndFertData(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber);
         irrigationProvider.getUserProgramSelection(widget.customerId, widget.controllerId, widget.serialNumber);
-        irrigationProvider.getUserProgramAlarm(widget.customerId, widget.controllerId, widget.serialNumber);
         irrigationProvider.doneData(widget.customerId, widget.controllerId, widget.serialNumber);
+        irrigationProvider.getUserProgramAlarm(widget.customerId, widget.controllerId, widget.serialNumber);
       });
       _tabController = TabController(
         length: labels.length,
@@ -89,6 +89,16 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
         irrigationProvider.updateTabIndex(_tabController.index);
       });
     }
+  }
+
+  Future<void> getProgramData() async{
+    irrigationProvider.getUserProgramSequence(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, groupId: widget.groupId, categoryId: widget.categoryId);
+    irrigationProvider.scheduleData(widget.customerId, widget.controllerId, widget.serialNumber);
+    irrigationProvider.getUserProgramCondition(widget.customerId, widget.controllerId, widget.serialNumber);
+    irrigationProvider.getWaterAndFertData(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber);
+    irrigationProvider.getUserProgramSelection(widget.customerId, widget.controllerId, widget.serialNumber);
+    irrigationProvider.doneData(widget.customerId, widget.controllerId, widget.serialNumber);
+    irrigationProvider.getUserProgramAlarm(widget.customerId, widget.controllerId, widget.serialNumber);
   }
 
   @override

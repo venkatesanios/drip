@@ -62,7 +62,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-         /* Padding(
+          Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: MaterialButton(
               // color: Colors.greenAccent.shade100,
@@ -75,15 +75,18 @@ class _AlarmScreenState extends State<AlarmScreen> {
               ),
               onPressed: () {
                 setState(() {
-                  for(var i = 0; i < irrigationProgramMainProvider.newAlarmList!.alarmList.length; i++) {
-                    irrigationProgramMainProvider.newAlarmList!.alarmList[i].value = irrigationProgramMainProvider.newAlarmList!.defaultAlarm[i].value;
+                  for(var i = 0; i < alarmList.length; i++) {
+                    alarmList[i].value = irrigationProgramMainProvider.newAlarmList!.defaultAlarm[i].value;
+                    print(irrigationProgramMainProvider.newAlarmList!.defaultAlarm[i].value);
+                   /* final newIndex = irrigationProgramMainProvider.newAlarmList!.alarmList.indexWhere((e) => e.sNo == alarmList[i].sNo);
+                    irrigationProgramMainProvider.newAlarmList!.alarmList[newIndex].value = irrigationProgramMainProvider.newAlarmList!.defaultAlarm[i].value;*/
                   }
                 });
               },
               child: Text("Use global alarm".toUpperCase()),
             ),
           ),
-          const SizedBox(height: 5,),*/
+          const SizedBox(height: 5,),
           Expanded(
             child: ResponsiveGridList(
               horizontalGridMargin: 20,
