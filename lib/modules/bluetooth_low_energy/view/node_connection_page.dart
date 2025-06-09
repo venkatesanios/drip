@@ -382,7 +382,7 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Image.asset(
-          'assets/Images/Png/bluetooth_connecting.png',
+          'assets/Images/Png/SmartComm/bluetooth_connecting.png',
           height: 300,
         ),
         const Text(
