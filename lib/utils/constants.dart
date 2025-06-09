@@ -653,6 +653,7 @@ class AppConstants {
   static int phObjectId = 28;
   static int moistureObjectId = 25;
   static int soilTemperatureObjectId = 30;
+  static int powerSupplyObjectId = 42;
 
   static List<int> pumpWithValveModelList = [48, 49];
   static List<int> ecoGemModelList = [3];

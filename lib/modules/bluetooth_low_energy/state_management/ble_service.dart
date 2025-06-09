@@ -52,10 +52,16 @@ enum FileMode{
   bootFail,
 }
 
+enum EcCalibrationMode{ecOneGetFirst, ecOneGetSecond, ecTwoGetFirst, ecTwoGetSecond,}
+
+enum PhCalibrationMode{phOneGetFirst, phOneGetSecond, phTwoGetFirst, phTwoGetSecond,}
+
 class BleProvider extends ChangeNotifier {
   BleNodeState bleNodeState = BleNodeState.bluetoothOff;
   TraceMode traceMode = TraceMode.traceOff;
   FileMode fileMode = FileMode.idle;
+  EcCalibrationMode ecCalibrationMode = EcCalibrationMode.ecOneGetFirst;
+  PhCalibrationMode phCalibrationMode = PhCalibrationMode.phOneGetFirst;
 
   /*scanning variables*/
   late StreamSubscription<List<ScanResult>> _scanResultsSubscription;
@@ -103,6 +109,22 @@ class BleProvider extends ChangeNotifier {
   TextEditingController spreadFactor = TextEditingController();
   TextEditingController wifiSsid = TextEditingController();
   TextEditingController wifiPassword = TextEditingController();
+  TextEditingController ec1Controller = TextEditingController();
+  TextEditingController ec1_Controller = TextEditingController();
+  TextEditingController ec2Controller = TextEditingController();
+  TextEditingController ec2_Controller = TextEditingController();
+  TextEditingController ph1Controller = TextEditingController();
+  TextEditingController ph1_Controller = TextEditingController();
+  TextEditingController ph2Controller = TextEditingController();
+  TextEditingController ph2_Controller = TextEditingController();
+  TextEditingController cumulativeController = TextEditingController();
+  TextEditingController batteryController = TextEditingController();
+  String calibrationEc1 = 'ec1';
+  String calibrationEc2 = 'ec2';
+  String calibrationPh1 = 'ph1';
+  String calibrationPh2 = 'ph2';
+
+
 
 
   /* server variable*/
@@ -435,6 +457,47 @@ class BleProvider extends ChangeNotifier {
                   readFromHardwareStringValue = '';
                 }
               }
+              if (nodeDataFromHw.containsKey('PIN')) {
+                cumulativeController.text = nodeDataFromHw['PIN'];
+              }
+              if (nodeDataFromHw.containsKey('BC')) {
+                batteryController.text = nodeDataFromHw['BC'];
+              }
+
+              if (nodeDataFromHw.containsKey('AD7')) {
+                if (calibrationEc1 == 'ec1') {
+                  ec1Controller.text = nodeDataFromHw['AD7'];
+                }
+                if (calibrationEc1 == 'ec_1') {
+                  ec1_Controller.text = nodeDataFromHw['AD7'];
+                }
+              }
+              if (nodeDataFromHw.containsKey('AD8')) {
+                print("in provider calibrationEc2 : $calibrationEc2");
+                if (calibrationEc2 == 'ec2') {
+                  ec2Controller.text = nodeDataFromHw['AD8'];
+                }
+                if (calibrationEc2 == 'ec_2') {
+                  ec2_Controller.text = nodeDataFromHw['AD8'];
+                }
+              }
+              if (nodeDataFromHw.containsKey('AD5')) {
+                if (calibrationPh1 == 'ph1') {
+                  ph1Controller.text = nodeDataFromHw['AD5'];
+                }
+                if (calibrationPh1 == 'ph_1') {
+                  ph1_Controller.text = nodeDataFromHw['AD5'];
+                }
+              }
+              if (nodeDataFromHw.containsKey('AD6')) {
+                if (calibrationPh2 == 'ph2') {
+                  ph2Controller.text = nodeDataFromHw['AD6'];
+                }
+                if (calibrationPh2 == 'ph_2') {
+                  ph2_Controller.text = nodeDataFromHw['AD6'];
+                }
+              }
+
               if (nodeDataFromHw.containsKey('FRQ')) {
                 frequency.text = '${int.parse(nodeDataFromHw['FRQ']) / 10}';
               }

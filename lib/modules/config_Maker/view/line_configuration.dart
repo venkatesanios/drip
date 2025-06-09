@@ -562,7 +562,6 @@ class _LineConfigurationState extends State<LineConfiguration> {
     return listOfObject;
   }
 
-
   //Todo :: getSuitableSourceConnection
   Widget getSuitableSourceConnection(IrrigationLineModel selectedIrrigationLine){
     List<FiltrationModel> filterSite = [];

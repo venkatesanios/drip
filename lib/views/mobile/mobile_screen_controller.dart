@@ -58,7 +58,7 @@ class MobileScreenController extends StatelessWidget {
 
           if (vm.isLoading) {
             return const Scaffold(
-                body: Center(child: Text('Site loading please waite....')));
+                body: Center(child: Text('Site loading please wait....')));
           }
 
           return Scaffold(
@@ -69,7 +69,7 @@ class MobileScreenController extends StatelessWidget {
                 width: 70,
                 "assets/png/oro_logo_white.png",
                 fit: BoxFit.fitWidth,
-              ):
+              ) :
               Image.asset(
                 width: 160,
                 "assets/png/lk_logo_white.png",
@@ -555,7 +555,6 @@ class MobileScreenController extends StatelessWidget {
                 ),
               ],
             ) : null,
-
             body: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 2 ?
             vm.isChanged ? PumpControllerHome(
               userId: userId,

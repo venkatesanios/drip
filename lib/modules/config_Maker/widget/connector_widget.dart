@@ -109,13 +109,16 @@ class ConnectorWidget extends StatelessWidget {
       specificSensor = '(Ec)';
     }else if(connectionNo == 8 && selectedDevice.categoryId == 6 && selectedDevice.modelId == 3 && type == '3'){
       specificSensor = '(Ec)';
+    }else if(connectionNo == 9 && selectedDevice.categoryId == 6 && type == '3'){
+      specificSensor = '(ps)';
     }
     // else if(connectionNo == 1 && selectedDevice.categoryId == 5 && type == '3'){
     //   specificSensor = '(Ph)';
     // }else if(connectionNo == 2 && selectedDevice.categoryId == 5 && type == '3'){
     //   specificSensor = '(Ph)';
     // }
-    return '$keyWord$connectionNo$specificSensor';
+    String editConnectionNo = '${connectionNo == 9 ? '' : connectionNo}';
+    return '$keyWord$editConnectionNo$specificSensor';
   }
 
 }

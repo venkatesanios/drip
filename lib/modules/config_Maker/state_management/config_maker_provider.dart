@@ -18,7 +18,7 @@ import '../view/connection.dart';
 
 class ConfigMakerProvider extends ChangeNotifier{
   double ratio = 1.0;
-  ConfigMakerTabs selectedTab = ConfigMakerTabs.deviceList;
+  ConfigMakerTabs selectedTab = ConfigMakerTabs.connection;
   Map<String, dynamic> configMakerDataFromHttp = {};
   Map<String, dynamic> defaultDataFromHttp = {};
   Map<int, String> configurationTab = {
@@ -160,6 +160,7 @@ class ConfigMakerProvider extends ChangeNotifier{
 
       listOfDeviceModel = (defaultData['deviceList'] as List<dynamic>).where((device) => !senseNodeNotToAddInDeviceList.contains(device['modelId']))
           .map((devices) {
+            print("devices['modelId'] : ${devices['modelId']}");
         Map<String, dynamic> deviceProperty = defaultData['productModel'].firstWhere((product) => devices['modelId'] == product['modelId']);
           var inputObjectId = deviceProperty['inputObjectId'] == '-' ? [] : deviceProperty['inputObjectId'].split(',').map((e) => int.parse(e.toString())).toList();
         var outputObjectId = deviceProperty['outputObjectId'] == '-' ? [] : deviceProperty['outputObjectId'].split(',').map((e) => int.parse(e.toString())).toList();
@@ -312,9 +313,11 @@ class ConfigMakerProvider extends ChangeNotifier{
     Future.delayed(Duration.zero, () {
       notifyListeners();
     });
+
     for(var object in listOfGeneratedObject){
       print('generated :: ${object.toJson()}');
     }
+
   }
 
   void updateObjectConnection(DeviceObjectModel selectedConnectionObject,int newCount){
@@ -421,6 +424,41 @@ class ConfigMakerProvider extends ChangeNotifier{
 
     notifyListeners();
 
+  }
+
+  void updateObjectConnectionForPowerSupply(DeviceObjectModel selectedConnectionObject, bool value ){
+    DeviceModel selectedDevice = listOfDeviceModel.firstWhere((device) => device.controllerId == selectedModelControllerId);
+    for(var object in listOfObjectModelConnection){
+      if(object.objectId == selectedConnectionObject.objectId){
+        if(value == true){
+          object.count = '1';
+        }else{
+          object.count = '0';
+        }
+      }
+    }
+    for(var object in listOfGeneratedObject){
+      if(object.objectId == selectedConnectionObject.objectId){
+        if(value == true){
+          if(object.controllerId == null){
+            object.controllerId = selectedDevice.controllerId;
+            object.connectionNo = 9;
+            break;
+          }
+          print("object ==> ${object.toJson()}");
+        }
+        else{
+          if(object.controllerId == selectedDevice.controllerId){
+            object.controllerId = null;
+            object.connectionNo = null;
+            break;
+          }
+
+        }
+      }
+
+    }
+    notifyListeners();
   }
 
   void noticeObjectForTemporary(List<int> listOfObjectId){

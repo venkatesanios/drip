@@ -39,6 +39,7 @@ FutureOr<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   tz.initializeTimeZones();
   //F.appFlavor = Flavor.oroProduction;
+
   if(!kIsWeb){
     try {
       // Initialize Firebase
