@@ -174,8 +174,8 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
       child: currentLogType != LogType.mqtt
-          ? Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+          ? Wrap(
+        // mainAxisAlignment: MainAxisAlignment.center,
         children: [
           _buildButton(
             label: 'Start',

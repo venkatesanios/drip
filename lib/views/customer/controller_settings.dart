@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:oro_drip_irrigation/Screens/Dealer/controllerlogfile.dart';
 import 'package:oro_drip_irrigation/Screens/Dealer/dealer_definition.dart';
 import 'package:oro_drip_irrigation/Screens/planning/PumpCondition.dart';
 import 'package:oro_drip_irrigation/view_models/customer/controller_settings_view_model.dart';
@@ -256,6 +257,8 @@ class ControllerSettings extends StatelessWidget {
            controllerId: masterController.controllerId,
           imeiNo: masterController.deviceId,
         );
+      case 'Controller Log':
+        return ControllerLog(deviceID: masterController.deviceId);
       default:
         return const Center(child: Text('Coming Soon'));
     }
@@ -285,6 +288,8 @@ class ControllerSettings extends StatelessWidget {
         return 'Sensor-based conditions such as moisture, pressure, time-based triggers, and program ON/OFF logic.';
         case 'Pump Condition':
         return 'Pump-based conditions such as  program ON/OFF logic.';
+      case 'Controller Log':
+        return 'Controller live trace and Logs';
       default:
         return 'No additional information available.';
     }
