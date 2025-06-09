@@ -494,12 +494,22 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
 
   Widget displayLineOrSequence(MasterControllerModel masterData, StandAloneViewModel vm, int ddPosition){
 
-    final pumps = masterData.irrigationLine
+    final sourcePumps = masterData.irrigationLine
+        .expand((line) => line.inletSources)
+        .expand((ws) => ws.outletPump ?? [])
+        .toList();
+
+    final allSourcePumps = sourcePumps.fold<Map<double, PumpModel>>({}, (map, pump) {
+      map[pump.sNo] = pump;
+      return map;
+    }).values.toList();
+
+    final irrigationPumps = masterData.irrigationLine
         .expand((line) => line.outletSources)
         .expand((ws) => ws.outletPump ?? [])
         .toList();
 
-    final allPumps = pumps.fold<Map<double, PumpModel>>({}, (map, pump) {
+    final allIrrigationPumps = irrigationPumps.fold<Map<double, PumpModel>>({}, (map, pump) {
       map[pump.sNo] = pump;
       return map;
     }).values.toList();
@@ -520,12 +530,13 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
 
     return Column(
       children: [
-        allPumps.isNotEmpty ? Padding(
+
+        allSourcePumps.isNotEmpty ? Padding(
           padding: const EdgeInsets.only(left: 8, right: 5, top: 8),
           child: Column(
             children: [
               SizedBox(
-                height: allPumps.length*40+48,
+                height: allSourcePumps.length*40+48,
                 child: Card(
                   elevation: 1,
                   shape: RoundedRectangleBorder(
@@ -546,13 +557,13 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                         child: const Padding(
                           padding: EdgeInsets.only(left: 10.0, top: 8.0, bottom: 8.0), // Adjust values as needed
                           child: Text(
-                            'Source & Irrigation Pump',
+                            'Source Pump',
                             textAlign: TextAlign.left,
                           ),
                         ),
                       ),
                       SizedBox(
-                        height: allPumps.length*40,
+                        height: allIrrigationPumps.length*40,
                         child: DataTable2(
                           columnSpacing: 12,
                           horizontalMargin: 12,
@@ -576,20 +587,107 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                               fixedWidth: 70,
                             ),
                           ],
-                          rows: List<DataRow>.generate(allPumps.length, (index) => DataRow(cells: [
+                          rows: List<DataRow>.generate(allSourcePumps.length, (index) => DataRow(cells: [
                             DataCell(Center(child: Image.asset('assets/png/dp_pump.png',width: 30, height: 30,))),
-                            DataCell(Text(allPumps[index].name, style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14))),
+                            DataCell(Text(allSourcePumps[index].name, style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14))),
                             DataCell(Transform.scale(
                               scale: 0.7,
                               child: Tooltip(
-                                message: allPumps[index].selected? 'Deselect' : 'Select',
+                                message: allSourcePumps[index].selected? 'Deselect' : 'Select',
                                 child: Switch(
                                   hoverColor: Colors.pink.shade100,
                                   activeColor: Colors.teal,
-                                  value: allPumps[index].selected,
+                                  value: allSourcePumps[index].selected,
                                   onChanged: (value) {
                                     setState(() {
-                                      allPumps[index].selected = value;
+                                      allSourcePumps[index].selected = value;
+                                    });
+                                  },
+                                ),
+                              ),
+                            )),
+                          ])),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ):
+        Container(),
+
+        allIrrigationPumps.isNotEmpty ? Padding(
+          padding: const EdgeInsets.only(left: 8, right: 5, top: 8),
+          child: Column(
+            children: [
+              SizedBox(
+                height: allIrrigationPumps.length*40+48,
+                child: Card(
+                  elevation: 1,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0), // Adjust the value as needed
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.teal.shade50, // Background color (optional)
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(5.0),
+                            topRight: Radius.circular(5.0),
+                          ),
+                        ),
+                        child: const Padding(
+                          padding: EdgeInsets.only(left: 10.0, top: 8.0, bottom: 8.0), // Adjust values as needed
+                          child: Text(
+                            'Irrigation Pump',
+                            textAlign: TextAlign.left,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: allIrrigationPumps.length*40,
+                        child: DataTable2(
+                          columnSpacing: 12,
+                          horizontalMargin: 12,
+                          minWidth: 150,
+                          dataRowHeight: 40.0,
+                          headingRowHeight: 0,
+                          headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withOpacity(0.05)),
+                          columns: const [
+                            DataColumn2(
+                              label: Center(child: Text('', style: TextStyle(fontSize: 14),)),
+                              fixedWidth: 35,
+                            ),
+                            DataColumn2(
+                                label: Text('',  style: TextStyle(fontSize: 14),),
+                                size: ColumnSize.M
+                            ),
+                            DataColumn2(
+                              label: Center(
+                                child: Text('', textAlign: TextAlign.right,),
+                              ),
+                              fixedWidth: 70,
+                            ),
+                          ],
+                          rows: List<DataRow>.generate(allIrrigationPumps.length, (index) => DataRow(cells: [
+                            DataCell(Center(child: Image.asset('assets/png/dp_pump.png',width: 30, height: 30,))),
+                            DataCell(Text(allIrrigationPumps[index].name, style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14))),
+                            DataCell(Transform.scale(
+                              scale: 0.7,
+                              child: Tooltip(
+                                message: allIrrigationPumps[index].selected? 'Deselect' : 'Select',
+                                child: Switch(
+                                  hoverColor: Colors.pink.shade100,
+                                  activeColor: Colors.teal,
+                                  value: allIrrigationPumps[index].selected,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      allIrrigationPumps[index].selected = value;
                                     });
                                   },
                                 ),

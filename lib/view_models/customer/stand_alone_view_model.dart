@@ -432,7 +432,8 @@ class StandAloneViewModel extends ChangeNotifier {
     if(ddCurrentPosition==0) {
       List<String> allRelaySrlNo = [];
       String strSldValveOrLineSrlNo = '';
-      String strSldPumpSrlNo = '',
+      String strSldSourcePumpSrlNo = '',
+          strSldIrrigationPumpSrlNo = '',
           strSldMainValveSrlNo = '',
           strSldCtrlFilterSrlNo = '',
           strSldLocFilterSrlNo = '',
@@ -445,16 +446,28 @@ class StandAloneViewModel extends ChangeNotifier {
           strSldSelectorSrlNo = '';
 
 
-      Set<String> serialNoSet = {};
+      Set<String> sourcePumpSerialNoSet = {};
+      for (var line in masterData.irrigationLine) {
+        for (var waterSource in line.inletSources) {
+          var srlNo = getSelectedRelaySrlNo(waterSource.outletPump);
+          if (srlNo.isNotEmpty) {
+            sourcePumpSerialNoSet.addAll(srlNo.split(','));
+          }
+        }
+      }
+      strSldSourcePumpSrlNo = sourcePumpSerialNoSet.join('_');
+
+
+      Set<String> irrigationPumpSerialNoSet = {};
       for (var line in masterData.irrigationLine) {
         for (var waterSource in line.outletSources) {
           var srlNo = getSelectedRelaySrlNo(waterSource.outletPump);
           if (srlNo.isNotEmpty) {
-            serialNoSet.addAll(srlNo.split(','));
+            irrigationPumpSerialNoSet.addAll(srlNo.split(','));
           }
         }
       }
-      strSldPumpSrlNo = serialNoSet.join('_');
+      strSldIrrigationPumpSrlNo = irrigationPumpSerialNoSet.join('_');
 
       for (var line in masterData.irrigationLine) {
         if (line.centralFilterSite != null && line.centralFilterSite!.filters.isNotEmpty) {
@@ -485,6 +498,8 @@ class StandAloneViewModel extends ChangeNotifier {
           0, strSldValveOrLineSrlNo.length - 1) : '';
 
       allRelaySrlNo = [
+        strSldSourcePumpSrlNo,
+        strSldIrrigationPumpSrlNo,
         strSldMainValveSrlNo,
         strSldCtrlFilterSrlNo,
         strSldValveOrLineSrlNo,
@@ -498,7 +513,7 @@ class StandAloneViewModel extends ChangeNotifier {
         strSldSelectorSrlNo,
       ];
 
-      if (strSldPumpSrlNo.isNotEmpty && strSldValveOrLineSrlNo.isEmpty)
+      if (strSldIrrigationPumpSrlNo.isNotEmpty && strSldValveOrLineSrlNo.isEmpty)
       {
         showDialog<String>(
             context: context,
@@ -514,7 +529,7 @@ class StandAloneViewModel extends ChangeNotifier {
                     ),
                     TextButton(
                       onPressed: () {
-                        startByStandaloneDefault(context, allRelaySrlNo, strSldPumpSrlNo);
+                        startByStandaloneDefault(context, allRelaySrlNo, strSldIrrigationPumpSrlNo);
                         Navigator.pop(dgContext, 'OK');
                       },
                       child: const Text('Yes'),
@@ -524,7 +539,7 @@ class StandAloneViewModel extends ChangeNotifier {
         );
       }
       else {
-        startByStandaloneDefault(context, allRelaySrlNo, strSldPumpSrlNo);
+        startByStandaloneDefault(context, allRelaySrlNo, strSldIrrigationPumpSrlNo);
         Navigator.pop(context, 'OK');
       }
     }
@@ -651,8 +666,6 @@ class StandAloneViewModel extends ChangeNotifier {
 
       final commService = Provider.of<CommunicationService>(context, listen: false);
       commService.sendCommand(serverMsg: '', payload: payLoadFinal);
-
-      //MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
       sentManualModeToServer(0, 1, standAloneMethod, strDuration, strFlow, standaloneSelection, payLoadFinal);
     }
   }
