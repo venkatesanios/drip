@@ -87,6 +87,9 @@ class _PumpConditionScreenState extends State<PumpConditionScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xffE6EDF5),
+      appBar: MediaQuery.of(context).size.width <= 500 ? AppBar(
+        title: const Text('Pump Conditions'),
+      ) : null,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(8.0),
         child: Wrap(
