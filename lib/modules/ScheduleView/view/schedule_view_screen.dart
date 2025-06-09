@@ -236,6 +236,7 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
               focusedDay: _focusedDay,
               calendarFormat: context.read<PumpControllerProvider>().calendarFormat,
               selectedDate: date,
+              lastDay: DateTime(2100),
               onDaySelected: (selectedDay, focusedDay) {
                 setState(() {
                   date = selectedDay;

@@ -7,20 +7,22 @@ class MobileCustomCalendar extends StatefulWidget {
   final DateTime focusedDay;
   final CalendarFormat calendarFormat;
   final DateTime selectedDate;
+  final DateTime lastDay;
   final Function(DateTime, DateTime) onDaySelected;
   final Function(CalendarFormat) onFormatChanged;
 
-  const MobileCustomCalendar({
+  MobileCustomCalendar({
     super.key,
     required this.focusedDay,
     required this.calendarFormat,
     required this.selectedDate,
     required this.onDaySelected,
     required this.onFormatChanged,
-  });
+    DateTime? lastDay,
+  }) : lastDay = lastDay ?? DateTime.now();
 
   @override
-  _MobileCustomCalendarState createState() => _MobileCustomCalendarState();
+  State<MobileCustomCalendar> createState() => _MobileCustomCalendarState();
 }
 
 class _MobileCustomCalendarState extends State<MobileCustomCalendar> {
@@ -47,7 +49,7 @@ class _MobileCustomCalendarState extends State<MobileCustomCalendar> {
       child: TableCalendar(
         focusedDay: _focusedDay,
         firstDay: DateTime.utc(2020, 10, 16),
-        lastDay: DateTime.now(),
+        lastDay: widget.lastDay,
         calendarFormat: _calendarFormat,
         calendarStyle: CalendarStyle(
           selectedDecoration: BoxDecoration(
