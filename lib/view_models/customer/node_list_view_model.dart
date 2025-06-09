@@ -20,6 +20,7 @@ class NodeListViewModel extends ChangeNotifier {
   List<dynamic> _previousLiveMessage = [];
   List<dynamic> _previousRelayStatus = [];
 
+
   NodeListViewModel(BuildContext context, this.nodeList) {
     payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
   }

@@ -82,48 +82,57 @@ enum GemLineSSReasonCode {
 }
 
 enum PumpReasonCode {
-  reason1(1, 'Motor off due to sump empty'),
-  reason2(2, 'Motor off due to upper tank full'),
-  reason3(3, 'Motor off due to low voltage'),
-  reason4(4, 'Motor off due to high voltage'),
-  reason5(5, 'Motor off due to voltage SPP'),
-  reason6(6, 'Motor off due to reverse phase'),
-  reason7(7, 'Motor off due to starter trip'),
-  reason8(8, 'Motor off due to dry run'),
-  reason9(9, 'Motor off due to overload'),
-  reason10(10, 'Motor off due to current SPP'),
-  reason11(11, 'Motor off due to cyclic trip'),
-  reason12(12, 'Motor off due to maximum run time'),
-  reason13(13, 'Motor off due to sump empty'),
-  reason14(14, 'Motor off due to upper tank full'),
-  reason15(15, 'Motor off due to RTC 1'),
-  reason16(16, 'Motor off due to RTC 2'),
-  reason17(17, 'Motor off due to RTC 3'),
-  reason18(18, 'Motor off due to RTC 4'),
-  reason19(19, 'Motor off due to RTC 5'),
-  reason20(20, 'Motor off due to RTC 6'),
-  reason21(21, 'Motor off due to auto mobile key off'),
-  reason22(22, 'Motor on due to cyclic time'),
-  reason23(23, 'Motor on due to RTC 1'),
-  reason24(24, 'Motor on due to RTC 2'),
-  reason25(25, 'Motor on due to RTC 3'),
-  reason26(26, 'Motor on due to RTC 4'),
-  reason27(27, 'Motor on due to RTC 5'),
-  reason28(28, 'Motor on due to RTC 6'),
-  reason29(29, 'Motor on due to auto mobile key on'),
-  reason30(30, 'Motor off due to Power off'),
-  //reason31(31, 'Motor on due to Power on'),
-  unknown(0, 'Unknown content');
+  unknown(0, 'Unknown content'),
+
+  // Motor OFF reasons
+  motorOffSumpEmpty1(1, 'Motor off due to sump empty'),
+  motorOffUpperTankFull1(2, 'Motor off due to upper tank full'),
+  motorOffLowVoltage(3, 'Motor off due to low voltage'),
+  motorOffHighVoltage(4, 'Motor off due to high voltage'),
+  motorOffVoltageSPP(5, 'Motor off due to voltage SPP'),
+  motorOffReversePhase(6, 'Motor off due to reverse phase'),
+  motorOffStarterTrip(7, 'Motor off due to starter trip'),
+  motorOffDryRun(8, 'Motor off due to dry run'),
+  motorOffOverload(9, 'Motor off due to overload'),
+  motorOffCurrentSPP(10, 'Motor off due to current SPP'),
+  motorOffCyclicTrip(11, 'Motor off due to cyclic trip'),
+  motorOffMaxRunTime(12, 'Motor off due to maximum run time'),
+  motorOffSumpEmpty2(13, 'Motor off due to sump empty'),
+  motorOffUpperTankFull2(14, 'Motor off due to upper tank full'),
+  motorOffRTC1(15, 'Motor off due to RTC 1'),
+  motorOffRTC2(16, 'Motor off due to RTC 2'),
+  motorOffRTC3(17, 'Motor off due to RTC 3'),
+  motorOffRTC4(18, 'Motor off due to RTC 4'),
+  motorOffRTC5(19, 'Motor off due to RTC 5'),
+  motorOffRTC6(20, 'Motor off due to RTC 6'),
+  motorOffKeyOff(21, 'Motor off due to auto mobile key off'),
+
+
+  // Motor ON reasons
+  motorOnCyclicTime(22, 'Motor on due to cyclic time'),
+  motorOnRTC1(23, 'Motor on due to RTC 1'),
+  motorOnRTC2(24, 'Motor on due to RTC 2'),
+  motorOnRTC3(25, 'Motor on due to RTC 3'),
+  motorOnRTC4(26, 'Motor on due to RTC 4'),
+  motorOnRTC5(27, 'Motor on due to RTC 5'),
+  motorOnRTC6(28, 'Motor on due to RTC 6'),
+  motorOnKeyOn(29, 'Motor on due to auto mobile key on'),
+  motorOffPowerOff(30, 'Motor off due to Power off'),
+  powerOn(31, 'Motor on due to Power on'),
+  motorOffTN(32,'Motor off due to trip to normal'),
+  motorOff2P(33,'Motor off due to 2phase'),
+  motorOffPOn(34,'Motor off due to other pump is on'),
+  motorOffPOff(35,'Motor off due to waiting for other pump to turn off');
+
 
   final int code;
   final String content;
-  final String motorOff = "Motor off due to";
-  final String motorOn = "Motor on due to";
 
   const PumpReasonCode(this.code, this.content);
 
   static PumpReasonCode fromCode(int code) {
-    return PumpReasonCode.values.firstWhere((e) => e.code == code,
+    return PumpReasonCode.values.firstWhere(
+          (e) => e.code == code,
       orElse: () => PumpReasonCode.unknown,
     );
   }

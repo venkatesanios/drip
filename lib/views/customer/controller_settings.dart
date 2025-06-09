@@ -126,10 +126,7 @@ class ControllerSettings extends StatelessWidget {
   void _navigateToScreen(BuildContext context, String title) {
     final widget = _getScreenWidget(title);
     if (widget != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => widget),
-      );
+      Navigator.push(context, MaterialPageRoute(builder: (_) => widget));
     }
   }
 

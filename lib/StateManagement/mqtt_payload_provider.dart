@@ -28,7 +28,6 @@ class MqttPayloadProvider with ChangeNotifier {
 
   //Todo : Dashboard start
   int tryingToGetPayload = 0;
-  String version = '';
   dynamic listOfSite = [];
   dynamic listOfSharedUser = {};
   bool httpError = false;
@@ -94,7 +93,11 @@ class MqttPayloadProvider with ChangeNotifier {
   bool isLiveSynced = false;
   int wifiStrength = 0;
   String liveDateAndTime = '';
-   String activeDeviceId = '';
+  String activeDeviceId = '';
+  String activeDeviceVersion = '0.0.0';
+  String activeLoraData = '';
+
+
   String liveControllerID = '';
   List<String> nodeLiveMessage = [];
   List<String> outputOnOffPayload = [];
@@ -564,8 +567,14 @@ class MqttPayloadProvider with ChangeNotifier {
           isLiveSynced = true;
           liveDateAndTime = '${data['cD']} ${data['cT']}';
           activeDeviceId = data['cC'];
+          activeDeviceVersion = data['cM']['Version'];
+          if (data['cM'].containsKey('LoraData')) {
+            activeLoraData = data['cM']['LoraData'];
+          }
+
           wifiStrength = data['cM']['WifiStrength'];
           powerSupply = data['cM']['PowerSupply'];
+
           updateNodeLiveMessage(data['cM']['2401'].split(";"));
           updateOutputStatusPayload(data['cM']['2402'].split(";"));
 
@@ -610,7 +619,7 @@ class MqttPayloadProvider with ChangeNotifier {
           if (cM.containsKey("6601")) {
             String msg = cM["6601"];
             if (!scheduleMessagesSet.contains(msg)) {
-              sheduleLog += "\n" + msg;
+              sheduleLog += "\n$msg";
               scheduleMessagesSet.add(msg);
             }
           }

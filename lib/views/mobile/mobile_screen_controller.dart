@@ -412,8 +412,7 @@ class MobileScreenController extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    NodeList(
+                                builder: (context) => NodeList(
                                       customerId: customerId,
                                       nodes: vm.mySiteList.data[vm.sIndex].master[vm
                                           .mIndex].nodeList,

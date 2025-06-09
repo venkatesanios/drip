@@ -64,7 +64,7 @@ class NodeList extends StatelessWidget {
               buildStatusHeaderRow(context, vm),
               SizedBox(
                 width: 400,
-                height: MediaQuery.sizeOf(context).height-175,
+                height: MediaQuery.sizeOf(context).height-190,
                 child: Column(
                   children: [
                     SizedBox(
@@ -360,18 +360,46 @@ class NodeList extends StatelessWidget {
   Widget buildWebHeader(BuildContext context) {
     return Column(
       children: [
-        Row(
-          children: [
-            IconButton(
-              tooltip: 'Close',
-              icon: const Icon(Icons.close, color: Colors.redAccent),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            Expanded(child:
-            ListTile(
-              title: Text('dfdfdfd'),
-            )),
-          ],
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: IconButton(
+            tooltip: 'Close',
+            icon: const Icon(Icons.close, color: Colors.redAccent),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          title: Text(deviceName, style: const TextStyle(fontWeight: FontWeight.bold)),
+          subtitle: Text(deviceId, style: const TextStyle(fontWeight: FontWeight.normal, color: Colors.black54, fontSize: 12)),
+          trailing: Consumer<MqttPayloadProvider>(
+            builder: (context, provider, _) {
+              List<Widget> children = [
+                Text(
+                  'V: ${provider.activeDeviceVersion}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ];
+
+              if (provider.activeLoraData.isNotEmpty) {
+                List<String> parts = provider.activeLoraData.split(',');
+                List<String> versions = [];
+                for (int i = 0; i < parts.length; i += 3) {
+                  versions.add(parts[i]);
+                }
+
+                children.add(
+                  Text(
+                    'LoRa: $versions',
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
+                  ),
+                );
+              }
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: children,
+              );
+            },
+          ),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 5),
