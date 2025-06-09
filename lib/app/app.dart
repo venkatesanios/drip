@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:oro_drip_irrigation/Constants/notifications_service.dart';
+import 'package:oro_drip_irrigation/modules/config_Maker/view/config_base_page.dart';
 import '../flavors.dart';
 import '../utils/Theme/smart_comm_theme.dart';
 import '../utils/Theme/oro_theme.dart';
@@ -67,8 +68,9 @@ class _MyAppState extends State<MyApp> {
           theme: isOro ? OroTheme.lightTheme : SmartCommTheme.lightTheme,
           darkTheme: isOro ? OroTheme.darkTheme : SmartCommTheme.darkTheme,
           themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          home: navigateToInitialScreen(snapshot.data ?? Routes.login),
-          onGenerateRoute: Routes.generateRoute,
+          home: ConfigBasePage(masterData: {}),
+          // home: navigateToInitialScreen(snapshot.data ?? Routes.login),
+          // onGenerateRoute: Routes.generateRoute,
         );
       },
     );

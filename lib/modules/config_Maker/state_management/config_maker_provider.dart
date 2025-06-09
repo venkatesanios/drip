@@ -18,7 +18,7 @@ import '../view/connection.dart';
 
 class ConfigMakerProvider extends ChangeNotifier{
   double ratio = 1.0;
-  ConfigMakerTabs selectedTab = ConfigMakerTabs.deviceList;
+  ConfigMakerTabs selectedTab = ConfigMakerTabs.connection;
   Map<String, dynamic> configMakerDataFromHttp = {};
   Map<String, dynamic> defaultDataFromHttp = {};
   Map<int, String> configurationTab = {
@@ -424,6 +424,41 @@ class ConfigMakerProvider extends ChangeNotifier{
 
     notifyListeners();
 
+  }
+
+  void updateObjectConnectionForPowerSupply(DeviceObjectModel selectedConnectionObject, bool value ){
+    DeviceModel selectedDevice = listOfDeviceModel.firstWhere((device) => device.controllerId == selectedModelControllerId);
+    for(var object in listOfObjectModelConnection){
+      if(object.objectId == selectedConnectionObject.objectId){
+        if(value == true){
+          object.count = '1';
+        }else{
+          object.count = '0';
+        }
+      }
+    }
+    for(var object in listOfGeneratedObject){
+      if(object.objectId == selectedConnectionObject.objectId){
+        if(value == true){
+          if(object.controllerId == null){
+            object.controllerId = selectedDevice.controllerId;
+            object.connectionNo = 9;
+            break;
+          }
+          print("object ==> ${object.toJson()}");
+        }
+        else{
+          if(object.controllerId == selectedDevice.controllerId){
+            object.controllerId = null;
+            object.connectionNo = null;
+            break;
+          }
+
+        }
+      }
+
+    }
+    notifyListeners();
   }
 
   void noticeObjectForTemporary(List<int> listOfObjectId){

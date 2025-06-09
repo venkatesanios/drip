@@ -86,33 +86,6 @@ Color getObjectTypeCodeToColor(int code){
   }
 }
 
-//Todo deviceType
-String getDeviceCodeToString(int code){
-  switch(code){
-    case 1 :
-      return 'GEM';
-    case 2 :
-      return 'PUMP';
-    case 3 :
-      return 'LEVEL';
-    case 4 :
-      return 'WEATHER';
-    case 5 :
-      return 'SMART';
-    case 6 :
-      return 'SMART PLUS';
-    case 7:
-      return 'RTU';
-    case 8:
-      return 'RTU PLUS';
-    case 9:
-      return 'SENSE';
-    case 10:
-      return 'EXTEND';
-    default :
-      return '-';
-  }
-}
 
 // Todo: tankType
 String getTankCodeToString(int code){
