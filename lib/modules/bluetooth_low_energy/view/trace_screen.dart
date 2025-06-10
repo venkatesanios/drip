@@ -36,37 +36,49 @@ class _TraceScreenState extends State<TraceScreen> {
     bleService = Provider.of<BleProvider>(context, listen: true);
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (bool didPop, result) async{
-        print("didPop : $didPop");
-        print("result : $result");
+      onPopInvokedWithResult: (bool didPop, result) async {
+        print("didPop: $didPop");
+        print("result: $result");
+
+        // Avoid further processing if the route is already popped
+        if (didPop) return;
+
         if (bleService.traceMode == TraceMode.traceOn) {
-          bool shouldLeave = await showDialog(
+          bool? shouldLeave = await showDialog<bool>(
             context: context,
-            builder: (alertBoxContext) => AlertDialog(
-              title: const Text("Alert", style: TextStyle(fontSize: 16, color: Colors.red)),
-              content: const Text("Do you really want to leave?", style: TextStyle(fontSize: 14),),
+            builder: (context) => AlertDialog(
+              title: const Text(
+                "Alert",
+                style: TextStyle(fontSize: 16, color: Colors.red),
+              ),
+              content: const Text(
+                "Do you really want to leave?",
+                style: TextStyle(fontSize: 14),
+              ),
               actions: [
                 TextButton(
                   onPressed: () {
-                    Navigator.of(alertBoxContext).pop(false);
-                  }, // Stay on page
+                    Navigator.of(context).pop(false); // Stay on page
+                  },
                   child: const Text("Cancel"),
                 ),
                 TextButton(
                   onPressed: () {
                     bleService.sendTraceCommand();
-                    Navigator.of(alertBoxContext).pop(true);
+                    Navigator.of(context).pop(true); // Allow leaving
                   },
                   child: const Text("Trace off and leave"),
                 ),
               ],
             ),
           );
-          if(shouldLeave){
+
+          // If user confirms leaving, pop the route
+          if (shouldLeave == true) {
             Navigator.of(context).pop(result);
           }
-        }
-        else{
+        } else {
+          // If trace mode is off, allow the pop
           Navigator.of(context).pop(result);
         }
       },
