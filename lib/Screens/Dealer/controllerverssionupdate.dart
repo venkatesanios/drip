@@ -227,7 +227,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
                                 MaterialPageRoute(
                                   builder: (context) => ControllerLog(
                                       deviceID: '${mergedList[index]['deviceId'
-                                      ]!}'),
+                                      ]!}', communicationType: 'MQTT',),
                                 ),
                               );
                             });

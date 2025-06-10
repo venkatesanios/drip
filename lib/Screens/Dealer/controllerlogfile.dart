@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../StateManagement/overall_use.dart';
 import '../../modules/IrrigationProgram/view/program_library.dart';
+import '../../services/communication_service.dart';
 import '../../services/mqtt_service.dart';
 import '../../utils/environment.dart';
 import '../../utils/snack_bar.dart';
@@ -24,8 +26,9 @@ enum LogType {
 
 class ControllerLog extends StatefulWidget {
   final String deviceID;
+  final String communicationType;
 
-  const ControllerLog({Key? key, required this.deviceID}) : super(key: key);
+  const ControllerLog({Key? key, required this.deviceID, required this.communicationType}) : super(key: key);
 
   @override
   _ControllerLogState createState() => _ControllerLogState();
@@ -346,42 +349,73 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
 
   Future<void> getlog(int data) async {
     setState(() => isLoading = true);
-    try {
-      manager.topicToUnSubscribe('${Environment.mqttLogTopic}/${widget.deviceID}');
-      manager.topicToSubscribe('${Environment.mqttSubscribeTopic}/${widget.deviceID}');
 
-      await Future.delayed(const Duration(seconds: 1));
-      if (LogType.values.any((logType) => logType.value == data)) {
-        String payloadCode = "5700";
-        Map<String, dynamic> payload = {
-          "5700": {"5701": "$data"},
-        };
+    if(widget.communicationType == "MQTT") {
+      try {
+        manager.topicToUnSubscribe(
+            '${Environment.mqttLogTopic}/${widget.deviceID}');
+        manager.topicToSubscribe(
+            '${Environment.mqttSubscribeTopic}/${widget.deviceID}');
 
-        if (manager.isConnected) {
-          await validatePayloadSent(
-            dialogContext: context,
-            context: context,
-            mqttPayloadProvider: mqttPayloadProvider,
-            acknowledgedFunction: () {
-              manager.topicToUnSubscribe('${Environment.mqttLogTopic}/${widget.deviceID}');
-              manager.topicToSubscribe('${Environment.mqttLogTopic}/${widget.deviceID}');
-            },
-            payload: payload,
-            payloadCode: payloadCode,
-            deviceId: widget.deviceID,
-          );
+        await Future.delayed(const Duration(seconds: 1));
+        if (LogType.values.any((logType) => logType.value == data)) {
+          String payloadCode = "5700";
+          Map<String, dynamic> payload = {
+            "5700": {"5701": "$data"},
+          };
+
+          if (manager.isConnected) {
+            await validatePayloadSent(
+              dialogContext: context,
+              context: context,
+              mqttPayloadProvider: mqttPayloadProvider,
+              acknowledgedFunction: () {
+                manager.topicToUnSubscribe(
+                    '${Environment.mqttLogTopic}/${widget.deviceID}');
+                manager.topicToSubscribe(
+                    '${Environment.mqttLogTopic}/${widget.deviceID}');
+              },
+              payload: payload,
+              payloadCode: payloadCode,
+              deviceId: widget.deviceID,
+            );
+          } else {
+            GlobalSnackBar.show(context, 'MQTT is Disconnected', 201);
+          }
         } else {
-          GlobalSnackBar.show(context, 'MQTT is Disconnected', 201);
+          String payload = jsonEncode({
+            "5700": {"5701": "$data"},
+          });
+          manager.topicToPublishAndItsMessage(
+              payload, '${Environment.mqttPublishTopic}/${widget.deviceID}');
+          await ftpStatusDialog(context);
         }
-      } else {
-        String payload = jsonEncode({
-          "5700": {"5701": "$data"},
-        });
-        manager.topicToPublishAndItsMessage(payload, '${Environment.mqttPublishTopic}/${widget.deviceID}');
-        await ftpStatusDialog(context);
+      } finally {
+        setState(() => isLoading = false);
       }
-    } finally {
-      setState(() => isLoading = false);
+    }
+    else
+    {
+      //bluetooth
+      try {
+             String payLoadFinal = jsonEncode({
+             "5700": {"5701": "$data"},
+           });
+            final result = await context.read<CommunicationService>().sendCommand(payload: payLoadFinal,
+               serverMsg: '');
+           if (result['http'] == true) {
+             debugPrint("Payload sent to Server");
+           }
+           if (result['mqtt'] == true) {
+             debugPrint("Payload sent to MQTT Box");
+           }
+           if (result['bluetooth'] == true) {
+             debugPrint("Payload sent via Bluetooth");
+           }
+
+      } finally {
+        setState(() => isLoading = false);
+      }
     }
   }
 

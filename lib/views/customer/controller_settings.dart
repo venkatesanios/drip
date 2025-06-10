@@ -247,7 +247,7 @@ class ControllerSettings extends StatelessWidget {
           imeiNo: masterController.deviceId,
         );
       case 'Controller Log':
-        return ControllerLog(deviceID: masterController.deviceId);
+        return ControllerLog(deviceID: masterController.deviceId, communicationType: 'MQTT',);
       default:
         return const Center(child: Text('Coming Soon'));
     }

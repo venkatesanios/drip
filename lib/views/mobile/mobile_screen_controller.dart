@@ -814,7 +814,7 @@ class MobileScreenController extends StatelessWidget {
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => ControllerLog(deviceID: vm.mySiteList.data[vm.sIndex]
-                                              .master[vm.mIndex].deviceId),
+                                              .master[vm.mIndex].deviceId, communicationType: 'Bluetooth',),
                                         ),
                                       );
                                     },
