@@ -247,5 +247,4 @@ class _PumpConditionScreenState extends State<PumpConditionScreen> {
     }
   }
 
-
 }

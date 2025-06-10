@@ -15,7 +15,6 @@ class ControlNode extends StatefulWidget {
 class _ControlNodeState extends State<ControlNode> {
   late BleProvider bleService;
 
-
   @override
   void initState() {
     super.initState();
@@ -39,7 +38,8 @@ class _ControlNodeState extends State<ControlNode> {
             children: [
               if(bleService.nodeDataFromHw.containsKey('VER'))
                 versionRow(),
-              currentWidget(),
+              if(bleService.nodeDataFromHw.containsKey('R-VOLT'))
+                voltageWidget(),
               relayWidget(),
               viewDetailsWidget(),
               if(bleService.nodeDataFromServer['analogInput'] != '-')
@@ -56,7 +56,7 @@ class _ControlNodeState extends State<ControlNode> {
     var versionList = bleService.nodeDataFromHw['VER'].split(',');
     var controller = versionList[0];
     var boot = versionList[1];
-    var interFaceVersion = versionList[2];
+    var interFaceVersion = versionList.length > 2 ? versionList[2] : "0.0.0";
     return Row(
       spacing: 20,
       children: [
@@ -94,7 +94,7 @@ class _ControlNodeState extends State<ControlNode> {
     );
   }
 
-  Widget currentWidget(){
+  Widget voltageWidget(){
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 8),
       decoration: BoxDecoration(
@@ -114,21 +114,28 @@ class _ControlNodeState extends State<ControlNode> {
           spacing: 20,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            const Text('Current', style: TextStyle(fontWeight: FontWeight.bold),),
-            currentBox(color: const Color(0xffFF8688), title: 'Rc : 0.0A'),
-            currentBox(color: const Color(0xffFFED68), title: 'Rc : 0.0A'),
-            currentBox(color: const Color(0xff6FAEFF), title: 'Rc : 0.0A'),
+            const Text('Voltage', style: TextStyle(fontWeight: FontWeight.bold),),
+            currentBox(color: const Color(0xffFF8688), title: 'RY : ${bleService.nodeDataFromHw['R-VOLT']}V'),
+            currentBox(color: const Color(0xffFFED68), title: 'YB : ${bleService.nodeDataFromHw['Y-VOLT']}V'),
+            currentBox(color: const Color(0xff6FAEFF), title: 'BR : ${bleService.nodeDataFromHw['B-VOLT']}V'),
           ]
       ),
     );
   }
 
   bool getRelayStatus(int relayNo){
+    print("bleService.nodeDataFromHw['RLY'] : ${bleService.nodeDataFromHw['RLY']}");
     var relayStatusList = bleService.nodeDataFromHw['RLY'].split(',');
     return relayStatusList[relayNo] == '1' ? true : false;
   }
 
   Widget relayWidget(){
+    int relayOrLatch = 0;
+    if(bleService.nodeDataFromServer['latchOutput'] != '-'){
+      relayOrLatch = int.parse(bleService.nodeDataFromServer['latchOutput']);
+    }else if(bleService.nodeDataFromServer['relayOutput'] != '-'){
+      relayOrLatch = int.parse(bleService.nodeDataFromServer['relayOutput']);
+    }
     return Column(
       children: [
         Row(
@@ -172,7 +179,7 @@ class _ControlNodeState extends State<ControlNode> {
               physics: const NeverScrollableScrollPhysics(),
             ),
             children: [
-              for(var relay = 0;relay < int.parse(bleService.nodeDataFromServer['latchOutput']);relay++)
+              for(var relay = 0;relay < relayOrLatch;relay++)
                 ListTile(
                   title: Text('Relay ${relay+1}', style: TextStyle(fontWeight: FontWeight.bold),),
                   trailing: Switch(
@@ -249,7 +256,10 @@ class _ControlNodeState extends State<ControlNode> {
     simpleDialogBox(context: context, title: 'Success', message: 'Relay Setting Sent Successfully...');
   }
 
-  Widget commonParameterWidget({required String title,required String value,}){
+  Widget commonParameterWidget({required String title,required String? value,}){
+    if(value == null){
+      return Container();
+    }
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 8),
       width: 150,
@@ -320,7 +330,8 @@ class _ControlNodeState extends State<ControlNode> {
           ),
           children: [
               for(var analog = 0;analog < bleService.nodeDataFromServer['analogInput'];analog++)
-                commonParameterWidget(title: 'Analog ${analog + 1}', value: bleService.nodeDataFromHw['AD${analog+1}']),
+                if(bleService.nodeDataFromHw.containsKey('AD${analog+1}'))
+                  commonParameterWidget(title: 'Analog ${analog + 1}', value: bleService.nodeDataFromHw['AD${analog+1}']),
           ],
         )
       ],

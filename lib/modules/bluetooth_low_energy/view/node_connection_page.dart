@@ -307,100 +307,109 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
   }
 
   Widget _deviceConnected() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Image.asset(
-          'assets/Images/Png/SmartComm/bluetooth_connected.png',
-          height: 300,
-        ),
-        const SizedBox(height: 24),
-        Row(
-          spacing: 20,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const CircleAvatar(
-              backgroundColor: Colors.green,
-                child: Icon(Icons.check, color: Colors.white,)
-            ),
-            Text(
-              'Connected Successfully',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).primaryColorLight,
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(
+            'assets/Images/Png/SmartComm/bluetooth_connected.png',
+            height: 300,
+          ),
+          const SizedBox(height: 24),
+          Row(
+            spacing: 20,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircleAvatar(
+                backgroundColor: Colors.green,
+                  child: Icon(Icons.check, color: Colors.white,)
               ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ],
+              Text(
+                'Connected Successfully',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).primaryColorLight,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
   Widget _deviceConnecting() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Image.asset(
-          'assets/Images/Png/SmartComm/bluetooth_connecting.png',
-          height: 300,
-        ),
-        const SizedBox(height: 24),
-        Text(
-          'Connecting to Device...',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: Theme.of(context).primaryColorLight,
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(
+            'assets/Images/Png/SmartComm/bluetooth_connecting.png',
+            height: 300,
           ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 12),
-        const Text(
-          'Please wait while we establish a connection.',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.black54,
+          const SizedBox(height: 24),
+          Text(
+            'Connecting to Device...',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).primaryColorLight,
+            ),
+            textAlign: TextAlign.center,
           ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 24),
-        const SizedBox(
-          width: 200,
-          child: LinearProgressIndicator(
-            minHeight: 6,
-            borderRadius: BorderRadius.all(Radius.circular(10)),
+          const SizedBox(height: 12),
+          const Text(
+            'Please wait while we establish a connection.',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.black54,
+            ),
+            textAlign: TextAlign.center,
           ),
-        ),
-      ],
+          const SizedBox(height: 24),
+          const SizedBox(
+            width: 200,
+            child: LinearProgressIndicator(
+              minHeight: 6,
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _deviceNotConnected() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Image.asset(
-          'assets/Images/Png/SmartComm/bluetooth_connecting.png',
-          height: 300,
-        ),
-        const Text(
-          'Please ensure you are nearby the bluetooth kit.',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.black54,
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(
+            'assets/Images/Png/SmartComm/bluetooth_connecting.png',
+            height: 300,
           ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 12),
-        ElevatedButton(
-            onPressed: (){
-              bleService.autoConnect();
-            },
-            child: const Text('Connect Again', style: TextStyle(color: Colors.white),)
-        )
-      ],
+          const Text(
+            'Please ensure you are nearby the bluetooth kit.',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.black54,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          ElevatedButton(
+              onPressed: (){
+                bleService.autoConnect();
+              },
+              child: const Text('Connect Again', style: TextStyle(color: Colors.white),)
+          )
+        ],
+      ),
     );
   }
 
@@ -438,7 +447,6 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-
             /// SVG Image
             SvgPicture.asset(
               'assets/Images/Svg/SmartComm/bluetooth_off.svg',
