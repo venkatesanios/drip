@@ -27,6 +27,7 @@ class _TraceScreenState extends State<TraceScreen> {
   void initState() {
     super.initState();
     bleService = Provider.of<BleProvider>(context, listen: false);
+    bleService.traceScrollController = ScrollController();
     bleService.sendTraceCommand();
   }
 

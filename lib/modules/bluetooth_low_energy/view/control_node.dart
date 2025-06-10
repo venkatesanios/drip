@@ -19,7 +19,6 @@ class _ControlNodeState extends State<ControlNode> {
   void initState() {
     super.initState();
     bleService = Provider.of<BleProvider>(context, listen: false);
-    bleService.sendTraceCommand();
   }
 
   @override
