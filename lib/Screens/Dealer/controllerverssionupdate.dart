@@ -698,7 +698,9 @@ print("payLoadFinal----${Environment.mqttPublishTopic}/${mergedList[selectindex!
                             }
                           },
                           child: const Text('Send'),
-                        ),],)
+                        ),],),
+                      Text("View to Lora Details:"),
+                      Text(mqttPayloadProvider.Loara1verssion)
 
                     ],
                   ),
@@ -734,6 +736,8 @@ print("payLoadFinal----${Environment.mqttPublishTopic}/${mergedList[selectindex!
                           )),
                         ],
                       ),
+                      Text("View to Lora Details:"),
+                      Text(mqttPayloadProvider.Loara2verssion)
                     ],
                   ),
                 ),
@@ -791,6 +795,7 @@ print("payLoadFinal----${Environment.mqttPublishTopic}/${mergedList[selectindex!
               },
               child: const Text('Send'),
             ),
+
           ],
         );
       },

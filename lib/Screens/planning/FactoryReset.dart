@@ -32,6 +32,7 @@ class _ResetAccumalationScreenState extends State<ResetAccumalationScreen>
   void initState() {
     super.initState();
     fetchData();
+    Request();
   }
 
   Future<void> fetchData() async {

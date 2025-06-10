@@ -83,6 +83,8 @@ class MqttPayloadProvider with ChangeNotifier {
    Set<String> uardMessagesSet = {};
    Set<String> uard0MessagesSet = {};
    Set<String> uard4MessagesSet = {};
+   String Loara1verssion = '';
+   String Loara2verssion = '';
 
   //kamaraj
    String _receivedPayload = '';
@@ -658,6 +660,26 @@ class MqttPayloadProvider with ChangeNotifier {
         if(data['cM'].containsKey("6801")){
           mqttUpdateSettings = data['cM']['6801'];
         }
+        if(data['mC']=='7400'){
+
+         String Loaraverssion = data['cM']['7401'];
+         final parts = Loaraverssion.split(',');
+         if(parts[0] == '1')
+           {
+             final rawFrequency = int.parse(parts[2]);
+             final frequency = (rawFrequency / 10).toStringAsFixed(1);
+
+             Loara1verssion = "Verssion:${parts[1]},Frequency:$frequency,SF:${parts[3]}";
+           }
+         else
+           {
+             final rawFrequency = int.parse(parts[2]);
+             final frequency = (rawFrequency / 10).toStringAsFixed(1);
+             Loara2verssion = "Verssion:${parts[1]},Frequency:$frequency,SF:${parts[3]}";
+           }
+
+        }
+
       } catch (e, stackTrace) {
         print('Error parsing JSON: $e');
         print('Stacktrace while parsing json : $stackTrace');
@@ -683,6 +705,9 @@ class MqttPayloadProvider with ChangeNotifier {
     updateCentralFiltrationSite();
     updateLocalFiltrationSite();
   }
+
+
+
 
   //Todo : Dashboard stop
 
