@@ -626,6 +626,8 @@ class ConfigMakerProvider extends ChangeNotifier{
           irrigationLine.pressureOut = selectedSno;
         }else if(parameter == LineParameter.pressureSwitch){
           irrigationLine.pressureSwitch = selectedSno;
+        }else if(parameter == LineParameter.powerSupply){
+          irrigationLine.powerSupply = selectedSno;
         }else if(parameter == LineParameter.centralFiltration){
           irrigationLine.centralFiltration = selectedSno;
         }else if(parameter == LineParameter.centralFertilization){
@@ -941,7 +943,6 @@ class ConfigMakerProvider extends ChangeNotifier{
         "Name" : lineModelObject.commonDetails.name
       }.entries.map((e) => e.value).toList().join(','));
     }
-
     return irrigationLinePayload.join(";");
   }
 
