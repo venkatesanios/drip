@@ -73,9 +73,9 @@ class Accumulation {
 }
 
 class ListElement {
-  int? sNo;
+  double? sNo;
   String? name;
-  String? location;
+  double? location;
   String? todayCumulativeFlow;
   String? totalCumulativeFlow;
 
@@ -88,19 +88,19 @@ class ListElement {
   });
 
   factory ListElement.fromJson(Map<String, dynamic> json) => ListElement(
-    sNo: json["S_No"],
-    name: json["Name"],
-    location: json["Location"],
-    todayCumulativeFlow: json["TodayCumulativeFlow"],
-    totalCumulativeFlow: json["TotalCumulativeFlow"],
+    sNo: json["sNo"],
+    name: json["name"],
+    location: json["location"],
+    todayCumulativeFlow: json["todayCumulativeFlow"],
+    totalCumulativeFlow: json["totalCumulativeFlow"],
   );
 
   Map<String, dynamic> toJson() => {
-    "S_No": sNo,
-    "Name": name,
-    "Location": location,
-    "TodayCumulativeFlow": todayCumulativeFlow,
-    "TotalCumulativeFlow": totalCumulativeFlow,
+    "sNo": sNo,
+    "name": name,
+    "location": location,
+    "todayCumulativeFlow": todayCumulativeFlow,
+    "totalCumulativeFlow": totalCumulativeFlow,
   };
 }
 
