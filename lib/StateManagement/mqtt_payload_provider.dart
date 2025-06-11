@@ -586,9 +586,8 @@ class MqttPayloadProvider with ChangeNotifier {
      print('newPayload --\n$newPayload');
 
     if (_receivedPayload != newPayload) {
-      _receivedPayload = newPayload;
-
-      if(!dataFromHttp) {
+       _receivedPayload = newPayload;
+       if(!dataFromHttp) {
         dataFetchingStatus = 1;
       } else {
         dataFetchingStatus = 3;
@@ -650,7 +649,7 @@ class MqttPayloadProvider with ChangeNotifier {
         }
         if (data.containsKey("cM") && data["cM"] is! List) {
           Map cM = data["cM"];
-
+print('cM---> $cM');
           if (cM.containsKey("6601")) {
             String msg = cM["6601"];
             if (!scheduleMessagesSet.contains(msg)) {
@@ -660,6 +659,7 @@ class MqttPayloadProvider with ChangeNotifier {
           }
 
           if (cM.containsKey("6602")) {
+
             String msg = cM["6602"];
             if (!uardMessagesSet.contains(msg)) {
               uardLog += "\n" + msg;
@@ -683,14 +683,19 @@ class MqttPayloadProvider with ChangeNotifier {
               uard4MessagesSet.add(msg);
             }
           }
-
-          if (cM.containsKey("6801")) {
-            mqttUpdateSettings = cM['6801'];
-          }
+          // print("cM---------->$cM ");
+          //   print("runtype ------${cM.runtimeType}");
+          // if (cM != null && cM.containsKey("6801")) {
+          //   mqttUpdateSettings = cM['6801'];
+          // }
+          // else
+          //   {
+          //
+          //   }
         }
-        if(data['cM'].containsKey("6801")){
-          mqttUpdateSettings = data['cM']['6801'];
-        }
+        // if(data['cM'].containsKey("6801")){
+        //   mqttUpdateSettings = data['cM']['6801'];
+        // }
         if(data['mC']=='7400'){
 
          String Loaraverssion = data['cM']['7401'];

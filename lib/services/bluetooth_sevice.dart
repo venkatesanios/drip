@@ -90,6 +90,8 @@ class BluService {
 
   void listenToBluData() {
     _bluetoothClassicPlugin.onDeviceDataReceived().listen((event) {
+
+      print('_buffer---> $_buffer');
       _buffer += utf8.decode(event);
 
       while (_buffer.contains('*') && _buffer.contains('#')) {
@@ -141,7 +143,7 @@ class BluService {
               //logs
               final cM = data['cM'] as Map<String, dynamic>?;
               if (cM != null && cM.isNotEmpty) {
-                providerState?.updateReceivedPayload(data.toString(), false);
+                providerState?.updateReceivedPayload(jsonEncode(data), false);
               }
             }
             else {
