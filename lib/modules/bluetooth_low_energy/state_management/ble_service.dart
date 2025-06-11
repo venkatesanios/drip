@@ -629,26 +629,26 @@ class BleProvider extends ChangeNotifier {
   }
 
   void clearBluetoothDeviceState(){
-    // nodeFirmwareFileName = '';
-    // nodeDataFromHw = {};
-    // traceData.clear();
-    // sentAndReceive.clear();
-    // fileMode = FileMode.idle;
-    // bleNodeState = BleNodeState.deviceNotFound;
-    // _scanResultsSubscription.cancel();
-    // _isScanningSubscription.cancel();
-    // _systemDevices.clear();
-    // _scanResults.clear();
-    // sendToHardware = null;
-    // readFromHardware = null;
-    // sendToHardwareSubscription.cancel();
-    // readFromHardwareSubscription.cancel();
-    // device = null;
-    // _services.clear();
-    // _connectionStateSubscription.cancel();
-    // _isConnectingSubscription.cancel();
-    // _isDisconnectingSubscription.cancel();
-    // _mtuSubscription.cancel();
+    nodeFirmwareFileName = '';
+    nodeDataFromHw = {};
+    traceData.clear();
+    sentAndReceive.clear();
+    fileMode = FileMode.idle;
+    bleNodeState = BleNodeState.deviceNotFound;
+    _scanResultsSubscription.cancel();
+    _isScanningSubscription.cancel();
+    _systemDevices.clear();
+    _scanResults.clear();
+    sendToHardware = null;
+    readFromHardware = null;
+    sendToHardwareSubscription.cancel();
+    readFromHardwareSubscription.cancel();
+    device = null;
+    _services.clear();
+    _connectionStateSubscription.cancel();
+    _isConnectingSubscription.cancel();
+    _isDisconnectingSubscription.cancel();
+    _mtuSubscription.cancel();
     notifyListeners();
   }
 
