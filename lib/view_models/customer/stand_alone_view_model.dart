@@ -472,12 +472,30 @@ class StandAloneViewModel extends ChangeNotifier {
   }
 
   void stopAllManualOperation(BuildContext context) {
+    final commService = Provider.of<CommunicationService>(context, listen: false);
+    print(ddCurrentPosition);
     if(ddCurrentPosition==0){
       String payLoadFinal = jsonEncode({
         "800": {"801": '0,0,0,0,0'}
       });
-      MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
+      commService.sendCommand(serverMsg: '', payload: payLoadFinal);
+      print(payLoadFinal);
       Navigator.of(context).pop();
+    }else{
+      String strSldSqnNo = '';
+      for (var lineOrSq in standAloneData!.sequence) {
+        if(lineOrSq.selected){
+          strSldSqnNo = lineOrSq.sNo;
+          break;
+        }
+      }
+
+      String payLoadFinal = jsonEncode({
+        "3900": {"3901": '0,${programList[ddCurrentPosition].serialNumber},$strSldSqnNo,0,0,0,0,0,0,0,0'}
+      });
+      commService.sendCommand(serverMsg: '', payload: payLoadFinal);
+      print(payLoadFinal);
+      Navigator.pop(context, 'OK');
     }
   }
 
