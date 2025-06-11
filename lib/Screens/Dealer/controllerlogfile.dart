@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
@@ -9,6 +10,7 @@ import '../../StateManagement/overall_use.dart';
 import '../../modules/IrrigationProgram/view/program_library.dart';
 import '../../services/communication_service.dart';
 import '../../services/mqtt_service.dart';
+import '../../services/sftp_service.dart';
 import '../../utils/environment.dart';
 import '../../utils/snack_bar.dart';
 
@@ -173,6 +175,35 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
     );
   }
 
+  Future<void> uploadToFile(String type) async {
+    final String dateString = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+    mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
+    print(' mqttPayloadProvider.traceLog----->${ mqttPayloadProvider.traceLog}');
+   List<String> traceData =  mqttPayloadProvider.traceLog;
+   print('traceData----->$traceData');
+    SftpService sftpService = SftpService();
+    int connectResponse =  await sftpService.connect();
+    if(connectResponse == 200){
+      await Future.delayed(const Duration(seconds: 1));
+      String localFileNameForTrace = "gem_log";
+      Directory appDocDir = await getApplicationDocumentsDirectory();
+      String appDocPath = appDocDir.path;
+      String filePath = '$appDocPath/$localFileNameForTrace.txt';
+      final localFile = File(filePath);
+      await localFile.writeAsString(traceData.join('\n'));
+      int uploadResponse = await sftpService.uploadFile(localFileName: localFileNameForTrace, remoteFilePath: '/home/ubuntu/oro2024/OroGem/OroGemLogs/${type}${dateString}${widget.deviceID}.txt');
+      if(uploadResponse == 200){
+        print('upload success');
+      }else{
+        print('upload failed');
+      }
+      sftpService.disconnect();
+    }
+
+  }
+
+
   Widget _buildActionButtons() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
@@ -212,8 +243,18 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
             color: Colors.blue,
             icon: Icons.cloud_upload,
             onPressed: () {
+
               _showSnackBar("Today log send FTP...");
               getlog(currentLogType.value + 5);
+            },
+          ),
+          _buildButton(
+            label: 'Today FTP upload',
+            color: Colors.blue,
+            icon: Icons.cloud_upload,
+            onPressed: () {
+               _showSnackBar("Today log send FTP...");
+              uploadToFile('$currentLogType');
             },
           ),
           const SizedBox(width: 10),

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:bluetooth_classic/models/device.dart';
 import 'package:bluetooth_classic/bluetooth_classic.dart';
 import 'package:flutter/services.dart';
+import 'package:oro_drip_irrigation/Screens/Dealer/ble_controllerlog_ftp.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../Models/customer/blu_device.dart';
 import '../StateManagement/mqtt_payload_provider.dart';
@@ -31,6 +32,7 @@ class BluService {
   final List<CustomDevice> _devices = [];
   String? _connectedAddress;
   bool get isConnected => connectedDevice != null;
+  List<String> traceLog = [];
 
   MqttPayloadProvider? providerState;
 
@@ -94,10 +96,38 @@ class BluService {
   }
 
   void listenToBluData() {
-    _bluetoothClassicPlugin.onDeviceDataReceived().listen((event) {
+    _bluetoothClassicPlugin.onDeviceDataReceived().listen((event) async {
 
       _buffer += utf8.decode(event);
       print('_buffer---> $_buffer');
+      traceLog.add(_buffer);
+      print("traceLog : $traceLog");
+      providerState?.updatetracelog(traceLog);
+
+      while (_buffer.contains('*StartLog') && _buffer.contains('#EndLog')) {
+
+        traceLog.add(_buffer);
+         print("traceLog : $traceLog");
+        providerState?.updatetracelog(traceLog);
+
+        print('*StartLog');
+
+        int startIndex = _buffer.indexOf('*StartLog');
+        int endIndex = _buffer.indexOf('#EndLog', startIndex);
+
+        if (startIndex != -1 && endIndex > startIndex) {
+          print('*StartLog != -1');
+          String jsonString = _buffer.substring(startIndex + 9, endIndex).trim();
+          _buffer = _buffer.substring(endIndex + 7);
+          print("Extracted JSON: $jsonString");
+          traceLog.add(_buffer);
+          print("traceLog : $traceLog");
+          providerState?.updatetracelog(traceLog);
+
+        } else {
+          break;
+        }
+      }
 
       while (_buffer.contains('*Start') && _buffer.contains('#End')) {
         int startIndex = _buffer.indexOf('*Start');
@@ -109,11 +139,11 @@ class BluService {
           _buffer='';
 
           try {
-            print("jsonString------>$jsonString");
+            print("jsonString log ------>$jsonString");
             Map<String, dynamic> jsonData = json.decode(jsonString);
-            print('jsonData---$jsonData');
+            print('jsonData log---$jsonData');
             String jsonStr = json.encode(jsonData);
-            print('Blu jsonStr:$jsonStr');
+            print('Blu jsonStr log :$jsonStr');
 
             Map<String, dynamic> data = jsonStr.isNotEmpty ? jsonDecode(jsonStr) : {};
 
@@ -154,6 +184,13 @@ class BluService {
                 providerState?.updateReceivedPayload(jsonEncode(data), false);
               }
             }
+            else if (data['mC']?.toString() == '7500') {
+              //logs
+              final cM = data['cM'] as Map<String, dynamic>?;
+              if (cM != null && cM.isNotEmpty) {
+                providerState?.updateReceivedPayload(jsonEncode(data), false);
+              }
+            }
             else {
               providerState?.updateReceivedPayload(jsonStr, true);
             }
@@ -164,6 +201,8 @@ class BluService {
           break;
         }
       }
+
+
     });
   }
 
@@ -191,6 +230,63 @@ class BluService {
       print('Invalid device address');
       return;
     }
+
+    await requestPermissions();
+
+    _connectedAddress = customDevice.device.address;
+    customDevice.status = BluDevice.connecting;
+    providerState?.updateDeviceStatus(customDevice.device.address, customDevice.status);
+
+    try {
+      // Stop scanning before connecting
+      await _bluetoothClassicPlugin.stopScan();
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      // Disconnect if already connected to another device
+      if (isConnected) {
+        try {
+          await _bluetoothClassicPlugin.disconnect();
+          await Future.delayed(const Duration(milliseconds: 300));
+        } catch (e) {
+          print('Error during pre-disconnect: $e');
+        }
+      }
+
+
+      // Now connect
+      await _bluetoothClassicPlugin
+          .connect(
+        customDevice.device.address,
+        "00001101-0000-1000-8000-00805f9b34fb",
+      )
+          .timeout(const Duration(seconds: 8));
+
+      customDevice.status = BluDevice.connected;
+      providerState?.updateDeviceStatus(customDevice.device.address, customDevice.status);
+    } on TimeoutException {
+      print("Connection timed out");
+      customDevice.status = BluDevice.disconnected;
+      providerState?.updateDeviceStatus(customDevice.device.address, customDevice.status);
+      _connectedAddress = null;
+    } on PlatformException catch (e) {
+      print("PlatformException during connect: ${e.message}");
+      customDevice.status = BluDevice.disconnected;
+      providerState?.updateDeviceStatus(customDevice.device.address, customDevice.status);
+      _connectedAddress = null;
+    } catch (e) {
+      print('Connection error: $e');
+      customDevice.status = BluDevice.disconnected;
+      providerState?.updateDeviceStatus(customDevice.device.address, customDevice.status);
+      _connectedAddress = null;
+    }
+  }
+
+  /*Future<void> connectToDevice(CustomDevice customDevice) async {
+    if (customDevice.device.address.isEmpty) {
+      print('Invalid device address');
+      return;
+    }
+
 
     await requestPermissions();
 
@@ -236,7 +332,7 @@ class BluService {
       providerState?.updateDeviceStatus(customDevice.device.address, customDevice.status);
       _connectedAddress = null;
     }
-  }
+  }*/
 
   CustomDevice? get connectedDevice {
     try {

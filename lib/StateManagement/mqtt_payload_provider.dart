@@ -85,6 +85,7 @@ class MqttPayloadProvider with ChangeNotifier {
    Set<String> uard4MessagesSet = {};
    String Loara1verssion = '';
    String Loara2verssion = '';
+   bool ftpLog = false;
 
   //kamaraj
    String _receivedPayload = '';
@@ -143,7 +144,7 @@ class MqttPayloadProvider with ChangeNotifier {
 
    String? _ipAddress;
    String? get ipAddress => _ipAddress;
-
+   List<String> traceLog = [];
 
    void updateConnectedDeviceStatus(CustomDevice? device) {
      _connectedDevice = device;
@@ -762,6 +763,13 @@ print('cM---> $cM');
     _timerForPumpController = Timer.periodic(const Duration(seconds: 1), (Timer timer){
      });
   }
+   void updatetracelog(status){
+
+     traceLog = status;
+     print('traceLog-provider--$traceLog');
+     notifyListeners();
+   }
+
 
   void liveSyncCall(status){
     onRefresh = status;
