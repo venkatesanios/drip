@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:oro_drip_irrigation/Models/customer/site_model.dart';
 
 class StandAloneModel
@@ -18,6 +20,7 @@ class StandAloneModel
   });
 
   factory StandAloneModel.fromJson(Map<String, dynamic> json) {
+    print(jsonEncode(json));
     return StandAloneModel(
       startTogether: json['startTogether'] as bool,
       time: json['duration'] as String,
@@ -34,7 +37,7 @@ class StandAloneModel
 }
 
 class Selection {
-  final double sNo;
+  final dynamic sNo;
   bool selected;
 
   Selection({
@@ -44,7 +47,7 @@ class Selection {
 
   factory Selection.fromJson(Map<String, dynamic> json) {
     return Selection(
-      sNo: json['sNo'].toDouble(),
+      sNo: json['sNo'],
       //selected: json['selected'],
     );
   }

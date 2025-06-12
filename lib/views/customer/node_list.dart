@@ -64,15 +64,15 @@ class NodeList extends StatelessWidget {
               buildStatusHeaderRow(context, vm),
               SizedBox(
                 width: 400,
-                height: MediaQuery.sizeOf(context).height-170,
+                height: MediaQuery.sizeOf(context).height-190,
                 child: Column(
                   children: [
                     SizedBox(
                       width: double.infinity,
                       height: 35,
                       child: DataTable2(
-                        columnSpacing: 12,
-                        horizontalMargin: 12,
+                        columnSpacing: 0,
+                        horizontalMargin: 0,
                         minWidth: 400,
                         headingRowHeight: 35.0,
                         headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColorDark.withOpacity(0.3)),
@@ -83,7 +83,7 @@ class NodeList extends StatelessWidget {
                           ),
                           DataColumn2(
                             label: Center(child: Text('Status', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 13, color: Colors.black),)),
-                            fixedWidth: 55,
+                            fixedWidth: 50,
                           ),
                           DataColumn2(
                             label: Center(child: Text('Rf.No', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 13, color: Colors.black),)),
@@ -95,8 +95,8 @@ class NodeList extends StatelessWidget {
                             numeric: true,
                           ),
                           DataColumn2(
-                            label: Text('Info', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 13, color: Colors.black),),
-                            fixedWidth: 100,
+                            label: Center(child: Text('Info', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 13, color: Colors.black),)),
+                            fixedWidth: 90,
                           ),
                         ],
                         rows: List<DataRow>.generate(0,(index) => const DataRow(cells: [],),
@@ -109,6 +109,8 @@ class NodeList extends StatelessWidget {
                         itemCount: vm.nodeList.length,
                         itemBuilder: (context, index) {
                           return ExpansionTile(
+                            tilePadding: const EdgeInsets.symmetric(horizontal: 0),
+                            childrenPadding: const EdgeInsets.symmetric(horizontal: 0),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -137,9 +139,10 @@ class NodeList extends StatelessWidget {
                             backgroundColor: Colors.teal.shade50,
                             title: Row(
                               children: [
+                                const SizedBox(width: 5),
                                 SizedBox(width: 30, child: Text('${vm.nodeList[index].serialNumber}', style: const TextStyle(fontSize: 13),)),
                                 SizedBox(
-                                  width:50,
+                                  width:45,
                                   child: Center(child: CircleAvatar(radius: 7, backgroundColor:
                                   vm.nodeList[index].status == 1? Colors.green.shade400:
                                   vm.nodeList[index].status == 2? Colors.grey:
@@ -150,18 +153,18 @@ class NodeList extends StatelessWidget {
                                 ),
                                 SizedBox(width: 40, child: Center(child: Text('${vm.nodeList[index].referenceNumber}', style: const TextStyle(fontSize: 13),))),
                                 SizedBox(
-                                  width: 142,
+                                  width: 183,
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
-                                      Text(vm.nodeList[index].deviceName, style: const TextStyle(fontWeight: FontWeight.normal, color: Colors.black, fontSize: 13)),
+                                      Text(vm.nodeList[index].deviceName, style: const TextStyle(fontSize: 14)),
                                       Text(vm.nodeList[index].deviceId, style: const TextStyle(fontWeight: FontWeight.normal,fontSize: 11, color: Colors.black)),
                                       RichText(
                                         text: TextSpan(
                                           children: <TextSpan>[
                                             TextSpan(text: '${vm.nodeList[index].categoryName} - ', style: const TextStyle(fontWeight: FontWeight.normal,fontSize: 10, color: Colors.black)),
-                                            TextSpan(text: vm.mapInterfaceType(vm.nodeList[index].interface), style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 10, color: Colors.black),),
+                                            TextSpan(text: '${vm.mapInterfaceType(vm.nodeList[index].interface)} - v:${vm.nodeList[index].version}', style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 10, color: Colors.black),),
                                           ],
                                         ),
                                       ),
@@ -353,14 +356,46 @@ class NodeList extends StatelessWidget {
   Widget buildWebHeader(BuildContext context) {
     return Column(
       children: [
-        Row(
-          children: [
-            IconButton(
-              tooltip: 'Close',
-              icon: const Icon(Icons.close, color: Colors.redAccent),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ],
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: IconButton(
+            tooltip: 'Close',
+            icon: const Icon(Icons.close, color: Colors.redAccent),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          title: Text(deviceName, style: const TextStyle(fontWeight: FontWeight.bold)),
+          subtitle: Text(deviceId, style: const TextStyle(fontWeight: FontWeight.normal, color: Colors.black54, fontSize: 12)),
+          trailing: Consumer<MqttPayloadProvider>(
+            builder: (context, provider, _) {
+              List<Widget> children = [
+                Text(
+                  'V: ${provider.activeDeviceVersion}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ];
+
+              if (provider.activeLoraData.isNotEmpty) {
+                List<String> parts = provider.activeLoraData.split(',');
+                List<String> versions = [];
+                for (int i = 0; i < parts.length; i += 3) {
+                  versions.add(parts[i]);
+                }
+
+                children.add(
+                  Text(
+                    'LoRa: $versions',
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
+                  ),
+                );
+              }
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: children,
+              );
+            },
+          ),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 5),
@@ -413,7 +448,6 @@ class NodeList extends StatelessWidget {
       height: 50,
       child: Row(
         children: [
-          const Spacer(),
           const Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -426,6 +460,7 @@ class NodeList extends StatelessWidget {
                   Text('Connected', style: TextStyle(fontSize: 12, color: Colors.black)),
                 ],
               ),
+              SizedBox(height: 5),
               Row(
                 children: [
                   SizedBox(width: 5),
@@ -434,6 +469,7 @@ class NodeList extends StatelessWidget {
                   Text('No Communication', style: TextStyle(fontSize: 12, color: Colors.black)),
                 ],
               ),
+              SizedBox(height: 5),
             ],
           ),
           const Spacer(),
@@ -449,6 +485,7 @@ class NodeList extends StatelessWidget {
                   Text('Set Serial Error', style: TextStyle(fontSize: 12, color: Colors.black)),
                 ],
               ),
+              SizedBox(height: 5),
               Row(
                 children: [
                   SizedBox(width: 10),
@@ -457,6 +494,7 @@ class NodeList extends StatelessWidget {
                   Text('Low Battery', style: TextStyle(fontSize: 12, color: Colors.black)),
                 ],
               ),
+              SizedBox(height: 5),
             ],
           ),
           const Spacer(),
@@ -499,7 +537,6 @@ class NodeList extends StatelessWidget {
                   : null,
             ),
           ),
-          const Spacer(),
           SizedBox(
             width: 40,
             child: IconButton(
@@ -518,7 +555,7 @@ class NodeList extends StatelessWidget {
                   : null,
             ),
           ),
-          const Spacer(),
+          const SizedBox(width: 8),
         ],
       ),
     );

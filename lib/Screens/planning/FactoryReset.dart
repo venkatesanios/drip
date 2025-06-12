@@ -8,6 +8,7 @@ import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../services/mqtt_service.dart';
 import '../../utils/environment.dart';
+import '../../utils/snack_bar.dart';
 
 class ResetAccumalationScreen extends StatefulWidget {
   const ResetAccumalationScreen(
@@ -32,6 +33,7 @@ class _ResetAccumalationScreenState extends State<ResetAccumalationScreen>
   void initState() {
     super.initState();
     fetchData();
+    Request();
   }
 
   Future<void> fetchData() async {
@@ -41,7 +43,8 @@ class _ResetAccumalationScreenState extends State<ResetAccumalationScreen>
         "userId": widget.userId,
         "controllerId": widget.controllerId
       });
-      if (getUserDetails.statusCode == 200) {
+
+       if (getUserDetails.statusCode == 200) {
         setState(() {
           var jsonData = jsonDecode(getUserDetails.body);
           _resetModel = ResetModel.fromJson(jsonData);
@@ -78,11 +81,13 @@ class _ResetAccumalationScreenState extends State<ResetAccumalationScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+
+
+     return Scaffold(
       appBar: AppBar(title: const Text('Factory Reset'),),
       body: Column(
         children: [
-          _resetModel.code == 200 ? _resetModel.data!.accumulation!.isEmpty ? DefaultTabController(
+          _resetModel.code == 200 ? _resetModel.data!.accumulation!.isNotEmpty ? DefaultTabController(
             length: _resetModel.data!.accumulation!.length,
             child: Padding(
               padding: const EdgeInsets.only(left: 8, bottom: 80, right: 8, top: 8),
@@ -113,41 +118,28 @@ class _ResetAccumalationScreenState extends State<ResetAccumalationScreen>
                         },
                       ),
                     ),
-                    Flexible(
-                      fit: FlexFit.tight,
+                    SizedBox(
+                     height: 300,
                       child: Container(
-                        // decoration: BoxDecoration(
-                        //   border: Border.all(
-                        //     color: myTheme.primaryColor, // Border color
-                        //     // width: 10.0, // Border width
-                        //   ),
-                        // ),
-                        // decoration: BoxDecoration(
-                        //   color: Colors.white.withOpacity(0.1),
-                        //   borderRadius: BorderRadius.circular(1.0),
-                        //   boxShadow: [
-                        //     BoxShadow(
-                        //       color: Colors.blueGrey.shade100,
-                        //       spreadRadius: 5,
-                        //       blurRadius: 7,
-                        //       offset: Offset(0, 3),
-                        //     ),
-                        //   ],
-                        // ),
-                        child: TabBarView(children: [
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.grey, // Border color
+                           ),
+                        ),
+                         child: TabBarView(children: [
                           for (var i = 0; i < _resetModel.data!.accumulation!.length; i++)
                             buildTab(_resetModel.data!.accumulation![i].list)
                         ]),
                       ),
                     ),
-                    ElevatedButton(
-                      child: const Text("RESET ALL"),
-                      onPressed: () async {
-                        setState(() {
-                          ResetAll(_resetModel.data!.accumulation!);
-                        });
-                      },
-                    ),
+                    // ElevatedButton(
+                    //   child: const Text("RESET ALL"),
+                    //   onPressed: () async {
+                    //     setState(() {
+                    //       ResetAll(_resetModel.data!.accumulation!);
+                    //     });
+                    //   },
+                    // ),
                     const SizedBox(height: 10,),
 
                   ],
@@ -323,9 +315,10 @@ class _ResetAccumalationScreenState extends State<ResetAccumalationScreen>
             DataCell(
               Center(
                 child: ElevatedButton(
-                  style:  ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 18)),
-                  onPressed: () { Reset(Listofvalue[index].sNo!);},
+                  style:  ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 18),foregroundColor: Colors.white,),
+                  onPressed: () { reset(Listofvalue[index].sNo!);},
                   child: const Text('Reset'),
+
                 ),
               ),
             ),]),
@@ -342,7 +335,6 @@ class _ResetAccumalationScreenState extends State<ResetAccumalationScreen>
         "controllerId": widget.controllerId,
         "modifyUser": widget.userId
       });
-      print("getUserDetails.body ${getUserDetails.body}");
 
       // String payLoadFinal = jsonEncode({
       //   "2900": [
@@ -367,15 +359,20 @@ class _ResetAccumalationScreenState extends State<ResetAccumalationScreen>
     });
     MqttService().topicToPublishAndItsMessage(payLoadFinal, "${Environment.mqttPublishTopic}/${widget.deviceID}");
 
+
   }
 
-  Reset(int Srno)   {
+  void reset(double Srno) async{
     String payLoadFinal = jsonEncode({
       "5400":
       {"5401": '${Srno},1;'},
     });
+
     MqttService().topicToPublishAndItsMessage(payLoadFinal, "${Environment.mqttPublishTopic}/${widget.deviceID}");
     createUserSentAndReceivedMessageManually(payLoadFinal);
+    GlobalSnackBar.show(context, 'Request send', 200);
+    await Future.delayed(const Duration(seconds: 2));
+    fetchData();
   }
   ResetAll(List<Accumulation>? data)   {
     String restsrn = '';

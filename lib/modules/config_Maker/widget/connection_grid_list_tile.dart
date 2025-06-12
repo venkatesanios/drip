@@ -35,6 +35,9 @@ class _ConnectionGridListTileState extends State<ConnectionGridListTile> with Si
   void initState() {
     // TODO: implement initState
     super.initState();
+    for(var obj in widget.listOfObjectModel){
+      print("init =>> ${obj.toJson()}");
+    }
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800), // Total duration of 2 blinks
@@ -84,7 +87,6 @@ class _ConnectionGridListTileState extends State<ConnectionGridListTile> with Si
   Widget objectTile(DeviceObjectModel object){
     bool themeMode = Theme.of(context).brightness == Brightness.light;
     Color typeColor = widget.leadingColor ?? getObjectTypeCodeToColor(int.parse(object.type));
-
   Widget myWidget = ListTile(
       contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
     title: Text(object.objectName, style: Theme.of(context).textTheme.labelLarge,overflow: TextOverflow.ellipsis),
@@ -101,6 +103,14 @@ class _ConnectionGridListTileState extends State<ConnectionGridListTile> with Si
           value: isConnectedToWeather(object),
           onChanged: (value){
             widget.configPvd.updateObjectConnection(object, value! ? 1 : 0);
+          }
+      ) : (widget.selectedDevice.categoryId == 6 && object.objectId == AppConstants.powerSupplyObjectId)
+          ? Checkbox(
+          value: powerSupplyConnectedToCategory_6(),
+          onChanged: (value){
+            print('working for powerSupply');
+            widget.configPvd.updateObjectConnectionForPowerSupply(object, value!);
+            print('object : ${object.toJson()}');
           }
       ) : SizedBox(
         width: 80,
@@ -127,6 +137,12 @@ class _ConnectionGridListTileState extends State<ConnectionGridListTile> with Si
     );
   }
 
+  bool powerSupplyConnectedToCategory_6(){
+    return widget.configPvd.listOfGeneratedObject.any((object){
+      return object.objectId == AppConstants.powerSupplyObjectId && object.controllerId == widget.selectedDevice.controllerId;
+    });
+  }
+
   bool isConnectedToWeather(DeviceObjectModel object){
     return widget.configPvd.listOfGeneratedObject.any((generatedObject) => (generatedObject.objectId == object.objectId && generatedObject.controllerId == widget.selectedDevice.controllerId));
   }
@@ -137,6 +153,9 @@ class _ConnectionGridListTileState extends State<ConnectionGridListTile> with Si
 
 int getNotConfiguredObjectByObjectId(int objectId, ConfigMakerProvider configPvd){
   List<DeviceObjectModel> notConfigured = configPvd.listOfGeneratedObject.where((object) => (object.objectId == objectId && object.controllerId == null)).toList();
+  for(var obj in notConfigured){
+    print("obj : ${obj.toJson()}");
+  }
   return notConfigured.length;
 }
 

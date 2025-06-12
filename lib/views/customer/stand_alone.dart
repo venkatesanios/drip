@@ -494,12 +494,22 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
 
   Widget displayLineOrSequence(MasterControllerModel masterData, StandAloneViewModel vm, int ddPosition){
 
-    final pumps = masterData.irrigationLine
+    final sourcePumps = masterData.irrigationLine
+        .expand((line) => line.inletSources)
+        .expand((ws) => ws.outletPump ?? [])
+        .toList();
+
+    final allSourcePumps = sourcePumps.fold<Map<double, PumpModel>>({}, (map, pump) {
+      map[pump.sNo] = pump;
+      return map;
+    }).values.toList();
+
+    final irrigationPumps = masterData.irrigationLine
         .expand((line) => line.outletSources)
         .expand((ws) => ws.outletPump ?? [])
         .toList();
 
-    final allPumps = pumps.fold<Map<double, PumpModel>>({}, (map, pump) {
+    final allIrrigationPumps = irrigationPumps.fold<Map<double, PumpModel>>({}, (map, pump) {
       map[pump.sNo] = pump;
       return map;
     }).values.toList();
@@ -520,12 +530,102 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
 
     return Column(
       children: [
-        allPumps.isNotEmpty ? Padding(
+
+        if(vm.ddCurrentPosition==0)...[
+          allSourcePumps.isNotEmpty ? Padding(
+            padding: const EdgeInsets.only(left: 8, right: 5, top: 8),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: allSourcePumps.length*40+48,
+                  child: Card(
+                    elevation: 1,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5.0), // Adjust the value as needed
+                    ),
+                    child: Column(
+                      children: [
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.teal.shade50, // Background color (optional)
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(5.0),
+                              topRight: Radius.circular(5.0),
+                            ),
+                          ),
+                          child: const Padding(
+                            padding: EdgeInsets.only(left: 10.0, top: 8.0, bottom: 8.0), // Adjust values as needed
+                            child: Text(
+                              'Source Pump',
+                              textAlign: TextAlign.left,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: allSourcePumps.length*40,
+                          child: DataTable2(
+                            columnSpacing: 12,
+                            horizontalMargin: 12,
+                            minWidth: 150,
+                            dataRowHeight: 40.0,
+                            headingRowHeight: 0,
+                            headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withOpacity(0.05)),
+                            columns: const [
+                              DataColumn2(
+                                label: Center(child: Text('', style: TextStyle(fontSize: 14),)),
+                                fixedWidth: 35,
+                              ),
+                              DataColumn2(
+                                  label: Text('',  style: TextStyle(fontSize: 14),),
+                                  size: ColumnSize.M
+                              ),
+                              DataColumn2(
+                                label: Center(
+                                  child: Text('', textAlign: TextAlign.right,),
+                                ),
+                                fixedWidth: 70,
+                              ),
+                            ],
+                            rows: List<DataRow>.generate(allSourcePumps.length, (index) => DataRow(cells: [
+                              DataCell(Center(child: Image.asset('assets/png/dp_pump.png',width: 30, height: 30,))),
+                              DataCell(Text(allSourcePumps[index].name, style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14))),
+                              DataCell(Transform.scale(
+                                scale: 0.7,
+                                child: Tooltip(
+                                  message: allSourcePumps[index].selected? 'Deselect' : 'Select',
+                                  child: Switch(
+                                    hoverColor: Colors.pink.shade100,
+                                    activeColor: Colors.teal,
+                                    value: allSourcePumps[index].selected,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        allSourcePumps[index].selected = value;
+                                      });
+                                    },
+                                  ),
+                                ),
+                              )),
+                            ])),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ):
+          Container(),
+        ],
+
+        allIrrigationPumps.isNotEmpty ? Padding(
           padding: const EdgeInsets.only(left: 8, right: 5, top: 8),
           child: Column(
             children: [
               SizedBox(
-                height: allPumps.length*40+48,
+                height: allIrrigationPumps.length*40+48,
                 child: Card(
                   elevation: 1,
                   shape: RoundedRectangleBorder(
@@ -546,13 +646,13 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                         child: const Padding(
                           padding: EdgeInsets.only(left: 10.0, top: 8.0, bottom: 8.0), // Adjust values as needed
                           child: Text(
-                            'Source & Irrigation Pump',
+                            'Irrigation Pump',
                             textAlign: TextAlign.left,
                           ),
                         ),
                       ),
                       SizedBox(
-                        height: allPumps.length*40,
+                        height: allIrrigationPumps.length*40,
                         child: DataTable2(
                           columnSpacing: 12,
                           horizontalMargin: 12,
@@ -576,20 +676,20 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                               fixedWidth: 70,
                             ),
                           ],
-                          rows: List<DataRow>.generate(allPumps.length, (index) => DataRow(cells: [
+                          rows: List<DataRow>.generate(allIrrigationPumps.length, (index) => DataRow(cells: [
                             DataCell(Center(child: Image.asset('assets/png/dp_pump.png',width: 30, height: 30,))),
-                            DataCell(Text(allPumps[index].name, style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14))),
+                            DataCell(Text(allIrrigationPumps[index].name, style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14))),
                             DataCell(Transform.scale(
                               scale: 0.7,
                               child: Tooltip(
-                                message: allPumps[index].selected? 'Deselect' : 'Select',
+                                message: allIrrigationPumps[index].selected? 'Deselect' : 'Select',
                                 child: Switch(
                                   hoverColor: Colors.pink.shade100,
                                   activeColor: Colors.teal,
-                                  value: allPumps[index].selected,
+                                  value: allIrrigationPumps[index].selected,
                                   onChanged: (value) {
                                     setState(() {
-                                      allPumps[index].selected = value;
+                                      allIrrigationPumps[index].selected = value;
                                     });
                                   },
                                 ),
@@ -936,7 +1036,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
         Container(),
 
         ddPosition == 0 ? Column(
-          mainAxisSize: MainAxisSize.min, // Adjust to shrink-wrap the column
+          mainAxisSize: MainAxisSize.min,
           children: List.generate(masterData.irrigationLine.length, (index) {
             IrrigationLineModel line = masterData.irrigationLine[index];
             if (line.name == 'All irrigation line') return const SizedBox();
@@ -1041,91 +1141,89 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
             );
           }),
         ):
-        SizedBox(
-          height: valveList.length * 40,
-          child: ListView.builder(
-            itemCount: vm.standAloneData.sequence.length,
-            itemBuilder: (context, index) {
-              SequenceModel sequence = vm.standAloneData.sequence[index];
-              return Padding(
-                padding: const EdgeInsets.only(left: 5, right: 5, bottom: 5),
-                child: Card(
-                  elevation: 1,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5.0),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: MediaQuery.of(context).size.width,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor.withOpacity(0.1),
-                          borderRadius: const BorderRadius.only(topRight: Radius.circular(5), topLeft: Radius.circular(5)),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 10, top: 10, right: 5),
-                                child: Text(sequence.name, textAlign: TextAlign.left),
-                              ),
+        vm.standAloneData != null ?
+        Column(
+          children: List.generate(vm.standAloneData!.sequence.length, (index) {
+            SequenceModel sequence = vm.standAloneData!.sequence[index];
+            return Padding(
+              padding: const EdgeInsets.only(left: 8, right: 5, bottom: 5),
+              child: Card(
+                elevation: 1,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      height: 40,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor.withOpacity(0.1),
+                        borderRadius: const BorderRadius.only(topRight: Radius.circular(5), topLeft: Radius.circular(5)),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 10, top: 10, right: 5),
+                              child: Text(sequence.name),
                             ),
-                            if (vm.ddCurrentPosition != 0)
-                              VerticalDivider(color: Theme.of(context).primaryColor.withOpacity(0.1)),
-                            if (vm.ddCurrentPosition != 0)
-                              Center(
-                                child: SizedBox(
-                                  width: 60,
-                                  child: Transform.scale(
-                                    scale: 0.7,
-                                    child: Switch(
-                                      value: sequence.selected,
-                                      hoverColor: Colors.pink.shade100,
-                                      activeColor: Colors.teal,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          sequence.selected = !sequence.selected;
-                                        });
-                                      },
-                                    ),
-                                  ),
+                          ),
+                          if (vm.ddCurrentPosition != 0) ...[
+                            VerticalDivider(color: Theme.of(context).primaryColor.withOpacity(0.1)),
+                            SizedBox(
+                              width: 60,
+                              child: Transform.scale(
+                                scale: 0.7,
+                                child: Switch(
+                                  value: sequence.selected,
+                                  hoverColor: Colors.pink.shade100,
+                                  activeColor: Colors.teal,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      for (var sequence in vm.standAloneData!.sequence) {
+                                        sequence.selected = false;
+                                      }
+                                      sequence.selected = value;
+                                    });
+                                  },
                                 ),
                               ),
+                            ),
                           ],
-                        ),
+                        ],
                       ),
-                      SizedBox(
-                        height: (sequence.valve.length * 40),
-                        width: MediaQuery.sizeOf(context).width,
-                        child: DataTable2(
-                          columnSpacing: 12,
-                          horizontalMargin: 12,
-                          minWidth: 150,
-                          dataRowHeight: 40.0,
-                          headingRowHeight: 0,
-                          headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withOpacity(0.05)),
-                          columns: const [
-                            DataColumn2(label: Center(child: Text('', style: TextStyle(fontSize: 14),)), fixedWidth: 30),
-                            DataColumn2(label: Center(child: Text('Name', style: TextStyle(fontSize: 14), textAlign: TextAlign.right)), size: ColumnSize.M),
-                          ],
-                          rows: List<DataRow>.generate(sequence.valve.length, (index) {
-                            return DataRow(cells: [
-                              DataCell(Center(child: Image.asset('assets/png/valve_gray.png', width: 25, height: 25))),
-                              DataCell(Text(sequence.valve[index].name, style: const TextStyle(fontWeight: FontWeight.normal))),
-                            ]);
-                          }),
+                    ),
+                    SizedBox(
+                      height: sequence.valve.length * 40,
+                      width: double.infinity,
+                      child: DataTable2(
+                        columnSpacing: 12,
+                        horizontalMargin: 12,
+                        minWidth: 150,
+                        dataRowHeight: 40,
+                        headingRowHeight: 0,
+                        headingRowColor: WidgetStateProperty.all<Color>(
+                          Theme.of(context).primaryColor.withOpacity(0.05),
                         ),
+                        columns: const [
+                          DataColumn2(label: Center(child: Text('')), fixedWidth: 30),
+                          DataColumn2(label: Center(child: Text('Name')), size: ColumnSize.M),
+                        ],
+                        rows: List<DataRow>.generate(sequence.valve.length, (index) {
+                          return DataRow(cells: [
+                            DataCell(Center(child: Image.asset('assets/png/valve_gray.png', width: 25, height: 25))),
+                            DataCell(Text(sequence.valve[index].name)),
+                          ]);
+                        }),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              );
-            },
-          ),
-        ),
+              ),
+            );
+          }),
+        ) :
+        const SizedBox(),
       ],
     );
   }

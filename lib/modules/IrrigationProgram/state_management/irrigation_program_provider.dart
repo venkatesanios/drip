@@ -2365,25 +2365,32 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     try {
       final response = await repository.getUserProgramSelection(userData);
       final jsonData = json.decode(response.body);
+      print(jsonData['data']['selection']);
       _additionalData = null;
-      _selectedObjects = null;
+      _selectedObjects = [];
+
       if (jsonData['data']['selection']['selected'] != null) {
         _selectedObjects = (jsonData['data']['selection']['selected'] as List)
             .map((e) => DeviceObjectModel.fromJson(e as Map<String, dynamic>))
             .toList();
 
-        _selectedObjects!.removeWhere((element) => !configObjects.any((element2) => element2['sNo'] == element.sNo));
+        print("configObjects: $configObjects");
+        print("selectedObjects before filter: ${_selectedObjects!.map((e) => e.toJson()).toList()}");
+
+        if (configObjects.isNotEmpty) {
+          _selectedObjects!.removeWhere((element) => !configObjects.any((element2) {
+            double configSNo = double.tryParse(element2['sNo'].toString()) ?? 0.0;
+            print("Comparing element.sNo: ${element.sNo} with configSNo: $configSNo");
+            return configSNo == element.sNo;
+          }));
+        } else {
+          print("Warning: configObjects is empty, skipping filter");
+        }
       } else {
         _selectedObjects = [];
       }
-      /*if(jsonData['data']['selection']['selected'] != null) {
-        _selectedObjects = (jsonData['data']['selection']['selected'] as List).map((e) => DeviceObjectModel.fromJson(e as Map<String, dynamic>)).toList();
-        // _selectedObjects!.removeWhere((element) => configObjects.any((element2) => element2['sNo'] != element.sNo));
-      } else {
-        _selectedObjects = [];
-      }*/
+      print("selected objects in the get function :: ${_selectedObjects!.map((e) => e.toJson()).toList()}");
       _additionalData = AdditionalData.fromJson(jsonData['data']);
-      // print(_additionalData?.toJson());
     } catch (e) {
       log('Error: $e');
     }

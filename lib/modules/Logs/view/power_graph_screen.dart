@@ -193,157 +193,151 @@ class _PowerGraphScreenState extends State<PowerGraphScreen> {
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
     ));
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15)
-      ),
-      elevation: 0,
-      child: Scaffold(
-        // backgroundColor: const Color(0xffF9FEFF),
-        backgroundColor: Colors.white,
-        body: SafeArea(
-          child: Column(
-            children: [
-              if(selectedIndex == 0 && !kIsWeb)
-                MobileCustomCalendar(
-                  focusedDay: pumpControllerProvider.focusedDay,
-                  calendarFormat: pumpControllerProvider.calendarFormat,
-                  selectedDate: pumpControllerProvider.selectedDate,
-                  onDaySelected: (selectedDay, focusedDay) {
+    return Scaffold(
+      // backgroundColor: const Color(0xffF9FEFF),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            if(selectedIndex == 0 && !kIsWeb)
+              MobileCustomCalendar(
+                focusedDay: pumpControllerProvider.focusedDay,
+                calendarFormat: pumpControllerProvider.calendarFormat,
+                selectedDate: pumpControllerProvider.selectedDate,
+                onDaySelected: (selectedDay, focusedDay) {
+                  setState(() {
+                    pumpControllerProvider.selectedDate = selectedDay;
+                    pumpControllerProvider.focusedDay = focusedDay;
+                  });
+                  pumpControllerProvider.getPumpControllerData(userId: widget.userId, controllerId: widget.controllerId, nodeControllerId: widget.nodeControllerId);
+                },
+                onFormatChanged: (format) {
+                  if (pumpControllerProvider.calendarFormat != format) {
                     setState(() {
-                      pumpControllerProvider.selectedDate = selectedDay;
-                      pumpControllerProvider.focusedDay = focusedDay;
+                      pumpControllerProvider.calendarFormat = format;
                     });
-                    pumpControllerProvider.getPumpControllerData(userId: widget.userId, controllerId: widget.controllerId, nodeControllerId: widget.nodeControllerId);
-                  },
-                  onFormatChanged: (format) {
-                    if (pumpControllerProvider.calendarFormat != format) {
-                      setState(() {
-                        pumpControllerProvider.calendarFormat = format;
-                      });
-                    }
-                  },
-                )
-              else
-                Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    // boxShadow: AppProperties.customBoxShadowLiteTheme
-                  ),
-                  margin: const EdgeInsets.only(bottom: 10),
-                  child: ListTile(
-                    title: Text(
-                      selectedIndex == 0
-                          ? "${Constants.getWeekdayName(DateTime.now().weekday)}, ${Constants.getMonthName(DateTime.now().month)} ${DateTime.now().day}"
-                          : selectedIndex == 1
-                          ? "Last 7 days"
-                          : "Last 30 days",
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                    ),
-                    subtitle: Text(
-                      selectedIndex == 0
-                          ? "Today"
-                          : "${DateFormat('MMM d yyyy').format(pumpControllerProvider.dates.first)} - ${DateFormat('MMM d yyyy').format(pumpControllerProvider.dates.last)}",
-                      style: const TextStyle(fontWeight: FontWeight.w400),
-                    ),
-                    tileColor: Colors.white,
-                    /*trailing: IconButton(
-                      onPressed: (){
-                        showDateRangePicker(
-                            context: context,
-                            firstDate: DateTime(2024),
-                            lastDate: DateTime.now()
-                        ).then((pickedDateRange) {
-                          if (pickedDateRange != null) {
-                            setState(() {
-                              pumpControllerProvider.dates.first = pickedDateRange.start;
-                              pumpControllerProvider.dates.last = pickedDateRange.end;
-                              pumpControllerProvider.dates = List.generate(pickedDateRange.end.difference(pickedDateRange.start).inDays, (index) => pickedDateRange.start.add(Duration(days: index)));
-                            });
-                          } else {
-                            if (kDebugMode) {
-                              print('Date range picker was canceled');
-                            }
-                          }
-                        }).whenComplete(() {
-                          pumpControllerProvider.getPumpControllerData(userId: widget.userId, controllerId: widget.controllerId, nodeControllerId: widget.nodeControllerId);
-                        });
-                      },
-                      icon: const Icon(Icons.calendar_month, color: Colors.white,),
-                      style: ButtonStyle(
-                          backgroundColor: WidgetStatePropertyAll(Theme.of(context).primaryColor)
-                      ),
-                    ),*/
-                  ),
+                  }
+                },
+              )
+            else
+              Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  // boxShadow: AppProperties.customBoxShadowLiteTheme
                 ),
-              CustomSegmentedControl(
-                  segmentTitles: const {
-                    0: "Daily",
-                    1: "Weekly",
-                    2: "Monthly",
-                  },
-                  groupValue: selectedIndex,
-                  onChanged: (newValue) {
-                    setState(() {
-                      selectedIndex = newValue!;
-                    });
-                    pumpControllerProvider.getPumpControllerData(
-                        userId: widget.userId,
-                        controllerId: widget.controllerId,
-                        nodeControllerId: widget.nodeControllerId,
-                        selectedIndex: newValue!
-                    );
-                  }
+                margin: const EdgeInsets.only(bottom: 10),
+                child: ListTile(
+                  title: Text(
+                    selectedIndex == 0
+                        ? "${Constants.getWeekdayName(DateTime.now().weekday)}, ${Constants.getMonthName(DateTime.now().month)} ${DateTime.now().day}"
+                        : selectedIndex == 1
+                        ? "Last 7 days"
+                        : "Last 30 days",
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                  subtitle: Text(
+                    selectedIndex == 0
+                        ? "Today"
+                        : "${DateFormat('MMM d yyyy').format(pumpControllerProvider.dates.first)} - ${DateFormat('MMM d yyyy').format(pumpControllerProvider.dates.last)}",
+                    style: const TextStyle(fontWeight: FontWeight.w400),
+                  ),
+                  tileColor: Colors.white,
+                  /*trailing: IconButton(
+                    onPressed: (){
+                      showDateRangePicker(
+                          context: context,
+                          firstDate: DateTime(2024),
+                          lastDate: DateTime.now()
+                      ).then((pickedDateRange) {
+                        if (pickedDateRange != null) {
+                          setState(() {
+                            pumpControllerProvider.dates.first = pickedDateRange.start;
+                            pumpControllerProvider.dates.last = pickedDateRange.end;
+                            pumpControllerProvider.dates = List.generate(pickedDateRange.end.difference(pickedDateRange.start).inDays, (index) => pickedDateRange.start.add(Duration(days: index)));
+                          });
+                        } else {
+                          if (kDebugMode) {
+                            print('Date range picker was canceled');
+                          }
+                        }
+                      }).whenComplete(() {
+                        pumpControllerProvider.getPumpControllerData(userId: widget.userId, controllerId: widget.controllerId, nodeControllerId: widget.nodeControllerId);
+                      });
+                    },
+                    icon: const Icon(Icons.calendar_month, color: Colors.white,),
+                    style: ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(Theme.of(context).primaryColor)
+                    ),
+                  ),*/
+                ),
               ),
-              const SizedBox(height: 10),
-              buildDailyDataView(),
-            ],
-          ),
+            CustomSegmentedControl(
+                segmentTitles: const {
+                  0: "Daily",
+                  1: "Weekly",
+                  2: "Monthly",
+                },
+                groupValue: selectedIndex,
+                onChanged: (newValue) {
+                  setState(() {
+                    selectedIndex = newValue!;
+                  });
+                  pumpControllerProvider.getPumpControllerData(
+                      userId: widget.userId,
+                      controllerId: widget.controllerId,
+                      nodeControllerId: widget.nodeControllerId,
+                      selectedIndex: newValue!
+                  );
+                }
+            ),
+            const SizedBox(height: 10),
+            buildDailyDataView(),
+          ],
         ),
-        floatingActionButton: MaterialButton(
-            onPressed: (){
-              showDialog(
-                  context: context,
-                  builder: (dialogContext){
-                    var fileName = 'Power graph';
-                    return AlertDialog(
-                      title: const Text('File name'),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          TextFormField(
-                            initialValue: fileName,
-                            onChanged: (value){
-                              fileName = value;
-                            },
-                            decoration: const InputDecoration(
-                                border: OutlineInputBorder()
-                            ),
+      ),
+      floatingActionButton: MaterialButton(
+          onPressed: (){
+            showDialog(
+                context: context,
+                builder: (dialogContext){
+                  var fileName = 'Power graph';
+                  return AlertDialog(
+                    title: const Text('File name'),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextFormField(
+                          initialValue: fileName,
+                          onChanged: (value){
+                            fileName = value;
+                          },
+                          decoration: const InputDecoration(
+                              border: OutlineInputBorder()
                           ),
-                        ],
-                      ),
-                      actions: [
-                        TextButton(
-                            onPressed: () async{
-                              await exportMotorDataToExcel(pumpControllerProvider.motorDataList,fileName,dialogContext);
-                              Navigator.pop(context);
-                            },
-                            child: const Text('Click to download')
-                        )
+                        ),
                       ],
-                    );
-                  }
-              );
-            },
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(50),
-          ),
-          padding: EdgeInsets.zero,
-          minWidth: 40,
-          height: 40,
-          color: Theme.of(context).primaryColor,
-          child: const Icon(Icons.download, color: Colors.white,),
+                    ),
+                    actions: [
+                      TextButton(
+                          onPressed: () async{
+                            await exportMotorDataToExcel(pumpControllerProvider.motorDataList,fileName,dialogContext);
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Click to download')
+                      )
+                    ],
+                  );
+                }
+            );
+          },
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(50),
         ),
+        padding: EdgeInsets.zero,
+        minWidth: 40,
+        height: 40,
+        color: Theme.of(context).primaryColor,
+        child: const Icon(Icons.download, color: Colors.white,),
       ),
     );
   }

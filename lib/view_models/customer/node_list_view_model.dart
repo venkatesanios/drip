@@ -20,6 +20,7 @@ class NodeListViewModel extends ChangeNotifier {
   List<dynamic> _previousLiveMessage = [];
   List<dynamic> _previousRelayStatus = [];
 
+
   NodeListViewModel(BuildContext context, this.nodeList) {
     payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
   }
@@ -47,6 +48,7 @@ class NodeListViewModel extends ChangeNotifier {
           node.batVolt = double.parse(values[2]);
           node.status = int.parse(values[3]);
           node.lastFeedbackReceivedTime = values[4];
+          node.version = values.length > 5 ? values[5] : '0.0.0';
           break;
         }
       }

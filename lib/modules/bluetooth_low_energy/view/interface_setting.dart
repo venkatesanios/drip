@@ -85,6 +85,7 @@ class _InterfaceSettingState extends State<InterfaceSetting> {
   Widget build(BuildContext context) {
     bleService = Provider.of<BleProvider>(context, listen: true);
     return Scaffold(
+      backgroundColor: const Color(0xffF7FFFD),
       appBar: AppBar(
         title: const Text('Interface Setting'),
       ),
@@ -98,13 +99,14 @@ class _InterfaceSettingState extends State<InterfaceSetting> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   spacing: 30,
                   children: [
                     const SizedBox(height: 30),
                     SvgPicture.asset(
                       'assets/Images/Svg/SmartComm/interface_setting.svg',
-                      height: 150,
+                      height: 200,
                     ),
                     if (bleService.nodeDataFromHw['IFT'] == '1') loraSetting(),
                     if (bleService.nodeDataFromHw['IFT'] == '2') mqttSetting(),
@@ -123,17 +125,28 @@ class _InterfaceSettingState extends State<InterfaceSetting> {
   Widget loraSetting(){
     return Padding(
       padding: const EdgeInsets.all(20),
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        elevation: 8,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                  offset: const Offset(0, 4),
+                  blurRadius: 4,
+                  spreadRadius: 0,
+                  color: const Color(0xff8B8282).withValues(alpha: 0.2)
+              )
+            ]
+        ),
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
+              Text(
                 "Enter Signal Parameters",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorLight),
               ),
               const SizedBox(height: 30),
               TextFormField(
@@ -168,7 +181,7 @@ class _InterfaceSettingState extends State<InterfaceSetting> {
                   ),
                   Switch(
                     value: bleService.nodeDataFromHw['REP'] == '0' ? false : true,
-                    activeColor: Colors.blueAccent,
+                    activeTrackColor: Theme.of(context).primaryColorLight,
                     onChanged: (value) {
                       print('value ==> $value');
                       setState(() {
@@ -208,7 +221,7 @@ class _InterfaceSettingState extends State<InterfaceSetting> {
                   icon: const Icon(Icons.send, color: Colors.white,),
                   label: const Text("Submit", style: TextStyle(color: Colors.white),),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
+                    backgroundColor: Theme.of(context).primaryColorLight,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
@@ -226,18 +239,28 @@ class _InterfaceSettingState extends State<InterfaceSetting> {
   Widget mqttSetting(){
     return Padding(
       padding: const EdgeInsets.all(20),
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        elevation: 8,
+      child: Container(
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                  offset: const Offset(0, 4),
+                  blurRadius: 4,
+                  spreadRadius: 0,
+                  color: const Color(0xff8B8282).withValues(alpha: 0.2)
+              )
+            ]
+        ),
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
-            spacing: 20,
+            spacing: 30,
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 "Fields are hidden for security purposes.",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorLight),
                 textAlign: TextAlign.center,
               ),
               for(var field in ['Mqtt Port', 'Mqtt User Name', 'Mqtt Password'])
@@ -300,21 +323,31 @@ class _InterfaceSettingState extends State<InterfaceSetting> {
   Widget wifiSetting(){
     return Padding(
       padding: const EdgeInsets.all(20),
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        elevation: 8,
+      child: Container(
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                  offset: const Offset(0, 4),
+                  blurRadius: 4,
+                  spreadRadius: 0,
+                  color: const Color(0xff8B8282).withValues(alpha: 0.2)
+              )
+            ]
+        ),
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Form(
             key: _formKey,
             child: Column(
+              spacing: 30,
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  "Enter Signal Parameters",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                Text(
+                  "Enter Wifi Parameters",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorLight),
                 ),
-                const SizedBox(height: 30),
                 TextFormField(
                   controller: bleService.wifiSsid,
                   decoration: inputDecoration.copyWith(
@@ -323,7 +356,6 @@ class _InterfaceSettingState extends State<InterfaceSetting> {
                     prefixIcon: const Icon(Icons.wifi),
                   ),
                 ),
-                const SizedBox(height: 20),
                 TextFormField(
                   controller: bleService.wifiPassword,
                   decoration: inputDecoration.copyWith(
@@ -332,7 +364,6 @@ class _InterfaceSettingState extends State<InterfaceSetting> {
                     prefixIcon: const Icon(Icons.password),
                   ),
                 ),
-                const SizedBox(height: 30),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(

@@ -1,6 +1,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:oro_drip_irrigation/modules/Logs/view/valve_log.dart';
 import 'package:oro_drip_irrigation/modules/PumpController/state_management/pump_controller_provider.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
@@ -41,7 +42,7 @@ class _PumpLogScreenState extends State<PumpLogScreen> {
     final readProvider = context.read<PumpControllerProvider>();
     final watchProvider = context.watch<PumpControllerProvider>();
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
@@ -68,6 +69,7 @@ class _PumpLogScreenState extends State<PumpLogScreen> {
             const SizedBox(height: 10,),
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 10, ),
+              color: Colors.white,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -92,36 +94,39 @@ class _PumpLogScreenState extends State<PumpLogScreen> {
               ),
             ),
             Expanded(
-              child: ListView.builder(
-                controller: readProvider.scrollController,
-                itemCount: watchProvider.pumpLogData.isNotEmpty ? watchProvider.pumpLogData.length : 1,
-                itemBuilder: (context, index) {
-                  if(watchProvider.pumpLogData.isNotEmpty) {
-                    final logData = watchProvider.pumpLogData[index];
-                    if(AppConstants.pumpWithValveModelList.contains(widget.masterData.modelId)) {
-                      return ValveLog(events: logData.motor1, masterData: widget.masterData,);
+              child: Container(
+                color: Colors.white,
+                child: ListView.builder(
+                  controller: readProvider.scrollController,
+                  itemCount: watchProvider.pumpLogData.isNotEmpty ? watchProvider.pumpLogData.length : 1,
+                  itemBuilder: (context, index) {
+                    if(watchProvider.pumpLogData.isNotEmpty) {
+                      final logData = watchProvider.pumpLogData[index];
+                      if(AppConstants.pumpWithValveModelList.contains(widget.masterData.modelId)) {
+                        return ValveLog(events: logData.motor1, masterData: widget.masterData,);
+                      }
+                      return Timeline2(
+                        events: selectedIndex == 1 ? logData.motor2 : selectedIndex == 2 ? logData.motor3 : logData.motor1,
+                      );
+                    } else {
+                      return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(readProvider.message),
+                              FilledButton(
+                                  onPressed: (){
+                                    readProvider.getUserPumpLog(widget.userId, widget.controllerId, widget.nodeControllerId);
+                                  },
+                                  child: const Text("Reload")
+                              )
+                            ],
+                          )
+                      );
                     }
-                    return Timeline2(
-                      events: selectedIndex == 1 ? logData.motor2 : selectedIndex == 2 ? logData.motor3 : logData.motor1,
-                    );
-                  } else {
-                    return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(readProvider.message),
-                            FilledButton(
-                                onPressed: (){
-                                  readProvider.getUserPumpLog(widget.userId, widget.controllerId, widget.nodeControllerId);
-                                },
-                                child: const Text("Reload")
-                            )
-                          ],
-                        )
-                    );
-                  }
-                },
+                  },
+                ),
               )
             ),
           ],

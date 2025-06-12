@@ -28,7 +28,18 @@ class StandAloneViewModel extends ChangeNotifier {
 
 
   List<ProgramModel> programList = [];
-  late StandAloneModel standAloneData;
+ /* StandAloneModel standAloneData = StandAloneModel(
+    startTogether: false,
+    time: '',
+    flow: '',
+    method: 0,
+    selection: [],
+    sequence: [],
+  );*/
+
+  StandAloneModel? standAloneData;
+
+  //StandAloneModel standAloneData = StandAloneModel();
   bool visibleLoading = false;
   int ddCurrentPosition = 0;
   int serialNumber = 0;
@@ -146,6 +157,7 @@ class StandAloneViewModel extends ChangeNotifier {
             flowLiter.text = strFlow;
 
             await Future.delayed(const Duration(milliseconds: 500));
+            //scheduleSectionCallbackMethod(serialNumber, ddCurrentPosition);
             fetchStandAloneSelection(serialNumber, ddCurrentPosition);
 
           }catch(e){
@@ -162,6 +174,44 @@ class StandAloneViewModel extends ChangeNotifier {
     }
 
   }
+
+  /*Future<void> scheduleSectionCallbackMethod(serialNumber, selection) async
+  {
+    ddCurrentPosition = selection;
+    try {
+      standAloneData = await fetchControllerData(serialNumber);
+      print(standAloneData);
+    } catch (e) {
+      print('Error: $e');
+    }
+  }*/
+
+  /*Future<List<StandAloneModel>>fetchControllerData(sNo) async
+  {
+    Map<String, Object> body = {
+      "userId": customerId,
+      "controllerId": controllerId,
+      "serialNumber": sNo
+    };
+
+    var response = await repository.fetchManualOperation(body);
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      print(response.body);
+      if (jsonResponse['data'] != null) {
+        dynamic data = jsonResponse['data'];
+        if (data is Map<String, dynamic>) {
+          return [StandAloneModel.fromJson(data)];
+        } else {
+          throw Exception('Invalid response format: "data" is not a Map');
+        }
+      } else {
+        throw Exception('Invalid response format: "data" is null');
+      }
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }*/
 
 
   Future<void> fetchStandAloneSelection(int sNo, int cIndex) async {
@@ -182,79 +232,7 @@ class StandAloneViewModel extends ChangeNotifier {
         if (jsonResponse['data'] != null) {
           dynamic data = jsonResponse['data'];
           standAloneData = StandAloneModel.fromJson(data);
-          print(standAloneData.sequence);
-
-          if(ddCurrentPosition==0) {
-            for (var item in standAloneData.selection) {
-              int serialNo = item.sNo.toInt();
-
-              if (serialNo == 5) {
-                for (var line in masterData.irrigationLine) {
-                  for (var waterSource in line.outletSources) {
-                    waterSource.outletPump.where((pump) => pump.sNo == item.sNo).forEach((pump) {
-                      pump.selected = true;
-                    });
-                  }
-                }
-              }
-
-              if (serialNo == 7) {
-                for (var line in masterData.irrigationLine) {
-                  var fertilizerSite = line.centralFertilizerSite;
-                  if (fertilizerSite != null) {
-                    fertilizerSite.boosterPump.where((booster) => booster.sNo == item.sNo).forEach((booster) {
-                      booster.selected = true;
-                    });
-                  }
-                }
-              }
-
-              if (serialNo == 9) {
-                for (var line in masterData.irrigationLine) {
-                  var fertilizerSite = line.centralFertilizerSite;
-                  if (fertilizerSite != null) {
-                    fertilizerSite.agitator.where((agitator) => agitator.sNo == item.sNo).forEach((agitator) {
-                      agitator.selected = true;
-                    });
-                  }
-                }
-              }
-
-              if (serialNo == 10) {
-                for (var line in masterData.irrigationLine) {
-                  var fertilizerSite = line.centralFertilizerSite;
-                  if (fertilizerSite != null) {
-                    fertilizerSite.channel.where((channel) => channel.sNo == item.sNo).forEach((channel) {
-                      channel.selected = true;
-                    });
-                  }
-                }
-              }
-
-              if (serialNo == 11) {
-                for (var line in masterData.irrigationLine) {
-                  var filterSite = line.centralFilterSite;
-                  if (filterSite != null) {
-                    filterSite.filters.where((filter) => filter.sNo == item.sNo).forEach((filter) {
-                      filter.selected = true;
-                    });
-                  }
-                }
-              }
-
-              if (serialNo == 13) {
-                for (var line in masterData.irrigationLine) {
-                  line.valveObjects
-                      .where((valve) => valve.sNo == item.sNo)
-                      .forEach((valve) => valve.isOn = true);
-                }
-              }
-            }
-          }
-          else{
-            //program
-            //fetchStandAloneSelection
-          }
+          updatePreviousSelection(standAloneData!);
         } else {
           debugPrint('Invalid response format: "data" is null');
         }
@@ -264,6 +242,83 @@ class StandAloneViewModel extends ChangeNotifier {
       debugPrint(stackTrace.toString());
     } finally {
       notifyListeners();
+    }
+  }
+
+  void updatePreviousSelection(StandAloneModel data){
+    for (var item in standAloneData!.selection) {
+      int serialNo = 0;
+      if(item.sNo.runtimeType is double){
+        int serialNo = item.sNo.toInt();
+
+        if (serialNo == 5) {
+          for (var line in masterData.irrigationLine) {
+            for (var waterSource in line.outletSources) {
+              waterSource.outletPump
+                  .where((pump) => pump.sNo == item.sNo)
+                  .forEach((pump) => pump.selected = true);
+            }
+          }
+        }
+
+        if (serialNo == 7) {
+          for (var line in masterData.irrigationLine) {
+            var fertilizerSite = line.centralFertilizerSite;
+            if (fertilizerSite != null) {
+              fertilizerSite.boosterPump
+                  .where((booster) => booster.sNo == item.sNo)
+                  .forEach((booster) => booster.selected = true);
+            }
+          }
+        }
+
+        if (serialNo == 9) {
+          for (var line in masterData.irrigationLine) {
+            var fertilizerSite = line.centralFertilizerSite;
+            if (fertilizerSite != null) {
+              fertilizerSite.agitator
+                  .where((agitator) => agitator.sNo == item.sNo)
+                  .forEach((agitator) => agitator.selected = true);
+            }
+          }
+        }
+
+        if (serialNo == 10) {
+          for (var line in masterData.irrigationLine) {
+            var fertilizerSite = line.centralFertilizerSite;
+            if (fertilizerSite != null) {
+              fertilizerSite.channel
+                  .where((channel) => channel.sNo == item.sNo)
+                  .forEach((channel) => channel.selected = true);
+            }
+          }
+        }
+
+        if (serialNo == 11) {
+          for (var line in masterData.irrigationLine) {
+            var filterSite = line.centralFilterSite;
+            if (filterSite != null) {
+              filterSite.filters
+                  .where((filter) => filter.sNo == item.sNo)
+                  .forEach((filter) => filter.selected = true);
+            }
+          }
+        }
+
+        if (ddCurrentPosition == 0 && serialNo == 13) {
+          for (var line in masterData.irrigationLine) {
+            line.valveObjects
+                .where((valve) => valve.sNo == item.sNo)
+                .forEach((valve) => valve.isOn = true);
+          }
+        }
+
+      }else{
+        standAloneData!.sequence
+            .where((sq) => sq.sNo == item.sNo)
+            .forEach((sqc) => sqc.selected = true);
+      }
+
     }
   }
 
@@ -417,24 +472,51 @@ class StandAloneViewModel extends ChangeNotifier {
   }
 
   void stopAllManualOperation(BuildContext context) {
+    final commService = Provider.of<CommunicationService>(context, listen: false);
+    print(ddCurrentPosition);
     if(ddCurrentPosition==0){
       String payLoadFinal = jsonEncode({
         "800": {"801": '0,0,0,0,0'}
       });
-      MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
+      commService.sendCommand(serverMsg: '', payload: payLoadFinal);
+      print(payLoadFinal);
       Navigator.of(context).pop();
+    }else{
+      String strSldSqnNo = '';
+      for (var lineOrSq in standAloneData!.sequence) {
+        if(lineOrSq.selected){
+          strSldSqnNo = lineOrSq.sNo;
+          break;
+        }
+      }
+
+      String payLoadFinal = jsonEncode({
+        "3900": {"3901": '0,${programList[ddCurrentPosition].serialNumber},$strSldSqnNo,0,0,0,0,0,0,0,0'}
+      });
+      commService.sendCommand(serverMsg: '', payload: payLoadFinal);
+      print(payLoadFinal);
+      Navigator.pop(context, 'OK');
     }
   }
 
   void startManualOperation(context){
 
     standaloneSelection.clear();
+
+    String strSldSourcePumpSrlNo = extractRelaySrlNosFromSources(
+      masterData.irrigationLine.expand((line) => line.inletSources).toList(),
+    );
+
+    String strSldIrrigationPumpSrlNo = extractRelaySrlNosFromSources(
+      masterData.irrigationLine.expand((line) => line.outletSources).toList(),
+    );
+
+    String strSldCtrlFilterSrlNo = extractFilterRelaySrlNos(masterData.irrigationLine);
+
     if(ddCurrentPosition==0) {
       List<String> allRelaySrlNo = [];
       String strSldValveOrLineSrlNo = '';
-      String strSldPumpSrlNo = '',
-          strSldMainValveSrlNo = '',
-          strSldCtrlFilterSrlNo = '',
+      String strSldMainValveSrlNo = '',
           strSldLocFilterSrlNo = '',
           strSldCrlFetFilterSrlNo = '',
           strSldLocFetFilterSrlNo = '',
@@ -443,31 +525,6 @@ class StandAloneViewModel extends ChangeNotifier {
           strSldFoggerSrlNo = ''      ,
           strSldBoosterPumpSrlNo = '',
           strSldSelectorSrlNo = '';
-
-
-      Set<String> serialNoSet = {};
-      for (var line in masterData.irrigationLine) {
-        for (var waterSource in line.outletSources) {
-          var srlNo = getSelectedRelaySrlNo(waterSource.outletPump);
-          if (srlNo.isNotEmpty) {
-            serialNoSet.addAll(srlNo.split(','));
-          }
-        }
-      }
-      strSldPumpSrlNo = serialNoSet.join('_');
-
-      for (var line in masterData.irrigationLine) {
-        if (line.centralFilterSite != null && line.centralFilterSite!.filters.isNotEmpty) {
-          String concatenatedString = getSelectedRelaySrlNo(line.centralFilterSite!.filters);
-          if (concatenatedString.isNotEmpty) {
-            strSldCtrlFilterSrlNo += '${concatenatedString}_';
-          }
-        }
-      }
-      if (strSldCtrlFilterSrlNo.isNotEmpty && strSldCtrlFilterSrlNo.endsWith('_')) {
-        strSldCtrlFilterSrlNo = strSldCtrlFilterSrlNo.substring(0, strSldCtrlFilterSrlNo.length - 1);
-      }
-
 
       for (var line in masterData.irrigationLine) {
         for (int j = 0; j < line.valveObjects.length; j++) {
@@ -485,6 +542,8 @@ class StandAloneViewModel extends ChangeNotifier {
           0, strSldValveOrLineSrlNo.length - 1) : '';
 
       allRelaySrlNo = [
+        strSldSourcePumpSrlNo,
+        strSldIrrigationPumpSrlNo,
         strSldMainValveSrlNo,
         strSldCtrlFilterSrlNo,
         strSldValveOrLineSrlNo,
@@ -498,7 +557,7 @@ class StandAloneViewModel extends ChangeNotifier {
         strSldSelectorSrlNo,
       ];
 
-      if (strSldPumpSrlNo.isNotEmpty && strSldValveOrLineSrlNo.isEmpty)
+      if (strSldIrrigationPumpSrlNo.isNotEmpty && strSldValveOrLineSrlNo.isEmpty)
       {
         showDialog<String>(
             context: context,
@@ -514,7 +573,7 @@ class StandAloneViewModel extends ChangeNotifier {
                     ),
                     TextButton(
                       onPressed: () {
-                        startByStandaloneDefault(context, allRelaySrlNo, strSldPumpSrlNo);
+                        startByStandaloneDefault(context, allRelaySrlNo, strSldIrrigationPumpSrlNo);
                         Navigator.pop(dgContext, 'OK');
                       },
                       child: const Text('Yes'),
@@ -524,27 +583,28 @@ class StandAloneViewModel extends ChangeNotifier {
         );
       }
       else {
-        startByStandaloneDefault(context, allRelaySrlNo, strSldPumpSrlNo);
+        startByStandaloneDefault(context, allRelaySrlNo, strSldIrrigationPumpSrlNo);
         Navigator.pop(context, 'OK');
       }
     }
-    /*else {
-      Map<String, List<DashBoardValve>> groupedValves = {};
+    else {
       String strSldSqnNo = '';
-      //String strSldSqnLocation = '';
-
-      String strSldIrrigationPumpId = '';
-      if(dashBoardData[0].irrigationPump.isNotEmpty){
-        strSldIrrigationPumpId = getSelectedRelayId(dashBoardData[0].irrigationPump);
-      }
+      String strSldSqnLocation = '';
 
       String strSldMainValveId = '';
+      String strSldCtrlFilterId = '';
+      String strSldLocFilterId = '';
+      String sldLocFilterRelayOnOffStatus = '';
+      String sldCtrlFilterRelayOnOffStatus = '';
+
+
+     /*
       if(dashBoardData[0].mainValve.isNotEmpty){
         strSldMainValveId = getSelectedRelayId(dashBoardData[0].mainValve);
       }
 
-      String strSldCtrlFilterId = '';
-      String sldCtrlFilterRelayOnOffStatus = '';
+
+
       if(dashBoardData[0].centralFilterSite.isNotEmpty){
         for(int i=0; i<dashBoardData[0].centralFilterSite.length; i++){
           String concatenatedString = getSelectedRelaySrlNo(dashBoardData[0].centralFilterSite[i].filter);
@@ -561,8 +621,8 @@ class StandAloneViewModel extends ChangeNotifier {
         }
       }
 
-      String strSldLocFilterId = '';
-      String sldLocFilterRelayOnOffStatus = '';
+
+
       if(dashBoardData[0].localFilterSite.isNotEmpty){
         for(int i=0; i<dashBoardData[0].localFilterSite.length; i++){
           String concatenatedString = getSelectedRelaySrlNo(dashBoardData[0].localFilterSite[i].filter);
@@ -579,19 +639,21 @@ class StandAloneViewModel extends ChangeNotifier {
         }
       }
 
-      String  strSldFanId = '';
+
       if(dashBoardData[0].fan.isNotEmpty){
         strSldFanId = getSelectedRelayId(dashBoardData[0].fan);
       }
 
-      String  strSldFgrId = '';
+
       if(dashBoardData[0].fogger.isNotEmpty){
         strSldFgrId = getSelectedRelayId(dashBoardData[0].fogger);
-      }
+      }*/
 
-      for (var lineOrSq in dashBoardData[0].lineOrSequence) {
+
+      for (var lineOrSq in standAloneData!.sequence) {
         if(lineOrSq.selected){
           strSldSqnNo = lineOrSq.sNo;
+          strSldSqnLocation = lineOrSq.location;
           standaloneSelection.add({
             'id': lineOrSq.id,
             'sNo': lineOrSq.sNo,
@@ -605,14 +667,77 @@ class StandAloneViewModel extends ChangeNotifier {
 
       if (strSldSqnNo.isEmpty) {
         displayAlert(context, 'You must select an zone.');
-      }else if (strSldIrrigationPumpId.isEmpty) {
+      }else if (strSldIrrigationPumpSrlNo.isEmpty) {
         displayAlert(context, 'You must select an irrigation pump.');
       }else{
-        sendCommandToControllerAndMqttProgram(dashBoardData[0].headUnits,strSldSqnNo,strSldIrrigationPumpId,strSldMainValveId,strSldCtrlFilterId,
-            sldCtrlFilterRelayOnOffStatus,strSldLocFilterId,sldLocFilterRelayOnOffStatus,strSldFanId,strSldFgrId);
-      }
-    }*/
+        print(strSldSqnNo);
+        print(strSldIrrigationPumpSrlNo);
 
+        String payload = '';
+        String payLoadFinal = '';
+
+        if(standAloneMethod==1 && strDuration=='00:00:00'){
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Invalid Duration input'),
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
+        else if(standAloneMethod==2 && (strFlow.isEmpty || strFlow=='0')){
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Invalid Liter'),
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }else{
+          payload = '${1},${programList[ddCurrentPosition].serialNumber},'
+              '$strSldSqnNo,$strSldIrrigationPumpSrlNo,$strSldMainValveId,$strSldCtrlFilterId,'
+              '$sldCtrlFilterRelayOnOffStatus,$strSldLocFilterId,$sldLocFilterRelayOnOffStatus'
+              ',$standAloneMethod,${standAloneMethod==3?'0':standAloneMethod==1?strDuration:strFlow}';
+
+          payLoadFinal = jsonEncode({
+            "3900": {"3901": payload}
+          });
+
+          final commService = Provider.of<CommunicationService>(context, listen: false);
+          commService.sendCommand(serverMsg: '', payload: payLoadFinal);
+          sentManualModeToServer(programList[ddCurrentPosition].serialNumber, 1, standAloneMethod, strDuration, strFlow, standaloneSelection, payLoadFinal);
+          Navigator.pop(context, 'OK');
+          //MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.imeiNo}');
+          //sentManualModeToServer(programList[ddCurrentPosition].serialNumber, 1, standAloneMethod,strDuration, strFlow, standaloneSelection, payLoadFinal);
+        }
+
+        /*sendCommandToControllerAndMqttProgram(dashBoardData[0].headUnits,strSldSqnNo,strSldIrrigationPumpId,strSldMainValveId,strSldCtrlFilterId,
+            sldCtrlFilterRelayOnOffStatus,strSldLocFilterId,sldLocFilterRelayOnOffStatus,strSldFanId,strSldFgrId);*/
+      }
+    }
+
+  }
+
+  String extractRelaySrlNosFromSources(List<dynamic> sources) {
+    final Set<String> serialNos = {};
+    for (var source in sources) {
+      final srlNo = getSelectedRelaySrlNo(source.outletPump);
+      if (srlNo.isNotEmpty) {
+        serialNos.addAll(srlNo.split(','));
+      }
+    }
+    return serialNos.join('_');
+  }
+
+  String extractFilterRelaySrlNos(List<IrrigationLineModel> lines) {
+    final List<String> result = [];
+    for (var line in lines) {
+      if (line.centralFilterSite != null && line.centralFilterSite!.filters.isNotEmpty) {
+        final filterSrlNo = getSelectedRelaySrlNo(line.centralFilterSite!.filters);
+        if (filterSrlNo.isNotEmpty) {
+          result.add(filterSrlNo);
+        }
+      }
+    }
+    return result.join('_');
   }
 
   String getSelectedRelaySrlNo(itemList) {
@@ -651,8 +776,6 @@ class StandAloneViewModel extends ChangeNotifier {
 
       final commService = Provider.of<CommunicationService>(context, listen: false);
       commService.sendCommand(serverMsg: '', payload: payLoadFinal);
-
-      //MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
       sentManualModeToServer(0, 1, standAloneMethod, strDuration, strFlow, standaloneSelection, payLoadFinal);
     }
   }
@@ -697,6 +820,24 @@ class StandAloneViewModel extends ChangeNotifier {
   void setLoading(bool value) {
     isLoading = value;
     notifyListeners();
+  }
+
+  void displayAlert(BuildContext context, String msg){
+    showDialog<String>(
+        context: context,
+        builder: (BuildContext dgContext) => AlertDialog(
+          title: const Text('Stand Alone'),
+          content: Text(msg), // Removed '${}' around msg
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dgContext, 'OK');
+              },
+              child: const Text('Ok'),
+            ),
+          ],
+        )
+    );
   }
 
 }

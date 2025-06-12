@@ -1,12 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../StateManagement/overall_use.dart';
 import '../../modules/IrrigationProgram/view/program_library.dart';
+import '../../services/communication_service.dart';
 import '../../services/mqtt_service.dart';
+import '../../services/sftp_service.dart';
 import '../../utils/environment.dart';
 import '../../utils/snack_bar.dart';
 
@@ -24,8 +28,9 @@ enum LogType {
 
 class ControllerLog extends StatefulWidget {
   final String deviceID;
+  final String communicationType;
 
-  const ControllerLog({Key? key, required this.deviceID}) : super(key: key);
+  const ControllerLog({Key? key, required this.deviceID, required this.communicationType}) : super(key: key);
 
   @override
   _ControllerLogState createState() => _ControllerLogState();
@@ -170,12 +175,86 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
     );
   }
 
+  Future<void> uploadToFile(String type) async {
+    final String dateString = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+    mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
+    print(' mqttPayloadProvider.traceLog----->${ mqttPayloadProvider.traceLog}');
+   List<String> traceData =  mqttPayloadProvider.traceLog;
+   print('traceData----->$traceData');
+    SftpService sftpService = SftpService();
+    int connectResponse =  await sftpService.connect();
+    if(connectResponse == 200){
+      await Future.delayed(const Duration(seconds: 1));
+      String localFileNameForTrace = "gem_log";
+      Directory appDocDir = await getApplicationDocumentsDirectory();
+      String appDocPath = appDocDir.path;
+      String filePath = '$appDocPath/$localFileNameForTrace.txt';
+      final localFile = File(filePath);
+      await localFile.writeAsString(traceData.join('\n'));
+      int uploadResponse = await sftpService.uploadFile(localFileName: localFileNameForTrace, remoteFilePath: '/home/ubuntu/oro2024/OroGem/OroGemLogs/${type}${dateString}${widget.deviceID}.txt');
+      if(uploadResponse == 200){
+        print('upload success');
+      }else{
+        print('upload failed');
+      }
+      sftpService.disconnect();
+    }
+
+  }
+
+  Future<void> showBluetoothLoadingDialog(BuildContext context) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // prevents closing by tapping outside
+      builder: (BuildContext context) {
+
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Consumer<MqttPayloadProvider>(
+              builder: (context, provider, _) {
+                final sizeInBytes = mqttPayloadProvider.traceLogSize;
+                final sizeText = sizeInBytes > 1024
+                    ? '${(sizeInBytes / 1024).toStringAsFixed(2)} KB'
+                    : '$sizeInBytes bytes';
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // const CircularProgressIndicator(),
+                    const SizedBox(height: 16),
+                    const Text("Fetching logs via Bluetooth..."),
+                    Text( 'Loading logs... Size: $sizeText',),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.close),
+                      label: const Text("Close"),
+                      style: ElevatedButton.styleFrom(
+                         foregroundColor: Colors.white,
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // dismiss dialog
+                        provider.setTraceLoading(false); // stop loading manually
+                      },
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
   Widget _buildActionButtons() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
       child: currentLogType != LogType.mqtt
-          ? Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+          ? Wrap(
+        // mainAxisAlignment: MainAxisAlignment.center,
         children: [
           _buildButton(
             label: 'Start',
@@ -209,20 +288,50 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
             color: Colors.blue,
             icon: Icons.cloud_upload,
             onPressed: () {
+              // if(widget.communicationType != "MQTT") {
+                mqttPayloadProvider.setTraceLoading(true);
+
               _showSnackBar("Today log send FTP...");
               getlog(currentLogType.value + 5);
+                showBluetoothLoadingDialog(context);
+
             },
           ),
+          widget.communicationType != "MQTT" ? _buildButton(
+            label: 'Today FTP upload',
+            color: Colors.blue,
+            icon: Icons.cloud_upload,
+            onPressed: () {
+               _showSnackBar("Today log send FTP...");
+              uploadToFile('$currentLogType,today');
+            },
+          ) : Container(),
           const SizedBox(width: 10),
           _buildButton(
             label: 'Yesterday FTP',
             color: Colors.blue,
             icon: Icons.cloud_upload,
             onPressed: () {
+                 mqttPayloadProvider.setTraceLoading(true);
+
               _showSnackBar("Yesterday log send FTP...");
               getlog(currentLogType.value + 10);
+                 showBluetoothLoadingDialog(context);
+
             },
           ),
+
+
+          const SizedBox(width: 10),
+          widget.communicationType != "MQTT" ? _buildButton(
+            label: 'Yesterday FTP Upload',
+            color: Colors.blue,
+            icon: Icons.cloud_upload,
+            onPressed: () {
+              _showSnackBar("Yesterday log send FTP...");
+              uploadToFile('$currentLogType,yesterday');
+            },
+          ) : Container()
         ],
       )
           : Row(
@@ -346,42 +455,73 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
 
   Future<void> getlog(int data) async {
     setState(() => isLoading = true);
-    try {
-      manager.topicToUnSubscribe('${Environment.mqttLogTopic}/${widget.deviceID}');
-      manager.topicToSubscribe('${Environment.mqttSubscribeTopic}/${widget.deviceID}');
 
-      await Future.delayed(const Duration(seconds: 1));
-      if (LogType.values.any((logType) => logType.value == data)) {
-        String payloadCode = "5700";
-        Map<String, dynamic> payload = {
-          "5700": {"5701": "$data"},
-        };
+    if(widget.communicationType == "MQTT") {
+      try {
+        manager.topicToUnSubscribe(
+            '${Environment.mqttLogTopic}/${widget.deviceID}');
+        manager.topicToSubscribe(
+            '${Environment.mqttSubscribeTopic}/${widget.deviceID}');
 
-        if (manager.isConnected) {
-          await validatePayloadSent(
-            dialogContext: context,
-            context: context,
-            mqttPayloadProvider: mqttPayloadProvider,
-            acknowledgedFunction: () {
-              manager.topicToUnSubscribe('${Environment.mqttLogTopic}/${widget.deviceID}');
-              manager.topicToSubscribe('${Environment.mqttLogTopic}/${widget.deviceID}');
-            },
-            payload: payload,
-            payloadCode: payloadCode,
-            deviceId: widget.deviceID,
-          );
+        await Future.delayed(const Duration(seconds: 1));
+        if (LogType.values.any((logType) => logType.value == data)) {
+          String payloadCode = "5700";
+          Map<String, dynamic> payload = {
+            "5700": {"5701": "$data"},
+          };
+
+          if (manager.isConnected) {
+            await validatePayloadSent(
+              dialogContext: context,
+              context: context,
+              mqttPayloadProvider: mqttPayloadProvider,
+              acknowledgedFunction: () {
+                manager.topicToUnSubscribe(
+                    '${Environment.mqttLogTopic}/${widget.deviceID}');
+                manager.topicToSubscribe(
+                    '${Environment.mqttLogTopic}/${widget.deviceID}');
+              },
+              payload: payload,
+              payloadCode: payloadCode,
+              deviceId: widget.deviceID,
+            );
+          } else {
+            GlobalSnackBar.show(context, 'MQTT is Disconnected', 201);
+          }
         } else {
-          GlobalSnackBar.show(context, 'MQTT is Disconnected', 201);
+          String payload = jsonEncode({
+            "5700": {"5701": "$data"},
+          });
+          manager.topicToPublishAndItsMessage(
+              payload, '${Environment.mqttPublishTopic}/${widget.deviceID}');
+          await ftpStatusDialog(context);
         }
-      } else {
-        String payload = jsonEncode({
-          "5700": {"5701": "$data"},
-        });
-        manager.topicToPublishAndItsMessage(payload, '${Environment.mqttPublishTopic}/${widget.deviceID}');
-        await ftpStatusDialog(context);
+      } finally {
+        setState(() => isLoading = false);
       }
-    } finally {
-      setState(() => isLoading = false);
+    }
+    else
+    {
+      //bluetooth
+      try {
+             String payLoadFinal = jsonEncode({
+             "5700": {"5701": "$data"},
+           });
+            final result = await context.read<CommunicationService>().sendCommand(payload: payLoadFinal,
+               serverMsg: '');
+           if (result['http'] == true) {
+             debugPrint("Payload sent to Server");
+           }
+           if (result['mqtt'] == true) {
+             debugPrint("Payload sent to MQTT Box");
+           }
+           if (result['bluetooth'] == true) {
+             debugPrint("Payload sent via Bluetooth");
+           }
+
+      } finally {
+        setState(() => isLoading = false);
+      }
     }
   }
 

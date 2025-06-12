@@ -103,7 +103,6 @@ class _ConfigWebViewState extends State<ConfigWebView> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -259,6 +258,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
             '107' : configPvd.getIrrigationLinePayload(),
         }
       };
+
       setState(() {
         var payloadTitle = AppConstants.ecoGemModelList.contains(configPvd.masterData['modelId']) ? 'Eco Gem Config' : 'Gem Config';
         listOfPayload.insert(0,{
@@ -596,6 +596,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
         throw ArgumentError('Invalid ConfigMakerTabs value: $configMakerTabs');
     }
   }
+
 }
 
 bool validatePayloadFromHardware(Map<String, dynamic>? payload, List<String> keys, String checkingValue){

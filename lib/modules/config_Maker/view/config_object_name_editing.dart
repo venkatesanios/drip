@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../model/device_object_model.dart';
 import '../state_management/config_maker_provider.dart';
 import '../../../Widgets/sized_image.dart';

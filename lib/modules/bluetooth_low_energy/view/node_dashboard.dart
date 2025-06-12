@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:oro_drip_irrigation/Widgets/custom_buttons.dart';
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/ble_sent_and_receive.dart';
+import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/calibration.dart';
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/control_node.dart';
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/interface_setting.dart';
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/node_in_boot_mode.dart';
@@ -79,6 +80,15 @@ class _NodeDashboardState extends State<NodeDashboard> {
                           Navigator.push(context, MaterialPageRoute(builder: (context){
                             return TraceScreen(nodeData: widget.nodeData,);
                           }));
+                      },
+                    ),
+                    gridItemWidget(
+                      imagePath: 'assets/Images/Svg/SmartComm/calibration.svg',
+                      title: 'Calibration',
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context){
+                          return Calibration(nodeData: widget.nodeData,);
+                        }));
                       },
                     ),
                     if(bleService.developerOption >= 10)

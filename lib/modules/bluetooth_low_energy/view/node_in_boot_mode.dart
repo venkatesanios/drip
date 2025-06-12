@@ -31,59 +31,59 @@ class _NodeInBootModeState extends State<NodeInBootMode> {
           const SizedBox(width: 20,)
         ],
       ) : null,
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          spacing: 20,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SvgPicture.asset(
-              'assets/Images/Svg/SmartComm/bootMode.svg',
-              height: 200,
-            ),
-            Text(
-              'Hardware is in boot mode.\nPlease update the firmware to proceed.',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                height: 1.5,
-                color: Colors.black87,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            spacing: 20,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset(
+                'assets/Images/Svg/SmartComm/bootMode.svg',
+                height: 300,
               ),
-              textAlign: TextAlign.center,
-            ),
-
-            FilledButton.icon(
-              icon: const Icon(Icons.system_update_alt_rounded),
-              onPressed: () {
-                bleService.getFileName();
-              },
-              label: const Text('Get Latest Firmware'),
-              style: FilledButton.styleFrom(
-                backgroundColor: Theme.of(context).primaryColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                textStyle: const TextStyle(fontSize: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+              Text(
+                'Hardware is in boot mode.\nPlease update the firmware to proceed.',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  height: 1.5,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              FilledButton.icon(
+                icon: const Icon(Icons.system_update_alt_rounded),
+                onPressed: () {
+                  bleService.getFileName();
+                },
+                label: const Text('Get Latest Firmware'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                  textStyle: const TextStyle(fontSize: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
-            ),
-
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.2),
-                    spreadRadius: 2,
-                    blurRadius: 10,
-                  ),
-                ],
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.2),
+                      spreadRadius: 2,
+                      blurRadius: 10,
+                    ),
+                  ],
+                ),
+                child: nodeFileStatusBox(),
               ),
-              child: nodeFileStatusBox(),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

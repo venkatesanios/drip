@@ -1,9 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:oro_drip_irrigation/Screens/Dealer/controllerlogfile.dart';
 import 'package:oro_drip_irrigation/Screens/Dealer/dealer_definition.dart';
+import 'package:oro_drip_irrigation/Screens/planning/PumpCondition.dart';
 import 'package:oro_drip_irrigation/view_models/customer/controller_settings_view_model.dart';
-import 'package:oro_drip_irrigation/view_models/customer/customer_screen_controller_view_model.dart';
 import 'package:oro_drip_irrigation/views/customer/condition_library.dart';
 import 'package:provider/provider.dart';
 import '../../Models/customer/site_model.dart';
@@ -96,30 +97,23 @@ class ControllerSettings extends StatelessWidget {
         itemBuilder: (context, index) {
           final title = viewModel.filteredSettingList[index]['title'];
 
-          return Column(
-            children: [
-              ListTile(
-                leading: Icon(
-                  viewModel.filteredSettingList[index]['icon'],
-                  color: Theme.of(context).primaryColor,
-                ),
-                title: Text(
-                  title,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text(
-                  getSubTitle(title),
-                  style: TextStyle(color: Colors.black45),
-                ),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                onTap: () => _navigateToScreen(context, title),
-              ),
-              if (index < viewModel.filteredSettingList.length - 1)
-                const Padding(
-                  padding: EdgeInsets.only(left: 40, right: 8),
-                  child: Divider(height: 0),
-                ),
-            ],
+          return ListTile(
+            visualDensity: const VisualDensity(vertical: -4),
+            isThreeLine: true,
+            leading: Icon(
+              viewModel.filteredSettingList[index]['icon'],
+              color: Theme.of(context).primaryColor,
+            ),
+            title: Text(
+              title,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(
+              getSubTitle(title),
+              style: const TextStyle(color: Colors.black45),
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => _navigateToScreen(context, title),
           );
         },
       ),
@@ -133,10 +127,7 @@ class ControllerSettings extends StatelessWidget {
   void _navigateToScreen(BuildContext context, String title) {
     final widget = _getScreenWidget(title);
     if (widget != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => widget),
-      );
+      Navigator.push(context, MaterialPageRoute(builder: (_) => widget));
     }
   }
 
@@ -249,6 +240,14 @@ class ControllerSettings extends StatelessWidget {
           controllerId: masterController.controllerId,
           imeiNo: masterController.deviceId,
         );
+      case 'Pump Condition':
+        return PumpConditionScreen(
+          userId: userId,
+           controllerId: masterController.controllerId,
+          imeiNo: masterController.deviceId,
+        );
+      case 'Controller Log':
+        return ControllerLog(deviceID: masterController.deviceId, communicationType: 'MQTT',);
       default:
         return const Center(child: Text('Coming Soon'));
     }
@@ -276,6 +275,10 @@ class ControllerSettings extends StatelessWidget {
         return 'Change names of pumps, sensors, filters, and other components.';
       case 'Condition Library':
         return 'Sensor-based conditions such as moisture, pressure, time-based triggers, and program ON/OFF logic.';
+        case 'Pump Condition':
+        return 'Pump-based conditions such as  program ON/OFF logic.';
+      case 'Controller Log':
+        return 'Controller live trace and Logs';
       default:
         return 'No additional information available.';
     }

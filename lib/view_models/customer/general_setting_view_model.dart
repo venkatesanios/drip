@@ -21,7 +21,7 @@ class GeneralSettingViewModel extends ChangeNotifier {
 
   final TextEditingController txtEcSiteName = TextEditingController();
   final TextEditingController txtEcGroupName = TextEditingController();
-  String modelName = '', deviceId = '', categoryName = '', controllerVersion='', newVersion='';
+  String farmName = '', controllerCategory = '', modelName = '', deviceId = '', categoryName = '', controllerVersion='', newVersion='';
   int groupId = 0;
 
   String? selectedTimeZone;
@@ -82,7 +82,9 @@ class GeneralSettingViewModel extends ChangeNotifier {
         final data = jsonDecode(response.body);
         if (data["code"] == 200) {
           txtEcSiteName.text = data["data"][0]['groupName'];
+          farmName  = data["data"][0]['groupName'];
           txtEcGroupName.text = data["data"][0]['deviceName'];
+          controllerCategory = data["data"][0]['deviceName'];
           deviceId = data["data"][0]['deviceId'];
           modelName = data["data"][0]['modelName'];
           categoryName = data["data"][0]['categoryName'];
@@ -153,11 +155,18 @@ class GeneralSettingViewModel extends ChangeNotifier {
     currentDate = DateFormat.yMd().format(now);
     currentTime = DateFormat.jm().format(now);
     selectedTimeZone = timeZone;
+    notifyListeners();
   }
 
   void setLoading(bool value) {
     isLoading = value;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
 }

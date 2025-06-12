@@ -85,9 +85,11 @@ class UserSettingViewModel extends ChangeNotifier {
   Future<void> updateUserProfile(BuildContext context, int customerId, userId) async
   {
     if (formKey.currentState!.validate()) {
-      final body = {"userId": customerId, "userName": controllerUsrName.text, "countryCode": countryCode, "mobileNumber": controllerMblNo.text,
+      String cleanedCode = countryCode.replaceAll('+', '');
+      final body = {"userId": customerId, "userName": controllerUsrName.text, "countryCode": cleanedCode, "mobileNumber": controllerMblNo.text,
         "emailAddress": controllerEmail.text, "modifyUser": userId};
       setLoading(true);
+      print(body);
       try {
         var response = await repository.updateUserDetails(body);
         if (response.statusCode == 200) {

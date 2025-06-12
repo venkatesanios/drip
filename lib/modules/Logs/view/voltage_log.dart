@@ -74,7 +74,7 @@ class _PumpVoltageLogScreenState extends State<PumpVoltageLogScreen> {
   Widget build(BuildContext context) {
     pumpControllerProvider = Provider.of(context);
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: (pumpControllerProvider.voltageData.isNotEmpty || pumpControllerProvider.message.isNotEmpty) ? Column(
           children: [

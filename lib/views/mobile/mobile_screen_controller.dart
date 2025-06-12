@@ -1,16 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
-
-import 'package:bluetooth_classic/models/device.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/Screens/Dealer/controllerlogfile.dart';
 import 'package:oro_drip_irrigation/Screens/Dealer/sevicecustomer.dart';
 import 'package:oro_drip_irrigation/Screens/Logs/irrigation_and_pump_log.dart';
 import 'package:oro_drip_irrigation/Screens/planning/WeatherScreen.dart';
 import 'package:oro_drip_irrigation/modules/ScheduleView/view/schedule_view_screen.dart';
 import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
 import 'package:popover/popover.dart';
-import '../../Models/customer/blu_device.dart';
 import '../../Models/customer/site_model.dart';
 import 'package:provider/provider.dart';
 import '../../StateManagement/customer_provider.dart';
@@ -28,7 +26,6 @@ import '../../utils/my_function.dart';
 import '../../utils/routes.dart';
 import '../../utils/shared_preferences_helper.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
-import '../../view_models/nav_rail_view_model.dart';
 import '../account_settings.dart';
 import '../customer/controller_settings.dart';
 import '../customer/customer_home.dart';
@@ -62,7 +59,7 @@ class MobileScreenController extends StatelessWidget {
 
           if (vm.isLoading) {
             return const Scaffold(
-                body: Center(child: Text('Site loading please waite....')));
+                body: Center(child: Text('Site loading please wait....')));
           }
 
           return Scaffold(
@@ -73,7 +70,7 @@ class MobileScreenController extends StatelessWidget {
                 width: 70,
                 "assets/png/oro_logo_white.png",
                 fit: BoxFit.fitWidth,
-              ):
+              ) :
               Image.asset(
                 width: 160,
                 "assets/png/lk_logo_white.png",
@@ -368,21 +365,38 @@ class MobileScreenController extends StatelessWidget {
             ),
             floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
             bottomNavigationBar: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1 ?
-            BottomNavigationBar(
-              backgroundColor: Colors.white,
-              type: BottomNavigationBarType.fixed,
-              selectedFontSize: 14,
-              unselectedFontSize: 12,
-              currentIndex: vm.selectedIndex,
-              onTap: vm.onItemTapped,
-              selectedItemColor: Theme.of(context).primaryColorLight,
-              unselectedItemColor: Colors.black87,
-              items: [
-                const BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-                const BottomNavigationBarItem(icon: Icon(Icons.list), label: "Scheduled Program"),
-                const BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), label: "Settings"),
-              ],
-            ) : null,
+            Container(
+              margin: const EdgeInsets.only(top: 4),
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow:  const [
+                  BoxShadow(
+                    color: Colors.black26,
+                    offset: Offset(0, -1),
+                    blurRadius: 1,
+                    spreadRadius: 1,
+                  ),
+                ],
+              ),
+              child: BottomNavigationBar(
+                backgroundColor: Theme.of(context).primaryColor,
+                type: BottomNavigationBarType.fixed,
+                selectedFontSize: 14,
+                unselectedFontSize: 12,
+                currentIndex: vm.selectedIndex,
+                onTap: vm.onItemTapped,
+                selectedItemColor: Colors.white,
+                unselectedItemColor: Colors.white70,
+                items: const [
+                  BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+                  BottomNavigationBarItem(icon: Icon(Icons.list), label: "Scheduled Program"),
+                  BottomNavigationBarItem(icon: Icon(Icons.report_gmailerrorred), label: "Log"),
+                  BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), label: "Settings"),
+                ],
+              ),
+            )
+            : null,
             floatingActionButton: vm.mySiteList.data[vm.sIndex].master[vm
                 .mIndex].categoryId == 1 ?
             Column(
@@ -399,8 +413,7 @@ class MobileScreenController extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    NodeList(
+                                builder: (context) => NodeList(
                                       customerId: customerId,
                                       nodes: vm.mySiteList.data[vm.sIndex].master[vm
                                           .mIndex].nodeList,
@@ -543,7 +556,6 @@ class MobileScreenController extends StatelessWidget {
                 ),
               ],
             ) : null,
-
             body: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 2 ?
             vm.isChanged ? PumpControllerHome(
               userId: userId,
@@ -633,7 +645,10 @@ class MobileScreenController extends StatelessWidget {
                             modelId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId,
                             deviceName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceName,
                             categoryName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
-                          )
+                          ) : vm.selectedIndex == 2 ?
+                          IrrigationAndPumpLog(userData: {'userId' : userId, 'controllerId' : vm.mySiteList.data[vm.sIndex].master[vm
+                              .mIndex].controllerId},
+                          masterData: vm.mySiteList.data[vm.sIndex].master[vm.mIndex])
                               : ControllerSettings(customerId: customerId,
                             userId: userId,
                             masterController: vm.mySiteList.data[vm.sIndex].master[vm.mIndex],
@@ -666,7 +681,7 @@ class MobileScreenController extends StatelessWidget {
             const SizedBox(height: 8),
             CircleAvatar(
               radius: 20,
-              backgroundColor: Theme.of(context).primaryColor,
+              backgroundColor: Theme.of(context).primaryColorLight,
               child: Icon(icon, color: Colors.white),
             ),
             const SizedBox(height: 8),
@@ -778,19 +793,32 @@ class MobileScreenController extends StatelessWidget {
                               trailing: d.isConnected ? Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const TextButton(
+                                  const Icon(Icons.check_circle, color: Colors.blue),
+                                  const SizedBox(width: 8),
+                                  /*const TextButton(
                                     onPressed: null,
                                     child: Text(
                                       'Connected',
                                       style: TextStyle(color: Colors.green),
                                     ),
-                                  ),
-                                  const SizedBox(width: 8),
+                                  ),*/
                                   IconButton(
                                     onPressed: () {
                                       requestAndShowWifiList(context, false);
                                     },
                                     icon: const Icon(CupertinoIcons.text_badge_checkmark),
+                                  ),
+                                  IconButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ControllerLog(deviceID: vm.mySiteList.data[vm.sIndex]
+                                              .master[vm.mIndex].deviceId, communicationType: 'Bluetooth',),
+                                        ),
+                                      );
+                                    },
+                                    icon: const Icon(CupertinoIcons.exclamationmark_octagon),
                                   ),
                                 ],
                               ):
@@ -842,111 +870,178 @@ class MobileScreenController extends StatelessWidget {
         final provider = context.watch<MqttPayloadProvider>();
         final networks = provider.wifiList;
         final message = provider.wifiMessage;
+        final wifiStatus = provider.wifiStatus;
+        final interfaceType = provider.interfaceType;
+        final ipAddress = provider.ipAddress;
 
         if (message != null && message.isNotEmpty) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Text("Changing controller network..."),
-                  content: Text(message),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        context.read<MqttPayloadProvider>().clearWifiMessage();
-                        Navigator.of(context).pop();
-                        Navigator.of(context).pop();
-                        showWifiListDialog(context);
-                      },
-                      child: const Text("OK"),
-                    ),
-                  ],
-                );
-              },
-            );
+            if (message == 'WWi-Fi is now ON' || message == 'Wi-Fi is now OFF') {
+              context.read<MqttPayloadProvider>().clearWifiMessage();
+              Future.delayed(const Duration(milliseconds: 1500), () {
+                requestAndShowWifiList(context, true);
+              });
+            } else {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text("Changing controller network..."),
+                    content: Text(message),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          context.read<MqttPayloadProvider>().clearWifiMessage();
+                          Navigator.of(context).pop();
+                          Navigator.of(context).pop();
+                          showWifiListDialog(context);
+                        },
+                        child: const Text("OK"),
+                      ),
+                    ],
+                  );
+                },
+              );
+            }
           });
         }
 
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          title: ListTile(
-            title: const Text("Available Networks"),
-            subtitle: const Text(
-              "Select a Wi-Fi network to change the controller's connection.",
-              style: TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-            trailing: IconButton(
-              onPressed: () {
-                requestAndShowWifiList(context, true);
-              },
-              icon: const Icon(Icons.refresh),
-            ),
-          ),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: networks.isEmpty
-                ? const SizedBox(height: 20, child: Center(child: Text("No networks found.")))
-                : ValueListenableBuilder<String?>(
-              valueListenable: connectingNetwork,
-              builder: (dialogContext, connectingSsid, _) {
-                return ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: networks.length,
-                  itemBuilder: (context, index) {
-                    final net = networks[index];
-                    final ssid = net["SSID"] ?? "Unknown";
-                    final bool isSecured = (net["SECURITY"] != null);
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              title: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.wifi),
+                    title: const Text("Wi-Fi"),
+                    subtitle: wifiStatus == '2'
+                        ? const Text(
+                      'Wi-Fi is enabled on the controller \n But No Internet connection',
+                      style: TextStyle(fontSize: 12, color: Colors.red),
+                    )
+                        : Text(
+                      wifiStatus == '1'
+                          ? 'Wi-Fi is enabled on the controller'
+                          : 'Wi-Fi is disabled on the controller',
+                      style: const TextStyle(fontSize: 12, color: Colors.black45),
+                    ),
+                    trailing: Transform.scale(
+                      scale: 0.8,
+                      child: provider.wifiStateChanging? const SizedBox(
+                        height: 18,
+                        width: 18,
+                        child: CircularProgressIndicator(strokeWidth: 3),
+                      ) : Switch(
+                        value: wifiStatus == '1' || wifiStatus == '2',
+                        activeColor: Colors.blue,
+                        onChanged: (bool value) async {
+                          provider.updateWifiStatus('0', true);
+                          final communicationService = context.read<CommunicationService>();
+                          final livePayload = jsonEncode({
+                            "6000": {
+                              "6001": value ? '1,0,0' : '0,0,0',
+                            }
+                          });
 
-                    return ListTile(
-                      leading: Icon(
-                        Icons.wifi,
-                        color: net["SIGNAL"] >= 75
-                            ? Colors.green
-                            : (net["SIGNAL"] >= 50 ? Colors.orange : Colors.red),
+                          await communicationService.sendCommand(serverMsg: '', payload: livePayload,);
+
+                        },
                       ),
-                      title: Text(ssid),
-                      subtitle: Text("Signal: ${net["SIGNAL"]}%"),
-                      trailing: connectingSsid == ssid
-                          ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                          : (net["IN-USE"] == "1"
-                          ? const Icon(Icons.check_circle, color: Colors.blue)
-                          : null),
-                      onTap: () async {
-                        connectingNetwork.value = ssid;
+                    ),
+                  ),
+                  const Divider(height: 0),
+                  (wifiStatus=='1'||wifiStatus=='2')? ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text("Available Networks"),
+                    subtitle: const Text(
+                      "Select a Wi-Fi network to change the controller's connection.",
+                      style: TextStyle(fontSize: 11, color: Colors.grey),
+                    ),
+                    trailing: IconButton(
+                      onPressed: () {
+                        requestAndShowWifiList(context, true);
+                      },
+                      icon: const Icon(Icons.refresh),
+                    ),
+                  ):
+                  const SizedBox(),
+                ],
+              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: interfaceType=='ethernet'? ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Controller connected with ethernet'),
+                  subtitle: Text('IpAddress : $ipAddress'),
+                  trailing: Icon(Icons.cast_connected),
+                ):
+                networks.isEmpty
+                    ? const SizedBox(height: 20, child: Center(child: Text("No networks found.")))
+                    : ValueListenableBuilder<String?>(
+                  valueListenable: connectingNetwork,
+                  builder: (dialogContext, connectingSsid, _) {
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: networks.length,
+                      itemBuilder: (context, index) {
+                        final net = networks[index];
+                        final ssid = net["SSID"] ?? "Unknown";
+                        final bool isSecured = (net["SECURITY"] != null);
 
-                        final communicationService = context.read<CommunicationService>();
+                        return ListTile(
+                          leading: Icon(
+                            Icons.wifi,
+                            color: net["SIGNAL"] >= 75
+                                ? Colors.green
+                                : (net["SIGNAL"] >= 50 ? Colors.orange : Colors.red),
+                          ),
+                          title: Text(ssid),
+                          subtitle: Text("Signal: ${net["SIGNAL"]}%"),
+                          trailing: connectingSsid == ssid
+                              ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                              : (net["IN-USE"] == "1"
+                              ? const Icon(Icons.check_circle, color: Colors.blue)
+                              : null),
+                          onTap: () async {
+                            connectingNetwork.value = ssid;
 
-                        if (isSecured) {
-                          final password = await showPasswordDialog(context, ssid);
-                          if (password == null || password.isEmpty) return;
+                            final communicationService = context.read<CommunicationService>();
 
-                          final payload = '2,$ssid,$password';
-                          final livePayload = jsonEncode({"6000": {"6001": payload}});
-                          await communicationService.sendCommand(serverMsg: '', payload: livePayload);
-                        } else {
-                          final payload = '2,$ssid,';
-                          final livePayload = jsonEncode({"6000": {"6001": payload}});
-                          await communicationService.sendCommand(serverMsg: '', payload: livePayload);
-                        }
+                            if (isSecured) {
+                              final password = await showPasswordDialog(context, ssid);
+                              if (password == null || password.isEmpty) return;
+
+                              final payload = '2,$ssid,$password';
+                              final livePayload = jsonEncode({"6000": {"6001": payload}});
+                              await communicationService.sendCommand(serverMsg: '', payload: livePayload);
+                            } else {
+                              final payload = '2,$ssid,';
+                              final livePayload = jsonEncode({"6000": {"6001": payload}});
+                              await communicationService.sendCommand(serverMsg: '', payload: livePayload);
+                            }
+                          },
+                        );
                       },
                     );
                   },
-                );
-              },
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
-            )
-          ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("Cancel"),
+                )
+              ],
+            );
+          },
         );
       },
     );
@@ -1273,7 +1368,7 @@ class SiteSelectorWidget extends StatelessWidget {
             value: site.groupName,
             child: Text(
               site.groupName,
-              style: const TextStyle(color: Colors.white, fontSize: 17),
+              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             ),
           );
         }).toList(),
@@ -1287,7 +1382,7 @@ class SiteSelectorWidget extends StatelessWidget {
     } else {
       return Text(
         vm.mySiteList.data[vm.sIndex].groupName,
-        style: const TextStyle(fontSize: 15, color: Colors.white54),
+        style: const TextStyle(fontSize: 15, color: Colors.white54, fontWeight: FontWeight.bold),
         overflow: TextOverflow.ellipsis,
       );
     }
@@ -1374,7 +1469,7 @@ class IrrigationLineSelectorWidget extends StatelessWidget {
           value: index,
           child: Text(
             line.name,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
           ),
         );
       }),

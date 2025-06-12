@@ -686,8 +686,6 @@ class _ConditionUIState extends State<FrostMobUI>
       "createUser": overAllPvd.userId
     };
 
-
-
     final Repository repository = Repository(HttpService());
     var getUserDetails = await repository.getUserfrostProtection(body);
     final jsonDataresponse = json.decode(getUserDetails.body);

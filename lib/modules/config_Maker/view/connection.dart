@@ -321,7 +321,7 @@ class _ConnectionState extends State<Connection> {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
       width: to > 8 ? 500 : 250,
-      height: 260,
+      height: 280,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
@@ -348,8 +348,20 @@ class _ConnectionState extends State<Connection> {
                           keyWord: keyWord,
                           color: color,
                         ),
-                        const SizedBox(height: 5,)
+                        const SizedBox(height: 5,),
                       ],
+                    if(type == AppConstants.analogCode)
+                    ...[
+                      ConnectorWidget(
+                        connectionNo: 9,
+                        selectedDevice: selectedDevice,
+                        configPvd: widget.configPvd,
+                        type: type,
+                        keyWord: '',
+                        color: color,
+                      ),
+                      const SizedBox(height: 5,),
+                    ]
                   ],
                 ),
               ),
@@ -437,13 +449,15 @@ class _ConnectionState extends State<Connection> {
         .toList().where((object) => selectedDevice.connectingObjectId.contains(object.objectId)).toList().map((object) => object.objectId)
         .toList();
     List<DeviceObjectModel> filteredList = widget.configPvd.listOfObjectModelConnection.where((object)=> filteredObjectList.contains(object.objectId)).toList();
+
     filteredList = filteredList.where((object) {
-      if(['', '0', null].contains(object.count) && getNotConfiguredObjectByObjectId(object.objectId, widget.configPvd) == 0){
+       if(['', '0', null].contains(object.count) && getNotConfiguredObjectByObjectId(object.objectId, widget.configPvd) == 0){
         return false;
       }else{
         return true;
       }
     }).toList();
+
     return filteredList.isNotEmpty ? ConnectionGridListTile(
       listOfObjectModel: filteredList,
       title: title,
@@ -491,7 +505,7 @@ class _ConnectionState extends State<Connection> {
                       borderRadius: const BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5)),
                       color: widget.configPvd.selectedCategory == categoryId ? Theme.of(context).primaryColor : Colors.grey.shade300
                   ),
-                  child: Text(getDeviceCodeToString(categoryId), style: TextStyle(color: widget.configPvd.selectedCategory == categoryId ? Colors.white : Colors.black, fontSize: 13),),
+                  child: Text(widget.configPvd.listOfDeviceModel.firstWhere((device)=> device.categoryId == categoryId).deviceName, style: TextStyle(color: widget.configPvd.selectedCategory == categoryId ? Colors.white : Colors.black, fontSize: 13),),
                 ),
               )
           ],

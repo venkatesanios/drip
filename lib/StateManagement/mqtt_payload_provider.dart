@@ -28,7 +28,6 @@ class MqttPayloadProvider with ChangeNotifier {
 
   //Todo : Dashboard start
   int tryingToGetPayload = 0;
-  String version = '';
   dynamic listOfSite = [];
   dynamic listOfSharedUser = {};
   bool httpError = false;
@@ -84,6 +83,9 @@ class MqttPayloadProvider with ChangeNotifier {
    Set<String> uardMessagesSet = {};
    Set<String> uard0MessagesSet = {};
    Set<String> uard4MessagesSet = {};
+   String Loara1verssion = '';
+   String Loara2verssion = '';
+   bool ftpLog = false;
 
   //kamaraj
    String _receivedPayload = '';
@@ -94,7 +96,11 @@ class MqttPayloadProvider with ChangeNotifier {
   bool isLiveSynced = false;
   int wifiStrength = 0;
   String liveDateAndTime = '';
-   String activeDeviceId = '';
+  String activeDeviceId = '';
+  String activeDeviceVersion = '0.0.0';
+  String activeLoraData = '';
+
+
   String liveControllerID = '';
   List<String> nodeLiveMessage = [];
   List<String> outputOnOffPayload = [];
@@ -123,10 +129,24 @@ class MqttPayloadProvider with ChangeNotifier {
    List<CustomDevice> get pairedDevices => _pairedDevices;
 
    List<Map<String, dynamic>> _wifiList = [];
-   String? _wifiMessage;
-
    List<Map<String, dynamic>> get wifiList => _wifiList;
+
+   String? _wifiMessage;
    String? get wifiMessage => _wifiMessage;
+
+   String? _wifiStatus;
+   String? get wifiStatus => _wifiStatus;
+
+   bool wifiStateChanging = false;
+
+   String? _interfaceType;
+   String? get interfaceType => _interfaceType;
+
+   String? _ipAddress;
+   String? get ipAddress => _ipAddress;
+   List<String> traceLog = [];
+   bool isTraceLoading = false;
+   int traceLogSize = 0;
 
    void updateConnectedDeviceStatus(CustomDevice? device) {
      _connectedDevice = device;
@@ -152,6 +172,25 @@ class MqttPayloadProvider with ChangeNotifier {
      _wifiList = list;
      notifyListeners();
    }
+
+   void updateInterfaceType(String interfaceType) {
+     _interfaceType = interfaceType;
+     notifyListeners();
+   }
+
+   void updateIpAddress(String ip) {
+     _ipAddress = ip;
+     notifyListeners();
+   }
+
+
+
+   void updateWifiStatus(String status, bool loading) {
+     _wifiStatus = status;
+     wifiStateChanging = loading;
+     notifyListeners();
+   }
+
 
    void updateWifiMessage(String? message) {
      _wifiMessage = message;
@@ -193,6 +232,14 @@ class MqttPayloadProvider with ChangeNotifier {
     publishTopic = topic;
     notifyListeners();
   }
+   void setTraceLoading(bool loading) {
+     isTraceLoading = loading;
+     notifyListeners();
+   }
+   void setTraceLoadingsize(int size) {
+     traceLogSize = size;
+      notifyListeners();
+   }
 
   void editLineData(dynamic data){
     // // print('editLineData : ${data}');
@@ -547,10 +594,11 @@ class MqttPayloadProvider with ChangeNotifier {
 
   void updateReceivedPayload(String newPayload, bool dataFromHttp) async{
 
-    if (_receivedPayload != newPayload) {
-      _receivedPayload = newPayload;
+     print('newPayload --\n$newPayload');
 
-      if(!dataFromHttp) {
+    if (_receivedPayload != newPayload) {
+       _receivedPayload = newPayload;
+       if(!dataFromHttp) {
         dataFetchingStatus = 1;
       } else {
         dataFetchingStatus = 3;
@@ -564,8 +612,14 @@ class MqttPayloadProvider with ChangeNotifier {
           isLiveSynced = true;
           liveDateAndTime = '${data['cD']} ${data['cT']}';
           activeDeviceId = data['cC'];
+          activeDeviceVersion = data['cM']['Version'];
+          if (data['cM'].containsKey('LoraData')) {
+            activeLoraData = data['cM']['LoraData'];
+          }
+
           wifiStrength = data['cM']['WifiStrength'];
           powerSupply = data['cM']['PowerSupply'];
+
           updateNodeLiveMessage(data['cM']['2401'].split(";"));
           updateOutputStatusPayload(data['cM']['2402'].split(";"));
 
@@ -606,16 +660,17 @@ class MqttPayloadProvider with ChangeNotifier {
         }
         if (data.containsKey("cM") && data["cM"] is! List) {
           Map cM = data["cM"];
-
+print('cM---> $cM');
           if (cM.containsKey("6601")) {
             String msg = cM["6601"];
             if (!scheduleMessagesSet.contains(msg)) {
-              sheduleLog += "\n" + msg;
+              sheduleLog += "\n$msg";
               scheduleMessagesSet.add(msg);
             }
           }
 
           if (cM.containsKey("6602")) {
+
             String msg = cM["6602"];
             if (!uardMessagesSet.contains(msg)) {
               uardLog += "\n" + msg;
@@ -639,14 +694,39 @@ class MqttPayloadProvider with ChangeNotifier {
               uard4MessagesSet.add(msg);
             }
           }
+          // print("cM---------->$cM ");
+          //   print("runtype ------${cM.runtimeType}");
+          // if (cM != null && cM.containsKey("6801")) {
+          //   mqttUpdateSettings = cM['6801'];
+          // }
+          // else
+          //   {
+          //
+          //   }
+        }
+        // if(data['cM'].containsKey("6801")){
+        //   mqttUpdateSettings = data['cM']['6801'];
+        // }
+        if(data['mC']=='7400'){
 
-          if (cM.containsKey("6801")) {
-            mqttUpdateSettings = cM['6801'];
-          }
+         String Loaraverssion = data['cM']['7401'];
+         final parts = Loaraverssion.split(',');
+         if(parts[0] == '1')
+           {
+             final rawFrequency = int.parse(parts[2]);
+             final frequency = (rawFrequency / 10).toStringAsFixed(1);
+
+             Loara1verssion = "Verssion:${parts[1]},Frequency:$frequency,SF:${parts[3]}";
+           }
+         else
+           {
+             final rawFrequency = int.parse(parts[2]);
+             final frequency = (rawFrequency / 10).toStringAsFixed(1);
+             Loara2verssion = "Verssion:${parts[1]},Frequency:$frequency,SF:${parts[3]}";
+           }
+
         }
-        if(data['cM'].containsKey("6801")){
-          mqttUpdateSettings = data['cM']['6801'];
-        }
+
       } catch (e, stackTrace) {
         print('Error parsing JSON: $e');
         print('Stacktrace while parsing json : $stackTrace');
@@ -673,6 +753,9 @@ class MqttPayloadProvider with ChangeNotifier {
     updateLocalFiltrationSite();
   }
 
+
+
+
   //Todo : Dashboard stop
 
   Future<void> updateDashboardPayload(Map<String, dynamic> payload) async{
@@ -690,6 +773,13 @@ class MqttPayloadProvider with ChangeNotifier {
     _timerForPumpController = Timer.periodic(const Duration(seconds: 1), (Timer timer){
      });
   }
+   void updatetracelog(status){
+
+     traceLog = status;
+     print('traceLog-provider--$traceLog');
+     notifyListeners();
+   }
+
 
   void liveSyncCall(status){
     onRefresh = status;

@@ -29,240 +29,67 @@ class _GeneralSettingState extends State<GeneralSetting> {
         builder: (context, viewModel, _) {
           return Scaffold(
             appBar: !kIsWeb ? AppBar(title: const Text('General')): null,
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             body: viewModel.isLoading?
             buildLoadingIndicator(true, MediaQuery.sizeOf(context).width):
             kIsWeb ? generalSetting(context, viewModel):
-            ListView.builder(
-              itemCount: 12,
-              itemBuilder: (context, index) {
-                return Column(
-                  children: [
-                    if(index==0)
-                      ListTile(
-                        title: const Text('Farm Name'),
-                        subtitle: SizedBox(
-                          width: 300,
-                          child: TextField(
-                            controller: viewModel.txtEcSiteName,
-                            decoration: const InputDecoration(
-                              filled: false,
-                              suffixIcon: Icon(Icons.edit),
-                            ),
-                          ),
-                        ),
-                        leading: const Icon(Icons.area_chart_outlined),
+            ListView(
+              padding: const EdgeInsets.only(left: 12, right: 10),
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                  child: Text(
+                    'General Settings',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(5),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 6,
+                        offset: Offset(0, 2),
                       ),
-                    if(index==1)
-                      ListTile(
-                        title: const Text('Controller Name'),
-                        subtitle: TextField(
-                          controller: viewModel.txtEcGroupName,
-                          decoration: const InputDecoration(
-                            filled: false,
-                            suffixIcon: Icon(Icons.edit),
-                          ),
-                        ),
-                        leading: const Icon(Icons.developer_board),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 5, bottom: 5),
+                    child: Column(
+                      children: List.generate(5, (index) => getSettingTile(context, index)),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                  child: Text(
+                    'Controller Settings',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(5),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 6,
+                        offset: Offset(0, 2),
                       ),
-                    if(index==2)
-                      ListTile(
-                        title: const Text('Device Category'),
-                        leading: const Icon(Icons.category_outlined),
-                        trailing: Text(
-                          viewModel.categoryName,
-                          style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    if(index==3)
-                      ListTile(
-                        title: const Text('Model'),
-                        leading: const Icon(Icons.model_training),
-                        trailing: Text(
-                          viewModel.modelName,
-                          style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    if(index==4)
-                      ListTile(
-                        title: const Text('Device ID'),
-                        leading: const Icon(Icons.numbers_outlined),
-                        trailing: SelectableText(
-                          viewModel.deviceId,
-                          style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    if(index==5)
-                      ListTile(
-                        title: const Text('Version'),
-                        leading: const Icon(Icons.perm_device_info),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              viewModel.controllerVersion,
-                              style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            viewModel.controllerVersion != viewModel.newVersion? const SizedBox(width: 16,):
-                            const SizedBox(),
-                            viewModel.controllerVersion != viewModel.newVersion? TextButton(
-                              onPressed: () {
-                              },
-                              child: AnimatedOpacity(
-                                opacity: viewModel.opacity,
-                                duration: const Duration(seconds: 2),
-                                child: Text('New Version available - ${viewModel.newVersion}', style: const TextStyle(color: Colors.black54),),
-                              ),
-                            ):
-                            const SizedBox(),
-                          ],
-                        ),
-                      ),
-                    if(index==6)
-                      ListTile(
-                        title: const Text('Communication mode'),
-                        leading: const Icon(Icons.network_ping),
-                       /* trailing: viewModel.selectedMode=='Http & Mqtt'?
-                        DropdownButton<String>(
-                          value: viewModel.selectedMode,
-                          hint: const Text('select a communication mode'),
-                          items: viewModel.communicationMode.map((String value) {
-                            return DropdownMenuItem(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                          onChanged: (value) => viewModel.onChangeCommunicationMode(value!),
-                        ):
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            DropdownButton<String>(
-                              value: viewModel.selectedMode,
-                              hint: const Text('select a communication mode'),
-                              items: viewModel.communicationMode.map((String value) {
-                                return DropdownMenuItem(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                              onChanged: (value) => viewModel.onChangeCommunicationMode(value!),
-                            ),
-                            IconButton(onPressed:(){
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: ListTile(title: const Text('Search bluetooth devices'),
-                                        trailing: IconButton(
-                                          icon: const Icon(Icons.search, color: Colors.white),
-                                          onPressed: manager.getDevices,
-                                        )),
-                                    content: SizedBox(
-                                      width: 400,
-                                      child: Column(
-                                        children: [
-                                          ...manager.pairedDevices.map((d) => ListTile(
-                                            title: Text(d.device.name ?? '----'),
-                                            subtitle: Text(d.device.address),
-                                            trailing: TextButton(
-                                              onPressed: () {},
-                                              child: Text(d.isConnected ? 'Connected' : 'Connect'),
-                                            ),
-                                          )),
-                                        ],
-                                      ),
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        child: const Text('Close'),
-                                        onPressed: () => Navigator.of(context).pop(),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            }, icon: Icon(Icons.list))
-                          ],
-                        ),*/
-                      ),
-                    if(index==7)
-                      ListTile(
-                        title: const Text('UTC'),
-                        leading: const Icon(Icons.timer_outlined),
-                        trailing: DropdownButton<String>(
-                          hint: const Text('Select Time Zone'),
-                          value: viewModel.selectedTimeZone,
-                          onChanged: (String? newValue) {
-                            if (newValue != null) {
-                              viewModel.updateCurrentDateTime(newValue);
-                            }
-                          },
-                          items: viewModel.timeZones
-                              .map<DropdownMenuItem<String>>(
-                                  (String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                        ),
-                      ),
-                    if(index==8)
-                      ListTile(
-                        title: const Text('Current Date'),
-                        leading: const Icon(Icons.date_range),
-                        trailing: Text(
-                          viewModel.currentDate,
-                          style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    if(index==9)
-                      ListTile(
-                        title: const Text('Current UTC Time'),
-                        leading: const Icon(Icons.access_time),
-                        trailing: Text(
-                          viewModel.currentTime,
-                          style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    if(index==10)
-                      const ListTile(
-                        title: Text('Time Format'),
-                        leading: Icon(Icons.av_timer),
-                        trailing: Text(
-                          '24 Hrs',
-                          style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    if(index==11)
-                      const ListTile(
-                        title: Text('Unit'),
-                        leading: Icon(Icons.ac_unit_rounded),
-                        trailing: Text(
-                          'm3',
-                          style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                  ],
-                );
-              },
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 5, bottom: 5),
+                    child: Column(
+                      children: List.generate(6, (index) => getSettingTile(context, index + 5)),
+                    ),
+                  ),
+                ),
+              ],
             ),
           );
         },
@@ -281,6 +108,152 @@ class _GeneralSettingState extends State<GeneralSetting> {
         ),
       ),
     );
+  }
+
+  Widget getSettingTile(BuildContext context, int index) {
+    final viewModel = Provider.of<GeneralSettingViewModel>(context);
+
+    switch (index) {
+      case 0:
+        return ListTile(
+          visualDensity: const VisualDensity(vertical: -4),
+          isThreeLine: true,
+          title: const Text('Farm Name', style: TextStyle(fontWeight: FontWeight.bold)),
+          subtitle: Text(viewModel.farmName),
+          leading: const Icon(Icons.label_outline),
+          trailing: IconButton(
+            onPressed: () {
+              showEditControllerDialog(context, 'Farm Name', viewModel.farmName, (newName) {
+                print('Updated name: $newName');
+              });
+            },
+            icon: const Icon(Icons.edit),
+          ),
+        );
+      case 1:
+        return ListTile(
+          visualDensity: const VisualDensity(vertical: -4),
+          isThreeLine: true,
+          title: const Text('Controller Name'),
+          subtitle: Text(viewModel.controllerCategory, style: const TextStyle(fontWeight: FontWeight.bold)),
+          leading: const Icon(Icons.developer_board),
+          trailing: IconButton(
+            onPressed: () {
+              showEditControllerDialog(context, 'Controller Name', viewModel.farmName, (newName) {
+                print('Updated name: $newName');
+              });
+            },
+            icon: const Icon(Icons.edit),
+          ),
+        );
+      case 2:
+        return ListTile(
+          visualDensity: const VisualDensity(vertical: -4),
+          isThreeLine: true,
+          title: const Text('Device Category'),
+          subtitle: Text(viewModel.categoryName, style: TextStyle(fontWeight: FontWeight.bold)),
+          leading: const Icon(Icons.category),
+        );
+      case 3:
+        return ListTile(
+          visualDensity: const VisualDensity(vertical: -4),
+          isThreeLine: true,
+          title: const Text('Device Model'),
+          subtitle: Text(viewModel.modelName, style: TextStyle(fontWeight: FontWeight.bold)),
+          leading: const Icon(Icons.model_training),
+        );
+      case 4:
+        return ListTile(
+          visualDensity: const VisualDensity(vertical: -4),
+          isThreeLine: true,
+          title: const Text('Device ID'),
+          subtitle: SelectableText(
+            viewModel.deviceId,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          leading: const Icon(Icons.numbers_outlined),
+        );
+      case 5:
+        return ListTile(
+          visualDensity: const VisualDensity(vertical: -4),
+          isThreeLine: true,
+          title: const Text('Controller Version'),
+          subtitle: Text(viewModel.controllerVersion, style: const TextStyle(fontWeight: FontWeight.bold)),
+          leading: const Icon(Icons.developer_board),
+          trailing: IconButton(onPressed: () {}, icon: const Icon(Icons.update)),
+        );
+      case 6:
+        return ListTile(
+          visualDensity: const VisualDensity(vertical: -4),
+          isThreeLine: true,
+          leading: const Icon(Icons.timer_outlined),
+          title: const Text('UTC'),
+          subtitle: const Text('Time zone setting'),
+          trailing: SizedBox(
+            width: 175,
+            child: DropdownButton<String>(
+              hint: const Text('Select Time Zone'),
+              value: viewModel.selectedTimeZone,
+              onChanged: (String? newValue) {
+                if (newValue != null) {
+                  viewModel.updateCurrentDateTime(newValue);
+                }
+              },
+              items: viewModel.timeZones
+                  .map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
+          ),
+        );
+      case 7:
+        return ListTile(
+          visualDensity: const VisualDensity(vertical: -4),
+          isThreeLine: true,
+          leading: const Icon(Icons.date_range),
+          title: const Text('Current Date'),
+          subtitle: const Text('Date from controller'),
+          trailing: Text(
+            viewModel.currentDate,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          ),
+        );
+      case 8:
+        return ListTile(
+          visualDensity: const VisualDensity(vertical: -4),
+          isThreeLine: true,
+          leading: const Icon(Icons.access_time),
+          title: const Text('Current UTC Time'),
+          subtitle: const Text('Time from controller'),
+          trailing: Text(
+            viewModel.currentTime,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          ),
+        );
+      case 9:
+        return const ListTile(
+          title: Text('Time Format'),
+          leading: Icon(Icons.av_timer),
+          trailing: Text(
+            '24 Hrs',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          ),
+        );
+      case 10:
+        return const ListTile(
+          title: Text('Unit'),
+          leading: Icon(Icons.ac_unit_rounded),
+          trailing: Text(
+            'm3',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          ),
+        );
+      default:
+        return const SizedBox();
+    }
   }
 
   Widget generalSetting(BuildContext context, GeneralSettingViewModel viewModel){
@@ -700,5 +673,38 @@ class _GeneralSettingState extends State<GeneralSetting> {
         );
       },
     );*/
+  }
+
+  void showEditControllerDialog(BuildContext context, String currentTitle, String currentName, Function(String) onSave) {
+    final TextEditingController nameController = TextEditingController(text: currentName);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Edit $currentTitle'),
+          content: TextField(
+            controller: nameController,
+            decoration: InputDecoration(
+              labelText: currentTitle,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel', style: TextStyle(color: Colors.red)),
+            ),
+            TextButton(
+              onPressed: () {
+                onSave(nameController.text.trim());
+                Navigator.of(context).pop();
+              },
+              child: const Text('Save', style: TextStyle(color: Colors.green)),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

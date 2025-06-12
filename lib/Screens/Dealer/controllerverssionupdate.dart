@@ -227,7 +227,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
                                 MaterialPageRoute(
                                   builder: (context) => ControllerLog(
                                       deviceID: '${mergedList[index]['deviceId'
-                                      ]!}'),
+                                      ]!}', communicationType: 'MQTT',),
                                 ),
                               );
                             });
@@ -509,6 +509,16 @@ class _ResetVerssionState extends State<ResetVerssion> {
     return '$firstPart,$secondPart';
   }
 
+  viewLoaraSett(String val, ) async {
+
+    Map<String, dynamic> payLoadFinal = {
+      "5700":
+      {"5701": val},
+    };
+
+    MqttService().topicToPublishAndItsMessage(jsonEncode(payLoadFinal), '${Environment.mqttPublishTopic}/${mergedList[selectindex ?? 0]["deviceId"]}');
+    fetchData();
+  }
   FrequnceAll() async {
 
     String firstfreequnce1 = formatNumber(frequency1Controller.text);
@@ -658,7 +668,15 @@ print("payLoadFinal----${Environment.mqttPublishTopic}/${mergedList[selectindex!
                         ],
                       ),
                       const SizedBox(),
-                      Row(children: [ const Spacer(),TextButton(
+                      Row(children: [ const Spacer(),
+                        TextButton(
+                          onPressed: () {
+                            viewLoaraSett('29');
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('View'),
+                        ),
+                        TextButton(
                         onPressed: () {
 
                           Navigator.of(context).pop();
@@ -680,7 +698,9 @@ print("payLoadFinal----${Environment.mqttPublishTopic}/${mergedList[selectindex!
                             }
                           },
                           child: const Text('Send'),
-                        ),],)
+                        ),],),
+                      Text("View to Lora Details:"),
+                      Text(mqttPayloadProvider.Loara1verssion)
 
                     ],
                   ),
@@ -716,6 +736,8 @@ print("payLoadFinal----${Environment.mqttPublishTopic}/${mergedList[selectindex!
                           )),
                         ],
                       ),
+                      Text("View to Lora Details:"),
+                      Text(mqttPayloadProvider.Loara2verssion)
                     ],
                   ),
                 ),
@@ -723,6 +745,13 @@ print("payLoadFinal----${Environment.mqttPublishTopic}/${mergedList[selectindex!
             ],
           ),
           actions: [
+            TextButton(
+              onPressed: () {
+                viewLoaraSett('30');
+                Navigator.of(context).pop();
+              },
+              child: const Text('View'),
+            ),
             TextButton(
               onPressed: () {
 
@@ -766,6 +795,7 @@ print("payLoadFinal----${Environment.mqttPublishTopic}/${mergedList[selectindex!
               },
               child: const Text('Send'),
             ),
+
           ],
         );
       },
