@@ -79,6 +79,12 @@ dependencies:
   flutter_local_notifications: ^19.2.1
   timeago: ^3.7.1
 
+  scoped_model: ^2.0.0
+  flutter_bluetooth_serial:
+    path: lib/plugins/flutter_bluetooth_serial
+
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

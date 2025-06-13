@@ -92,15 +92,16 @@ FutureOr<void> main() async {
         ChangeNotifierProvider(create: (_) => SearchProvider()),
 
         ProxyProvider2<MqttPayloadProvider, CustomerProvider, CommunicationService>(
-          update: (BuildContext context, MqttPayloadProvider mqttService,
+          update: (BuildContext context, MqttPayloadProvider mqttProvider,
               CustomerProvider customer, CommunicationService? previous) {
             return CommunicationService(
-              mqttService: MqttService(),
-              blueService: BluService(),
+              mqttService: MqttService(), // Singleton access — always same instance
+              blueService: BluService(),  // You should make this a singleton too if needed
               customerProvider: customer,
             );
           },
         ),
+
       ],
       child: const MyApp(),
     ),

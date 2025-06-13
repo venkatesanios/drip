@@ -127,6 +127,7 @@ class MqttPayloadProvider with ChangeNotifier {
    List<CustomDevice> _pairedDevices = [];
    List<CustomDevice> get pairedDevices => _pairedDevices;
 
+
    List<Map<String, dynamic>> _wifiList = [];
    List<Map<String, dynamic>> get wifiList => _wifiList;
 
@@ -155,7 +156,22 @@ class MqttPayloadProvider with ChangeNotifier {
      notifyListeners();
    }
 
+
    void updateDeviceStatus(String address, int status) {
+     for (var device in _pairedDevices) {
+       if (device.device.address == address) {
+         if (status >= 0 && status < BluDevice.values.length) {
+           device.status = BluDevice.values[status];
+           notifyListeners();
+         } else {
+           print('Invalid status int: $status');
+         }
+         break;
+       }
+     }
+   }
+
+   /*void updateDeviceStatus(String address, int status) {
      for (var device in _pairedDevices) {
        if (device.device.address == address) {
          device.status = status;
@@ -163,7 +179,7 @@ class MqttPayloadProvider with ChangeNotifier {
          break;
        }
      }
-   }
+   }*/
 
    void updateWifiList(List<Map<String, dynamic>> list) {
      _wifiList = list;

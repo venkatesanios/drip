@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart' hide BluetoothDevice;
 import 'package:oro_drip_irrigation/Screens/Dealer/controllerlogfile.dart';
 import 'package:oro_drip_irrigation/Screens/Dealer/sevicecustomer.dart';
 import 'package:oro_drip_irrigation/Screens/Logs/irrigation_and_pump_log.dart';
@@ -18,7 +20,6 @@ import '../../modules/IrrigationProgram/view/program_library.dart';
 import '../../modules/PumpController/view/node_settings.dart';
 import '../../modules/PumpController/view/pump_controller_home.dart';
 import '../../repository/repository.dart';
-import '../../services/bluetooth_sevice.dart';
 import '../../services/communication_service.dart';
 import '../../services/http_service.dart';
 import '../../utils/formatters.dart';
@@ -535,6 +536,16 @@ class MobileScreenController extends StatelessWidget {
                   Theme.of(context).primaryColorLight : Colors.redAccent,
                   onPressed: ()=>_showBottomSheet(context, vm, vm.mySiteList.data[vm.sIndex].master[vm
                       .mIndex].controllerId),
+                 /* onPressed: (){
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SelectBondedDevicePage(),
+                      ),
+                    );
+
+                  },*/
                   tooltip: 'Second Action',
                   child: commMode == 1?
                   Column(
@@ -793,15 +804,8 @@ class MobileScreenController extends StatelessWidget {
                               trailing: d.isConnected ? Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(Icons.check_circle, color: Colors.blue),
+                                  const Icon(Icons.check_circle, color: Colors.green),
                                   const SizedBox(width: 8),
-                                  /*const TextButton(
-                                    onPressed: null,
-                                    child: Text(
-                                      'Connected',
-                                      style: TextStyle(color: Colors.green),
-                                    ),
-                                  ),*/
                                   IconButton(
                                     onPressed: () {
                                       requestAndShowWifiList(context, false);
@@ -828,7 +832,7 @@ class MobileScreenController extends StatelessWidget {
                                 child: CircularProgressIndicator(strokeWidth: 2),
                               ):
                               TextButton(
-                                onPressed: d.isDisConnected? () => vm.blueService.connectToDevice(d): null,
+                                onPressed: d.isDisConnected ? () => vm.blueService.connectToDevice(d) : null,
                                 child: const Text('Connect'),
                               ),
                             );
@@ -1275,6 +1279,7 @@ class BluetoothScanTile extends StatefulWidget {
 class _BluetoothScanTileState extends State<BluetoothScanTile>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+  late Animation<double> _rotationAnimation;
   bool isScanning = false;
 
   @override
@@ -1283,8 +1288,15 @@ class _BluetoothScanTileState extends State<BluetoothScanTile>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 1),
-    )..repeat();
-    _controller.stop();
+    );
+
+    // Use linear curve for smooth, continuous rotation
+    _rotationAnimation = Tween(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.linear,
+      ),
+    );
   }
 
   Future<void> _startScan() async {
@@ -1293,12 +1305,15 @@ class _BluetoothScanTileState extends State<BluetoothScanTile>
     setState(() {
       isScanning = true;
     });
+
     _controller.repeat();
 
-    await widget.vm.blueService.getDevices();
+    await widget.vm.blueService.getDevices(); // Now it waits 10 seconds
+
     setState(() {
       isScanning = false;
     });
+
     _controller.stop();
   }
 
@@ -1319,9 +1334,12 @@ class _BluetoothScanTileState extends State<BluetoothScanTile>
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
       ),
       trailing: RotationTransition(
-        turns: _controller,
+        turns: _rotationAnimation,
         child: IconButton(
-          icon: Icon(Icons.refresh_outlined, color: isScanning? Colors.blue:Colors.black),
+          icon: Icon(
+            Icons.refresh_outlined,
+            color: isScanning ? Colors.blue : Colors.black,
+          ),
           onPressed: _startScan,
         ),
       ),

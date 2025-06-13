@@ -1,17 +1,25 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:bluetooth_classic/models/device.dart';
-import 'package:bluetooth_classic/bluetooth_classic.dart';
 import 'package:flutter/services.dart';
-import 'package:permission_handler/permission_handler.dart';
-import '../Models/customer/blu_device.dart';
 import '../StateManagement/mqtt_payload_provider.dart';
+import 'package:oro_drip_irrigation/plugins/flutter_bluetooth_serial/lib/flutter_bluetooth_serial.dart';
+
+
+enum BluDevice {
+  connected,
+  connecting,
+  disconnected
+}
 
 class CustomDevice {
-  final Device device;
-  int status;
+  final BluetoothDevice device;
 
-  CustomDevice({required this.device, this.status = BluDevice.disconnected});
+  BluDevice status;
+
+  CustomDevice({
+    required this.device,
+    this.status = BluDevice.disconnected,
+  });
 
   bool get isConnected => status == BluDevice.connected;
   bool get isConnecting => status == BluDevice.connecting;
@@ -27,234 +35,214 @@ class BluService {
     return _instance!;
   }
 
-  final _bluetoothClassicPlugin = BluetoothClassic();
-  final List<CustomDevice> _devices = [];
+  final FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
+  final List<BluetoothDevice> _devices = [];
+  BluetoothConnection? _connection;
   String? _connectedAddress;
-  bool get isConnected => connectedDevice != null;
-
   MqttPayloadProvider? providerState;
-
   String _buffer = '';
 
-  StreamSubscription<Device>? _scanSubscription;
-  late final Stream<Device> _deviceStream = _bluetoothClassicPlugin.onDeviceDiscovered().asBroadcastStream();
+  bool get isConnected => _connection != null && _connection!.isConnected;
+
+  StreamSubscription<BluetoothDiscoveryResult>? _scanSubscription;
 
   void initializeBluService({MqttPayloadProvider? state}) {
     providerState = state;
     initPermissions();
-    _listenToBluEvents();
+    _listenToData();
   }
 
   Future<void> initPermissions() async {
-    await _bluetoothClassicPlugin.initPermissions();
+    await _bluetooth.requestEnable();
   }
 
-  Future<void> requestPermissions() async {
-    final permissions = [
-      Permission.bluetoothConnect,
-      Permission.bluetoothScan,
-      Permission.locationWhenInUse,
-    ];
-
-    for (final permission in permissions) {
-      if (await permission.isDenied || await permission.isPermanentlyDenied) {
-        final result = await permission.request();
-
-        if (result.isPermanentlyDenied) {
-          // You can show a dialog and redirect user to app settings
-          print('${permission.toString()} is permanently denied. Please enable it from settings.');
-        }
-      }
-    }
-  }
-
-  void _listenToBluEvents() {
-    listenToBluDeviceStatus();
-    listenToBluData();
-  }
-
-  void listenToBluDeviceStatus() {
-    _bluetoothClassicPlugin.onDeviceStatusChanged().listen((status) {
-      if (_connectedAddress == null) return;
-
-      final index = _devices.indexWhere((d) => d.device.address == _connectedAddress);
-      if (index != -1) {
-        final d = _devices[index];
-        d.status = status;
-        providerState?.updateDeviceStatus(d.device.address, d.status);
-
-        if (status == BluDevice.connected) {
-          providerState?.updateConnectedDeviceStatus(d);
-        } else if (status == BluDevice.disconnected) {
-          _connectedAddress = null;
-          providerState?.updateConnectedDeviceStatus(null);
-        }
-      }
-    });
-  }
-
-  void listenToBluData() {
-    _bluetoothClassicPlugin.onDeviceDataReceived().listen((event) {
-
-      _buffer += utf8.decode(event);
-      print('_buffer---> $_buffer');
-
-      while (_buffer.contains('*Start') && _buffer.contains('#End')) {
-        int startIndex = _buffer.indexOf('*Start');
-        int endIndex = _buffer.indexOf('#End', startIndex);
-
-        if (startIndex != -1 && endIndex != -1 && endIndex > startIndex) {
-          String jsonString = _buffer.substring(startIndex + 6, endIndex).trim();
-          _buffer = _buffer.substring(endIndex + 1);
-          _buffer='';
-
-          try {
-            print("jsonString------>$jsonString");
-            Map<String, dynamic> jsonData = json.decode(jsonString);
-            print('jsonData---$jsonData');
-            String jsonStr = json.encode(jsonData);
-            print('Blu jsonStr:$jsonStr');
-
-            Map<String, dynamic> data = jsonStr.isNotEmpty ? jsonDecode(jsonStr) : {};
-
-            if (data['mC']?.toString() == '7300') {
-              final rawList = data["cM"]?["7301"]?["ListOfWifi"];
-              final wifiStatus = data["cM"]?["7301"]?["Status"];
-              final String interfaceType = data["cM"]?["7301"]?["InterfaceType"];
-              final String ipAddress = data["cM"]?["7301"]?["IpAddress"];
-
-              providerState?.updateWifiStatus(wifiStatus, false);
-              providerState?.updateInterfaceType(interfaceType);
-              providerState?.updateIpAddress(ipAddress);
-
-              if (rawList is List) {
-                final wifiList = rawList.map<Map<String, dynamic>>((e) => Map<String, dynamic>.from(e)).toList();
-                providerState?.updateWifiList(wifiList);
-              } else {
-                print('ListOfWifi is not a List');
-              }
-            }
-            else if (data['mC']?.toString() == '4200') {
-              final cM = data['cM'] as Map<String, dynamic>?;
-              if (cM != null && cM.isNotEmpty) {
-                final firstEntry = cM.entries.first.value as Map<String, dynamic>;
-                final message = firstEntry['Message'];
-                final cleanedMessage = message?.trim();
-                if (cleanedMessage != null) {
-                  providerState?.updateWifiMessage(cleanedMessage);
-                } else {
-                  print('Message is null or empty');
-                }
-              }
-            }
-            else if (data['mC']?.toString() == '6600') {
-              //logs
-              final cM = data['cM'] as Map<String, dynamic>?;
-              if (cM != null && cM.isNotEmpty) {
-                providerState?.updateReceivedPayload(jsonEncode(data), false);
-              }
-            }
-            else {
-              providerState?.updateReceivedPayload(jsonStr, true);
-            }
-          } catch (e) {
-            print('JSON parsing failed: $e');
-          }
-        } else {
-          break;
-        }
-      }
-    });
-  }
 
   Future<void> getDevices() async {
-    await _scanSubscription?.cancel();
-    await _bluetoothClassicPlugin.startScan();
+    _devices.clear();
 
-    _scanSubscription = _deviceStream.listen((device) {
-      if (device.name != null && device.name!.startsWith('NIA_')) {
-        final customDevice = CustomDevice(device: device);
-        if (!_devices.any((d) => d.device.address == customDevice.device.address)) {
-          _devices.add(customDevice);
-          providerState?.updatePairedDevices(List.from(_devices));
+    final completer = Completer<void>();
+
+    _scanSubscription = FlutterBluetoothSerial.instance.startDiscovery().listen((result) {
+      final device = result.device;
+
+      if ((device.name?.startsWith('NIA_') ?? false)) {
+        final exists = _devices.any((d) => d.address == device.address);
+        if (!exists) {
+          _devices.add(device);
+
+          final existing = providerState?.pairedDevices.firstWhere(
+                (e) => e.device.address == device.address,
+            orElse: () => CustomDevice(device: device),
+          );
+
+          final updatedDevice = CustomDevice(
+            device: device,
+            status: existing?.status ?? BluDevice.disconnected,
+          );
+
+          final List<CustomDevice> updatedList = [
+            ...(providerState?.pairedDevices
+                .where((d) => d.device.address != device.address)
+                .toList() ??
+                <CustomDevice>[]),
+            updatedDevice,
+          ];
+
+          providerState?.updatePairedDevices(updatedList);
         }
       }
     });
 
-    await Future.delayed(const Duration(seconds: 10));
-    await _bluetoothClassicPlugin.stopScan();
-    await _scanSubscription?.cancel();
+    // Cancel after 10 seconds and complete the future
+    Future.delayed(const Duration(seconds: 10)).then((_) async {
+      await _scanSubscription?.cancel();
+      FlutterBluetoothSerial.instance.cancelDiscovery();
+      print("Discovery stopped.");
+      completer.complete();
+    });
+
+    return completer.future;
   }
 
-  Future<void> connectToDevice(CustomDevice customDevice) async {
-    if (customDevice.device.address.isEmpty) {
-      print('Invalid device address');
-      return;
-    }
 
-    await requestPermissions();
-
-    _connectedAddress = customDevice.device.address;
-    customDevice.status = BluDevice.connecting;
-    providerState?.updateDeviceStatus(customDevice.device.address, customDevice.status);
-
-    try {
-      await _bluetoothClassicPlugin.stopScan();
-      await Future.delayed(const Duration(milliseconds: 300));
-
-      if (isConnected) {
-        try {
-          await _bluetoothClassicPlugin.disconnect();
-          await Future.delayed(const Duration(milliseconds: 300));
-        } catch (e) {
-          print('Error during pre-disconnect: $e');
+  Future<void> startScan() async {
+    _scanSubscription?.cancel();
+    _scanSubscription = _bluetooth.startDiscovery().listen((result) {
+      if (result.device.name?.startsWith('NIA_') ?? false) {
+        final exists = _devices.any((d) => d.address == result.device.address);
+        if (!exists) {
+          _devices.add(result.device);
+          providerState?.updatePairedDevices(
+            _devices.map((d) => CustomDevice(device: d)).toList(),
+          );
         }
       }
+    });
 
-      await _bluetoothClassicPlugin
-          .connect(
-        customDevice.device.address,
-        "00001101-0000-1000-8000-00805f9b34fb",
-      )
-          .timeout(const Duration(seconds: 8));
+    // Stop scan after timeout
+    Future.delayed(const Duration(seconds: 10)).then((_) async {
+      await _scanSubscription?.cancel();
+    });
+  }
 
-      customDevice.status = BluDevice.connected;
-      providerState?.updateDeviceStatus(customDevice.device.address, customDevice.status);
-    } on TimeoutException {
-      print("Connection timed out");
-      customDevice.status = BluDevice.disconnected;
-      providerState?.updateDeviceStatus(customDevice.device.address, customDevice.status);
-      _connectedAddress = null;
-    } on PlatformException catch (e) {
-      print("PlatformException during connect: ${e.message}");
-      customDevice.status = BluDevice.disconnected;
-      providerState?.updateDeviceStatus(customDevice.device.address, customDevice.status);
-      _connectedAddress = null;
+  Future<void> connectToDevice(CustomDevice device) async {
+    try {
+      // Update to connecting
+      providerState?.updateDeviceStatus(device.device.address, BluDevice.connecting.index);
+
+      // Disconnect any existing connection
+      if (isConnected) {
+        await disconnect();
+      }
+
+      _connectedAddress = device.device.address;
+
+      final connection = await BluetoothConnection.toAddress(device.device.address);
+      _connection = connection;
+
+      //  Update to connected
+      providerState?.updateDeviceStatus(device.device.address, BluDevice.connected.index);
+      providerState?.updateConnectedDeviceStatus(device);
+
+      connection.input?.listen((Uint8List data) {
+        _buffer += utf8.decode(data);
+        _parseBuffer();
+      }).onDone(() {
+        _connectedAddress = null;
+        _connection = null;
+
+        // Update to disconnected when done
+        providerState?.updateDeviceStatus(device.device.address, BluDevice.disconnected.index);
+        providerState?.updateConnectedDeviceStatus(null);
+      });
     } catch (e) {
-      print('Connection error: $e');
-      customDevice.status = BluDevice.disconnected;
-      providerState?.updateDeviceStatus(customDevice.device.address, customDevice.status);
-      _connectedAddress = null;
+      print("Connection failed: $e");
+
+      // Update to disconnected on error
+      providerState?.updateDeviceStatus(device.device.address, BluDevice.disconnected.index);
+      providerState?.updateConnectedDeviceStatus(null);
     }
   }
 
-  CustomDevice? get connectedDevice {
+  void _parseBuffer() {
+    while (_buffer.contains('*Start') && _buffer.contains('#End')) {
+      final start = _buffer.indexOf('*Start');
+      final end = _buffer.indexOf('#End', start);
+
+      if (start != -1 && end != -1 && end > start) {
+        final jsonString = _buffer.substring(start + 6, end).trim();
+        _buffer = _buffer.substring(end + 4); // skip past #End
+        _processData(jsonString);
+      } else {
+        break;
+      }
+    }
+  }
+
+  void _processData(String jsonString) {
     try {
-      return _devices.firstWhere(
-            (device) => device.device.address == _connectedAddress && device.isConnected,
-      );
-    } catch (_) {
-      return null;
+      final data = json.decode(jsonString);
+      final jsonStr = json.encode(data);
+
+      switch (data['mC'].toString()) {
+        case '7300':
+          final rawList = data["cM"]?["7301"]?["ListOfWifi"];
+          final wifiStatus = data["cM"]?["7301"]?["Status"];
+          final interfaceType = data["cM"]?["7301"]?["InterfaceType"];
+          final ipAddress = data["cM"]?["7301"]?["IpAddress"];
+
+          providerState?.updateWifiStatus(wifiStatus, false);
+          providerState?.updateInterfaceType(interfaceType);
+          providerState?.updateIpAddress(ipAddress);
+
+          if (rawList is List) {
+            final wifiList = rawList.map<Map<String, dynamic>>((e) => Map<String, dynamic>.from(e)).toList();
+            providerState?.updateWifiList(wifiList);
+          }
+          break;
+        case '4200':
+          final message = data['cM']?.entries.first.value['Message']?.trim();
+          if (message != null) {
+            providerState?.updateWifiMessage(message);
+          }
+          break;
+        case '6600':
+          providerState?.updateReceivedPayload(jsonStr, false);
+          break;
+        default:
+          providerState?.updateReceivedPayload(jsonStr, true);
+          break;
+      }
+    } catch (e) {
+      print("Error parsing: $e");
     }
   }
 
   Future<void> write(String payload) async {
-    String modifiedPayload = '*$payload#';
-    print('payload to bluetooth: $modifiedPayload');
-    try {
-      await _bluetoothClassicPlugin.write(modifiedPayload);
-    } catch (e) {
-      print('Write error: $e');
+    if (_connection != null && _connection!.isConnected) {
+      final finalPayload = '*$payload#';
+      print("Sending: $finalPayload");
+      _connection!.output.add(Uint8List.fromList(utf8.encode(finalPayload + "\r\n")));
     }
+  }
+
+  Future<void> disconnect() async {
+    try {
+      await _connection?.close();
+    } catch (e) {
+      print("Disconnect failed: $e");
+    } finally {
+      _connection = null;
+      _connectedAddress = null;
+      providerState?.updateConnectedDeviceStatus(null);
+    }
+  }
+
+  void _listenToData() {
+    // This method was merged into connectToDevice logic
+  }
+
+  BluetoothDevice? get connectedDevice {
+    return _devices.firstWhere((d) => d.address == _connectedAddress);
   }
 }

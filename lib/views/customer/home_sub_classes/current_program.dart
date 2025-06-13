@@ -219,6 +219,7 @@ class CurrentProgram extends StatelessWidget {
 
   Widget buildActionButton(BuildContext context, List<String> values) {
     final programName = getProgramNameById(int.parse(values[0]));
+    print('programName:$programName');
     if (programName == 'StandAlone - Manual') {
       return MaterialButton(
         color: Colors.redAccent,
@@ -248,7 +249,7 @@ class CurrentProgram extends StatelessWidget {
 
           String payLoadFinal = jsonEncode({
             "3900": {"3901": '0,${values[3]},${values[0]},'
-                '${values[1]},,,,,,,,,0,'}
+                '${values[1]},,,,,,,0'}
           });
 
           final result = await context.read<CommunicationService>().sendCommand(

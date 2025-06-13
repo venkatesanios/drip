@@ -61,10 +61,10 @@ packages:
     dependency: "direct main"
     description:
       name: bluetooth_classic
-      sha256: "42db30b681fc001f44f34c9c4ce8ea77ee0b88e9a83de14df29e37cb49493669"
+      sha256: c92e10fb8f8114a19603c48b02ddfda448b41d6a9cf79eb192f82c6ed3bc0df5
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.3"
+    version: "0.0.4"
   bluez:
     dependency: transitive
     description:
@@ -382,6 +382,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
+  flutter_bluetooth_serial:
+    dependency: "direct main"
+    description:
+      path: "lib/plugins/flutter_bluetooth_serial"
+      relative: true
+    source: path
+    version: "0.4.0"
   flutter_date_range_picker:
     dependency: "direct main"
     description:
@@ -1096,6 +1103,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
+  scoped_model:
+    dependency: "direct main"
+    description:
+      name: scoped_model
+      sha256: "8dacc77cb5de78d5e159d54cab883847491a73dfaa3d28c52f4ec8b0be32645b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   shared_preferences:
     dependency: "direct main"
     description:
