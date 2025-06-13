@@ -196,9 +196,9 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
       String filePath = '$appDocPath/$localFileNameForTrace.txt';
       final localFile = File(filePath);
       await localFile.writeAsString(traceData.join('\n'));
-      int uploadResponse = await sftpService.uploadFile(localFileName: localFileNameForTrace, remoteFilePath: '/home/ubuntu/oro2024/OroGem/OroGemLogs/${type}${dateString}${widget.deviceID}.txt');
+      int uploadResponse = await sftpService.uploadFile(localFileName: localFileNameForTrace, remoteFilePath: '/home/ubuntu/oro2024/OroGem/OroGemLogs/${widget.deviceID}_${type}_${dateString}.txt');
       if(uploadResponse == 200){
-        _showSnackBar("/home/ubuntu/oro2024/OroGem/OroGemLogs/${type}${dateString}${widget.deviceID}.txt \n FTP upload success'...");
+        _showSnackBar("/home/ubuntu/oro2024/OroGem/OroGemLogs/${widget.deviceID}_${type}_${dateString}.txt \n FTP upload success'...");
         print('upload success');
       }else{
         _showSnackBar("FTP upload failed...");
@@ -319,7 +319,7 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
             icon: Icons.cloud_upload,
             onPressed: () {
                _showSnackBar("Today log send FTP...");
-              uploadToFile('$currentLogType,today');
+              uploadToFile('$currentLogType');
             },
           ) : Container(),
           const SizedBox(width: 10),
@@ -345,7 +345,7 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
             icon: Icons.cloud_upload,
             onPressed: () {
               _showSnackBar("Yesterday log send FTP...");
-              uploadToFile('$currentLogType,yesterday');
+              uploadToFile('$currentLogType');
             },
           ) : Container()
         ],

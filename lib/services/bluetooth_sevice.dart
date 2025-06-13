@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
 import 'package:flutter/services.dart';
 import '../StateManagement/mqtt_payload_provider.dart';
 import 'package:oro_drip_irrigation/plugins/flutter_bluetooth_serial/lib/flutter_bluetooth_serial.dart';
@@ -42,7 +43,8 @@ class BluService {
   MqttPayloadProvider? providerState;
   String _buffer = '';
   List<String> traceLog = [];
-
+  bool isLogging = false;
+  String traceChunk = '';
   bool get isConnected => _connection != null && _connection!.isConnected;
 
   StreamSubscription<BluetoothDiscoveryResult>? _scanSubscription;
@@ -64,6 +66,11 @@ class BluService {
     }
     return totalBytes;
   }
+
+  int getCurrentChunkSize() {
+    return utf8.encode(traceChunk).length;
+  }
+
   Future<void> getDevices() async {
     _devices.clear();
 
@@ -153,6 +160,7 @@ class BluService {
 
       connection.input?.listen((Uint8List data) {
         _buffer += utf8.decode(data);
+        print('_buffer-------------> $_buffer');
         _parseBuffer();
       }).onDone(() {
         _connectedAddress = null;
@@ -171,47 +179,133 @@ class BluService {
     }
   }
 
-  void _parseBuffer() {
+  void _parseBuffer11() {
+    print('_buffer----> $_buffer');
     bool startlog = false;
-    if (_buffer.contains('LogFileSentSuccess')) {
-
-      startlog = false;
+      if (_buffer.contains('LogFileSentSuccess')) {
+      print('LogFileSentSuccess------true');
       providerState?.setTraceLoading(false);
     }
-    if(_buffer.contains('*StartLog')) {
-      startlog = true;
-    }
-    if(_buffer.contains('*StartLog')) {
-      int setTotalTraceSize = 34567890;
-      providerState?.setTotalTraceSize(setTotalTraceSize);
-    }
 
+     if (_buffer.contains('*StartLog')) {
+      startlog = true;
+        if (_buffer.contains('LogFileSize')) {
+       String sizeStr = _buffer.split(':')[1];
+         final totalSize = int.tryParse(sizeStr ?? '0') ?? 0;
+        providerState?.setTotalTraceSize(totalSize);
+      }
+
+
+
+    }
 
     providerState?.setTraceLoading(true);
 
-    if(startlog) traceLog.add(_buffer);
-    providerState?.updatetracelog(traceLog);
-    int sizeInBytes = getTraceLogSize();
-    print('TraceLog size in bytes: $sizeInBytes');
-    providerState?.setTraceLoadingsize(sizeInBytes);
-    if(_buffer.contains('#EndLog')){
+    // Only add current buffer to traceLog if startlog is true
+    if (startlog) {
+      traceLog.add(_buffer);
+      providerState?.updatetracelog(traceLog);
+      int sizeInBytes = getTraceLogSize();
+      print('TraceLog size in bytes: $sizeInBytes');
+      providerState?.setTraceLoadingsize(sizeInBytes);
+    }
+
+    if (_buffer.contains('#EndLog')) {
+      // print('#EndLog ----#EndLog');
       startlog = false;
     }
 
-
+    // Extract and process all JSON segments between *Start and #End
     while (_buffer.contains('*Start') && _buffer.contains('#End')) {
       final start = _buffer.indexOf('*Start');
       final end = _buffer.indexOf('#End', start);
 
       if (start != -1 && end != -1 && end > start) {
         final jsonString = _buffer.substring(start + 6, end).trim();
-        _buffer = _buffer.substring(end + 4); // skip past #End
         _processData(jsonString);
+
+        // Remove processed part from _buffer
+        _buffer = _buffer.substring(end + 4); // skip past '#End'
       } else {
         break;
       }
     }
+
+    // Keep leftover data for next cycle, don't clear buffer prematurely
+    // Remove this line:
+    // _buffer = '';
   }
+
+  void _parseBuffer() {
+    print('_buffer----> $_buffer');
+
+    // Start logging when *StartLog appears
+
+    if (_buffer.contains('LogFileSentSuccess')) {
+      isLogging = false;
+
+      traceLog.add(traceChunk); // Add collected chunk to log
+      providerState?.updatetracelog(traceLog);
+
+      providerState?.setTraceLoading(false);
+
+      int sizeInBytes = getTraceLogSize();
+      print('TraceLog size in bytes: $sizeInBytes');
+      providerState?.setTraceLoadingsize(sizeInBytes);
+
+      traceChunk = ''; // Clear buffer for next round
+    }
+    if (_buffer.contains('*StartLog')) {
+      isLogging = true;
+      traceChunk = ''; // Reset previous chunk
+
+      final startIndex = _buffer.indexOf('*StartLog');
+      traceChunk += _buffer.substring(startIndex);
+      int sizeInBytes = getCurrentChunkSize();
+       providerState?.setTraceLoadingsize(sizeInBytes);
+      // Start collecting from *StartLog
+    }
+
+    // Continue logging: append new data to traceChunk
+    if (isLogging && !_buffer.contains('*StartLog')) {
+      traceChunk += _buffer;
+      int sizeInBytes = getCurrentChunkSize();
+       providerState?.setTraceLoadingsize(sizeInBytes);
+    }
+
+    // Extract and set LogFileSize if available
+    final sizeMatch = RegExp(r'LogFileSize:(\d+)').firstMatch(_buffer);
+    if (sizeMatch != null) {
+      final sizeStr = sizeMatch.group(1);
+      final totalSize = int.tryParse(sizeStr ?? '0') ?? 0;
+      providerState?.setTotalTraceSize(totalSize);
+    }
+
+    // Stop logging when LogFileSentSuccess appears
+
+
+    // While logging, show loading
+    if (isLogging) {
+      providerState?.setTraceLoading(true);
+    }
+
+    // Handle JSON packets between *Start and #End
+    while (_buffer.contains('*Start') && _buffer.contains('#End')) {
+      final start = _buffer.indexOf('*Start');
+      final end = _buffer.indexOf('#End', start);
+
+      if (start != -1 && end != -1 && end > start) {
+        final jsonString = _buffer.substring(start + 6, end).trim();
+        _processData(jsonString);
+        _buffer = _buffer.substring(end + 4); // skip past '#End'
+      } else {
+        break;
+      }
+    }
+
+    // Do NOT clear _buffer fully—let it continue accumulating partial data
+  }
+
 
   void _processData(String jsonString) {
     try {
