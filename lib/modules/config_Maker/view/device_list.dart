@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 import '../../../Constants/communication_codes.dart';
 import '../../../Constants/dialog_boxes.dart';
 import '../../../Constants/properties.dart';
+import '../../../services/mqtt_service.dart';
+import '../../../utils/environment.dart';
 import '../model/device_model.dart';
 import '../repository/config_maker_repository.dart';
 import '../state_management/config_maker_provider.dart';
@@ -33,6 +35,7 @@ class _DeviceListState extends State<DeviceList> {
   late ThemeData themeData;
   late bool themeMode;
   String replaceDeviceId = '';
+  MqttService mqttService = MqttService();
 
   @override
   void initState() {
@@ -240,13 +243,16 @@ class _DeviceListState extends State<DeviceList> {
                           modelId: masterOrNode == 1 ? configPvd.masterData['modelId'] : device!.modelId,
                       );
                       if(status == 200){
+                        var oldTopic = '${Environment.mqttSubscribeTopic}/${configPvd.masterData['deviceId']}';
+                        if(masterOrNode == 1){
+                          configPvd.masterData['deviceId'] = replaceDeviceId;
+                        }else{
+                          device!.deviceId = replaceDeviceId;
+                        }
                         setState(() {
-                          if(masterOrNode == 1){
-                            configPvd.masterData['deviceId'] = replaceDeviceId;
-                          }else{
-                            device!.deviceId = replaceDeviceId;
-                          }
                         });
+                        mqttService.topicToSubscribe('${Environment.mqttSubscribeTopic}/${configPvd.masterData['deviceId']}');
+                        mqttService.topicToUnSubscribe(oldTopic);
                       }
                       Navigator.pop(context);
                     },
@@ -312,8 +318,6 @@ class _DeviceListState extends State<DeviceList> {
     );
   }
 
-
-
   String getInitialExtendValue(int? extendControllerId){
     String value;
     if(extendControllerId != null){
@@ -334,7 +338,6 @@ class _DeviceListState extends State<DeviceList> {
       return deviceModel.controllerId;
     }
   }
-
 
   Widget masterBox(
       {
