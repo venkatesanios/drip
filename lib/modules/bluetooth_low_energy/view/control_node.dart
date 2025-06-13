@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/node_not_get_live.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 import '../../../Constants/dialog_boxes.dart';
@@ -14,22 +15,27 @@ class ControlNode extends StatefulWidget {
 
 class _ControlNodeState extends State<ControlNode> {
   late BleProvider bleService;
+  bool loading = false;
 
   @override
   void initState() {
     super.initState();
     bleService = Provider.of<BleProvider>(context, listen: false);
+    bleService.onRefresh();
   }
 
   @override
   Widget build(BuildContext context) {
     bleService = Provider.of<BleProvider>(context, listen: true);
+    int keyCount = bleService.nodeDataFromHw.keys.length;
+
     return Scaffold(
       backgroundColor: const Color(0xffF7FFFD),
       appBar: AppBar(
         title: const Text('Control'),
       ),
-      body: SingleChildScrollView(
+      body: keyCount > 4
+          ? SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(15.0),
           child: Column(
@@ -48,7 +54,28 @@ class _ControlNodeState extends State<ControlNode> {
             ],
           ),
         ),
-      ),
+      )
+          : NodeNotGetLive(
+              loading: loading,
+              onPressed: ()async{
+                setState(() {
+                  loading = true;
+                });
+                bleService.onRefresh();
+                int delaySeconds = 5;
+                for(var second = 0;second < delaySeconds;second++){
+                  if(bleService.nodeDataFromHw.containsKey('BAT')){
+                    break;
+                  }
+                  await Future.delayed(const Duration(seconds: 1));
+                  if(second == (delaySeconds - 1)){
+                    setState(() {
+                      loading = false;
+                    });
+                  }
+                }
+              }
+          ),
     );
   }
 
@@ -250,7 +277,7 @@ class _ControlNodeState extends State<ControlNode> {
       );
     }
     );
-    await Future.delayed(Duration(seconds: 1), (){
+    await Future.delayed(const Duration(seconds: 3), (){
       Navigator.pop(context);
     });
     simpleDialogBox(context: context, title: 'Success', message: 'Relay Setting Sent Successfully...');
@@ -316,6 +343,7 @@ class _ControlNodeState extends State<ControlNode> {
   }
 
   Widget analogDetailsWidget(){
+    print("bleService.nodeDataFromServer : ${bleService.nodeDataFromServer}");
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -329,7 +357,7 @@ class _ControlNodeState extends State<ControlNode> {
             physics: const NeverScrollableScrollPhysics(),
           ),
           children: [
-              for(var analog = 0;analog < bleService.nodeDataFromServer['analogInput'];analog++)
+              for(var analog = 0;analog < int.parse(bleService.nodeDataFromServer['analogInput']);analog++)
                 if(bleService.nodeDataFromHw.containsKey('AD${analog+1}'))
                   commonParameterWidget(title: 'Analog ${analog + 1}', value: bleService.nodeDataFromHw['AD${analog+1}']),
           ],

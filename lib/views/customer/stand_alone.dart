@@ -1180,6 +1180,9 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                                   activeColor: Colors.teal,
                                   onChanged: (value) {
                                     setState(() {
+                                      for (var sequence in vm.standAloneData!.sequence) {
+                                        sequence.selected = false;
+                                      }
                                       sequence.selected = value;
                                     });
                                   },

@@ -72,11 +72,20 @@ android {
                     throw new GradleException("key.properties file not found at: ${keyPropertiesFile.absolutePath}")
                 }
             } else {
+<<<<<<< HEAD
                 println "Local environment: Using hardcoded signing configuration"
                 storeFile file("D:\\drip\\android\\app\\release-key.jks")
                 storePassword "Oro@321"
                 keyAlias "upload"
                 keyPassword "Oro@321"
+=======
+//                 Local development configuration (this can stay as it is)
+                storeFile file("D:\\drip\\android\\app\\release-key.jks")
+//                storeFile = file("/Users/user/Documents/drip/android/local.properties")
+                storePassword = "Oro@321"
+                keyAlias = "upload"
+                keyPassword = "Oro@321"
+>>>>>>> e77c37186c5bc3c258197b036ec4f63309446827
             }
         }
     }

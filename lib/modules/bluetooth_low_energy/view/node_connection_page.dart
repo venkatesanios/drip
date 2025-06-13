@@ -116,6 +116,7 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
       onPopInvokedWithResult: (bool didPop, result) async{
         print("didPop : $didPop");
         print("result : $result");
+        if (didPop) return;
         if (bleService.bleConnectionState == BluetoothConnectionState.connected) {
           bool shouldLeave = await showDialog(
             context: context,
@@ -142,6 +143,12 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
           if(shouldLeave){
             Navigator.of(context).pop(result);
           }
+        }
+        else if([BleNodeState.scanning.name, BleNodeState.deviceFound.name, BleNodeState.connecting.name].contains(bleService.bleNodeState.name)){
+          setState(() {
+            bleService.forceStop = true;
+          });
+          Navigator.of(context).pop(result);
         }
         else{
           Navigator.of(context).pop(result);
@@ -387,6 +394,7 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
+        spacing: 30,
         mainAxisSize: MainAxisSize.min,
         children: [
           Image.asset(
@@ -396,18 +404,29 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
           const Text(
             'Please ensure you are nearby the bluetooth kit.',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 16,
               color: Colors.black54,
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
-          ElevatedButton(
-              onPressed: (){
-                bleService.autoConnect();
-              },
-              child: const Text('Connect Again', style: TextStyle(color: Colors.white),)
-          )
+          FilledButton.icon(
+            icon: const Icon(Icons.bluetooth),
+            onPressed: () {
+              bleService.autoConnect();
+            },
+            label: const Text('Connect Again'),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).primaryColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+              textStyle: const TextStyle(fontSize: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+
         ],
       ),
     );

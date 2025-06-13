@@ -42,6 +42,9 @@ class Environment {
       'mqttMobilePort': 1883,
       "mqttUserName" : '',
       "mqttPassword" : '',
+      'sftpIpAddress': '54.179.114.89',
+      'sftpPort': 22,
+      'privateKeyPath': 'assets/ssh/smartComm/id_rsa',
     },
   };
 

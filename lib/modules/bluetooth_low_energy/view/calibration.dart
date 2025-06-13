@@ -4,6 +4,7 @@ import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
 
 import '../state_management/ble_service.dart';
+import 'node_not_get_live.dart';
 
 class Calibration extends StatefulWidget {
   final Map<String, dynamic> nodeData;
@@ -18,6 +19,7 @@ class _CalibrationState extends State<Calibration> {
   List<dynamic> ecSensorList = [];
   List<dynamic> phSensorList = [];
   List<dynamic> waterMeter = [];
+  bool loading = false;
 
   final inputDecoration = InputDecoration(
     filled: true,
@@ -49,12 +51,13 @@ class _CalibrationState extends State<Calibration> {
   @override
   Widget build(BuildContext context) {
     bleService = Provider.of<BleProvider>(context, listen: true);
-
+    int keyCount = bleService.nodeDataFromHw.keys.length;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Calibration'),
       ),
-      body: SingleChildScrollView(
+      body: keyCount > 4
+          ? SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -77,7 +80,28 @@ class _CalibrationState extends State<Calibration> {
             ],
           ),
         ),
-      ),
+      )
+          : NodeNotGetLive(
+          loading: loading,
+          onPressed: ()async{
+            setState(() {
+              loading = true;
+            });
+            bleService.onRefresh();
+            int delaySeconds = 5;
+            for(var second = 0;second < delaySeconds;second++){
+              if(bleService.nodeDataFromHw.containsKey('BAT')){
+                break;
+              }
+              await Future.delayed(const Duration(seconds: 1));
+              if(second == (delaySeconds - 1)){
+                setState(() {
+                  loading = false;
+                });
+              }
+            }
+          }
+          ),
     );
   }
 
@@ -86,11 +110,11 @@ class _CalibrationState extends State<Calibration> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: 250,
+          width: 200,
           padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 8),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
               borderRadius: BorderRadius.only(topLeft: Radius.circular(5) ,topRight: Radius.circular(27.5), ),
-              color: Color(0xff008CD7)
+              color: Theme.of(context).primaryColorLight
           ),
           child: Center(
             child: Text('${waterMeter[0]['name']}',style: TextStyle(color: Colors.white, fontSize: 14),),
@@ -99,7 +123,7 @@ class _CalibrationState extends State<Calibration> {
         Container(
           decoration: BoxDecoration(
               borderRadius: const BorderRadius.only(topRight: Radius.circular(5), bottomLeft: Radius.circular(5), bottomRight: Radius.circular(5)),
-              border: Border.all(width: 0.5, color: const Color(0xff008CD7)),
+              border: Border.all(width: 0.5, color: Theme.of(context).primaryColorLight),
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
@@ -112,12 +136,12 @@ class _CalibrationState extends State<Calibration> {
           ),
           width: double.infinity,
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 8),
             child: Column(
               spacing: 20,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     SizedBox(
                       width: 150,
@@ -129,23 +153,55 @@ class _CalibrationState extends State<Calibration> {
                             padding: const EdgeInsets.all(8.0),
                             child: SvgPicture.asset(
                               'assets/Images/Svg/objectId_${AppConstants.waterMeterObjectId}.svg',
-                              height: 40,
+                              height: 20,
                               color: Colors.black,
                             ),
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(
-                      width: 150,
-                      child: ElevatedButton.icon(
-                        onPressed: (){
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor,
+                        shape: BoxShape.circle, // or BoxShape.rectangle
+                      ),
+                      child: IconButton(
+                        onPressed: () {
                           bleService.onRefresh();
                         },
-                        icon: const Icon(Icons.refresh, color: Colors.white,),
-                        label: const Text("Refresh", style: TextStyle(color: Colors.white),),
+                        icon: const Icon(Icons.refresh, color: Colors.white),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 100,
+                      child: ElevatedButton.icon(
+                        onPressed: (){
+                          var payload = '${bleService.nodeDataFromServer['calibrationSetting']['cumulative']}${bleService.cumulativeController.text}:';
+                          var sumOfAscii = 0;
+                          for(var i in payload.split('')){
+                            var bytes = i.codeUnitAt(0);
+                            sumOfAscii += bytes;
+                          }
+                          var addFirst = '';
+                          for(var i = 0;i < (3-('${sumOfAscii % 256}'.length));i++){
+                            addFirst += '0';
+                          }
+                          payload += '$addFirst${sumOfAscii % 256}:\r';
+                          List<int> fullData = [];
+                          for(var i in payload.split('')){
+                            var bytes = i.codeUnitAt(0);
+                            fullData.add(bytes);
+                          }
+                          print('sumOfAscii : $sumOfAscii');
+                          print('crc : ${sumOfAscii % 256}');
+                          print('fullData : ${fullData}');
+                          print('payload : ${payload}');
+                          bleService.sendDataToHw(fullData);
+                        },
+                        icon: const Icon(Icons.send, color: Colors.white,),
+                        label: const Text("Send", style: TextStyle(color: Colors.white),),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xff005C8E),
+                          backgroundColor: Theme.of(context).primaryColorLight,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
@@ -155,43 +211,7 @@ class _CalibrationState extends State<Calibration> {
                     )
                   ],
                 ),
-                SizedBox(
-                  width: 150,
-                  child: ElevatedButton.icon(
-                    onPressed: (){
-                      var payload = '${bleService.nodeDataFromServer['calibrationSetting']['cumulative']}${bleService.cumulativeController.text}:';
-                      var sumOfAscii = 0;
-                      for(var i in payload.split('')){
-                        var bytes = i.codeUnitAt(0);
-                        sumOfAscii += bytes;
-                      }
-                      var addFirst = '';
-                      for(var i = 0;i < (3-('${sumOfAscii % 256}'.length));i++){
-                        addFirst += '0';
-                      }
-                      payload += '$addFirst${sumOfAscii % 256}:\r';
-                      List<int> fullData = [];
-                      for(var i in payload.split('')){
-                        var bytes = i.codeUnitAt(0);
-                        fullData.add(bytes);
-                      }
-                      print('sumOfAscii : $sumOfAscii');
-                      print('crc : ${sumOfAscii % 256}');
-                      print('fullData : ${fullData}');
-                      print('payload : ${payload}');
-                      bleService.sendDataToHw(fullData);
-                    },
-                    icon: const Icon(Icons.send, color: Colors.white,),
-                    label: const Text("Submit", style: TextStyle(color: Colors.white),),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).primaryColorLight,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                  ),
-                )
+
 
               ],
             ),
@@ -206,11 +226,11 @@ class _CalibrationState extends State<Calibration> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: 250,
+          width: 200,
           padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 8),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
               borderRadius: BorderRadius.only(topLeft: Radius.circular(5) ,topRight: Radius.circular(27.5), ),
-              color: Color(0xff008CD7)
+              color: Theme.of(context).primaryColorLight
           ),
           child: Center(
             child: Text('Battery Calibration',style: TextStyle(color: Colors.white, fontSize: 14),),
@@ -219,7 +239,7 @@ class _CalibrationState extends State<Calibration> {
         Container(
           decoration: BoxDecoration(
               borderRadius: const BorderRadius.only(topRight: Radius.circular(5), bottomLeft: Radius.circular(5), bottomRight: Radius.circular(5)),
-              border: Border.all(width: 0.5, color: const Color(0xff008CD7)),
+              border: Border.all(width: 0.5, color: Theme.of(context).primaryColorLight),
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
@@ -232,12 +252,12 @@ class _CalibrationState extends State<Calibration> {
           ),
           width: double.infinity,
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 8),
             child: Column(
               spacing: 20,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     SizedBox(
                       width: 150,
@@ -249,16 +269,48 @@ class _CalibrationState extends State<Calibration> {
                         ),
                       ),
                     ),
-                    SizedBox(
-                      width: 150,
-                      child: ElevatedButton.icon(
-                        onPressed: (){
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor,
+                        shape: BoxShape.circle, // or BoxShape.rectangle
+                      ),
+                      child: IconButton(
+                        onPressed: () {
                           bleService.onRefresh();
                         },
-                        icon: const Icon(Icons.refresh, color: Colors.white,),
-                        label: const Text("Refresh", style: TextStyle(color: Colors.white),),
+                        icon: const Icon(Icons.refresh, color: Colors.white),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 100,
+                      child: ElevatedButton.icon(
+                        onPressed: (){
+                          var payload = '${bleService.nodeDataFromServer['settingCommand']['sendBatterySettingCommand']}${bleService.batteryController.text}:';
+                          var sumOfAscii = 0;
+                          for(var i in payload.split('')){
+                            var bytes = i.codeUnitAt(0);
+                            sumOfAscii += bytes;
+                          }
+                          var addFirst = '';
+                          for(var i = 0;i < (3-('${sumOfAscii % 256}'.length));i++){
+                            addFirst += '0';
+                          }
+                          payload += '$addFirst${sumOfAscii % 256}:\r';
+                          List<int> fullData = [];
+                          for(var i in payload.split('')){
+                            var bytes = i.codeUnitAt(0);
+                            fullData.add(bytes);
+                          }
+                          print('sumOfAscii : $sumOfAscii');
+                          print('crc : ${sumOfAscii % 256}');
+                          print('fullData : ${fullData}');
+                          print('payload : ${payload}');
+                          bleService.sendDataToHw(fullData);
+                        },
+                        icon: const Icon(Icons.send, color: Colors.white,),
+                        label: const Text("Send", style: TextStyle(color: Colors.white),),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xff005C8E),
+                          backgroundColor: Theme.of(context).primaryColorLight,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
@@ -268,43 +320,7 @@ class _CalibrationState extends State<Calibration> {
                     )
                   ],
                 ),
-                SizedBox(
-                  width: 150,
-                  child: ElevatedButton.icon(
-                    onPressed: (){
-                      var payload = '${bleService.nodeDataFromServer['settingCommand']['sendBatterySettingCommand']}${bleService.batteryController.text}:';
-                      var sumOfAscii = 0;
-                      for(var i in payload.split('')){
-                        var bytes = i.codeUnitAt(0);
-                        sumOfAscii += bytes;
-                      }
-                      var addFirst = '';
-                      for(var i = 0;i < (3-('${sumOfAscii % 256}'.length));i++){
-                        addFirst += '0';
-                      }
-                      payload += '$addFirst${sumOfAscii % 256}:\r';
-                      List<int> fullData = [];
-                      for(var i in payload.split('')){
-                        var bytes = i.codeUnitAt(0);
-                        fullData.add(bytes);
-                      }
-                      print('sumOfAscii : $sumOfAscii');
-                      print('crc : ${sumOfAscii % 256}');
-                      print('fullData : ${fullData}');
-                      print('payload : ${payload}');
-                      bleService.sendDataToHw(fullData);
-                    },
-                    icon: const Icon(Icons.send, color: Colors.white,),
-                    label: const Text("Submit", style: TextStyle(color: Colors.white),),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).primaryColorLight,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                  ),
-                )
+
 
               ],
             ),
@@ -322,11 +338,11 @@ class _CalibrationState extends State<Calibration> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: 250,
+          width: 200,
           padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 8),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
               borderRadius: BorderRadius.only(topLeft: Radius.circular(5) ,topRight: Radius.circular(27.5), ),
-              color: Color(0xff008CD7)
+              color: Theme.of(context).primaryColorLight
           ),
           child: Center(
             child: Text(sensorName,style: TextStyle(color: Colors.white, fontSize: 14),),
@@ -335,7 +351,7 @@ class _CalibrationState extends State<Calibration> {
         Container(
           decoration: BoxDecoration(
               borderRadius: const BorderRadius.only(topRight: Radius.circular(5), bottomLeft: Radius.circular(5), bottomRight: Radius.circular(5)),
-              border: Border.all(width: 0.5, color: const Color(0xff008CD7)),
+              border: Border.all(width: 0.5, color: Theme.of(context).primaryColorLight),
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
@@ -353,28 +369,35 @@ class _CalibrationState extends State<Calibration> {
               spacing: 20,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    SizedBox(
-                      width: 150,
-                      child: TextFormField(
-                        controller: sensorCount == 0 ? bleService.ec1Controller : bleService.ec2Controller,
-                        keyboardType: TextInputType.number,
-                        decoration: inputDecoration.copyWith(
-                          prefixIcon: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: SvgPicture.asset(
-                              'assets/Images/Svg/objectId_${AppConstants.ecObjectId}.svg',
-                              height: 40,
-                              color: Colors.black,
+                    Column(
+                      children: [
+                        SizedBox(
+                          width: 150,
+                          child: TextFormField(
+                            controller: sensorCount == 0 ? bleService.ec1Controller : bleService.ec2Controller,
+                            keyboardType: TextInputType.number,
+                            decoration: inputDecoration.copyWith(
+                              prefixIcon: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: SvgPicture.asset(
+                                  'assets/Images/Svg/objectId_${AppConstants.ecObjectId}.svg',
+                                  height: 20,
+                                  color: Colors.black,
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                    SizedBox(
-                      width: 150,
-                      child: ElevatedButton.icon(
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor,
+                        shape: BoxShape.circle, // or BoxShape.rectangle
+                      ),
+                      child: IconButton(
                         onPressed: (){
                           bleService.onRefresh();
                           setState(() {
@@ -395,21 +418,17 @@ class _CalibrationState extends State<Calibration> {
                           }
 
                         },
-                        icon: const Icon(Icons.refresh, color: Colors.white,),
-                        label: const Text("Get @0", style: TextStyle(color: Colors.white),),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xff005C8E),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
+                        icon: const Icon(Icons.refresh, color: Colors.white),
                       ),
+                    ),
+                    SizedBox(
+                      width: 100,
+                        child: Text('Get @0', style: TextStyle(fontSize: 14),)
                     )
                   ],
                 ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     SizedBox(
                       width: 150,
@@ -421,16 +440,19 @@ class _CalibrationState extends State<Calibration> {
                             padding: const EdgeInsets.all(8.0),
                             child: SvgPicture.asset(
                               'assets/Images/Svg/objectId_${AppConstants.ecObjectId}.svg',
-                              height: 40,
+                              height: 20,
                               color: Colors.black,
                             ),
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(
-                      width: 150,
-                      child: ElevatedButton.icon(
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor,
+                        shape: BoxShape.circle, // or BoxShape.rectangle
+                      ),
+                      child: IconButton(
                         onPressed: (){
                           bleService.onRefresh();
                           setState(() {
@@ -450,55 +472,54 @@ class _CalibrationState extends State<Calibration> {
 
                           }
                         },
-                        icon: const Icon(Icons.refresh, color: Colors.white,),
-                        label: const Text("Get @ 1.413", style: TextStyle(color: Colors.white),),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xff005C8E),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
+                        icon: const Icon(Icons.refresh, color: Colors.white),
                       ),
+                    ),
+                    const SizedBox(
+                        width: 100,
+                        child: Text('Get @ 1.413', style: TextStyle(fontSize: 14),)
                     )
                   ],
                 ),
-                SizedBox(
-                  width: 150,
-                  child: ElevatedButton.icon(
-                    onPressed: (){
-                      var one = sensorCount == 0 ? bleService.ec1Controller.text : bleService.ec2Controller.text;
-                      var two = sensorCount == 0 ? bleService.ec1_Controller.text : bleService.ec2_Controller.text;
-                      var payload = '${bleService.nodeDataFromServer['calibrationSetting']['ec${sensorCount+1}Submit']}$one:$two:';
-                      var sumOfAscii = 0;
-                      for(var i in payload.split('')){
-                        var bytes = i.codeUnitAt(0);
-                        sumOfAscii += bytes;
-                      }
-                      var crcToByteLen = '${sumOfAscii % 256}';
-                      var balance = '';
-                      for(var i = 0;i < (3 - crcToByteLen.length);i++){
-                        balance += '0';
-                      }
-                      payload += '$balance$crcToByteLen:\r';
-                      List<int> fullData = [];
-                      for(var i in payload.split('')){
-                        var bytes = i.codeUnitAt(0);
-                        fullData.add(bytes);
-                      }
-                      print('sumOfAscii : $sumOfAscii');
-                      print('crc : ${sumOfAscii % 256}');
-                      print('fullData : ${fullData}');
-                      print('payload : ${payload}');
-                      bleService.sendDataToHw(fullData);
-                    },
-                    icon: const Icon(Icons.send, color: Colors.white,),
-                    label: const Text("Submit", style: TextStyle(color: Colors.white),),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).primaryColorLight,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: SizedBox(
+                    width: 100,
+                    child: ElevatedButton.icon(
+                      onPressed: (){
+                        var one = sensorCount == 0 ? bleService.ec1Controller.text : bleService.ec2Controller.text;
+                        var two = sensorCount == 0 ? bleService.ec1_Controller.text : bleService.ec2_Controller.text;
+                        var payload = '${bleService.nodeDataFromServer['calibrationSetting']['ec${sensorCount+1}Submit']}$one:$two:';
+                        var sumOfAscii = 0;
+                        for(var i in payload.split('')){
+                          var bytes = i.codeUnitAt(0);
+                          sumOfAscii += bytes;
+                        }
+                        var crcToByteLen = '${sumOfAscii % 256}';
+                        var balance = '';
+                        for(var i = 0;i < (3 - crcToByteLen.length);i++){
+                          balance += '0';
+                        }
+                        payload += '$balance$crcToByteLen:\r';
+                        List<int> fullData = [];
+                        for(var i in payload.split('')){
+                          var bytes = i.codeUnitAt(0);
+                          fullData.add(bytes);
+                        }
+                        print('sumOfAscii : $sumOfAscii');
+                        print('crc : ${sumOfAscii % 256}');
+                        print('fullData : ${fullData}');
+                        print('payload : ${payload}');
+                        bleService.sendDataToHw(fullData);
+                      },
+                      icon: const Icon(Icons.send, color: Colors.white,),
+                      label: const Text("Send", style: TextStyle(color: Colors.white),),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColorLight,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
                     ),
                   ),

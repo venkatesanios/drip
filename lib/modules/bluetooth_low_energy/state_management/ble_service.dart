@@ -75,6 +75,7 @@ class BleProvider extends ChangeNotifier {
   int? _rssi;
   int? _mtuSize;
   BluetoothConnectionState bleConnectionState = BluetoothConnectionState.disconnected;
+  bool forceStop = false;
   List<BluetoothService> _services = [];
   bool _isDiscoveringServices = false;
   bool _isConnecting = false;
@@ -150,10 +151,14 @@ class BleProvider extends ChangeNotifier {
 
   void autoScanAndFoundDevice({required String macAddressToConnect}) async{
     bleNodeState = BleNodeState.scanning;
+    forceStop = false;
     notifyListeners();
     startListeningDevice();
     startScan();
     outerLoop : for(var scanLoop = 0;scanLoop < 15;scanLoop++){
+      if(forceStop){
+        return;
+      }
       await Future.delayed(const Duration(seconds: 1));
       print("_isScanning :: $_isScanning");
       for(var result in _scanResults){
@@ -248,8 +253,13 @@ class BleProvider extends ChangeNotifier {
     notifyListeners();
     listeningConnectionState();
     for(var connectLoop = 0;connectLoop < 30;connectLoop++){
+
       await Future.delayed(const Duration(seconds: 1));
       print("connecting seconds :: ${connectLoop+1}");
+      if(forceStop){
+        print('force stop when connecting...........');
+        return;
+      }
       if(bleConnectionState == BluetoothConnectionState.connected){
         bleNodeState = BleNodeState.connected;
         notifyListeners();
@@ -319,6 +329,9 @@ class BleProvider extends ChangeNotifier {
   void gettingStatusAfterConnect() async {
     nodeDataFromHw = {};
     for (var i = 0; i < 200; i++) {
+      if(bleConnectionState == BluetoothConnectionState.disconnected){
+        break;
+      }
       try {
         if(nodeDataFromHw.isNotEmpty){
           break;
@@ -400,7 +413,9 @@ class BleProvider extends ChangeNotifier {
           characteristic.lastValueStream.listen((value) {
             String convertToString = String.fromCharCodes(value);
             print('AppToHardware =>  ${convertToString}');
-            sentAndReceive.add('AppToHardware =>  ${convertToString}');
+            if(fileMode != FileMode.sendingToHardware){
+              sentAndReceive.add('AppToHardware =>  ${convertToString}');
+            }
 
             // if (fileTraceControl != 'File') {
             // sentAndReceive +=
@@ -593,12 +608,6 @@ class BleProvider extends ChangeNotifier {
     try {
       await device!.disconnectAndUpdateStream();
       clearBluetoothDeviceState();
-      if(clearAll){
-        bleNodeState = BleNodeState.bluetoothOff;
-        clearVariables();
-      }else{
-        bleNodeState = BleNodeState.disConnected;
-      }
       notifyListeners();
       // Snackbar.show(ABC.c, "Disconne
       // ct: Success", success: true);
@@ -606,14 +615,6 @@ class BleProvider extends ChangeNotifier {
       // Snackbar.show(ABC.c, prettyException("Disconnect Error:", e), success: false);
       print("$e backtrace: $backtrace");
     }
-  }
-
-  void clearVariables(){
-    nodeDataFromHw = {};
-    traceData.clear();
-    sentAndReceive.clear();
-    fileMode = FileMode.idle;
-    notifyListeners();
   }
 
   Future onRequestMtuPressed() async {
@@ -628,12 +629,27 @@ class BleProvider extends ChangeNotifier {
   }
 
   void clearBluetoothDeviceState(){
+    nodeFirmwareFileName = '';
+    nodeDataFromHw = {};
+    traceData.clear();
+    sentAndReceive.clear();
+    fileMode = FileMode.idle;
+    bleNodeState = BleNodeState.deviceNotFound;
+    _scanResultsSubscription.cancel();
+    _isScanningSubscription.cancel();
+    _systemDevices.clear();
+    _scanResults.clear();
+    sendToHardware = null;
+    readFromHardware = null;
+    sendToHardwareSubscription.cancel();
+    readFromHardwareSubscription.cancel();
+    device = null;
+    _services.clear();
     _connectionStateSubscription.cancel();
-    _mtuSubscription.cancel();
     _isConnectingSubscription.cancel();
     _isDisconnectingSubscription.cancel();
-    _rssi;
-    _mtuSize;
+    _mtuSubscription.cancel();
+    notifyListeners();
   }
 
   Future<void> getFileName()async{
@@ -720,6 +736,9 @@ class BleProvider extends ChangeNotifier {
       List<String> listOfLine = await fetchBootFileInLocal();
       int noOfLinesToSend = 8;
       for (var line = 0; line < listOfLine.length; line += noOfLinesToSend) {
+        if(bleConnectionState == BluetoothConnectionState.disconnected){
+          return;
+        }
         List<int> dataList = [];
         var increasingLineCount = line + noOfLinesToSend;
         var slicingLoopFor8Line = increasingLineCount < listOfLine.length
@@ -866,6 +885,7 @@ class BleProvider extends ChangeNotifier {
       }
 
       sentAndReceive.add('file size ==> ${fileSize}');
+      waitingForCrcPassOrCrcFail();
       notifyListeners();
 
     } catch (e) {
@@ -876,6 +896,21 @@ class BleProvider extends ChangeNotifier {
     if (sendToHardware!.properties.read) {
       await sendToHardware!.read();
     }
+  }
+
+  void waitingForCrcPassOrCrcFail()async{
+    int crcDelay = 8;
+    for(var i = 0; i < crcDelay;i++){
+      print("waiting for crc command :: ${i+1}");
+      await Future.delayed(const Duration(seconds: 1));
+      if(fileMode == FileMode.crcPass || fileMode == FileMode.crcFail || fileMode == FileMode.firmwareUpdating){
+        break;
+      }
+      if(i == (crcDelay - 1)){
+        fileMode = FileMode.bootFail;
+      }
+    }
+    notifyListeners();
   }
 
   void sendTraceCommand() async {
