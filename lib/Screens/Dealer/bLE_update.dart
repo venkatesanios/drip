@@ -103,6 +103,30 @@ class _FileTransferPageState extends State<FileTransferPage> {
     });
   }
 
+
+
+
+  Future<String?> readBootFileString() async {
+    try {
+      Directory appDocDir = await getApplicationDocumentsDirectory();
+      String filePath = '${appDocDir.path}/bootFile.txt';
+      File file = File(filePath);
+
+      if (await file.exists()) {
+        String contents = await file.readAsString();
+        print('bootFile.txt contents$contents');
+        return contents.trim();
+      } else {
+        print('bootFile.txt not found.');
+        return null;
+      }
+    } catch (e) {
+      print('Error reading file: $e');
+      return null;
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
