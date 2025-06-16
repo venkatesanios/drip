@@ -253,8 +253,8 @@ class _DeviceListState extends State<DeviceList> {
                         });
                         mqttService.topicToSubscribe('${Environment.mqttSubscribeTopic}/${configPvd.masterData['deviceId']}');
                         mqttService.topicToUnSubscribe(oldTopic);
+                        Navigator.pop(context);
                       }
-                      Navigator.pop(context);
                     },
                   )
                 ],
