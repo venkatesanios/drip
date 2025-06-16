@@ -971,11 +971,7 @@ class CustomerScreenController extends StatelessWidget {
         selectedIcon: Icon(Icons.wb_sunny_rounded, color: Colors.white),
         label: Text(''),
       ),
-
-
-
     ];
-
     return destinations;
   }
 

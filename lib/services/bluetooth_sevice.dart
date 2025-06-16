@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ffi';
 import 'package:flutter/services.dart';
 import '../StateManagement/mqtt_payload_provider.dart';
 import 'package:oro_drip_irrigation/plugins/flutter_bluetooth_serial/lib/flutter_bluetooth_serial.dart';

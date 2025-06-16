@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tuple/tuple.dart';
@@ -70,36 +71,38 @@ class BoosterWidget extends StatelessWidget {
                   ],
                 )
             ),
-            SizedBox(
-              width: 70,
-              child: Row(
-                children: [
-                  SizedBox(width:10),
-                  SizedBox(
-                    width:6.5,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(width: 1, height: 10,color: Colors.grey.shade300),
-                        SizedBox(width: 3.5),
-                        Container(width: 1, height: 6.5,color: Colors.grey.shade300),
-                      ],
+            if(kIsWeb)...[
+              SizedBox(
+                width: 70,
+                child: Row(
+                  children: [
+                    const SizedBox(width:10),
+                    SizedBox(
+                      width:6.5,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(width: 1, height: 10,color: Colors.grey.shade300),
+                          const SizedBox(width: 3.5),
+                          Container(width: 1, height: 6.5,color: Colors.grey.shade300),
+                        ],
+                      ),
                     ),
-                  ),
-                  SizedBox(
-                    width:53.5,
-                    child: Column(
-                      children: [
-                        SizedBox(height: 5),
-                        Container(width: 53.5, height: 1,color: Colors.grey.shade300),
-                        SizedBox(height: 3.5),
-                        Container(width: 53.5, height: 1,color: Colors.grey.shade300),
-                      ],
+                    SizedBox(
+                      width:53.5,
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 5),
+                          Container(width: 53.5, height: 1,color: Colors.grey.shade300),
+                          const SizedBox(height: 3.5),
+                          Container(width: 53.5, height: 1,color: Colors.grey.shade300),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+            ]
           ],
         );
       },
@@ -238,10 +241,12 @@ class ChannelWidget extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 4),
-            Container(width: 70, height: 1,color: Colors.grey.shade300),
-            SizedBox(height: 3.5),
-            Container(width: 70, height: 1,color: Colors.grey.shade300),
+            if(kIsWeb)...[
+              const SizedBox(height: 4),
+              Container(width: 70, height: 1,color: Colors.grey.shade300),
+              const SizedBox(height: 3.5),
+              Container(width: 70, height: 1,color: Colors.grey.shade300),
+            ]
           ],
         );
       },

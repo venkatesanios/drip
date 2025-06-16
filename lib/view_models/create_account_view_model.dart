@@ -101,6 +101,7 @@ class CreateAccountViewModel extends ChangeNotifier {
           'email': email ?? '',
           'mainUserId': customerId != 0 ? customerId : userId,
         };
+        print(body);
 
         final response = customerId != 0
             ? await repository.createSubUserAccount(body)

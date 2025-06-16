@@ -201,66 +201,60 @@ class CustomerHome extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     border: Border.all(
-                      color: Colors.grey.shade400,
+                      color: Theme.of(context).primaryColor.withOpacity(0.2),
                       width: 0.5,
                     ),
                     borderRadius: const BorderRadius.all(Radius.circular(5)),
                   ),
                   child: Column(
                     children: [
-                      SizedBox(
+                      Container(
                         width: MediaQuery.sizeOf(context).width,
-                        height: 47,
-                        child: Card(
-                          color: Colors.white,
-                          elevation: 0,
-                          surfaceTintColor: Colors.white,
-                          margin: EdgeInsets.zero,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(5),
-                              topRight: Radius.circular(5),
+                        height: 45,
+                        color: Theme.of(context).primaryColor.withOpacity(0.03),
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 16),
+                            Text(
+                              line.name,
+                              textAlign: TextAlign.left,
+                              style: const TextStyle(color: Colors.black54, fontSize: 17, fontWeight: FontWeight.bold),
                             ),
-                          ),
-                          child: Row(
-                            children: [
-                              const SizedBox(width: 16),
-                              Text(
-                                line.name,
-                                textAlign: TextAlign.left,
-                                style: const TextStyle(color: Colors.black54, fontSize: 17, fontWeight: FontWeight.bold),
-                              ),
-                              const Spacer(),
-                              MaterialButton(
-                                color: line.linePauseFlag==0? Colors.amber : Colors.green,
-                                textColor: Colors.black54,
-                                onPressed: () async {
-                                  String payLoadFinal = jsonEncode({
-                                    "4900": {
-                                      "4901": "${line.sNo}, ${line.linePauseFlag==0?1:0}",
-                                    }
-                                  });
-                                  final result = await context.read<CommunicationService>().sendCommand(payload: payLoadFinal,
-                                      serverMsg: line.linePauseFlag==0 ? 'Paused the ${line.name}' : 'Resumed the ${line.name}');
-                                  if (result['http'] == true) {
-                                    debugPrint("Payload sent to Server");
+                            const Spacer(),
+                            MaterialButton(
+                              color: line.linePauseFlag == 0
+                                  ? Theme.of(context).primaryColorLight
+                                  : Colors.deepOrangeAccent.shade100,
+                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                              onPressed: () async {
+                                String payLoadFinal = jsonEncode({
+                                  "4900": {
+                                    "4901": "${line.sNo}, ${line.linePauseFlag == 0 ? 1 : 0}",
                                   }
-                                  if (result['mqtt'] == true) {
-                                    debugPrint("Payload sent to MQTT Box");
-                                  }
-                                  if (result['bluetooth'] == true) {
-                                    debugPrint("Payload sent via Bluetooth");
-                                  }
-                                },
-                                child: Text(
-                                  line.linePauseFlag==0?'PAUSE THE LINE':
-                                  'RESUME THE LINE',
-                                  style: const TextStyle(color: Colors.black54),
+                                });
+
+                                final result = await context.read<CommunicationService>().sendCommand(
+                                  payload: payLoadFinal,
+                                  serverMsg: line.linePauseFlag == 0
+                                      ? 'Paused the ${line.name}'
+                                      : 'Resumed the ${line.name}',
+                                );
+
+                                if (result['http'] == true) debugPrint("Payload sent to Server");
+                                if (result['mqtt'] == true) debugPrint("Payload sent to MQTT Box");
+                                if (result['bluetooth'] == true) debugPrint("Payload sent via Bluetooth");
+                              },
+                              child: Text(
+                                line.linePauseFlag == 0 ? 'PAUSE THE LINE' : 'RESUME THE LINE',
+                                style: TextStyle(
+                                  color: line.linePauseFlag == 0 ? Colors.white:Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
                                 ),
                               ),
-                              const SizedBox(width: 5)
-                            ],
-                          ),
+                            ),
+                            const SizedBox(width: 5)
+                          ],
                         ),
                       ),
                       buildIrrigationLine(context, line, customerId, controllerId),
@@ -307,7 +301,6 @@ class CustomerHome extends StatelessWidget {
       customerId: customerId,
       controllerId: controllerId,
       containerWidth: MediaQuery.sizeOf(context).width,
-      isMobile: false,
       deviceId: deviceId,
     );
 
@@ -365,7 +358,6 @@ class PumpStationWithLine extends StatelessWidget {
   final List<SensorModel> pressureOut;
   final List<SensorModel> waterMeter;
   final double containerWidth;
-  final bool isMobile;
 
   const PumpStationWithLine({
     super.key,
@@ -382,7 +374,6 @@ class PumpStationWithLine extends StatelessWidget {
     required this.controllerId,
     required this.deviceId,
     required this.containerWidth,
-    required this.isMobile,
   });
 
   @override
@@ -401,7 +392,6 @@ class PumpStationWithLine extends StatelessWidget {
           isLastValve: isLastValve && pressureOut.isEmpty,
         );
       }).toList();
-
       final allItems = [
         if (inletWaterSources.isNotEmpty)
           ..._buildWaterSource(context, inletWaterSources, true, true,fertilizerSite.isNotEmpty? true:false),
@@ -420,7 +410,6 @@ class PumpStationWithLine extends StatelessWidget {
           ...valveWidgets,
           ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor_wjl.png', fertilizerSite.isNotEmpty),
       ];
-
       return Align(
         alignment: Alignment.topLeft,
         child: Wrap(
@@ -453,91 +442,79 @@ class PumpStationWithLine extends StatelessWidget {
     }
     else{
 
-      if(fertilizerSite.isEmpty){
+      double myDouble = MediaQuery.sizeOf(context).width / 75;
+      int itemsPerRow = myDouble.toInt();
 
-        double myDouble = MediaQuery.sizeOf(context).width / 75;
-        int itemsPerRow = myDouble.toInt();
+      final valveWidgetEntries = valves.asMap().entries.toList();
 
-        final valveWidgetEntries = valves.asMap().entries.toList();
+      final baseSensors = [
+        ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch_wj.png', false),
+        ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', false),
+        ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter_wj.png', false),
+      ];
 
-        final allItemsWithoutValves = [
-          if (inletWaterSources.isNotEmpty)
-            ..._buildWaterSource(context, inletWaterSources, true, true, false),
-          if (outletWaterSources.isNotEmpty)
-            ..._buildWaterSource(context, outletWaterSources, inletWaterSources.isNotEmpty, false, false),
-          if (filterSite.isNotEmpty)
-            ..._buildFilter(context, filterSite, false),
-          ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch_wj.png', false),
-          ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', false),
-          ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter_wj.png', false),
-        ];
+      final wsAndFilterItems = [
+        if (inletWaterSources.isNotEmpty)
+          ..._buildWaterSource(context, inletWaterSources, true, true, false),
+        if (outletWaterSources.isNotEmpty)
+          ..._buildWaterSource(context, outletWaterSources, inletWaterSources.isNotEmpty, false, false),
+        if (filterSite.isNotEmpty)
+          ..._buildFilter(context, filterSite, false),
+      ];
 
-        final valveWidgets = valveWidgetEntries.map((entry) {
-          final index = entry.key;
-          final valve = entry.value;
-          final totalOffset = allItemsWithoutValves.length;
-          final globalIndex = totalOffset + index;
-          final isLastValveInRow = (globalIndex + 1) % itemsPerRow == 0;
+      final fertilizerItems = fertilizerSite.isNotEmpty
+          ? _buildFertilizer(context, fertilizerSite).cast<Widget>()
+          : <Widget>[];
 
-          return ValveWidget(
-            valve: valve,
-            customerId: customerId,
-            controllerId: controllerId,
-            isLastValve: isLastValveInRow && pressureOut.isEmpty,
-          );
-        }).toList();
+      final allItemsWithoutValves = [
+        ...baseSensors,
+      ];
 
-        final allItems = [
-          ...allItemsWithoutValves,
-          ...valveWidgets,
-          ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', false),
-        ];
+      final valveWidgets = valveWidgetEntries.map((entry) {
+        final index = entry.key;
+        final valve = entry.value;
+        final totalOffset = allItemsWithoutValves.length;
+        final globalIndex = totalOffset + index;
 
+        final isLastValveInRow = (globalIndex + 1) % itemsPerRow == 0;
+        final isLastValve = index == valveWidgetEntries.length - 1;
+
+        return ValveWidget(
+          valve: valve,
+          customerId: customerId,
+          controllerId: controllerId,
+          isLastValve: isLastValve? isLastValve && pressureOut.isEmpty:
+          isLastValveInRow && pressureOut.isEmpty,
+        );
+      }).toList();
+
+      final pressureOutWidgets = _buildSensorItems(
+        pressureOut,
+        'Pressure Sensor',
+        'assets/png/pressure_sensor_wj.png',
+        false,
+      );
+
+      final allItems = [
+        ...allItemsWithoutValves,
+        ...valveWidgets,
+        ...pressureOutWidgets,
+      ];
+
+      if (fertilizerSite.isEmpty) {
         return Align(
           alignment: Alignment.topLeft,
           child: Wrap(
             alignment: WrapAlignment.start,
             spacing: 0,
             runSpacing: 0,
-            children: allItems,
+            children: [
+              ...wsAndFilterItems,
+              ...allItems,
+            ],
           ),
         );
-      }else{
-        final wsAndFilterItems = [
-          if (inletWaterSources.isNotEmpty)
-            ..._buildWaterSource(context, inletWaterSources, true, true, false),
-
-          if (outletWaterSources.isNotEmpty)
-            ..._buildWaterSource(context, outletWaterSources, inletWaterSources.isNotEmpty? true : false, false, false),
-
-          if (filterSite.isNotEmpty)
-            ..._buildFilter(context, filterSite, false),
-        ];
-
-        final fertilizerItems = [
-          ..._buildFertilizer(context, fertilizerSite),
-        ];
-
-        final valveWidgets = valves.asMap().entries.map((entry) {
-          final index = entry.key;
-          final valve = entry.value;
-          final isLastValve = index == valves.length - 1;
-          return ValveWidget(
-            valve: valve,
-            customerId: customerId,
-            controllerId: controllerId,
-            isLastValve : isLastValve && pressureOut.isEmpty,
-          );
-        }).toList();
-
-        final lineItems = [
-          ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch_wj.png', false),
-          ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', false),
-          ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter_wj.png', false),
-          ...valveWidgets,
-          ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', false),
-        ];
-
+      } else {
         return Column(
           children: [
             Align(
@@ -564,12 +541,13 @@ class PumpStationWithLine extends StatelessWidget {
                 alignment: WrapAlignment.start,
                 spacing: 0,
                 runSpacing: 0,
-                children: lineItems,
+                children: allItems,
               ),
             ),
           ],
         );
       }
+
     }
   }
 
@@ -775,25 +753,25 @@ class PumpStationWithLine extends StatelessWidget {
           siteSno: site.sNo.toString(),
         ));
       }
-
-      widgets.add(SizedBox(
-        width: 4.5,
-        height: 130,
-        child: Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 42, bottom: 4.5),
-              child: VerticalDivider(width: 0, color: Colors.grey.shade300,),
-            ),
-            const SizedBox(width: 4.5,),
-            Padding(
-              padding: const EdgeInsets.only(top: 45, bottom: 1),
-              child: VerticalDivider(width: 0, color: Colors.grey.shade300,),
-            ),
-          ],
-        ),
-      ));
-
+      if(kIsWeb) {
+        widgets.add(SizedBox(
+          width: 4.5,
+          height: 130,
+          child: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 42, bottom: 4.5),
+                child: VerticalDivider(width: 0, color: Colors.grey.shade300,),
+              ),
+              const SizedBox(width: 4.5,),
+              Padding(
+                padding: const EdgeInsets.only(top: 45, bottom: 1),
+                child: VerticalDivider(width: 0, color: Colors.grey.shade300,),
+              ),
+            ],
+          ),
+        ));
+      }
       return widgets;
     }).expand((item) => item).toList().cast<Widget>(); // 👈 Cast the final list
   }

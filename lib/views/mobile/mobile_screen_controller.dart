@@ -561,9 +561,7 @@ class MobileScreenController extends StatelessWidget {
               onRefresh: () => _handleRefresh(vm),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Theme
-                      .of(context)
-                      .scaffoldBackgroundColor,
+                  color: Theme.of(context).scaffoldBackgroundColor,
                   borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(8), topRight: Radius.circular(8)),
                 ),
@@ -593,12 +591,12 @@ class MobileScreenController extends StatelessWidget {
                       else if (vm.powerSupply == 0)
                         Container(
                           height: 25,
-                          color: Colors.red.shade200,
+                          color: Colors.red.shade300,
                           child: const Center(
                             child: Text(
                               'NO POWER SUPPLY TO CONTROLLER',
                               style: TextStyle(
-                                color: Colors.black87,
+                                color: Colors.white,
                                 fontSize: 13.0,
                               ),
                             ),
@@ -610,34 +608,47 @@ class MobileScreenController extends StatelessWidget {
                     Expanded(
                       child: Builder(
                         builder: (context) {
-                          return vm.selectedIndex == 0 ?
-                          CustomerHome(customerId: userId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                            deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,)
-                              : vm.selectedIndex == 1
-                              ? ScheduledProgram(
-                            userId: customerId,
-                            scheduledPrograms: vm.mySiteList.data[vm.sIndex].master[vm
-                                .mIndex].programList,
-                            controllerId: vm.mySiteList.data[vm.sIndex].master[vm
-                                .mIndex].controllerId,
-                            deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex]
-                                .deviceId,
-                            customerId: customerId,
-                            currentLineSNo: vm.mySiteList.data[vm.sIndex].master[vm
-                                .mIndex].irrigationLine[vm.lIndex].sNo,
-                            groupId: vm.mySiteList.data[vm.sIndex].groupId,
-                            categoryId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
-                            modelId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId,
-                            deviceName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceName,
-                            categoryName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
-                          ) : vm.selectedIndex == 2 ?
-                          IrrigationAndPumpLog(userData: {'userId' : userId, 'controllerId' : vm.mySiteList.data[vm.sIndex].master[vm
-                              .mIndex].controllerId},
-                          masterData: vm.mySiteList.data[vm.sIndex].master[vm.mIndex])
-                              : ControllerSettings(customerId: customerId,
-                            userId: userId,
-                            masterController: vm.mySiteList.data[vm.sIndex].master[vm.mIndex],
-                          );
+                          final master = vm.mySiteList.data[vm.sIndex].master[vm.mIndex];
+
+                          switch (vm.selectedIndex) {
+                            case 0:
+                              return CustomerHome(
+                                customerId: userId,
+                                controllerId: master.controllerId,
+                                deviceId: master.deviceId,
+                              );
+
+                            case 1:
+                              return ScheduledProgram(
+                                userId: customerId,
+                                scheduledPrograms: master.programList,
+                                controllerId: master.controllerId,
+                                deviceId: master.deviceId,
+                                customerId: customerId,
+                                currentLineSNo: master.irrigationLine[vm.lIndex].sNo,
+                                groupId: vm.mySiteList.data[vm.sIndex].groupId,
+                                categoryId: master.categoryId,
+                                modelId: master.modelId,
+                                deviceName: master.deviceName,
+                                categoryName: master.categoryName,
+                              );
+
+                            case 2:
+                              return IrrigationAndPumpLog(
+                                userData: {
+                                  'userId': userId,
+                                  'controllerId': master.controllerId,
+                                },
+                                masterData: master,
+                              );
+
+                            default:
+                              return ControllerSettings(
+                                customerId: customerId,
+                                userId: userId,
+                                masterController: master,
+                              );
+                          }
                         },
                       ),
                     ),

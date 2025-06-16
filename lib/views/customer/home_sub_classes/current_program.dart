@@ -267,8 +267,8 @@ class CurrentProgram extends StatelessWidget {
       );
     }else{
       return MaterialButton(
-        color: Colors.amber,
-        textColor: Colors.white,
+        color: Colors.orangeAccent,
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
         onPressed: values[17]=='1' ? () async {
           String payload = '${values[18]},0';
           String payLoadFinal = jsonEncode({
@@ -276,8 +276,8 @@ class CurrentProgram extends StatelessWidget {
           });
 
           final result = await context.read<CommunicationService>().sendCommand(
-            serverMsg: '${getProgramNameById(int.parse(values[0]))} - ${getSequenceName(int.parse(values[0]), values[1])} skipped manually',
-            payload: payLoadFinal);
+              serverMsg: '${getProgramNameById(int.parse(values[0]))} - ${getSequenceName(int.parse(values[0]), values[1])} skipped manually',
+              payload: payLoadFinal);
 
           if (result['http'] == true) debugPrint("Payload sent to Server");
           if (result['mqtt'] == true) debugPrint("Payload sent to MQTT Box");
@@ -285,7 +285,7 @@ class CurrentProgram extends StatelessWidget {
 
           GlobalSnackBar.show(context, 'Comment sent successfully', 200);
         } : null,
-        child: const Text('Skip', style: TextStyle(color: Colors.black54)),
+        child: const Text('Skip', style: TextStyle(color: Colors.white, fontSize: 13)),
       );
     }
   }
