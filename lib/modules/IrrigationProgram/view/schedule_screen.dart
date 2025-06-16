@@ -218,7 +218,76 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           child: Text(irrigationProgramProvider.selectedScheduleType,
                             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),),
                         ),
-                        buildPopUpMenuButton(
+                        InkWell(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return SimpleDialog(
+                                  title: Text('Schedule types', style: TextStyle(color: Theme.of(context).primaryColor),),
+                                  children: [
+                                    for(var i = 0; i < (isEcoGem ? irrigationProgramProvider.scheduleTypesForEcoGem.length : irrigationProgramProvider.scheduleTypes.length); i++)
+                                      Column(
+                                        children: [
+                                          SimpleDialogOption(
+                                            onPressed: () {
+                                              irrigationProgramProvider.updateSelectedScheduleType(isEcoGem ? irrigationProgramProvider.scheduleTypesForEcoGem[i] : irrigationProgramProvider.scheduleTypes[i]);
+                                              Navigator.pop(context);
+                                            },
+                                            padding: EdgeInsets.zero,
+                                            child: ListTile(
+                                              contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                                              title: Text(
+                                                  isEcoGem
+                                                      ? irrigationProgramProvider.scheduleTypesForEcoGem[i]
+                                                      : irrigationProgramProvider.scheduleTypes[i]
+                                              ),
+                                              subtitle: Text(
+                                                  isEcoGem ? (["Manually start whenever needed",
+                                                    '1. Without cycle limit, program will run continuously \n2. With cycle limit, program will run daily at real time clock by setting start time'][i])
+                                                      : ["Manually start whenever needed",
+                                                    "Schedule for specific days",
+                                                    "Schedule based on run days, skip days",
+                                                    '1. Without cycle limit, program will run continuously \n2. With cycle limit, program will run daily at real time clock by setting start time'][i]
+                                              ),
+                                              trailing: Icon(
+                                                irrigationProgramProvider.selectedScheduleType != irrigationProgramProvider.scheduleTypes[i]
+                                                    ? Icons.radio_button_off
+                                                    : Icons.radio_button_checked,
+                                                color: irrigationProgramProvider.selectedScheduleType == irrigationProgramProvider.scheduleTypes[i] ? Theme.of(context).primaryColor : null,
+                                              ),
+                                            ),
+                                          ),
+                                          if(i != (isEcoGem ? irrigationProgramProvider.scheduleTypesForEcoGem.length-1: irrigationProgramProvider.scheduleTypes.length-1))
+                                            const Divider(endIndent: 20, indent: 20,)
+                                        ],
+                                      ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          child: Card(
+                            color: Colors.white,
+                            surfaceTintColor: Colors.white,
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Theme.of(context).primaryColor
+                                // border: Border.all(color: Colors.grey)
+                              ),
+                              child: const Row(
+                                children: [
+                                  Text("Change schedule type", style: TextStyle(color: Colors.white),),
+                                  SizedBox(width: 5,),
+                                  Icon(Icons.edit, color: Colors.white,)
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                       /* buildPopUpMenuButton(
                             context: context,
                             dataList: isEcoGem ? irrigationProgramProvider.scheduleTypesForEcoGem : irrigationProgramProvider.scheduleTypes,
                             onSelected: (selectedValue) => irrigationProgramProvider.updateSelectedScheduleType(selectedValue),
@@ -237,7 +306,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                 ],
                               ),
                             )
-                        ),
+                        ),*/
                       ],
                     ),
                   const SizedBox(height: 10,),
