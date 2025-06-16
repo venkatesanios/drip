@@ -41,7 +41,8 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
   @override
   void initState() {
     super.initState();
-    widget.comingFrom == 'Admin'?tabList = ['Products List', 'Site']:tabList = ['Products List'];
+    //widget.comingFrom == 'Admin'?tabList = ['Products List', 'Site']:tabList = ['Products List'];
+    tabList = ['Products List', 'Site'];
     viewModel = CustomerDeviceListViewModel(Repository(HttpService()), widget.userId, widget.customerId, widget.productStockList.length);
     tabController = TabController(length: tabList.length, vsync: this);
     tabController.addListener(() {
