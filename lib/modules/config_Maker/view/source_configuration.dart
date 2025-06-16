@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/view/site_configure.dart';
@@ -22,6 +21,7 @@ class SourceConfiguration extends StatefulWidget {
 }
 
 class _SourceConfigurationState extends State<SourceConfiguration> {
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -125,7 +125,7 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
                                       if(pumpMode == 2)
                                         getPumpSelection(source, pumpMode),
                                     ],
-                                  if(![4,5].contains(source.sourceType))
+                                  if(![4,5].contains(source.sourceType) && widget.configPvd.listOfGeneratedObject.any((object) => object.objectId == AppConstants.valveObjectId))
                                     Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                     decoration: BoxDecoration(
@@ -239,7 +239,7 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
   }
 
   Widget getLevelAndFloatSelection(SourceModel source, int mode){
-    int objectId = mode == 1 ? 26 : 40;
+    int objectId = mode == 1 ? AppConstants.levelObjectId : AppConstants.floatObjectId;
     String objectName = mode == 1 ? 'Level' : mode == 2 ? 'Top Float' : 'Bottom Float';
     double currentSno = mode == 1 ? source.level : mode == 2 ? source.topFloat : source.bottomFloat;
     double checkingParameter = mode == 1 ? 0.0 : mode == 2 ? source.bottomFloat : source.topFloat;
@@ -296,8 +296,8 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
         ],
       ),
     );
-  }
 
+  }
 }
 
 List<Widget> getWaterMeterAndPressure(double pressureInSno, double waterMeterSno, ConfigMakerProvider configPvd){
@@ -373,7 +373,6 @@ Widget singlePump(SourceModel source, bool fillingPump, ConfigMakerProvider conf
 Widget multiplePump(SourceModel source, bool fillingPump, ConfigMakerProvider configPvd,
     {bool dashBoard = false, int? maxOutletPumpForTank}){
   List<double> currentParameter = fillingPump ? source.inletPump : source.outletPump;
-  print('multiplePump maxOutletPumpForTank :: $maxOutletPumpForTank');
   return Row(
     children: [
       for(var i = 0;i < currentParameter.length;i++)

@@ -18,7 +18,7 @@ import '../view/connection.dart';
 
 class ConfigMakerProvider extends ChangeNotifier{
   double ratio = 1.0;
-  ConfigMakerTabs selectedTab = ConfigMakerTabs.connection;
+  ConfigMakerTabs selectedTab = ConfigMakerTabs.siteConfigure;
   Map<String, dynamic> configMakerDataFromHttp = {};
   Map<String, dynamic> defaultDataFromHttp = {};
   Map<int, String> configurationTab = {
@@ -39,7 +39,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     5 : AppConstants.irrigationLineObjectId,
   };
 
-  int selectedConfigurationTab = 0;
+  int selectedConfigurationTab = 5;
   SelectionMode selectedSelectionMode = SelectionMode.auto;
   int selectedConnectionNo = 0;
   String selectedType = '';
@@ -310,6 +310,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         }
       }
     }
+    listOfGeneratedObject.sort((a, b) => a.objectId.compareTo(b.objectId));
     Future.delayed(Duration.zero, () {
       notifyListeners();
     });
