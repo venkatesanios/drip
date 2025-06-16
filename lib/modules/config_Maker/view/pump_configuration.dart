@@ -56,10 +56,12 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             IntrinsicWidth(
-                              stepWidth: 250,
+                              stepWidth: 300,
                               child: ListTile(
                                 leading: SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_5.svg', color: Colors.black,),
                                 title: Text(pump.commonDetails.name!),
+                                subtitle: const Text('Select pump mode', style: TextStyle(fontWeight: FontWeight.w100, fontSize: 10),),
+
                                 trailing: !pumpModelList.contains(widget.configPvd.masterData['modelId']) ? IntrinsicWidth(
                                   child: CustomDropDownButton(
                                       value: getPumpTypeCodeToString(pump.pumpType),

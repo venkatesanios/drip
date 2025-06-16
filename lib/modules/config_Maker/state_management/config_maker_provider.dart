@@ -18,7 +18,7 @@ import '../view/connection.dart';
 
 class ConfigMakerProvider extends ChangeNotifier{
   double ratio = 1.0;
-  ConfigMakerTabs selectedTab = ConfigMakerTabs.deviceList;
+  ConfigMakerTabs selectedTab = ConfigMakerTabs.siteConfigure;
   Map<String, dynamic> configMakerDataFromHttp = {};
   Map<String, dynamic> defaultDataFromHttp = {};
   Map<int, String> configurationTab = {
@@ -39,7 +39,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     5 : AppConstants.irrigationLineObjectId,
   };
 
-  int selectedConfigurationTab = 0;
+  int selectedConfigurationTab = 5;
   SelectionMode selectedSelectionMode = SelectionMode.auto;
   int selectedConnectionNo = 0;
   String selectedType = '';
@@ -160,9 +160,9 @@ class ConfigMakerProvider extends ChangeNotifier{
 
       listOfDeviceModel = (defaultData['deviceList'] as List<dynamic>).where((device) => !senseNodeNotToAddInDeviceList.contains(device['modelId']))
           .map((devices) {
-            print("devices['modelId'] : ${devices['modelId']}");
+        print("devices['modelId'] : ${devices['modelId']}");
         Map<String, dynamic> deviceProperty = defaultData['productModel'].firstWhere((product) => devices['modelId'] == product['modelId']);
-          var inputObjectId = deviceProperty['inputObjectId'] == '-' ? [] : deviceProperty['inputObjectId'].split(',').map((e) => int.parse(e.toString())).toList();
+        var inputObjectId = deviceProperty['inputObjectId'] == '-' ? [] : deviceProperty['inputObjectId'].split(',').map((e) => int.parse(e.toString())).toList();
         var outputObjectId = deviceProperty['outputObjectId'] == '-' ? [] : deviceProperty['outputObjectId'].split(',').map((e) => int.parse(e.toString())).toList();
         return DeviceModel(
           productId: devices['productId'],
@@ -310,6 +310,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         }
       }
     }
+    listOfGeneratedObject.sort((a, b) => a.objectId.compareTo(b.objectId));
     Future.delayed(Duration.zero, () {
       notifyListeners();
     });
@@ -532,8 +533,8 @@ class ConfigMakerProvider extends ChangeNotifier{
             if(fertilizerSite.channel.any((injector) => injector.sNo == selectedSno)){
               channelList.add(
                   Injector(
-                  sNo: selectedSno,
-                  level: fertilizerSite.channel.firstWhere((injector)=> injector.sNo == selectedSno).level
+                      sNo: selectedSno,
+                      level: fertilizerSite.channel.firstWhere((injector)=> injector.sNo == selectedSno).level
                   )
               );
             }else{

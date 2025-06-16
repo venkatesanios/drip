@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:oro_drip_irrigation/app.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
@@ -201,6 +202,7 @@ class _ConnectionState extends State<Connection> {
       selected: {widget.configPvd.selectedSelectionMode},
       onSelectionChanged: (Set<SelectionMode> newSelection) {
         setState(() {
+          widget.configPvd.selectedConnectionNo = 0;
           widget.configPvd.selectedSelectionMode = newSelection.first;
         });
       },
@@ -278,7 +280,12 @@ class _ConnectionState extends State<Connection> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  SizedImageSmall(imagePath: 'assets/Images/Png/objectId_${object.objectId}.png'),
+                  SvgPicture.asset(
+                      'assets/Images/Svg/objectId_${object.objectId}.svg',
+                    width: 25,
+                    height: 25,
+                    color: isSelected ? Colors.white : Colors.black,
+                  ),
                   Text('${object.name}', style: isSelected ? AppProperties.tableHeaderStyleWhite : AppProperties.tableHeaderStyle,),
                 ],
               ),

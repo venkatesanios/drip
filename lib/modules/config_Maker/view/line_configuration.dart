@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/model/fertigation_model.dart';
@@ -72,6 +71,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
                       ),
                       child: SingleChildScrollView(
                         child: Column(
+                          spacing: 20,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Padding(
@@ -157,7 +157,6 @@ class _LineConfigurationState extends State<LineConfiguration> {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 10,),
                             Stack(
                               children: [
                                 diagramWidget(selectedIrrigationLine),
@@ -193,7 +192,6 @@ class _LineConfigurationState extends State<LineConfiguration> {
                                 )
                               ],
                             ),
-                            const SizedBox(height: 20,),
                             Row(
                               spacing: 20,
                               children: [
@@ -252,77 +250,12 @@ class _LineConfigurationState extends State<LineConfiguration> {
                                   )
                               ],
                             ),
-                            SizedBox(height: 20,),
                             checkingAnyParameterAvailableInLine(selectedIrrigationLine),
-
-
-                            SizedBox(height: 50,),
-
-
-
                           ],
                         ),
                       ),
                     ),
                   ),
-                  // Container(
-                  //   // color: Colors.green.shade50,
-                  //   width: double.infinity,
-                  //   height: 254,
-                  //   child: Row(
-                  //     children: [
-                  //       SvgPicture.asset(
-                  //         'assets/Images/Filtration/filtration_joint_1.svg',
-                  //         width: 120,
-                  //         height: 254,
-                  //       ),
-                  //       SizedBox(
-                  //         width: 1500,
-                  //         height: 254,
-                  //         child: Stack(
-                  //           children: [
-                  //             Positioned(
-                  //               top: 100,
-                  //               child: Row(
-                  //                 children: [
-                  //                   if(widget.configPvd.filtration[0].filters.length == 1)
-                  //                     singleFilter(ratio, constraint, widget.configPvd.filtration[0], widget.configPvd),
-                  //                   if(widget.configPvd.filtration[0].filters.length > 1)
-                  //                     multipleFilter(ratio, constraint, widget.configPvd.filtration[0], widget.configPvd),
-                  //                 ],
-                  //               ),
-                  //             ),
-                  //             Positioned(
-                  //               bottom: 6,
-                  //               left: 528,
-                  //               child: SvgPicture.asset(
-                  //                 'assets/Images/Filtration/filtration_to_fertilization_1.svg',
-                  //                 width: 95,
-                  //                 height: 17,
-                  //               )
-                  //             ),
-                  //
-                  //             Positioned(
-                  //               top: 34,
-                  //               left: 596,
-                  //               child: Column(
-                  //                 mainAxisAlignment: MainAxisAlignment.center,
-                  //                 crossAxisAlignment: CrossAxisAlignment.center,
-                  //                 children: [
-                  //                   // if(fertilizationSite.channel.length == 1)
-                  //                   //   getSingleChannel(fertilizerSite: fertilizationSite),
-                  //                   // if(fertilizationSite.channel.length > 1)
-                  //                     getMultipleChannel(fertilizerSite: widget.configPvd.fertilization[0])
-                  //                 ],
-                  //               ),
-                  //             )
-                  //           ],
-                  //         ),
-                  //       )
-                  //
-                  //     ],
-                  //   ),
-                  // )
                 ],
               ),
             ),
@@ -332,6 +265,86 @@ class _LineConfigurationState extends State<LineConfiguration> {
     );
   }
 
+  Widget externalSource(IrrigationLineModel selectedIrrigationLine){
+    List<SourceModel> externalSource = [];
+    for(var src in widget.configPvd.source){
+      if(src.valves.any((valves) => selectedIrrigationLine.valve.contains(valves))){
+        externalSource.add(src);
+      }
+    }
+    return Container(
+      padding: const EdgeInsets.all(20),
+      width: double.infinity,
+      child: ResponsiveGridList(
+        horizontalGridMargin: 0,
+        verticalGridMargin: 10,
+        minItemWidth: 300,
+        shrinkWrap: true,
+        listViewBuilderOptions: ListViewBuilderOptions(
+          physics: const NeverScrollableScrollPhysics(),
+        ),
+        children: [
+          for(var source in externalSource)
+            Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(width: 0.5, color: const Color(0xff008CD7)),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                        offset: const Offset(0, 4),
+                        blurRadius: 4,
+                        spreadRadius: 0,
+                        color: const Color(0xff8B8282).withValues(alpha: 0.2)
+                    )
+                  ]
+              ),
+              height: 200,
+              alignment: Alignment.center,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Row(
+                      children: [
+                        if(source.inletPump.isNotEmpty)
+                          ...[
+                            if(source.inletPump.length == 1)
+                              singlePump(source, true, widget.configPvd)
+                            else
+                              multiplePump(source, true, widget.configPvd)
+                          ],
+                        Stack(
+                          children: [
+                            getTankImage(source, widget.configPvd),
+                            Positioned(
+                              left : 5,
+                              top: 0,
+                              child: Text(getObjectName(source.commonDetails.sNo!, widget.configPvd).name!,style: AppProperties.listTileBlackBoldStyle,),
+                            ),
+                          ],
+                        ),
+                        if(source.outletPump.isNotEmpty)
+                          ...[
+                            if(source.outletPump.length == 1)
+                              singlePump(source, false, widget.configPvd)
+                            else
+                              multiplePump(source, false, widget.configPvd)
+                          ],
+                      ],
+                    ),
+                    const Text('Valve used to fill the tank : ', style: TextStyle(fontWeight: FontWeight.bold),),
+                    Text(source.valves.map((valSno) => getObjectName(valSno, widget.configPvd).name).join(','), style: TextStyle(color: Theme.of(context).primaryColor),)
+
+                  ],
+                ),
+              ),
+            )
+        ],
+      ),
+    );
+  }
 
   Widget checkingAnyParameterAvailableInLine(IrrigationLineModel selectedIrrigationLine){
     List<Widget> childrenWidget = [
@@ -421,7 +434,6 @@ class _LineConfigurationState extends State<LineConfiguration> {
                       borderRadius: BorderRadius.circular(8)
                   ),
                   child: Text(line.commonDetails.name!.toString(),style: TextStyle(color: widget.configPvd.selectedLineSno == line.commonDetails.sNo! ? Colors.white : Colors.black, fontSize: 13),),
-
                 ),
               ),
               const SizedBox(width: 10,)
@@ -436,7 +448,15 @@ class _LineConfigurationState extends State<LineConfiguration> {
       scrollDirection: Axis.horizontal,
       child: SizedBox(
         width: 1700,
-        child: getSuitableSourceConnection(selectedIrrigationLine),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            getSuitableSourceConnection(selectedIrrigationLine),
+            Expanded(
+                child: externalSource(selectedIrrigationLine)
+            )
+          ],
+        ),
       ),
     );
   }
@@ -641,9 +661,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
     );
   }
 
-  Widget oneSourceAndOneTank({required SourceModel boreOthers, required SourceModel sumpTankWell, required IrrigationLineModel selectedIrrigationLine, required List<FiltrationModel> filterSite, required List<FertilizationModel> fertilizerSite}){
-    print('oneSourceAndOneTank filterSite : $filterSite');
-    print('oneSourceAndOneTank fertilizerSite : $fertilizerSite');
+  Widget oneSourceAndOneTank({required SourceModel boreOthers, required SourceModel sumpTankWell, required IrrigationLineModel selectedIrrigationLine, required List<FiltrationModel> filterSite, required List<FertilizationModel> fertilizerSite}){;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -791,7 +809,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
                 ),
             ],
           ),
-          ...filtrationAndFertilization(maxLength: maxLength, fertilizerSite: fertilizerSite, filterSite: filterSite)
+          ...filtrationAndFertilization(maxLength: maxLength, fertilizerSite: fertilizerSite, filterSite: filterSite),
         ],
       );
     });
@@ -1027,4 +1045,5 @@ class _LineConfigurationState extends State<LineConfiguration> {
       ],
     );
   }
+  
 }

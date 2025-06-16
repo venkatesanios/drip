@@ -21,6 +21,8 @@ class _ConfigObjectNameEditingState extends State<ConfigObjectNameEditing> {
     super.initState();
     listOfObjectInLine = widget.listOfObjectInLine.map((object)=> DeviceObjectModel.fromJson(object.toJson())).toList();
   }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,6 +79,7 @@ class _ConfigObjectNameEditingState extends State<ConfigObjectNameEditing> {
       floatingActionButton: FloatingActionButton(
         onPressed: (){
           widget.configPvd.updateName(listOfObjectInLine);
+          Navigator.pop(context);
         },
         child: const Text('Save'),
       ),
