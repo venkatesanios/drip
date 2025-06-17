@@ -82,6 +82,7 @@ dependencies:
   scoped_model: ^2.0.0
   flutter_bluetooth_serial:
     path: lib/plugins/flutter_bluetooth_serial
+  crypto: ^3.0.6
 
 
 

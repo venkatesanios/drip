@@ -1,19 +1,26 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
- import 'package:path_provider/path_provider.dart';
- import 'package:provider/provider.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
+import '../../services/communication_service.dart';
 import '../../services/sftp_service.dart';
+import '../../utils/snack_bar.dart';
 
-class FileTransferPage extends StatefulWidget {
+class FirmwareBLEPage extends StatefulWidget {
   @override
-  _FileTransferPageState createState() => _FileTransferPageState();
+  _FirmwareBLEPageState createState() => _FirmwareBLEPageState();
 }
 
-class _FileTransferPageState extends State<FileTransferPage> {
+class _FirmwareBLEPageState extends State<FirmwareBLEPage> {
   double downloadProgress = 0.0;
   double transferProgress = 0.0;
   String status = "Ready";
+  String contentString = "";
+  int fileSize = 0;
+  String fileChecksumSize = '';
 
   bool isDownloading = false;
   bool isDownloaded = false;
@@ -40,26 +47,29 @@ class _FileTransferPageState extends State<FileTransferPage> {
     if (connectResponse == 200) {
       await Future.delayed(const Duration(seconds: 1));
 
-      String localFileNameForTrace = "gem_log";
       Directory appDocDir = await getApplicationDocumentsDirectory();
       String appDocPath = appDocDir.path;
-      String filePath = '$appDocPath/$localFileNameForTrace.txt';
+      String filePath = '$appDocPath/bootFile.txt';
+
+      // Save trace log to file (optional)
       final localFile = File(filePath);
       await localFile.writeAsString(traceData.join('\n'));
 
+      // Download file to the same path
       int downResponse = await sftpService.downloadFile(
         remoteFilePath: '/home/ubuntu/oro2024/OroGem/OroGemApp_RaspberryPi_64bit/OroGem',
-      );
+       );
 
       if (downResponse == 200) {
-        print('download success');
+        print('Download success');
         setState(() {
+          GlobalSnackBar.show(context, "Download complete", 200);
           status = "Download complete";
           isDownloaded = true;
         });
       } else {
-        print('downResponse--->$downResponse');
-        print('download failed');
+        GlobalSnackBar.show(context, "Download failed", 201);
+        print('Download failed');
         setState(() {
           status = "Download failed";
         });
@@ -68,6 +78,7 @@ class _FileTransferPageState extends State<FileTransferPage> {
       sftpService.disconnect();
     } else {
       setState(() {
+        GlobalSnackBar.show(context, "Download failed", 201);
         status = "Connection failed";
       });
     }
@@ -94,23 +105,101 @@ class _FileTransferPageState extends State<FileTransferPage> {
     }
   }
 
+  Future<String?> calculateSHA256Checksum(String filePath) async {
+    try {
+      String filePath = '/data/user/0/com.niagaraautomations.oroDripirrigation/app_flutter/bootFile.txt';
+      File file = File(filePath);
+
+      if (await file.exists()) {
+        List<int> fileBytes = await file.readAsBytes();
+        Digest sha256Digest = sha256.convert(fileBytes);
+        String hex = sha256Digest.toString().toUpperCase();
+        print("SHA-256 Checksum: $hex");
+        return hex;
+      } else {
+        print('bootFile.txt not found.');
+        return null;
+      }
+    } catch (e) {
+      print('Error calculating checksum: $e');
+      return null;
+    }
+  }
   void _sendViaBle() {
-    // Your BLE sending logic here
-    _deleteBootFile();
-    print("Send via BLE clicked");
-    setState(() {
+    senddata();
+     setState(() {
       status = "Sending via BLE...";
     });
   }
 
+  Future<void> senddata() async {
+    await readBootFileStringWithSize();
+    await Future.delayed(Duration(seconds: 2));
+     String payLoadFinal = jsonEncode({
+      "6900": {"6901": "1,$fileChecksumSize,$fileSize"},
+    });
+    print('payLoadFinal --> $payLoadFinal');
+
+    final result = await context.read<CommunicationService>().sendCommand(payload: payLoadFinal,
+        serverMsg: '');
+    if (result['http'] == true) {
+      debugPrint("Payload sent to Server");
+    }
+    if (result['mqtt'] == true) {
+      debugPrint("Payload sent to MQTT Box");
+    }
+    if (result['bluetooth'] == true) {
+      debugPrint("Payload sent via Bluetooth");
+    }
+    GlobalSnackBar.show(context, "Payload sent via Bluetooth", 200);
 
 
-
-  Future<String?> readBootFileString() async {
+    await Future.delayed(Duration(seconds: 1));
+print("contentString------>$contentString");
+    final resultcontent = await context.read<CommunicationService>().sendCommand(payload: contentString,
+        serverMsg: '');
+    if (resultcontent['http'] == true) {
+      debugPrint("resultcontent sent to Server");
+    }
+    if (resultcontent['mqtt'] == true) {
+      debugPrint("resultcontent sent to MQTT Box");
+    }
+    if (resultcontent['bluetooth'] == true) {
+      debugPrint("resultcontent sent via Bluetooth");
+    }
+    GlobalSnackBar.show(context, "resultcontent sent via Bluetooth", 200);
+  }
+  Future<void> readBootFileStringWithSize() async {
     try {
       Directory appDocDir = await getApplicationDocumentsDirectory();
       String filePath = '${appDocDir.path}/bootFile.txt';
       File file = File(filePath);
+        if (await file.exists()) {
+        List<int> contentsBytes = await file.readAsBytes();
+        int sizeInBytes = contentsBytes.length;
+        int sizeInKB = (sizeInBytes / 1024).ceil();
+        print('contentStringreadBootFileStringWithSize 1---->$contentString');
+        // String contents = await file.readAsString();
+        // contentString = contents.trim();
+
+        String contents = utf8.decode(contentsBytes, allowMalformed: true);
+        contentString = contents.trim();
+
+        print('contentStringreadBootFileStringWithSize 2---->$contentString');
+        fileSize = sizeInBytes;
+         final checksum = await calculateSHA256Checksum(filePath);
+        fileChecksumSize = checksum as String;
+        } else {
+        print('bootFile.txt not found.');
+      }
+    } catch (e) {
+      print('Error reading file: $e');
+    }
+  }
+
+  Future<String?> readBootFileString(String filePath) async {
+    try {
+       File file = File(filePath);
 
       if (await file.exists()) {
         String contents = await file.readAsString();
@@ -154,11 +243,10 @@ class _FileTransferPageState extends State<FileTransferPage> {
 
             SizedBox(height: 20),
 
-            if (isDownloaded)
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                ),
+            // if (isDownloaded)
+              ElevatedButton( style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+              ),
                 onPressed: _sendViaBle,
                 child: Text("Send via BLE"),
               ),

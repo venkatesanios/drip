@@ -11,6 +11,7 @@ import 'package:oro_drip_irrigation/modules/ScheduleView/view/schedule_view_scre
 import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
 import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
+import '../../Screens/Dealer/ble_mobile_screen.dart';
 import '../../StateManagement/customer_provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../flavors.dart';
@@ -760,7 +761,7 @@ class MobileScreenController extends StatelessWidget {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => ControllerLog(deviceID: vm.mySiteList.data[vm.sIndex]
+                                          builder: (context) => BLEMobileScreen(deviceID: vm.mySiteList.data[vm.sIndex]
                                               .master[vm.mIndex].deviceId, communicationType: 'Bluetooth',),
                                         ),
                                       );
