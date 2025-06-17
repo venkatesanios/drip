@@ -752,6 +752,13 @@ class FertilizerSiteModel {
         .map(BoosterPump.fromConfigObject)
         .toList();
 
+    final agitatorSNo = ((json['agitator'] as List?)?.first ?? 0) as num;
+
+    final agitator = configObjects
+        .where((obj) => agitatorSNo == obj.sNo)
+        .map(Agitator.fromConfigObject)
+        .toList();
+
     final ecSNoSet = ((json['ec'] as List?) ?? []).map((e) => e).toSet();
     final ecSensor = configObjects.where((obj) => ecSNoSet.contains(obj.sNo))
         .map(Ec.fromConfigObject).toList();
@@ -772,7 +779,7 @@ class FertilizerSiteModel {
       siteMode: json['siteMode'],
       channel: channel,
       boosterPump: boosterPump,
-      agitator: (json['agitator'] as List).map((e) => Agitator.fromJson(e)).toList(),
+      agitator: agitator,
       selector: json['selector'] ?? [],
       ec: ecSensor,
       ph: phSensor,
@@ -964,6 +971,41 @@ class BoosterPump {
 }
 
 class Agitator {
+  final double sNo;
+  final String name;
+  bool selected;
+  int status;
+
+  Agitator({
+    required this.sNo,
+    required this.name,
+    this.selected=false,
+    this.status = 0,
+  });
+
+  factory Agitator.fromConfigObject(ConfigObject obj) {
+    return Agitator(
+      sNo: obj.sNo,
+      name: obj.name,
+    );
+  }
+
+  factory Agitator.fromJson(Map<String, dynamic> json) {
+    return Agitator(
+      sNo: json['sNo'].toDouble(),
+      name: json['name'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'sNo': sNo,
+      'name': name,
+    };
+  }
+}
+
+/*class Agitator {
   final int objectId;
   final double sNo;
   final String name;
@@ -1013,7 +1055,7 @@ class Agitator {
       'count': count,
     };
   }
-}
+}*/
 
 class MoistureSensorModel {
   final double sNo;

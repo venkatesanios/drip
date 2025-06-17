@@ -9,6 +9,8 @@ import '../../services/communication_service.dart';
 import '../../services/sftp_service.dart';
 import '../../utils/snack_bar.dart';
 
+import 'dart:typed_data' show Uint8List;
+
 class FirmwareBLEPage extends StatefulWidget {
   @override
   _FirmwareBLEPageState createState() => _FirmwareBLEPageState();
@@ -26,6 +28,8 @@ class _FirmwareBLEPageState extends State<FirmwareBLEPage> {
   bool isDownloaded = false;
 
   late MqttPayloadProvider mqttPayloadProvider;
+
+  late final Uint8List firmwareBytes;
 
   @override
   void initState() {
@@ -112,6 +116,8 @@ class _FirmwareBLEPageState extends State<FirmwareBLEPage> {
 
       if (await file.exists()) {
         List<int> fileBytes = await file.readAsBytes();
+       firmwareBytes = Uint8List.fromList(fileBytes);
+
         Digest sha256Digest = sha256.convert(fileBytes);
         String hex = sha256Digest.toString().toUpperCase();
         print("SHA-256 Checksum: $hex");
@@ -133,7 +139,24 @@ class _FirmwareBLEPageState extends State<FirmwareBLEPage> {
   }
 
   Future<void> senddata() async {
-    await readBootFileStringWithSize();
+
+    const chunkSize = 512;
+    for (int offset = 0; offset < firmwareBytes.length; offset += chunkSize) {
+      final chunk = firmwareBytes.sublist(
+        offset,
+        offset + chunkSize > firmwareBytes.length ? firmwareBytes.length : offset + chunkSize,
+      );
+
+      print(chunk.runtimeType);
+      print(chunk);
+
+      // Send via Bluetooth (write to characteristic or serial stream)
+      //await characteristic.write(chunk);
+
+      // Optional: wait for acknowledgment
+    }
+
+    /*await readBootFileStringWithSize();
     await Future.delayed(Duration(seconds: 2));
      String payLoadFinal = jsonEncode({
       "6900": {"6901": "1,$fileChecksumSize,$fileSize"},
@@ -167,7 +190,7 @@ print("contentString------>$contentString");
     if (resultcontent['bluetooth'] == true) {
       debugPrint("resultcontent sent via Bluetooth");
     }
-    GlobalSnackBar.show(context, "resultcontent sent via Bluetooth", 200);
+    GlobalSnackBar.show(context, "resultcontent sent via Bluetooth", 200);*/
   }
   Future<void> readBootFileStringWithSize() async {
     try {
@@ -178,7 +201,7 @@ print("contentString------>$contentString");
         List<int> contentsBytes = await file.readAsBytes();
         int sizeInBytes = contentsBytes.length;
         int sizeInKB = (sizeInBytes / 1024).ceil();
-        print('contentStringreadBootFileStringWithSize 1---->$contentString');
+        print('contentStringreadBootFileStringWithSize 1---->$contentString sizeInKB:$sizeInKB');
         // String contents = await file.readAsString();
         // contentString = contents.trim();
 
