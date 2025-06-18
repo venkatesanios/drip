@@ -2392,6 +2392,7 @@ class IrrigationLogModel {
     }
     return list;
   }
+
 }
 
 class GraphData{
