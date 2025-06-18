@@ -228,22 +228,20 @@ class IrrigationLogModel {
 
   String getName(dynamic sNo){
     var name = '';
-    for(var n in names){
-      if(n['sNo'].toString() == sNo.toString()){
-        name = n['name'];
+
+    if(sNo is String && !sNo.toString().contains('_')){
+      for(var n in names){
+        if(n['sNo'].toString() == sNo.toString()){
+          name = n['name'];
+        }
       }
+    }else if(sNo is String && sNo.toString().contains('_')){
+      name = (sNo.toString().split('_')).map((serialNo) => getName(serialNo)).join(', ');
+    }else if(sNo is List){
+      name = (sNo).map((serialNo) => getName(serialNo)).join(', ');
     }
-    // if(sNo is String || sNo is double || sNo is int){
-    //   for(var n in names){
-    //     if(n['sNo'].toString() == sNo.toString()){
-    //       name = n['name'];
-    //     }
-    //   }
-    // }else if(sNo is List){
-    //   name = (sNo).map((serialNo) => getName(serialNo)).join(', ');
-    // }
     print('names data : $names');
-    print('name : $name    sNo : $sNo');
+    print('name : $name    sNo : $sNo   type : ${sNo.runtimeType}');
     return name.isEmpty ? sNo : name;
   }
 
@@ -300,7 +298,7 @@ class IrrigationLogModel {
     for(var findValve in noOfValve){
       if(findValve['show'] == true){
         graphData.add({
-          'name' : findValve['name'],
+          'name' : findValve['name'].toString().contains('.') ? getName(findValve['name']) : findValve['name'],
           'totalTime' : '00:00:00',
           'data' : []
         });
@@ -715,7 +713,7 @@ class IrrigationLogModel {
     for(var findLine in noOfLine){
       if(findLine['show'] == true){
         graphData.add({
-          'name' : findLine['name'],
+          'name' : findLine['name'].toString().contains('.') ? getName(findLine['name']) : findLine['name'],
           'totalTime' : '00:00:00',
           'data' : []
         });
