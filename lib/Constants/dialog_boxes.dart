@@ -92,45 +92,48 @@ void selectionDialogBox({
               ),
               content: SizedBox(
                 width: double.infinity  > 500 ? 500 : double.infinity,
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: listOfObject
-                      .where((object) {
-                        if(AppConstants.ecoGemModelList.contains(configPvd.masterData['modelId']) && object.objectId == AppConstants.pumpObjectId){
-                          return true;
-                        }else{
-                          if([AppConstants.fertilizerSiteObjectId, AppConstants.filterSiteObjectId].contains(object.objectId)){
+                height: 350,
+                child: SingleChildScrollView(
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: listOfObject
+                        .where((object) {
+                          if(AppConstants.ecoGemModelList.contains(configPvd.masterData['modelId']) && object.objectId == AppConstants.pumpObjectId){
                             return true;
+                          }else{
+                            if([AppConstants.fertilizerSiteObjectId, AppConstants.filterSiteObjectId].contains(object.objectId)){
+                              return true;
+                            }
+                            return object.controllerId != null;
                           }
-                          return object.controllerId != null;
-                        }
-                      }).map((object){
-                    return InkWell(
-                      onTap: (){
-                        if(!singleSelection){
-                          configPvd.updateListOfSelectedSno(object.sNo!);
-                        }else{
-                          configPvd.updateSelectedSno(object.sNo!);
-                        }
-                      },
-                      child: IntrinsicWidth(
-                        child: Container(
-                          // width: 100,
-                          padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 6),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                              color: (singleSelection ? configPvd.selectedSno == object.sNo : configPvd.listOfSelectedSno.contains(object.sNo))
-                                  ? Colors.green.shade300
-                                  : Colors.grey.shade100
-                          ),
-                          child: Center(
-                            child: Text(object.name!,style: AppProperties.listTileBlackBoldStyle,),
+                        }).map((object){
+                      return InkWell(
+                        onTap: (){
+                          if(!singleSelection){
+                            configPvd.updateListOfSelectedSno(object.sNo!);
+                          }else{
+                            configPvd.updateSelectedSno(object.sNo!);
+                          }
+                        },
+                        child: IntrinsicWidth(
+                          child: Container(
+                            // width: 100,
+                            padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 6),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                color: (singleSelection ? configPvd.selectedSno == object.sNo : configPvd.listOfSelectedSno.contains(object.sNo))
+                                    ? Colors.green.shade300
+                                    : Colors.grey.shade100
+                            ),
+                            child: Center(
+                              child: Text(object.name!,style: AppProperties.listTileBlackBoldStyle,),
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  }).toList(),
+                      );
+                    }).toList(),
+                  ),
                 ),
               ),
               actions: [

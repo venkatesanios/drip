@@ -20,14 +20,13 @@ class _ConfigBasePageState extends State<ConfigBasePage> {
   late ConfigMakerProvider configPvd;
   late Future<List<DeviceModel>> listOfDevices;
 
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     print("widget.masterData :: ${jsonEncode(widget.masterData)}");
     configPvd = Provider.of<ConfigMakerProvider>(context, listen: false);
-    //Lk farm
+    // Lk farm
     // listOfDevices = configPvd.fetchData({"userId":3,"customerId":4,"controllerId":1,"deviceId":"E8FB1C3501D1","deviceName":"xMm","categoryId":1,"categoryName":"xMm","modelId":1,"modelName":"xMm1000_R","groupId":1,"groupName":"LK Demo","connectingObjectId":["1","2","3","4","1","2","3","4"]});
     // listOfDevices = configPvd.fetchData({"userId":3,"customerId":4,"controllerId":8,"deviceId":"223344AAEEFF","deviceName":"xMp","categoryId":2,"categoryName":"xMp","modelId":9,"modelName":"xMp2000GOOO","groupId":1,"groupName":"LK Demo","connectingObjectId":["5","22","24","26","40"],});
     // listOfDevices = configPvd.fetchData({"userId":3,"customerId":4,"controllerId":13,"deviceId":"E8EB1B04DB38","deviceName":"xMp","categoryId":2,"categoryName":"xMp","modelId":9,"modelName":"xMp2000GOOO","groupId":1,"groupName":"LK Demo","connectingObjectId":["5","22","24","26","40"]});

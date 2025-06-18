@@ -14,7 +14,6 @@ import '../view/config_base_page.dart';
 import '../view/config_web_view.dart';
 import '../view/connection.dart';
 
-
 class ConfigMakerProvider extends ChangeNotifier{
   double ratio = 1.0;
   ConfigMakerTabs selectedTab = ConfigMakerTabs.deviceList;
@@ -43,7 +42,7 @@ class ConfigMakerProvider extends ChangeNotifier{
   int selectedConnectionNo = 0;
   String selectedType = '';
   int selectedCategory = 6;
-  int selectedModelControllerId = 100;
+  int selectedModelControllerId = 0;
   double selectedLineSno = 2.001;
   List<int> noticeableObjectId = [];
   List<double> listOfSelectedSno = [];
@@ -309,7 +308,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         }
       }
     }
-    listOfGeneratedObject.sort((a, b) => a.objectId.compareTo(b.objectId));
+    listOfGeneratedObject.sort((a, b) => a.sNo!.compareTo(b.sNo!));
     Future.delayed(Duration.zero, () {
       notifyListeners();
     });

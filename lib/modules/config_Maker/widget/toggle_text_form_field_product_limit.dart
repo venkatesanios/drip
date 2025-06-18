@@ -181,7 +181,7 @@ class _ToggleTextFormFieldForProductLimitState extends State<ToggleTextFormField
           onFieldSubmitted: (value){
 
           },
-          maxLength: 2,
+          maxLength: 3,
           onChanged: (value){
 
           },

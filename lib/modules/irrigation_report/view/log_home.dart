@@ -206,6 +206,7 @@ class _LogHomeState extends State<LogHome> {
     _horizontalScroll1 = _scrollable2.addAndGet();
     _horizontalScroll2 = _scrollable2.addAndGet();
     super.initState();
+    print("name :::: ${widget.nameData}");
     print('initState finished');
   }
 

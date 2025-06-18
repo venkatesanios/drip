@@ -233,8 +233,17 @@ class IrrigationLogModel {
         name = n['name'];
       }
     }
-    // print('names data : $names');
-    // print('name : $name    sNo : $sNo');
+    // if(sNo is String || sNo is double || sNo is int){
+    //   for(var n in names){
+    //     if(n['sNo'].toString() == sNo.toString()){
+    //       name = n['name'];
+    //     }
+    //   }
+    // }else if(sNo is List){
+    //   name = (sNo).map((serialNo) => getName(serialNo)).join(', ');
+    // }
+    print('names data : $names');
+    print('name : $name    sNo : $sNo');
     return name.isEmpty ? sNo : name;
   }
 

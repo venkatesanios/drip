@@ -93,7 +93,6 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
   dynamic serverData;
   IrrigationLogModel irrigationParameterArray = IrrigationLogModel();
   IrrigationLogModel irrigationParameterArrayDuplicate = IrrigationLogModel();
-
   IrrigationLogModel selectedIrrigationParameterArray = IrrigationLogModel();
   String errorMessage = '';
   String logName = '';
@@ -423,7 +422,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                           ),
                                           onPressed: () {
                                             Navigator.push(context, MaterialPageRoute(builder: (context){
-                                              return LogHome(serverData: serverData['logConfig'][i], userData: widget.userData,nameData: names,);
+                                              return LogHome(serverData: serverData['logConfig'][i], userData: widget.userData, nameData: names,);
                                             }));
                                           },
                                           icon: Icon(Icons.visibility,color: Colors.green,)
@@ -461,7 +460,6 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
     );
   }
 
-
   void setOriginalToDuplicateParameter({required List<GeneralParameterModel> originalParameterList,required List<GeneralParameterModel> duplicateParameterList}){
     setState(() {
       for(var i = 0;i < originalParameterList.length;i++){
@@ -469,6 +467,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
       }
     });
   }
+
   Widget getChannelFilter({required List<GeneralParameterModel> parameterList,required int channelNo,required bool central}){
     return StatefulBuilder(
         builder: (BuildContext context, StateSetter stateSetter){
@@ -521,6 +520,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
     );
 
   }
+
   void sideSheet({required constraints,required mode,configId}) {
     setOriginalToDuplicateParameter(originalParameterList: mode == 1 ? irrigationParameterArray.generalParameterList : selectedIrrigationParameterArray.generalParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.generalParameterList);
     setOriginalToDuplicateParameter(originalParameterList: mode == 1 ? irrigationParameterArray.waterParameterList : selectedIrrigationParameterArray.waterParameterList, duplicateParameterList: irrigationParameterArrayDuplicate.waterParameterList);
@@ -1009,4 +1009,5 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
       },
     );
   }
+
 }

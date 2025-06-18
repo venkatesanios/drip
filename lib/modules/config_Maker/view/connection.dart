@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:oro_drip_irrigation/app.dart';
@@ -11,8 +10,6 @@ import '../model/device_object_model.dart';
 import '../state_management/config_maker_provider.dart';
 import '../widget/connection_grid_list_tile.dart';
 import '../widget/connector_widget.dart';
-import '../../../Widgets/sized_image.dart';
-import '../widget/weather_grid_list_tile.dart';
 
 class Connection extends StatefulWidget {
   final ConfigMakerProvider configPvd;
@@ -36,9 +33,8 @@ class _ConnectionState extends State<Connection> {
 
   Future<bool> updateConnection() async {
     try {
-      await Future.delayed(Duration(milliseconds: 100));
+      await Future.delayed(const Duration(milliseconds: 100));
       List<int> listOfCategory = [];
-
       for (var device in widget.configPvd.listOfDeviceModel) {
         if (![10].contains(device.categoryId) && ![1, 2, 4].contains(device.modelId) &&
             device.masterId != null &&
@@ -46,28 +42,23 @@ class _ConnectionState extends State<Connection> {
           listOfCategory.add(device.categoryId);
         }
       }
-
       if (listOfCategory.isEmpty) {
-        return false; // Return false if no valid category found
+        return false;
       }
-
       widget.configPvd.selectedCategory = listOfCategory[0];
-
       for (var device in widget.configPvd.listOfDeviceModel) {
         if (device.categoryId == listOfCategory[0] && device.masterId != null) {
           widget.configPvd.selectedModelControllerId = device.controllerId;
           break;
         }
       }
-
       widget.configPvd.updateSelectedConnectionNoAndItsType(0, '');
       widget.configPvd.updateConnectionListTile();
       print("widget.configPvd.selectedModelControllerId --- : ${widget.configPvd.selectedModelControllerId}");
-
       return true;
     } catch (e) {
       print('Error in updateConnection: ${e.toString()}');
-      return false; // Return false on error
+      return false;
     }
   }
 
@@ -480,6 +471,7 @@ class _ConnectionState extends State<Connection> {
         listOfCategory.add(device.categoryId);
       }
     }
+    listOfCategory.sort();
     Widget child = Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.start,
@@ -560,7 +552,6 @@ class _ConnectionState extends State<Connection> {
               ),
               const SizedBox(width: 10,)
             ]
-
         ],
       ),
     );
@@ -570,3 +561,4 @@ class _ConnectionState extends State<Connection> {
 }
 
 enum SelectionMode {auto, manual}
+
