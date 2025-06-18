@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
+import '../../services/bluetooth_sevice.dart';
 import '../../services/communication_service.dart';
 import '../../services/sftp_service.dart';
 import '../../utils/snack_bar.dart';
@@ -12,6 +13,8 @@ import '../../utils/snack_bar.dart';
 import 'dart:typed_data' show Uint8List;
 
 class FirmwareBLEPage extends StatefulWidget {
+  const FirmwareBLEPage({super.key});
+
   @override
   _FirmwareBLEPageState createState() => _FirmwareBLEPageState();
 }
@@ -111,8 +114,7 @@ class _FirmwareBLEPageState extends State<FirmwareBLEPage> {
 
   Future<String?> calculateSHA256Checksum(String filePath) async {
     try {
-      String filePath = '/data/user/0/com.niagaraautomations.oroDripirrigation/app_flutter/bootFile.txt';
-      File file = File(filePath);
+       File file = File(filePath);
 
       if (await file.exists()) {
         List<int> fileBytes = await file.readAsBytes();
@@ -140,58 +142,62 @@ class _FirmwareBLEPageState extends State<FirmwareBLEPage> {
 
   Future<void> senddata() async {
 
+    await readBootFileStringWithSize();
+    await Future.delayed(const Duration(seconds: 1));
+    String payLoadFinal = jsonEncode({
+      "6900": {"6901": "1,$fileChecksumSize,$fileSize"},
+    });
+    print('payLoadFinal --> $payLoadFinal');
+
+    final result = await context.read<CommunicationService>().sendCommand(
+        payload: payLoadFinal,
+        serverMsg: '');
+
+    if (result['bluetooth'] == true) {
+      debugPrint("Payload sent via Bluetooth");
+      GlobalSnackBar.show(context, "Please wait... controller updating...", 200);
+      writeUpdatedCode();
+    }else{
+      GlobalSnackBar.show(context, "Not Updating controller.. please verify the bluetooth connection and try again", 400);
+    }
+  }
+
+  Future<void> writeUpdatedCode() async {
+    final BluService blueService = BluService();
     const chunkSize = 512;
     for (int offset = 0; offset < firmwareBytes.length; offset += chunkSize) {
       final chunk = firmwareBytes.sublist(
         offset,
-        offset + chunkSize > firmwareBytes.length ? firmwareBytes.length : offset + chunkSize,
+        offset + chunkSize > firmwareBytes.length
+            ? firmwareBytes.length
+            : offset + chunkSize,
       );
 
       print(chunk.runtimeType);
       print(chunk);
 
-      // Send via Bluetooth (write to characteristic or serial stream)
-      //await characteristic.write(chunk);
+      String base64String = base64Encode(chunk);
+      blueService.write(base64String);
 
-      // Optional: wait for acknowledgment
-    }
 
-    /*await readBootFileStringWithSize();
-    await Future.delayed(Duration(seconds: 2));
-     String payLoadFinal = jsonEncode({
-      "6900": {"6901": "1,$fileChecksumSize,$fileSize"},
-    });
-    print('payLoadFinal --> $payLoadFinal');
+     /* final resultcontent = await context.read<CommunicationService>().sendCommand(
+          payload: base64String, serverMsg: '');
+      if (resultcontent['http'] == true) {
+        debugPrint("Payload sent to Server");
+      }
+      if (resultcontent['mqtt'] == true) {
+        debugPrint("Payload sent to MQTT Box");
+      }
+      if (resultcontent['bluetooth'] == true) {
+        debugPrint("Payload sent via Bluetooth");
+      }*/
+    }
+    print('file write completed');
 
-    final result = await context.read<CommunicationService>().sendCommand(payload: payLoadFinal,
-        serverMsg: '');
-    if (result['http'] == true) {
-      debugPrint("Payload sent to Server");
-    }
-    if (result['mqtt'] == true) {
-      debugPrint("Payload sent to MQTT Box");
-    }
-    if (result['bluetooth'] == true) {
-      debugPrint("Payload sent via Bluetooth");
-    }
     GlobalSnackBar.show(context, "Payload sent via Bluetooth", 200);
-
-
-    await Future.delayed(Duration(seconds: 1));
-print("contentString------>$contentString");
-    final resultcontent = await context.read<CommunicationService>().sendCommand(payload: contentString,
-        serverMsg: '');
-    if (resultcontent['http'] == true) {
-      debugPrint("resultcontent sent to Server");
-    }
-    if (resultcontent['mqtt'] == true) {
-      debugPrint("resultcontent sent to MQTT Box");
-    }
-    if (resultcontent['bluetooth'] == true) {
-      debugPrint("resultcontent sent via Bluetooth");
-    }
-    GlobalSnackBar.show(context, "resultcontent sent via Bluetooth", 200);*/
   }
+
+
   Future<void> readBootFileStringWithSize() async {
     try {
       Directory appDocDir = await getApplicationDocumentsDirectory();

@@ -25,6 +25,7 @@ class _AdminScreenControllerState extends State<AdminScreenController> {
   int selectedIndex = 0;
   int hoveredIndex = -1;
   final List<String> menuTitles = ['Dashboard', 'Products', 'Stock'];
+  final List<Widget?> _pages = List.filled(3, null);
 
   @override
   Widget build(BuildContext context) {
@@ -307,23 +308,41 @@ class _AdminScreenControllerState extends State<AdminScreenController> {
             ),
             body: IndexedStack(
               index: selectedIndex,
-              children:  [
-                AdminDashboard(
-                  userId: widget.userId,
-                  userName: widget.userName, mobileNo: widget.mobileNo,
-                ),
-                ProductInventory(
-                  userId: widget.userId,
-                  userName: widget.userName,
-                  userRole: UserRole.admin,
-                ),
-                StockEntry(userId: widget.userId),
-              ],
+              children: List.generate(menuTitles.length, (index) {
+                return selectedIndex == index
+                    ? getPage(index) // lazy-load only selected
+                    : const SizedBox(); // or keep last known version
+              }),
             ),
           );
         },
       ),
     );
+  }
+
+  Widget getPage(int index) {
+    if (_pages[index] == null) {
+      switch (index) {
+        case 0:
+          _pages[0] = AdminDashboard(
+            userId: widget.userId,
+            userName: widget.userName,
+            mobileNo: widget.mobileNo,
+          );
+          break;
+        case 1:
+          _pages[1] = ProductInventory(
+            userId: widget.userId,
+            userName: widget.userName,
+            userRole: UserRole.admin,
+          );
+          break;
+        case 2:
+          _pages[2] = StockEntry(userId: widget.userId);
+          break;
+      }
+    }
+    return _pages[index]!;
   }
 
 }

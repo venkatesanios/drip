@@ -752,12 +752,12 @@ class FertilizerSiteModel {
         .map(BoosterPump.fromConfigObject)
         .toList();
 
-    final agitatorSNo = ((json['agitator'] as List?)?.first ?? 0) as num;
+    /*final agitatorSNo = ((json['agitator'] as List?)?.first ?? 0) as num;
 
     final agitator = configObjects
         .where((obj) => agitatorSNo == obj.sNo)
         .map(Agitator.fromConfigObject)
-        .toList();
+        .toList();*/
 
     final ecSNoSet = ((json['ec'] as List?) ?? []).map((e) => e).toSet();
     final ecSensor = configObjects.where((obj) => ecSNoSet.contains(obj.sNo))
@@ -779,7 +779,7 @@ class FertilizerSiteModel {
       siteMode: json['siteMode'],
       channel: channel,
       boosterPump: boosterPump,
-      agitator: agitator,
+      agitator: [],
       selector: json['selector'] ?? [],
       ec: ecSensor,
       ph: phSensor,
