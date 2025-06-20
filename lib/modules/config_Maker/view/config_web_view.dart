@@ -30,7 +30,6 @@ class ConfigWebView extends StatefulWidget {
   List<DeviceModel> listOfDevices;
   ConfigWebView({super.key, required this.listOfDevices});
 
-
   @override
   State<ConfigWebView> createState() => _ConfigWebViewState();
 }

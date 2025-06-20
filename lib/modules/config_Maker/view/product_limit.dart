@@ -242,7 +242,7 @@ int getInputCount(int code, List<DeviceModel> listOfDevices){
 int balanceCountForInputType(int code, ConfigMakerProvider configPvd){
   int totalCount = getInputCount(code, configPvd.listOfDeviceModel);
   for(var object in configPvd.listOfSampleObjectModel){
-    if(object.type == '$code'){
+    if(object.type == '$code' && object.objectId != AppConstants.powerSupplyObjectId){
       int objectCount = [null, ''].contains(object.count) ? 0 : int.parse(object.count!);
       totalCount -= objectCount;
     }
