@@ -22,7 +22,6 @@ class NewStockViewModel extends ChangeNotifier {
 
   int selectedCategoryId = 0;
   int selectedModelId = 0;
-  bool isEditing = false;
 
   List<Map<String, dynamic>> addedProductList = [];
 

@@ -1,10 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
+import '../../utils/constants.dart';
 import '../../view_models/customer/general_setting_view_model.dart';
+import '../create_account.dart';
 
 
 class GeneralSetting extends StatefulWidget {
@@ -125,6 +129,8 @@ class _GeneralSettingState extends State<GeneralSetting> {
             onPressed: () {
               showEditControllerDialog(context, 'Farm Name', viewModel.farmName, (newName) {
                 print('Updated name: $newName');
+                viewModel.updateMasterDetails(context, widget.customerId,
+                    widget.controllerId, widget.userId);
               });
             },
             icon: const Icon(Icons.edit),
@@ -141,6 +147,8 @@ class _GeneralSettingState extends State<GeneralSetting> {
             onPressed: () {
               showEditControllerDialog(context, 'Controller Name', viewModel.farmName, (newName) {
                 print('Updated name: $newName');
+                viewModel.updateMasterDetails(context, widget.customerId,
+                    widget.controllerId, widget.userId);
               });
             },
             icon: const Icon(Icons.edit),
@@ -287,7 +295,7 @@ class _GeneralSettingState extends State<GeneralSetting> {
                               ),
                             ),
                           ),
-                          Divider(color: Colors.grey.shade200,),
+                          Divider(color: Colors.grey.shade200),
                           ListTile(
                             title: const Text('Controller Name'),
                             leading: const Icon(Icons.developer_board),
@@ -302,7 +310,7 @@ class _GeneralSettingState extends State<GeneralSetting> {
                               ),
                             ),
                           ),
-                          Divider(color: Colors.grey.shade200,),
+                          Divider(color: Colors.grey.shade200),
                           ListTile(
                             title: const Text('Device Category'),
                             leading: const Icon(Icons.category_outlined),
@@ -313,7 +321,7 @@ class _GeneralSettingState extends State<GeneralSetting> {
                                   fontWeight: FontWeight.bold),
                             ),
                           ),
-                          Divider(color: Colors.grey.shade200,),
+                          Divider(color: Colors.grey.shade200),
                           ListTile(
                             title: const Text('Model'),
                             leading: const Icon(Icons.model_training),
@@ -324,7 +332,7 @@ class _GeneralSettingState extends State<GeneralSetting> {
                                   fontWeight: FontWeight.bold),
                             ),
                           ),
-                          Divider(color: Colors.grey.shade200,),
+                          Divider(color: Colors.grey.shade200),
                           ListTile(
                             title: const Text('Device ID'),
                             leading: const Icon(Icons.numbers_outlined),
@@ -335,7 +343,7 @@ class _GeneralSettingState extends State<GeneralSetting> {
                                   fontWeight: FontWeight.bold),
                             ),
                           ),
-                          Divider(color: Colors.grey.shade200,),
+                          Divider(color: Colors.grey.shade200),
                           ListTile(
                             title: const Text('Version'),
                             leading: const Icon(Icons.perm_device_info),
@@ -363,7 +371,7 @@ class _GeneralSettingState extends State<GeneralSetting> {
                               ],
                             ),
                           ),
-                          Divider(color: Colors.grey.shade300,),
+                          Divider(color: Colors.grey.shade300),
                         ],
                       ),
                     ),
@@ -375,7 +383,6 @@ class _GeneralSettingState extends State<GeneralSetting> {
                       flex: 1,
                       child: Column(
                         children: [
-                          Divider(color: Colors.grey.shade200,),
                           ListTile(
                             title: const Text('UTC'),
                             leading: const Icon(Icons.timer_outlined),
@@ -397,7 +404,7 @@ class _GeneralSettingState extends State<GeneralSetting> {
                                   }).toList(),
                             ),
                           ),
-                          Divider(color: Colors.grey.shade200,),
+                          Divider(color: Colors.grey.shade200),
                           ListTile(
                             title: const Text('Current Date'),
                             leading: const Icon(Icons.date_range),
@@ -408,7 +415,7 @@ class _GeneralSettingState extends State<GeneralSetting> {
                                   fontWeight: FontWeight.bold),
                             ),
                           ),
-                          Divider(color: Colors.grey.shade200,),
+                          Divider(color: Colors.grey.shade200),
                           ListTile(
                             title: const Text('Current UTC Time'),
                             leading: const Icon(Icons.date_range),
@@ -419,7 +426,7 @@ class _GeneralSettingState extends State<GeneralSetting> {
                                   fontWeight: FontWeight.bold),
                             ),
                           ),
-                          Divider(color: Colors.grey.shade200,),
+                          Divider(color: Colors.grey.shade200),
                           const ListTile(
                             title: Text('Time Format'),
                             leading: Icon(Icons.date_range),
@@ -430,7 +437,7 @@ class _GeneralSettingState extends State<GeneralSetting> {
                                   fontWeight: FontWeight.bold),
                             ),
                           ),
-                          Divider(color: Colors.grey.shade200,),
+                          Divider(color: Colors.grey.shade200),
                           const ListTile(
                             title: Text('Unit'),
                             leading: Icon(Icons.ac_unit_rounded),
@@ -462,12 +469,12 @@ class _GeneralSettingState extends State<GeneralSetting> {
                         },
                         child: const Text('Restart the controller'),
                       ),
-                      const SizedBox(width: 16,),
+                      const SizedBox(width: 16),
                       MaterialButton(
                         color: Colors.green,
                         textColor: Colors.white,
-                        onPressed: () async {
-                        },
+                        onPressed: () => viewModel.updateMasterDetails(context, widget.customerId,
+                            widget.controllerId, widget.userId),
                         child: const Text('Save Changes'),
                       ),
                     ],
@@ -485,33 +492,32 @@ class _GeneralSettingState extends State<GeneralSetting> {
                     ? IconButton(
                     tooltip: 'Add new sub user',
                     onPressed: () async {
-
-                      /*showModalBottomSheet(
-                                            context: context,
-                                            isScrollControlled: true,
-                                            builder: (context) {
-                                              return FractionallySizedBox(
-                                                heightFactor: 0.84,
-                                                widthFactor: 0.75,
-                                                child: Container(
-                                                  decoration: const BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
-                                                  ),
-                                                  child: CreateAccount(callback: callbackFunction, subUsrAccount: true, customerId: widget.customerID, from: 'Sub User',),
-                                                ),
-                                              );
-                                            },
-                                          );*/
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (context) {
+                          return FractionallySizedBox(
+                            heightFactor: 0.84,
+                            widthFactor: 0.75,
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
+                              ),
+                              child: CreateAccount(userId: widget.userId, role: UserRole.subUser, customerId: widget.customerId, onAccountCreated: viewModel.updateCustomerList),
+                            ),
+                          );
+                        },
+                      );
                     },
                     icon: const Icon(Icons.add))
                     : null,
               ),
-              Divider(height:0, color: Colors.grey.shade300,),
+              Divider(height:0, color: Colors.grey.shade300),
               SizedBox(
                 height: 70,
-                child: viewModel.subUsers.isNotEmpty
-                    ? ListView.builder(
+                child: viewModel.subUsers.isNotEmpty ?
+                ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: viewModel.subUsers.length,
                   itemBuilder: (context, index) {
@@ -521,8 +527,7 @@ class _GeneralSettingState extends State<GeneralSetting> {
                       child: Card(
                         surfaceTintColor: Colors.teal,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                              5.0), // Adjust the radius as needed
+                          borderRadius: BorderRadius.circular(5.0),
                         ),
                         child: ListTile(
                           title: Text(user['userName']),
@@ -538,9 +543,8 @@ class _GeneralSettingState extends State<GeneralSetting> {
                       ),
                     );
                   },
-                ) : const Center(
-                    child: Text(
-                        'No Sub user available for this controller')),
+                ) :
+                const Center(child: Text('No Sub user available for this controller')),
               ),
             ],
           ),
@@ -551,10 +555,10 @@ class _GeneralSettingState extends State<GeneralSetting> {
 
   Future<void> _showAlertDialog(BuildContext context, String cName, int suId) async {
 
-    /*List<UserGroup> userGroups = [];
+    List<UserGroup> userGroups = [];
 
     final response = await HttpService().postRequest("getUserSharedDeviceList",
-        {"userId": widget.customerID, "sharedUserId": suId,});
+        {"userId": widget.customerId, "sharedUserId": suId});
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
       //print(response.body);
@@ -599,13 +603,13 @@ class _GeneralSettingState extends State<GeneralSetting> {
                     masterList.add(MasterItem(id: userGroups[gix].master[mix].controllerId, action: userGroups[gix].master[mix].isSharedDevice, userPermission: userGroups[gix].master[mix].userPermission));
                   }
                 }
-                sendUpdatedPermission(masterList.map((item) => item.toMap()).toList(), suId);
+                //sendUpdatedPermission(masterList.map((item) => item.toMap()).toList(), suId);
               },
             ),
           ],
         );
       },
-    );*/
+    );
   }
 
   void showEditControllerDialog(BuildContext context, String currentTitle, String currentName, Function(String) onSave) {
@@ -638,6 +642,208 @@ class _GeneralSettingState extends State<GeneralSetting> {
           ],
         );
       },
+    );
+  }
+}
+
+class UserGroup {
+  final int userGroupId;
+  final String groupName;
+  final bool active;
+  final List<Master> master;
+
+  UserGroup({required this.userGroupId, required this.groupName, required this.active, required this.master});
+
+  factory UserGroup.fromJson(Map<String, dynamic> json) {
+    var list = json['master'] as List;
+    List<Master> masterList = list.map((i) => Master.fromJson(i)).toList();
+    return UserGroup(
+      userGroupId: json['userGroupId'],
+      groupName: json['groupName'],
+      active: json['active'] == '1',
+      master: masterList,
+    );
+  }
+}
+
+class Master {
+  final int controllerId;
+  final String deviceId;
+  final String deviceName;
+  bool isSharedDevice;
+  final List<UserPermission> userPermission;
+
+  Master({required this.controllerId, required this.deviceId, required this.deviceName, required this.isSharedDevice, required this.userPermission});
+
+  factory Master.fromJson(Map<String, dynamic> json) {
+    var list = json['userPermission'] as List;
+    List<UserPermission> userPermissionList = list.map((i) => UserPermission.fromJson(i)).toList();
+    return Master(
+      controllerId: json['controllerId'],
+      deviceId: json['deviceId'],
+      deviceName: json['deviceName'],
+      isSharedDevice: json['isSharedDevice'],
+      userPermission: userPermissionList,
+    );
+  }
+}
+
+class UserPermission {
+  final int sNo;
+  final String name;
+  bool status;
+
+  UserPermission({required this.sNo, required this.name, required this.status});
+
+  Map<String, dynamic> toMap() {
+    return {
+      'sNo': sNo,
+      'name': name,
+      'status': status,
+    };
+  }
+
+  factory UserPermission.fromJson(Map<String, dynamic> json) {
+    return UserPermission(
+      sNo: json['sNo'],
+      name: json['name'],
+      status: json['status'],
+    );
+  }
+
+}
+
+
+class UserGroupWidget extends StatefulWidget {
+  final UserGroup group;
+  const UserGroupWidget({super.key, required this.group});
+
+  @override
+  _UserGroupWidgetState createState() => _UserGroupWidgetState();
+}
+
+class _UserGroupWidgetState extends State<UserGroupWidget> {
+  void toggleGroup(UserGroup group, bool value) {
+    setState(() {
+      for (var master in group.master) {
+        master.isSharedDevice = value;
+        for (var permission in master.userPermission) {
+          permission.status = value;
+        }
+      }
+    });
+  }
+
+  void toggleMaster(Master master, bool value) {
+    setState(() {
+      master.isSharedDevice = value;
+      for (var permission in master.userPermission) {
+        permission.status = value;
+      }
+
+      if (!value) {
+        for (var otherMaster in widget.group.master) {
+          if (otherMaster != master && otherMaster.isSharedDevice) return;
+        }
+      }
+    });
+  }
+
+  void togglePermission(UserGroup group, Master master, UserPermission permission, bool value) {
+    setState(() {
+      permission.status = value;
+
+      if (!value) {
+        bool allPermissionsUnchecked = master.userPermission.every((p) => !p.status);
+        if (allPermissionsUnchecked) {
+          master.isSharedDevice = false;
+          bool allMastersUnchecked = group.master.every((m) => !m.isSharedDevice);
+          if (allMastersUnchecked) {
+            for (var m in group.master) {
+              m.isSharedDevice = false;
+            }
+          }
+        }
+      } else {
+        master.isSharedDevice = true;
+        for (var m in group.master) {
+          m.isSharedDevice = true;
+        }
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ExpansionTile(
+      initiallyExpanded: true,
+      childrenPadding: const EdgeInsets.only(left: 16),
+      enabled: false,
+      title: Row(
+        children: [
+          Checkbox(
+            value: widget.group.master.every((m) => m.isSharedDevice),
+            onChanged: (value) => toggleGroup(widget.group, value!),
+          ),
+          Text(widget.group.groupName),
+        ],
+      ),
+      children: widget.group.master.map((master){
+        return ExpansionTile(
+          initiallyExpanded: true,
+          childrenPadding: const EdgeInsets.only(left: 16),
+          enabled: false,
+          shape: InputBorder.none,
+          title: Row(
+            children: [
+              Checkbox(
+                value: master.isSharedDevice,
+                onChanged: (value) => toggleMaster(master, value!),
+              ),
+              Text(master.deviceName),
+            ],
+          ),
+          children: master.userPermission.map((permission) {
+            return ListTile(
+              leading: Checkbox(
+                value: permission.status,
+                onChanged: (value) => togglePermission(widget.group, master, permission, value!),
+              ),
+              title: Text(permission.name),
+            );
+          }).toList(),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class MasterItem {
+  final int id;
+  final bool action;
+  final List<UserPermission> userPermission;
+
+  MasterItem({
+    required this.id,
+    required this.action,
+    required this.userPermission,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'action': action,
+      'userPermission': userPermission.map((perm) => perm.toMap()).toList(),
+    };
+  }
+
+  factory MasterItem.fromJson(Map<String, dynamic> json) {
+    return MasterItem(
+      id: json['id'],
+      action: json['action'],
+      userPermission: List<UserPermission>.from(
+          json['userPermission'].map((x) => UserPermission.fromJson(x))
+      ),
     );
   }
 }

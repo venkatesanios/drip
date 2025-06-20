@@ -310,8 +310,8 @@ class _AdminScreenControllerState extends State<AdminScreenController> {
               index: selectedIndex,
               children: List.generate(menuTitles.length, (index) {
                 return selectedIndex == index
-                    ? getPage(index) // lazy-load only selected
-                    : const SizedBox(); // or keep last known version
+                    ? getPage(index)
+                    : const SizedBox();
               }),
             ),
           );
