@@ -20,6 +20,7 @@ import '../../modules/IrrigationProgram/view/program_library.dart';
 import '../../modules/PumpController/view/node_settings.dart';
 import '../../modules/PumpController/view/pump_controller_home.dart';
 import '../../modules/bluetooth_low_energy/view/node_connection_page.dart';
+import '../../modules/open_ai/view/open_ai_screen.dart';
 import '../../repository/repository.dart';
 import '../../services/communication_service.dart';
 import '../../services/http_service.dart';
@@ -98,75 +99,115 @@ class MobileScreenController extends StatelessWidget {
                   const SizedBox(width: 8),
                   AlarmButton(alarmPayload: vm.alarmDL, deviceID: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
                       customerId: customerId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId),
-                ],
-                if(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 2)...[
-                  if(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList.isNotEmpty
-                      && [48, 49].contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId))
-                    IconButton(
-                        onPressed: (){
-                          showModalBottomSheet(
-                              context: context,
-                              builder: (context) {
-                                return NodeSettings(
-                                  userId: userId,
-                                  controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                                  customerId: customerId,
-                                  nodeList: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList,
-                                  deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                                );
-                              }
-                          );
-                        },
-                        icon: const Icon(Icons.settings_remote)
-                    ),
                   IconButton(
                       onPressed: (){
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                SentAndReceived(
-                                  customerId: userId,
-                                  controllerId: vm.mySiteList.data[vm.sIndex]
-                                      .master[vm.mIndex].controllerId,
-                                ),
-                          ),
+                          MaterialPageRoute(builder: (context) => const AIChatScreen()),
                         );
                       },
-                      icon: const Icon(Icons.question_answer_outlined)
+                      icon: const Icon(Icons.assistant)
                   ),
-                  if(!kIsWeb)
-                    IconButton(
-                        padding: const EdgeInsets.all(0),
-                        onPressed: (){
-                          final Map<String, dynamic> data = {
-                            'controllerId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                            'deviceId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                            'deviceName': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceName,
-                            'categoryId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
-                            'categoryName': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
-                            'modelId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId,
-                            'modelName': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelName,
-                            'InterfaceType': 1,
-                            'interface': 'GSM',
-                            'relayOutput': 3,
-                            'latchOutput': 0,
-                            'analogInput': 8,
-                            'digitalInput': 4,
-                          };
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => NodeConnectionPage(
-                            nodeData: data,
-                            masterData: {
-                              "userId" : userId,
-                              "customerId" : customerId,
-                              "controllerId" : vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId
-                            },
-                          )));
-                        },
-                        icon: const Icon(Icons.bluetooth)
-                    ),
+                  // const SizedBox(width: 16),
                 ],
-                const SizedBox(width: 16),
+                if(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 2)...[
+                  Container(
+                    height: 35,
+                    decoration: BoxDecoration(
+                        color: MediaQuery.of(context).size.width >= 600 ? Colors.transparent: Theme.of(context).primaryColorLight,
+                        borderRadius: const BorderRadius.only(topLeft: Radius.circular(25), bottomLeft: Radius.circular(25))
+                    ),
+                    child: Row(
+                      children: [
+                        if(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList.isNotEmpty
+                            && [48, 49].contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId))
+                          InkWell(
+                              onTap: (){
+                                showModalBottomSheet(
+                                    context: context,
+                                    builder: (context) {
+                                      return NodeSettings(
+                                        userId: userId,
+                                        controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                                        customerId: customerId,
+                                        nodeList: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList,
+                                        deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                                      );
+                                    }
+                                );
+                              },
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                child: Icon(Icons.settings_remote),
+                              )
+                          ),
+                        InkWell(
+                            onTap: (){
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      SentAndReceived(
+                                        customerId: userId,
+                                        controllerId: vm.mySiteList.data[vm.sIndex]
+                                            .master[vm.mIndex].controllerId,
+                                      ),
+                                ),
+                              );
+                            },
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 8),
+                              child: Icon(Icons.question_answer_outlined),
+                            )
+                        ),
+                        if(!kIsWeb)
+                          InkWell(
+                              onTap: (){
+                                final Map<String, dynamic> data = {
+                                  'controllerId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                                  'deviceId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                                  'deviceName': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceName,
+                                  'categoryId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
+                                  'categoryName': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
+                                  'modelId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId,
+                                  'modelName': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelName,
+                                  'InterfaceType': 1,
+                                  'interface': 'GSM',
+                                  'relayOutput': 3,
+                                  'latchOutput': 0,
+                                  'analogInput': 8,
+                                  'digitalInput': 4,
+                                };
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => NodeConnectionPage(
+                                  nodeData: data,
+                                  masterData: {
+                                    "userId" : userId,
+                                    "customerId" : customerId,
+                                    "controllerId" : vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId
+                                  },
+                                )));
+                              },
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                child: Icon(Icons.bluetooth),
+                              )
+                          ),
+                        InkWell(
+                            onTap: (){
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const AIChatScreen()),
+                              );
+                            },
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 8),
+                              child: Icon(Icons.assistant),
+                            )
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
               bottom: PreferredSize(
                 preferredSize: const Size.fromHeight(50),
