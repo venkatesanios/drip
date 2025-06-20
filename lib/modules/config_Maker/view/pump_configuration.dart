@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/view/site_configure.dart';
@@ -24,6 +23,7 @@ class PumpConfiguration extends StatefulWidget {
 
 class _PumpConfigurationState extends State<PumpConfiguration> {
   List<int> pumpModelList = [5, 6, 7, 8, 9, 10];
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -39,7 +39,7 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
                 ResponsiveGridList(
                   horizontalGridMargin: 0,
                   verticalGridMargin: 10,
-                  minItemWidth: 250,
+                  minItemWidth: 500,
                   shrinkWrap: true,
                   listViewBuilderOptions: ListViewBuilderOptions(
                     physics: const NeverScrollableScrollPhysics(),
@@ -113,7 +113,9 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
                                 runSpacing: 20,
                                 children: [
                                   for(var mode in [1,2,3])
-                                    getWaterMeterAndPressureSelection(pump, mode)
+                                    getWaterMeterAndPressureSelection(pump, mode),
+                                  for(var mode in [1,2,3,4])
+                                    getFloatSelection(pump, mode)
                                 ],
                               ),
                             ),
@@ -125,7 +127,6 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
               ],
             ),
           ),
-
         );
       }),
     );
@@ -158,7 +159,9 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
           SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_$objectId.svg', color: Colors.black,),
           const SizedBox(width: 20,),
           Text('$objectName : ', style: AppProperties.listTileBlackBoldStyle,),
-          Expanded(child: Text(currentSno == 0.0 ? '-' : getObjectName(currentSno, widget.configPvd).name!, style: const TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold,),)),
+          Center(
+            child: Text(currentSno == 0.0 ? '-' : getObjectName(currentSno, widget.configPvd).name!, style: TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold),),
+          ),
           IconButton(
               onPressed: (){
                 setState(() {
@@ -178,6 +181,100 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
                         }else{
                           currentPump.waterMeter = widget.configPvd.selectedSno;
                         }
+                        widget.configPvd.selectedSno = 0.0;
+                      });
+                      Navigator.pop(context);
+                    }
+                );
+              },
+              icon: Icon(Icons.touch_app, color: Theme.of(context).primaryColor, size: 20,)
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget getFloatSelection(PumpModel currentPump, int mode){
+    int objectId = AppConstants.floatObjectId;
+    Map<int, String> controlBy = {
+      1 : 'Top Tank Float',
+      2 : 'Bottom Tank Float',
+      3 : 'Top Sump Float',
+      4 : 'Bottom Sump Float',
+    };
+    Map<int, double> sNoSelection = {
+      1 : currentPump.topTankFloat,
+      2 : currentPump.bottomTankFloat,
+      3 : currentPump.topSumpFloat,
+      4 : currentPump.bottomSumpFloat,
+    };
+    String objectName = 'Control By ${controlBy[mode]}';
+    double currentSno = sNoSelection[mode]!;
+    List<double> validateFloat = [];
+    List<double> topTankFloatSnoForAllSource = [];
+    List<double> bottomTankFloatSnoForAllSource = [];
+    List<double> topSumpFloatSnoForAllSource = [];
+    List<double> bottomSumpFloatSnoForAllSource = [];
+    Map<int, List<double>> validateFloatAvailableInSource = {
+      1 : topTankFloatSnoForAllSource,
+      2 : bottomTankFloatSnoForAllSource,
+      3 : topSumpFloatSnoForAllSource,
+      4 : bottomSumpFloatSnoForAllSource,
+    };
+    for(var src in widget.configPvd.source){
+      if(src.sourceType == 1){
+        topTankFloatSnoForAllSource.add(src.topFloat);
+        bottomTankFloatSnoForAllSource.add(src.bottomFloat);
+      }else if([2, 3].contains(src.sourceType)){
+        topSumpFloatSnoForAllSource.add(src.topFloat);
+        bottomSumpFloatSnoForAllSource.add(src.bottomFloat);
+      }
+    }
+    for(var pump in widget.configPvd.pump){
+      if(pump.commonDetails.sNo != currentPump.commonDetails.sNo){
+        Map<int, double> sNoSelectionForPumpFloat = {
+          1 : pump.topTankFloat,
+          2 : pump.bottomTankFloat,
+          3 : pump.topSumpFloat,
+          4 : pump.bottomSumpFloat,
+        };
+        validateFloat.add(sNoSelectionForPumpFloat[mode]!);
+      }
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: Theme.of(context).primaryColorLight.withOpacity(0.1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_$objectId.svg', color: Colors.black,),
+          const SizedBox(width: 20,),
+          Text('$objectName : ', style: AppProperties.listTileBlackBoldStyle,),
+          Center(
+            child: Text(currentSno == 0.0 ? '-' : getObjectName(currentSno, widget.configPvd).name!, style: TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold),),
+          ),
+          IconButton(
+              onPressed: (){
+                setState(() {
+                  widget.configPvd.selectedSno = currentSno;
+                });
+                selectionDialogBox(
+                    context: context,
+                    title: 'Select $objectName',
+                    singleSelection: true,
+                    listOfObject: widget.configPvd.listOfGeneratedObject.where((object) => (object.objectId == objectId && !validateFloat.contains(object.sNo) && validateFloatAvailableInSource[mode]!.contains(object.sNo))).toList(),
+                    onPressed: (){
+                      setState(() {
+                        // if(mode == 1){
+                        //   currentPump.pressureIn = widget.configPvd.selectedSno;
+                        // }else if(mode == 2){
+                        //   currentPump.pressureOut = widget.configPvd.selectedSno;
+                        // }else{
+                        //   currentPump.waterMeter = widget.configPvd.selectedSno;
+                        // }
                         widget.configPvd.selectedSno = 0.0;
                       });
                       Navigator.pop(context);
