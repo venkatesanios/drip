@@ -52,12 +52,14 @@ class LoginViewModel extends ChangeNotifier {
         return;
       }
 
+      String cleanedCountryCode = countryCode.replaceAll("+", "");
       Map<String, Object> body = {
-        'countryCode' : countryCode,
+        'countryCode' : cleanedCountryCode,
         'mobileNumber': mobileNumber,
         'password': password,
         'isMobile' : kIsWeb? false : true,
       };
+
 
       final response = await repository.checkLoginAuth(body);
       final data = jsonDecode(response.body);

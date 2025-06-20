@@ -157,6 +157,43 @@ class GeneralSettingViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> updateMasterDetails(BuildContext context, int customerId, int controllerId, int modifyUser) async {
+    try {
+
+      Map<String, Object> body = {
+        "userId": customerId,
+        "controllerId": controllerId,
+        "deviceName": txtEcGroupName.text,
+        "timeZone": selectedTimeZone!,
+        "groupId": groupId,
+        "groupName": txtEcSiteName.text,
+        "modifyUser": modifyUser,
+      };
+
+      var response = await repository.updateMasterDetails(body);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data["code"] == 200) {
+          GlobalSnackBar.show(context, data["message"], 200);
+        }else{
+          GlobalSnackBar.show(context, data["message"], 400);
+        }
+      }
+    } catch (error) {
+      debugPrint('Error fetching language list: $error');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  Future<void> updateCustomerList(Map<String, dynamic> json) async {
+    if (json['status'] != 'success') return;
+
+    print(json);
+  }
+
+
+
   void setLoading(bool value) {
     isLoading = value;
     notifyListeners();

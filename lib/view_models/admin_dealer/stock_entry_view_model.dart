@@ -1,7 +1,10 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../Models/admin_dealer/stock_model.dart';
+import '../../models/admin_dealer/new_stock_model.dart';
+import '../../models/admin_dealer/simple_category.dart';
 import '../../repository/repository.dart';
 
 class StockEntryViewModel extends ChangeNotifier {
@@ -9,7 +12,36 @@ class StockEntryViewModel extends ChangeNotifier {
 
   List<StockModel> productStockList = <StockModel>[];
 
-  StockEntryViewModel(this.repository);
+  final TextEditingController modelTextController = TextEditingController();
+  final TextEditingController imeiController = TextEditingController();
+  final TextEditingController warrantyMonthsController = TextEditingController();
+  final TextEditingController manufacturingDateController = TextEditingController();
+  String errorMsg = '';
+
+  List<SimpleCategory> categoryList = [];
+  List<DropdownMenuEntry<ProductModel>> modelEntries = [];
+  SimpleCategory? selectedCategory;
+
+  int selectedCategoryId = 0;
+  int selectedModelId = 0;
+
+  List<Map<String, dynamic>> addedProductList = [];
+
+  StockEntryViewModel(this.repository) {
+    _setupInitialValues();
+    fetchCategoryList();
+  }
+
+  void _setupInitialValues() {
+    imeiController.addListener(() {
+      imeiController.value = imeiController.value.copyWith(
+        text: imeiController.text.toUpperCase(),
+        selection: TextSelection.collapsed(offset: imeiController.text.length),
+      );
+    });
+    warrantyMonthsController.text = '12';
+    manufacturingDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+  }
 
   Future<void> getMyStock(int userId, int userType) async {
     Map<String, dynamic> body = {
@@ -64,6 +96,155 @@ class StockEntryViewModel extends ChangeNotifier {
       }
       notifyListeners();
     }
+  }
+
+  //for stock form
+  Future<void> fetchCategoryList() async {
+    try {
+      var response = await repository.fetchActiveCategory({"active": "1"});
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        if (jsonData["code"] == 200) {
+          final categories = jsonData["data"] as List?;
+          if (categories != null) {
+            categoryList = categories.map((item) => SimpleCategory(
+              id: item["categoryId"],
+              name: item["categoryName"],
+            )).toList();
+            notifyListeners();
+          }
+        }
+      }
+    } catch (error) {
+      errorMsg = 'Error fetching category list: $error';
+    }
+  }
+
+  Future<void> getModelsByCategoryId() async {
+    if (selectedCategoryId == 0) return;
+    try {
+      var response = await repository.fetchModelByCategoryId({"categoryId": selectedCategoryId});
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        if (jsonData["code"] == 200) {
+          final models = jsonData["data"] as List?;
+          if (models != null) {
+            modelEntries = models.map((item) {
+              final model = ProductModel.fromJson(item);
+              return DropdownMenuEntry<ProductModel>(
+                value: model,
+                label: model.modelName,
+              );
+            }).toList();
+            notifyListeners();
+          }
+        }
+      }
+    } catch (error) {
+      errorMsg = 'Error fetching models: $error';
+    }
+  }
+
+  Future<void> saveStockListToLocal() async {
+    errorMsg = '';
+    if (selectedCategoryId == 0 || selectedModelId == 0) {
+      errorMsg = 'Category and Model must be selected!';
+      notifyListeners();
+      return;
+    }
+
+    if (_isAnyFieldEmpty()) {
+      errorMsg = 'All fields are required!';
+      notifyListeners();
+      return;
+    }
+
+    String imei = imeiController.text.trim();
+    if (isIMEIAlreadyExists(imei)) {
+      errorMsg = 'Device ID already exists!';
+      notifyListeners();
+      return;
+    }
+
+    try {
+      var response = await repository.checkProduct({"deviceId": imei});
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        if (data['code'] == 404) {
+          addProductToList();
+        } else {
+          errorMsg = 'The product ID already exists!';
+        }
+      }
+    } catch (error) {
+      errorMsg = 'Error checking product: $error';
+    }
+  }
+
+  void removeNewStock(int index) {
+    addedProductList.removeAt(index);
+    notifyListeners();
+  }
+
+  Future<void> addProductStock(int userId, context) async {
+    Navigator.pop(context);
+    try {
+      var response = await repository.createProduct({
+        'products': addedProductList,
+        'createUser': userId,
+      });
+
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        if (jsonData["code"] == 200) {
+          _clearForm();
+          Map<String, dynamic> result = {
+            'status': 'success',
+            'message': 'Stock Added successfully',
+            'data': jsonData["data"],
+            'products': addedProductList,
+          };
+          //onStockCreatedCallbackFunction(result);
+        }else{
+          errorMsg = jsonData["message"];
+        }
+      }
+    } catch (error) {
+      debugPrint(error.toString());
+    }
+  }
+
+  void _clearForm() {
+    imeiController.clear();
+    manufacturingDateController.clear();
+    warrantyMonthsController.clear();
+  }
+
+  bool _isAnyFieldEmpty() {
+    return imeiController.text.trim().isEmpty ||
+        manufacturingDateController.text.trim().isEmpty ||
+        warrantyMonthsController.text.trim().isEmpty;
+  }
+
+  void addProductToList() {
+    addedProductList.add({
+      "categoryName": selectedCategory!.name,
+      "categoryId": selectedCategoryId.toString(),
+      "modelName": modelTextController.text,
+      "modelId": selectedModelId.toString(),
+      "deviceId": imeiController.text.trim(),
+      "productDescription": '',
+      "dateOfManufacturing": manufacturingDateController.text.isNotEmpty
+          ? DateFormat('yyyy-MM-dd').format(
+          DateTime.tryParse(manufacturingDateController.text) ?? DateTime.now())
+          : "",
+      "warrantyMonths": warrantyMonthsController.text,
+    });
+    notifyListeners();
+  }
+
+  bool isIMEIAlreadyExists(String newIMEI) {
+    return addedProductList.any((product) => product['deviceId'] == newIMEI);
   }
 
 
