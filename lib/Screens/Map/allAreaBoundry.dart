@@ -102,7 +102,7 @@ class _MapScreenAllAreaState extends State<MapScreenAllArea> {
             points: valve.area,
             strokeColor: strokeColor,
             strokeWidth: 1,
-            fillColor: getColorByStatus(valve.status).withOpacity(0.7),
+            fillColor: getColorByStatus(valve.status,valve.percentage).withOpacity(0.7),
           ),
         );
 
@@ -117,7 +117,7 @@ class _MapScreenAllAreaState extends State<MapScreenAllArea> {
           Marker(
             markerId: MarkerId(valve.name),
             position: center,
-            infoWindow: InfoWindow(title: valve.name),
+            infoWindow: InfoWindow(title: valve.name,snippet: "Irrigation Percentage is💧:${valve.percentage}%"),
             icon: markerIcon,
             visible: true,
           ),
@@ -144,17 +144,22 @@ class _MapScreenAllAreaState extends State<MapScreenAllArea> {
     }
     return LatLng(lat / points.length, lng / points.length);
   }
-  Color getColorByStatus(int? status) {
-    switch (status) {
-      case 1:
+  Color getColorByStatus(int? status, int? percentage) {
+    print('status:$status,percentage:$percentage');
+    if (status == 1 || status == 2) {
+      if (percentage == 100) {
         return Colors.green;
-      case 2:
+      } else {
         return Colors.blue;
-      case 3:
-        return Colors.red;
-      case 0:
-      default:
+      }
+    } else if (status == 0 || status == 3) {
+      if (percentage == 0) {
         return Colors.grey;
+      } else {
+        return Colors.red;
+      }
+    } else {
+      return Colors.grey;
     }
   }
 

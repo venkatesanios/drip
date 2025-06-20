@@ -58,6 +58,8 @@ ValveResponseModel valveResponseModelFromJson(String str) =>
   String? objectName;
   List<Area>? area;
   int? status;
+  int? percentage;
+
 
   Mapobject({
     this.objectId,
@@ -66,6 +68,7 @@ ValveResponseModel valveResponseModelFromJson(String str) =>
     this.objectName,
     this.area,
     this.status,
+    this.percentage,
   });
 
   factory Mapobject.fromJson(Map<String, dynamic> json) => Mapobject(
@@ -78,6 +81,7 @@ ValveResponseModel valveResponseModelFromJson(String str) =>
         : List<Area>.from(
         json["area"].map((x) => Area.fromJson(x))),
     status: json["status"],
+    percentage: json["percentage"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -89,6 +93,7 @@ ValveResponseModel valveResponseModelFromJson(String str) =>
         ? []
         : List<dynamic>.from(area!.map((x) => x.toJson())),
     "status": status,
+    "percentage": percentage,
   };
 }
 
@@ -116,6 +121,7 @@ ValveResponseModel valveResponseModelFromJson(String str) =>
   final String name;
   late final List<LatLng> area;
   int status;
+  int percentage;
   final int objectId;
   final double sNo;
   final String objectName;
@@ -124,6 +130,7 @@ ValveResponseModel valveResponseModelFromJson(String str) =>
     required this.name,
     required this.area,
     required this.status,
+    required this.percentage,
     required this.objectId,
     required this.sNo,
     required this.objectName,
@@ -138,6 +145,7 @@ ValveResponseModel valveResponseModelFromJson(String str) =>
           .toList() ??
           [],
       status: getValueOfStatus(mapobject.sNo?.toString() ?? '', liveMessage),
+      percentage: getValuepercentage(mapobject.sNo?.toString() ?? '', liveMessage),
       objectId: mapobject.objectId ?? 0,
       sNo: mapobject.sNo ?? 0.0,
       objectName: mapobject.objectName ?? '',
@@ -157,6 +165,7 @@ ValveResponseModel valveResponseModelFromJson(String str) =>
     })
         .toList(),
     'status': status,
+    'percentage': percentage,
     'objectId': objectId,
     'sNo': sNo,
     'objectName': objectName,
@@ -167,6 +176,7 @@ ValveResponseModel valveResponseModelFromJson(String str) =>
     area: List<LatLng>.from((json['area'] as List).map(
             (point) => LatLng(point['latitude'], point['longitude']))),
     status: json['status'],
+    percentage: json['percentage'],
     objectId: json['objectId'],
     sNo: json['sNo'].toDouble(),
     objectName: json['objectName'],
@@ -201,3 +211,33 @@ ValveResponseModel valveResponseModelFromJson(String str) =>
     return 0;
   }
 }
+int getValuepercentage(String serialNumber, Map<String, dynamic>? liveMessage) {
+  try {
+    if (liveMessage == null || liveMessage['cM'] == null) {
+      return 0;
+    }
+
+    final cM = liveMessage['cM'] as Map<String, dynamic>;
+    final data = cM['2402'] as String?;
+
+    if (data == null || data.isEmpty) {
+      return 0;
+    }
+
+    final values = data.split(';');
+    for (final value in values) {
+      if (value.startsWith(serialNumber)) {
+        print('value:value--->$value');
+        final parts = value.split(',');
+        print('getpercentage----$serialNumber--->${parts[2]}');
+        return int.parse(parts[2]);
+      }
+    }
+
+    return 0;
+  } catch (e) {
+    print('Error parsing status for $serialNumber: $e');
+    return 0;
+  }
+}
+

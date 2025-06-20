@@ -120,6 +120,7 @@ class ConnectedObject {
   double? lat;
   double? long;
   int? status;
+  int? percentage;
 
   ConnectedObject({
     this.objectId,
@@ -130,6 +131,7 @@ class ConnectedObject {
     this.lat,
     this.long,
     this.status,
+    this.percentage,
   });
 
   factory ConnectedObject.fromJson(Map<String, dynamic> json,
@@ -143,6 +145,7 @@ class ConnectedObject {
         lat: json["lat"]?.toDouble(),
         long: json["long"]?.toDouble(),
         status: getValueOfStatus('${json["sNo"]}', liveMessage),
+        percentage: getValuepercentage('${json["sNo"]}', liveMessage),
       );
 
   Map<String, dynamic> toJson() => {
@@ -154,6 +157,7 @@ class ConnectedObject {
     "lat": lat,
     "long": long,
     "status": status,
+    "percentage": percentage,
   };
 }
 
@@ -201,3 +205,26 @@ int getValueOfStatus(String serialNumber, Map<String, dynamic>? liveMessage) {
     return 0;
   }
 }
+int getValuepercentage(String serialNumber, Map<String, dynamic>? liveMessage) {
+  try {
+    if (liveMessage == null || liveMessage['cM'] == null) return 0;
+
+    final cM = liveMessage['cM'] as Map<String, dynamic>;
+    final data = cM['2402'] as String?;
+
+    if (data == null || data.isEmpty) return 0;
+
+    final values = data.split(';');
+    for (final value in values) {
+      if (value.startsWith(serialNumber)) {
+        final parts = value.split(',');
+        return int.tryParse(parts[2]) ?? 0;
+      }
+    }
+    return 0;
+  } catch (e) {
+    print('Error parsing status for $serialNumber: $e');
+    return 0;
+  }
+}
+

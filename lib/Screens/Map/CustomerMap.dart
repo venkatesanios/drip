@@ -155,7 +155,7 @@ class _MapScreenallState extends State<MapScreenall> {
             markerId: MarkerId('device-${device.deviceId}'),
             position: LatLng(
                 device.geography!.lat!, device.geography!.long!),
-            icon: _getMarkerIcon(device.geography?.status,device.categoryName!),
+            icon: _getMarkerIcon(device.geography?.status,device.categoryName!,0),
             infoWindow: InfoWindow(
               title: device.deviceName,
               snippet: device.modelName ?? '',
@@ -172,10 +172,10 @@ class _MapScreenallState extends State<MapScreenall> {
             Marker(
               markerId: MarkerId('object-${obj.sNo}'),
               position: LatLng(obj.lat!, obj.long!),
-              icon: _getMarkerIcon(obj.status,obj.objectName),
+              icon: _getMarkerIcon(obj.status,obj.objectName,obj.percentage),
               infoWindow: InfoWindow(
                 title: obj.name ?? obj.objectName ?? 'Object',
-                snippet: 'Location: ${obj.location}',
+                snippet: 'Irrigation Percentage is💧:${obj.percentage}%',
               ),
             ),
           );
@@ -187,21 +187,26 @@ class _MapScreenallState extends State<MapScreenall> {
     return markers;
   }
 
-  BitmapDescriptor _getMarkerIcon(int? status,String type) {
+  BitmapDescriptor _getMarkerIcon(int? status,String type,int? percentage) {
 
-   if( type.contains('Valve')) {
-     print('_getMarkerIcon Status:$status');
-     switch (status) {
-       case 1:
-         return markerGreen;
-       case 2:
-         return markerBlue;
-       case 3:
-         return markerRed;
-       case 0:
-       default:
-         return markerGray;
-     }
+    if (type.contains('Valve')) {
+      print('_getMarkerIcon Status:$status, Percentage:$percentage');
+
+      if (status == 1 || status == 2) {
+        if (percentage == 100) {
+          return markerGreen;
+        } else {
+          return markerBlue;
+        }
+      } else if (status == 0 || status == 3) {
+        if (percentage == 0) {
+          return markerGray;
+        } else {
+          return markerRed;
+        }
+      } else {
+        return markerGray; // default
+      }
     } else if( type.contains('fertilizer')) {
           return markerFert;
     }else if( type.contains('Filter')) {
