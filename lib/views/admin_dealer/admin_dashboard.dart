@@ -311,7 +311,7 @@ class AdminDashboard extends StatelessWidget {
       padding: const EdgeInsets.only(left: 8, right: 8),
       child: GridView.builder(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 8,
+          crossAxisCount: 10,
           crossAxisSpacing: 10.0,
           mainAxisSpacing: 10.0,
           childAspectRatio: 1.0,
@@ -321,7 +321,7 @@ class AdminDashboard extends StatelessWidget {
           final item = viewModel.categoryList[index];
           return Card(
             color: Colors.white,
-            elevation: 1,
+            elevation: 2,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -332,7 +332,7 @@ class AdminDashboard extends StatelessWidget {
                   height: 30,
                   color: Theme.of(context).primaryColorLight.withOpacity(0.2),
                   child: Center(
-                    child: Text(item.categoryName),
+                    child: Text(item.categoryName, style: const TextStyle(fontSize: 12, color: Colors.black54)),
                   ),
                 ),
 
