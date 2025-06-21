@@ -42,6 +42,10 @@ class Repository{
     return await apiService.postRequest('/user/deviceList/getMasterDetails', body);
   }
 
+  Future<http.Response> updateMasterDetails(body) async {
+    return await apiService.putRequest('/user/deviceList/updateMasterDetails', body);
+  }
+
   Future<http.Response> fetchSubUserList(body) async {
     return await apiService.postRequest('/user/sharedUser/get', body);
   }

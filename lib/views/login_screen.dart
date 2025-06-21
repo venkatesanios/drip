@@ -81,35 +81,33 @@ class LoginScreen extends StatelessWidget {
                                           textAlign: TextAlign.center,
                                         ),
                                       ),
-
                                       const SizedBox(height: 15),
-
-                                      SizedBox(
-                                        height: 50,
-                                        child: TextField(
-                                          controller: viewModel.mobileNoController,
-                                          keyboardType: TextInputType.phone,
-                                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                                          decoration: InputDecoration(
-                                            border: const OutlineInputBorder(),
-                                            icon: const Icon(Icons.phone_outlined),
-                                            labelText: 'Phone Number',
-                                            prefixText: '+91 ',
-                                            suffixIcon: IconButton(
-                                              icon: const Icon(Icons.clear, color: Colors.red),
-                                              onPressed: () {
-                                                viewModel.mobileNoController.clear();
-                                              },
-                                            ),
+                                      IntlPhoneField(
+                                        focusNode:  FocusNode(),
+                                        decoration: InputDecoration(
+                                          labelText: 'Mobile Number',
+                                          border: const OutlineInputBorder(
+                                            borderSide: BorderSide(),
                                           ),
-                                          onChanged: (value) {
-                                            viewModel.countryCode = '+91'; // Manually set; or use logic if needed
-                                          },
+                                          suffixIcon: IconButton(
+                                            icon: const Icon(Icons.clear, color: Colors.red),
+                                            onPressed: () => viewModel.mobileNoController.clear(),
+                                          ),
+                                          icon: const Icon(Icons.phone_outlined, color: Colors.black),
+                                          filled: true,
+                                          fillColor: Theme.of(context).scaffoldBackgroundColor,
+                                          contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
+                                          counterText: '',
                                         ),
+                                        languageCode: "en",
+                                        initialCountryCode: 'IN',
+                                        controller: viewModel.mobileNoController,
+                                        onChanged: (phone) {
+                                          print(phone.completeNumber);
+                                        },
+                                        onCountryChanged: (country) => viewModel.countryCode = country.dialCode,
                                       ),
-
                                       const SizedBox(height: 15),
-
                                       TextField(
                                         controller: viewModel.passwordController,
                                         obscureText: viewModel.isObscure,
@@ -124,6 +122,8 @@ class LoginScreen extends StatelessWidget {
                                               viewModel.onIsObscureChanged();
                                             },
                                           ),
+                                          filled: true,
+                                          fillColor: Theme.of(context).scaffoldBackgroundColor,
                                         ),
                                       ),
 

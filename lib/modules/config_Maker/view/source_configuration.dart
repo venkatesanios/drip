@@ -156,7 +156,7 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
                                                     setState(() {
                                                       source.valves.clear();
                                                       source.valves.addAll(widget.configPvd.listOfSelectedSno);
-                                                      widget.configPvd.updateAssignObject(sNo: source.commonDetails.sNo!, listOfSerialNo: widget.configPvd.listOfSelectedSno);
+                                                      widget.configPvd.updateAssignObject(sNo: source.commonDetails.sNo!, objectId: AppConstants.valveObjectId,listOfSerialNo: widget.configPvd.listOfSelectedSno);
                                                       widget.configPvd.listOfSelectedSno.clear();
                                                     });
                                                     Navigator.pop(context);

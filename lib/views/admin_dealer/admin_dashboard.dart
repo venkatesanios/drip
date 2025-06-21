@@ -4,6 +4,7 @@ import 'package:loading_indicator/loading_indicator.dart';
 import 'package:oro_drip_irrigation/utils/Theme/oro_theme.dart';
 import 'package:oro_drip_irrigation/views/admin_dealer/sales_bar_chart.dart';
 import 'package:provider/provider.dart';
+import '../../flavors.dart';
 import '../../models/admin_dealer/customer_list_model.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
@@ -11,7 +12,6 @@ import '../../utils/constants.dart';
 import '../../utils/snack_bar.dart';
 import '../../view_models/admin_dealer/admin_dealer_dashboard_view_model.dart';
 import '../create_account.dart';
-import 'add_new_stock.dart';
 import 'dealer_device_list.dart';
 import 'dealer_screen_controller.dart';
 
@@ -28,7 +28,8 @@ class AdminDashboard extends StatelessWidget {
       create: (_) => AdminAndDealerDashboardViewModel(Repository(HttpService()))
         ..getMySalesData(userId, MySegment.all)
         ..getMyStock(userId, 1)
-        ..getMyCustomers(userId, 1),
+        ..getMyCustomers(userId, 1)
+        ..getCategoryList(),
       child: Consumer<AdminAndDealerDashboardViewModel>(
         builder: (context, viewModel, _) {
           handleAccountCreated(viewModel, context);
@@ -42,6 +43,24 @@ class AdminDashboard extends StatelessWidget {
                       children: [
                         buildAnalyticsCard(viewModel),
                         Expanded(
+                          child: Card(
+                            color: Colors.white,
+                            child: Column(
+                              children: [
+                                const SizedBox(
+                                  height: 44,
+                                  child: ListTile(
+                                    title: Text('All My Product', style: TextStyle(fontSize: 17)),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: buildProductList(context, viewModel),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        /*Expanded(
                           child: Card(
                             child: Column(
                               children: [
@@ -208,7 +227,7 @@ class AdminDashboard extends StatelessWidget {
                               ],
                             ),
                           ),
-                        ),
+                        ),*/
                       ],
                     ),
                   ),
@@ -282,6 +301,94 @@ class AdminDashboard extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget buildProductList(BuildContext context, AdminAndDealerDashboardViewModel viewModel) {
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 8, right: 8),
+      child: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 10,
+          crossAxisSpacing: 10.0,
+          mainAxisSpacing: 10.0,
+          childAspectRatio: 1.0,
+        ),
+        itemCount: viewModel.categoryList.length,
+        itemBuilder: (context, index) {
+          final item = viewModel.categoryList[index];
+          return Card(
+            color: Colors.white,
+            elevation: 2,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Expanded(child: F.appFlavor!.name.contains('oro') ?
+                Image.asset("assets/images/Png/Oro/category_${index+1}.png"):
+                Image.asset("assets/images/Png/SmartComm/category_${index+1}.png")),
+                Container(
+                  height: 30,
+                  color: Theme.of(context).primaryColorLight.withOpacity(0.2),
+                  child: Center(
+                    child: Text(item.categoryName, style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                  ),
+                ),
+
+              ],
+            ),
+          );
+        },
+      ),
+    );
+    return DataTable2(
+      columnSpacing: 12,
+      horizontalMargin: 12,
+      minWidth: 600,
+      headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColorLight.withOpacity(0.1)),
+      headingRowHeight: 35,
+      dataRowHeight: 55,
+      columns: const [
+        DataColumn(
+          label: Text(
+            'Name & Mobile No',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        DataColumn2(
+          label: Text(
+            'E-mail Address',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          size: ColumnSize.L,
+        ),
+        DataColumn2(
+          label: Text(
+            'Address',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          size: ColumnSize.L,
+        ),
+      ],
+      rows: List<DataRow>.generate(
+        viewModel.categoryList.length, (index) => DataRow(
+        cells: [
+          DataCell(Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              /*const CircleAvatar(
+                backgroundImage: AssetImage("assets/png/user_thumbnail.png"),
+                backgroundColor: Colors.transparent,
+              ),
+              const SizedBox(width: 12),*/
+              Text(viewModel.categoryList[index].categoryName),
+            ],
+          )),
+          DataCell(Text(viewModel.categoryList[index].categoryName)),
+          DataCell(Text(viewModel.categoryList[index].categoryName)),
+        ],
+      ),
       ),
     );
   }

@@ -16,7 +16,7 @@ import '../view/connection.dart';
 
 class ConfigMakerProvider extends ChangeNotifier{
   double ratio = 1.0;
-  ConfigMakerTabs selectedTab = ConfigMakerTabs.deviceList;
+  ConfigMakerTabs selectedTab = ConfigMakerTabs.siteConfigure;
   Map<String, dynamic> configMakerDataFromHttp = {};
   Map<String, dynamic> defaultDataFromHttp = {};
   Map<int, String> configurationTab = {
@@ -99,10 +99,16 @@ class ConfigMakerProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  void updateAssignObject({required double sNo, required List<double> listOfSerialNo}){
+  void updateAssignObject({required double sNo,required int objectId, required List<double> listOfSerialNo}){
     for(var object in listOfGeneratedObject){
-      if(listOfSerialNo.contains(object.sNo) && !object.assignObject.contains(sNo)){
-        object.assignObject.add(sNo);
+      if(object.objectId == objectId && listOfSerialNo.contains(object.sNo)){
+        if(!object.assignObject.contains(sNo)){
+          object.assignObject.add(sNo);
+          print('added : ${object.toJson()}');
+        }
+      }else if(object.objectId == objectId && !listOfSerialNo.contains(object.sNo)) {
+        object.assignObject.remove(sNo);
+        print('remove : ${object.toJson()}');
       }
     }
     notifyListeners();

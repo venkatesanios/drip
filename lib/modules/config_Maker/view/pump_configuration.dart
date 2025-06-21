@@ -197,50 +197,20 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
   Widget getFloatSelection(PumpModel currentPump, int mode){
     int objectId = AppConstants.floatObjectId;
     Map<int, String> controlBy = {
-      1 : 'Top Tank Float',
-      2 : 'Bottom Tank Float',
-      3 : 'Top Sump Float',
-      4 : 'Bottom Sump Float',
+      1 : 'Sump Top Float',
+      2 : 'Sump Bottom Float',
+      3 : 'Tank Top Float',
+      4 : 'Tank Bottom Float',
     };
     Map<int, double> sNoSelection = {
-      1 : currentPump.topTankFloat,
-      2 : currentPump.bottomTankFloat,
-      3 : currentPump.topSumpFloat,
-      4 : currentPump.bottomSumpFloat,
+      1 : currentPump.topSumpFloat,
+      2 : currentPump.bottomSumpFloat,
+      3 : currentPump.topTankFloat,
+      4 : currentPump.bottomTankFloat,
     };
     String objectName = 'Control By ${controlBy[mode]}';
     double currentSno = sNoSelection[mode]!;
-    List<double> validateFloat = [];
-    List<double> topTankFloatSnoForAllSource = [];
-    List<double> bottomTankFloatSnoForAllSource = [];
-    List<double> topSumpFloatSnoForAllSource = [];
-    List<double> bottomSumpFloatSnoForAllSource = [];
-    Map<int, List<double>> validateFloatAvailableInSource = {
-      1 : topTankFloatSnoForAllSource,
-      2 : bottomTankFloatSnoForAllSource,
-      3 : topSumpFloatSnoForAllSource,
-      4 : bottomSumpFloatSnoForAllSource,
-    };
-    for(var src in widget.configPvd.source){
-      if(src.sourceType == 1){
-        topTankFloatSnoForAllSource.add(src.topFloat);
-        bottomTankFloatSnoForAllSource.add(src.bottomFloat);
-      }else if([2, 3].contains(src.sourceType)){
-        topSumpFloatSnoForAllSource.add(src.topFloat);
-        bottomSumpFloatSnoForAllSource.add(src.bottomFloat);
-      }
-    }
-    for(var pump in widget.configPvd.pump){
-      if(pump.commonDetails.sNo != currentPump.commonDetails.sNo){
-        Map<int, double> sNoSelectionForPumpFloat = {
-          1 : pump.topTankFloat,
-          2 : pump.bottomTankFloat,
-          3 : pump.topSumpFloat,
-          4 : pump.bottomSumpFloat,
-        };
-        validateFloat.add(sNoSelectionForPumpFloat[mode]!);
-      }
-    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
@@ -258,9 +228,45 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
           ),
           IconButton(
               onPressed: (){
+                List<double> validateFloat = [];
+                List<double> topTankFloatSnoForAllSource = [];
+                List<double> bottomTankFloatSnoForAllSource = [];
+                List<double> topSumpFloatSnoForAllSource = [];
+                List<double> bottomSumpFloatSnoForAllSource = [];
+                Map<int, List<double>> validateFloatAvailableInSource = {
+                  1 : topSumpFloatSnoForAllSource,
+                  2 : bottomSumpFloatSnoForAllSource,
+                  3 : topTankFloatSnoForAllSource,
+                  4 : bottomTankFloatSnoForAllSource,
+                };
+                for(var src in widget.configPvd.source){
+                  if(src.outletPump.contains(currentPump.commonDetails.sNo)){
+                    print('take outlet pump');
+                    print("src : ${src.toJson()}");
+                    topSumpFloatSnoForAllSource.add(src.topFloat);
+                    bottomSumpFloatSnoForAllSource.add(src.bottomFloat);
+                  }else if(src.inletPump.contains(currentPump.commonDetails.sNo)){
+                    print('take inlet pump');
+                    print("src : ${src.toJson()}");
+                    topTankFloatSnoForAllSource.add(src.topFloat);
+                    bottomTankFloatSnoForAllSource.add(src.bottomFloat);
+                  }
+                }
+                for(var pump in widget.configPvd.pump){
+                  if(pump.commonDetails.sNo != currentPump.commonDetails.sNo){
+                    Map<int, double> sNoSelectionForPumpFloat = {
+                      1 : pump.topSumpFloat,
+                      2 : pump.bottomSumpFloat,
+                      3 : pump.topTankFloat,
+                      4 : pump.bottomTankFloat,
+                    };
+                    validateFloat.add(sNoSelectionForPumpFloat[mode]!);
+                  }
+                }
                 setState(() {
                   widget.configPvd.selectedSno = currentSno;
                 });
+                print("validateFloatAvailableInSource[mode] $mode: ${validateFloatAvailableInSource[mode]}");
                 selectionDialogBox(
                     context: context,
                     title: 'Select $objectName',
@@ -268,13 +274,15 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
                     listOfObject: widget.configPvd.listOfGeneratedObject.where((object) => (object.objectId == objectId && !validateFloat.contains(object.sNo) && validateFloatAvailableInSource[mode]!.contains(object.sNo))).toList(),
                     onPressed: (){
                       setState(() {
-                        // if(mode == 1){
-                        //   currentPump.pressureIn = widget.configPvd.selectedSno;
-                        // }else if(mode == 2){
-                        //   currentPump.pressureOut = widget.configPvd.selectedSno;
-                        // }else{
-                        //   currentPump.waterMeter = widget.configPvd.selectedSno;
-                        // }
+                        if(mode == 1){
+                          currentPump.topSumpFloat = widget.configPvd.selectedSno;
+                        }else if(mode == 2){
+                          currentPump.bottomSumpFloat = widget.configPvd.selectedSno;
+                        }else if(mode == 3){
+                          currentPump.topTankFloat = widget.configPvd.selectedSno;
+                        }else{
+                          currentPump.bottomTankFloat = widget.configPvd.selectedSno;
+                        }
                         widget.configPvd.selectedSno = 0.0;
                       });
                       Navigator.pop(context);
@@ -287,5 +295,4 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
       ),
     );
   }
-
 }

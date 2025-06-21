@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
+import '../../Models/entry_form/product_category_model.dart';
 import '../../models/admin_dealer/customer_list_model.dart';
 import '../../models/admin_dealer/stock_model.dart';
 import '../../models/sales_data_model.dart';
@@ -27,12 +28,36 @@ class AdminAndDealerDashboardViewModel extends ChangeNotifier {
 
   final TextEditingController txtFldSearch = TextEditingController();
 
-  AdminAndDealerDashboardViewModel(this.repository);
+  List<ProductCategoryModel> categoryList = <ProductCategoryModel>[];
+
+  AdminAndDealerDashboardViewModel(this.repository) {
+    getCategoryList();
+  }
 
   @override
   void dispose() {
     txtFldSearch.dispose();
     super.dispose();
+  }
+
+  Future<void> getCategoryList() async {
+    try {
+      var response = await repository.fetchCategory();
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        print('Category:${response.body}');
+        if (jsonData["code"] == 200) {
+          final cntList = jsonData["data"] as List;
+          categoryList.clear();
+          for (int i=0; i < cntList.length; i++) {
+            categoryList.add(ProductCategoryModel.fromJson(cntList[i]));
+          }
+          notifyListeners();
+        }
+      }
+    } catch (error) {
+      debugPrint('Error fetching category list: $error');
+    }
   }
 
   // ------------------ SALES ------------------
@@ -131,6 +156,7 @@ class AdminAndDealerDashboardViewModel extends ChangeNotifier {
       final response = await repository.fetchMyCustomerList(body);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        print(response.body);
         if (data["code"] == 200) {
           final list = data["data"];
           if (list is List) {

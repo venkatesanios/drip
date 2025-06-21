@@ -67,11 +67,13 @@ class _MyAppState extends State<MyApp> {
         var isOro = F.appFlavor?.name.contains('oro') ?? false;
         return MaterialApp(
           debugShowCheckedModeBanner: false,
+
           theme: isOro ? OroTheme.lightTheme : SmartCommTheme.lightTheme,
           darkTheme: isOro ? OroTheme.darkTheme : SmartCommTheme.darkTheme,
           themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          home: navigateToInitialScreen(snapshot.data ?? Routes.login),
-          onGenerateRoute: Routes.generateRoute,
+          home: ConfigBasePage(masterData: {"userId":3,"customerId":6,"controllerId":9,"productId":9,"deviceId":"2CCF6773D07D","deviceName":"xMm","categoryId":1,"categoryName":"xMm","modelId":1,"modelName":"xMm1000ROOO","groupId":2,"groupName":"Testing site","connectingObjectId":["1","2","3","4","-"]}),
+          // home: navigateToInitialScreen(snapshot.data ?? Routes.login),
+          // onGenerateRoute: Routes.generateRoute,
         );
       },
     );
