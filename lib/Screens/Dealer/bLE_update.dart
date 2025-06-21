@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
@@ -23,20 +24,65 @@ class _FirmwareBLEPageState extends State<FirmwareBLEPage> {
   double downloadProgress = 0.0;
   double transferProgress = 0.0;
   String status = "Ready";
-  String contentString = "";
   int fileSize = 0;
   String fileChecksumSize = '';
-
   bool isDownloading = false;
   bool isDownloaded = false;
-
+  bool isLoading = false;
   late MqttPayloadProvider mqttPayloadProvider;
-
   late final Uint8List firmwareBytes;
+  String? selectedFile;
+  final List<String> files = [
+    'OrogemCode',
+    'AutoStartFile',
+    'MqttsCaFile',
+    'MqttsClientCrtFile',
+    'MqttsClientKeyFile',
+    'ReverseSshpemfile',
+    'SftpPemFile',
+  ];
 
   @override
   void initState() {
     super.initState();
+  }
+
+  Map<String, dynamic>? getFileInfo(String fileName) {
+    final Map<String, Map<String, dynamic>> fileData = {
+      'OrogemCode': {
+        'code': 1,
+        'path':
+            '/home/ubuntu/oro2024/OroGem/OroGemApp_RaspberryPi_64bit/OroGem',
+      },
+      'AutoStartFile': {
+        'code': 2,
+        'path':
+            '/home/ubuntu/oro2024/OroGem/OroGemApp_AutoStart_RaspberryPi_64bit/AutoStartF',
+      },
+      'MqttsCaFile': {
+        'code': 3,
+        'path':
+            '/home/ubuntu/oro2024/OroGem/OroGemApp_AutoStart_RaspberryPi_64bit', // replace with actual path
+      },
+      'MqttsClientCrtFile': {
+        'code': 4,
+        'path': '/home/ubuntu/oro2024/OroGem/OroGemApp_AutoStart_Tinker_64bit',
+      },
+      'MqttsClientKeyFile': {
+        'code': 5,
+        'path': '/home/ubuntu/oro2024/OroGem/OroGemApp_RaspberryPi_32bit',
+      },
+      'ReverseSshpemfile': {
+        'code': 6,
+        'path': '/home/ubuntu/oro2024/OroGem/OroGemApp_RaspberryPi_64bit',
+      },
+      'SftpPemFile': {
+        'code': 7,
+        'path': '/home/ubuntu/oro2024/OroGem/OroGemLogs',
+      },
+    };
+
+    return fileData[fileName]; // returns null if not found
   }
 
   Future<void> _downloadToFile() async {
@@ -46,7 +92,8 @@ class _FirmwareBLEPageState extends State<FirmwareBLEPage> {
       status = "Downloading...";
     });
 
-    mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
+    mqttPayloadProvider =
+        Provider.of<MqttPayloadProvider>(context, listen: false);
     List<String> traceData = mqttPayloadProvider.traceLog;
     SftpService sftpService = SftpService();
     int connectResponse = await sftpService.connect();
@@ -56,16 +103,16 @@ class _FirmwareBLEPageState extends State<FirmwareBLEPage> {
 
       Directory appDocDir = await getApplicationDocumentsDirectory();
       String appDocPath = appDocDir.path;
-      String filePath = '$appDocPath/bootFile.txt';
+      String filePath = '$appDocPath/$selectedFile.txt';
 
       // Save trace log to file (optional)
       final localFile = File(filePath);
       await localFile.writeAsString(traceData.join('\n'));
-
+      final info = getFileInfo(selectedFile!);
       // Download file to the same path
+      print('info![path]:-${info!['path']}\n,selectedFile:$selectedFile');
       int downResponse = await sftpService.downloadFile(
-        remoteFilePath: '/home/ubuntu/oro2024/OroGem/OroGemApp_RaspberryPi_64bit/OroGem',
-       );
+          remoteFilePath: info!['path'], localFileName: '$selectedFile.txt');
 
       if (downResponse == 200) {
         print('Download success');
@@ -98,14 +145,14 @@ class _FirmwareBLEPageState extends State<FirmwareBLEPage> {
   Future<void> _deleteBootFile() async {
     try {
       Directory appDocDir = await getApplicationDocumentsDirectory();
-      String filePath = '${appDocDir.path}/gembootFile.txt';
+      String filePath = '${appDocDir.path}/$selectedFile.txt';
       File file = File(filePath);
 
       if (await file.exists()) {
         await file.delete();
-        print('gembootFile.txt deleted successfully.');
+        print('$selectedFile.txt deleted successfully.');
       } else {
-        print('gembootFile.txt does not exist.');
+        print('$selectedFile.txt does not exist.');
       }
     } catch (e) {
       print('Error deleting file: $e');
@@ -114,18 +161,18 @@ class _FirmwareBLEPageState extends State<FirmwareBLEPage> {
 
   Future<String?> calculateSHA256Checksum(String filePath) async {
     try {
-       File file = File(filePath);
+      File file = File(filePath);
 
       if (await file.exists()) {
         List<int> fileBytes = await file.readAsBytes();
-       firmwareBytes = Uint8List.fromList(fileBytes);
+        firmwareBytes = Uint8List.fromList(fileBytes);
 
         Digest sha256Digest = sha256.convert(fileBytes);
-        String hex = sha256Digest.toString().toUpperCase();
+        String hex = sha256Digest.toString();
         print("SHA-256 Checksum: $hex");
         return hex;
       } else {
-        print('gembootFile.txt not found.');
+        print('$selectedFile.txt not found.');
         return null;
       }
     } catch (e) {
@@ -133,156 +180,158 @@ class _FirmwareBLEPageState extends State<FirmwareBLEPage> {
       return null;
     }
   }
+
   void _sendViaBle() {
     senddata();
-     setState(() {
+    setState(() {
+      isLoading = true;
       status = "Sending via BLE...";
     });
   }
 
   Future<void> senddata() async {
-
     await readBootFileStringWithSize();
     await Future.delayed(const Duration(seconds: 1));
+
+    final BluService blueService = BluService();
+    final info = getFileInfo(selectedFile!);
     String payLoadFinal = jsonEncode({
-      "6900": {"6901": "1,$fileChecksumSize,$fileSize"},
+      "6900": {"6901": "${info?['code']},$fileChecksumSize,$fileSize"},
     });
     print('payLoadFinal --> $payLoadFinal');
+    await blueService.write(payLoadFinal);
 
-    final result = await context.read<CommunicationService>().sendCommand(
-        payload: payLoadFinal,
-        serverMsg: '');
-
-    if (result['bluetooth'] == true) {
-      debugPrint("Payload sent via Bluetooth");
-      GlobalSnackBar.show(context, "Please wait... controller updating...", 200);
-      writeUpdatedCode();
-    }else{
-      GlobalSnackBar.show(context, "Not Updating controller.. please verify the bluetooth connection and try again", 400);
-    }
+    sendFirmwareFromFile();
   }
 
-  Future<void> writeUpdatedCode() async {
+  Future<void> sendFirmwareFromFile() async {
     final BluService blueService = BluService();
-    const chunkSize = 512;
-    for (int offset = 0; offset < firmwareBytes.length; offset += chunkSize) {
-      final chunk = firmwareBytes.sublist(
-        offset,
-        offset + chunkSize > firmwareBytes.length
-            ? firmwareBytes.length
-            : offset + chunkSize,
-      );
+    const chunkSize = 1024;
 
-      print(chunk.runtimeType);
-      print(chunk);
+    try {
+      // Get file path
+      Directory appDocDir = await getApplicationDocumentsDirectory();
+      String filePath = '${appDocDir.path}/$selectedFile.txt';
 
-      String base64String = base64Encode(chunk);
-      blueService.write(base64String);
+      // Read file bytes
+      final Uint8List firmwareBytes = await File(filePath).readAsBytes();
+      print('📦 Loaded ${firmwareBytes.length} bytes from file');
 
-
-     /* final resultcontent = await context.read<CommunicationService>().sendCommand(
-          payload: base64String, serverMsg: '');
-      if (resultcontent['http'] == true) {
-        debugPrint("Payload sent to Server");
+      // Send in chunks
+      for (int offset = 0; offset < firmwareBytes.length; offset += chunkSize) {
+        final chunk = firmwareBytes.sublist(
+          offset,
+          (offset + chunkSize > firmwareBytes.length)
+              ? firmwareBytes.length
+              : offset + chunkSize,
+        );
+        print('🔹 Sending chunk of size ${chunk.length}');
+        await blueService.writeFW(chunk);
       }
-      if (resultcontent['mqtt'] == true) {
-        debugPrint("Payload sent to MQTT Box");
-      }
-      if (resultcontent['bluetooth'] == true) {
-        debugPrint("Payload sent via Bluetooth");
-      }*/
+      setState(() => isLoading = false);
+      print('✅ Firmware sent over Bluetooth');
+    } catch (e) {
+      setState(() => isLoading = false);
+      print('❌ Error loading or sending firmware: $e');
     }
-    print('file write completed');
-
-    GlobalSnackBar.show(context, "Payload sent via Bluetooth", 200);
   }
-
 
   Future<void> readBootFileStringWithSize() async {
     try {
       Directory appDocDir = await getApplicationDocumentsDirectory();
-      String filePath = '${appDocDir.path}/gembootFile.txt';
+      String filePath = '${appDocDir.path}/$selectedFile.txt';
       File file = File(filePath);
-        if (await file.exists()) {
+      if (await file.exists()) {
         List<int> contentsBytes = await file.readAsBytes();
         int sizeInBytes = contentsBytes.length;
         int sizeInKB = (sizeInBytes / 1024).ceil();
-        print('contentStringreadBootFileStringWithSize 1---->$contentString sizeInKB:$sizeInKB');
-        // String contents = await file.readAsString();
-        // contentString = contents.trim();
+        print(
+            'contentStringreadBootFileStringWithSize 1---sizeInBytes->$sizeInBytes sizeInKB:$sizeInKB');
 
-        String contents = utf8.decode(contentsBytes, allowMalformed: true);
-        contentString = contents.trim();
-
-        print('contentStringreadBootFileStringWithSize 2---->$contentString');
         fileSize = sizeInBytes;
-         final checksum = await calculateSHA256Checksum(filePath);
+        final checksum = await calculateSHA256Checksum(filePath);
         fileChecksumSize = checksum as String;
-        } else {
-        print('gembootFile.txt not found.');
-      }
-    } catch (e) {
-      print('Error reading file: $e');
-    }
-  }
-
-  Future<String?> readBootFileString(String filePath) async {
-    try {
-       File file = File(filePath);
-
-      if (await file.exists()) {
-        String contents = await file.readAsString();
-        print('gembootFile.txt contents$contents');
-        return contents.trim();
       } else {
-        print('gembootFile.txt not found.');
-        return null;
+        print('$selectedFile.txt not found.');
       }
     } catch (e) {
       print('Error reading file: $e');
-      return null;
     }
   }
 
+  void statushw() {
+    Map<String, dynamic>? ctrlData = mqttPayloadProvider.messageFromHw;
+    if (ctrlData != null && ctrlData.isNotEmpty) {
+      status = ctrlData['Name'] ?? '';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    statushw();
     return Scaffold(
       appBar: AppBar(title: Text("EXE Transfer via Bluetooth")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text("Status: $status"),
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Text("Status: $status"),
+          SizedBox(height: 20),
+          if (isDownloading) ...[
+            Center(child: CircularProgressIndicator()),
             SizedBox(height: 20),
-
-            if (isDownloading) ...[
-              Center(child: CircularProgressIndicator()),
-              SizedBox(height: 20),
-            ],
-
+          ] else if (isLoading) ...[
+            Center(child: CircularProgressIndicator()),
+            SizedBox(height: 20),
+            Text('Sending firmware over Bluetooth...'),
+          ],
+          const SizedBox(height: 20),
+          DropdownButtonFormField<String>(
+            value: selectedFile,
+            decoration: InputDecoration(
+              labelText: 'Select File',
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            ),
+            icon: Icon(Icons.arrow_drop_down),
+            items: files.map((file) {
+              return DropdownMenuItem<String>(
+                value: file,
+                child: Text(file),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                selectedFile = value;
+              });
+            },
+            validator: (value) => value == null ? 'Please select a file' : null,
+          ),
+          const SizedBox(height: 20),
+          if (selectedFile != null &&
+              selectedFile!.isNotEmpty &&
+              selectedFile != 'Select File') ...[
+            const SizedBox(height: 20),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.white,
               ),
               onPressed: isDownloading ? null : _downloadToFile,
-              child: Text("Download"),
+              child: const Text("Download"),
             ),
-
-            SizedBox(height: 20),
-
-            // if (isDownloaded)
-              ElevatedButton( style: ElevatedButton.styleFrom(
+            const SizedBox(height: 20),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.white,
               ),
-                onPressed: _sendViaBle,
-                child: Text("Send via BLE"),
-              ),
+              onPressed: isLoading ? null : _sendViaBle,
+              child: const Text("Send via Bluetooth"),
+            ),
           ],
-        ),
+        ]),
       ),
     );
   }
 }
-

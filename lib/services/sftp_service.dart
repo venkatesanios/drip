@@ -103,8 +103,48 @@ class SftpService {
     }
   }
 
-
   Future<int> downloadFile({
+    required String remoteFilePath,
+    String localFileName = 'bootFile.txt',
+  }) async {
+    try {
+      // Open the remote file for reading
+      final remoteFile = await _sftpClient!.open(remoteFilePath);
+      final stream = remoteFile.read(); // Stream<Uint8List>
+
+      // Collect the stream of Uint8List chunks into a single Uint8List
+      final Uint8List content = await stream.fold<Uint8List>(
+        Uint8List(0),
+            (previous, element) {
+          final buffer = Uint8List(previous.length + element.length);
+          buffer.setRange(0, previous.length, previous);
+          buffer.setRange(previous.length, buffer.length, element);
+          return buffer;
+        },
+      );
+
+      // Get the local path
+      final appDocDir = await getApplicationDocumentsDirectory();
+      final localPath = '${appDocDir.path}/$localFileName';
+      final localFile = File(localPath);
+
+      // Write the complete binary file to disk
+      await localFile.writeAsBytes(content);
+
+      print('✅ File downloaded to: $localPath');
+      print('📦 File size: ${content.length} bytes');
+
+      return 200;
+    } catch (e, stackTrace) {
+      print('❌ Error in downloadFile(): $e');
+      print('StackTrace: $stackTrace');
+      return 404;
+    }
+  }
+
+
+
+  Future<int> downloadFileOld({
     required String remoteFilePath,
     String localFileName = 'bootFile.txt',
   }) async

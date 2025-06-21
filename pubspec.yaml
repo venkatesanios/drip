@@ -129,6 +129,7 @@ flutter:
     - assets/smartcomm_launcher.png
     - assets/.env
     - assets/ssh/smartComm/id_rsa
+    - assets/localfile/Testing
 
 flutter_launcher_icons:
     android: true

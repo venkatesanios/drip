@@ -483,6 +483,16 @@ class BluService {
     }
   }
 
+  Future<void> writeFW(List<int> data) async {
+    if (_connection != null && _connection!.isConnected) {
+      print("🔄 Sending ${data.length} bytes over Bluetooth...");
+      _connection!.output.add(Uint8List.fromList(data)); // ✅ send raw bytes
+      await _connection!.output.allSent; // ✅ ensure it's flushed
+    } else {
+      print("❌ Not connected");
+    }
+  }
+
   Future<void> disconnect() async {
     try {
       await _connection?.close();
