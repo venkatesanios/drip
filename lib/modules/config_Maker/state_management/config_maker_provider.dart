@@ -217,7 +217,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         if(configMakerData['productLimit'].isNotEmpty){
           var oldObject = (configMakerData['productLimit'] as List<dynamic>).firstWhere(
                 (object) => object['objectId'] == obj['objectTypeId'],
-            orElse: () => null, // if not found, return null
+            orElse: () => null,
           );
           if(oldObject == null){
             listOfSampleObjectModel.add(mapToDeviceObject(obj));
@@ -225,11 +225,19 @@ class ConfigMakerProvider extends ChangeNotifier{
             listOfSampleObjectModel.add(DeviceObjectModel.fromJson(oldObject));
           }
         }
+        if(configMakerData['connectionCount'].isNotEmpty){
+          var oldObject = (configMakerData['connectionCount'] as List<dynamic>).firstWhere(
+                (object) => object['objectId'] == obj['objectTypeId'],
+            orElse: () => null,
+          );
+          if(oldObject == null){
+            listOfObjectModelConnection.add(mapToDeviceObject(obj));
+          }else{
+            listOfObjectModelConnection.add(DeviceObjectModel.fromJson(oldObject));
+          }
+        }
       }
 
-      listOfObjectModelConnection = configMakerData['connectionCount'].isNotEmpty
-          ? (configMakerData['connectionCount'] as List<dynamic>).map((object) => DeviceObjectModel.fromJson(object)).toList()
-          : (defaultData['objectType'] as List<dynamic>).map(mapToDeviceObject).toList();
       listOfGeneratedObject = (configMakerData['configObject'] as List<dynamic>).map((object) => DeviceObjectModel.fromJson(object)).toList();
       filtration = (configMakerData['filterSite'] as List<dynamic>).map((filtrationObject) => FiltrationModel.fromJson(filtrationObject)).toList();
       fertilization = (configMakerData['fertilizerSite'] as List<dynamic>).map((fertilizationObject) => FertilizationModel.fromJson(fertilizationObject)).toList();
