@@ -25,10 +25,10 @@ class AdminDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => AdminAndDealerDashboardViewModel(Repository(HttpService()))
+      create: (_) => AdminAndDealerDashboardViewModel(Repository(HttpService()), userId, 1)
         ..getMySalesData(userId, MySegment.all)
-        ..getMyStock(userId, 1)
-        ..getMyCustomers(userId, 1)
+        ..getMyStock()
+        ..getMyCustomers()
         ..getCategoryList(),
       child: Consumer<AdminAndDealerDashboardViewModel>(
         builder: (context, viewModel, _) {
@@ -50,7 +50,7 @@ class AdminDashboard extends StatelessWidget {
                                 const SizedBox(
                                   height: 44,
                                   child: ListTile(
-                                    title: Text('All My Product', style: TextStyle(fontSize: 17)),
+                                    title: Text('All My Devices', style: TextStyle(fontSize: 17)),
                                   ),
                                 ),
                                 Expanded(
@@ -335,7 +335,6 @@ class AdminDashboard extends StatelessWidget {
                     child: Text(item.categoryName, style: const TextStyle(fontSize: 12, color: Colors.black54)),
                   ),
                 ),
-
               ],
             ),
           );

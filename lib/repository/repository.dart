@@ -142,6 +142,10 @@ class Repository{
     return await apiService.postRequest('/product/addToCustomer', body);
   }
 
+  Future<http.Response> removeProductFromCustomer(body) async {
+    return await apiService.deleteRequest('/product/removeFromCustomer', body);
+  }
+
   Future<http.Response> fetchUserGroupWithMasterList(body) async {
     return await apiService.postRequest('/user/deviceList/getGroupWithMaster', body);
   }

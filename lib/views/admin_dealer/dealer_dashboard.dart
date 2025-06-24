@@ -25,8 +25,8 @@ class DealerDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
 
     return ChangeNotifierProvider(
-      create: (_) => AdminAndDealerDashboardViewModel(Repository(HttpService()))..getMySalesData(userId, MySegment.all)
-        ..getMyStock(userId, 2)..getMyCustomers(userId, 2),
+      create: (_) => AdminAndDealerDashboardViewModel(Repository(HttpService()), userId, 2)..getMySalesData(userId, MySegment.all)
+        ..getMyStock()..getMyCustomers(),
       child: Consumer<AdminAndDealerDashboardViewModel>(
         builder: (context, viewModel, _) {
           if(viewModel.accountCreated){
@@ -423,7 +423,8 @@ class DealerDashboard extends StatelessWidget {
                                             builder: (BuildContext context) {
                                               return CustomerDeviceList(userId: userId, customerName: viewModel.myCustomerList[index]
                                                   .userName, customerId: viewModel.myCustomerList[index]
-                                                  .userId, userRole: 'Customer', productStockList: viewModel.productStockList, onDeviceListAdded: viewModel.removeStockList, comingFrom: fromLogin?'Dealer':'Admin');
+                                                  .userId, userRole: 'Customer', productStockList: viewModel.productStockList,
+                                                onCustomerProductChanged: viewModel.onCustomerProductChanged);
                                             },
                                           );
                                         },
