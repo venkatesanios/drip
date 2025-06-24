@@ -87,7 +87,7 @@ class CustomerHome extends StatelessWidget {
                     height: 40,
                     child: Card(
                       color: Colors.white,
-                      elevation: 1.0,
+                      elevation: 0.6,
                       surfaceTintColor: Colors.white,
                       margin: EdgeInsets.zero,
                       shape: const RoundedRectangleBorder(
@@ -100,9 +100,9 @@ class CustomerHome extends StatelessWidget {
                         children: [
                           const SizedBox(width: 16),
                           Text(
-                            line.name,
+                            line.name.toUpperCase(),
                             textAlign: TextAlign.left,
-                            style: const TextStyle(color: Colors.black54, fontSize: 17, fontWeight: FontWeight.bold),
+                            style: const TextStyle(color: Colors.black54, fontSize: 15, fontWeight: FontWeight.bold),
                           ),
                           const Spacer(),
                           MaterialButton(
