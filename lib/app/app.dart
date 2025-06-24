@@ -71,9 +71,8 @@ class _MyAppState extends State<MyApp> {
           theme: isOro ? OroTheme.lightTheme : SmartCommTheme.lightTheme,
           darkTheme: isOro ? OroTheme.darkTheme : SmartCommTheme.darkTheme,
           themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          home: ConfigBasePage(masterData: {"userId":4,"customerId":16,"controllerId":74,"productId":132,"deviceId":"2CCF67391FE0","deviceName":"xMm","categoryId":1,"categoryName":"xMm","modelId":4,"modelName":"xMm2000ROOL","groupId":16,"groupName":"TANK 5A","connectingObjectId":["1","2","3","4","-"]}),
-          // home: navigateToInitialScreen(snapshot.data ?? Routes.login),
-          // onGenerateRoute: Routes.generateRoute,
+          home: navigateToInitialScreen(snapshot.data ?? Routes.login),
+          onGenerateRoute: Routes.generateRoute,
         );
       },
     );
