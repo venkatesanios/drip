@@ -123,7 +123,7 @@ class MqttPayloadProvider with ChangeNotifier {
    final Map<String, String> _agitatorOnOffStatusMap = {};
 
 
-   //for blue service
+   //for blue repository
    CustomDevice? _connectedDevice;
    CustomDevice? get connectedDevice => _connectedDevice;
 

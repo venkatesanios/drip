@@ -296,7 +296,7 @@ class BleProvider extends ChangeNotifier {
           }
           // Snackbar.show(ABC.c, "Discover Services: Success", success: true);
         } catch (e) {
-          print('Error on discover service: $e');
+          print('Error on discover repository: $e');
           // Snackbar.show(ABC.c, prettyException("Discover Services Error:", e),
           //     success: false);
         }
@@ -374,10 +374,10 @@ class BleProvider extends ChangeNotifier {
   }
 
   void updateCharacteristic(){
-    // for(BluetoothService service in _services){
-    //   print("service : ${service.uuid}");
-    //   for (var c = 0; c <  service.characteristics.length;c++){
-    //     print('characteristic ${c+1} => (${service.characteristics[c].uuid})\n ${service.characteristics[c].properties}\n\n');
+    // for(BluetoothService repository in _services){
+    //   print("repository : ${repository.uuid}");
+    //   for (var c = 0; c <  repository.characteristics.length;c++){
+    //     print('characteristic ${c+1} => (${repository.characteristics[c].uuid})\n ${repository.characteristics[c].properties}\n\n');
     //   }
     // }
     myService = _services[1];

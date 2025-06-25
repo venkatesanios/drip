@@ -66,14 +66,14 @@ class _ServiceRequestsTableState extends State<ServiceRequestsTable> {
     if (_serviceDealerModel.data == null) {
       return const Center(
         child: Text(
-          'Currently no service Request available ',
+          'Currently no repository Request available ',
           style: TextStyle(fontWeight: FontWeight.normal, color: Colors.black),
         ),
       );
     } else if (_serviceDealerModel.data!.length <= 0) {
       return const Center(
         child: Text(
-          'Currently No service Request available on Customer Account',
+          'Currently No repository Request available on Customer Account',
           style: TextStyle(fontWeight: FontWeight.normal, color: Colors.black),
         ),
       );

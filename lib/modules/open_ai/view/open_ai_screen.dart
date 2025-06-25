@@ -27,12 +27,14 @@ class _AIChatScreenState extends State<AIChatScreen> {
   List<Chat> _chatHistory = [];
   String _currentChatId = '';
   final ScrollController _scrollController = ScrollController();
+  String _selectedLanguage = "English";
 
   @override
   void initState() {
     super.initState();
     _initPermissions();
     _loadChatHistory();
+    _loadLanguage();
   }
 
   Future<void> _initPermissions() async {
@@ -149,7 +151,6 @@ class _AIChatScreenState extends State<AIChatScreen> {
     });
   }
 
-
   Future<void> _sendMessage() async {
     if (_controller.text.isEmpty && _selectedImage == null) return;
 
@@ -168,8 +169,8 @@ class _AIChatScreenState extends State<AIChatScreen> {
           timestamp: DateTime.now(),
           chatId: _currentChatId,
         );
-        await _saveMessage(userMessage);
-        await _sendImageMessage(base64Image);
+        _saveMessage(userMessage);
+        _sendImageMessage(base64Image);
         setState(() {
           _selectedImage = null;
           _imageSource = null;
@@ -182,8 +183,8 @@ class _AIChatScreenState extends State<AIChatScreen> {
           timestamp: DateTime.now(),
           chatId: _currentChatId,
         );
-        await _saveMessage(userMessage);
-        await _sendTextMessage(userMessage.content);
+        _saveMessage(userMessage);
+        _sendTextMessage(userMessage.content);
         setState(() => _controller.clear());
       }
     } catch (e) {
@@ -202,6 +203,10 @@ class _AIChatScreenState extends State<AIChatScreen> {
     final body = jsonEncode({
       'model': 'gpt-3.5-turbo',
       'messages': [
+        {
+          "role": "system",
+          "content": "You are an expert crop advisor. Always respond only in $_selectedLanguage. Analyze the uploaded crop image and provide a detailed diagnosis of any visible crop issues. Give actionable recommendations to improve yield or treat the problem, even if image is the only data available. Identify crop type and predict the days of the crop. Based on that, suggest the crop advisory, fertilizer, and watering recommendations."
+        },
         {'role': 'user', 'content': text}
       ],
     });
@@ -223,12 +228,17 @@ class _AIChatScreenState extends State<AIChatScreen> {
 
   Future<void> _sendImageMessage(String base64Image) async {
     final headers = {
-      'Authorization': 'Bearer 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', // Replace with your API key
+      'Authorization': 'Bearer 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',
       'Content-Type': 'application/json',
     };
     final body = jsonEncode({
       'model': 'gpt-4o-mini',
       'messages': [
+        {
+          "role": "system",
+          "content": "You are an expert crop advisor. Analyze the uploaded image and provide a detailed diagnosis of any visible crop issues. Give actionable recommendations to improve yield or treat the problem,"
+              " even if image is the only data available. Identify crop type and predict the days of the crop. Based on that, suggest the crop advisory and fertilizer and watering recommendations in the $_selectedLanguage"
+        },
         {
           'role': 'user',
           'content': [
@@ -238,7 +248,9 @@ class _AIChatScreenState extends State<AIChatScreen> {
             },
             {
               'type': 'text',
-              'text': _controller.text.isNotEmpty ? _controller.text : 'What is in this image?',
+              'text': _controller.text.isNotEmpty
+                  ? "${_controller.text} Please analyze this image and help me to diagnose my crop issue and suggest improvements. Identify crop type and predict the days of the crop. Based on that, suggest the crop advisory and fertilizer and watering recommendations. Please respond only in $_selectedLanguage."
+                  : "Please analyze this image and help me to diagnose my crop issue and suggest improvements. Identify crop type and predict the days of the crop. Based on that, suggest the crop advisory and fertilizer and watering recommendations. Please respond only in $_selectedLanguage." ,
             },
           ],
         },
@@ -288,6 +300,43 @@ class _AIChatScreenState extends State<AIChatScreen> {
       SnackBar(
         content: Text(message),
         backgroundColor: Colors.red,
+      ),
+    );
+  }
+
+  Future<void> _loadLanguage() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _selectedLanguage = prefs.getString("language") ?? "English";
+    });
+  }
+
+  Future<void> _setLanguage(String lang) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString("language", lang);
+    setState(() {
+      _selectedLanguage = lang;
+    });
+  }
+
+  void _showLanguageDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Select Language"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: ["English", "Tamil", "Tanglish" ,"Hindi", "Malayalam", "Telugu", "kannadam"].map((lang) {
+            return CheckboxListTile(
+              title: Text(lang),
+              onChanged: (value) {
+                _setLanguage(lang);
+                Navigator.pop(context);
+              },
+              value: _selectedLanguage == lang,
+            );
+          }).toList(),
+        ),
       ),
     );
   }
@@ -377,16 +426,36 @@ class _AIChatScreenState extends State<AIChatScreen> {
       appBar: AppBar(
         title: const Text('AI Assistant'),
         actions: [
-          Builder(
-            builder: (BuildContext context) {
-              return IconButton(
-                icon: const Icon(Icons.history),
-                onPressed: () {
-                  Scaffold.of(context).openEndDrawer();
-                },
-                tooltip: 'Open Chat History',
-              );
-            },
+          Container(
+            height: 35,
+            decoration: BoxDecoration(
+                color: Theme.of(context).primaryColorLight,
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(25), bottomLeft: Radius.circular(25))
+            ),
+            child: Row(
+              children: [
+                InkWell(
+                  onTap: _showLanguageDialog,
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    child: Icon(Icons.language_outlined),
+                  ),
+                ),
+                Builder(
+                  builder: (BuildContext context) {
+                    return InkWell(
+                      onTap: () {
+                        Scaffold.of(context).openEndDrawer();
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        child: Icon(Icons.history),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -444,15 +513,16 @@ class ChatInputField extends StatelessWidget {
       ),
       child: Column(
         children: [
-          if (selectedImage != null) // Show image preview if an image is selected
+          if (selectedImage != null)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Stack(
+                alignment: Alignment.centerLeft,
                 children: [
                   Image.file(
                     selectedImage!,
-                    height: 100,
-                    width: 100,
+                    height: 50,
+                    width: 50,
                     fit: BoxFit.cover,
                   ),
                   Positioned(
