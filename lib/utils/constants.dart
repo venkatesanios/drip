@@ -497,49 +497,27 @@ class AppConstants {
     }
   }
 
-  static dynamic payloadConversion(data) {
-    dynamic dataFormation = {};
-
-    try
-    {
-      for(var globalKey in data.keys) {
-        if(['filterSite', 'fertilizerSite', 'waterSource', 'pump', 'moistureSensor', 'irrigationLine'].contains(globalKey)){
-          dataFormation[globalKey] = [];
-          for(var site in data[globalKey]){
-            dynamic siteFormation = site;
-            for(var siteKey in site.keys){
-              if(!['objectId', 'sNo', 'name', 'objectName', 'connectionNo', 'type', 'controllerId', 'count', 'siteMode', 'pumpType', 'connectedObject', 'weatherStation'].contains(siteKey)){
-                siteFormation[siteKey] = siteFormation[siteKey] is List<dynamic>
-                    ? (siteFormation[siteKey] as List<dynamic>).map((element) {
-                  if(element is double){
-                    return (data['configObject'] as List<dynamic>).firstWhere((object) => object['sNo'] == element);
-                  }else{
-                    print('element[sNo] == ${element['sNo']}');
-                    var object = (data['configObject'] as List<dynamic>).firstWhere((object) => object['sNo'] == element['sNo']);
-                    for(var key in element.keys){
-                      if(!(object as Map<String, dynamic>).containsKey(key)){
-                        object[key] = element[key];
-                      }
-                    }
-                    return object;
-                  }
-                }).toList()
-                    : (data['configObject'] as List<dynamic>).firstWhere((object) => object['sNo'] == siteFormation[siteKey], orElse: ()=> {});
-              }
-            }
-            dataFormation[globalKey].add(site);
-          }
-        }
-      }
-      // print('dataFormation : ${jsonEncode(dataFormation)}');
-      // print('-------------------------------------------');
+  static String getSettingsSummary(String title) {
+    switch (title) {
+      case 'General':
+        return 'Includes controller name, category, model, version, and UTC time settings.';
+      case 'Preference':
+        return 'Configure pump settings, voltage, current limits, timers, and calibration.';
+      case 'Constant':
+        return 'Displays controller’s fixed setup: pumps, valve, and sensor. Useful for system overview.';
+      case 'Name':
+        return 'Change names of pumps, sensors, filters, and other components.';
+      case 'Condition Library':
+        return 'Sensor-based conditions such as moisture, pressure, time-based triggers, and program ON/OFF logic.';
+      case 'Valve Group':
+        return 'Group valves under a controller for simplified scheduling, monitoring, and centralized activity logs.';
+      case 'Pump Condition':
+        return 'Pump-based conditions such as program ON/OFF logic.';
+      case 'Controller Log':
+        return 'Controller live trace and Logs';
+      default:
+        return 'No additional information available.';
     }
-    catch(e,stackTrace){
-      print('Error on payloadConversion :: $e');
-      print('stackTrace on payloadConversion :: $stackTrace');
-    }
-    return dataFormation;
-
   }
 
   static dynamic findLocation({required data, required double objectSno, required String key}) {

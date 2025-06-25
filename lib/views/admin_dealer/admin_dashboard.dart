@@ -47,10 +47,16 @@ class AdminDashboard extends StatelessWidget {
                             color: Colors.white,
                             child: Column(
                               children: [
-                                const SizedBox(
+                                SizedBox(
                                   height: 44,
                                   child: ListTile(
-                                    title: Text('All My Devices', style: TextStyle(fontSize: 17)),
+                                    title: const Text('My Dealers', style: TextStyle(fontSize: 17)),
+                                    trailing: IconButton(
+                                      tooltip: 'Create Dealer account',
+                                      icon: const Icon(Icons.person_add_outlined),
+                                      color: primaryDark,
+                                      onPressed: () => openCreateDealerBottomSheet(context, viewModel, userId),
+                                    ),
                                   ),
                                 ),
                                 Expanded(
@@ -60,174 +66,6 @@ class AdminDashboard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        /*Expanded(
-                          child: Card(
-                            child: Column(
-                              children: [
-                                Container(
-                                  height: 44,
-                                  decoration: const BoxDecoration(
-                                    borderRadius: BorderRadius.only(
-                                      topRight: Radius.circular(10),
-                                      topLeft: Radius.circular(10),
-                                    ),
-                                  ),
-                                  child: ListTile(
-                                    title: RichText(
-                                      text: TextSpan(
-                                        text: 'Product Stock : ',
-                                        style: Theme.of(context).textTheme.headlineLarge,
-                                        children: [
-                                          TextSpan(
-                                            text: viewModel.productStockList.length.toString().padLeft(2, '0'),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    trailing: TextButton.icon(
-                                      onPressed: () {
-                                        {
-                                          AlertDialog alert = AlertDialog(
-                                            title: const Text("Stock Entry Form"),
-                                            backgroundColor: Colors.white,
-                                            elevation: 10,
-                                            content: SizedBox(
-                                                width: 640,
-                                                height: 300,
-                                                child: AddNewStock(userId: userId, onStockCreated: viewModel.updateStockList)
-                                            ),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(15),
-                                            ),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: const Text("Cancel"),
-                                              ),
-                                            ],
-                                          );
-
-                                          showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return alert;
-                                            },
-                                          );
-                                        }
-                                      },
-                                      icon: const Icon(Icons.add),
-                                      label: const Text("New stock"),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Container(
-                                    decoration: const BoxDecoration(
-                                      borderRadius: BorderRadius.only(
-                                        bottomLeft: Radius.circular(10),
-                                        bottomRight: Radius.circular(10),
-                                      ),
-                                    ),
-                                    child: viewModel.productStockList.isNotEmpty ? Padding(
-                                      padding: const EdgeInsets.all(5.0),
-                                      child: DataTable2(
-                                        columnSpacing: 12,
-                                        horizontalMargin: 12,
-                                        minWidth: 600,
-                                        border: TableBorder.all(color: Colors.teal.shade100),
-                                        headingRowColor: WidgetStateProperty.all<
-                                            Color>(Theme.of(context).primaryColorDark.withAlpha(1)),
-                                        headingRowHeight: 40,
-                                        dataRowHeight: 40,
-                                        columns: const [
-                                          DataColumn2(
-                                            label: Center(
-                                              child: Text(
-                                                'S.No',
-                                                style: TextStyle(fontWeight: FontWeight.bold),
-                                              ),
-                                            ),
-                                            fixedWidth: 50,
-                                          ),
-                                          DataColumn(
-                                            label: Text(
-                                              'Category',
-                                              style: TextStyle(fontWeight: FontWeight.bold),
-                                            ),
-                                          ),
-                                          DataColumn(
-                                            label: Text(
-                                              'Model',
-                                              style: TextStyle(fontWeight: FontWeight.bold),
-                                            ),
-                                          ),
-                                          DataColumn2(
-                                            label: Center(
-                                              child: Text(
-                                                'IMEI',
-                                                style: TextStyle(fontWeight: FontWeight.bold),
-                                              ),
-                                            ),
-                                            size: ColumnSize.L,
-                                          ),
-                                          DataColumn2(
-                                            label: Center(
-                                              child: Text(
-                                                'M.Date',
-                                                style: TextStyle(fontWeight: FontWeight.bold),
-                                              ),
-                                            ),
-                                            fixedWidth: 150,
-                                          ),
-                                          DataColumn2(
-                                            label: Center(
-                                              child: Text(
-                                                'Warranty',
-                                                style: TextStyle(fontWeight: FontWeight.bold),
-                                              ),
-                                            ),
-                                            fixedWidth: 100,
-                                          ),
-                                        ],
-                                        rows: List<DataRow>.generate(
-                                          viewModel.productStockList.length,
-                                              (index) => DataRow(
-                                            cells: [
-                                              DataCell(
-                                                Center(child: Text('${index + 1}')),
-                                              ),
-                                              DataCell(Text(viewModel.productStockList[index].categoryName)),
-                                              DataCell(Text(viewModel.productStockList[index].model)),
-                                              DataCell(
-                                                Center(
-                                                  child: Text(viewModel.productStockList[index].imeiNo),
-                                                ),
-                                              ),
-                                              DataCell(
-                                                Center(
-                                                  child: Text(viewModel.productStockList[index].dtOfMnf),
-                                                ),
-                                              ),
-                                              DataCell(
-                                                Center(
-                                                  child: Text('${viewModel.productStockList[index].warranty}'),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ) :
-                                    const Center(child: Text(
-                                      'SOLD OUT', style: TextStyle(fontSize: 20),)),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),*/
                       ],
                     ),
                   ),
@@ -307,7 +145,7 @@ class AdminDashboard extends StatelessWidget {
 
   Widget buildProductList(BuildContext context, AdminAndDealerDashboardViewModel viewModel) {
 
-    return Padding(
+    /*return Padding(
       padding: const EdgeInsets.only(left: 8, right: 8),
       child: GridView.builder(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -340,18 +178,22 @@ class AdminDashboard extends StatelessWidget {
           );
         },
       ),
-    );
+    );*/
     return DataTable2(
       columnSpacing: 12,
       horizontalMargin: 12,
       minWidth: 600,
       headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColorLight.withOpacity(0.1)),
       headingRowHeight: 35,
-      dataRowHeight: 55,
+      dataRowHeight: 40,
       columns: const [
         DataColumn(
-          label: Text(
-            'Name & Mobile No',
+          label: Text('Name',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        DataColumn(
+          label: Text('Mobile No',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
@@ -363,29 +205,62 @@ class AdminDashboard extends StatelessWidget {
           size: ColumnSize.L,
         ),
         DataColumn2(
-          label: Text(
-            'Address',
+          label: Text('Address',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           size: ColumnSize.L,
         ),
+        DataColumn2(
+          label: Text('',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          fixedWidth: 100,
+        ),
       ],
       rows: List<DataRow>.generate(
-        viewModel.categoryList.length, (index) => DataRow(
+        viewModel.myCustomerList.length, (index) => DataRow(
         cells: [
           DataCell(Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              /*const CircleAvatar(
+              const CircleAvatar(
                 backgroundImage: AssetImage("assets/png/user_thumbnail.png"),
                 backgroundColor: Colors.transparent,
+                radius: 14,
               ),
-              const SizedBox(width: 12),*/
-              Text(viewModel.categoryList[index].categoryName),
+              const SizedBox(width: 12),
+              Text(viewModel.myCustomerList[index].userName),
             ],
           )),
-          DataCell(Text(viewModel.categoryList[index].categoryName)),
-          DataCell(Text(viewModel.categoryList[index].categoryName)),
+          DataCell(Text('+ ${viewModel.myCustomerList[index].countryCode} ${viewModel.myCustomerList[index].mobileNumber}')),
+          DataCell(Text(viewModel.myCustomerList[index].emailId)),
+          const DataCell(Text('--')),
+          DataCell(Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                tooltip: 'View and Add new product',
+                icon: const Icon(Icons.playlist_add),
+                onPressed: () => openDealerDeviceListBottomSheet(context, viewModel.myCustomerList[index], viewModel, userId),
+              ),
+              IconButton(
+                tooltip: 'View dealer dashboard',
+                icon: const Icon(Icons.dashboard_outlined),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DealerScreenController(
+                      userId: viewModel.myCustomerList[index].userId,
+                      userName: viewModel.myCustomerList[index].userName,
+                      mobileNo: viewModel.myCustomerList[index].mobileNumber,
+                      fromLogin: false,
+                      emailId: viewModel.myCustomerList[index].emailId,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          )),
         ],
       ),
       ),
@@ -401,54 +276,51 @@ class AdminDashboard extends StatelessWidget {
             ? const Center(child: SizedBox(width: 40, child: LoadingIndicator(indicatorType: Indicator.ballPulse)))
             : Column(
           children: [
-            ListTile(
-              title: const Text('My Dealer', style: TextStyle(fontSize: 17)),
-              trailing: IconButton(
-                tooltip: 'Create Dealer account',
-                icon: const Icon(Icons.person_add_outlined),
-                color: primaryDark,
-                onPressed: () => openCreateDealerBottomSheet(context, viewModel, userId),
-              ),
+            const ListTile(
+              title: Text('All My Devices', style: TextStyle(fontSize: 17)),
             ),
             const Divider(height: 0),
             Expanded(
               child: viewModel.myCustomerList.isNotEmpty
-                  ? ListView.separated(
-                itemCount: viewModel.myCustomerList.length,
-                separatorBuilder: (_, __) => const Divider(
-                  color: Colors.black26,
-                  thickness: 0.3,
-                  indent: 16,
-                  height: 0,
-                ),
-                itemBuilder: (context, index) {
-                  final customer = viewModel.myCustomerList[index];
-                  return ListTile(
-                    leading: const CircleAvatar(
-                      backgroundImage: AssetImage("assets/png/user_thumbnail.png"),
-                      backgroundColor: Colors.transparent,
-                    ),
-                    title: Text(customer.userName, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-                    subtitle: Text('+${customer.countryCode} ${customer.mobileNumber}', style: const TextStyle(fontSize: 12)),
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DealerScreenController(
-                          userId: customer.userId,
-                          userName: customer.userName,
-                          mobileNo: customer.mobileNumber,
-                          fromLogin: false,
-                          emailId: customer.emailId,
-                        ),
+                  ? Padding(
+                padding: const EdgeInsets.only(left: 8, right: 8),
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 5.0,
+                    mainAxisSpacing: 5.0,
+                    childAspectRatio: 1.0,
+                  ),
+                  itemCount: viewModel.categoryList.length,
+                  itemBuilder: (context, index) {
+                    final item = viewModel.categoryList[index];
+                    return Card(
+                      color: Colors.white,
+                      elevation: 2,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Expanded(child: F.appFlavor!.name.contains('oro') ?
+                          Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Image.asset("assets/images/Png/Oro/category_${index+1}.png"),
+                          ):
+                          Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Image.asset("assets/images/Png/SmartComm/category_${index+1}.png"),
+                          )),
+                          Container(
+                            height: 25,
+                            color: Theme.of(context).primaryColorLight.withOpacity(0.2),
+                            child: Center(
+                              child: Text(item.categoryName, style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    trailing: IconButton(
-                      tooltip: 'View and Add new product',
-                      icon: const Icon(Icons.playlist_add),
-                      onPressed: () => openDealerDeviceListBottomSheet(context, customer, viewModel, userId),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               )
                   : const _NoCustomersWidget(),
             ),
