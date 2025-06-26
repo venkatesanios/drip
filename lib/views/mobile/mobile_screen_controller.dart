@@ -29,6 +29,7 @@ import '../../utils/routes.dart';
 import '../../utils/shared_preferences_helper.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../account_settings.dart';
+import '../customer/app_info.dart';
 import '../customer/controller_settings.dart';
 import '../customer/customer_home.dart';
 import '../customer/customer_product.dart';
@@ -329,7 +330,14 @@ class MobileScreenController extends StatelessWidget {
                     title: const Text("App Info",
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     trailing: const Icon(Icons.keyboard_arrow_right_rounded),
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AppInfo(),
+                        ),
+                      );
+                    },
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 40, right: 25),
