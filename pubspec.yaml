@@ -72,11 +72,10 @@ dependencies:
     path: lib/plugins/flutter_bluetooth_serial
   crypto: ^3.0.6
   image_picker: ^1.1.2
+  animated_text_kit: ^4.2.3
+#  audioplayers: ^6.5.0
+#  record: ^6.0.0
 
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -111,9 +110,7 @@ flutter:
     - assets/smartcomm_launcher.png
     - assets/.env
     - assets/ssh/smartComm/id_rsa
-<<<<<<< Updated upstream
     - assets/localfile/Testing
-=======
 #  fonts:
 #    - family: NotoSans
 #      fonts:
@@ -123,7 +120,6 @@ flutter:
 #        - asset: assets/fonts/NotoSansMalayalam-Regular.ttf
 #        - asset: assets/fonts/NotoSansTelugu-Regular.ttf
 #        - asset: assets/fonts/NotoSansKannada-Regular.ttf
->>>>>>> Stashed changes
 
 flutter_launcher_icons:
   android: true
