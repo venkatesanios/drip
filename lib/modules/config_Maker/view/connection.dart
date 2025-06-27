@@ -414,13 +414,14 @@ class _ConnectionState extends State<Connection> {
       }else{
         return true;
       }
-    })
-        .where((object) => (object.type == '1,2' && !['', '0', null].contains(object.count)))
+    }).where((object) => (object.type == '1,2' && !['', '0', null].contains(object.count)))
         .toList().where((object) => selectedDevice.connectingObjectId.contains(object.objectId)).toList().map((object) => object.objectId)
         .toList();
 
     List<DeviceObjectModel> filteredList = widget.configPvd.listOfObjectModelConnection.where((object)=> filteredObjectList.contains(object.objectId)).toList();
+
     filteredList = filteredList.where((object) {
+      print("obj => ${object.toJson()}");
       if(['', '0', null].contains(object.count) && getNotConfiguredObjectByObjectId(object.objectId, widget.configPvd) == 0){
         return false;
       }else{

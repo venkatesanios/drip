@@ -27,7 +27,6 @@ class ConfigMakerProvider extends ChangeNotifier{
     4 : 'Moisture Configuration',
     5 : 'Line Configuration',
   };
-
   Map<int, int> configurationTabObjectId = {
     0 : AppConstants.sourceObjectId,
     1 : AppConstants.pumpObjectId,
@@ -36,7 +35,6 @@ class ConfigMakerProvider extends ChangeNotifier{
     4 : AppConstants.moistureObjectId,
     5 : AppConstants.irrigationLineObjectId,
   };
-
   int selectedConfigurationTab = 0;
   SelectionMode selectedSelectionMode = SelectionMode.auto;
   int selectedConnectionNo = 0;
@@ -99,6 +97,31 @@ class ConfigMakerProvider extends ChangeNotifier{
     notifyListeners();
   }
 
+  void reInitialize(){
+    listOfSampleObjectModel.clear();
+    listOfObjectModelConnection.clear();
+    listOfDeviceModel.clear();
+    serialNumber = 0;
+    listOfGeneratedObject.clear();
+    filtration.clear();
+    fertilization.clear();
+    source.clear();
+    pump.clear();
+    moisture.clear();
+    line.clear();
+    selectedSelectionMode = SelectionMode.auto;
+    selectedConnectionNo = 0;
+    selectedType = '';
+    selectedCategory = 6;
+    selectedModelControllerId = 0;
+    selectedLineSno = 2.001;
+    noticeableObjectId = [];
+    listOfSelectedSno = [];
+    selectedSno = 0.0;
+    serialNumber = 0;
+    notifyListeners();
+  }
+
   void updateAssignObject({required double sNo,required int objectId, required List<double> listOfSerialNo}){
     for(var object in listOfGeneratedObject){
       if(object.objectId == objectId && listOfSerialNo.contains(object.sNo)){
@@ -126,7 +149,7 @@ class ConfigMakerProvider extends ChangeNotifier{
 
   Future<List<DeviceModel>> fetchData(masterDataFromSiteConfigure)async {
     await Future.delayed(const Duration(seconds: 0));
-
+    reInitialize();
     try{
       var body = {
         "userId" : masterDataFromSiteConfigure['customerId'],
@@ -237,8 +260,16 @@ class ConfigMakerProvider extends ChangeNotifier{
           }
         }
       }
-
+      List<double> generatedSno = [];
       listOfGeneratedObject = (configMakerData['configObject'] as List<dynamic>).map((object) => DeviceObjectModel.fromJson(object)).toList();
+      // remove if there any duplicates
+      for(var i = listOfGeneratedObject.length - 1;i >= 0;i--){
+        if(generatedSno.contains(listOfGeneratedObject[i].sNo)){
+          listOfGeneratedObject.removeAt(i);
+        }else{
+          generatedSno.add(listOfGeneratedObject[i].sNo!);
+        }
+      }
       filtration = (configMakerData['filterSite'] as List<dynamic>).map((filtrationObject) => FiltrationModel.fromJson(filtrationObject)).toList();
       fertilization = (configMakerData['fertilizerSite'] as List<dynamic>).map((fertilizationObject) => FertilizationModel.fromJson(fertilizationObject)).toList();
       source = (configMakerData['waterSource'] as List<dynamic>).map((sourceObject) => SourceModel.fromJson(sourceObject)).toList();
@@ -920,10 +951,11 @@ class ConfigMakerProvider extends ChangeNotifier{
     else{
       objectListToSend = listOfGeneratedObject;
     }
-
+    final weatherControllersList = listOfDeviceModel.where((e) => e.categoryId == 4).toList();
+    List<int> weatherControllerId = weatherControllersList.map((e) => e.controllerId).toList();
     for (var i = 0; i < objectListToSend.length; i++) {
       var object = objectListToSend[i];
-      if(object.connectionNo != 0 && object.connectionNo != null){
+      if(object.connectionNo != 0 && object.connectionNo != null && !weatherControllerId.contains(object.controllerId)){
         print(object.toJson());
         var controller = listOfDeviceModel.firstWhere((e) => e.controllerId == object.controllerId);
         objectPayload.add({
@@ -937,6 +969,10 @@ class ConfigMakerProvider extends ChangeNotifier{
             "Name" : object.name
         }.entries.map((e) => e.value).join(","));
       }
+    }
+    String weatherPayload = getWeatherPayload();
+    if(weatherPayload.isNotEmpty){
+      objectPayload.addAll(weatherPayload.split(';'));
     }
     return objectPayload.join(";");
   }
@@ -960,34 +996,66 @@ class ConfigMakerProvider extends ChangeNotifier{
       var rainFallSensor = listOfGeneratedObject.where((object) => object.controllerId == weather.controllerId && object.objectId == 38).toList();
       var leafWetnessSensor = listOfGeneratedObject.where((object) => object.controllerId == weather.controllerId && object.objectId == 37).toList();
       if (weather.masterId != null) {
-        weatherPayload.add(weatherSensorPayload(weather, soilMoistureSensor.isNotEmpty ? soilMoistureSensor[0] : null, 1));
-        weatherPayload.add(weatherSensorPayload(weather, soilMoistureSensor.length > 1 ? soilMoistureSensor[1] : null, 2));
-        weatherPayload.add(weatherSensorPayload(weather, soilMoistureSensor.length > 2 ? soilMoistureSensor[2] : null, 3));
-        weatherPayload.add(weatherSensorPayload(weather, soilMoistureSensor.length > 3 ? soilMoistureSensor[3] : null, 4));
-        weatherPayload.add(weatherSensorPayload(weather, soilTemperatureSensor.isNotEmpty ? soilTemperatureSensor[0] : null, 5));
-        weatherPayload.add(weatherSensorPayload(weather, humiditySensor.isNotEmpty ? humiditySensor[0] : null, 6));
-        weatherPayload.add(weatherSensorPayload(weather, temperatureSensor.isNotEmpty ? temperatureSensor[0] : null, 7));
-        weatherPayload.add(weatherSensorPayload(weather, atmosphericSensor.isNotEmpty ? atmosphericSensor[0] : null, 8));
-        weatherPayload.add(weatherSensorPayload(weather, co2Sensor.isNotEmpty ? co2Sensor[0] : null, 9));
-        weatherPayload.add(weatherSensorPayload(weather, ldrSensor.isNotEmpty ? ldrSensor[0] : null, 10));
-        weatherPayload.add(weatherSensorPayload(weather, luxSensor.isNotEmpty ? luxSensor[0] : null, 11));
-        weatherPayload.add(weatherSensorPayload(weather, windDirectionSensor.isNotEmpty ? windDirectionSensor[0] : null, 12));
-        weatherPayload.add(weatherSensorPayload(weather, windSpeedSensor.isNotEmpty ? windSpeedSensor[0] : null, 13));
-        weatherPayload.add(weatherSensorPayload(weather, rainFallSensor.isNotEmpty ? rainFallSensor[0] : null, 14));
-        weatherPayload.add(weatherSensorPayload(weather, leafWetnessSensor.isNotEmpty ? leafWetnessSensor[0] : null, 15));
+        if(soilMoistureSensor.isNotEmpty){
+          weatherPayload.add(weatherSensorPayload(weather, soilMoistureSensor[0], 1));
+        }
+        if(soilMoistureSensor.length > 1){
+          weatherPayload.add(weatherSensorPayload(weather, soilMoistureSensor[1], 2));
+        }
+        if(soilMoistureSensor.length > 2){
+          weatherPayload.add(weatherSensorPayload(weather, soilMoistureSensor[2], 3));
+        }
+        if(soilMoistureSensor.length > 3){
+          weatherPayload.add(weatherSensorPayload(weather, soilMoistureSensor[3], 4));
+        }
+        if(soilTemperatureSensor.isNotEmpty){
+          weatherPayload.add(weatherSensorPayload(weather, soilTemperatureSensor[0], 5));
+        }
+        if(humiditySensor.isNotEmpty){
+          weatherPayload.add(weatherSensorPayload(weather, humiditySensor[0], 6));
+        }
+        if(temperatureSensor.isNotEmpty){
+          weatherPayload.add(weatherSensorPayload(weather, temperatureSensor[0], 7));
+        }
+        if(atmosphericSensor.isNotEmpty){
+          weatherPayload.add(weatherSensorPayload(weather, atmosphericSensor[0], 8));
+        }
+        if(co2Sensor.isNotEmpty){
+          weatherPayload.add(weatherSensorPayload(weather, co2Sensor[0], 9));
+        }
+        if(ldrSensor.isNotEmpty){
+          weatherPayload.add(weatherSensorPayload(weather, ldrSensor[0], 10));
+        }
+        if(luxSensor.isNotEmpty){
+          weatherPayload.add(weatherSensorPayload(weather, luxSensor[0], 11));
+        }
+        if(windDirectionSensor.isNotEmpty){
+          weatherPayload.add(weatherSensorPayload(weather, windDirectionSensor[0], 12));
+        }
+        if(windSpeedSensor.isNotEmpty){
+          weatherPayload.add(weatherSensorPayload(weather, windSpeedSensor[0], 13));
+        }
+        if(rainFallSensor.isNotEmpty){
+          weatherPayload.add(weatherSensorPayload(weather, rainFallSensor[0], 14));
+        }
+        if(leafWetnessSensor.isNotEmpty){
+          weatherPayload.add(weatherSensorPayload(weather, leafWetnessSensor[0], 15));
+        }
       }
     }
     return weatherPayload.join(";");
   }
 
-  String weatherSensorPayload(DeviceModel weather, DeviceObjectModel? sensor, int sensorId){
+  String weatherSensorPayload(DeviceModel weather, DeviceObjectModel sensor, int sensorId){
     return {
-      "S_No": sensor != null ? sensor.sNo : '',
-      "OroWeatherRunningNumber": 0,
-      "Sensor": sensorId,
-      "Enable": sensor != null ? 1 : 0,
-      "IrrigationLine": 2.001,
-    }.entries.map((e) => e.value).join(", ");
+      "S_No": sensor.sNo,
+      "ObjectType": sensor.objectId,
+      "DeviceTypeNumber": weather.categoryId,
+      "DeviceRunningNumber": findOutReferenceNumber(weather),
+      "Output_InputNumber": sensorId,
+      "IO_Mode": 8,
+      "Name" : sensor.name
+    }.entries.map((e) => e.value).join(",");
   }
 
   String getIrrigationLinePayload() {

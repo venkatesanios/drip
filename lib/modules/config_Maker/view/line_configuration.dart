@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:oro_drip_irrigation/app.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/model/fertigation_model.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/model/pump_model.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/view/site_configure.dart';
