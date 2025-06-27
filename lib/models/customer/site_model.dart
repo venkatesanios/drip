@@ -1,6 +1,4 @@
 
-import 'dart:developer';
-
 import '../../modules/PumpController/model/pump_controller_data_model.dart';
 
 class SiteModel {
@@ -30,6 +28,7 @@ class Group {
   Group({required this.groupId, required this.groupName, required this.master});
 
   factory Group.fromJson(Map<String, dynamic> json) {
+
     return Group(
       groupId: json['userGroupId'],
       groupName: json['groupName'],
@@ -525,6 +524,15 @@ class ConfigObject {
   });
 
   factory ConfigObject.fromJson(Map<String, dynamic> json) {
+
+    List<double> parsedAssignObject = [];
+
+    if (json.containsKey("assignObject") && json["assignObject"] != null) {
+      parsedAssignObject = (json["assignObject"] as List)
+          .map((e) => (e as num).toDouble())
+          .toList();
+    }
+
     return ConfigObject(
       objectId: json['objectId'],
       sNo: (json['sNo'] as num).toDouble(),
@@ -532,7 +540,7 @@ class ConfigObject {
       objectName: json['objectName'],
       controllerId: json['controllerId'],
       location: (json['location'] is! double ? 0.0 : json['location']) ?? 0.0,
-      assignObject: (json['assignObject'] as List).map((e) => (e as num).toDouble()).toList(),
+      assignObject: parsedAssignObject,
     );
   }
 
@@ -1093,12 +1101,12 @@ class ValveModel {
 
   factory ValveModel.fromConfigObject(ConfigObject obj) {
 
-    List<double> assignedSNos = (obj.assignObject ?? [])
+    /*List<double> assignedSNos = (obj.assignObject ?? [])
         .map((e) => (e as num).toDouble())
         .toList();
 
     print('assignedSNos:$assignedSNos');
-    print('object name:${obj.name}');
+    print('object name:${obj.name}');*/
 
 
     /*List<WaterSourceModel> sources = configObjects
