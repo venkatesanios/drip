@@ -165,7 +165,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
                               Text(
-                                'ORO Weather',
+                                'Weather',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 18,
