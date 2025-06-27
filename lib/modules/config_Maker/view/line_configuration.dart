@@ -97,62 +97,68 @@ class _LineConfigurationState extends State<LineConfiguration> {
                                         }, icon: const Icon(Icons.dataset)
                                     ),
                                     if(widget.configPvd.pump.any((pump) => pump.pumpType == 1))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.sourcePump, parameterType: LineParameter.sourcePump, objectId: 5, objectName: 'Source Pump', validateAllLine: false, listOfObject: widget.configPvd.pump.where((pump) => (pump.pumpType == 1)).toList().map((pump) => pump.commonDetails).toList()),
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.sourcePump, parameterType: LineParameter.sourcePump, objectId: AppConstants.pumpObjectId, objectName: 'Source Pump', validateAllLine: false, listOfObject: widget.configPvd.pump.where((pump) => (pump.pumpType == 1)).toList().map((pump) => pump.commonDetails).toList()),
                                     if(widget.configPvd.pump.any((pump) => pump.pumpType == 2))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.irrigationPump, parameterType: LineParameter.irrigationPump, objectId: 5, objectName: 'Irrigation Pump', validateAllLine: false, listOfObject: widget.configPvd.pump.where((pump) => (pump.pumpType == 2)).toList().map((pump) => pump.commonDetails).toList()),
-                                    if(availability(13))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.valve, parameterType: LineParameter.valve, objectId: 13, objectName: 'Valve', validateAllLine: true),
-                                    if(availability(14))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.mainValve, parameterType: LineParameter.mainValve, objectId: 14, objectName: 'Main Valve', validateAllLine: true),
-                                    if(availability(15))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.fan, parameterType: LineParameter.fan, objectId: 15, objectName: 'Fan', validateAllLine: true),
-                                    if(availability(16))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.fogger, parameterType: LineParameter.fogger, objectId: 16, objectName: 'Fogger', validateAllLine: true),
-                                    if(availability(17))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.heater, parameterType: LineParameter.heater, objectId: 17, objectName: 'Heater', validateAllLine: true),
-                                    if(availability(36))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.humidity, parameterType: LineParameter.humidity, objectId: 36, objectName: 'Humidity', validateAllLine: true),
-                                    if(availability(21))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.screen, parameterType: LineParameter.screen, objectId: 21, objectName: 'Screen', validateAllLine: true),
-                                    if(availability(33))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.co2, parameterType: LineParameter.co2, objectId: 33, objectName: 'Co2', validateAllLine: true),
-                                    if(availability(25))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.moisture, parameterType: LineParameter.moisture, objectId: 25, objectName: 'Moisture', validateAllLine: true),
-                                    if(availability(20))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.vent, parameterType: LineParameter.vent, objectId: 20, objectName: 'Vent', validateAllLine: true),
-                                    if(availability(18))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.pesticides, parameterType: LineParameter.pesticides, objectId: 18, objectName: 'Pesticides', validateAllLine: true),
-                                    if(availability(30))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.soilTemperature, parameterType: LineParameter.soilTemperature, objectId: 30, objectName: 'Soil Temperature', validateAllLine: true),
-                                    if(availability(29))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.temperature, parameterType: LineParameter.temperature, objectId: 29, objectName: 'Temperature', validateAllLine: true),
-                                    if(availability(22))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.waterMeter], parameterType: LineParameter.waterMeter, objectId: 22, objectName: 'Water Meter', validateAllLine: true, singleSelection: true),
-                                    if(availability(42))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.powerSupply], parameterType: LineParameter.powerSupply, objectId: 42, objectName: 'Power Supply', validateAllLine: true, singleSelection: true),
-                                    if(availability(23))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.pressureSwitch], parameterType: LineParameter.pressureSwitch, objectId: 23, objectName: 'Pressure Switch', validateAllLine: true, singleSelection: true,),
-                                    if(availability(24))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.pressureIn], parameterType: LineParameter.pressureIn, objectId: 24, objectName: 'Pressure In', validateAllLine: true, singleSelection: true,
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.irrigationPump, parameterType: LineParameter.irrigationPump, objectId: AppConstants.pumpObjectId, objectName: 'Irrigation Pump', validateAllLine: false, listOfObject: widget.configPvd.pump.where((pump) => (pump.pumpType == 2)).toList().map((pump) => pump.commonDetails).toList()),
+                                    if(availability(AppConstants.valveObjectId))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.valve, parameterType: LineParameter.valve, objectId: AppConstants.valveObjectId, objectName: 'Valve', validateAllLine: true),
+                                    if(availability(AppConstants.mainValveObjectId))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.mainValve, parameterType: LineParameter.mainValve, objectId: AppConstants.mainValveObjectId, objectName: 'Main Valve', validateAllLine: true),
+                                    if(availability(AppConstants.lightObjectId))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.light, parameterType: LineParameter.light, objectId: AppConstants.lightObjectId, objectName: 'Light', validateAllLine: true),
+                                    if(availability(AppConstants.gateObjectId))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.gate, parameterType: LineParameter.gate, objectId: AppConstants.gateObjectId, objectName: 'Gate', validateAllLine: true),
+                                    if(availability(AppConstants.fanObjectId))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.fan, parameterType: LineParameter.fan, objectId: AppConstants.fanObjectId, objectName: 'Fan', validateAllLine: true),
+                                    if(availability(AppConstants.foggerObjectId))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.fogger, parameterType: LineParameter.fogger, objectId: AppConstants.foggerObjectId, objectName: 'Fogger', validateAllLine: true),
+                                    if(availability(AppConstants.mistObjectId))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.mist, parameterType: LineParameter.mist, objectId: AppConstants.mistObjectId, objectName: 'Mist', validateAllLine: true),
+                                    if(availability(AppConstants.heaterObjectId))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.heater, parameterType: LineParameter.heater, objectId: AppConstants.heaterObjectId, objectName: 'Heater', validateAllLine: true),
+                                    if(availability(AppConstants.humidityObjectId))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.humidity, parameterType: LineParameter.humidity, objectId: AppConstants.humidityObjectId, objectName: 'Humidity', validateAllLine: true),
+                                    if(availability(AppConstants.screenObjectId))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.screen, parameterType: LineParameter.screen, objectId: AppConstants.screenObjectId, objectName: 'Screen', validateAllLine: true),
+                                    if(availability(AppConstants.co2ObjectId))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.co2, parameterType: LineParameter.co2, objectId: AppConstants.co2ObjectId, objectName: 'Co2', validateAllLine: true),
+                                    if(availability(AppConstants.moistureObjectId))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.moisture, parameterType: LineParameter.moisture, objectId: AppConstants.moistureObjectId, objectName: 'Moisture', validateAllLine: true),
+                                    if(availability(AppConstants.ventObjectId))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.vent, parameterType: LineParameter.vent, objectId: AppConstants.ventObjectId, objectName: 'Vent', validateAllLine: true),
+                                    if(availability(AppConstants.pesticideObjectId))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.pesticides, parameterType: LineParameter.pesticides, objectId: AppConstants.pesticideObjectId, objectName: 'Pesticides', validateAllLine: true),
+                                    if(availability(AppConstants.soilTemperatureObjectId))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.soilTemperature, parameterType: LineParameter.soilTemperature, objectId: AppConstants.soilTemperatureObjectId, objectName: 'Soil Temperature', validateAllLine: true),
+                                    if(availability(AppConstants.temperatureObjectId))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.temperature, parameterType: LineParameter.temperature, objectId: AppConstants.temperatureObjectId, objectName: 'Temperature', validateAllLine: true),
+                                    if(availability(AppConstants.waterMeterObjectId))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.waterMeter], parameterType: LineParameter.waterMeter, objectId: AppConstants.waterMeterObjectId, objectName: 'Water Meter', validateAllLine: true, singleSelection: true),
+                                    if(availability(AppConstants.powerSupplyObjectId))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.powerSupply], parameterType: LineParameter.powerSupply, objectId: AppConstants.powerSupplyObjectId, objectName: 'Power Supply', validateAllLine: true, singleSelection: true),
+                                    if(availability(AppConstants.pressureSwitchObjectId))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.pressureSwitch], parameterType: LineParameter.pressureSwitch, objectId: AppConstants.pressureSwitchObjectId, objectName: 'Pressure Switch', validateAllLine: true, singleSelection: true,),
+                                    if(availability(AppConstants.pressureSensorObjectId))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.pressureIn], parameterType: LineParameter.pressureIn, objectId: AppConstants.pressureSensorObjectId, objectName: 'Pressure In', validateAllLine: true, singleSelection: true,
                                           listOfObject: widget.configPvd.listOfGeneratedObject
-                                              .where((object) => (object.objectId == 24 && !widget.configPvd.pump.any((pump) => [pump.pressureIn,pump.pressureOut].contains(object.sNo)) && object.sNo != selectedIrrigationLine.pressureOut))
+                                              .where((object) => (object.objectId == AppConstants.pressureSensorObjectId && !widget.configPvd.pump.any((pump) => [pump.pressureIn,pump.pressureOut].contains(object.sNo)) && object.sNo != selectedIrrigationLine.pressureOut))
                                               .where((object) => (!widget.configPvd.filtration.any((filterSite) => [filterSite.pressureIn,filterSite.pressureOut].contains(object.sNo)) && object.sNo != selectedIrrigationLine.pressureOut))
                                               .where((object) => (!widget.configPvd.line.any((line) => line.commonDetails.sNo != selectedIrrigationLine.commonDetails.sNo && [line.pressureIn,line.pressureOut].contains(object.sNo)) && object.sNo != selectedIrrigationLine.pressureOut))
                                               .toList()),
-                                    if(availability(24))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.pressureOut], parameterType: LineParameter.pressureOut, objectId: 24, objectName: 'Pressure Out', validateAllLine: true, singleSelection: true,
-                                          listOfObject: widget.configPvd.listOfGeneratedObject.where((object) => (object.objectId == 24 && !widget.configPvd.pump.any((pump) => [pump.pressureIn,pump.pressureOut].contains(object.sNo)) && object.sNo != selectedIrrigationLine.pressureIn))
+                                    if(availability(AppConstants.pressureSensorObjectId))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.pressureOut], parameterType: LineParameter.pressureOut, objectId: AppConstants.pressureSensorObjectId, objectName: 'Pressure Out', validateAllLine: true, singleSelection: true,
+                                          listOfObject: widget.configPvd.listOfGeneratedObject.where((object) => (object.objectId == AppConstants.pressureSensorObjectId && !widget.configPvd.pump.any((pump) => [pump.pressureIn,pump.pressureOut].contains(object.sNo)) && object.sNo != selectedIrrigationLine.pressureIn))
                                               .where((object) => (!widget.configPvd.filtration.any((filterSite) => [filterSite.pressureIn,filterSite.pressureOut].contains(object.sNo)) && object.sNo != selectedIrrigationLine.pressureIn))
                                               .where((object) => (!widget.configPvd.line.any((line) => line.commonDetails.sNo != selectedIrrigationLine.commonDetails.sNo && [line.pressureIn,line.pressureOut].contains(object.sNo)) && object.sNo != selectedIrrigationLine.pressureIn))
                                               .toList()),
-                                    if(availability(3))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.centralFertilization], parameterType: LineParameter.centralFertilization, objectId: 3, objectName: 'Central Fertilization', validateAllLine: false, singleSelection: true, listOfObject: widget.configPvd.fertilization.where((site) => (site.siteMode == 1)).toList().map((site) => site.commonDetails).toList()),
-                                    if(availability(3))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.localFertilization], parameterType: LineParameter.localFertilization, objectId: 3, objectName: 'Local Fertilization', validateAllLine: false, singleSelection: true, listOfObject: widget.configPvd.fertilization.where((site) => (site.siteMode == 2)).toList().map((site) => site.commonDetails).toList()),
-                                    if(availability(4))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.centralFiltration], parameterType: LineParameter.centralFiltration, objectId: 4, objectName: 'Central Filtration', validateAllLine: false, singleSelection: true, listOfObject: widget.configPvd.filtration.where((site) => (site.siteMode == 1)).toList().map((site) => site.commonDetails).toList()),
-                                    if(availability(4))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.localFiltration], parameterType: LineParameter.localFiltration, objectId: 4, objectName: 'Local Filtration', validateAllLine: false, singleSelection: true, listOfObject: widget.configPvd.filtration.where((site) => (site.siteMode == 2)).toList().map((site) => site.commonDetails).toList()),
+                                    if(availability(AppConstants.fertilizerSiteObjectId))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.centralFertilization], parameterType: LineParameter.centralFertilization, objectId: AppConstants.fertilizerSiteObjectId, objectName: 'Central Fertilization', validateAllLine: false, singleSelection: true, listOfObject: widget.configPvd.fertilization.where((site) => (site.siteMode == 1)).toList().map((site) => site.commonDetails).toList()),
+                                    if(availability(AppConstants.fertilizerSiteObjectId))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.localFertilization], parameterType: LineParameter.localFertilization, objectId: AppConstants.fertilizerSiteObjectId, objectName: 'Local Fertilization', validateAllLine: false, singleSelection: true, listOfObject: widget.configPvd.fertilization.where((site) => (site.siteMode == 2)).toList().map((site) => site.commonDetails).toList()),
+                                    if(availability(AppConstants.filterSiteObjectId))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.centralFiltration], parameterType: LineParameter.centralFiltration, objectId: AppConstants.filterSiteObjectId, objectName: 'Central Filtration', validateAllLine: false, singleSelection: true, listOfObject: widget.configPvd.filtration.where((site) => (site.siteMode == 1)).toList().map((site) => site.commonDetails).toList()),
+                                    if(availability(AppConstants.filterSiteObjectId))
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.localFiltration], parameterType: LineParameter.localFiltration, objectId: AppConstants.filterSiteObjectId, objectName: 'Local Filtration', validateAllLine: false, singleSelection: true, listOfObject: widget.configPvd.filtration.where((site) => (site.siteMode == 2)).toList().map((site) => site.commonDetails).toList()),
                                   ],
                                 ),
                               ),
@@ -348,29 +354,32 @@ class _LineConfigurationState extends State<LineConfiguration> {
 
   Widget checkingAnyParameterAvailableInLine(IrrigationLineModel selectedIrrigationLine){
     List<Widget> childrenWidget = [
-      ...getObjectInLine(selectedIrrigationLine.mainValve, 12),
+      ...getObjectInLine(selectedIrrigationLine.mainValve, AppConstants.mainValveObjectId),
       if(selectedIrrigationLine.waterMeter != 0.0)
-        ...getObjectInLine([selectedIrrigationLine.waterMeter], 22),
-      ...getObjectInLine(selectedIrrigationLine.valve, 13),
-      ...getObjectInLine(selectedIrrigationLine.fan, 15),
-      ...getObjectInLine(selectedIrrigationLine.fogger, 16),
-      ...getObjectInLine(selectedIrrigationLine.heater, 17),
-      ...getObjectInLine(selectedIrrigationLine.humidity, 36),
-      ...getObjectInLine(selectedIrrigationLine.screen, 21),
-      ...getObjectInLine(selectedIrrigationLine.co2, 33),
-      ...getObjectInLine(selectedIrrigationLine.moisture, 25),
-      ...getObjectInLine(selectedIrrigationLine.vent, 20),
-      ...getObjectInLine(selectedIrrigationLine.pesticides, 18),
-      ...getObjectInLine(selectedIrrigationLine.soilTemperature, 30),
-      ...getObjectInLine(selectedIrrigationLine.temperature, 29),
+        ...getObjectInLine([selectedIrrigationLine.waterMeter], AppConstants.waterMeterObjectId),
+      ...getObjectInLine(selectedIrrigationLine.valve, AppConstants.valveObjectId),
+      ...getObjectInLine(selectedIrrigationLine.light, AppConstants.lightObjectId),
+      ...getObjectInLine(selectedIrrigationLine.gate, AppConstants.gateObjectId),
+      ...getObjectInLine(selectedIrrigationLine.fan, AppConstants.fanObjectId),
+      ...getObjectInLine(selectedIrrigationLine.fogger, AppConstants.foggerObjectId),
+      ...getObjectInLine(selectedIrrigationLine.mist, AppConstants.mistObjectId),
+      ...getObjectInLine(selectedIrrigationLine.heater, AppConstants.heaterObjectId),
+      ...getObjectInLine(selectedIrrigationLine.humidity, AppConstants.humidityObjectId),
+      ...getObjectInLine(selectedIrrigationLine.screen, AppConstants.screenObjectId),
+      ...getObjectInLine(selectedIrrigationLine.co2, AppConstants.co2ObjectId),
+      ...getObjectInLine(selectedIrrigationLine.moisture, AppConstants.moistureObjectId),
+      ...getObjectInLine(selectedIrrigationLine.vent, AppConstants.ventObjectId),
+      ...getObjectInLine(selectedIrrigationLine.pesticides, AppConstants.pesticideObjectId),
+      ...getObjectInLine(selectedIrrigationLine.soilTemperature, AppConstants.soilTemperatureObjectId),
+      ...getObjectInLine(selectedIrrigationLine.temperature, AppConstants.temperatureObjectId),
       if(selectedIrrigationLine.pressureIn != 0.0)
-        ...getObjectInLine([selectedIrrigationLine.pressureIn], 24),
+        ...getObjectInLine([selectedIrrigationLine.pressureIn], AppConstants.pressureSensorObjectId),
       if(selectedIrrigationLine.pressureOut != 0.0)
-        ...getObjectInLine([selectedIrrigationLine.pressureOut], 24),
+        ...getObjectInLine([selectedIrrigationLine.pressureOut], AppConstants.pressureSensorObjectId),
       if(selectedIrrigationLine.pressureSwitch != 0.0)
-        ...getObjectInLine([selectedIrrigationLine.pressureSwitch], 23),
+        ...getObjectInLine([selectedIrrigationLine.pressureSwitch], AppConstants.pressureSwitchObjectId),
       if(selectedIrrigationLine.powerSupply != 0.0)
-        ...getObjectInLine([selectedIrrigationLine.powerSupply], 42),
+        ...getObjectInLine([selectedIrrigationLine.powerSupply], AppConstants.pressureSwitchObjectId),
     ];
     return childrenWidget.isEmpty ? Container() : Container(
       padding: const EdgeInsets.symmetric(horizontal: 5),

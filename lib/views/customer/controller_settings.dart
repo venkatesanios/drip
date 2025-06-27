@@ -22,6 +22,7 @@ import '../../modules/fertilizer_set/view/fertilizer_Set_screen.dart';
 import '../../modules/global_limit/view/global_limit_screen.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
+import '../../utils/constants.dart';
 import '../mobile/general_setting.dart';
 
 class ControllerSettings extends StatelessWidget {
@@ -92,16 +93,21 @@ class ControllerSettings extends StatelessWidget {
 
   Widget _buildMobileView(BuildContext context, ControllerSettingsViewModel viewModel) {
     return Scaffold(
-      body: ListView.builder(
+      body: ListView.separated(
         itemCount: viewModel.filteredSettingList.length,
+        separatorBuilder: (context, index) => const Padding(
+          padding: EdgeInsets.only(left: 50, top: 5),
+          child: Divider(height : 0, thickness: 0.5, color: Colors.black12),
+        ),
         itemBuilder: (context, index) {
-          final title = viewModel.filteredSettingList[index]['title'];
+          final item = viewModel.filteredSettingList[index];
+          final title = item['title'];
 
           return ListTile(
             visualDensity: const VisualDensity(vertical: -4),
             isThreeLine: true,
             leading: Icon(
-              viewModel.filteredSettingList[index]['icon'],
+              item['icon'],
               color: Theme.of(context).primaryColor,
             ),
             title: Text(
@@ -109,7 +115,7 @@ class ControllerSettings extends StatelessWidget {
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             subtitle: Text(
-              getSubTitle(title),
+              AppConstants.getSettingsSummary(title),
               style: const TextStyle(color: Colors.black45),
             ),
             trailing: const Icon(Icons.chevron_right),
@@ -265,22 +271,4 @@ class ControllerSettings extends StatelessWidget {
     );
   }
 
-  String getSubTitle(String title) {
-    switch (title) {
-      case 'General':
-        return 'Includes controller name, category, model, version, and UTC time settings.';
-      case 'Preference':
-        return 'Configure pump settings, voltage, current limits, timers, and calibration.';
-      case 'Name':
-        return 'Change names of pumps, sensors, filters, and other components.';
-      case 'Condition Library':
-        return 'Sensor-based conditions such as moisture, pressure, time-based triggers, and program ON/OFF logic.';
-        case 'Pump Condition':
-        return 'Pump-based conditions such as  program ON/OFF logic.';
-      case 'Controller Log':
-        return 'Controller live trace and Logs';
-      default:
-        return 'No additional information available.';
-    }
-  }
 }

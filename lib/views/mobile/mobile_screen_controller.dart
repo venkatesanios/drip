@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart' hide BluetoothDevice;
-import 'package:oro_drip_irrigation/Screens/Dealer/controllerlogfile.dart';
 import 'package:oro_drip_irrigation/Screens/Dealer/sevicecustomer.dart';
 import 'package:oro_drip_irrigation/Screens/Logs/irrigation_and_pump_log.dart';
 import 'package:oro_drip_irrigation/modules/ScheduleView/view/schedule_view_screen.dart';
@@ -30,6 +29,7 @@ import '../../utils/routes.dart';
 import '../../utils/shared_preferences_helper.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../account_settings.dart';
+import '../customer/app_info.dart';
 import '../customer/controller_settings.dart';
 import '../customer/customer_home.dart';
 import '../customer/customer_product.dart';
@@ -212,9 +212,7 @@ class MobileScreenController extends StatelessWidget {
               bottom: PreferredSize(
                 preferredSize: const Size.fromHeight(50),
                 child: Container(
-                  color: Theme
-                      .of(context)
-                      .primaryColor,
+                  color: Theme.of(context).primaryColor,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 7.0),
                     child: SingleChildScrollView(
@@ -332,7 +330,14 @@ class MobileScreenController extends StatelessWidget {
                     title: const Text("App Info",
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     trailing: const Icon(Icons.keyboard_arrow_right_rounded),
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AppInfo(),
+                        ),
+                      );
+                    },
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 40, right: 25),
@@ -858,7 +863,7 @@ class MobileScreenController extends StatelessWidget {
                       } else {
                         return const Center(
                           child: Text(
-                            'Make sure your phone is paired with the controller, then tap the refresh icon to try again',
+                            'Stay close to the controller and tap refresh to try scanning again.',
                             style: TextStyle(fontSize: 12, color: Colors.black38),
                           ),
                         );
@@ -1306,8 +1311,6 @@ class _BluetoothScanTileState extends State<BluetoothScanTile>
       vsync: this,
       duration: const Duration(seconds: 1),
     );
-
-    // Use linear curve for smooth, continuous rotation
     _rotationAnimation = Tween(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
@@ -1318,20 +1321,14 @@ class _BluetoothScanTileState extends State<BluetoothScanTile>
 
   Future<void> startScan() async {
     if (isScanning) return;
-
     setState(() {
       isScanning = true;
     });
-
     _controller.repeat();
-
-
-    await widget.vm.blueService.getDevices(); // Now it waits 10 seconds
-
+    await widget.vm.blueService.getDevices(widget.vm.mySiteList.data[widget.vm.sIndex].master[widget.vm.mIndex].deviceId);
     setState(() {
       isScanning = false;
     });
-
     _controller.stop();
   }
 

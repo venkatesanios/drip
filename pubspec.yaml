@@ -1,25 +1,14 @@
 name: oro_drip_irrigation
 description: "A new Flutter project."
-# The following line prevents the package from being accidentally published to
-# pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: 'none'
 version: 1.0.0+1
 
 environment:
   sdk: '>=3.4.4 <4.0.0'
 
-# Dependencies specify other packages that your package needs in order to work.
-# To automatically upgrade your package dependencies to the latest versions
-# consider running `flutter pub upgrade --major-versions`. Alternatively,
-# dependencies can be manually updated by changing the version numbers below to
-# the latest version available on pub.dev. To see which dependencies have newer
-# versions available, run `flutter pub outdated`.
 dependencies:
   flutter:
     sdk: flutter
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
   provider: ^6.0.5
   linked_scroll_controller: ^0.2.0
@@ -83,27 +72,19 @@ dependencies:
     path: lib/plugins/flutter_bluetooth_serial
   crypto: ^3.0.6
   image_picker: ^1.1.2
-
+  animated_text_kit: ^4.2.3
+#  audioplayers: ^6.5.0
+#  record: ^6.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   flutter_lints: ^3.0.0
   flutter_flavorizr: ^2.2.3
 
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
-
-# The following section is specific to Flutter packages.
 flutter:
-
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
-
-  # To add assets to your application, add an assets section, like this:
+  generate: true
   assets:
     - assets/json/
     - assets/Images/
@@ -113,8 +94,8 @@ flutter:
     - assets/Images/Svg/Oro/
     - assets/Images/Svg/SmartComm/
     - assets/Images/Png/
-    - assets/Images/Png/SmartComm/
     - assets/Images/Png/Oro/
+    - assets/Images/Png/SmartComm/
     - assets/png/
     - assets/svg_images/
     - assets/SVGPicture/
@@ -130,41 +111,27 @@ flutter:
     - assets/.env
     - assets/ssh/smartComm/id_rsa
     - assets/localfile/Testing
+#  fonts:
+#    - family: NotoSans
+#      fonts:
+##        - asset: fonts/NotoSans-Regular.ttf
+#        - asset: assets/fonts/NotoSansTamil-Regular.ttf
+#        - asset: assets/fonts/NotoSansDevanagari-Regular.ttf
+#        - asset: assets/fonts/NotoSansMalayalam-Regular.ttf
+#        - asset: assets/fonts/NotoSansTelugu-Regular.ttf
+#        - asset: assets/fonts/NotoSansKannada-Regular.ttf
 
 flutter_launcher_icons:
-    android: true
-    ios: true
-    image_path: "assets/playstore.png"
-    adaptive_icon_background: "#FFFFFF"
-    adaptive_icon_foreground: "assets/oro_store.png"
-  # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/assets-and-images/#resolution-aware
+  android: true
+  ios: true
+  image_path: "assets/playstore.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/oro_store.png"
 
-  # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/assets-and-images/#from-packages
-
-  # To add custom fonts to your application, add a fonts section here,
-  # in this "flutter" section. Each entry in this list should have a
-  # "family" key with the font family name, and a "fonts" key with a
-  # list giving the asset and other descriptors for the font. For
-  # example:
-  #  fonts:
-  #    - family: ZuumeRough
-  #      fonts:
-  #        - asset: assets/fonts/fontspring-demo-zuumerough-bold.otf
-  #          weight: 700
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
-  #
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/custom-fonts/#from-packages
 flavorizr:
   app:
     android:
-      flavorDimensions: "flavor-type" # <-- Recommended to define this globally
+      flavorDimensions: "flavor-type"
     ios:
       targets:
         Runner:
@@ -175,21 +142,13 @@ flavorizr:
         name: "ORO"
       android:
         applicationId: "com.niagaraautomations.oroDevelopment"
-    #      ios:
-    #        bundleId: "com.niagaraautomations.apple"
     oroProduction:
       app:
         name: "ORO"
       android:
         applicationId: "com.niagaraautomations.oroDripirrigation"
-    #      ios:
-    #        bundleId: "com.niagaraautomations.apple"
     smartComm:
       app:
         name: "SMART COMM"
       android:
         applicationId: "com.niagaraautomations.SmartComm"
-#      ios:
-#        bundleId: "com.niagaraautomations.banana"
-#      macos:
-#        bundleId: "com.niagaraautomations.banana"

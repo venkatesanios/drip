@@ -152,7 +152,8 @@ class BluService {
     return utf8.encode(traceChunk).length;
   }
 
-  Future<void> getDevices() async {
+  Future<void> getDevices(String deviceId) async {
+    print(deviceId);
     _devices.clear();
     await FlutterBluetoothSerial.instance.cancelDiscovery();
     await requestPermissions();
@@ -161,7 +162,7 @@ class BluService {
     final subscription = FlutterBluetoothSerial.instance.startDiscovery().listen((result) {
       final device = result.device;
 
-      if ((device.name?.startsWith('NIA_') ?? false)) {
+      if ((device.name?.contains(deviceId) ?? false)) {
         final exists = _devices.any((d) => d.address == device.address);
         if (!exists) {
           _devices.add(device);

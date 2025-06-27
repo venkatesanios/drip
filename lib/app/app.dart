@@ -33,9 +33,6 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-
-
-
   /// Decide the initial route based on whether a token exists
   Future<String> getInitialRoute() async {
     try {
@@ -71,7 +68,7 @@ class _MyAppState extends State<MyApp> {
           theme: isOro ? OroTheme.lightTheme : SmartCommTheme.lightTheme,
           darkTheme: isOro ? OroTheme.darkTheme : SmartCommTheme.darkTheme,
           themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          // home: ConfigBasePage(masterData: {"userId":3,"customerId":6,"controllerId":9,"productId":9,"deviceId":"2CCF6773D07D","deviceName":"xMm","categoryId":1,"categoryName":"xMm","modelId":1,"modelName":"xMm1000ROOO","groupId":2,"groupName":"Testing site","connectingObjectId":["1","2","3","4","-"]}),
+          // home: ConfigBasePage(masterData: {"userId":7,"customerId":12,"controllerId":54,"productId":53,"deviceId":"9C956EC7AA51","deviceName":"ORO GEM","categoryId":1,"categoryName":"ORO GEM","modelId":3,"modelName":"xMm1000ROOE","groupId":10,"groupName":"Production Testing","connectingObjectId":["1","2","3","4","7","10","11","13","14","22","23","24","26","40","41"]}),
           home: navigateToInitialScreen(snapshot.data ?? Routes.login),
           onGenerateRoute: Routes.generateRoute,
         );

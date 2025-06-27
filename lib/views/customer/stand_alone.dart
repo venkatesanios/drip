@@ -259,7 +259,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                         SizedBox(
                           width: 175,
                           child: DropdownButtonFormField(
-                            dropdownColor: Colors.blue,
+                            dropdownColor: Theme.of(context).primaryColorLight,
                             value: viewModel.programList.isNotEmpty
                                 ? viewModel.programList[viewModel.ddCurrentPosition]
                                 : null,
@@ -296,7 +296,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                             backgroundColor: WidgetStateProperty.resolveWith<Color?>(
                                   (Set<WidgetState> states) {
                                 if (states.contains(MaterialState.selected)) {
-                                  return Colors.blue; // Background when selected
+                                  return Theme.of(context).primaryColorLight; // Background when selected
                                 }
                                 return Colors.white; // Default background
                               },
@@ -309,9 +309,9 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                                 return Colors.black; // Text/Icon color by default
                               },
                             ),
-                            overlayColor: MaterialStateProperty.all(Colors.blue.withOpacity(0.1)), // Ripple effect
-                            surfaceTintColor: MaterialStateProperty.all(Colors.white), // Background surface tint
-                            side: MaterialStateProperty.all(BorderSide(color: Colors.grey.shade300)), // Border
+                            overlayColor: WidgetStateProperty.all(Theme.of(context).primaryColorLight.withOpacity(0.1)), // Ripple effect
+                            surfaceTintColor: WidgetStateProperty.all(Colors.white), // Background surface tint
+                            side: WidgetStateProperty.all(BorderSide(color: Colors.grey.shade300)), // Border
                           ),
                           segments: const <ButtonSegment<SegmentWithFlow>>[
                             ButtonSegment<SegmentWithFlow>(
@@ -362,7 +362,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                             backgroundColor: WidgetStateProperty.resolveWith<Color?>(
                                   (Set<WidgetState> states) {
                                 if (states.contains(MaterialState.selected)) {
-                                  return Colors.blue; // Background when selected
+                                  return Theme.of(context).primaryColorLight; // Background when selected
                                 }
                                 return Colors.white; // Default background
                               },
@@ -375,7 +375,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                                 return Colors.black; // Text/Icon color by default
                               },
                             ),
-                            overlayColor: MaterialStateProperty.all(Colors.blue.withOpacity(0.1)), // Ripple effect
+                            overlayColor: MaterialStateProperty.all(Theme.of(context).primaryColorLight.withOpacity(0.1)), // Ripple effect
                             surfaceTintColor: MaterialStateProperty.all(Colors.white), // Background surface tint
                             side: MaterialStateProperty.all(BorderSide(color: Colors.grey.shade300)), // Border
                           ),
@@ -453,7 +453,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
               body: Container(
                 width: MediaQuery.sizeOf(context).width,
                 height: MediaQuery.sizeOf(context).height,
-                color: Colors.white,
+                color: Theme.of(context).scaffoldBackgroundColor,
                 child: Column(
                   children: [
                     Expanded(
@@ -530,33 +530,33 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
 
     return Column(
       children: [
-
         if(vm.ddCurrentPosition==0)...[
           allSourcePumps.isNotEmpty ? Padding(
-            padding: const EdgeInsets.only(left: 8, right: 5, top: 8),
+            padding: const EdgeInsets.only(left: 12, right: 12, top: 8),
             child: Column(
               children: [
                 SizedBox(
-                  height: allSourcePumps.length*40+48,
+                  height: (allSourcePumps.length*40)+51,
                   child: Card(
+                    color: Colors.white,
                     elevation: 1,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5.0), // Adjust the value as needed
+                      borderRadius: BorderRadius.circular(5.0),
                     ),
                     child: Column(
                       children: [
                         Container(
                           width: MediaQuery.of(context).size.width,
-                          height: 40,
+                          height: 35,
                           decoration: BoxDecoration(
-                            color: Colors.teal.shade50, // Background color (optional)
+                            color: Theme.of(context).primaryColorLight.withOpacity(0.1),
                             borderRadius: const BorderRadius.only(
                               topLeft: Radius.circular(5.0),
                               topRight: Radius.circular(5.0),
                             ),
                           ),
                           child: const Padding(
-                            padding: EdgeInsets.only(left: 10.0, top: 8.0, bottom: 8.0), // Adjust values as needed
+                            padding: EdgeInsets.only(left: 10.0, top: 7),
                             child: Text(
                               'Source Pump',
                               textAlign: TextAlign.left,
@@ -571,7 +571,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                             minWidth: 150,
                             dataRowHeight: 40.0,
                             headingRowHeight: 0,
-                            headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withOpacity(0.05)),
+                            dataRowColor: WidgetStateProperty.all(Colors.white),
                             columns: const [
                               DataColumn2(
                                 label: Center(child: Text('', style: TextStyle(fontSize: 14),)),
@@ -585,7 +585,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                                 label: Center(
                                   child: Text('', textAlign: TextAlign.right,),
                                 ),
-                                fixedWidth: 70,
+                                fixedWidth: 50,
                               ),
                             ],
                             rows: List<DataRow>.generate(allSourcePumps.length, (index) => DataRow(cells: [
@@ -621,12 +621,13 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
         ],
 
         allIrrigationPumps.isNotEmpty ? Padding(
-          padding: const EdgeInsets.only(left: 8, right: 5, top: 8),
+          padding: const EdgeInsets.only(left: 12, right: 12, top: 8),
           child: Column(
             children: [
               SizedBox(
-                height: allIrrigationPumps.length*40+48,
+                height: (allIrrigationPumps.length*40)+51,
                 child: Card(
+                  color: Colors.white,
                   elevation: 1,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5.0), // Adjust the value as needed
@@ -652,50 +653,53 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                         ),
                       ),
                       SizedBox(
-                        height: allIrrigationPumps.length*40,
-                        child: DataTable2(
-                          columnSpacing: 12,
-                          horizontalMargin: 12,
-                          minWidth: 150,
-                          dataRowHeight: 40.0,
-                          headingRowHeight: 0,
-                          headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withOpacity(0.05)),
-                          columns: const [
-                            DataColumn2(
-                              label: Center(child: Text('', style: TextStyle(fontSize: 14),)),
-                              fixedWidth: 35,
-                            ),
-                            DataColumn2(
-                                label: Text('',  style: TextStyle(fontSize: 14),),
-                                size: ColumnSize.M
-                            ),
-                            DataColumn2(
-                              label: Center(
-                                child: Text('', textAlign: TextAlign.right,),
+                        height: (allIrrigationPumps.length*40)+3,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 3,bottom: 3, right: 3),
+                          child: DataTable2(
+                            columnSpacing: 12,
+                            horizontalMargin: 12,
+                            minWidth: 150,
+                            dataRowHeight: 40.0,
+                            headingRowHeight: 0,
+                            dataRowColor: WidgetStateProperty.all(Colors.white),
+                            columns: const [
+                              DataColumn2(
+                                label: Center(child: Text('', style: TextStyle(fontSize: 14),)),
+                                fixedWidth: 35,
                               ),
-                              fixedWidth: 70,
-                            ),
-                          ],
-                          rows: List<DataRow>.generate(allIrrigationPumps.length, (index) => DataRow(cells: [
-                            DataCell(Center(child: Image.asset('assets/png/dp_pump.png',width: 30, height: 30,))),
-                            DataCell(Text(allIrrigationPumps[index].name, style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14))),
-                            DataCell(Transform.scale(
-                              scale: 0.7,
-                              child: Tooltip(
-                                message: allIrrigationPumps[index].selected? 'Deselect' : 'Select',
-                                child: Switch(
-                                  hoverColor: Colors.pink.shade100,
-                                  activeColor: Colors.teal,
-                                  value: allIrrigationPumps[index].selected,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      allIrrigationPumps[index].selected = value;
-                                    });
-                                  },
+                              DataColumn2(
+                                  label: Text('',  style: TextStyle(fontSize: 14),),
+                                  size: ColumnSize.M
+                              ),
+                              DataColumn2(
+                                label: Center(
+                                  child: Text('', textAlign: TextAlign.right,),
                                 ),
+                                fixedWidth: 50,
                               ),
-                            )),
-                          ])),
+                            ],
+                            rows: List<DataRow>.generate(allIrrigationPumps.length, (index) => DataRow(cells: [
+                              DataCell(Center(child: Image.asset('assets/png/dp_pump.png',width: 30, height: 30,))),
+                              DataCell(Text(allIrrigationPumps[index].name, style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14))),
+                              DataCell(Transform.scale(
+                                scale: 0.7,
+                                child: Tooltip(
+                                  message: allIrrigationPumps[index].selected? 'Deselect' : 'Select',
+                                  child: Switch(
+                                    hoverColor: Colors.pink.shade100,
+                                    activeColor: Colors.teal,
+                                    value: allIrrigationPumps[index].selected,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        allIrrigationPumps[index].selected = value;
+                                      });
+                                    },
+                                  ),
+                                ),
+                              )),
+                            ])),
+                          ),
                         ),
                       ),
                     ],
@@ -749,9 +753,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                             minWidth: 150,
                             dataRowHeight: 40.0,
                             headingRowHeight: 0,
-                            headingRowColor: WidgetStateProperty.all<Color>(
-                              Theme.of(context).primaryColor.withOpacity(0.05),
-                            ),
+                            dataRowColor: WidgetStateProperty.all(Colors.white),
                             columns: const [
                               DataColumn2(
                                 label: Center(child: Text('', style: TextStyle(fontSize: 14))),
@@ -763,7 +765,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                               ),
                               DataColumn2(
                                 label: Center(child: Text('', textAlign: TextAlign.right)),
-                                fixedWidth: 70,
+                                fixedWidth: 50,
                               ),
                             ],
                             rows: site.filters.map((filter) {
@@ -853,9 +855,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                             minWidth: 150,
                             dataRowHeight: 40.0,
                             headingRowHeight: 0,
-                            headingRowColor: WidgetStateProperty.all<Color>(
-                              Theme.of(context).primaryColor.withOpacity(0.05),
-                            ),
+                            dataRowColor: WidgetStateProperty.all(Colors.white),
                             columns: const [
                               DataColumn2(
                                 label: Center(child: Text('', style: TextStyle(fontSize: 14))),
@@ -867,7 +867,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                               ),
                               DataColumn2(
                                 label: Center(child: Text('', textAlign: TextAlign.right)),
-                                fixedWidth: 70,
+                                fixedWidth: 50,
                               ),
                             ],
                             rows: site.channel.map((channel) {
@@ -913,9 +913,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                             minWidth: 150,
                             dataRowHeight: 40.0,
                             headingRowHeight: 0,
-                            headingRowColor: WidgetStateProperty.all<Color>(
-                              Theme.of(context).primaryColor.withOpacity(0.05),
-                            ),
+                            dataRowColor: WidgetStateProperty.all(Colors.white),
                             columns: const [
                               DataColumn2(
                                 label: Center(child: Text('', style: TextStyle(fontSize: 14))),
@@ -927,7 +925,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                               ),
                               DataColumn2(
                                 label: Center(child: Text('', textAlign: TextAlign.right)),
-                                fixedWidth: 70,
+                                fixedWidth: 50,
                               ),
                             ],
                             rows: site.boosterPump.map((boosterPump) {
@@ -973,9 +971,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                             minWidth: 150,
                             dataRowHeight: 40.0,
                             headingRowHeight: 0,
-                            headingRowColor: WidgetStateProperty.all<Color>(
-                              Theme.of(context).primaryColor.withOpacity(0.05),
-                            ),
+                            dataRowColor: WidgetStateProperty.all(Colors.white),
                             columns: const [
                               DataColumn2(
                                 label: Center(child: Text('', style: TextStyle(fontSize: 14))),
@@ -987,7 +983,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                               ),
                               DataColumn2(
                                 label: Center(child: Text('', textAlign: TextAlign.right)),
-                                fixedWidth: 70,
+                                fixedWidth: 50,
                               ),
                             ],
                             rows: site.agitator.map((agitator) {
@@ -1042,20 +1038,18 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
             if (line.name == 'All irrigation line') return const SizedBox();
 
             return Padding(
-              padding: const EdgeInsets.only(left: 5, right: 5, bottom: 5),
+              padding: const EdgeInsets.only(left: 12, right: 12, bottom: 5),
               child: Card(
+                color: Colors.white,
                 elevation: 1,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5.0),
-                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
                       width: double.infinity,
-                      height: 40,
+                      height: 35,
                       decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor.withOpacity(0.1),
+                        color: Theme.of(context).primaryColorLight.withOpacity(0.1),
                         borderRadius: const BorderRadius.only(
                           topRight: Radius.circular(5),
                           topLeft: Radius.circular(5),
@@ -1065,7 +1059,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                         children: [
                           Expanded(
                             child: Padding(
-                              padding: const EdgeInsets.only(left: 10, top: 10, right: 5),
+                              padding: const EdgeInsets.only(left: 10, right: 5),
                               child: Text(line.name, textAlign: TextAlign.left),
                             ),
                           ),
@@ -1078,8 +1072,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                                   scale: 0.7,
                                   child: Switch(
                                     value: true,
-                                    hoverColor: Colors.pink.shade100,
-                                    activeColor: Colors.teal,
+                                    activeColor: Theme.of(context).primaryColorLight,
                                     onChanged: (value) {},
                                   ),
                                 ),
@@ -1090,49 +1083,50 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                       ),
                     ),
                     SizedBox(
-                      height: line.valveObjects.length*40,
-                      child: DataTable2(
-                        columnSpacing: 12,
-                        horizontalMargin: 12,
-                        minWidth: 150,
-                        dataRowHeight: 40.0,
-                        headingRowHeight: 0,
-                        headingRowColor: WidgetStateProperty.all<Color>(
-                          Theme.of(context).primaryColor.withOpacity(0.05),
-                        ),
-                        columns: const [
-                          DataColumn2(label: Center(child: Text('')), fixedWidth: 30),
-                          DataColumn2(label: Text('Name'), size: ColumnSize.M),
-                          DataColumn2(
-                            label: Center(child: Text('Valve Status')),
-                            fixedWidth: 70,
-                          ),
-                        ],
-                        rows: List<DataRow>.generate(line.valveObjects.length, (valveIndex) {
-                          final valve = line.valveObjects[valveIndex];
-                          return DataRow(cells: [
-                            DataCell(Center(child: Image.asset('assets/png/valve_gray.png', width: 25, height: 25))),
-                            DataCell(Text(valve.name)),
-                            DataCell(
-                              Transform.scale(
-                                scale: 0.7,
-                                child: Tooltip(
-                                  message: valve.isOn ? 'Close' : 'Open',
-                                  child: Switch(
-                                    hoverColor: Colors.pink.shade100,
-                                    activeColor: Colors.teal,
-                                    value: valve.isOn,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        valve.isOn = value;
-                                      });
-                                    },
+                      height: (line.valveObjects.length*40)+3,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left:3, right:3, bottom: 3),
+                        child: DataTable2(
+                          columnSpacing: 12,
+                          horizontalMargin: 12,
+                          minWidth: 150,
+                          dataRowHeight: 40.0,
+                          headingRowHeight: 0,
+                          dataRowColor: WidgetStateProperty.all(Colors.white),
+                          columns: const [
+                            DataColumn2(label: Center(child: Text('')), fixedWidth: 30),
+                            DataColumn2(label: Text('Name'), size: ColumnSize.M),
+                            DataColumn2(
+                              label: Center(child: Text('Valve Status')),
+                              fixedWidth: 50,
+                            ),
+                          ],
+                          rows: List<DataRow>.generate(line.valveObjects.length, (valveIndex) {
+                            final valve = line.valveObjects[valveIndex];
+                            return DataRow(cells: [
+                              DataCell(Center(child: Image.asset('assets/png/valve_gray.png', width: 25, height: 25))),
+                              DataCell(Text(valve.name)),
+                              DataCell(
+                                Transform.scale(
+                                  scale: 0.7,
+                                  child: Tooltip(
+                                    message: valve.isOn ? 'Close' : 'Open',
+                                    child: Switch(
+                                      hoverColor: Colors.pink.shade100,
+                                      activeColor: Colors.teal,
+                                      value: valve.isOn,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          valve.isOn = value;
+                                        });
+                                      },
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ]);
-                        }),
+                            ]);
+                          }),
+                        ),
                       ),
                     ),
                   ],
@@ -1202,9 +1196,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                         minWidth: 150,
                         dataRowHeight: 40,
                         headingRowHeight: 0,
-                        headingRowColor: WidgetStateProperty.all<Color>(
-                          Theme.of(context).primaryColor.withOpacity(0.05),
-                        ),
+                        dataRowColor: WidgetStateProperty.all(Colors.white),
                         columns: const [
                           DataColumn2(label: Center(child: Text('')), fixedWidth: 30),
                           DataColumn2(label: Center(child: Text('Name')), size: ColumnSize.M),

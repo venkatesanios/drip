@@ -188,7 +188,7 @@ class _ProductLimitGridListTileState extends State<ProductLimitGridListTile> wit
           visible = false;
         }
       }
-      else if([15, 16, 17, 18, 19, 20, 21].contains(objectId)){
+      else if([15, 16, 17, 18, 20, 21].contains(objectId)){
         bool gemModel3Available = widget.configPvd.listOfDeviceModel.any((device) => (device.categoryId == 4 && device.modelId == 3));
         if(!gemModel3Available){
           visible = false;

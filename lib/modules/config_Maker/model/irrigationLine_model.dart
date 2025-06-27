@@ -11,8 +11,11 @@ class IrrigationLineModel{
   double localFertilization;
   List<double> valve;
   List<double> mainValve;
+  List<double> light;
+  List<double> gate;
   List<double> fan;
   List<double> fogger;
+  List<double> mist;
   List<double> pesticides;
   List<double> heater;
   List<double> screen;
@@ -39,8 +42,11 @@ class IrrigationLineModel{
     this.localFertilization = 0.00,
     required this.valve,
     required this.mainValve,
+    required this.light,
+    required this.gate,
     required this.fan,
     required this.fogger,
+    required this.mist,
     required this.pesticides,
     required this.heater,
     required this.screen,
@@ -73,8 +79,11 @@ class IrrigationLineModel{
         localFertilization: intOrDoubleValidate(data['localFertilization']),
         valve: (data['valve'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         mainValve: (data['mainValve'] as List<dynamic>).map((sNo) => sNo as double).toList(),
+        light: data['light'] == null ? [] : (data['light'] as List<dynamic>).map((sNo) => sNo as double).toList(),
+        gate: data['gate'] == null ? [] : (data['gate'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         fan: (data['fan'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         fogger: (data['fogger'] as List<dynamic>).map((sNo) => sNo as double).toList(),
+        mist: data['mist'] == null ? [] : (data['mist'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         pesticides: (data['pesticides'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         heater: (data['heater'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         screen: (data['screen'] as List<dynamic>).map((sNo) => sNo as double).toList(),
@@ -104,8 +113,11 @@ class IrrigationLineModel{
       'localFertilization' : localFertilization,
       'valve' : valve,
       'mainValve' : mainValve,
+      'light' : light,
+      'gate' : gate,
       'fan' : fan,
       'fogger' : fogger,
+      'mist' : mist,
       'pesticides' : pesticides,
       'heater' : heater,
       'screen' : screen,
@@ -130,8 +142,11 @@ class IrrigationLineModel{
     irrigationPump = irrigationPump.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
     valve = valve.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
     mainValve = mainValve.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
+    light = light.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
+    gate = gate.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
     fan = fan.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
     fogger = fogger.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
+    mist = mist.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
     pesticides = pesticides.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
     heater = heater.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
     screen = screen.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
@@ -161,5 +176,5 @@ double intOrDoubleValidate(value){
   }
 }
 
-enum LineParameter{source, sourcePump, irrigationPump, centralFiltration, localFiltration, centralFertilization, localFertilization, valve, mainValve, fan, fogger, pesticides, heater, screen, vent, powerSupply, pressureSwitch, waterMeter, pressureIn, pressureOut, moisture, temperature, soilTemperature, humidity, co2}
+enum LineParameter{source, sourcePump, irrigationPump, centralFiltration, localFiltration, centralFertilization, localFertilization, valve, mainValve, light, gate, fan, fogger,mist, pesticides, heater, screen, vent, powerSupply, pressureSwitch, waterMeter, pressureIn, pressureOut, moisture, temperature, soilTemperature, humidity, co2}
 

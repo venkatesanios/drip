@@ -103,7 +103,7 @@ class CustomerScreenController extends StatelessWidget {
                     }).toList(),
                     onChanged: (siteName) => vm.siteOnChanged(siteName!),
                     value: vm.myCurrentSite,
-                    dropdownColor: Colors.teal,
+                    dropdownColor: Theme.of(context).primaryColorLight,
                     iconEnabledColor: Colors.white,
                     iconDisabledColor: Colors.white,
                     focusColor: Colors.transparent,

@@ -33,7 +33,10 @@ class CustomerDeviceListViewModel extends ChangeNotifier {
   final TextEditingController textFieldSiteDisc = TextEditingController();
   final formKey = GlobalKey<FormState>();
 
-  CustomerDeviceListViewModel(this.repository, this.userId, this.customerId, this.stockLength) {
+  final Function(String) onProductUpdatedCallback;
+
+  CustomerDeviceListViewModel(this.repository, this.userId, this.customerId,
+      this.stockLength, {required this.onProductUpdatedCallback}) {
     _initialize();
   }
 
@@ -107,7 +110,7 @@ class CustomerDeviceListViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> addProductToCustomer(BuildContext context, List<StockModel> productStockList, Function(Map<String, dynamic>) onDeviceListAdded) async {
+  Future<void> addProductToCustomer(BuildContext context, List<StockModel> productStockList) async {
     List<Map<String, String>> selectedProductList = [];
     List<DeviceListModel> newDevices = [];
     for (int i = 0; i < stockLength; i++) {
@@ -122,7 +125,7 @@ class CustomerDeviceListViewModel extends ChangeNotifier {
           model: productStockList[i].model,
           modifyDate: productStockList[i].dtOfMnf,
           productId: productStockList[i].productId,
-          productStatus: 2,
+          productStatus: 3,
           siteName: '',
         ));
       }
@@ -143,10 +146,7 @@ class CustomerDeviceListViewModel extends ChangeNotifier {
           final Map<String, dynamic> jsonData = jsonDecode(response.body);
           if(jsonData["code"] == 200){
             customerDeviceList.insertAll(0, newDevices);
-            onDeviceListAdded({
-              "status" :'success',
-              "products": selectedProductList,
-            });
+            onProductUpdatedCallback('added');
           }
         }
       } catch (error, stackTrace) {
@@ -326,6 +326,34 @@ class CustomerDeviceListViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> removeProductFromCustomer(int productId) async
+  {
+    Map<String, dynamic> body = {
+      "userId": customerId,
+      "dealerId": userId,
+      "productId": productId,
+      "modifyUser": userId,
+    };
+
+    try {
+      var response = await repository.removeProductFromCustomer(body);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonData = jsonDecode(response.body);
+        if(jsonData["code"] == 200){
+          customerDeviceList.removeWhere((device) => device.productId == productId);
+          notifyListeners();
+          onProductUpdatedCallback('removed');
+        }
+      }
+    } catch (error, stackTrace) {
+      debugPrint('Error fetching Product stock: $error');
+      debugPrint(stackTrace.toString());
+    } finally {
+      notifyListeners();
+    }
+  }
+
 
   @override
   void dispose() {

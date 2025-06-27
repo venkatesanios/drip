@@ -58,6 +58,13 @@ class _ConnectionGridListTileState extends State<ConnectionGridListTile> with Si
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _controller.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

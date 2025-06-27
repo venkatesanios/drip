@@ -265,10 +265,10 @@ class _StockEntryState extends State<StockEntry> {
                                                   },
                                                   child: const Text('Cancel'),
                                                 ),
-                                                /*TextButton(
-                                                onPressed: () => viewModel.addProductStock(userId, context),
+                                                TextButton(
+                                                onPressed: () => viewModel.addProductStock(widget.userId, context),
                                                 child: const Text('Save'),
-                                              ),*/
+                                              ),
                                               ],
                                             );
                                           },

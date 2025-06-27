@@ -1,18 +1,23 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:intl/intl.dart';
+import 'dart:convert';
 
 import '../model/message_model.dart';
 
-class MessageBubble extends StatelessWidget {
+class MessageBubble extends StatefulWidget {
   final Message message;
 
   const MessageBubble({super.key, required this.message});
 
   @override
+  State<MessageBubble> createState() => _MessageBubbleState();
+}
+
+class _MessageBubbleState extends State<MessageBubble> {
+  @override
   Widget build(BuildContext context) {
-    final isUser = message.role == 'user';
+    final isUser = widget.message.role == 'user';
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Column(
@@ -60,13 +65,13 @@ class MessageBubble extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (message.isImage)
+                    if (widget.message.isImage)
                       GestureDetector(
-                        onTap: () => _showFullImage(context, message.content),
+                        onTap: () => _showFullImage(context, widget.message.content),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(10),
                           child: Image.memory(
-                            base64Decode(message.content),
+                            base64Decode(widget.message.content),
                             width: 150,
                             height: 150,
                             fit: BoxFit.cover,
@@ -74,22 +79,46 @@ class MessageBubble extends StatelessWidget {
                           ),
                         ),
                       ),
-                    if (message.text != null || !message.isImage)
+                    if (widget.message.text != null || !widget.message.isImage)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
-                        child: Text(
-                          message.isImage ? message.text! : message.content,
-                          style: TextStyle(
-                            color: isUser ? Colors.white : Colors.black87,
+                        child: isUser
+                            ? Text(
+                          widget.message.isImage
+                              ? widget.message.text!
+                              : widget.message.content,
+                          style: const TextStyle(
+                            color: Colors.white,
                             fontSize: 16,
                           ),
+                        )
+                            : AnimatedTextKit(
+                          animatedTexts: [
+                            TypewriterAnimatedText(
+                              widget.message.isImage
+                                  ? widget.message.text!
+                                  : widget.message.content,
+                              textStyle: const TextStyle(
+                                color: Colors.black87,
+                                fontSize: 16,
+                              ),
+                              speed: Duration(milliseconds: widget.message.enableAnimation ? 10 : 0),
+                            ),
+                          ],
+                          totalRepeatCount: 1,
+                          onFinished: () {
+                            setState(() {
+                              widget.message.enableAnimation = false;
+                            });
+                            // widget.onAnimationCompleted?.call(widget.message);
+                          },
                         ),
                       ),
-                    if (message.source != null)
+                    if (widget.message.source != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
                         child: Text(
-                          'Source: ${message.source}',
+                          'Source: ${widget.message.source}',
                           style: TextStyle(
                             fontSize: 10,
                             color: isUser ? Colors.white70 : Colors.grey[600],
@@ -100,7 +129,7 @@ class MessageBubble extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(top: 4),
                       child: Text(
-                        DateFormat('h:mm a').format(message.timestamp),
+                        DateFormat('h:mm a').format(widget.message.timestamp),
                         style: TextStyle(
                           fontSize: 10,
                           color: isUser ? Colors.white70 : Colors.grey[600],
