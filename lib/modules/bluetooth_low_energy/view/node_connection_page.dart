@@ -51,7 +51,7 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
       };
       var nodeBluetoothResponse = await BleRepository().getNodeBluetoothSetting(body);
       Map<String, dynamic> nodeJsonData = jsonDecode(nodeBluetoothResponse.body);
-      bleService.editNodeDataFromServer(nodeJsonData['data']['default']);
+      bleService.editNodeDataFromServer(nodeJsonData['data']['default'], widget.nodeData);
       if(nodeJsonData['code'] == 200){
         if (mounted) {
           _checkRequirements();

@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/utils/extra.dart';
+import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:path_provider/path_provider.dart';
 import '../../../services/sftp_service.dart';
 import '../utils/snackbar.dart';
@@ -131,9 +132,16 @@ class BleProvider extends ChangeNotifier {
   /* server variable*/
   Map<String, dynamic> nodeDataFromServer = {};
   String nodeFirmwareFileName = '';
+  Map<String, dynamic> nodeData = {};
 
-  void editNodeDataFromServer(data){
+  void editNodeDataFromServer(data, nodeData){
     nodeDataFromServer = data;
+    nodeData = nodeData;
+    if(AppConstants.ecoGemModelList.contains(nodeData['modelId'])){
+      nodeDataFromServer['pathSetting']['downloadDirectory'] = "/home/ubuntu/FTP/download/EC25/";
+    }else if(AppConstants.pumpWithValveModelList.contains(nodeData['modelId'])){
+      nodeDataFromServer['pathSetting']['downloadDirectory'] = "/home/ubuntu/FTP/download/PUMP_VALVE/";
+    }
     notifyListeners();
   }
 

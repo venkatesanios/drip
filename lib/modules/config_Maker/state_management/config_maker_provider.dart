@@ -247,6 +247,8 @@ class ConfigMakerProvider extends ChangeNotifier{
           }else{
             listOfSampleObjectModel.add(DeviceObjectModel.fromJson(oldObject));
           }
+        }else{
+          listOfSampleObjectModel.add(mapToDeviceObject(obj));
         }
         if(configMakerData['connectionCount'].isNotEmpty){
           var oldObject = (configMakerData['connectionCount'] as List<dynamic>).firstWhere(
@@ -258,6 +260,8 @@ class ConfigMakerProvider extends ChangeNotifier{
           }else{
             listOfObjectModelConnection.add(DeviceObjectModel.fromJson(oldObject));
           }
+        }else{
+          listOfObjectModelConnection.add(mapToDeviceObject(obj));
         }
       }
       List<double> generatedSno = [];
