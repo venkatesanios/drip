@@ -82,7 +82,10 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
         case MqttConnectionState.connected:
           debugPrint("MQTT Connected! Callback");
           _isReconnecting = false;
-          _subscribeToDeviceTopic();
+          Future.delayed(const Duration(milliseconds: 1000), () {
+            _subscribeToDeviceTopic();
+          });
+
           break;
 
         case MqttConnectionState.connecting:
@@ -97,7 +100,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     });
   }
 
-  Future<void> _handleReconnection() async {
+  /*Future<void> _handleReconnection() async {
     if (_isReconnecting || mqttService.isConnected) return;
 
     _isReconnecting = true;
@@ -117,24 +120,34 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     }
 
     _isReconnecting = false;
-  }
+  }*/
 
   void _subscribeToDeviceTopic() async {
-    if(mySiteList.data.isNotEmpty){
-      final deviceId = mySiteList.data[sIndex].master[mIndex].deviceId;
-      if (deviceId.isEmpty) {
-        debugPrint("No device ID found");
-        return;
-      }
 
-      final topic = '${AppConstants.subscribeTopic}/$deviceId';
-      await mqttService.topicToSubscribe(topic);
-
-      Future.delayed(const Duration(seconds: 2), onRefreshClicked);
-    }else{
-      print('site data fetching from server...');
+    if (mqttService.mqttConnectionState != MqttConnectionState.connected) {
+      debugPrint("MQTT client not yet connected properly.");
+      return;
     }
 
+    if (mySiteList.data.isEmpty) {
+      print('Site data fetching from server...');
+      return;
+    }
+
+    final deviceId = mySiteList.data[sIndex].master[mIndex].deviceId;
+    if (deviceId.isEmpty) {
+      debugPrint("No device ID found");
+      return;
+    }
+
+    final topic = '${AppConstants.subscribeTopic}/$deviceId';
+
+    try {
+      await mqttService.topicToSubscribe(topic);
+      Future.delayed(const Duration(seconds: 2), onRefreshClicked);
+    } catch (e) {
+      debugPrint("MQTT Subscribe failed: $e");
+    }
   }
 
   void updateLivePayload(int ws, String liveDataAndTime, List<String> cProgram, List<String> linePauseResume) {
@@ -284,12 +297,12 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   Future<void> onRefreshClicked() async {
     if (!mqttService.isConnected) {
       debugPrint("MQTT not connected. Attempting to reconnect...");
-      await _handleReconnection();
+      _initializeMqttConnection();
 
-      if (!mqttService.isConnected) {
+     /* if (!mqttService.isConnected) {
         debugPrint("Failed to reconnect to MQTT.");
         return;
-      }
+      }*/
     }
 
     if (mySiteList.data.isEmpty ||

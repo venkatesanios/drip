@@ -182,6 +182,7 @@ class AppConstants {
   static const String sumpFirst = "dp_sump_first.png";
   static const String sumpCenter = "dp_sump_center.png";
   static const String sumpLast = "dp_sump_last.png";
+  static const String sumpFirstCWS = "dp_sump_first_cws.png";
 
   static const String pumpOFF = "dp_irr_pump.png";
   static const String pumpON = "dp_irr_pump_g.gif";
@@ -216,6 +217,11 @@ class AppConstants {
   static const String valveLjON = "valve_green_lj.png";
   static const String valveLjNotON = "valve_orange_lj.png";
   static const String valveLjNotOFF = "valve_red_lj.png";
+
+  static const String valveCwsOFF = "valve_gray_cws.png";
+  static const String valveCwsON = "valve_green_cws.png";
+  static const String valveCwsNotON = "valve_orange_cws.png";
+  static const String valveCwsNotOFF = "valve_red_cws.png";
 
   static const Map<UserRole, String> formTitle = {
     UserRole.admin: "Dealer Account Form",
@@ -319,6 +325,9 @@ class AppConstants {
       case 'valve_lj':
         imagePathFinal = _getValveLjImagePath(keyTwo);
         break;
+      case 'valve_cws':
+        imagePathFinal = _getValveCWSImagePath(keyTwo);
+        break;
 
       default:
         imagePathFinal = '';
@@ -347,6 +356,8 @@ class AppConstants {
         return type==4?boreWellCenter:type==3?wellCenter:sumpCenter;
       case 'Last':
         return type==3?wellLast:sumpLast;
+      case 'After Valve':
+        return sumpFirstCWS;
       default:
         return '';
     }
@@ -492,6 +503,21 @@ class AppConstants {
         return valveLjNotON;
       case 3:
         return valveLjNotOFF;
+      default:
+        return '';
+    }
+  }
+
+  static String _getValveCWSImagePath(int status) {
+    switch (status) {
+      case 0:
+        return valveCwsOFF;
+      case 1:
+        return valveCwsON;
+      case 2:
+        return valveCwsNotON;
+      case 3:
+        return valveCwsNotOFF;
       default:
         return '';
     }

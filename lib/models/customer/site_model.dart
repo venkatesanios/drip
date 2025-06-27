@@ -344,8 +344,9 @@ class IrrigationLineModel {
     );
 
     final valveSNoSet = ((json['valve'] as List?) ?? []).map((e) => e).toSet();
-    final valves = configObjects.where((obj) => valveSNoSet.contains(obj.sNo))
-        .map(ValveModel.fromConfigObject)
+    final valves = configObjects
+        .where((obj) => valveSNoSet.contains(obj.sNo))
+        .map((obj) => ValveModel.fromConfigObject(obj, waterSources))
         .toList();
 
     final Map<double, List<MoistureSensorModel>> valveToMoistureSensors = {};
@@ -1088,7 +1089,7 @@ class SensorModel {
 class ValveModel {
   final double sNo;
   final String name;
-  //final List<WaterSourceModel> waterSources;
+  final List<WaterSourceModel> waterSources;
   int status;
   bool isOn;
   List<MoistureSensorModel> moistureSensors = [];
@@ -1096,19 +1097,32 @@ class ValveModel {
   ValveModel({
     required this.sNo,
     required this.name,
-    //required this.waterSources,
+    required this.waterSources,
     this.status = 0,
     this.isOn = false,
   });
 
-  factory ValveModel.fromConfigObject(ConfigObject obj) {
+  factory ValveModel.fromConfigObject(ConfigObject obj, List<WaterSourceModel> ws) {
 
-    /*List<double> assignedSNos = (obj.assignObject ?? [])
+    List<double> assignedSNos = (obj.assignObject ?? [])
         .map((e) => (e as num).toDouble())
         .toList();
 
+    List<WaterSourceModel> sources = [];
+
+    if (assignedSNos.isNotEmpty) {
+      for (var val in assignedSNos) {
+        int integerPart = val.floor();
+        if (integerPart == 1) {
+          sources = ws.where((source) => assignedSNos.contains(source.sNo))
+              .toList();
+          break;
+        }
+      }
+    }
+
     print('assignedSNos:$assignedSNos');
-    print('object name:${obj.name}');*/
+    print('object name:${obj.name}');
 
 
     /*List<WaterSourceModel> sources = configObjects
@@ -1119,7 +1133,7 @@ class ValveModel {
     return ValveModel(
       sNo: obj.sNo,
       name: obj.name,
-      //waterSources: sources,
+      waterSources: sources,
     );
   }
 
