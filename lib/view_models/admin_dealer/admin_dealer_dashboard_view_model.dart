@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 class AdminAndDealerDashboardViewModel extends ChangeNotifier {
   final Repository repository;
 
+  final int userId, userType;
   List<StockModel> productStockList = [];
   List<CustomerListModel> myCustomerList = [];
   List<CustomerListModel> filteredCustomerList = [];
@@ -30,7 +31,7 @@ class AdminAndDealerDashboardViewModel extends ChangeNotifier {
 
   List<ProductCategoryModel> categoryList = <ProductCategoryModel>[];
 
-  AdminAndDealerDashboardViewModel(this.repository) {
+  AdminAndDealerDashboardViewModel(this.repository, this.userId, this.userType) {
     getCategoryList();
   }
 
@@ -94,7 +95,7 @@ class AdminAndDealerDashboardViewModel extends ChangeNotifier {
 
   // ------------------ STOCK ------------------
 
-  Future<void> getMyStock(int userId, int userType) async {
+  Future<void> getMyStock() async {
     _setLoadingSales(true);
 
     final body = {"userId": userId, "userType": userType};
@@ -147,7 +148,7 @@ class AdminAndDealerDashboardViewModel extends ChangeNotifier {
 
   // ------------------ CUSTOMERS ------------------
 
-  Future<void> getMyCustomers(int userId, int userType) async {
+  Future<void> getMyCustomers() async {
     _setLoadingCustomer(true);
 
     final body = {"userId": userId, "userType": userType};
@@ -243,5 +244,16 @@ class AdminAndDealerDashboardViewModel extends ChangeNotifier {
   void _setLoadingCustomer(bool loading) {
     isLoadingCustomerData = loading;
     notifyListeners();
+  }
+
+  void onCustomerProductChanged(String action) {
+    print(action);
+    switch (action) {
+      case 'added'||'removed':
+        getMyStock();
+        break;
+      case 'delete':
+        break;
+    }
   }
 }

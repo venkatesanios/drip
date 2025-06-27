@@ -45,6 +45,8 @@ class _FirmwareBLEPageState extends State<FirmwareBLEPage> {
   @override
   void initState() {
     super.initState();
+    mqttPayloadProvider =
+        Provider.of<MqttPayloadProvider>(context, listen: true);
   }
 
   Map<String, dynamic>? getFileInfo(String fileName) {

@@ -7,9 +7,9 @@ import 'package:oro_drip_irrigation/modules/open_ai/widget/chat_bubble.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../model/chat_model.dart';
 import '../model/message_model.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
 
 class AIChatScreen extends StatefulWidget {
   const AIChatScreen({super.key});
@@ -22,22 +22,37 @@ class _AIChatScreenState extends State<AIChatScreen> {
   List<Message> _messages = [];
   final ImagePicker _picker = ImagePicker();
   bool _isLoading = false;
+  bool _isListening = false;
   File? _selectedImage;
   String? _imageSource;
   List<Chat> _chatHistory = [];
   String _currentChatId = '';
   final ScrollController _scrollController = ScrollController();
+  String _selectedLanguage = "English";
+  Message? _editingMessage;
 
   @override
   void initState() {
     super.initState();
     _initPermissions();
     _loadChatHistory();
+    _loadLanguage();
+    // _initSpeech();
   }
 
   Future<void> _initPermissions() async {
-    await [Permission.camera, Permission.photos].request();
+    await [Permission.camera, Permission.photos, Permission.microphone].request();
   }
+
+  /*Future<void> _initSpeech() async {
+    bool available = await _speech.initialize(
+      onStatus: (status) => setState(() => _isListening = status == 'listening'),
+      onError: (error) => _showError('Speech recognition error: $error'),
+    );
+    if (!available) {
+      _showError('Speech recognition not available');
+    }
+  }*/
 
   Future<void> _loadChatHistory() async {
     final prefs = await SharedPreferences.getInstance();
@@ -68,7 +83,17 @@ class _AIChatScreenState extends State<AIChatScreen> {
 
   Future<void> _saveMessage(Message message) async {
     final prefs = await SharedPreferences.getInstance();
-    _messages.add(message);
+    setState(() {
+      if (_editingMessage != null && _editingMessage!.timestamp == message.timestamp) {
+        final index = _messages.indexWhere((m) => m.timestamp == message.timestamp);
+        if (index != -1) {
+          _messages[index] = message;
+        }
+        _editingMessage = null;
+      } else {
+        _messages.add(message);
+      }
+    });
     final messageList = _messages.map((msg) => jsonEncode(msg.toJson())).toList();
     await prefs.setStringList('messages_$_currentChatId', messageList);
     _updateChatHistory();
@@ -93,6 +118,8 @@ class _AIChatScreenState extends State<AIChatScreen> {
               : _messages.first.text!)
               : _messages.first.isImage
               ? 'Image Message'
+              : _messages.first.isVoice
+              ? 'Voice Message'
               : (_messages.first.content.length > 30
               ? '${_messages.first.content.substring(0, 30)}...'
               : _messages.first.content),
@@ -140,6 +167,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
+        print('Max Scroll Extent: ${_scrollController.position.maxScrollExtent}');
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
           duration: const Duration(milliseconds: 300),
@@ -149,9 +177,8 @@ class _AIChatScreenState extends State<AIChatScreen> {
     });
   }
 
-
   Future<void> _sendMessage() async {
-    if (_controller.text.isEmpty && _selectedImage == null) return;
+    if (_controller.text.isEmpty && _selectedImage == null && !_isListening) return;
 
     setState(() => _isLoading = true);
 
@@ -165,21 +192,21 @@ class _AIChatScreenState extends State<AIChatScreen> {
           isImage: true,
           source: _imageSource,
           text: _controller.text.isNotEmpty ? _controller.text : null,
-          timestamp: DateTime.now(),
+          timestamp: _editingMessage?.timestamp ?? DateTime.now(),
           chatId: _currentChatId,
         );
         await _saveMessage(userMessage);
-        await _sendImageMessage(base64Image);
+        await _sendImageMessage(base64Image, userMessage);
         setState(() {
           _selectedImage = null;
           _imageSource = null;
           _controller.clear();
         });
-      } else {
+      } else if (_controller.text.isNotEmpty) {
         final userMessage = Message(
           role: 'user',
           content: _controller.text,
-          timestamp: DateTime.now(),
+          timestamp: _editingMessage?.timestamp ?? DateTime.now(),
           chatId: _currentChatId,
         );
         await _saveMessage(userMessage);
@@ -193,6 +220,35 @@ class _AIChatScreenState extends State<AIChatScreen> {
     }
   }
 
+  /*Future<void> _startListening() async {
+    if (_isListening) {
+      await _speech.stop();
+      setState(() => _isListening = false);
+    } else {
+      bool available = await _speech.initialize(
+        onStatus: (status) => setState(() => _isListening = status == 'listening'),
+        onError: (error) => _showError('Speech recognition error: $error'),
+      );
+      if (available) {
+        setState(() => _isListening = true);
+        _speech.listen(
+          onResult: (result) {
+            setState(() {
+              _controller.text = result.recognizedWords;
+              if (result.finalResult) {
+                _isListening = false;
+                _sendMessage();
+              }
+            });
+          },
+          localeId: _selectedLanguage.toLowerCase() == 'english' ? 'en_US' : 'ta_IN', // Add more mappings as needed
+        );
+      } else {
+        _showError('Speech recognition not available');
+      }
+    }
+  }*/
+
   Future<void> _sendTextMessage(String text) async {
     final uri = Uri.parse('https://api.openai.com/v1/chat/completions');
     final headers = {
@@ -202,26 +258,35 @@ class _AIChatScreenState extends State<AIChatScreen> {
     final body = jsonEncode({
       'model': 'gpt-3.5-turbo',
       'messages': [
+        {
+          "role": "system",
+          "content": "You are an expert crop advisor. Always respond only in $_selectedLanguage. Analyze any provided data and provide a detailed diagnosis of any visible crop issues. Give actionable recommendations to improve yield or treat the problem. Identify crop type and predict the days of the crop. Suggest crop advisory, fertilizer, and watering recommendations."
+        },
         {'role': 'user', 'content': text}
       ],
     });
 
-    final response = await http.post(uri, headers: headers, body: body);
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final assistantMessage = Message(
-        role: 'assistant',
-        content: data['choices'][0]['message']['content'],
-        timestamp: DateTime.now(),
-        chatId: _currentChatId,
-      );
-      await _saveMessage(assistantMessage);
-    } else {
-      _showError('Text request failed: ${response.statusCode}');
+    try {
+      final response = await http.post(uri, headers: headers, body: body).timeout(const Duration(seconds: 30));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final assistantMessage = Message(
+            role: 'assistant',
+            content: data['choices'][0]['message']['content'],
+            timestamp: DateTime.now(),
+            chatId: _currentChatId,
+            enableAnimation: true
+        );
+        await _saveMessage(assistantMessage);
+      } else {
+        _showError('Text request failed: ${response.statusCode}');
+      }
+    } catch (e) {
+      _showError('Network error: $e');
     }
   }
 
-  Future<void> _sendImageMessage(String base64Image) async {
+  Future<void> _sendImageMessage(String base64Image, Message userMessage) async {
     final headers = {
       'Authorization': 'Bearer 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', // Replace with your API key
       'Content-Type': 'application/json',
@@ -229,6 +294,10 @@ class _AIChatScreenState extends State<AIChatScreen> {
     final body = jsonEncode({
       'model': 'gpt-4o-mini',
       'messages': [
+        {
+          "role": "system",
+          "content": "You are an expert crop advisor. Your name is Niagara AI. Analyze the uploaded image and provide a detailed diagnosis of any visible crop issues. Give actionable recommendations to improve yield or treat the problem, even if image is the only data available. Identify crop type and predict the days of the crop. Suggest crop advisory, fertilizer, and watering recommendations in $_selectedLanguage."
+        },
         {
           'role': 'user',
           'content': [
@@ -238,7 +307,9 @@ class _AIChatScreenState extends State<AIChatScreen> {
             },
             {
               'type': 'text',
-              'text': _controller.text.isNotEmpty ? _controller.text : 'What is in this image?',
+              'text': userMessage.text?.isNotEmpty == true
+                  ? "${userMessage.text} Please analyze this image and help me diagnose my crop issue and suggest improvements. Identify crop type and predict the days of the crop. Suggest crop advisory, fertilizer, and watering recommendations in $_selectedLanguage."
+                  : "Please analyze this image and help me diagnose my crop issue and suggest improvements. Identify crop type and predict the days of the crop. Suggest crop advisory, fertilizer, and watering recommendations in $_selectedLanguage.",
             },
           ],
         },
@@ -246,20 +317,24 @@ class _AIChatScreenState extends State<AIChatScreen> {
       'max_tokens': 300,
     });
 
-    final uri = Uri.parse('https://api.openai.com/v1/chat/completions');
-    final response = await http.post(uri, headers: headers, body: body);
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final assistantMessage = Message(
-        role: 'assistant',
-        content: data['choices'][0]['message']['content'],
-        timestamp: DateTime.now(),
-        chatId: _currentChatId,
-      );
-      await _saveMessage(assistantMessage);
-    } else {
-      _showError('Image request failed: ${response.statusCode}');
+    try {
+      final uri = Uri.parse('https://api.openai.com/v1/chat/completions');
+      final response = await http.post(uri, headers: headers, body: body).timeout(const Duration(seconds: 30));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final assistantMessage = Message(
+            role: 'assistant',
+            content: data['choices'][0]['message']['content'],
+            timestamp: DateTime.now(),
+            chatId: _currentChatId,
+            enableAnimation: true
+        );
+        await _saveMessage(assistantMessage);
+      } else {
+        _showError('Image request failed: ${response.statusCode}');
+      }
+    } catch (e) {
+      _showError('Network error: $e');
     }
   }
 
@@ -288,8 +363,64 @@ class _AIChatScreenState extends State<AIChatScreen> {
       SnackBar(
         content: Text(message),
         backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
       ),
     );
+  }
+
+  Future<void> _loadLanguage() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _selectedLanguage = prefs.getString("language") ?? "English";
+    });
+  }
+
+  Future<void> _setLanguage(String lang) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString("language", lang);
+    setState(() {
+      _selectedLanguage = lang;
+    });
+  }
+
+  void _showLanguageDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Select Language"),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: ["English", "Tamil", "Tanglish", "Hindi", "Malayalam", "Telugu", "Kannada"].map((lang) {
+              return RadioListTile<String>(
+                title: Text(lang),
+                value: lang,
+                groupValue: _selectedLanguage,
+                onChanged: (value) {
+                  if (value != null) {
+                    _setLanguage(value);
+                    Navigator.pop(context);
+                  }
+                },
+              );
+            }).toList(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _editMessage(Message message) {
+    setState(() {
+      _editingMessage = message;
+      _controller.text = message.text ?? message.content;
+    });
   }
 
   @override
@@ -298,20 +429,26 @@ class _AIChatScreenState extends State<AIChatScreen> {
       endDrawer: Drawer(
         child: Column(
           children: [
-            const DrawerHeader(
-              child: Align(
+            DrawerHeader(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Theme.of(context).primaryColor, Colors.blueAccent],
+                ),
+              ),
+              child: const Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'Chat History',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
                 ),
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.add),
+              leading: const Icon(Icons.add, color: Colors.blue),
               title: const Text('New Chat'),
               onTap: () {
                 Navigator.pop(context);
@@ -321,16 +458,18 @@ class _AIChatScreenState extends State<AIChatScreen> {
             Expanded(
               child: ListView.builder(
                 itemCount: _chatHistory.length,
+                controller: _scrollController,
                 itemBuilder: (context, index) {
                   final chat = _chatHistory[index];
                   return ListTile(
                     leading: const Icon(Icons.chat),
                     title: Text(chat.title),
                     subtitle: Text(
-                      DateFormat('MMM d, yyyy').format(chat.lastModified),
+                      DateFormat('MMM d, yyyy HH:mm').format(chat.lastModified),
                       style: const TextStyle(fontSize: 12),
                     ),
                     selected: chat.id == _currentChatId,
+                    selectedTileColor: Colors.grey[200],
                     onTap: () {
                       setState(() {
                         _currentChatId = chat.id;
@@ -345,8 +484,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
                           context: context,
                           builder: (_) => AlertDialog(
                             title: const Text('Delete Chat'),
-                            content: const Text(
-                                'Are you sure you want to delete this chat?'),
+                            content: const Text('Are you sure you want to delete this chat?'),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
@@ -375,18 +513,43 @@ class _AIChatScreenState extends State<AIChatScreen> {
         ),
       ),
       appBar: AppBar(
-        title: const Text('AI Assistant'),
+        title: const Text('Crop Advisor AI'),
+        elevation: 0,
+        /*flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Theme.of(context).primaryColor, Colors.blueAccent],
+            ),
+          ),
+        ),*/
         actions: [
-          Builder(
-            builder: (BuildContext context) {
-              return IconButton(
-                icon: const Icon(Icons.history),
-                onPressed: () {
-                  Scaffold.of(context).openEndDrawer();
-                },
-                tooltip: 'Open Chat History',
-              );
-            },
+          Container(
+            height: 40,
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColorLight,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(25),
+                bottomLeft: Radius.circular(25),
+              ),
+            ),
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed: _showLanguageDialog,
+                  icon: const Icon(Icons.language_outlined),
+                  tooltip: 'Change Language',
+                ),
+                Builder(
+                  builder: (BuildContext context) {
+                    return IconButton(
+                      onPressed: () => Scaffold.of(context).openEndDrawer(),
+                      icon: const Icon(Icons.history),
+                      tooltip: 'Chat History',
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -394,15 +557,37 @@ class _AIChatScreenState extends State<AIChatScreen> {
         children: [
           Expanded(
             child: _messages.isEmpty
-                ? const Center(child: Text('Start chatting!'))
+                ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.chat_bubble_outline, size: 50, color: Colors.grey[400]),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Start chatting with your Crop Advisor!',
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                  ),
+                ],
+              ),
+            )
                 : ListView.builder(
+              controller: _scrollController,
               itemCount: _messages.length + (_isLoading ? 1 : 0),
+              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 16),
               itemBuilder: (context, index) {
                 if (_isLoading && index == _messages.length) {
                   return const Center(child: CircularProgressIndicator());
                 }
                 final message = _messages[index];
-                return MessageBubble(message: message);
+                return GestureDetector(
+                  onLongPress: message.role == 'user' && !message.isImage
+                      ? () => _editMessage(message)
+                      : null,
+                  child: MessageBubble(
+                    key: ValueKey(message.timestamp.toString()),
+                    message: message,
+                  ),
+                );
               },
             ),
           ),
@@ -410,7 +595,16 @@ class _AIChatScreenState extends State<AIChatScreen> {
             controller: _controller,
             onSend: _sendMessage,
             onPickImage: _pickImage,
+            onStartListening: (){},
+            isListening: _isListening,
             selectedImage: _selectedImage,
+            isEditing: _editingMessage != null,
+            onCancelEdit: () {
+              setState(() {
+                _editingMessage = null;
+                _controller.clear();
+              });
+            },
           ),
         ],
       ),
@@ -422,46 +616,61 @@ class ChatInputField extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback onSend;
   final Function(ImageSource) onPickImage;
+  final VoidCallback onStartListening;
+  final bool isListening;
   final File? selectedImage;
+  final bool isEditing;
+  final VoidCallback onCancelEdit;
 
   const ChatInputField({
     super.key,
     required this.controller,
     required this.onSend,
     required this.onPickImage,
+    required this.onStartListening,
+    required this.isListening,
     this.selectedImage,
+    required this.isEditing,
+    required this.onCancelEdit,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.all(8),
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(25),
-        boxShadow: [BoxShadow(color: Colors.grey[300]!, blurRadius: 5)],
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         children: [
-          if (selectedImage != null) // Show image preview if an image is selected
+          if (selectedImage != null)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Stack(
+                alignment: Alignment.centerLeft,
                 children: [
                   Image.file(
                     selectedImage!,
-                    height: 100,
-                    width: 100,
+                    height: 60,
+                    width: 60,
                     fit: BoxFit.cover,
                   ),
                   Positioned(
                     top: 0,
                     right: 0,
                     child: IconButton(
-                      icon: const Icon(Icons.close, color: Colors.red),
+                      icon: const Icon(Icons.close, color: Colors.red, size: 20),
                       onPressed: () {
-                        // Clear the selected image
                         (context as Element)
                             .findAncestorStateOfType<_AIChatScreenState>()
                             ?.setState(() {
@@ -481,20 +690,44 @@ class ChatInputField extends StatelessWidget {
           Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.attach_file),
+                icon: const Icon(Icons.attach_file, color: Colors.blue),
                 onPressed: () => _showAttachmentOptions(context),
+                tooltip: 'Attach',
               ),
+              /*IconButton(
+                icon: Icon(
+                  isListening ? Icons.mic : Icons.mic_none,
+                  color: isListening ? Colors.red : Colors.blue,
+                ),
+                onPressed: onStartListening,
+                tooltip: isListening ? 'Stop Recording' : 'Record Voice',
+              ),*/
               Expanded(
                 child: TextField(
                   controller: controller,
-                  decoration: const InputDecoration(
-                    hintText: 'Type a message...',
+                  maxLines: 4,
+                  minLines: 1,
+                  decoration: InputDecoration(
+                    hintText: isEditing ? 'Edit message...' : 'Type a message...',
                     border: InputBorder.none,
+                    suffixIcon: isEditing
+                        ? IconButton(
+                      icon: const Icon(Icons.cancel, color: Colors.red),
+                      onPressed: onCancelEdit,
+                    )
+                        : null,
                   ),
                   onSubmitted: (_) => onSend(),
                 ),
               ),
-              IconButton(icon: const Icon(Icons.send), onPressed: onSend),
+              IconButton(
+                icon: Icon(
+                  isEditing ? Icons.save : Icons.send,
+                  color: Colors.blue,
+                ),
+                onPressed: onSend,
+                tooltip: isEditing ? 'Save Edit' : 'Send',
+              ),
             ],
           ),
         ],
@@ -505,11 +738,14 @@ class ChatInputField extends StatelessWidget {
   void _showAttachmentOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (_) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
-            leading: const Icon(Icons.image),
+            leading: const Icon(Icons.image, color: Colors.blue),
             title: const Text('Gallery'),
             onTap: () {
               Navigator.pop(context);
@@ -517,7 +753,7 @@ class ChatInputField extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.camera_alt),
+            leading: const Icon(Icons.camera_alt, color: Colors.blue),
             title: const Text('Camera'),
             onTap: () {
               Navigator.pop(context);
@@ -525,6 +761,175 @@ class ChatInputField extends StatelessWidget {
             },
           ),
         ],
+      ),
+    );
+  }
+}
+
+class MessageBubble extends StatefulWidget {
+  final Message message;
+
+  const MessageBubble({super.key, required this.message});
+
+  @override
+  State<MessageBubble> createState() => _MessageBubbleState();
+}
+
+class _MessageBubbleState extends State<MessageBubble> {
+  @override
+  Widget build(BuildContext context) {
+    final isUser = widget.message.role == 'user';
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Column(
+        crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Text(
+              isUser ? 'You' : 'AI Assistant',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          Align(
+            alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width * 0.75,
+              ),
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: isUser
+                        ? [Theme.of(context).primaryColor, Colors.blueAccent]
+                        : [Colors.grey[200]!, Colors.grey[300]!],
+                  ),
+                  borderRadius: BorderRadius.circular(20).copyWith(
+                    bottomLeft: Radius.circular(isUser ? 20 : 5),
+                    bottomRight: Radius.circular(isUser ? 5 : 20),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.2),
+                      spreadRadius: 1,
+                      blurRadius: 3,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (widget.message.isImage)
+                      GestureDetector(
+                        onTap: () => _showFullImage(context, widget.message.content),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.memory(
+                            base64Decode(widget.message.content),
+                            width: 150,
+                            height: 150,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => const Icon(Icons.error),
+                          ),
+                        ),
+                      ),
+                    if (widget.message.text != null || !widget.message.isImage)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: isUser
+                            ? Text(
+                          widget.message.isImage
+                              ? widget.message.text!
+                              : widget.message.content,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        )
+                            : AnimatedTextKit(
+                          animatedTexts: [
+                            TypewriterAnimatedText(
+                              widget.message.isImage
+                                  ? widget.message.text!
+                                  : widget.message.content,
+                              textStyle: const TextStyle(
+                                color: Colors.black87,
+                                fontSize: 16,
+                              ),
+                              speed: Duration(milliseconds: widget.message.enableAnimation ? 10 : 0),
+                            ),
+                          ],
+                          totalRepeatCount: 1,
+                          /*displayFullTextOnTap: true,
+                          stopPauseOnTap: true,*/
+                          onFinished: () {
+                            setState(() {
+                              widget.message.enableAnimation = false;
+                            });
+                            /*(context as Element)
+                                .findAncestorStateOfType<_AIChatScreenState>()
+                                ?._scrollToBottom();*/
+                            // widget.onAnimationCompleted?.call(widget.message);
+                          },
+                        ),
+                      ),
+                    if (widget.message.source != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          'Source: ${widget.message.source}',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: isUser ? Colors.white70 : Colors.grey[600],
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        DateFormat('h:mm a').format(widget.message.timestamp),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: isUser ? Colors.white70 : Colors.grey[600],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showFullImage(BuildContext context, String base64Image) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.9,
+            maxHeight: MediaQuery.of(context).size.height * 0.9,
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.memory(
+              base64Decode(base64Image),
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) => const Icon(Icons.error),
+            ),
+          ),
+        ),
       ),
     );
   }

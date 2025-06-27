@@ -50,6 +50,12 @@ class MasterControllerModel {
   final String categoryName;
   final int modelId;
   final String modelName;
+  final int interfaceTypeId;
+  final String interface;
+  final int relayOutput;
+  final int latchOutput;
+  final int analogInput;
+  final int digitalInput;
   int? communicationMode;
   List<ConfigObject> configObjects;
   List<NodeListModel> nodeList;
@@ -74,6 +80,12 @@ class MasterControllerModel {
     required this.programList,
     required this.live,
     required this.configObjects,
+    required this.interfaceTypeId,
+    required this.interface,
+    required this.relayOutput,
+    required this.latchOutput,
+    required this.analogInput,
+    required this.digitalInput,
   });
 
   factory MasterControllerModel.fromJson(Map<String, dynamic> json) {
@@ -193,6 +205,12 @@ class MasterControllerModel {
           .map((prgList) => ProgramList.fromJson(prgList))
           .toList()
           : [],
+        interfaceTypeId: int.parse(json['interfaceTypeId'] != "-" ? json['interfaceTypeId'] : '0') ?? 0,
+        interface: json['interface'] ?? '',
+        relayOutput: int.parse(json['relayOutput'] != "-" ? json['relayOutput'] : '0'),
+        latchOutput: int.parse(json['latchOutput'] != "-" ? json['latchOutput'] : '0'),
+        analogInput: int.parse(json['analogInput'] != "-" ? json['analogInput'] : '0'),
+        digitalInput: int.parse(json['digitalInput'] != "-" ? json['digitalInput'] : '0'),
     );
   }
 

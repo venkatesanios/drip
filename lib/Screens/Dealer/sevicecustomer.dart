@@ -108,14 +108,14 @@ class _TicketHomePageState extends State<TicketHomePage> {
     if (_servicecustomerModel.data == null) {
       return const Center(
           child: Text(
-            'Currently no service Request available ',
+            'Currently no repository Request available ',
             style: TextStyle(fontWeight: FontWeight.normal, color: Colors.black),
           ));
     } else if (_servicecustomerModel.data!.dataDefault!.requestType!.length <=
         0) {
       return const Center(
           child: Text(
-            'Currently service Request Not available our Account',
+            'Currently repository Request Not available our Account',
             style: TextStyle(fontWeight: FontWeight.normal, color: Colors.black),
           ));
     } else {
