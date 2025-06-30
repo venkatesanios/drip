@@ -24,6 +24,7 @@ import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/constants.dart';
 import '../mobile/general_setting.dart';
+import 'crop_advisory_form.dart';
 
 class ControllerSettings extends StatelessWidget {
   const ControllerSettings({super.key,
@@ -254,6 +255,8 @@ class ControllerSettings extends StatelessWidget {
         );
       case 'Controller Log':
         return ControllerLog(deviceID: masterController.deviceId, communicationType: 'MQTT',);
+      case 'Crop Advisory':
+        return const CropAdvisoryForm();
       default:
         return const Center(child: Text('Coming Soon'));
     }

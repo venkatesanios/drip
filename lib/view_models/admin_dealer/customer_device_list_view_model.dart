@@ -118,6 +118,7 @@ class CustomerDeviceListViewModel extends ChangeNotifier {
         selectedProductList.add({
           "productId": productStockList[i].productId.toString(),
           "categoryName": productStockList[i].categoryName,
+          "modelName": productStockList[i].model,
         });
         newDevices.add(DeviceListModel(
           categoryName: productStockList[i].categoryName,

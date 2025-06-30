@@ -68,7 +68,7 @@ class _MyAppState extends State<MyApp> {
           theme: isOro ? OroTheme.lightTheme : SmartCommTheme.lightTheme,
           darkTheme: isOro ? OroTheme.darkTheme : SmartCommTheme.darkTheme,
           themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          // home: ConfigBasePage(masterData: {"userId":7,"customerId":12,"controllerId":54,"productId":53,"deviceId":"9C956EC7AA51","deviceName":"ORO GEM","categoryId":1,"categoryName":"ORO GEM","modelId":3,"modelName":"xMm1000ROOE","groupId":10,"groupName":"Production Testing","connectingObjectId":["1","2","3","4","7","10","11","13","14","22","23","24","26","40","41"]}),
+          // home: ConfigBasePage(masterData: {"userId":3,"customerId":13,"controllerId":56,"productId":55,"deviceId":"9C956EC78315","deviceName":"ORO PUMP","categoryId":2,"categoryName":"ORO PUMP","modelId":48,"modelName":"xMp1000GO3O","groupId":11,"groupName":"ORO THOTTAM","connectingObjectId":["5","13","-"]}),
           home: navigateToInitialScreen(snapshot.data ?? Routes.login),
           onGenerateRoute: Routes.generateRoute,
         );

@@ -7,6 +7,7 @@ class SiteModel {
   SiteModel({required this.data});
 
   factory SiteModel.fromJson(Map<String, dynamic> json) {
+    print('fromJson called');
     return SiteModel(
       data: List<Group>.from(json['data'].map((x) => Group.fromJson(x))),
     );
@@ -27,6 +28,7 @@ class Group {
   Group({required this.groupId, required this.groupName, required this.master});
 
   factory Group.fromJson(Map<String, dynamic> json) {
+
     return Group(
       groupId: json['userGroupId'],
       groupName: json['groupName'],
@@ -50,12 +52,14 @@ class MasterControllerModel {
   final String categoryName;
   final int modelId;
   final String modelName;
-  final int interfaceTypeId;
+
+  final String interfaceTypeId;
   final String interface;
-  final int relayOutput;
-  final int latchOutput;
-  final int analogInput;
-  final int digitalInput;
+  final String relayOutput;
+  final String latchOutput;
+  final String analogInput;
+  final String digitalInput;
+
   int? communicationMode;
   List<ConfigObject> configObjects;
   List<NodeListModel> nodeList;
@@ -63,7 +67,6 @@ class MasterControllerModel {
   List<ProgramList> programList;
   late final LiveMessage? live;
   final List<Unit> units;
-
 
   MasterControllerModel({
     required this.controllerId,
@@ -73,6 +76,15 @@ class MasterControllerModel {
     required this.categoryName,
     required this.modelId,
     required this.modelName,
+
+    required this.interfaceTypeId,
+    required this.interface,
+    required this.relayOutput,
+    required this.latchOutput,
+    required this.analogInput,
+    required this.digitalInput,
+
+
     required this.communicationMode,
     required this.units,
     required this.irrigationLine,
@@ -80,17 +92,10 @@ class MasterControllerModel {
     required this.programList,
     required this.live,
     required this.configObjects,
-    required this.interfaceTypeId,
-    required this.interface,
-    required this.relayOutput,
-    required this.latchOutput,
-    required this.analogInput,
-    required this.digitalInput,
+
   });
 
   factory MasterControllerModel.fromJson(Map<String, dynamic> json) {
-
-    print(json);
 
     final config = json['config'] ?? json;
 
@@ -189,6 +194,14 @@ class MasterControllerModel {
       categoryName: json['categoryName'] ?? '',
       modelId: json['modelId'] ?? 0,
       modelName: json['modelName'] ?? '',
+
+      interfaceTypeId: json['interfaceTypeId'] ?? '',
+      interface: json['interface'] ?? '',
+      relayOutput: json['relayOutput'] ?? '',
+      latchOutput: json['latchOutput'] ?? '',
+      analogInput: json['analogInput'] ?? '',
+      digitalInput: json['digitalInput'] ?? '',
+
       communicationMode: json['communicationMode'] ?? 1,
       configObjects: configObjectsR,
       units: json['units'] != null
@@ -205,12 +218,7 @@ class MasterControllerModel {
           .map((prgList) => ProgramList.fromJson(prgList))
           .toList()
           : [],
-        interfaceTypeId: int.parse(json['interfaceTypeId'] != "-" ? json['interfaceTypeId'] : '0') ?? 0,
-        interface: json['interface'] ?? '',
-        relayOutput: int.parse(json['relayOutput'] != "-" ? json['relayOutput'] : '0'),
-        latchOutput: int.parse(json['latchOutput'] != "-" ? json['latchOutput'] : '0'),
-        analogInput: int.parse(json['analogInput'] != "-" ? json['analogInput'] : '0'),
-        digitalInput: int.parse(json['digitalInput'] != "-" ? json['digitalInput'] : '0'),
+
     );
   }
 
@@ -336,8 +344,9 @@ class IrrigationLineModel {
     );
 
     final valveSNoSet = ((json['valve'] as List?) ?? []).map((e) => e).toSet();
-    final valves = configObjects.where((obj) => valveSNoSet.contains(obj.sNo))
-        .map(ValveModel.fromConfigObject)
+    final valves = configObjects
+        .where((obj) => valveSNoSet.contains(obj.sNo))
+        .map((obj) => ValveModel.fromConfigObject(obj, waterSources))
         .toList();
 
     final Map<double, List<MoistureSensorModel>> valveToMoistureSensors = {};
@@ -487,7 +496,7 @@ class ConfigObject {
   final String objectName;
   final int? controllerId;
   final double? location;
-  final int? connectionNo;
+  final List<double> assignObject;
   int status;
   bool selected;
   String onDelayLeft;
@@ -505,7 +514,7 @@ class ConfigObject {
     required this.objectName,
     this.controllerId,
     required this.location,
-    required this.connectionNo,
+    required this.assignObject,
     this.status=0,
     this.selected=false,
     this.onDelayLeft='00:00:00',
@@ -518,6 +527,15 @@ class ConfigObject {
   });
 
   factory ConfigObject.fromJson(Map<String, dynamic> json) {
+
+    List<double> parsedAssignObject = [];
+
+    if (json.containsKey("assignObject") && json["assignObject"] != null) {
+      parsedAssignObject = (json["assignObject"] as List)
+          .map((e) => (e as num).toDouble())
+          .toList();
+    }
+
     return ConfigObject(
       objectId: json['objectId'],
       sNo: (json['sNo'] as num).toDouble(),
@@ -525,7 +543,7 @@ class ConfigObject {
       objectName: json['objectName'],
       controllerId: json['controllerId'],
       location: (json['location'] is! double ? 0.0 : json['location']) ?? 0.0,
-      connectionNo: json['connectionNo'],
+      assignObject: parsedAssignObject,
     );
   }
 
@@ -537,7 +555,6 @@ class ConfigObject {
       'objectName': objectName,
       'controllerId': controllerId,
       'location': location,
-      'connectionNo': connectionNo,
     };
   }
 }
@@ -878,15 +895,11 @@ class Channel {
 class Ec {
   final double sNo;
   final String name;
-  final int? connectionNo;
-  final int? controllerId;
   String value;
 
   Ec({
     required this.sNo,
     required this.name,
-    required this.connectionNo,
-    required this.controllerId,
     this.value = '0',
   });
 
@@ -894,8 +907,6 @@ class Ec {
     return Ec(
       sNo: obj.sNo,
       name: obj.name,
-      connectionNo: obj.connectionNo,
-      controllerId: obj.controllerId
     );
   }
 
@@ -904,8 +915,6 @@ class Ec {
     return {
       'sNo': sNo,
       'name': name,
-      'connectionNo': connectionNo,
-      'controllerId': controllerId,
     };
   }
 
@@ -914,42 +923,31 @@ class Ec {
 class Ph {
   final double sNo;
   final String name;
-  final int? connectionNo;
-  final int? controllerId;
   String value;
 
   Ph({
     required this.sNo,
     required this.name,
-    required this.connectionNo,
-    required this.controllerId,
     this.value = '0',
   });
 
   factory Ph.fromConfigObject(ConfigObject obj) {
     return Ph(
-        sNo: obj.sNo,
-        name: obj.name,
-        connectionNo: obj.connectionNo,
-        controllerId: obj.controllerId
+      sNo: obj.sNo,
+      name: obj.name,
     );
   }
 
   factory Ph.fromJson(Map<String, dynamic> json) {
     return Ph(
       sNo: json['sNo'].toDouble(),
-      name: json['name'],
-      connectionNo: json['connectionNo'],
-      controllerId: json['controllerId'],
-    );
+      name: json['name'],);
   }
 
   Map<String, dynamic> toJson() {
     return {
       'sNo': sNo,
       'name': name,
-      'connectionNo': connectionNo,
-      'controllerId': controllerId,
     };
   }
 
@@ -1091,6 +1089,7 @@ class SensorModel {
 class ValveModel {
   final double sNo;
   final String name;
+  final List<WaterSourceModel> waterSources;
   int status;
   bool isOn;
   List<MoistureSensorModel> moistureSensors = [];
@@ -1098,14 +1097,43 @@ class ValveModel {
   ValveModel({
     required this.sNo,
     required this.name,
+    required this.waterSources,
     this.status = 0,
     this.isOn = false,
   });
 
-  factory ValveModel.fromConfigObject(ConfigObject obj) {
+  factory ValveModel.fromConfigObject(ConfigObject obj, List<WaterSourceModel> ws) {
+
+    List<double> assignedSNos = (obj.assignObject ?? [])
+        .map((e) => (e as num).toDouble())
+        .toList();
+
+    List<WaterSourceModel> sources = [];
+
+    if (assignedSNos.isNotEmpty) {
+      for (var val in assignedSNos) {
+        int integerPart = val.floor();
+        if (integerPart == 1) {
+          sources = ws.where((source) => assignedSNos.contains(source.sNo))
+              .toList();
+          break;
+        }
+      }
+    }
+
+    print('assignedSNos:$assignedSNos');
+    print('object name:${obj.name}');
+
+
+    /*List<WaterSourceModel> sources = configObjects
+        .where((source) => assignedSNos.contains(source.sNo))
+        .toList();*/
+
+
     return ValveModel(
       sNo: obj.sNo,
       name: obj.name,
+      waterSources: sources,
     );
   }
 
@@ -1207,7 +1235,6 @@ class LiveMessage {
   });
 
   factory LiveMessage.fromJson(Map<String, dynamic> json) {
-    print("json in the live message :: $json");
     return LiveMessage(
       cC: json['cC'],
       /* cM: json['cM'] is Map<String, dynamic> ? Map<String, dynamic>.from(json['cM'])

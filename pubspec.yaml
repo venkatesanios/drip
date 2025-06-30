@@ -111,15 +111,7 @@ flutter:
     - assets/.env
     - assets/ssh/smartComm/id_rsa
     - assets/localfile/Testing
-#  fonts:
-#    - family: NotoSans
-#      fonts:
-##        - asset: fonts/NotoSans-Regular.ttf
-#        - asset: assets/fonts/NotoSansTamil-Regular.ttf
-#        - asset: assets/fonts/NotoSansDevanagari-Regular.ttf
-#        - asset: assets/fonts/NotoSansMalayalam-Regular.ttf
-#        - asset: assets/fonts/NotoSansTelugu-Regular.ttf
-#        - asset: assets/fonts/NotoSansKannada-Regular.ttf
+
 
 flutter_launcher_icons:
   android: true

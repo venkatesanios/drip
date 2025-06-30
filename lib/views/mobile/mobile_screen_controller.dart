@@ -596,8 +596,35 @@ class MobileScreenController extends StatelessWidget {
                   backgroundColor: commMode == 1? Theme.of(context).primaryColorLight:
                   (commMode == 2 && vm.blueService.isConnected) ?
                   Theme.of(context).primaryColorLight : Colors.redAccent,
-                  onPressed: ()=>_showBottomSheet(context, vm, vm.mySiteList.data[vm.sIndex].master[vm
-                      .mIndex].controllerId),
+                  onPressed: (){
+                    if(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId==3){
+                      final Map<String, dynamic> data = {
+                        'controllerId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                        'deviceId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                        'deviceName': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceName,
+                        'categoryId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
+                        'categoryName': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
+                        'modelId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId,
+                        'modelName': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelName,
+                        'InterfaceType': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].interfaceTypeId,
+                        'interface': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].interface,
+                        'relayOutput': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].relayOutput,
+                        'latchOutput': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].latchOutput,
+                        'analogInput': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].analogInput,
+                        'digitalInput': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].digitalInput,
+                      };
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => NodeConnectionPage(
+                        nodeData: data,
+                        masterData: {
+                          "userId" : userId,
+                          "customerId" : customerId,
+                          "controllerId" : vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId
+                        },
+                      )));
+                    }else{
+                      _showBottomSheet(context, vm, vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId);
+                    }
+                  },
 
                   tooltip: 'Second Action',
                   child: commMode == 1?

@@ -222,7 +222,6 @@ class MqttPayloadProvider with ChangeNotifier {
    }
 
   void updateMapData(data){
-    print("updateMapData $data");
      mapModelInstance = MapConfigModel.fromJson(data);
     notifyListeners();
   }
@@ -266,7 +265,6 @@ class MqttPayloadProvider with ChangeNotifier {
 
 
   void editLineData(dynamic data){
-    // // print('editLineData : ${data}');
     lineData = [];
     for(var i in data){
       lineData.add(i);
@@ -459,11 +457,9 @@ class MqttPayloadProvider with ChangeNotifier {
           int onDelayCompleted = dataConvert.parseTimeString(i['DurationCompleted']);
           int leftDelay = onDelay - onDelayCompleted;
           i['DurationLeft'] = dataConvert.formatTime(leftDelay);
-          // // // print('${i['FilterStatus'][i['Status'] - 1]['Name']} => OnDelayLeft : ${i['DurationLeft']}');
           if(leftDelay > 0){
             onDelayCompleted += 1;
             i['DurationCompleted'] = dataConvert.formatTime(onDelayCompleted);
-            // // // print('${i['FilterStatus'][i['Status'] - 1]['Name']} => DurationCompleted : ${i['DurationCompleted']}');
           }else{
             i['DurationCompleted'] = '00:00:00';
             timerForCentralFiltration!.cancel();
@@ -489,11 +485,9 @@ class MqttPayloadProvider with ChangeNotifier {
           int onDelayCompleted = dataConvert.parseTimeString(i['DurationCompleted']);
           int leftDelay = onDelay - onDelayCompleted;
           i['DurationLeft'] = dataConvert.formatTime(leftDelay);
-          // // // print('${i['FilterStatus'][i['Status'] - 1]['Name']} => OnDelayLeft : ${i['DurationLeft']}');
           if(leftDelay > 0){
             onDelayCompleted += 1;
             i['DurationCompleted'] = dataConvert.formatTime(onDelayCompleted);
-            // // // print('${i['FilterStatus'][i['Status'] - 1]['Name']} => DurationCompleted : ${i['DurationCompleted']}');
           }else{
             i['DurationCompleted'] = '00:00:00';
             timerForLocalFiltration!.cancel();
@@ -580,7 +574,6 @@ class MqttPayloadProvider with ChangeNotifier {
           if(leftDelay > 0){
             onDelayCompleted += 1;
             i['OnDelayCompleted'] = dataConvert.formatTime(onDelayCompleted);
-            // // // print('${i['Name']} => OnDelayCompleted : ${i['OnDelayCompleted']}');
           }else{
             i['OnDelayCompleted'] = '00:00:00';
           }
@@ -617,9 +610,6 @@ class MqttPayloadProvider with ChangeNotifier {
    }
 
   void updateReceivedPayload(String newPayload, bool dataFromHttp) async{
-
-     print('newPayload --\n$newPayload');
-
     if (_receivedPayload != newPayload) {
        _receivedPayload = newPayload;
        if(!dataFromHttp) {
@@ -675,7 +665,6 @@ class MqttPayloadProvider with ChangeNotifier {
           viewSetting = data;
           if (!viewSettingsList.contains(jsonEncode(data['cM']))) {
             viewSettingsList.add(jsonEncode(data["cM"]));
-            // print("viewSettingsList ==> $viewSettingsList");
           }
         }
         if(data['cM'] is! List<dynamic>) {
@@ -685,7 +674,6 @@ class MqttPayloadProvider with ChangeNotifier {
         }
         if (data.containsKey("cM") && data["cM"] is! List) {
           Map cM = data["cM"];
-print('cM---> $cM');
           if (cM.containsKey("6601")) {
             String msg = cM["6601"];
             if (!scheduleMessagesSet.contains(msg)) {
@@ -706,7 +694,6 @@ print('cM---> $cM');
           if (cM.containsKey("6603")) {
             String msg = cM["6603"];
             if (!uard0MessagesSet.contains(msg)) {
-              print('\n6603 data-->$msg');
               uard0Log += "\n" + msg;
               uard0MessagesSet.add(msg);
             }
@@ -719,19 +706,9 @@ print('cM---> $cM');
               uard4MessagesSet.add(msg);
             }
           }
-          // print("cM---------->$cM ");
-          //   print("runtype ------${cM.runtimeType}");
-          // if (cM != null && cM.containsKey("6801")) {
-          //   mqttUpdateSettings = cM['6801'];
-          // }
-          // else
-          //   {
-          //
-          //   }
+
         }
-        // if(data['cM'].containsKey("6801")){
-        //   mqttUpdateSettings = data['cM']['6801'];
-        // }
+
         if(data['mC']=='7400'){
 
          String Loaraverssion = data['cM']['7401'];
@@ -801,7 +778,6 @@ print('cM---> $cM');
    void updatetracelog(status){
 
      traceLog = status;
-     print('traceLog-provider--$traceLog');
      notifyListeners();
    }
 

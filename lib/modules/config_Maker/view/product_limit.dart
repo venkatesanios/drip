@@ -78,9 +78,9 @@ class _ProductLimitState extends State<ProductLimit> {
     List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) {
       /* filter output object for pump with valve model*/
       if(AppConstants.pumpWithValveModelList.contains(widget.configPvd.masterData['modelId'])){
-        return  (widget.configPvd.masterData['categoryId'] != 2 ? object.type == '1,2' : [5, 13].contains(object.objectId));
+        return  (widget.configPvd.masterData['categoryId'] != 2 ? object.type == '1,2' : [AppConstants.pumpObjectId, AppConstants.valveObjectId].contains(object.objectId));
       }
-      return  (widget.configPvd.masterData['categoryId'] != 2 ? object.type == '1,2' : [5].contains(object.objectId));
+      return  (widget.configPvd.masterData['categoryId'] != 2 ? object.type == '1,2' : [AppConstants.pumpObjectId].contains(object.objectId));
     }).toList();
     return ProductLimitGridListTile(
       listOfObjectModel: filteredList,

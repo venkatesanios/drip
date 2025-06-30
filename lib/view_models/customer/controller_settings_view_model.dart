@@ -33,7 +33,9 @@ class ControllerSettingsViewModel extends ChangeNotifier {
     {'title': 'Geography Area', 'icon': Icons.map_sharp},
     {'title': 'Pump Condition', 'icon': Icons.library_books},
     {'title': 'Controller Log', 'icon': Icons.home_repair_service_outlined},
+    {'title': 'Crop Advisory', 'icon': Icons.agriculture_outlined},
   ];
+
 
   ControllerSettingsViewModel(this.repository);
 
@@ -60,11 +62,9 @@ class ControllerSettingsViewModel extends ChangeNotifier {
               'General',
               'Preference',
               'Name',
-             /* 'Calibration',
-              'Global Limit',
-              'Dealer Definition',*/
               'Geography',
               'Geography Area',
+              'Crop Advisory',
             };
             filteredSettingList = allSettings.where((setting) {
               final title = setting['title'];
@@ -78,6 +78,7 @@ class ControllerSettingsViewModel extends ChangeNotifier {
                   || setting['title'] == 'Geography Area'
                   || setting['title'] == 'Pump Condition'
                   || setting['title'] == 'Controller Log'
+                  || setting['title'] == 'Crop Advisory'
               ) {
                 return true;
               }
