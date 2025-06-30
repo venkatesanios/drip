@@ -179,4 +179,64 @@ class MyFunction {
     return msg;
   }
 
+  //my spacial function--------------------------------------------------------------
+  //---------------------------------------------------------------------------------
+  Set<String> items = {};
+  void addItem(String item) {
+    items.add(item); // Set automatically handles uniqueness.
+  }
+
+  final Map<IrrigationParams, double> _irrigationCache = {};
+
+  double calculateIrrigationTime(IrrigationParams params) {
+    if (_irrigationCache.containsKey(params)) {
+      return _irrigationCache[params]!; // Return cached
+    }
+
+    // Simulated complex calculation
+    double cropFactor = params.cropType == 'Rice' ? 1.5 : 1.0;
+    double soilFactor = params.soilType == 'Clay' ? 0.8 : 1.2;
+    double weatherFactor = params.weather == 'Hot' ? 1.4 : 1.0;
+    double moistureFactor = (100 - params.moistureLevel) / 100;
+
+    double time = params.area * cropFactor * soilFactor * weatherFactor * moistureFactor;
+
+    _irrigationCache[params] = time; // Store result
+    return time;
+  }
+
+}
+
+class IrrigationParams {
+  final String cropType;
+  final String soilType;
+  final double moistureLevel;
+  final String weather;
+  final double area;
+
+  IrrigationParams({
+    required this.cropType,
+    required this.soilType,
+    required this.moistureLevel,
+    required this.weather,
+    required this.area,
+  });
+
+  // To use as a Map key, we need proper equality and hashCode
+  @override
+  bool operator ==(Object other) =>
+      other is IrrigationParams &&
+          cropType == other.cropType &&
+          soilType == other.soilType &&
+          moistureLevel == other.moistureLevel &&
+          weather == other.weather &&
+          area == other.area;
+
+  @override
+  int get hashCode =>
+      cropType.hashCode ^
+      soilType.hashCode ^
+      moistureLevel.hashCode ^
+      weather.hashCode ^
+      area.hashCode;
 }

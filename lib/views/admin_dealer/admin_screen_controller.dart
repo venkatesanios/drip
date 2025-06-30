@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/views/admin_dealer/product_inventory.dart';
 import 'package:oro_drip_irrigation/views/admin_dealer/stock_entry.dart';
@@ -26,6 +28,8 @@ class _AdminScreenControllerState extends State<AdminScreenController> {
   int hoveredIndex = -1;
   final List<String> menuTitles = ['Dashboard', 'Products', 'Stock'];
   final List<Widget?> _pages = List.filled(3, null);
+
+  Timer? _debounce;
 
   @override
   Widget build(BuildContext context) {
@@ -136,14 +140,17 @@ class _AdminScreenControllerState extends State<AdminScreenController> {
                                   border: InputBorder.none,
                                 ),
                                 onChanged: (value) {
-                                  if (value.isEmpty) {
-                                    context.read<SearchProvider>().clearSearchFilters();
-                                  } else {
-                                    context.read<SearchProvider>().isSearchingProduct(true);
-                                    context.read<SearchProvider>().updateSearch(value);
-                                    context.read<SearchProvider>().updateCategoryId(0);
-                                    context.read<SearchProvider>().updateModelId(0);
-                                  }
+                                  if (_debounce?.isActive ?? false) _debounce?.cancel();
+                                  _debounce = Timer(const Duration(milliseconds: 100), () {
+                                    if (value.isEmpty) {
+                                      context.read<SearchProvider>().clearSearchFilters();
+                                    } else {
+                                      context.read<SearchProvider>().isSearchingProduct(true);
+                                      context.read<SearchProvider>().updateSearch(value);
+                                      context.read<SearchProvider>().updateCategoryId(0);
+                                      context.read<SearchProvider>().updateModelId(0);
+                                    }
+                                  });
                                 },
                                 onSubmitted: (value) {
                                   if (value.isNotEmpty) {

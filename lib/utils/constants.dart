@@ -271,6 +271,16 @@ class AppConstants {
     UserRole.subUser: "Please enter your sub-user address",
   };
 
+  final Widget anlOvrView = const Text('Analytics Overview',style: TextStyle(fontSize: 20));
+  final Widget txtSNo = const Text('S.No');
+  final Widget txtCategory = const Text('Category');
+  final Widget txtModel = const Text('Model');
+  final Widget txtIMEI = const Text('IMEI');
+  final Widget txtMDate = const Text('M.Date');
+  final Widget txtWarranty = const Text('Warranty');
+  final Widget txtSoldOut = const Text('SOLD OUT',style: TextStyle(fontSize: 18));
+
+
   static String getErrorMessage(UserRole role, Map<UserRole, String> errorMap) {
     return errorMap[role] ?? "Invalid role";
   }
@@ -683,36 +693,3 @@ class AppConstants {
   static List<int> ecoNodeList = [36];
 
 }
-
-/*
-class GifImageWeb extends StatelessWidget {
-  final String imagePath;
-  final double width;
-  final double height;
-  final String viewId;
-
-  GifImageWeb({
-    super.key,
-    required this.imagePath,
-    this.width = 70,
-    this.height = 70,
-  }) : viewId = 'gif_${imagePath.hashCode}' {
-    ui.platformViewRegistry.registerViewFactory(
-      viewId,
-          (int viewId) => html.ImageElement()
-        ..src = Uri.base.resolve(imagePath).toString()
-        ..style.width = '${width}px'
-        ..style.height = '${height}px'
-        ..style.objectFit = 'contain',
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      height: height,
-      child: HtmlElementView(viewType: viewId),
-    );
-  }
-}*/

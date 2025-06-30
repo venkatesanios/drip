@@ -224,9 +224,10 @@ class CustomerScreenController extends StatelessWidget {
                       hoverColor: Theme.of(context).primaryColorLight,
                     ),
                   ),
-                  Text(
-                    'Last sync @ - ${Formatters.formatDateTime('${vm.mySiteList.data[vm.sIndex].master[vm.mIndex].live?.cD} ${vm.mySiteList.data[vm.sIndex].master[vm.mIndex].live?.cT}')}',
-                    style: const TextStyle(fontSize: 15, color: Colors.white70),
+                  Selector<CustomerScreenControllerViewModel, String>(
+                    selector: (_, vm) => vm.mqttProvider.liveDateAndTime,
+                    builder: (_, liveDateAndTime, __) => Text('Last sync @ - ${Formatters.formatDateTime(liveDateAndTime)}',
+                        style: const TextStyle(fontSize: 15, color: Colors.white70)),
                   ),
                 ],
               ),

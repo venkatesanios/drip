@@ -99,7 +99,7 @@ class AdminDashboard extends StatelessWidget {
           child: Column(
             children: [
               ListTile(
-                title: const Text("Analytics Overview", style: TextStyle(fontSize: 20, color: Colors.black)),
+                title: AppConstants().anlOvrView,
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

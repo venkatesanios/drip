@@ -7,4 +7,14 @@ class Validators {
     }
     return null;
   }
+
+  // Time complexity: O(n)
+  bool hasDuplicates(List<int> list) {
+    Set<int> seen = {};
+    for (int num in list) {
+      if (seen.contains(num)) return true;
+      seen.add(num);
+    }
+    return false;
+  }
 }

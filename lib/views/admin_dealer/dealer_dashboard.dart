@@ -58,11 +58,7 @@ class DealerDashboard extends StatelessWidget {
                                 children: [
                                   ListTile(
                                     tileColor: Colors.white,
-                                    title: const Text(
-                                      "Analytics Overview",
-                                      style: TextStyle(
-                                          fontSize: 20, color: Colors.black),
-                                    ),
+                                    title: AppConstants().anlOvrView,
                                     trailing: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
@@ -191,92 +187,35 @@ class DealerDashboard extends StatelessWidget {
                                         columnSpacing: 12,
                                         horizontalMargin: 12,
                                         minWidth: 600,
-                                        border: TableBorder.all(color: Colors.teal.shade50),
+                                        border: TableBorder.all(color: Theme.of(context).primaryColorLight.withOpacity(0.1)),
                                         headingRowColor: WidgetStateProperty.all<
-                                            Color>(Theme.of(context).primaryColorDark.withAlpha(1)),
-                                        headingRowHeight: 40,
-                                        dataRowHeight: 40,
-                                        columns: const [
-                                          DataColumn2(
-                                            label: Center(
-                                              child: Text(
-                                                'S.No',
-                                                style: TextStyle(fontWeight: FontWeight.bold),
-                                              ),
-                                            ),
-                                            fixedWidth: 50,
-                                          ),
-                                          DataColumn(
-                                            label: Text(
-                                              'Category',
-                                              style: TextStyle(fontWeight: FontWeight.bold),
-                                            ),
-                                          ),
-                                          DataColumn(
-                                            label: Text(
-                                              'Model',
-                                              style: TextStyle(fontWeight: FontWeight.bold),
-                                            ),
-                                          ),
-                                          DataColumn2(
-                                            label: Center(
-                                              child: Text(
-                                                'IMEI',
-                                                style: TextStyle(fontWeight: FontWeight.bold),
-                                              ),
-                                            ),
-                                            size: ColumnSize.L,
-                                          ),
-                                          DataColumn2(
-                                            label: Center(
-                                              child: Text(
-                                                'M.Date',
-                                                style: TextStyle(fontWeight: FontWeight.bold),
-                                              ),
-                                            ),
-                                            fixedWidth: 150,
-                                          ),
-                                          DataColumn2(
-                                            label: Center(
-                                              child: Text(
-                                                'Warranty',
-                                                style: TextStyle(fontWeight: FontWeight.bold),
-                                              ),
-                                            ),
-                                            fixedWidth: 100,
-                                          ),
+                                            Color>(Theme.of(context).primaryColorLight.withOpacity(0.1)),
+                                        headingRowHeight: 30,
+                                        dataRowHeight: 35,
+                                        columns: [
+                                          DataColumn2(label: Center(child: AppConstants().txtSNo), fixedWidth: 50),
+                                          DataColumn(label: AppConstants().txtCategory),
+                                          DataColumn(label: AppConstants().txtModel),
+                                          DataColumn2(label: Center(child: AppConstants().txtIMEI), size: ColumnSize.L),
+                                          DataColumn2(label: Center(child: AppConstants().txtMDate), fixedWidth: 150),
+                                          DataColumn2(label: Center(child: AppConstants().txtWarranty), fixedWidth: 100),
                                         ],
                                         rows: List<DataRow>.generate(
-                                          viewModel.productStockList.length,
-                                              (index) => DataRow(
+                                          viewModel.productStockList.length, (index) => DataRow(
                                             cells: [
-                                              DataCell(
-                                                Center(child: Text('${index + 1}')),
-                                              ),
+                                              DataCell(Center(child: Text('${index + 1}'))),
                                               DataCell(Text(viewModel.productStockList[index].categoryName)),
                                               DataCell(Text(viewModel.productStockList[index].model)),
-                                              DataCell(
-                                                Center(
-                                                  child: Text(viewModel.productStockList[index].imeiNo),
-                                                ),
-                                              ),
-                                              DataCell(
-                                                Center(
-                                                  child: Text(viewModel.productStockList[index].dtOfMnf),
-                                                ),
-                                              ),
-                                              DataCell(
-                                                Center(
-                                                  child: Text('${viewModel.productStockList[index].warranty}'),
-                                                ),
+                                              DataCell(Center(child: Text(viewModel.productStockList[index].imeiNo))),
+                                              DataCell(Center(child: Text(viewModel.productStockList[index].dtOfMnf))),
+                                              DataCell(Center(child: Text('${viewModel.productStockList[index].warranty}')),
                                               ),
                                             ],
                                           ),
                                         ),
                                       ),
                                     ) :
-                                    const Center(child: Text(
-                                      'SOLD OUT', style: TextStyle(fontSize: 20),)),
+                                    Center(child: AppConstants().txtSoldOut),
                                   ),
                                 ),
                               ],

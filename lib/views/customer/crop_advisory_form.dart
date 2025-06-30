@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../utils/my_function.dart';
 
 class CropAdvisoryForm extends StatefulWidget {
   const CropAdvisoryForm({super.key});
@@ -16,7 +17,16 @@ class _CropAdvisoryFormPageState extends State<CropAdvisoryForm> {
   DateTime? sowingDate;
   double? soilPH, fieldArea;
 
+
   bool isEnabled = true;
+
+  final Map<String, List<String>> crops = {
+    "Crops": ["Cotton", "Sugarcane", "Maize", "Groundnut", "Wheat","Tomato", "Chilli", "Brinjal", "Okra",
+      "Cabbage", "Cauliflower", "Cucumber", "Capsicum", "Pumpkin", "Bitter Gourd","Banana", "Pomegranate",
+      "Papaya", "Grapes", "Mango", "Guava", "Sweet Lime", "Orange", "Watermelon", "Muskmelon","Turmeric",
+      "Ginger", "Aloe Vera", "Ashwagandha", "Tulsi","Coconut", "Arecanut", "Coffee", "Tea", "Rubber"],
+  };
+
 
   @override
   Widget build(BuildContext context) {
@@ -77,10 +87,10 @@ class _CropAdvisoryFormPageState extends State<CropAdvisoryForm> {
                   padding: const EdgeInsets.all(8),
                   child: Column(
                     children: [
-                      _dropdown("Crop Name", ["Rice", "Wheat", "Tomato", "Cotton"], (val) => cropName = val),
+                      _dropdown("Crop Name", crops['Crops']!, (val) => setState(() => cropName = val), selected: cropName),
                       _textField("Crop Variety", (val) => variety = val),
                       _dateField("Sowing Date", (val) => sowingDate = val),
-                      _dropdown("Stage of Crop", ["Germination", "Vegetative", "Flowering", "Harvest"], (val) => stage = val),
+                      _dropdown("Stage of Crop", ["Germination", "Flowering", "Harvest"], (val) => setState(() => stage = val), selected: stage),
                     ],
                   ),
                 ),
@@ -97,7 +107,7 @@ class _CropAdvisoryFormPageState extends State<CropAdvisoryForm> {
                   padding: const EdgeInsets.all(8),
                   child: Column(
                     children: [
-                      _dropdown("Soil Type", ["Loamy", "Clay", "Sandy", "Red"], (val) => soilType = val),
+                      _dropdown("Soil Type", ["Loamy", "Clay", "Sandy", "Red"], (val) => setState(() => soilType = val), selected: soilType),
                       _textField("Soil pH (e.g. 6.5)", (val) => soilPH = double.tryParse(val)),
                       _textField("Field Area (acres)", (val) => fieldArea = double.tryParse(val)),
                     ],
@@ -116,9 +126,8 @@ class _CropAdvisoryFormPageState extends State<CropAdvisoryForm> {
                   padding: const EdgeInsets.all(8),
                   child: Column(
                     children: [
-                      _dropdown("Irrigation Type", ["Drip", "Sprinkler", "Canal", "Borewell"], (val) => irrigationType = val),
-                      _dropdown("Water Source", ["Borewell", "Tank", "Canal", "Rainwater"], (val) => waterSource = val),
-                      _dropdown("Water Availability", ["Limited", "Medium", "Abundant"], (_) {}),
+                      _dropdown("Irrigation Type", ["Drip", "Sprinkler"], (val) => setState(() => irrigationType = val), selected: irrigationType),
+                      _dropdown("Water Source", ["Bore-well", "Tank", "Canal", "River"], (val) => setState(() => waterSource = val), selected: waterSource),
                     ],
                   ),
                 ),
@@ -136,13 +145,13 @@ class _CropAdvisoryFormPageState extends State<CropAdvisoryForm> {
                   child: Column(
                     children: [
                       _textField("Last Fertilizer Used", (val) => fertilizerUsed = val),
-                      _dropdown("Fertilizer Frequency", ["Weekly", "Biweekly", "Monthly"], (val) => fertilizerFreq = val),
+                      _dropdown("Fertilizer Frequency", ["Daily","Weekly", "Biweekly", "Monthly"], (val) => setState(() => fertilizerFreq = val), selected: fertilizerFreq),
                     ],
                   ),
                 ),
               ),
 
-              _sectionTitle("📍 Location & Weather"),
+              _sectionTitle("📍 Field Location"),
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -154,7 +163,6 @@ class _CropAdvisoryFormPageState extends State<CropAdvisoryForm> {
                   child: Column(
                     children: [
                       _textField("Location / District", (val) => location = val),
-                      _dropdown("Rainfall Level", ["Low", "Medium", "High"], (val) => rainfall = val),
                     ],
                   ),
                 ),
@@ -169,11 +177,21 @@ class _CropAdvisoryFormPageState extends State<CropAdvisoryForm> {
                     backgroundColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColorLight),
                   ),
                   onPressed: () {
+                    // Send to backend or AI model here
+                    final params = IrrigationParams(
+                      cropType: 'Rice',
+                      soilType: 'Clay',
+                      moistureLevel: 30,
+                      weather: 'Hot',
+                      area: 100,
+                    );
+                    double irrigationTime = MyFunction().calculateIrrigationTime(params);
+                    print("Irrigation time needed: ${irrigationTime.toStringAsFixed(2)} minutes");
+
                     if (_formKey.currentState!.validate()) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text("Submitting data...")),
                       );
-                      // Send to backend or AI model here
                     }
                   },
                   child: const Text("Save the Details", style: TextStyle(color: Colors.white)),
@@ -192,8 +210,7 @@ class _CropAdvisoryFormPageState extends State<CropAdvisoryForm> {
   Widget _sectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(top: 20, bottom: 8),
-      child: Text(
-        title.toUpperCase(),
+      child: Text(title,
         style: const TextStyle(fontSize: 15, color: Colors.black87),
       ),
     );
@@ -223,10 +240,11 @@ class _CropAdvisoryFormPageState extends State<CropAdvisoryForm> {
     );
   }
 
-  Widget _dropdown(String label, List<String> items, Function(String?) onChanged) {
+  Widget _dropdown(String label, List<String> items, Function(String?) onChanged, {String? selected}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: DropdownButtonFormField<String>(
+        value: selected, // <- this retains the selected value
         decoration: InputDecoration(
           labelText: label,
           filled: true,
@@ -241,7 +259,9 @@ class _CropAdvisoryFormPageState extends State<CropAdvisoryForm> {
             borderSide: BorderSide(color: Colors.black12, width: 1.0),
           ),
         ),
-        items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+        items: items
+            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+            .toList(),
         onChanged: onChanged,
         validator: (value) => value == null ? 'Required' : null,
       ),
