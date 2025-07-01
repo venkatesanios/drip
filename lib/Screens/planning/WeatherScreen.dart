@@ -82,15 +82,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
     }
     else if (weathernewlive.stations.isEmpty) {
       // return const Center(child: Text('Currently No Weather Data Available'));
-      return Column(
+      return const Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Center(
+          Center(
               child: Text('Currently No Weather Data Available...')),
-          // TextButton.icon(onPressed: (){
-          // Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewExample(userid: widget.userId,controllerid: widget.controllerId,)));
-          // }, label: Text('Click To Open External Weather Data')),
-
         ],
       );
     }
@@ -169,9 +165,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   changeval(int Selectindexrow) {}
   Widget buildTab(int i) {
-    // List<String> titlelist = ['SoilMoisture 1','SoilMoisture 2','SoilMoisture 3','SoilMoisture 4','Temperature','AtmospherePressure','Humidity','LeafWetness','Co2','LDR','Lux','Rainfall','WindSpeed','Wind Direction'];
-    // List<String> unitlist = ['CB','CB','CB','CB','°C','°C','kPa','%','%','ppm','Lu','MM','km/h',''];
-
     String? irname = findIrrigationLine(weathernewlive.stations[i].deviceId)!;
 
     return Scaffold(body: Center(
@@ -723,13 +716,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           ]
                       ),
                     ])),
-            // Column(mainAxisAlignment: MainAxisAlignment.start,
-            //   children: [
-            //     Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Min",'00','00:00:00'))),
-            //     Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Max",'00','00:00:00'))),
-            //   ],
-            // ),
-
           ],
         ),
       );
@@ -793,12 +779,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     fontSize: 21,
                     fontWeight: FontWeight.bold)
                 )),
-            // Column(mainAxisAlignment: MainAxisAlignment.start,
-            //   children: [
-            //     Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Min",'00','00:00:00'))),
-            //     Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Max",'00','00:00:00'))),
-            //   ],
-            // ),
           ],
         ),
       );
@@ -884,12 +864,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                 positionFactor: 0.9)
                           ])
                     ])),
-            // Column(mainAxisAlignment: MainAxisAlignment.start,
-            //   children: [
-            //     Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Min",'00','00:00:00'))),
-            //     Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Max",'00','00:00:00'))),
-            //   ],
-            // ),
           ],
         ),
       );
@@ -1068,8 +1042,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                 positionFactor: 0.9)
                           ])
                     ])),
-            // Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Min",'00','00:00:00'))),
-            // Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Max",'00','00:00:00'))),
           ],
         ),
       );
@@ -1213,7 +1185,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                   (data) => ConfigObjectWeather.fromJson(data),
             ),
           );
-
+          //fetch data
 
         });
       }
