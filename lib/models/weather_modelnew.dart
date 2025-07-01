@@ -8,16 +8,19 @@ class WeatherStation {
   });
 
   factory WeatherStation.fromString(String data) {
+    print('data: $data');
     final parts = data.split(',');
+    print('parts: $parts');
     final deviceId = int.parse(parts[0]); // First index is device ID
     final sensors = <Sensor>[];
 
     // Start at index 1, step by 3, ensure we have full triplets
     for (int i = 1; i < parts.length - 2; i += 3) {
       try {
-        final sensorSno = double.parse(parts[i]); // Sensor S_No
-        final value = double.parse(parts[i + 2]); // Sensor Value
-        final errorStatus = int.parse(parts[i + 1]); // Sensor Error Status
+        final sensorSno = double.parse(parts[i]);
+        final value = double.parse(parts[i + 1]);
+        final errorStatus = int.parse(parts[i + 2]);
+
         sensors.add(Sensor(
           sno: sensorSno,
           value: value,
@@ -25,12 +28,16 @@ class WeatherStation {
         ));
       } catch (e) {
         print('Error parsing sensor at index $i: $e');
-        break; // Stop if we hit invalid data
+        break;
       }
     }
 
     return WeatherStation(deviceId: deviceId, sensors: sensors);
   }
+  Map<String, dynamic> toJson() => {
+    'deviceId': deviceId,
+    'sensors': sensors.map((s) => s.toJson()).toList(),
+  };
 }
 
 class Sensor {
@@ -43,6 +50,11 @@ class Sensor {
     required this.value,
     required this.errorStatus,
   });
+  Map<String, dynamic> toJson() => {
+    'sno': sno,
+    'value': value,
+    'errorStatus': errorStatus,
+  };
 }
 
 class WeatherData {
@@ -61,9 +73,11 @@ class WeatherData {
   factory WeatherData.fromJson(Map<String, dynamic> json) {
     final weatherLive = json['data']['weatherLive'];
     final cMString = weatherLive['cM']['5101'] as String;
-    final stationsData = cMString.split(';');
-    final stations = stationsData
-        .where((data) => data.isNotEmpty)
+
+    final stationStrings = cMString.contains(';') ? cMString.split(';') : [cMString];
+
+    final stations = stationStrings
+        .where((data) => data.trim().isNotEmpty)
         .map((data) => WeatherStation.fromString(data))
         .toList();
 
@@ -74,6 +88,13 @@ class WeatherData {
       stations: stations,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'cC': cC,
+    'cT': cT,
+    'cD': cD,
+    'stations': stations.map((s) => s.toJson()).toList(),
+  };
 }
 
 class IrrigationLine {
@@ -94,6 +115,11 @@ class IrrigationLine {
       weatherStation: List<int>.from(json['weatherStation']),
     );
   }
+  Map<String, dynamic> toJson() => {
+    'objectId': objectId,
+    'name': name,
+    'weatherStation': weatherStation,
+  };
 }
 
 class DeviceW {
@@ -117,5 +143,56 @@ class DeviceW {
       serialNumber: json['serialNumber'],
     );
   }
+  Map<String, dynamic> toJson() => {
+    'controllerId': controllerId,
+    'deviceId': deviceId,
+    'deviceName': deviceName,
+    'serialNumber': serialNumber,
+  };
 }
 
+class ConfigObjectWeather {
+  int objectId;
+  double sNo;
+  String name;
+  String objectName;
+  int? controllerId;
+  double location;
+
+  ConfigObjectWeather({
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+    required this.objectName,
+    required this.controllerId,
+    required this.location,
+  });
+
+  factory ConfigObjectWeather.fromJson(Map<String, dynamic> json) {
+    return ConfigObjectWeather(
+      objectId: json['objectId'],
+      sNo: (json['sNo'] as num).toDouble(),
+      name: json['name'],
+      objectName: json['objectName'],
+      controllerId: json['controllerId'],
+      location: (json['location'] as num).toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'objectId': objectId,
+    'sNo': sNo,
+    'name': name,
+    'objectName': objectName,
+    'controllerId': controllerId,
+    'location': location,
+  };
+}
+
+String? getConfigObjectNameBySNo(List<ConfigObjectWeather> objects, double sNo) {
+  try {
+    return objects.firstWhere((obj) => obj.sNo == sNo).name;
+  } catch (e) {
+    return null;
+  }
+}

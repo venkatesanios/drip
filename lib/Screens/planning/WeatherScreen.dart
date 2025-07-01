@@ -5,12 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:syncfusion_flutter_gauges/gauges.dart';
-import '../../Models/Weather_model.dart';
-import '../../Models/weather_modelnew.dart';
-import '../../Widgets/animated_cloud.dart';
+ import '../../Widgets/animated_cloud.dart';
+import '../../models/Weather_model.dart';
+import '../../models/weather_modelnew.dart';
 import '../../modules/IrrigationProgram/view/water_and_fertilizer_screen.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
+import '../../services/mqtt_service.dart';
+import '../../utils/environment.dart';
 import 'WeatherScreenExternal.dart';
 
 class WeatherScreen extends StatefulWidget {
@@ -43,11 +45,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
   ];
   bool isLoading = false;
   int tabclickindex = 0;
-  WeatherModel weatherModelinstance = WeatherModel();
   String errorMsgstatus = '';
   WeatherData weathernewlive = WeatherData(cC: '', cT: '', cD: '', stations: []) ;
   late List<IrrigationLine>  weatherdatairrigationline ;
   late List<DeviceW>  weatherdatadevicelist ;
+  final MqttService manager = MqttService();
+
+
+  late List<ConfigObjectWeather> weatherdataconfigobjects ;
 
 
   @override
@@ -83,7 +88,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           const Center(
               child: Text('Currently No Weather Data Available...')),
           // TextButton.icon(onPressed: (){
-            // Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewExample(userid: widget.userId,controllerid: widget.controllerId,)));
+          // Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewExample(userid: widget.userId,controllerid: widget.controllerId,)));
           // }, label: Text('Click To Open External Weather Data')),
 
         ],
@@ -93,20 +98,21 @@ class _WeatherScreenState extends State<WeatherScreen> {
       return DefaultTabController(
         length: weathernewlive.stations.length,
         child: Scaffold(
-          backgroundColor: Theme.of(context).primaryColor,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: Center(
             child: SizedBox(
               width: MediaQuery.sizeOf(context).width,
               child: Column(
                 children: [
                   SizedBox(
-                    height: 40,
+                    height: 30,
                     child: TabBar(
                       // controller: _tabController,
-                      indicatorColor: const Color.fromARGB(255, 175, 73, 73),
+
+                      indicatorColor:Theme.of(context).primaryColorLight,
                       isScrollable: true,
-                      unselectedLabelColor: Colors.white70,
-                      labelColor: Colors.white,
+                      unselectedLabelColor: Colors.black,
+                      labelColor: Theme.of(context).primaryColor,
                       labelStyle: const TextStyle(fontWeight: FontWeight.bold),
                       tabs: [
                         for (var i = 0;
@@ -142,12 +148,32 @@ class _WeatherScreenState extends State<WeatherScreen> {
     }
   }
 
+  String getSensorUnit(double sno) {
+    final Map<int, String> sensorUnits = {
+      25: 'CB',
+      29: '°C',
+      30: '°C',
+      31: '',
+      32: 'km/h',
+      33: 'ppm',
+      34: 'lx',
+      35: 'Lu',
+      36: '%',
+      37: '%',
+      38: 'MM',
+      39: 'kPa',
+    };
+
+    return sensorUnits[sno.floor()] ?? '';
+  }
+
   changeval(int Selectindexrow) {}
   Widget buildTab(int i) {
-    List<String> titlelist = ['SoilMoisture 1','SoilMoisture 2','SoilMoisture 3','SoilMoisture 4','Temperature','AtmospherePressure','Humidity','LeafWetness','Co2','LDR','Lux','Rainfall','WindSpeed','Wind Direction'];
-    List<String> unitlist = ['CB','CB','CB','CB','°C','°C','kPa','%','%','ppm','Lu','MM','km/h',''];
+    // List<String> titlelist = ['SoilMoisture 1','SoilMoisture 2','SoilMoisture 3','SoilMoisture 4','Temperature','AtmospherePressure','Humidity','LeafWetness','Co2','LDR','Lux','Rainfall','WindSpeed','Wind Direction'];
+    // List<String> unitlist = ['CB','CB','CB','CB','°C','°C','kPa','%','%','ppm','Lu','MM','km/h',''];
 
     String? irname = findIrrigationLine(weathernewlive.stations[i].deviceId)!;
+
     return Scaffold(body: Center(
       child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
@@ -165,7 +191,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
                               Text(
-                                'ORO Weather',
+                                'Weather',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 18,
@@ -238,7 +264,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                               // String value = '${weathernewlive.stations[i].sensors[index].value}';
                               // String errorStatus = '${weathernewlive.stations[i].sensors[index].errorStatus}';
                               for (var index = 0;index < weathernewlive.stations[i].sensors.length; index++)
-                                _buildWeatherCard(titlelist[index], '${weathernewlive.stations[i].sensors[index].value} ${unitlist[index]}', '', Colors.orange),
+                                _buildWeatherCard(getConfigObjectNameBySNo(weatherdataconfigobjects,weathernewlive.stations[i].sensors[index].sno)!, '${weathernewlive.stations[i].sensors[index].value} ${getSensorUnit(weathernewlive.stations[i].sensors[index].sno)}', '', Colors.orange),
                             ],
                           ),
                         ),
@@ -292,13 +318,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           height: 150.0,
                           fit: BoxFit.cover,
                         ),
-                        Text(
-                          '${weathernewlive.stations[i].sensors[6].value}°C',
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal,
-                              fontSize: 68,
-                              color: Theme.of(context).primaryColor),
-                        ),
+                        // Text(
+                        //   '${weathernewlive.stations[i].sensors[6].value}°C',
+                        //   style: TextStyle(
+                        //       fontWeight: FontWeight.normal,
+                        //       fontSize: 68,
+                        //       color: Theme.of(context).primaryColor),
+                        // ),
                         SizedBox(
                           height: 80,
                           child: Row(
@@ -389,7 +415,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                         index < weathernewlive.stations[i].sensors.length;
                                         index++)
                                           gaugeViewWeather(
-                                              weathernewlive.stations[i].sensors[index].sno.toString(),
+                                              getConfigObjectNameBySNo(weatherdataconfigobjects,weathernewlive.stations[i].sensors[index].sno)!,
                                               i,
                                               index)
                                       ],
@@ -452,7 +478,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
             const CircleAvatar(
               backgroundColor:Colors.blueGrey,
               radius: 20,
-             child:  Icon(Icons.air, color: Colors.white, size: 20),
+              child:  Icon(Icons.air, color: Colors.white, size: 20),
             ),
 
             const SizedBox(width: 4),
@@ -466,14 +492,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    value,
+                    title.contains('Direction') ?  degreeToDirection(value) : value,
                     style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'MAX.: 00/00  MIN.: 00/00',
-                    style: TextStyle(color: Colors.white70, fontSize: 12),
-                  ),
+                  // const Text( degreeToDirection(value)
+                  //   'MAX.: 00/00  MIN.: 00/00',
+                  //   style: TextStyle(color: Colors.white70, fontSize: 12),
+                  // ),
                 ],
               ),
             ),
@@ -541,7 +567,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
         ? weatherdatadevicelist.where((device) => device.serialNumber == serialNumber).first
         : null;
   }
-
 // Find irrigation line by controllerId using .where
   String? findIrrigationLine(int controllerId) {
     int? devicctrlid = deviceFind(controllerId)?.controllerId!;
@@ -554,7 +579,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
     String Unit = '0';
     String imageAsserStr = '';
     double Max = 100;
-
     String value = '${weathernewlive.stations[i].sensors[index].value}';
     String errorStatus = '${weathernewlive.stations[i].sensors[index].errorStatus}';
 
@@ -569,98 +593,64 @@ class _WeatherScreenState extends State<WeatherScreen> {
       bgcolor = Colors.white;
     }
 
-    if (index == 0) {
-      title = 'SoilMoisture 1';
+    if (title.contains('Moisture')) {
       type = '1';
       Unit = 'CB';
       Max = 200;
       imageAsserStr = 'assets/mob_dashboard/SoilMoisture.png';
-    } else if (index == 1) {
-      title = 'SoilMoisture 2';
-      type = '1';
-      Unit = 'CB';
-      Max = 200;
-      imageAsserStr = 'assets/mob_dashboard/SoilMoisture.png';
-    } else if (index == 2) {
-      title = 'SoilMoisture 3';
-      type = '1';
-      Unit = 'CB';
-      Max = 200;
-      imageAsserStr = 'assets/mob_dashboard/SoilMoisture.png';
-    } else if (index == 3) {
-      title = 'SoilMoisture 4';
-      type = '1';
-      Unit = 'CB';
-      Max = 200;
-      imageAsserStr = 'assets/mob_dashboard/SoilMoisture.png';
-    } else if (index == 4) {
-      title = 'Temperature';
+    }  else if (title.contains('Temperature')) {
       type = '2';
       Unit = '°C';
       Max = 100;
       imageAsserStr = 'assets/mob_dashboard/SoilTemp .png';
-    } else if (index == 5) {
-      title = 'AtmospherePressure';
-      type = '2';
-      Unit = '°C';
-      Max = 100;
-      imageAsserStr = 'assets/mob_dashboard/SoilTemp .png';
-    } else if (index == 6) {
-      title = 'Humidity';
+    }   else if (title.contains('Atmosphere Pressure')) {
       type = '3';
       Unit = 'kPa';
       Max = 2000;
       imageAsserStr = 'assets/mob_dashboard/pressure.png';
-    } else if (index == 7) {
-      title = 'LeafWetness';
+    } else if (title.contains('Leaf')) {
       type = '2';
       Unit = '%';
       Max = 100;
-      imageAsserStr = 'assets/mob_dashboard/humidity.png';
-    } else if (index == 8) {
-      title = 'Co2';
-      type = '4';
+      imageAsserStr = 'assets/mob_dashboard/leafWetness.png';
+    }
+    else if (title.contains('Humidity')) {
+      type = '2';
       Unit = '%';
       Max = 100;
-      imageAsserStr = 'assets/mob_dashboard/leafWetness.png';
-    } else if (index == 9) {
-      title = 'LDR';
+      imageAsserStr = 'assets/mob_dashboard/pressure.png';
+    }
+    else if (title.contains('Co2')) {
       type = '2';
       Unit = 'ppm';
       Max = 1000;
       imageAsserStr = 'assets/mob_dashboard/CO-2.png';
-    } else if (index == 10) {
-      title = 'Lux';
+    } else if (title.contains('LDR')) {
       type = '5';
       Unit = 'Lu';
       Max = 100;
       imageAsserStr = 'assets/mob_dashboard/LDR.png';
-    } else if (index == 11) {
-      title = 'WindDirection';
+    } else if (title.contains('LUX')) {
       type = '5';
       Unit = 'Lu';
       Max = 100;
       imageAsserStr = 'assets/mob_dashboard/Lux.png';
-    } else if (index == 12) {
-      title = 'Rainfall';
+    } else if (title.contains('Wind Direction')) {
       type = '7';
       Unit = 'CB';
       Max = 360;
       imageAsserStr = 'assets/mob_dashboard/WindDirection.png';
-    } else if (index == 13) {
-      title = 'WindSpeed';
+    } else if (title.contains('Rain Fall')) {
       type = '2';
       Unit = 'mm';
       Max = 100;
       imageAsserStr = 'assets/mob_dashboard/rainFall.png';
-    } else if (index == 14) {
-      title = 'Wind Direction';
+    } else if (title.contains('Wind Speed')) {
       type = '3';
       Unit = 'km/h';
       Max = 100;
       imageAsserStr = 'assets/mob_dashboard/WindSpeed.png';
     } else {
-      title = 'WindSpeed';
       type = '0';
       Unit = '';
       imageAsserStr = 'assets/mob_dashboard/WindSpeed.png';
@@ -733,12 +723,12 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           ]
                       ),
                     ])),
-            Column(mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Min",'00','00:00:00'))),
-                Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Max",'00','00:00:00'))),
-              ],
-            ),
+            // Column(mainAxisAlignment: MainAxisAlignment.start,
+            //   children: [
+            //     Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Min",'00','00:00:00'))),
+            //     Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Max",'00','00:00:00'))),
+            //   ],
+            // ),
 
           ],
         ),
@@ -760,7 +750,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     // fit: BoxFit.cover,
                   ),
                 ),
-                SizedBox(height: 30, width: 160, child: Text('$title',textAlign: TextAlign.center, style: const TextStyle(fontSize: 15,fontWeight: FontWeight.bold))),
+                SizedBox(height: 30, width: 160, child: Text('$title',textAlign: TextAlign.center, style: const TextStyle(fontSize: 14,fontWeight: FontWeight.bold))),
               ],
             ),
             Container(
@@ -803,12 +793,12 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     fontSize: 21,
                     fontWeight: FontWeight.bold)
                 )),
-            Column(mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Min",'00','00:00:00'))),
-                Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Max",'00','00:00:00'))),
-              ],
-            ),
+            // Column(mainAxisAlignment: MainAxisAlignment.start,
+            //   children: [
+            //     Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Min",'00','00:00:00'))),
+            //     Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Max",'00','00:00:00'))),
+            //   ],
+            // ),
           ],
         ),
       );
@@ -829,7 +819,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     // fit: BoxFit.cover,
                   ),
                 ),
-                SizedBox(height: 30, width: 160, child: Text('$title',textAlign: TextAlign.center, style: const TextStyle(fontSize: 15,fontWeight: FontWeight.bold))),
+                SizedBox(height: 30, width: 160, child: Text('$title',textAlign: TextAlign.center, style: const TextStyle(fontSize: 14,fontWeight: FontWeight.bold))),
               ],
             ),
             Container(height: 200,
@@ -894,12 +884,12 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                 positionFactor: 0.9)
                           ])
                     ])),
-            Column(mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Min",'00','00:00:00'))),
-                Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Max",'00','00:00:00'))),
-              ],
-            ),
+            // Column(mainAxisAlignment: MainAxisAlignment.start,
+            //   children: [
+            //     Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Min",'00','00:00:00'))),
+            //     Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Max",'00','00:00:00'))),
+            //   ],
+            // ),
           ],
         ),
       );
@@ -919,7 +909,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     // fit: BoxFit.cover,
                   ),
                 ),
-                SizedBox(height: 30, width: 150, child: Text('$title',textAlign: TextAlign.center, style: const TextStyle(fontSize: 15,fontWeight: FontWeight.bold))),
+                SizedBox(height: 30, width: 150, child: Text('$title',textAlign: TextAlign.center, style: const TextStyle(fontSize: 14,fontWeight: FontWeight.bold))),
               ],
             ),
             Container(
@@ -1012,7 +1002,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     // fit: BoxFit.cover,
                   ),
                 ),
-                SizedBox(height: 30, width: 150, child: Text('$title',textAlign: TextAlign.center, style: const TextStyle(fontSize: 15,fontWeight: FontWeight.bold))),
+                SizedBox(height: 30, width: 150, child: Text('$title',textAlign: TextAlign.center, style: const TextStyle(fontSize: 14,fontWeight: FontWeight.bold))),
               ],
             ),
             Container(
@@ -1078,8 +1068,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                 positionFactor: 0.9)
                           ])
                     ])),
-            Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Min",'00','00:00:00'))),
-            Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Max",'00','00:00:00'))),
+            // Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Min",'00','00:00:00'))),
+            // Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Max",'00','00:00:00'))),
           ],
         ),
       );
@@ -1098,12 +1088,12 @@ class _WeatherScreenState extends State<WeatherScreen> {
               ),
               TextSpan(
                 text: '$Mval',
-                style: const TextStyle(color: Colors.red, fontSize: 15,fontWeight: FontWeight.bold),
+                style: const TextStyle(color: Colors.red, fontSize: 14,fontWeight: FontWeight.bold),
               ),
 
               TextSpan(
                 text: '\t\t$Mtime',
-                style: TextStyle(color: Theme.of(context).primaryColorDark, fontSize: 15,fontWeight: FontWeight.w100),
+                style: TextStyle(color: Theme.of(context).primaryColorDark, fontSize: 14,fontWeight: FontWeight.w100),
               ),
 
             ],
@@ -1160,11 +1150,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
   }
   Request() {
     String payLoadFinal = jsonEncode({
-      "5000": [
-        {"5001": ""},
-      ]
+      "5000":
+      {"5001": ""},
+
     });
-    // MqttService().topicToPublishAndItsMessage(payLoadFinal, 'AppToFirmware/${widget.deviceID}');
+    manager.topicToPublishAndItsMessage(
+        payLoadFinal, '${Environment.mqttPublishTopic}/${widget.deviceID}');
+
+
   }
   // TODO: implement widget
   Future<void> fetchDataSunRiseSet() async {
@@ -1201,9 +1194,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
       });
 
       final jsonData = jsonDecode(getUserDetails.body);
-      print('jsonData  fetch device  ${jsonData['data']['deviceList']}');
-      print('jsonData  fetch irrigationLine ${jsonData['data']['irrigationLine']}');
-      if (jsonData['code'] == 200) {
+       if (jsonData['code'] == 200) {
         setState(() {
           weathernewlive = WeatherData.fromJson(jsonData);
           // weatherdatairrigationline = IrrigationLine.fromJson(jsonData['data']['irrigationLine']);
@@ -1216,6 +1207,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
           weatherdatadevicelist = List<DeviceW>.from(
             jsonData['data']['deviceList'].map((data) => DeviceW.fromJson(data)),
           );
+
+          weatherdataconfigobjects = List<ConfigObjectWeather>.from(
+            jsonData['data']['configObject'].map(
+                  (data) => ConfigObjectWeather.fromJson(data),
+            ),
+          );
+
+
         });
       }
     } catch (e, stackTrace) {
@@ -1223,3 +1222,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
     }
   }
 }
+
+
+
