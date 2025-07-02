@@ -451,8 +451,6 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                 ),
               ),
               body: Container(
-                width: MediaQuery.sizeOf(context).width,
-                height: MediaQuery.sizeOf(context).height,
                 color: Theme.of(context).scaffoldBackgroundColor,
                 child: Column(
                   children: [
