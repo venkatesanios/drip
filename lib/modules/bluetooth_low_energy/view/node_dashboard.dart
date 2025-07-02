@@ -63,7 +63,7 @@ class _NodeDashboardState extends State<NodeDashboard> {
                         title: 'Control',
                         onTap: () {
                           Navigator.push(context, MaterialPageRoute(builder: (context){
-                            return ControlNode();
+                            return const ControlNode();
                           }));
                         },
                       ),

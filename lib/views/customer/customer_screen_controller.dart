@@ -492,7 +492,7 @@ class CustomerScreenController extends StatelessWidget {
                     child: Column(
                       children: [
                         if (vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1) ...[
-                          if (!vm.isLiveSynced)
+                          if (vm.isNotCommunicate)
                             Container(
                               height: 20.0,
                               decoration: BoxDecoration(

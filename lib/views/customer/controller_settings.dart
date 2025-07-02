@@ -94,6 +94,7 @@ class ControllerSettings extends StatelessWidget {
 
   Widget _buildMobileView(BuildContext context, ControllerSettingsViewModel viewModel) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: ListView.separated(
         itemCount: viewModel.filteredSettingList.length,
         separatorBuilder: (context, index) => const Padding(

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:syncfusion_flutter_gauges/gauges.dart';
-import '../../Widgets/animated_cloud.dart';
+ import '../../Widgets/animated_cloud.dart';
 import '../../models/Weather_model.dart';
 import '../../models/weather_modelnew.dart';
 import '../../modules/IrrigationProgram/view/water_and_fertilizer_screen.dart';
@@ -1166,7 +1166,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
       });
 
       final jsonData = jsonDecode(getUserDetails.body);
-      if (jsonData['code'] == 200) {
+       if (jsonData['code'] == 200) {
         setState(() {
           weathernewlive = WeatherData.fromJson(jsonData);
           // weatherdatairrigationline = IrrigationLine.fromJson(jsonData['data']['irrigationLine']);
