@@ -594,36 +594,7 @@ class MobileScreenController extends StatelessWidget {
                   backgroundColor: commMode == 1? Theme.of(context).primaryColorLight:
                   (commMode == 2 && vm.blueService.isConnected) ?
                   Theme.of(context).primaryColorLight : Colors.redAccent,
-                  onPressed: (){
-                    if(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId==3){
-                      final Map<String, dynamic> data = {
-                        'controllerId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                        'deviceId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                        'deviceName': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceName,
-                        'categoryId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
-                        'categoryName': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
-                        'modelId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId,
-                        'modelName': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelName,
-                        'InterfaceType': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].interfaceTypeId,
-                        'interface': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].interface,
-                        'relayOutput': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].relayOutput,
-                        'latchOutput': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].latchOutput,
-                        'analogInput': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].analogInput,
-                        'digitalInput': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].digitalInput,
-                      };
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => NodeConnectionPage(
-                        nodeData: data,
-                        masterData: {
-                          "userId" : userId,
-                          "customerId" : customerId,
-                          "controllerId" : vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId
-                        },
-                      )));
-                    }else{
-                      _showBottomSheet(context, vm, vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId);
-                    }
-                  },
-
+                  onPressed: ()=>_showBottomSheet(context, vm, vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId),
                   tooltip: 'Second Action',
                   child: commMode == 1?
                   Column(
@@ -672,7 +643,7 @@ class MobileScreenController extends StatelessWidget {
                 child: Column(
                   children: [
                     if (vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId == 1) ...[
-                      if (!vm.isLiveSynced)
+                      if (vm.isNotCommunicate)
                         Container(
                           height: 25,
                           decoration: BoxDecoration(
@@ -837,64 +808,100 @@ class MobileScreenController extends StatelessWidget {
                 ),
                 if (commMode == 2) ...[
                   const Divider(),
-                  BluetoothScanTile(vm: vm),
-                  const SizedBox(height: 10),
-                  Consumer<MqttPayloadProvider>(
-                    builder: (context, provider, _) {
-                      final devices = provider.pairedDevices;
-                      if (devices.isNotEmpty) {
-                        return Column(
-                          children: devices.map((d) {
-                            return ListTile(
-                              title: Text(d.device.name ?? ''),
-                              subtitle: Text(d.device.address),
-                              trailing: d.isConnected ? Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.check_circle, color: Colors.green),
-                                  const SizedBox(width: 8),
-                                  IconButton(
-                                    onPressed: () {
-                                      requestAndShowWifiList(context, false);
-                                    },
-                                    icon: const Icon(CupertinoIcons.text_badge_checkmark),
-                                  ),
-                                  IconButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => BLEMobileScreen(deviceID: vm.mySiteList.data[vm.sIndex]
-                                              .master[vm.mIndex].deviceId, communicationType: 'Bluetooth',),
-                                        ),
-                                      );
-                                    },
-                                    icon: const Icon(CupertinoIcons.exclamationmark_octagon),
-                                  ),
-                                ],
-                              ):
-                              d.isConnecting ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              ):
-                              TextButton(
-                                onPressed: d.isDisConnected ? () => vm.blueService.connectToDevice(d) : null,
-                                child: const Text('Connect'),
-                              ),
-                            );
-                          }).toList(),
-                        );
-                      } else {
-                        return const Center(
-                          child: Text(
-                            'Stay close to the controller and tap refresh to try scanning again.',
-                            style: TextStyle(fontSize: 12, color: Colors.black38),
-                          ),
-                        );
-                      }
-                    },
-                  ),
+                  if(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId==3)...[
+                    ListTile(
+                      title: const Text('Scan & Connect the controller via Bluetooth',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: const Text('Stay close to the controller near by 10 meters',
+                          style: TextStyle(color: Colors.black45)),
+                      trailing: const Icon(CupertinoIcons.arrow_right_circle),
+                      onTap: (){
+                        final Map<String, dynamic> data = {
+                          'controllerId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                          'deviceId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
+                          'deviceName': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceName,
+                          'categoryId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
+                          'categoryName': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
+                          'modelId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId,
+                          'modelName': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelName,
+                          'InterfaceType': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].interfaceTypeId,
+                          'interface': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].interface,
+                          'relayOutput': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].relayOutput,
+                          'latchOutput': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].latchOutput,
+                          'analogInput': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].analogInput,
+                          'digitalInput': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].digitalInput,
+                        };
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => NodeConnectionPage(
+                          nodeData: data,
+                          masterData: {
+                            "userId" : userId,
+                            "customerId" : customerId,
+                            "controllerId" : vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId
+                          },
+                        )));
+                      },
+                    ),
+                  ]
+                  else...[
+                    BluetoothScanTile(vm: vm),
+                    const SizedBox(height: 10),
+                    Consumer<MqttPayloadProvider>(
+                      builder: (context, provider, _) {
+                        final devices = provider.pairedDevices;
+                        if (devices.isNotEmpty) {
+                          return Column(
+                            children: devices.map((d) {
+                              return ListTile(
+                                title: Text(d.device.name ?? ''),
+                                subtitle: Text(d.device.address),
+                                trailing: d.isConnected ? Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.check_circle, color: Colors.green),
+                                    const SizedBox(width: 8),
+                                    IconButton(
+                                      onPressed: () {
+                                        requestAndShowWifiList(context, false);
+                                      },
+                                      icon: const Icon(CupertinoIcons.text_badge_checkmark),
+                                    ),
+                                    IconButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => BLEMobileScreen(deviceID: vm.mySiteList.data[vm.sIndex]
+                                                .master[vm.mIndex].deviceId, communicationType: 'Bluetooth',),
+                                          ),
+                                        );
+                                      },
+                                      icon: const Icon(CupertinoIcons.exclamationmark_octagon),
+                                    ),
+                                  ],
+                                ):
+                                d.isConnecting ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                ):
+                                TextButton(
+                                  onPressed: d.isDisConnected ? () => vm.blueService.connectToDevice(d) : null,
+                                  child: const Text('Connect'),
+                                ),
+                              );
+                            }).toList(),
+                          );
+                        } else {
+                          return const Center(
+                            child: Text(
+                              'Stay close to the controller and tap refresh to try scanning again.',
+                              style: TextStyle(fontSize: 12, color: Colors.black38),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ]
                 ],
               ],
             ),

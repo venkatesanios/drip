@@ -31,7 +31,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   int sIndex = 0, mIndex = 0, lIndex = 0;
   int wifiStrength = 0;
   int powerSupply = 0;
-  bool isLiveSynced = false;
+  bool isNotCommunicate = false;
   List<String> alarmDL = [];
   List<String> lineLiveMessage = [];
 
@@ -54,19 +54,26 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
 
 
   void _onPayloadReceived() {
+    print('object');
     final activeDeviceId = mqttProvider.activeDeviceId;
     final liveDateAndTime = mqttProvider.liveDateAndTime;
     final wifiStrength = mqttProvider.wifiStrength;
     final currentSchedule = mqttProvider.currentSchedule;
     lineLiveMessage = mqttProvider.lineLiveMessage;
     powerSupply = mqttProvider.powerSupply;
-    isLiveSynced = mqttProvider.isLiveSynced;
     alarmDL = mqttProvider.alarmDL;
-
+    isNotCommunicate = isDeviceNotCommunicating(mqttProvider.liveDateAndTime);
     if(activeDeviceId == mySiteList.data[sIndex].master[mIndex].deviceId){
       updateLivePayload(wifiStrength, liveDateAndTime, currentSchedule, lineLiveMessage);
     }
 
+  }
+
+  bool isDeviceNotCommunicating(String lastSyncTimeString) {
+    DateTime lastSyncTime = DateTime.parse(lastSyncTimeString);
+    DateTime currentTime = DateTime.now();
+    Duration difference = currentTime.difference(lastSyncTime);
+    return difference.inMinutes > 10;
   }
 
   void _initializeMqttConnection() {

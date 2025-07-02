@@ -93,7 +93,6 @@ class MqttPayloadProvider with ChangeNotifier {
 
   int powerSupply = 0;
   bool onRefresh = false;
-  bool isLiveSynced = false;
   int wifiStrength = 0;
   String liveDateAndTime = '';
   String activeDeviceId = '';
@@ -609,6 +608,7 @@ class MqttPayloadProvider with ChangeNotifier {
      }
    }
 
+
   void updateReceivedPayload(String newPayload, bool dataFromHttp) async{
     if (_receivedPayload != newPayload) {
        _receivedPayload = newPayload;
@@ -623,7 +623,6 @@ class MqttPayloadProvider with ChangeNotifier {
         print('_receivedPayload------>:$_receivedPayload');
 
         if(data['mC']=='2400'){
-          isLiveSynced = true;
           liveDateAndTime = '${data['cD']} ${data['cT']}';
           activeDeviceId = data['cC'];
           activeDeviceVersion = data['cM']['Version'];
