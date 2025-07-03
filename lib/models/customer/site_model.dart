@@ -7,7 +7,6 @@ class SiteModel {
   SiteModel({required this.data});
 
   factory SiteModel.fromJson(Map<String, dynamic> json) {
-    print('fromJson called');
     return SiteModel(
       data: List<Group>.from(json['data'].map((x) => Group.fromJson(x))),
     );
@@ -494,6 +493,7 @@ class ConfigObject {
   final double sNo;
   final String name;
   final String objectName;
+  final int connectionNo;
   final int? controllerId;
   final double? location;
   final List<double> assignObject;
@@ -512,6 +512,7 @@ class ConfigObject {
     required this.sNo,
     required this.name,
     required this.objectName,
+    required this.connectionNo,
     this.controllerId,
     required this.location,
     required this.assignObject,
@@ -542,6 +543,7 @@ class ConfigObject {
       name: json['name'],
       objectName: json['objectName'],
       controllerId: json['controllerId'],
+      connectionNo: json['connectionNo'] ?? 0,
       location: (json['location'] is! double ? 0.0 : json['location']) ?? 0.0,
       assignObject: parsedAssignObject,
     );
@@ -554,6 +556,7 @@ class ConfigObject {
       'name': name,
       'objectName': objectName,
       'controllerId': controllerId,
+      'connectionNo': connectionNo,
       'location': location,
     };
   }
@@ -1120,10 +1123,6 @@ class ValveModel {
         }
       }
     }
-
-    print('assignedSNos:$assignedSNos');
-    print('object name:${obj.name}');
-
 
     /*List<WaterSourceModel> sources = configObjects
         .where((source) => assignedSNos.contains(source.sNo))

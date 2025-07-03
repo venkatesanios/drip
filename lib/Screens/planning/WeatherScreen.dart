@@ -655,27 +655,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
       return Container(
         color: bgcolor,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Row(mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(1.0),
-                  child: Image.asset(
-                    imageAsserStr,
-                    width: 30.0,
-                    height: 30.0,
-                    // fit: BoxFit.cover,
-                  ),
-                ),
-                SizedBox(height: 30, width: 150, child: Text('$title',textAlign: TextAlign.center, style: const TextStyle(fontSize: 15,fontWeight: FontWeight.bold))),
-              ],
-            ),
+            buildTitleRow(imageAsserStr, title),
             Container(height: 200,
                 width: 200,
-                decoration: BoxDecoration(
-                    border: Border.all(width: 0.1),
-                    borderRadius: BorderRadius.circular(5)),
+                // decoration: BoxDecoration(
+                //     border: Border.all(width: 0.1),
+                //     borderRadius: BorderRadius.circular(5)),
                 child: SfRadialGauge(
                     backgroundColor: bgcolor,
                     enableLoadingAnimation: true,
@@ -725,26 +712,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Row(mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(1.0),
-                  child: Image.asset(
-                    imageAsserStr,
-                    width: 30.0,
-                    height: 30.0,
-                    // fit: BoxFit.cover,
-                  ),
-                ),
-                SizedBox(height: 30, width: 160, child: Text('$title',textAlign: TextAlign.center, style: const TextStyle(fontSize: 14,fontWeight: FontWeight.bold))),
-              ],
-            ),
+            buildTitleRow(imageAsserStr, title),
             Container(
               height: 180,
               width: 200,
-              decoration: BoxDecoration(
-                  border: Border.all(width: 0.1),
-                  borderRadius: BorderRadius.circular(5)),
+              // decoration: BoxDecoration(
+              //     border: Border.all(width: 0.1),
+              //     borderRadius: BorderRadius.circular(5)),
               child: SfLinearGauge(
                 minimum: 0,
                 maximum: Max,
@@ -788,25 +762,12 @@ class _WeatherScreenState extends State<WeatherScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Row(mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(1.0),
-                  child: Image.asset(
-                    imageAsserStr,
-                    width: 30.0,
-                    height: 30.0,
-                    // fit: BoxFit.cover,
-                  ),
-                ),
-                SizedBox(height: 30, width: 160, child: Text('$title',textAlign: TextAlign.center, style: const TextStyle(fontSize: 14,fontWeight: FontWeight.bold))),
-              ],
-            ),
+            buildTitleRow(imageAsserStr, title),
             Container(height: 200,
                 width: 200,
-                decoration: BoxDecoration(
-                    border: Border.all(width: 0.1),
-                    borderRadius: BorderRadius.circular(5)),
+                // decoration: BoxDecoration(
+                //     border: Border.all(width: 0.1),
+                //     borderRadius: BorderRadius.circular(5)),
                 child: SfRadialGauge(
                     backgroundColor: bgcolor,
                     enableLoadingAnimation: true,
@@ -856,6 +817,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           annotations: <GaugeAnnotation>[
                             GaugeAnnotation(
                                 widget: Container(
+                                  padding: const EdgeInsets.all(2.0),
                                     child: Text('${value} ${Unit}',
                                         style: const TextStyle(
                                             fontSize: 21,
@@ -863,7 +825,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                 angle: 90,
                                 positionFactor: 0.9)
                           ])
-                    ])),
+                    ])),Container(height: 1,)
           ],
         ),
       );
@@ -871,27 +833,15 @@ class _WeatherScreenState extends State<WeatherScreen> {
       return Container(
         color: bgcolor,
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Row(mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(1.0),
-                  child: Image.asset(
-                    imageAsserStr,
-                    width: 30.0,
-                    height: 30.0,
-                    // fit: BoxFit.cover,
-                  ),
-                ),
-                SizedBox(height: 30, width: 150, child: Text('$title',textAlign: TextAlign.center, style: const TextStyle(fontSize: 14,fontWeight: FontWeight.bold))),
-              ],
-            ),
+            buildTitleRow(imageAsserStr, title),
             Container(
                 height: 200,
                 width: 200,
-                decoration: BoxDecoration(
-                    border: Border.all(width: 0.1),
-                    borderRadius: BorderRadius.circular(5)),
+                // decoration: BoxDecoration(
+                //     border: Border.all(width: 0.1),
+                //     borderRadius: BorderRadius.circular(5)),
                 child: SfRadialGauge(
 
                     backgroundColor: bgcolor,
@@ -945,7 +895,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           ],
                           annotations: <GaugeAnnotation>[
                             GaugeAnnotation(
-                                widget: Container(
+                                widget: Container( padding: const EdgeInsets.all(1.0),
                                     child: Text(degreeToDirection(value),
                                         style: const TextStyle(
                                             fontSize: 21,
@@ -956,6 +906,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                       ),
 
                     ])),
+            Container(),
           ],
         ),
       );
@@ -965,26 +916,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Row(mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(1.0),
-                  child: Image.asset(
-                    imageAsserStr,
-                    width: 30.0,
-                    height: 30.0,
-                    // fit: BoxFit.cover,
-                  ),
-                ),
-                SizedBox(height: 30, width: 150, child: Text('$title',textAlign: TextAlign.center, style: const TextStyle(fontSize: 14,fontWeight: FontWeight.bold))),
-              ],
-            ),
+            buildTitleRow(imageAsserStr, title),
             Container(
                 height: 200,
                 width: 200,
-                decoration: BoxDecoration(
-                    border: Border.all(width: 0.1),
-                    borderRadius: BorderRadius.circular(5)),
+                // decoration: BoxDecoration(
+                //     border: Border.all(width: 0.1),
+                //     borderRadius: BorderRadius.circular(5)),
                 child: SfRadialGauge(
                     backgroundColor: bgcolor,
                     enableLoadingAnimation: true,
@@ -1042,11 +980,46 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                 positionFactor: 0.9)
                           ])
                     ])),
+            Container()
           ],
         ),
       );
     }
   }
+
+  Widget buildTitleRow(String imageAsserStr, String title) {
+    return SizedBox(
+      height: 30,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(2.0),
+            child: Image.asset(
+              imageAsserStr,
+              width: 30.0,
+              height: 30.0,
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+
   Widget MinMAxvalues(String M,String Mval,String Mtime )
   {
     return Column(mainAxisAlignment: MainAxisAlignment.start,
