@@ -147,6 +147,16 @@ class ConfigMakerProvider extends ChangeNotifier{
     );
   }
 
+  List<int> getPossibleConnectingObjectId(){
+    List<int> list = [];
+    for(var device in listOfDeviceModel){
+      if(device.masterId != null){
+        list.addAll(device.connectingObjectId);
+      }
+    }
+    return list;
+  }
+
   Future<List<DeviceModel>> fetchData(masterDataFromSiteConfigure)async {
     await Future.delayed(const Duration(seconds: 0));
     reInitialize();
@@ -264,6 +274,7 @@ class ConfigMakerProvider extends ChangeNotifier{
           listOfObjectModelConnection.add(mapToDeviceObject(obj));
         }
       }
+
       List<double> generatedSno = [];
       listOfGeneratedObject = (configMakerData['configObject'] as List<dynamic>).map((object) => DeviceObjectModel.fromJson(object)).toList();
       // remove if there any duplicates
@@ -1327,19 +1338,22 @@ class ConfigMakerProvider extends ChangeNotifier{
     for(var device in listOfPumpWithValve){
       int pumpCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.pumpObjectId).length;
       int valveCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.valveObjectId).length;
+      int lightCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.lightObjectId).length;
+      int pressureSensorCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.pressureSensorObjectId).length;
+      int pressureSwitchCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.pressureSwitchObjectId).length;
       int moistureCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.moistureObjectId).length;
       int soilTemperatureCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.soilTemperatureObjectId).length;
-      List<DeviceModel> nodeForValve = listOfDeviceModel.where((device) => ![...AppConstants.pumpWithValveModelList, ...AppConstants.senseModelList].contains(device.modelId))
-          .where((device) => device.masterId != null).toList();
       List<DeviceModel> nodeForMoisture = listOfDeviceModel.where((device) => AppConstants.senseModelList.contains(device.modelId))
           .where((device) => device.masterId != null).toList();
       var payload = {
         "sentSms":"ecoconfig,"
             "$pumpCount,"
             "$valveCount,"
+            "$lightCount,"
+            "$pressureSensorCount,"
+            "$pressureSwitchCount,"
             "$moistureCount,"
             "$soilTemperatureCount,"
-            "${nodeForValve.isNotEmpty ? formDevicePayloadIfThere(nodeForValve[0]) : formDevicePayloadIfThereNot()},"
             "${nodeForMoisture.isNotEmpty ? formDevicePayloadIfThere(nodeForMoisture[0]) : formDevicePayloadIfThereNot()}"};
 
       listOfPumpPayload.add({

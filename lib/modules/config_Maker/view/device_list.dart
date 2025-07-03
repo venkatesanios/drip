@@ -422,7 +422,7 @@ class _DeviceListState extends State<DeviceList> {
                                                     setState(() {
                                                       selectAllNode = !selectAllNode;
                                                       for(var device in configPvd.listOfDeviceModel){
-                                                        List<int> nodeUnderPumpWithValveModel = [15, 17, 23, 25, 42];
+                                                        List<int> nodeUnderPumpWithValveModel = [42];
                                                         List<int> nodeNotUnderGemModel = [48, 49];
                                                         if(AppConstants.pumpWithValveModelList.contains(configPvd.masterData['modelId']) && nodeUnderPumpWithValveModel.contains(device.modelId)){
                                                           /* this condition filter node for pump with valve model */

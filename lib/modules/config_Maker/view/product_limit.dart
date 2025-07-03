@@ -76,11 +76,7 @@ class _ProductLimitState extends State<ProductLimit> {
 
   Widget outputObject(){
     List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) {
-      /* filter output object for pump with valve model*/
-      if(AppConstants.pumpWithValveModelList.contains(widget.configPvd.masterData['modelId'])){
-        return  (widget.configPvd.masterData['categoryId'] != 2 ? object.type == '1,2' : [AppConstants.pumpObjectId, AppConstants.valveObjectId].contains(object.objectId));
-      }
-      return  (widget.configPvd.masterData['categoryId'] != 2 ? object.type == '1,2' : [AppConstants.pumpObjectId].contains(object.objectId));
+      return (object.type == '1,2' && widget.configPvd.getPossibleConnectingObjectId().contains(object.objectId));
     }).toList();
     return ProductLimitGridListTile(
       listOfObjectModel: filteredList,
@@ -91,7 +87,7 @@ class _ProductLimitState extends State<ProductLimit> {
   }
 
   Widget analogObject(){
-    List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => (widget.configPvd.masterData['categoryId'] != 2 ? object.type == '3' : [22, 24, 26, 40].contains(object.objectId))).toList();
+    List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => (object.type == '3' && widget.configPvd.getPossibleConnectingObjectId().contains(object.objectId))).toList();
     return ProductLimitGridListTile(
       listOfObjectModel: filteredList,
       title: 'Analog Input',
@@ -99,14 +95,16 @@ class _ProductLimitState extends State<ProductLimit> {
     );
   }
 
+
+
   Widget digitalObject(){
     List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) {
       if(widget.configPvd.masterData['categoryId'] != 2){
         return object.type == '4';
       }else if(AppConstants.pumpWithValveModelList.contains(widget.configPvd.masterData['modelId'])){
-        return [22, 24, 26, 30, 40,].contains(object.objectId);
+        return (object.type == '4' && widget.configPvd.getPossibleConnectingObjectId().contains(object.objectId));
       }else{
-        return [22, 24, 26, 40].contains(object.objectId);
+        return (object.type == '4' && widget.configPvd.getPossibleConnectingObjectId().contains(object.objectId));
       }
     }).toList();
 
@@ -116,6 +114,8 @@ class _ProductLimitState extends State<ProductLimit> {
       configPvd: widget.configPvd,
     );
   }
+
+
 
   Widget moistureObject(){
     List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => object.objectId == AppConstants.moistureObjectId).toList();
@@ -127,7 +127,7 @@ class _ProductLimitState extends State<ProductLimit> {
   }
 
   Widget pulseObject(){
-    List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => (widget.configPvd.masterData['categoryId'] != 2 ? object.type == '6' : [22, 24, 26, 40].contains(object.objectId))).toList();
+    List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => (object.type == '6' && widget.configPvd.getPossibleConnectingObjectId().contains(object.objectId))).toList();
     return ProductLimitGridListTile(
       listOfObjectModel: filteredList,
       title: 'Pulse Input',
@@ -136,7 +136,8 @@ class _ProductLimitState extends State<ProductLimit> {
   }
 
   Widget i2cObject(){
-    List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => (widget.configPvd.masterData['categoryId'] != 2 ? object.type == '7' : [22, 24, 26, 40].contains(object.objectId))).toList();
+    List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) => (object.type == '7' && widget.configPvd.getPossibleConnectingObjectId().contains(object.objectId))).toList();
+
     return ProductLimitGridListTile(
       listOfObjectModel: filteredList,
       title: 'I2c Input',
