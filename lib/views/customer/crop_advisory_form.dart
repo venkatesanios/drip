@@ -178,13 +178,11 @@ class _CropAdvisoryFormPageState extends State<CropAdvisoryForm> {
                   ),
                   onPressed: () {
                     // Send to backend or AI model here
-                    final params = IrrigationParams(
-                      cropType: 'Rice',
-                      soilType: 'Clay',
-                      moistureLevel: 30,
-                      weather: 'Hot',
-                      area: 100,
-                    );
+                    final params = IrrigationParams(cropType: 'Rice', soilType: 'Clay',
+                        moistureLevel: '60', weather: 'Yes (2mm today)', area: '200',
+                        growthStage: 'Flowering', temperature: '33', humidity: '55', windSpeed: '10',
+                        cloudCover: '4.5', recentRainfall: '8', irrigationMethod: '8', pressure: '0.0', windDirection: '0.0');
+
                     double irrigationTime = MyFunction().calculateIrrigationTime(params);
                     print("Irrigation time needed: ${irrigationTime.toStringAsFixed(2)} minutes");
 

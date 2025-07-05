@@ -197,9 +197,13 @@ class MyFunction {
     double cropFactor = params.cropType == 'Rice' ? 1.5 : 1.0;
     double soilFactor = params.soilType == 'Clay' ? 0.8 : 1.2;
     double weatherFactor = params.weather == 'Hot' ? 1.4 : 1.0;
-    double moistureFactor = (100 - params.moistureLevel) / 100;
 
-    double time = params.area * cropFactor * soilFactor * weatherFactor * moistureFactor;
+    double moistureFactor = (100 - 20) / 100;
+
+    double time = int.parse(params.area) * cropFactor * soilFactor * weatherFactor * moistureFactor;
+    /*double moistureFactor = (100 - params.moistureLevel) / 100;
+
+    double time = params.area * cropFactor * soilFactor * weatherFactor * moistureFactor;*/
 
     _irrigationCache[params] = time; // Store result
     return time;
@@ -210,9 +214,18 @@ class MyFunction {
 class IrrigationParams {
   final String cropType;
   final String soilType;
-  final double moistureLevel;
+  final String moistureLevel;
   final String weather;
-  final double area;
+  final String area;
+  final String growthStage;
+  final String temperature;
+  final String humidity;
+  final String windSpeed;
+  final String windDirection;
+  final String cloudCover;
+  final String pressure;
+  final String recentRainfall;
+  final String irrigationMethod;
 
   IrrigationParams({
     required this.cropType,
@@ -220,9 +233,45 @@ class IrrigationParams {
     required this.moistureLevel,
     required this.weather,
     required this.area,
+    required this.growthStage,
+    required this.temperature,
+    required this.humidity,
+    required this.windSpeed,
+    required this.windDirection,
+    required this.cloudCover,
+    required this.pressure,
+    required this.recentRainfall,
+    required this.irrigationMethod,
   });
 
-  // To use as a Map key, we need proper equality and hashCode
+  // Converts to prompt string for AI
+  String toPrompt() {
+    return '''
+Irrigation Program Details:
+
+- Crop Type: $cropType
+- Soil Type: $soilType
+- Area: $area sq.m
+- Growth Stage: $growthStage
+- Irrigation Method: $irrigationMethod
+- Moisture Level: $moistureLevel%
+- Temperature: $temperature°C
+- Humidity: $humidity%
+- Wind Speed: $windSpeed km/h
+- Wind Direction: $windDirection°
+- Rain Forecast: $weather
+- Recent Rainfall: $recentRainfall mm
+- Cloud Cover: $cloudCover %
+- Pressure: $pressure hPa
+
+Based on this data, what percentage should I apply to the total irrigation durations of the program?
+
+✅ Respond with:
+1. A single number in percentage (e.g., "80%") on the first line.
+2. A brief explanation (1–2 sentences) on why this percentage was chosen, considering weather, moisture, and crop type.
+''';
+  }
+
   @override
   bool operator ==(Object other) =>
       other is IrrigationParams &&
@@ -230,7 +279,15 @@ class IrrigationParams {
           soilType == other.soilType &&
           moistureLevel == other.moistureLevel &&
           weather == other.weather &&
-          area == other.area;
+          area == other.area &&
+          growthStage == other.growthStage &&
+          temperature == other.temperature &&
+          humidity == other.humidity &&
+          windSpeed == other.windSpeed &&
+          cloudCover == other.cloudCover &&
+          pressure == other.pressure &&
+          recentRainfall == other.recentRainfall &&
+          irrigationMethod == other.irrigationMethod;
 
   @override
   int get hashCode =>
@@ -238,5 +295,13 @@ class IrrigationParams {
       soilType.hashCode ^
       moistureLevel.hashCode ^
       weather.hashCode ^
-      area.hashCode;
+      area.hashCode ^
+      growthStage.hashCode ^
+      temperature.hashCode ^
+      humidity.hashCode ^
+      windSpeed.hashCode ^
+      cloudCover.hashCode ^
+      pressure.hashCode ^
+      recentRainfall.hashCode ^
+      irrigationMethod.hashCode;
 }

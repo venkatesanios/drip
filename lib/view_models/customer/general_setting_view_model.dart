@@ -19,9 +19,8 @@ class GeneralSettingViewModel extends ChangeNotifier {
 
   List<Map<String, dynamic>> subUsers = [];
 
-  final TextEditingController txtEcSiteName = TextEditingController();
-  final TextEditingController txtEcGroupName = TextEditingController();
-  String farmName = '', controllerCategory = '', modelName = '', deviceId = '', categoryName = '', controllerVersion='', newVersion='';
+  String farmName = '', controllerCategory = '', modelName = '', deviceId = '', categoryName = '',
+      controllerLocation='', controllerVersion='', newVersion='';
   int groupId = 0;
 
   String? selectedTimeZone;
@@ -80,9 +79,7 @@ class GeneralSettingViewModel extends ChangeNotifier {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data["code"] == 200) {
-          txtEcSiteName.text = data["data"][0]['groupName'];
           farmName  = data["data"][0]['groupName'];
-          txtEcGroupName.text = data["data"][0]['deviceName'];
           controllerCategory = data["data"][0]['deviceName'];
           deviceId = data["data"][0]['deviceId'];
           modelName = data["data"][0]['modelName'];
@@ -90,6 +87,7 @@ class GeneralSettingViewModel extends ChangeNotifier {
           groupId = data["data"][0]['groupId'];
           controllerVersion = data["data"][0]['hwVersion'];
           newVersion = data["data"][0]['availableHwVersion'];
+          controllerLocation = data["data"][0]['controllerLocation'] ?? '';
           updateCurrentDateTime(data["data"][0]['timeZone']);
           if(controllerVersion!=newVersion){
             timerFunction();
@@ -163,10 +161,11 @@ class GeneralSettingViewModel extends ChangeNotifier {
       Map<String, Object> body = {
         "userId": customerId,
         "controllerId": controllerId,
-        "deviceName": txtEcGroupName.text,
+        "deviceName": controllerCategory,
         "timeZone": selectedTimeZone!,
+        "controllerLocation": controllerLocation,
         "groupId": groupId,
-        "groupName": txtEcSiteName.text,
+        "groupName": farmName,
         "modifyUser": modifyUser,
       };
 
