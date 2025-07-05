@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:syncfusion_flutter_gauges/gauges.dart';
- import '../../Widgets/animated_cloud.dart';
+import '../../Models/Weather_model.dart';
+import '../../Models/weather_modelnew.dart';
+import '../../Widgets/animated_cloud.dart';
 import '../../models/Weather_model.dart';
-import '../../models/weather_modelnew.dart';
 import '../../modules/IrrigationProgram/view/water_and_fertilizer_screen.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
@@ -82,11 +83,15 @@ class _WeatherScreenState extends State<WeatherScreen> {
     }
     else if (weathernewlive.stations.isEmpty) {
       // return const Center(child: Text('Currently No Weather Data Available'));
-      return const Column(
+      return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Center(
+          const Center(
               child: Text('Currently No Weather Data Available...')),
+          // TextButton.icon(onPressed: (){
+          // Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewExample(userid: widget.userId,controllerid: widget.controllerId,)));
+          // }, label: Text('Click To Open External Weather Data')),
+
         ],
       );
     }
@@ -165,7 +170,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   changeval(int Selectindexrow) {}
   Widget buildTab(int i) {
+    // List<String> titlelist = ['SoilMoisture 1','SoilMoisture 2','SoilMoisture 3','SoilMoisture 4','Temperature','AtmospherePressure','Humidity','LeafWetness','Co2','LDR','Lux','Rainfall','WindSpeed','Wind Direction'];
+    // List<String> unitlist = ['CB','CB','CB','CB','°C','°C','kPa','%','%','ppm','Lu','MM','km/h',''];
+
     String? irname = findIrrigationLine(weathernewlive.stations[i].deviceId)!;
+    print('irname : $irname');
+    debugPrint('test stations : ${weathernewlive.stations[0].toJson()}');
+    debugPrint('test sensror length : ${ weathernewlive.stations[0].sensors.length}');
 
     return Scaffold(body: Center(
       child: LayoutBuilder(
@@ -655,14 +666,27 @@ class _WeatherScreenState extends State<WeatherScreen> {
       return Container(
         color: bgcolor,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            buildTitleRow(imageAsserStr, title),
+            Row(mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: Image.asset(
+                    imageAsserStr,
+                    width: 30.0,
+                    height: 30.0,
+                    // fit: BoxFit.cover,
+                  ),
+                ),
+                SizedBox(height: 30, width: 150, child: Text('$title',textAlign: TextAlign.center, style: const TextStyle(fontSize: 15,fontWeight: FontWeight.bold))),
+              ],
+            ),
             Container(height: 200,
                 width: 200,
-                // decoration: BoxDecoration(
-                //     border: Border.all(width: 0.1),
-                //     borderRadius: BorderRadius.circular(5)),
+                decoration: BoxDecoration(
+                    border: Border.all(width: 0.1),
+                    borderRadius: BorderRadius.circular(5)),
                 child: SfRadialGauge(
                     backgroundColor: bgcolor,
                     enableLoadingAnimation: true,
@@ -703,6 +727,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           ]
                       ),
                     ])),
+            // Column(mainAxisAlignment: MainAxisAlignment.start,
+            //   children: [
+            //     Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Min",'00','00:00:00'))),
+            //     Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Max",'00','00:00:00'))),
+            //   ],
+            // ),
+
           ],
         ),
       );
@@ -712,13 +743,26 @@ class _WeatherScreenState extends State<WeatherScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            buildTitleRow(imageAsserStr, title),
+            Row(mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: Image.asset(
+                    imageAsserStr,
+                    width: 30.0,
+                    height: 30.0,
+                    // fit: BoxFit.cover,
+                  ),
+                ),
+                SizedBox(height: 30, width: 160, child: Text('$title',textAlign: TextAlign.center, style: const TextStyle(fontSize: 14,fontWeight: FontWeight.bold))),
+              ],
+            ),
             Container(
               height: 180,
               width: 200,
-              // decoration: BoxDecoration(
-              //     border: Border.all(width: 0.1),
-              //     borderRadius: BorderRadius.circular(5)),
+              decoration: BoxDecoration(
+                  border: Border.all(width: 0.1),
+                  borderRadius: BorderRadius.circular(5)),
               child: SfLinearGauge(
                 minimum: 0,
                 maximum: Max,
@@ -753,6 +797,12 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     fontSize: 21,
                     fontWeight: FontWeight.bold)
                 )),
+            // Column(mainAxisAlignment: MainAxisAlignment.start,
+            //   children: [
+            //     Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Min",'00','00:00:00'))),
+            //     Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Max",'00','00:00:00'))),
+            //   ],
+            // ),
           ],
         ),
       );
@@ -762,12 +812,25 @@ class _WeatherScreenState extends State<WeatherScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            buildTitleRow(imageAsserStr, title),
+            Row(mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: Image.asset(
+                    imageAsserStr,
+                    width: 30.0,
+                    height: 30.0,
+                    // fit: BoxFit.cover,
+                  ),
+                ),
+                SizedBox(height: 30, width: 160, child: Text('$title',textAlign: TextAlign.center, style: const TextStyle(fontSize: 14,fontWeight: FontWeight.bold))),
+              ],
+            ),
             Container(height: 200,
                 width: 200,
-                // decoration: BoxDecoration(
-                //     border: Border.all(width: 0.1),
-                //     borderRadius: BorderRadius.circular(5)),
+                decoration: BoxDecoration(
+                    border: Border.all(width: 0.1),
+                    borderRadius: BorderRadius.circular(5)),
                 child: SfRadialGauge(
                     backgroundColor: bgcolor,
                     enableLoadingAnimation: true,
@@ -817,7 +880,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           annotations: <GaugeAnnotation>[
                             GaugeAnnotation(
                                 widget: Container(
-                                  padding: const EdgeInsets.all(2.0),
                                     child: Text('${value} ${Unit}',
                                         style: const TextStyle(
                                             fontSize: 21,
@@ -825,7 +887,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                 angle: 90,
                                 positionFactor: 0.9)
                           ])
-                    ])),Container(height: 1,)
+                    ])),
+            // Column(mainAxisAlignment: MainAxisAlignment.start,
+            //   children: [
+            //     Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Min",'00','00:00:00'))),
+            //     Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Max",'00','00:00:00'))),
+            //   ],
+            // ),
           ],
         ),
       );
@@ -833,15 +901,27 @@ class _WeatherScreenState extends State<WeatherScreen> {
       return Container(
         color: bgcolor,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            buildTitleRow(imageAsserStr, title),
+            Row(mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: Image.asset(
+                    imageAsserStr,
+                    width: 30.0,
+                    height: 30.0,
+                    // fit: BoxFit.cover,
+                  ),
+                ),
+                SizedBox(height: 30, width: 150, child: Text('$title',textAlign: TextAlign.center, style: const TextStyle(fontSize: 14,fontWeight: FontWeight.bold))),
+              ],
+            ),
             Container(
                 height: 200,
                 width: 200,
-                // decoration: BoxDecoration(
-                //     border: Border.all(width: 0.1),
-                //     borderRadius: BorderRadius.circular(5)),
+                decoration: BoxDecoration(
+                    border: Border.all(width: 0.1),
+                    borderRadius: BorderRadius.circular(5)),
                 child: SfRadialGauge(
 
                     backgroundColor: bgcolor,
@@ -895,7 +975,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           ],
                           annotations: <GaugeAnnotation>[
                             GaugeAnnotation(
-                                widget: Container( padding: const EdgeInsets.all(1.0),
+                                widget: Container(
                                     child: Text(degreeToDirection(value),
                                         style: const TextStyle(
                                             fontSize: 21,
@@ -906,7 +986,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
                       ),
 
                     ])),
-            Container(),
           ],
         ),
       );
@@ -916,13 +995,26 @@ class _WeatherScreenState extends State<WeatherScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            buildTitleRow(imageAsserStr, title),
+            Row(mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: Image.asset(
+                    imageAsserStr,
+                    width: 30.0,
+                    height: 30.0,
+                    // fit: BoxFit.cover,
+                  ),
+                ),
+                SizedBox(height: 30, width: 150, child: Text('$title',textAlign: TextAlign.center, style: const TextStyle(fontSize: 14,fontWeight: FontWeight.bold))),
+              ],
+            ),
             Container(
                 height: 200,
                 width: 200,
-                // decoration: BoxDecoration(
-                //     border: Border.all(width: 0.1),
-                //     borderRadius: BorderRadius.circular(5)),
+                decoration: BoxDecoration(
+                    border: Border.all(width: 0.1),
+                    borderRadius: BorderRadius.circular(5)),
                 child: SfRadialGauge(
                     backgroundColor: bgcolor,
                     enableLoadingAnimation: true,
@@ -980,46 +1072,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                 positionFactor: 0.9)
                           ])
                     ])),
-            Container()
+            // Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Min",'00','00:00:00'))),
+            // Center(child: SizedBox(height: 20, width: 150, child: MinMAxvalues("Max",'00','00:00:00'))),
           ],
         ),
       );
     }
   }
-
-  Widget buildTitleRow(String imageAsserStr, String title) {
-    return SizedBox(
-      height: 30,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(2.0),
-            child: Image.asset(
-              imageAsserStr,
-              width: 30.0,
-              height: 30.0,
-            ),
-          ),
-          Expanded(
-            child: Center(
-              child: Text(
-                title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-
-
   Widget MinMAxvalues(String M,String Mval,String Mtime )
   {
     return Column(mainAxisAlignment: MainAxisAlignment.start,
@@ -1139,7 +1198,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
       });
 
       final jsonData = jsonDecode(getUserDetails.body);
-       if (jsonData['code'] == 200) {
+      print('jsonData  fetch device  ${jsonData['data']['deviceList']}');
+      print('jsonData  fetch irrigationLine ${jsonData['data']['irrigationLine']}');
+      if (jsonData['code'] == 200) {
         setState(() {
           weathernewlive = WeatherData.fromJson(jsonData);
           // weatherdatairrigationline = IrrigationLine.fromJson(jsonData['data']['irrigationLine']);
@@ -1158,7 +1219,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                   (data) => ConfigObjectWeather.fromJson(data),
             ),
           );
-          //fetch data
+
 
         });
       }
@@ -1167,6 +1228,3 @@ class _WeatherScreenState extends State<WeatherScreen> {
     }
   }
 }
-
-
-

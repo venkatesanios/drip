@@ -188,7 +188,7 @@ class ConfigObjectWeather {
     'location': location,
   };
 }
-//getConfigObjectNameBySNo name return
+
 String? getConfigObjectNameBySNo(List<ConfigObjectWeather> objects, double sNo) {
   try {
     return objects.firstWhere((obj) => obj.sNo == sNo).name;
