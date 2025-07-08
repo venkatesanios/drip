@@ -99,11 +99,11 @@ class Repository{
   }
 
   Future<http.Response> createCategory(body) async {
-  return await apiService.postRequest('/category/create', body);
+    return await apiService.postRequest('/category/create', body);
   }
 
   Future<http.Response> updateCategory(body) async {
-  return await apiService.putRequest('/category/update', body);
+    return await apiService.putRequest('/category/update', body);
   }
 
   Future<http.Response> inActiveCategoryById(body) async {
@@ -164,6 +164,14 @@ class Repository{
 
   Future<http.Response> fetchAllMySite(body) async {
      return await apiService.postRequest('/user/dashboard', body);
+  }
+
+  Future<http.Response> fetchSiteAiAdvisoryData(body) async {
+    return await apiService.postRequest('/user/deviceList/aiAdvisory/get', body);
+  }
+
+  Future<http.Response> updateSiteAiAdvisoryData(body) async {
+    return await apiService.putRequest('/user/deviceList/aiAdvisory/update', body);
   }
 
   Future<http.Response> updateControllerCommunicationMode(body) async {

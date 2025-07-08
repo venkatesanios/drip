@@ -55,7 +55,6 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-
     print('Flavor is: ${F.appFlavor}');
     bool isDarkMode = false;
     return FutureBuilder<String>(
@@ -79,7 +78,6 @@ class _MyAppState extends State<MyApp> {
 
 /// Helper function to navigate to the appropriate screen
 Widget navigateToInitialScreen(String route) {
-  print("route:-->$route");
   switch (route) {
     case Routes.login:
        return const LoginScreen();

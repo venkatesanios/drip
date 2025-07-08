@@ -284,8 +284,10 @@ class MobileScreenController extends StatelessWidget {
                                     color: Colors.white)),
                                 Text(mobileNo, style: const TextStyle(
                                     color: Colors.white, fontSize: 14)),
-                                Text(emailId, style: const TextStyle(
-                                    color: Colors.white, fontSize: 14)),
+                                Text(emailId,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(color: Colors.white, fontSize: 14)),
                                 const SizedBox(height: 20),
                                 const Text("Version 1.0.0",
                                     style: TextStyle(color: Colors.white54)),
@@ -427,7 +429,7 @@ class MobileScreenController extends StatelessWidget {
                     child: Column(
                       children: [
                         F.appFlavor!.name.contains('oro') ?
-                        CircleAvatar(radius:30, child: Image.asset('assets/png/company_logo_nia.png')):
+                        Image.asset('assets/png/company_logo_nia.png', width: 60):
                         SizedBox(
                           height: 60,
                           child: Image.asset('assets/png/company_logo.png'),

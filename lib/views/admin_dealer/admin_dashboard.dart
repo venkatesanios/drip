@@ -306,6 +306,7 @@ class AdminDashboard extends StatelessWidget {
                             child: Image.asset(
                               "assets/images/Png/Oro/category_${index+1}.png",
                               errorBuilder: (context, error, stackTrace) {
+                                print('error:$error');
                                 return const Icon(Icons.error);
                               },
                             ),

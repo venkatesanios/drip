@@ -104,7 +104,6 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
     );
   }
 
-  /// PopupMenu that changes based on current tab
   Widget _buildActionPopup(BuildContext context) {
     return PopupMenuButton(
       tooltip: tabController.index == 0

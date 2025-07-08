@@ -365,16 +365,30 @@ class ScheduledProgram extends StatelessWidget {
                                                             const SizedBox(height: 12),
                                                             Align(
                                                               alignment: Alignment.centerRight,
-                                                              child: ElevatedButton(
-                                                                onPressed: () {
-                                                                  print("✔️ Applied $percent%");
-                                                                  Navigator.of(context).pop();
-                                                                },
-                                                                style: ElevatedButton.styleFrom(
-                                                                  backgroundColor: Theme.of(context).primaryColor,
-                                                                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                                                                ),
-                                                                child: const Text('Apply', style: TextStyle(color: Colors.white)),
+                                                              child: Row(
+                                                                mainAxisSize: MainAxisSize.min,
+                                                                children: [
+                                                                  ElevatedButton(
+                                                                    onPressed: () =>Navigator.of(context).pop(),
+                                                                    style: ElevatedButton.styleFrom(
+                                                                      backgroundColor: Colors.red,
+                                                                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                                                                    ),
+                                                                    child: const Text('Cancel', style: TextStyle(color: Colors.white)),
+                                                                  ),
+                                                                  const SizedBox(width: 16),
+                                                                  ElevatedButton(
+                                                                    onPressed: () {
+                                                                      print("✔️ Applied $percent%");
+                                                                      Navigator.of(context).pop();
+                                                                    },
+                                                                    style: ElevatedButton.styleFrom(
+                                                                      backgroundColor: Theme.of(context).primaryColor,
+                                                                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                                                                    ),
+                                                                    child: const Text('Apply', style: TextStyle(color: Colors.white)),
+                                                                  ),
+                                                                ],
                                                               ),
                                                             ),
                                                           ],
@@ -712,16 +726,30 @@ class ScheduledProgram extends StatelessWidget {
                                                     const SizedBox(height: 12),
                                                     Align(
                                                       alignment: Alignment.centerRight,
-                                                      child: ElevatedButton(
-                                                        onPressed: () {
-                                                          print("✔️ Applied $percent%");
-                                                          Navigator.of(context).pop();
-                                                        },
-                                                        style: ElevatedButton.styleFrom(
-                                                          backgroundColor: Theme.of(context).primaryColor,
-                                                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                                                        ),
-                                                        child: const Text('Apply', style: TextStyle(color: Colors.white)),
+                                                      child: Row(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        children: [
+                                                          ElevatedButton(
+                                                            onPressed: () =>Navigator.of(context).pop(),
+                                                            style: ElevatedButton.styleFrom(
+                                                              backgroundColor: Colors.red,
+                                                              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                                                            ),
+                                                            child: const Text('Cancel', style: TextStyle(color: Colors.white)),
+                                                          ),
+                                                          const SizedBox(width: 16),
+                                                          ElevatedButton(
+                                                            onPressed: () {
+                                                              print("✔️ Applied $percent%");
+                                                              Navigator.of(context).pop();
+                                                            },
+                                                            style: ElevatedButton.styleFrom(
+                                                              backgroundColor: Theme.of(context).primaryColor,
+                                                              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                                                            ),
+                                                            child: const Text('Apply', style: TextStyle(color: Colors.white)),
+                                                          ),
+                                                        ],
                                                       ),
                                                     ),
                                                   ],
