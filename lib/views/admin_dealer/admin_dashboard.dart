@@ -303,7 +303,12 @@ class AdminDashboard extends StatelessWidget {
                           Expanded(child: F.appFlavor!.name.contains('oro') ?
                           Padding(
                             padding: const EdgeInsets.all(5.0),
-                            child: Image.asset("assets/images/Png/Oro/category_${index+1}.png"),
+                            child: Image.asset(
+                              "assets/images/Png/Oro/category_${index+1}.png",
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Icon(Icons.error);
+                              },
+                            ),
                           ):
                           Padding(
                             padding: const EdgeInsets.all(5.0),

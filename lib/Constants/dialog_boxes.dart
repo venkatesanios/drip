@@ -88,6 +88,20 @@ void selectionDialogBox({
                     title,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
+                  const SizedBox(width: 20,),
+                  if(!singleSelection)
+                    Row(
+                    spacing: 10,
+                    children: [
+                      Checkbox(
+                          value: configPvd.rangeMode,
+                          onChanged: (value){
+                            configPvd.updateRangeMode(value!);
+                          }
+                      ),
+                      const Text('Range Mode')
+                    ],
+                  ),
                 ],
               ),
               content: SizedBox(
@@ -111,7 +125,12 @@ void selectionDialogBox({
                       return InkWell(
                         onTap: (){
                           if(!singleSelection){
-                            configPvd.updateListOfSelectedSno(object.sNo!);
+                            if(configPvd.rangeMode){
+                              List<double> list = listOfObject.map((object) => object.sNo!).toList();
+                              configPvd.updateListOfSelectedSnoWhenRangeMode(list, list.indexOf(object.sNo!));
+                            }else{
+                              configPvd.updateListOfSelectedSno(object.sNo!);
+                            }
                           }else{
                             configPvd.updateSelectedSno(object.sNo!);
                           }

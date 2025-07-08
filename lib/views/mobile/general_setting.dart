@@ -231,6 +231,29 @@ class _GeneralSettingState extends State<GeneralSetting> {
         );
       case 8:
         return ListTile(
+          title: const Text('Location'),
+          subtitle: const Text('Controller location'),
+          leading: const Icon(Icons.location_on_outlined),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(viewModel.controllerLocation, style: const TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(width: 16),
+              IconButton(
+                onPressed: () {
+                  showEditControllerDialog(context, 'Location', viewModel.controllerLocation, (newName) {
+                    print('Updated location: $newName');
+                    viewModel.updateMasterDetails(context, widget.customerId,
+                        widget.controllerId, widget.userId);
+                  });
+                },
+                icon: const Icon(Icons.edit),
+              ),
+            ],
+          ),
+        );
+      case 9:
+        return ListTile(
           visualDensity: const VisualDensity(vertical: -4),
           isThreeLine: true,
           leading: const Icon(Icons.access_time),
@@ -241,7 +264,7 @@ class _GeneralSettingState extends State<GeneralSetting> {
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
           ),
         );
-      case 9:
+      case 10:
         return const ListTile(
           title: Text('Time Format'),
           leading: Icon(Icons.av_timer),
@@ -250,7 +273,7 @@ class _GeneralSettingState extends State<GeneralSetting> {
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
           ),
         );
-      case 10:
+      case 11:
         return const ListTile(
           title: Text('Unit'),
           leading: Icon(Icons.ac_unit_rounded),
@@ -263,6 +286,7 @@ class _GeneralSettingState extends State<GeneralSetting> {
         return const SizedBox();
     }
   }
+
 
   Widget generalSetting(BuildContext context, GeneralSettingViewModel viewModel){
 
@@ -283,31 +307,47 @@ class _GeneralSettingState extends State<GeneralSetting> {
                         children: [
                           ListTile(
                             title: const Text('Farm Name'),
-                            leading: const Icon(Icons.area_chart_outlined),
-                            trailing: SizedBox(
-                              width: 300,
-                              child: TextField(
-                                controller: viewModel.txtEcSiteName,
-                                decoration: const InputDecoration(
-                                  filled: false,
-                                  suffixIcon: Icon(Icons.edit),
+                            leading: const Icon(Icons.label_outline),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(viewModel.farmName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                const SizedBox(width: 16),
+                                IconButton(
+                                  onPressed: () {
+                                    showEditControllerDialog(context, 'Farm Name', viewModel.farmName, (farmName) {
+                                      print('Updated name: $farmName');
+                                      viewModel.farmName = farmName;
+                                      viewModel.updateMasterDetails(context, widget.customerId,
+                                          widget.controllerId, widget.userId);
+                                    });
+                                  },
+                                  icon: const Icon(Icons.edit),
                                 ),
-                              ),
+                              ],
                             ),
                           ),
                           Divider(color: Colors.grey.shade200),
                           ListTile(
                             title: const Text('Controller Name'),
                             leading: const Icon(Icons.developer_board),
-                            trailing: SizedBox(
-                              width: 300,
-                              child: TextField(
-                                controller: viewModel.txtEcGroupName,
-                                decoration: const InputDecoration(
-                                  filled: false,
-                                  suffixIcon: Icon(Icons.edit),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(viewModel.controllerCategory, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                const SizedBox(width: 16),
+                                IconButton(
+                                  onPressed: () {
+                                    showEditControllerDialog(context, 'Controller Name', viewModel.controllerCategory, (category) {
+                                      print('Updated name: $category');
+                                      viewModel.controllerCategory = category;
+                                      viewModel.updateMasterDetails(context, widget.customerId,
+                                          widget.controllerId, widget.userId);
+                                    });
+                                  },
+                                  icon: const Icon(Icons.edit),
                                 ),
-                              ),
+                              ],
                             ),
                           ),
                           Divider(color: Colors.grey.shade200),
@@ -424,6 +464,29 @@ class _GeneralSettingState extends State<GeneralSetting> {
                               style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Divider(color: Colors.grey.shade200),
+                          ListTile(
+                            title: const Text('Controller Location'),
+                            leading: const Icon(Icons.location_on_outlined),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(viewModel.controllerLocation, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                const SizedBox(width: 16),
+                                IconButton(
+                                  onPressed: () {
+                                    showEditControllerDialog(context, 'Location', viewModel.controllerLocation, (location) {
+                                      print('Updated location: $location');
+                                      viewModel.controllerLocation = location;
+                                      viewModel.updateMasterDetails(context, widget.customerId,
+                                          widget.controllerId, widget.userId);
+                                    });
+                                  },
+                                  icon: const Icon(Icons.edit),
+                                ),
+                              ],
                             ),
                           ),
                           Divider(color: Colors.grey.shade200),

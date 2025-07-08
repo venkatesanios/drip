@@ -410,7 +410,8 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
           if(!mainProvider.ignoreValidation) {
             showValidationAlert(
                 content: "Are you sure to proceed without pump selection?",
-                ignoreValidation: mainProvider.pump!.length > 1
+                ignoreValidation: mainProvider.pump!.length > 1,
+              index: _tabController.index + 1
             );
           } else {
             _navigateToNextTab();
@@ -494,6 +495,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
                         setState(() {
                           context.read<IrrigationProgramMainProvider>().ignoreValidation = true;
                         });
+                        print("index : ${index}");
                         _navigateToTab(index!);
                         Navigator.of(context).pop();
                       }

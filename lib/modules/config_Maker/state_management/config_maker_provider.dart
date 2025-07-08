@@ -27,6 +27,9 @@ class ConfigMakerProvider extends ChangeNotifier{
     4 : 'Moisture Configuration',
     5 : 'Line Configuration',
   };
+  int rangeStart = -1;
+  int rangeEnd = -1;
+  bool rangeMode = false;
   Map<int, int> configurationTabObjectId = {
     0 : AppConstants.sourceObjectId,
     1 : AppConstants.pumpObjectId,
@@ -57,6 +60,12 @@ class ConfigMakerProvider extends ChangeNotifier{
   List<PumpModel> pump = [];
   List<MoistureModel> moisture = [];
   List<IrrigationLineModel> line = [];
+
+  void updateRangeMode(bool value){
+    rangeMode = value;
+    notifyListeners();
+  }
+
 
   void clearData(){
     listOfSampleObjectModel = (defaultDataFromHttp['objectType'] as List<dynamic>).map(mapToDeviceObject).toList();
@@ -523,9 +532,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     //   print('generated : ${obj.toJson()}');
     // }
 
-
     notifyListeners();
-
   }
 
   void updateObjectConnectionForPowerSupply(DeviceObjectModel selectedConnectionObject, bool value ){
@@ -607,6 +614,29 @@ class ConfigMakerProvider extends ChangeNotifier{
     print("no : $no, type : $type");
     selectedConnectionNo = no;
     selectedType = type;
+    notifyListeners();
+  }
+
+  void updateListOfSelectedSnoWhenRangeMode(List<double> list,int index){
+    if(rangeStart == -1){
+      rangeStart = index;
+      listOfSelectedSno.clear();
+      listOfSelectedSno.add(list[index]);
+    }else if (rangeStart != -1 && rangeEnd != -1){
+      rangeStart = index;
+      rangeEnd = -1;
+      listOfSelectedSno.clear();
+      listOfSelectedSno.add(list[index]);
+    }else{
+      rangeEnd = index;
+      int from = rangeStart > rangeEnd ? rangeEnd : rangeStart;
+      int to = rangeStart > rangeEnd ? rangeStart : rangeEnd;
+      listOfSelectedSno.clear();
+      for(var i = from;i <= to;i++){
+        listOfSelectedSno.add(list[i]);
+      }
+    }
+    listOfSelectedSno.sort();
     notifyListeners();
   }
 
