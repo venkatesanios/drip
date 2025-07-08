@@ -69,8 +69,8 @@ class _MyAppState extends State<MyApp> {
           darkTheme: isOro ? OroTheme.darkTheme : SmartCommTheme.darkTheme,
           themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
           // home: ConfigBasePage(masterData: {"userId":4,"customerId":12,"controllerId":60,"productId":130,"deviceId":"9C956EC79E41","deviceName":"xMp","categoryId":2,"categoryName":"xMp","modelId":48,"modelName":"xMp1000GO3O","groupId":10,"groupName":"Shine","connectingObjectId":["5","13","19","22","23","24","26","40"]}),
-          home: navigateToInitialScreen(snapshot.data ?? Routes.login),
-          onGenerateRoute: Routes.generateRoute,
+          // home: navigateToInitialScreen(snapshot.data ?? Routes.login),
+          // onGenerateRoute: Routes.generateRoute,
         );
       },
     );
