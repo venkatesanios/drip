@@ -274,7 +274,7 @@ class _CropAdvisoryFormPageState extends State<CropAdvisoryForm> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: DropdownButtonFormField<String>(
-        value: selected, // <- this retains the selected value
+        value: selected,
         decoration: InputDecoration(
           labelText: label,
           filled: true,

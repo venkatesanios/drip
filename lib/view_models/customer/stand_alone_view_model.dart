@@ -511,25 +511,20 @@ class StandAloneViewModel extends ChangeNotifier {
       masterData.irrigationLine.expand((line) => line.outletSources).toList(),
     );
 
-    String strSldCtrlFilterSrlNo = extractFilterRelaySrlNos(masterData.irrigationLine);
+    String strSldCtrlFilterSrlNo = extractFilterRelaySrlNos(masterData.irrigationLine,'central');
+    String strSldCtrlFrtBoosterSrlNo = extractCFrtBoosterSNos(masterData.irrigationLine,'central');
+    String strSldCtrlFrtChannelSrlNo = extractCFrtChannelSNos(masterData.irrigationLine,'central');
+    String strSldCtrlFrtAgitatorSrlNo = extractCFrtAgitatorSN(masterData.irrigationLine,'central');
+
 
     if(ddCurrentPosition==0) {
       List<String> allRelaySrlNo = [];
-      String strSldValveOrLineSrlNo = '';
-      String strSldMainValveSrlNo = '',
-          strSldLocFilterSrlNo = '',
-          strSldCrlFetFilterSrlNo = '',
-          strSldLocFetFilterSrlNo = '',
-          strSldAgitatorSrlNo = '',
-          strSldFanSrlNo = '',
-          strSldFoggerSrlNo = ''      ,
-          strSldBoosterPumpSrlNo = '',
-          strSldSelectorSrlNo = '';
+      String strSldValveSrlNo = '';
 
       for (var line in masterData.irrigationLine) {
         for (int j = 0; j < line.valveObjects.length; j++) {
           if (line.valveObjects[j].isOn) {
-            strSldValveOrLineSrlNo += '${line.valveObjects[j].sNo}_';
+            strSldValveSrlNo += '${line.valveObjects[j].sNo}_';
             standaloneSelection.add({
               'sNo': line.valveObjects[j].sNo,
               'selected': line.valveObjects[j].isOn,
@@ -538,26 +533,19 @@ class StandAloneViewModel extends ChangeNotifier {
         }
       }
 
-      strSldValveOrLineSrlNo = strSldValveOrLineSrlNo.isNotEmpty ? strSldValveOrLineSrlNo.substring(
-          0, strSldValveOrLineSrlNo.length - 1) : '';
+      strSldValveSrlNo = strSldValveSrlNo.isNotEmpty ? strSldValveSrlNo.substring(
+          0, strSldValveSrlNo.length - 1) : '';
 
       allRelaySrlNo = [
         strSldSourcePumpSrlNo,
-        strSldIrrigationPumpSrlNo,
-        strSldMainValveSrlNo,
+        strSldValveSrlNo,
         strSldCtrlFilterSrlNo,
-        strSldValveOrLineSrlNo,
-        strSldLocFilterSrlNo,
-        strSldCrlFetFilterSrlNo,
-        strSldLocFetFilterSrlNo,
-        strSldAgitatorSrlNo,
-        strSldFanSrlNo,
-        strSldFoggerSrlNo,
-        strSldBoosterPumpSrlNo,
-        strSldSelectorSrlNo,
+        strSldCtrlFrtBoosterSrlNo,
+        strSldCtrlFrtChannelSrlNo,
+        strSldCtrlFrtAgitatorSrlNo,
       ];
 
-      if (strSldIrrigationPumpSrlNo.isNotEmpty && strSldValveOrLineSrlNo.isEmpty)
+      if (strSldIrrigationPumpSrlNo.isNotEmpty && strSldValveSrlNo.isEmpty)
       {
         showDialog<String>(
             context: context,
@@ -727,18 +715,71 @@ class StandAloneViewModel extends ChangeNotifier {
     return serialNos.join('_');
   }
 
-  String extractFilterRelaySrlNos(List<IrrigationLineModel> lines) {
+  String extractFilterRelaySrlNos(List<IrrigationLineModel> lines, String type) {
     final List<String> result = [];
     for (var line in lines) {
-      if (line.centralFilterSite != null && line.centralFilterSite!.filters.isNotEmpty) {
-        final filterSrlNo = getSelectedRelaySrlNo(line.centralFilterSite!.filters);
-        if (filterSrlNo.isNotEmpty) {
-          result.add(filterSrlNo);
+      if(type=='central'){
+        if (line.centralFilterSite != null && line.centralFilterSite!.filters.isNotEmpty) {
+          final filterSrlNo = getSelectedRelaySrlNo(line.centralFilterSite!.filters);
+          if (filterSrlNo.isNotEmpty) {
+            result.add(filterSrlNo);
+          }
         }
+      }else{
       }
     }
     return result.join('_');
   }
+
+  String extractCFrtBoosterSNos(List<IrrigationLineModel> lines, String type) {
+    final List<String> result = [];
+    for (var line in lines) {
+      if(type=='central'){
+        if (line.centralFertilizerSite != null && line.centralFertilizerSite!.channel.isNotEmpty) {
+          final boosterSrlNo = getSelectedRelaySrlNo(line.centralFertilizerSite!.boosterPump);
+          if (boosterSrlNo.isNotEmpty) {
+            result.add(boosterSrlNo);
+          }
+        }
+      }else{
+      }
+    }
+    return result.join('_');
+  }
+
+  String extractCFrtChannelSNos(List<IrrigationLineModel> lines, String type) {
+    final List<String> result = [];
+    for (var line in lines) {
+      if(type=='central'){
+        if (line.centralFertilizerSite != null && line.centralFertilizerSite!.channel.isNotEmpty) {
+          final channelSrlNo = getSelectedRelaySrlNo(line.centralFertilizerSite!.channel);
+          if (channelSrlNo.isNotEmpty) {
+            result.add(channelSrlNo);
+          }
+        }
+      }else{
+      }
+    }
+    return result.join('_');
+  }
+
+  String extractCFrtAgitatorSN(List<IrrigationLineModel> lines, String type) {
+    final List<String> result = [];
+    for (var line in lines) {
+      if(type=='central'){
+        if (line.centralFertilizerSite != null && line.centralFertilizerSite!.channel.isNotEmpty) {
+          final agitatorSrlNo = getSelectedRelaySrlNo(line.centralFertilizerSite!.agitator);
+          if (agitatorSrlNo.isNotEmpty) {
+            result.add(agitatorSrlNo);
+          }
+        }
+      }else{
+      }
+    }
+    return result.join('_');
+  }
+
+
 
   String getSelectedRelaySrlNo(itemList) {
     String result = '';
@@ -758,6 +799,7 @@ class StandAloneViewModel extends ChangeNotifier {
     String finalResult = allRelaySrlNo.where((s) => s.isNotEmpty).join('_');
     String payload = '';
     String payLoadFinal = '';
+    print('all Relay : $finalResult');
 
     if(standAloneMethod==1 && strDuration=='00:00:00'){
       ScaffoldMessenger.of(context).showSnackBar(

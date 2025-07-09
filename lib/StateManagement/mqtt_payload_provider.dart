@@ -117,6 +117,8 @@ class MqttPayloadProvider with ChangeNotifier {
    final Map<String, String> _channelOnOffStatusMap = {};
    final Map<String, String> _channelOtherDetailMap = {};
    final Map<String, String> _valveOnOffStatusMap = {};
+   final Map<String, String> _lightOnOffStatusMap = {};
+   final Map<String, String> _gateOnOffStatusMap = {};
    final Map<String, String> _sensorValueMap = {};
    final Map<String, String> _boosterPumpOnOffStatusMap = {};
    final Map<String, String> _agitatorOnOffStatusMap = {};
@@ -641,6 +643,7 @@ class MqttPayloadProvider with ChangeNotifier {
           updateFertilizerSitePayloads(data['cM']['2402'].split(";"), data['cM']['2407'].split(";"));
 
           updateValveStatus(data['cM']['2402'].split(";"));
+          updateLightStatus(data['cM']['2402'].split(";"));
           updateSensorValue(data['cM']['2403'].split(";"));
           updateBoosterPumpStatus(data['cM']['2402'].split(";"));
           updateAgitatorStatus(data['cM']['2402'].split(";"));
@@ -860,6 +863,26 @@ class MqttPayloadProvider with ChangeNotifier {
      }
    }
 
+   void updateGateStatus(List<String> gateOnOffPayload) {
+     for (final entry in gateOnOffPayload) {
+       if (!entry.startsWith('43.')) continue;
+       final parts = entry.split(',');
+       if (parts.isEmpty || parts[0].isEmpty) continue;
+       final sNo = parts[0];
+       _gateOnOffStatusMap[sNo] = entry;
+     }
+   }
+
+   void updateLightStatus(List<String> lightOnOffPayload) {
+     for (final entry in lightOnOffPayload) {
+       if (!entry.startsWith('19.')) continue;
+       final parts = entry.split(',');
+       if (parts.isEmpty || parts[0].isEmpty) continue;
+       final sNo = parts[0];
+       _lightOnOffStatusMap[sNo] = entry;
+     }
+   }
+
    void updateSensorValue(List<String> sensorValuePayload) {
      for (final entry in sensorValuePayload) {
        final parts = entry.split(',');
@@ -921,6 +944,8 @@ class MqttPayloadProvider with ChangeNotifier {
    String? getChannelOnOffStatus(String sNo) => _channelOnOffStatusMap[sNo];
    String? getChannelOtherData(String sNo) => _channelOtherDetailMap[sNo];
    String? getValveOnOffStatus(String sNo) => _valveOnOffStatusMap[sNo];
+   String? getLightOnOffStatus(String sNo) => _lightOnOffStatusMap[sNo];
+   String? getGateOnOffStatus(String sNo) => _gateOnOffStatusMap[sNo];
    String? getSensorUpdatedValve(String sNo) => _sensorValueMap[sNo];
    String? getBoosterPumpOnOffStatus(String sNo) => _boosterPumpOnOffStatusMap[sNo];
    String? getAgitatorOnOffStatus(String sNo) => _agitatorOnOffStatusMap[sNo];
