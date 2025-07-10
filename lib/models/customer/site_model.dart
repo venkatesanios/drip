@@ -295,6 +295,13 @@ class WaterSourceModel {
 }
 
 
+abstract class ControllableDevice {
+  double get sNo;
+  String get name;
+  int get status;
+  bool get isOn;
+}
+
 class IrrigationLineModel {
   final double sNo;
   final String name;
@@ -1109,12 +1116,17 @@ class SensorModel {
   }
 }
 
-class ValveModel {
+class ValveModel implements ControllableDevice {
+  @override
   final double sNo;
+  @override
   final String name;
-  final List<WaterSourceModel> waterSources;
+  @override
   int status;
+  @override
   bool isOn;
+
+  final List<WaterSourceModel> waterSources;
   List<MoistureSensorModel> moistureSensors = [];
 
   ValveModel({
@@ -1126,28 +1138,18 @@ class ValveModel {
   });
 
   factory ValveModel.fromConfigObject(ConfigObject obj, List<WaterSourceModel> ws) {
-
-    List<double> assignedSNos = (obj.assignObject ?? [])
-        .map((e) => (e as num).toDouble())
-        .toList();
-
+    List<double> assignedSNos = (obj.assignObject ?? []).map((e) => (e as num).toDouble()).toList();
     List<WaterSourceModel> sources = [];
 
     if (assignedSNos.isNotEmpty) {
       for (var val in assignedSNos) {
         int integerPart = val.floor();
         if (integerPart == 1) {
-          sources = ws.where((source) => assignedSNos.contains(source.sNo))
-              .toList();
+          sources = ws.where((source) => assignedSNos.contains(source.sNo)).toList();
           break;
         }
       }
     }
-
-    /*List<WaterSourceModel> sources = configObjects
-        .where((source) => assignedSNos.contains(source.sNo))
-        .toList();*/
-
 
     return ValveModel(
       sNo: obj.sNo,
@@ -1165,16 +1167,21 @@ class ValveModel {
   }
 }
 
-
-class LightModel {
+class LightModel implements ControllableDevice {
+  @override
   final double sNo;
+  @override
   final String name;
+  @override
   int status;
+  @override
+  bool isOn;
 
   LightModel({
     required this.sNo,
     required this.name,
     this.status = 0,
+    this.isOn = false,
   });
 
   factory LightModel.fromConfigObject(ConfigObject obj) {
@@ -1193,15 +1200,21 @@ class LightModel {
   }
 }
 
-class GateModel {
+class GateModel implements ControllableDevice {
+  @override
   final double sNo;
+  @override
   final String name;
+  @override
   int status;
+  @override
+  bool isOn;
 
   GateModel({
     required this.sNo,
     required this.name,
     this.status = 0,
+    this.isOn = false,
   });
 
   factory GateModel.fromConfigObject(ConfigObject obj) {
