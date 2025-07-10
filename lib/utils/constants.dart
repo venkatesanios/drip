@@ -223,6 +223,12 @@ class AppConstants {
   static const String valveCwsNotON = "valve_orange_cws.png";
   static const String valveCwsNotOFF = "valve_red_cws.png";
 
+  static const String lightOFF = "light_gray.png";
+  static const String lightON = "light_yellow.png";
+
+  static const String gateOFF = "gate_close.png";
+  static const String gateON = "gate_open.png";
+
   static const Map<UserRole, String> formTitle = {
     UserRole.admin: "Dealer Account Form",
     UserRole.dealer: "Customer Account Form",
@@ -337,6 +343,12 @@ class AppConstants {
         break;
       case 'valve_cws':
         imagePathFinal = _getValveCWSImagePath(keyTwo);
+        break;
+      case 'light':
+        imagePathFinal = _getLightImagePath(keyTwo);
+        break;
+      case 'gate':
+        imagePathFinal = _getGateImagePath(keyTwo);
         break;
 
       default:
@@ -528,6 +540,28 @@ class AppConstants {
         return valveCwsNotON;
       case 3:
         return valveCwsNotOFF;
+      default:
+        return '';
+    }
+  }
+
+  static String _getLightImagePath(int status) {
+    switch (status) {
+      case 0:
+        return lightOFF;
+      case 1:
+        return lightON;
+      default:
+        return '';
+    }
+  }
+
+  static String _getGateImagePath(int status) {
+    switch (status) {
+      case 0:
+        return gateOFF;
+      case 1:
+        return gateON;
       default:
         return '';
     }

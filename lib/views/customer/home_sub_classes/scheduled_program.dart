@@ -966,49 +966,67 @@ class ScheduledProgram extends StatelessWidget {
   }
 
   void getAdvisory() async {
-    //weather data
     try {
-      final weatherData = await WeatherService().fetchWeather(city: 'Coimbatore');
 
-      aiResponseNotifier.value = null;
+      Map<String, Object> body = {
+        "userId": userId,
+        "controllerId": controllerId,
+      };
 
-      final params = IrrigationParams(
-        cropType: 'Rice',
-        soilType: 'Clay',
-        moistureLevel: '60',
-        weather: '${weatherData['rainfall']}',
-        area: '200',
-        growthStage: 'Flowering',
-        temperature: '${weatherData['temperature']}',
-        humidity: '${weatherData['humidity']}',
-        windSpeed: '${weatherData['wind_speed']}',
-        windDirection: '${weatherData['wind_direction']}',
-        cloudCover: '${weatherData['cloud_cover']}',
-        pressure: '${weatherData['pressure']}',
-        recentRainfall: '${weatherData['rainfall']}',
-        irrigationMethod: 'Drip',
-      );
-      final prompt = params.toPrompt();
-      try {
-        final response = await HttpService().sendTextToAI(prompt, "English");
-        final lines = response.trim().split('\n');
-        final percent = extractPercentageOnly(lines[0]);
-        final reason = lines.skip(1).join('\n').trim();
+      final response = await Repository(HttpService()).fetchSiteAiAdvisoryData(body);
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        if (jsonData["code"] == 200) {
+          final data = jsonData['data'];
+          if (data != null || data.isNotEmpty) {
 
-        if (percent != null) {
-          aiResponseNotifier.value = {
-            'percentage': percent,
-            'reason': reason,
-          };
-        } else {
-          aiResponseNotifier.value = {
-            'error': '⚠️Could not extract irrigation percentage.',
-          };
+            final weatherData = await WeatherService().fetchWeather(city: data['location']);
+            aiResponseNotifier.value = null;
+
+            final params = IrrigationParams(
+              cropType: data['cropName'],
+              soilType: data['soilType'],
+              moistureLevel: 'unknown',
+              weather: '${weatherData['rainfall']}',
+              area: data['fieldArea'],
+              growthStage: data['stage'],
+              temperature: '${weatherData['temperature']}',
+              humidity: '${weatherData['humidity']}',
+              windSpeed: '${weatherData['wind_speed']}',
+              windDirection: '${weatherData['wind_direction']}',
+              cloudCover: '${weatherData['cloud_cover']}',
+              pressure: '${weatherData['pressure']}',
+              recentRainfall: '${weatherData['rainfall']}',
+              irrigationMethod: data['irrigationType'],
+            );
+
+            final prompt = params.toPrompt();
+            try {
+              final response = await HttpService().sendTextToAI(prompt, "English");
+              final lines = response.trim().split('\n');
+              final percent = extractPercentageOnly(lines[0]);
+              final reason = lines.skip(1).join('\n').trim();
+
+              if (percent != null) {
+                aiResponseNotifier.value = {
+                  'percentage': percent,
+                  'reason': reason,
+                };
+              } else {
+                aiResponseNotifier.value = {
+                  'error': '⚠️Could not extract irrigation percentage.',
+                };
+              }
+            } catch (e) {
+              aiResponseNotifier.value = {
+                'error': '❌ Error fetching AI advisory.',
+              };
+            }
+
+          } else {
+            print("Data is empty");
+          }
         }
-      } catch (e) {
-        aiResponseNotifier.value = {
-          'error': '❌ Error fetching AI advisory.',
-        };
       }
 
     } catch (e) {
@@ -1051,8 +1069,6 @@ class ClickableSubmenu extends StatelessWidget {
     );
   }
 
-
-
   void _showSubmenu(BuildContext context) {
     final RenderBox button = context.findRenderObject() as RenderBox;
     final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
@@ -1070,15 +1086,13 @@ class ClickableSubmenu extends StatelessWidget {
       position: position,
       items: submenuItems.map((Sequence item) {
         return PopupMenuItem<String>(
-          value: item.name, // Ensure unique values
+          value: item.name,
           child: Text(item.name),
         );
       }).toList(),
     ).then((String? selectedItem) {
       if (selectedItem != null) {
         int selectedIndex = submenuItems.indexWhere((item) => item.name == selectedItem);
-
-        // Ensure selectedItem exists before calling callback
         if (selectedIndex != -1) {
           onItemSelected(selectedItem, selectedIndex);
         }

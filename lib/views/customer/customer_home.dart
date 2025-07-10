@@ -290,6 +290,8 @@ class CustomerHome extends StatelessWidget {
       filterSite: filterSite,
       fertilizerSite: fertilizerSite,
       valves: irrLine.valveObjects,
+      lights:irrLine.lightObjects,
+      gates:irrLine.gateObjects,
       prsSwitch: irrLine.prsSwitch,
       pressureIn: irrLine.pressureIn,
       pressureOut: irrLine.pressureOut,
@@ -349,6 +351,8 @@ class PumpStationWithLine extends StatelessWidget {
   final List<FilterSiteModel> filterSite;
   final List<FertilizerSiteModel> fertilizerSite;
   final List<ValveModel> valves;
+  final List<LightModel> lights;
+  final List<GateModel> gates;
   final List<SensorModel> prsSwitch;
   final List<SensorModel> pressureIn;
   final List<SensorModel> pressureOut;
@@ -362,6 +366,8 @@ class PumpStationWithLine extends StatelessWidget {
     required this.filterSite,
     required this.fertilizerSite,
     required this.valves,
+    required this.lights,
+    required this.gates,
     required this.prsSwitch,
     required this.pressureIn,
     required this.pressureOut,
@@ -389,6 +395,14 @@ class PumpStationWithLine extends StatelessWidget {
         );
       }).toList();
 
+      final gateWidgets = gates.asMap().entries.map((entry) {
+        return GateWidget(objGate: entry.value);
+      }).toList();
+
+      final lightWidgets = lights.asMap().entries.map((entry) {
+        return LightWidget(objLight: entry.value);
+      }).toList();
+
       final allItems = [
         if (inletWaterSources.isNotEmpty)
           ..._buildWaterSource(context, inletWaterSources, true, true,fertilizerSite.isNotEmpty? true:false),
@@ -405,7 +419,9 @@ class PumpStationWithLine extends StatelessWidget {
           ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', fertilizerSite.isNotEmpty),
           ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter_wj.png', fertilizerSite.isNotEmpty),
           ...valveWidgets,
-          ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor_wjl.png', fertilizerSite.isNotEmpty),
+          ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor_wjl.png', fertilizerSite.isEmpty),
+        ...lightWidgets,
+        ...gateWidgets,
       ];
 
       return Padding(
@@ -496,6 +512,12 @@ class PumpStationWithLine extends StatelessWidget {
         false,
       );
 
+      final lightWidgetEntries = lights.asMap().entries.toList();
+      final lightWidgets = lightWidgetEntries.map((entry) {
+        return LightWidget(objLight: entry.value);
+      }).toList();
+
+
       final allItems = [
         ...allItemsWithoutValves,
         ...valveWidgets,
@@ -512,6 +534,7 @@ class PumpStationWithLine extends StatelessWidget {
             children: [
               ...wsAndFilterItems,
               ...allItems,
+              ...lightWidgets,
             ],
           ),
         );
@@ -548,7 +571,6 @@ class PumpStationWithLine extends StatelessWidget {
           ],
         );
       }
-
     }
   }
 
@@ -1006,8 +1028,10 @@ class SensorWidget extends StatelessWidget {
             children: [
               if (sensorType != 'Pressure Switch')
                 _buildSensorButton(context)
-              else
-                const SizedBox(height: 8),
+              else...[
+                const SizedBox(height: 1),
+                Image.asset(imagePath, width: 70, height: 70)
+              ],
               Text(
                 sensor.name,
                 textAlign: TextAlign.center,
@@ -1241,7 +1265,6 @@ class SensorPopoverContent extends StatelessWidget {
     );
   }
 }
-
 
 class ValveWidget extends StatelessWidget {
   final ValveModel valve;
@@ -1829,4 +1852,92 @@ class ValveWidget extends StatelessWidget {
     }
     return result;
   }
+}
+
+class LightWidget extends StatelessWidget {
+  final LightModel objLight;
+  const LightWidget({super.key, required this.objLight});
+
+  @override
+  Widget build(BuildContext context) {
+    return Selector<MqttPayloadProvider, String?>(
+      selector: (_, provider) => provider.getLightOnOffStatus(objLight.sNo.toString()),
+      builder: (_, status, __) {
+
+        final statusParts = status?.split(',') ?? [];
+        if(statusParts.isNotEmpty){
+          objLight.status = int.parse(statusParts[1]);
+        }
+
+        return SizedBox(
+          width: 70,
+          height: 100,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 70,
+                height: 70,
+                child: AppConstants.getAsset('light', objLight.status, ''),
+              ),
+              Text(
+                objLight.name,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 10, color: Colors.black54),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+}
+
+class GateWidget extends StatelessWidget {
+  final GateModel objGate;
+  const GateWidget({super.key, required this.objGate});
+
+  @override
+  Widget build(BuildContext context) {
+    return Selector<MqttPayloadProvider, String?>(
+      selector: (_, provider) => provider.getGateOnOffStatus(objGate.sNo.toString()),
+      builder: (_, status, __) {
+
+        final statusParts = status?.split(',') ?? [];
+        if(statusParts.isNotEmpty){
+          objGate.status = int.parse(statusParts[1]);
+        }
+
+        return SizedBox(
+          width: 70,
+          height: 100,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 70,
+                height: 70,
+                child: AppConstants.getAsset('gate', objGate.status, ''),
+              ),
+              Text(
+                objGate.name,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 10, color: Colors.black54),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
 }
