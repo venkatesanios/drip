@@ -6,8 +6,7 @@ import '../../Models/customer/site_model.dart';
 import '../../Models/customer/stand_alone_model.dart';
 import '../../repository/repository.dart';
 import '../../services/communication_service.dart';
-import '../../services/mqtt_service.dart';
-import '../../utils/constants.dart';
+
 
 enum SegmentWithFlow {manual, duration, flow}
 
@@ -522,12 +521,18 @@ class StandAloneViewModel extends ChangeNotifier {
       String strSldValveSrlNo = '';
 
       for (var line in masterData.irrigationLine) {
-        for (int j = 0; j < line.valveObjects.length; j++) {
-          if (line.valveObjects[j].isOn) {
-            strSldValveSrlNo += '${line.valveObjects[j].sNo}_';
+        List<ControllableDevice> allDevices = [
+          ...line.valveObjects,
+          ...line.lightObjects,
+          ...line.gateObjects,
+        ];
+
+        for (var device in allDevices) {
+          if (device.isOn) {
+            strSldValveSrlNo += '${device.sNo}_';
             standaloneSelection.add({
-              'sNo': line.valveObjects[j].sNo,
-              'selected': line.valveObjects[j].isOn,
+              'sNo': device.sNo,
+              'selected': device.isOn,
             });
           }
         }

@@ -512,16 +512,25 @@ class PumpStationWithLine extends StatelessWidget {
         false,
       );
 
+      final gateWidgetEntries = gates.asMap().entries.toList();
+      final gateWidgets = gateWidgetEntries.map((entry) {
+        return GateWidget(objGate: entry.value);
+      }).toList();
+
       final lightWidgetEntries = lights.asMap().entries.toList();
       final lightWidgets = lightWidgetEntries.map((entry) {
         return LightWidget(objLight: entry.value);
       }).toList();
 
 
+
+
       final allItems = [
         ...allItemsWithoutValves,
         ...valveWidgets,
         ...pressureOutWidgets,
+        ...lightWidgets,
+        ...gateWidgets,
       ];
 
       if (fertilizerSite.isEmpty) {
@@ -534,7 +543,6 @@ class PumpStationWithLine extends StatelessWidget {
             children: [
               ...wsAndFilterItems,
               ...allItems,
-              ...lightWidgets,
             ],
           ),
         );
@@ -1508,18 +1516,16 @@ class ValveWidget extends StatelessWidget {
                     ),
                     if (valve.waterSources[0].level.isNotEmpty) ...[
                       Positioned(
-                        top: 17.5,
+                        top: 18,
                         left: 2,
                         right: 2,
                         child: Consumer<MqttPayloadProvider>(
                           builder: (_, provider, __) {
                             final sensorUpdate = provider.getSensorUpdatedValve(valve.waterSources[0].level[0].sNo.toString());
                             final statusParts = sensorUpdate?.split(',') ?? [];
-
                             if (statusParts.length > 1) {
                               valve.waterSources[0].level.first.value = statusParts[1];
                             }
-
                             return Container(
                               height: 17,
                               decoration: BoxDecoration(

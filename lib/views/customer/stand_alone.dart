@@ -522,10 +522,6 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
         .whereType<FertilizerSiteModel>()
         .toList();
 
-    final valveList = masterData.irrigationLine
-        .expand((line) => line.valveObjects ?? [])
-        .toList();
-
     return Column(
       children: [
         if(vm.ddCurrentPosition==0)...[
@@ -1081,9 +1077,9 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                       ),
                     ),
                     SizedBox(
-                      height: (line.valveObjects.length*40)+3,
+                      height: ((line.valveObjects.length + line.lightObjects.length + line.gateObjects.length) * 40) + 3,
                       child: Padding(
-                        padding: const EdgeInsets.only(left:3, right:3, bottom: 3),
+                        padding: const EdgeInsets.only(left: 3, right: 3, bottom: 3),
                         child: DataTable2(
                           columnSpacing: 12,
                           horizontalMargin: 12,
@@ -1095,14 +1091,21 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                             DataColumn2(label: Center(child: Text('')), fixedWidth: 30),
                             DataColumn2(label: Text('Name'), size: ColumnSize.M),
                             DataColumn2(
-                              label: Center(child: Text('Valve Status')),
+                              label: Center(child: Text('Status')),
                               fixedWidth: 50,
                             ),
                           ],
-                          rows: List<DataRow>.generate(line.valveObjects.length, (valveIndex) {
-                            final valve = line.valveObjects[valveIndex];
-                            return DataRow(cells: [
-                              DataCell(Center(child: Image.asset('assets/png/valve_gray.png', width: 25, height: 25))),
+                          rows: [
+                            ...line.valveObjects.map((valve) => DataRow(cells: [
+                              DataCell(
+                                Center(
+                                  child: Image.asset(
+                                    'assets/png/valve_gray.png',
+                                    width: 25,
+                                    height: 25,
+                                  ),
+                                ),
+                              ),
                               DataCell(Text(valve.name)),
                               DataCell(
                                 Transform.scale(
@@ -1122,8 +1125,68 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                                   ),
                                 ),
                               ),
-                            ]);
-                          }),
+                            ])),
+                            ...line.lightObjects.map((light) => DataRow(cells: [
+                              DataCell(
+                                Center(
+                                  child: Image.asset(
+                                    'assets/png/light_gray.png',
+                                    width: 25,
+                                    height: 25,
+                                  ),
+                                ),
+                              ),
+                              DataCell(Text(light.name)),
+                              DataCell(
+                                Transform.scale(
+                                  scale: 0.7,
+                                  child: Tooltip(
+                                    message: light.isOn ? 'Turn Off' : 'Turn On',
+                                    child: Switch(
+                                      hoverColor: Colors.pink.shade100,
+                                      activeColor: Colors.teal,
+                                      value: light.isOn,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          light.isOn = value;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ])),
+                            ...line.gateObjects.map((gate) => DataRow(cells: [
+                              DataCell(
+                                Center(
+                                  child: Image.asset(
+                                    'assets/png/gate_close.png',
+                                    width: 25,
+                                    height: 25,
+                                  ),
+                                ),
+                              ),
+                              DataCell(Text(gate.name)),
+                              DataCell(
+                                Transform.scale(
+                                  scale: 0.7,
+                                  child: Tooltip(
+                                    message: gate.isOn ? 'Turn Off' : 'Turn On',
+                                    child: Switch(
+                                      hoverColor: Colors.pink.shade100,
+                                      activeColor: Colors.teal,
+                                      value: gate.isOn,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          gate.isOn = value;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ])),
+                          ],
                         ),
                       ),
                     ),
