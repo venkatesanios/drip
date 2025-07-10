@@ -894,7 +894,7 @@ class MqttPayloadProvider with ChangeNotifier {
 
    void updateBoosterPumpStatus(List<String> valveOnOffPayload) {
      for (final entry in valveOnOffPayload) {
-       if (!entry.startsWith('9.')) continue;
+       if (!entry.startsWith('7.')) continue;
        final parts = entry.split(',');
        if (parts.isEmpty || parts[0].isEmpty) continue;
        final sNo = parts[0];
@@ -904,7 +904,7 @@ class MqttPayloadProvider with ChangeNotifier {
 
    void updateAgitatorStatus(List<String> status) {
      for (final entry in status) {
-       if (!entry.startsWith('7.')) continue;
+       if (!entry.startsWith('9.')) continue;
        final parts = entry.split(',');
        if (parts.isEmpty || parts[0].isEmpty) continue;
        final sNo = parts[0];
