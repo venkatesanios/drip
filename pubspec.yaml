@@ -73,6 +73,7 @@ dependencies:
   crypto: ^3.0.6
   image_picker: ^1.1.2
   animated_text_kit: ^4.2.3
+  flutter_native_splash: ^2.4.0
 #  audioplayers: ^6.5.0
 #  record: ^6.0.0
 
@@ -111,6 +112,8 @@ flutter:
     - assets/.env
     - assets/ssh/smartComm/id_rsa
     - assets/localfile/Testing
+    - assets/splash/oro_production.png
+    - assets/splash/smart_comm.png
 
 
 flutter_launcher_icons:

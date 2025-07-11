@@ -170,6 +170,7 @@ class CustomerDeviceListViewModel extends ChangeNotifier {
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonData = jsonDecode(response.body);
         if(jsonData["code"] == 200){
+          customerSiteList.clear();
           final cntList = jsonData["data"] as List;
           for (int i=0; i < cntList.length; i++) {
             customerSiteList.add(ProductListWithNode.fromJson(cntList[i]));
@@ -193,7 +194,6 @@ class CustomerDeviceListViewModel extends ChangeNotifier {
     try {
       var response = await repository.fetchMasterProductStock(body);
       if (response.statusCode == 200) {
-        print(response.body);
         final Map<String, dynamic> jsonData = jsonDecode(response.body);
         if(jsonData["code"] == 200){
           myMasterControllerList.clear();

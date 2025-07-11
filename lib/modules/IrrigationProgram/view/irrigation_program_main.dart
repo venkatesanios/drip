@@ -411,7 +411,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
             showValidationAlert(
                 content: "Are you sure to proceed without pump selection?",
                 ignoreValidation: mainProvider.pump!.length > 1,
-              index: _tabController.index + 1
+                index: _tabController.index + 1
             );
           } else {
             _navigateToNextTab();

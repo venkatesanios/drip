@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Screens/Constant/main_valve_in_constant.dart';
@@ -9,7 +11,9 @@ import 'package:oro_drip_irrigation/Screens/Constant/main_valve_in_constant.dart
 import 'package:oro_drip_irrigation/modules/constant/model/object_in_constant_model.dart';
 
 import '../../../StateManagement/overall_use.dart';
+import '../../../services/mqtt_service.dart';
 import '../../../utils/constants.dart';
+import '../../../utils/environment.dart';
 import '../state_management/constant_provider.dart';
 import '../widget/find_suitable_widget.dart';
 
@@ -24,6 +28,8 @@ class FilterSiteInConstant extends StatefulWidget {
 
 class _FilterSiteInConstantState extends State<FilterSiteInConstant> {
   double cellWidth = 200;
+  MqttService mqttService = MqttService();
+
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +41,7 @@ class _FilterSiteInConstantState extends State<FilterSiteInConstant> {
         return setting.ecoGemDisplay;
       }
     }).length;
+    settingLength = settingLength + 1;
     double minWidth = (cellWidth * 1) + (settingLength * cellWidth) + 50;
     Color borderColor = const Color(0xffE1E2E3);
     return DataTable2(
@@ -61,6 +68,11 @@ class _FilterSiteInConstantState extends State<FilterSiteInConstant> {
               label: Text(defaultSetting.title, style: Theme.of(context).textTheme.labelLarge,textAlign: TextAlign.center, softWrap: true,)
           );
         }),
+        DataColumn2(
+            headingRowAlignment: MainAxisAlignment.center,
+            fixedWidth: cellWidth,
+            label: Text('Backwash Command ono/ff', style: Theme.of(context).textTheme.labelLarge,textAlign: TextAlign.center, softWrap: true)
+        ),
       ],
       rows: List.generate(widget.constPvd.filterSite.length, (row){
         ObjectInConstantModel filterSite = widget.constPvd.filterSite[row];
@@ -95,6 +107,30 @@ class _FilterSiteInConstantState extends State<FilterSiteInConstant> {
 
                 );
               }),
+              DataCell(
+                  Center(
+                      child:  FilledButton.icon(
+                        icon: const Icon(Icons.swipe),
+                        onPressed: () {
+                          String manualBackwashPayload = jsonEncode({
+                            "4000": {"4001": filterSite.sNo.toString()}
+                          });
+                          mqttService.topicToPublishAndItsMessage(manualBackwashPayload, '${Environment.mqttPublishTopic}/${widget.constPvd.userData['deviceId']}');
+
+                        },
+                        label: const Text('Manual Backwash on/off', style: TextStyle(fontSize: 10),),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: Theme.of(context).primaryColorLight,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                          textStyle: const TextStyle(fontSize: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      )
+                  )
+              ),
             ]
         );
       }),

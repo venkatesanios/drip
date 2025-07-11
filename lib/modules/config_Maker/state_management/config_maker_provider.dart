@@ -166,6 +166,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     return list;
   }
 
+
   Future<List<DeviceModel>> fetchData(masterDataFromSiteConfigure)async {
     await Future.delayed(const Duration(seconds: 0));
     reInitialize();

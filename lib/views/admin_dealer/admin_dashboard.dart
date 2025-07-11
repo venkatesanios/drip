@@ -300,8 +300,9 @@ class AdminDashboard extends StatelessWidget {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Expanded(child: F.appFlavor!.name.contains('oro') ?
-                          Padding(
+                          Expanded(
+                              child: F.appFlavor!.name.contains('oro')
+                                  ? Padding(
                             padding: const EdgeInsets.all(5.0),
                             child: Image.asset(
                               "assets/images/Png/Oro/category_${index+1}.png",
@@ -310,11 +311,12 @@ class AdminDashboard extends StatelessWidget {
                                 return const Icon(Icons.error);
                               },
                             ),
-                          ):
-                          Padding(
+                          )
+                                  : Padding(
                             padding: const EdgeInsets.all(5.0),
                             child: Image.asset("assets/images/Png/SmartComm/category_${index+1}.png"),
-                          )),
+                          )
+                          ),
                           Container(
                             height: 25,
                             color: Theme.of(context).primaryColorLight.withOpacity(0.2),

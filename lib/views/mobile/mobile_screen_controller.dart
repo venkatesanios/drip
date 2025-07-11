@@ -553,7 +553,6 @@ class MobileScreenController extends StatelessWidget {
                                 )
                             );
                             break;
-
                           case 'Manual':
                             Navigator.push(
                                 context,
