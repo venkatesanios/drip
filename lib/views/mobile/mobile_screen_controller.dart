@@ -933,9 +933,13 @@ class MobileScreenController extends StatelessWidget {
         final interfaceType = provider.interfaceType;
         final ipAddress = provider.ipAddress;
 
+        context.read<MqttPayloadProvider>().clearWifiMessage();
+        Future.delayed(const Duration(milliseconds: 1500), () {
+          requestAndShowWifiList(context, true);
+        });
         if (message != null && message.isNotEmpty) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (message == 'WWi-Fi is now ON' || message == 'Wi-Fi is now OFF') {
+            if (message == 'Wi-Fi is now ON' || message == 'Wi-Fi is now OFF') {
               context.read<MqttPayloadProvider>().clearWifiMessage();
               Future.delayed(const Duration(milliseconds: 1500), () {
                 requestAndShowWifiList(context, true);

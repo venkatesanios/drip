@@ -145,9 +145,9 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
       };
       MqttService().topicToPublishAndItsMessage(
         jsonEncode(payload),
-        "$topic${macAddress}",
+        "$topic${_macController.text}",
       );
-      print('payload $payload  \n $topic${macAddress}');
+      print('payload $payload  \n $topic${_macController.text}');
     }
     else {
       final payload = {
@@ -155,9 +155,9 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
       };
       MqttService().topicToPublishAndItsMessage(
         jsonEncode(payload),
-        "$topic${macAddress}",
+        "$topic${_macController.text}",
       );
-      print('payload $payload  \n $topic${macAddress}');
+      print('payload $payload  \n $topic${_macController.text}');
     }
   }
 
@@ -205,7 +205,7 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
       };
       MqttService().topicToPublishAndItsMessage(
         jsonEncode(payload),
-        "$topic${macAddress}",
+        "$topic${_macController.text}",
       );
     }
     else
@@ -215,7 +215,7 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
       };
       MqttService().topicToPublishAndItsMessage(
         jsonEncode(payload),
-        "$topic${macAddress}",
+        "$topic${_macController.text}",
       );
     }
 
@@ -231,9 +231,9 @@ if(oldnewcheck == '1') {
   };
   MqttService().topicToPublishAndItsMessage(
     jsonEncode(payload),
-    "$topic${macAddress}",
+    "$topic${_macController.text}",
   );
-  print('payload $payload  \n $topic${macAddress}');
+  print('payload $payload  \n $topic${_macController.text}');
 }
 else
   {
@@ -242,9 +242,9 @@ else
     };
     MqttService().topicToPublishAndItsMessage(
       jsonEncode(payload),
-      "$topic${macAddress}",
+      "$topic${_macController.text}",
     );
-    print('payload $payload  \n $topic${macAddress}');
+    print('payload $payload  \n $topic${_macController.text}');
   }
 
   }

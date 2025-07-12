@@ -310,7 +310,7 @@ class BluService {
   }
 
   void _parseBuffer11() {
-    print('_buffer----> $_buffer');
+    print('_buffer----> wifi1 $_buffer');
     bool startlog = false;
       if (_buffer.contains('LogFileSentSuccess')) {
       print('LogFileSentSuccess------true');
@@ -367,7 +367,7 @@ class BluService {
   }
 
   void _parseBuffer() {
-    print('_buffer----> $_buffer');
+    print('_buffer---->wifi2 $_buffer');
 
     // Start logging when *StartLog appears
 
@@ -476,7 +476,8 @@ class BluService {
     }
   }
 
-  Future<void> write(String payload) async {
+  Future<void> write(String payload) async
+  {
     if (_connection != null && _connection!.isConnected) {
       final finalPayload = '*$payload#';
       print("Sending: $finalPayload");
