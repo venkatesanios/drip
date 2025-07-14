@@ -39,7 +39,7 @@ import FirebaseMessaging
 //    let firebaseAuth = Auth.auth()
 //    firebaseAuth.setAPNSToken(deviceToken, type: AuthAPNSTokenType.unknown)
   }
-
+ 
   override func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
     Messaging.messaging().appDidReceiveMessage(userInfo) // Handle FCM notifications
     completionHandler(.newData)
