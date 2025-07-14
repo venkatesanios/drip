@@ -670,7 +670,18 @@ class BleProvider extends ChangeNotifier {
         List<SftpName> listOfFile = await sftpService.listFilesInPath(nodeDataFromServer['pathSetting']['downloadDirectory']);
         for(var file in listOfFile){
           print(file);
-          if(loraModel.contains(nodeDataFromHw['MID'])){
+          String gemLora1 = '41';
+          String gemLora2 = '42';
+          String rtuLora = '40';
+          if(nodeDataFromHw['MID'] == gemLora1){
+            if(file.filename.contains('lora-1')){
+              nodeFirmwareFileName = file.filename;
+            }
+          }else if(nodeDataFromHw['MID'] == gemLora2){
+            if(file.filename.contains('lora-2')){
+              nodeFirmwareFileName = file.filename;
+            }
+          }else if(nodeDataFromHw['MID'] == rtuLora){
             if(file.filename.contains('lora')){
               nodeFirmwareFileName = file.filename;
             }
