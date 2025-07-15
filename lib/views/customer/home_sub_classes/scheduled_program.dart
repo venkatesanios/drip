@@ -3,6 +3,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
 import '../../../Models/customer/site_model.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
@@ -10,7 +11,9 @@ import '../../../modules/IrrigationProgram/view/irrigation_program_main.dart';
 import '../../../repository/repository.dart';
 import '../../../services/communication_service.dart';
 import '../../../services/http_service.dart';
+import '../../../services/weather_service.dart';
 import '../../../utils/constants.dart';
+import '../../../utils/my_function.dart';
 import '../../../utils/snack_bar.dart';
 
 class ScheduledProgram extends StatelessWidget {
@@ -26,6 +29,8 @@ class ScheduledProgram extends StatelessWidget {
   final List<ProgramList> scheduledPrograms;
   final double currentLineSNo;
 
+  static const headerStyle = TextStyle(fontSize: 13);
+  static final ValueNotifier<Map<String, dynamic>?> aiResponseNotifier = ValueNotifier(null);
 
   @override
   Widget build(BuildContext context) {
@@ -72,34 +77,13 @@ class ScheduledProgram extends StatelessWidget {
                         headingRowHeight: 40.0,
                         headingRowColor: WidgetStateProperty.all<Color>(Colors.yellow.shade50),
                         columns:  const [
-                          DataColumn2(
-                            label: Text('Name', style: TextStyle(fontSize: 13),),
-                            size: ColumnSize.M,
-                          ),
-                          DataColumn2(
-                            label: Text('Method', style: TextStyle(fontSize: 13)),
-                            size: ColumnSize.M,
-                          ),
-                          DataColumn2(
-                            label: Text('Status or Reason', style: TextStyle(fontSize: 13)),
-                            size: ColumnSize.L,
-                          ),
-                          DataColumn2(
-                            label: Center(child: Text('Zone', style: TextStyle(fontSize: 13),)),
-                            fixedWidth: 50,
-                          ),
-                          DataColumn2(
-                            label: Center(child: Text('Start Date & Time', style: TextStyle(fontSize: 13),)),
-                            size: ColumnSize.M,
-                          ),
-                          DataColumn2(
-                            label: Center(child: Text('End Date', style: TextStyle(fontSize: 13),)),
-                            size: ColumnSize.S,
-                          ),
-                          DataColumn2(
-                            label: Text(''),
-                            fixedWidth: 265,
-                          ),
+                          DataColumn2(label: Text('Name', style: headerStyle), size: ColumnSize.M),
+                          DataColumn2(label: Text('Method', style: headerStyle), size: ColumnSize.M),
+                          DataColumn2(label: Text('Status or Reason', style: headerStyle), size: ColumnSize.L),
+                          DataColumn2(label: Center(child: Text('Zone', style: headerStyle)), fixedWidth: 50),
+                          DataColumn2(label: Center(child: Text('Start Date & Time', style: headerStyle)), size: ColumnSize.M),
+                          DataColumn2(label: Center(child: Text('End Date', style: headerStyle)), size: ColumnSize.S),
+                          DataColumn2(label: Text(''), fixedWidth: 300),
                         ],
                         rows: List<DataRow>.generate(filteredScheduleProgram.length, (index) {
                           String buttonName = getButtonName(int.parse(filteredScheduleProgram[index].prgOnOff));
@@ -275,7 +259,7 @@ class ScheduledProgram extends StatelessWidget {
                                     child: Text(getButtonName(int.parse(filteredScheduleProgram[index].prgPauseResume))),
                                   ),
                                   const Spacer(),
-                                  getPermissionStatusBySNo(context, 3) ?PopupMenuButton<String>(
+                                  getPermissionStatusBySNo(context, 3) ? PopupMenuButton<String>(
                                     icon: const Icon(Icons.more_vert),
                                     onSelected: (String result) {
                                       if(result=='Edit program'){
@@ -334,6 +318,104 @@ class ScheduledProgram extends StatelessWidget {
                                     ],
                                   ):
                                   const IconButton(onPressed: null, icon: Icon(Icons.more_vert, color: Colors.grey,)),
+                                  SizedBox(
+                                    width:50,
+                                    child: Builder(
+                                      builder: (buttonContext) => Tooltip(
+                                        message: 'View AI Recommendation',
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            getAdvisory();
+                                            showPopover(
+                                              context: buttonContext,
+                                              bodyBuilder: (context) {
+                                                return ValueListenableBuilder<Map<String, dynamic>?>(
+                                                  valueListenable: aiResponseNotifier,
+                                                  builder: (context, data, _) {
+                                                    if (data == null) {
+                                                      return const Padding(
+                                                        padding: EdgeInsets.all(12),
+                                                        child: Text('🔄 Getting AI advisory...'),
+                                                      );
+                                                    }
+
+                                                    if (data.containsKey('error')) {
+                                                      return Padding(
+                                                        padding: const EdgeInsets.all(12),
+                                                        child: Text(data['error']),
+                                                      );
+                                                    }
+
+                                                    final percent = data['percentage'];
+                                                    final reason = data['reason'];
+
+
+                                                    return Padding(
+                                                      padding: const EdgeInsets.all(12),
+                                                      child: ConstrainedBox(
+                                                        constraints: const BoxConstraints(maxWidth: 400),
+                                                        child: Column(
+                                                          mainAxisSize: MainAxisSize.min,
+                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                          children: [
+                                                            Text("✅ Suggested Irrigation Percentage: $percent%",
+                                                                style: const TextStyle(fontSize: 16)),
+                                                            const SizedBox(height: 8),
+                                                            Text(reason, style: const TextStyle(fontSize: 14, color: Colors.black54)),
+                                                            const SizedBox(height: 12),
+                                                            Align(
+                                                              alignment: Alignment.centerRight,
+                                                              child: Row(
+                                                                mainAxisSize: MainAxisSize.min,
+                                                                children: [
+                                                                  ElevatedButton(
+                                                                    onPressed: () =>Navigator.of(context).pop(),
+                                                                    style: ElevatedButton.styleFrom(
+                                                                      backgroundColor: Colors.red,
+                                                                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                                                                    ),
+                                                                    child: const Text('Cancel', style: TextStyle(color: Colors.white)),
+                                                                  ),
+                                                                  const SizedBox(width: 16),
+                                                                  ElevatedButton(
+                                                                    onPressed: () {
+                                                                      print("✔️ Applied $percent%");
+                                                                      Navigator.of(context).pop();
+                                                                    },
+                                                                    style: ElevatedButton.styleFrom(
+                                                                      backgroundColor: Theme.of(context).primaryColor,
+                                                                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                                                                    ),
+                                                                    child: const Text('Apply', style: TextStyle(color: Colors.white)),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                );
+                                              },
+                                              onPop: () => print('Popover was popped!'),
+                                              direction: PopoverDirection.bottom,
+                                              arrowHeight: 15,
+                                              arrowWidth: 30,
+                                            );
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            shape: const CircleBorder(),
+                                            padding: const EdgeInsets.all(13),
+                                            backgroundColor: Theme.of(context).primaryColor,
+                                          ),
+                                          child: const Text('AI-R',
+                                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.normal, fontSize: 10),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ):
                               const Center(child: Text('The program is not ready', style: TextStyle(color: Colors.red),)),
@@ -597,6 +679,104 @@ class ScheduledProgram extends StatelessWidget {
                             ],
                           )
                               : const Icon(Icons.more_vert, color: Colors.grey),
+                          SizedBox(
+                            width:50,
+                            child: Builder(
+                              builder: (buttonContext) => Tooltip(
+                                message: 'View AI Recommendation',
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    getAdvisory();
+                                    showPopover(
+                                      context: buttonContext,
+                                      bodyBuilder: (context) {
+                                        return ValueListenableBuilder<Map<String, dynamic>?>(
+                                          valueListenable: aiResponseNotifier,
+                                          builder: (context, data, _) {
+                                            if (data == null) {
+                                              return const Padding(
+                                                padding: EdgeInsets.all(12),
+                                                child: Text('🔄 Getting AI advisory...'),
+                                              );
+                                            }
+
+                                            if (data.containsKey('error')) {
+                                              return Padding(
+                                                padding: const EdgeInsets.all(12),
+                                                child: Text(data['error']),
+                                              );
+                                            }
+
+                                            final percent = data['percentage'];
+                                            final reason = data['reason'];
+
+
+                                            return Padding(
+                                              padding: const EdgeInsets.all(12),
+                                              child: ConstrainedBox(
+                                                constraints: const BoxConstraints(maxWidth: 350),
+                                                child: Column(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text("✅ Suggested Irrigation Percentage: $percent%",
+                                                        style: const TextStyle(fontSize: 16)),
+                                                    const SizedBox(height: 8),
+                                                    Text(reason, style: const TextStyle(fontSize: 14, color: Colors.black54)),
+                                                    const SizedBox(height: 12),
+                                                    Align(
+                                                      alignment: Alignment.centerRight,
+                                                      child: Row(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        children: [
+                                                          ElevatedButton(
+                                                            onPressed: () =>Navigator.of(context).pop(),
+                                                            style: ElevatedButton.styleFrom(
+                                                              backgroundColor: Colors.red,
+                                                              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                                                            ),
+                                                            child: const Text('Cancel', style: TextStyle(color: Colors.white)),
+                                                          ),
+                                                          const SizedBox(width: 16),
+                                                          ElevatedButton(
+                                                            onPressed: () {
+                                                              print("✔️ Applied $percent%");
+                                                              Navigator.of(context).pop();
+                                                            },
+                                                            style: ElevatedButton.styleFrom(
+                                                              backgroundColor: Theme.of(context).primaryColor,
+                                                              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                                                            ),
+                                                            child: const Text('Apply', style: TextStyle(color: Colors.white)),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      },
+                                      onPop: () => print('Popover was popped!'),
+                                      direction: PopoverDirection.bottom,
+                                      arrowHeight: 15,
+                                      arrowWidth: 30,
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    shape: const CircleBorder(),
+                                    padding: const EdgeInsets.all(13),
+                                    backgroundColor: Theme.of(context).primaryColor,
+                                  ),
+                                  child: const Text('AI-R',
+                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.normal, fontSize: 10),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ):
                       const Center(child: Text('The program is not ready', style: TextStyle(color: Colors.red))),
@@ -785,6 +965,82 @@ class ScheduledProgram extends StatelessWidget {
     return permission['status'] as bool? ?? true;
   }
 
+  void getAdvisory() async {
+    try {
+
+      Map<String, Object> body = {
+        "userId": userId,
+        "controllerId": controllerId,
+      };
+
+      final response = await Repository(HttpService()).fetchSiteAiAdvisoryData(body);
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        if (jsonData["code"] == 200) {
+          final data = jsonData['data'];
+          if (data != null || data.isNotEmpty) {
+
+            final weatherData = await WeatherService().fetchWeather(city: data['location']);
+            aiResponseNotifier.value = null;
+
+            final params = IrrigationParams(
+              cropType: data['cropName'],
+              soilType: data['soilType'],
+              moistureLevel: 'unknown',
+              weather: '${weatherData['rainfall']}',
+              area: data['fieldArea'],
+              growthStage: data['stage'],
+              temperature: '${weatherData['temperature']}',
+              humidity: '${weatherData['humidity']}',
+              windSpeed: '${weatherData['wind_speed']}',
+              windDirection: '${weatherData['wind_direction']}',
+              cloudCover: '${weatherData['cloud_cover']}',
+              pressure: '${weatherData['pressure']}',
+              recentRainfall: '${weatherData['rainfall']}',
+              irrigationMethod: data['irrigationType'],
+            );
+
+            final prompt = params.toPrompt();
+            try {
+              final response = await HttpService().sendTextToAI(prompt, "English");
+              final lines = response.trim().split('\n');
+              final percent = extractPercentageOnly(lines[0]);
+              final reason = lines.skip(1).join('\n').trim();
+
+              if (percent != null) {
+                aiResponseNotifier.value = {
+                  'percentage': percent,
+                  'reason': reason,
+                };
+              } else {
+                aiResponseNotifier.value = {
+                  'error': '⚠️Could not extract irrigation percentage.',
+                };
+              }
+            } catch (e) {
+              aiResponseNotifier.value = {
+                'error': '❌ Error fetching AI advisory.',
+              };
+            }
+
+          } else {
+            print("Data is empty");
+          }
+        }
+      }
+
+    } catch (e) {
+      print('Failed to load weather: $e');
+    }
+
+  }
+
+
+  int? extractPercentageOnly(String text) {
+    final match = RegExp(r'(\d{1,3})\s?%').firstMatch(text);
+    return match != null ? int.parse(match.group(1)!) : null;
+  }
+
 }
 
 class ClickableSubmenu extends StatelessWidget {
@@ -813,8 +1069,6 @@ class ClickableSubmenu extends StatelessWidget {
     );
   }
 
-
-
   void _showSubmenu(BuildContext context) {
     final RenderBox button = context.findRenderObject() as RenderBox;
     final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
@@ -832,15 +1086,13 @@ class ClickableSubmenu extends StatelessWidget {
       position: position,
       items: submenuItems.map((Sequence item) {
         return PopupMenuItem<String>(
-          value: item.name, // Ensure unique values
+          value: item.name,
           child: Text(item.name),
         );
       }).toList(),
     ).then((String? selectedItem) {
       if (selectedItem != null) {
         int selectedIndex = submenuItems.indexWhere((item) => item.name == selectedItem);
-
-        // Ensure selectedItem exists before calling callback
         if (selectedIndex != -1) {
           onItemSelected(selectedItem, selectedIndex);
         }

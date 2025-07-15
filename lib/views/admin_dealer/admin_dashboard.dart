@@ -99,7 +99,7 @@ class AdminDashboard extends StatelessWidget {
           child: Column(
             children: [
               ListTile(
-                title: const Text("Analytics Overview", style: TextStyle(fontSize: 20, color: Colors.black)),
+                title: AppConstants().anlOvrView,
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -300,15 +300,23 @@ class AdminDashboard extends StatelessWidget {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Expanded(child: F.appFlavor!.name.contains('oro') ?
-                          Padding(
+                          Expanded(
+                              child: F.appFlavor!.name.contains('oro')
+                                  ? Padding(
                             padding: const EdgeInsets.all(5.0),
-                            child: Image.asset("assets/images/Png/Oro/category_${index+1}.png"),
-                          ):
-                          Padding(
+                            child: Image.asset(
+                              "assets/images/Png/Oro/category_${index+1}.png",
+                              errorBuilder: (context, error, stackTrace) {
+                                print('error:$error');
+                                return const Icon(Icons.error);
+                              },
+                            ),
+                          )
+                                  : Padding(
                             padding: const EdgeInsets.all(5.0),
                             child: Image.asset("assets/images/Png/SmartComm/category_${index+1}.png"),
-                          )),
+                          )
+                          ),
                           Container(
                             height: 25,
                             color: Theme.of(context).primaryColorLight.withOpacity(0.2),

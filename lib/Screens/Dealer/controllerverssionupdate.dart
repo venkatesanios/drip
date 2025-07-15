@@ -204,60 +204,22 @@ class _ResetVerssionState extends State<ResetVerssion> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     const SizedBox(height: 10),
+                    Text(
+                      mergedList[index]['categoryName']!,
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 10),
+                    //Settings icons
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const SizedBox(
                           width: 10,
                         ),
-                        Text(
-                          mergedList[index]['categoryName']!,
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        IconButton(
-                          style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all(
-                                  Colors.teal.shade100)),
-                          onPressed: () {
-                            setState(() {
-                              selectindex = index;
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ControllerLog(
-                                      deviceID: '${mergedList[index]['deviceId'
-                                      ]!}', communicationType: 'MQTT',),
-                                ),
-                              );
-                            });
-                          },
-                          icon: const Icon(Icons.arrow_circle_right_outlined),
-                        ),
-                        userRole == 'admin' ?  Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: IconButton(
-                            style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                    Colors.teal.shade100)),
-                              onPressed: () {
-                                setState(() {
-                                  selectindex = index;
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ConfigureMqtt(
-                                          deviceID: '${mergedList[index]['deviceId'
-                                          ]!}'),
-                                    ),
-                                  );
-                                });
-                              },
-                            icon: const Icon(Icons.settings_outlined),
-                          ),
-                        ) : Container(),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
+
+                        Tooltip(
+                          message: "Controller Log",
                           child: IconButton(
                             style: ButtonStyle(
                                 backgroundColor: MaterialStateProperty.all(
@@ -265,13 +227,84 @@ class _ResetVerssionState extends State<ResetVerssion> {
                             onPressed: () {
                               setState(() {
                                 selectindex = index;
-                                _showFrequencyDialog(context, index, true);
-
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ControllerLog(
+                                        deviceID: '${mergedList[index]['deviceId'
+                                        ]!}', communicationType: 'MQTT',),
+                                  ),
+                                );
                               });
                             },
-                            icon: const Icon(Icons.settings_applications),
+                            icon: const Icon(Icons.arrow_circle_right_outlined),
                           ),
                         ),
+                        userRole == 'admin' ?  Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Tooltip(
+                            message: "Config Hardware",
+                            child: IconButton(
+                              style: ButtonStyle(
+                                  backgroundColor: MaterialStateProperty.all(
+                                      Colors.teal.shade100)),
+                                onPressed: () {
+                                  setState(() {
+                                    selectindex = index;
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ConfigureMqtt(
+                                            deviceID: '${mergedList[index]['deviceId'
+                                            ]!}'),
+                                      ),
+                                    );
+                                  });
+                                },
+                              icon: const Icon(Icons.settings_outlined),
+                            ),
+                          ),
+                        ) : Container(),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Tooltip(
+                            message: "LoRa Frequency Set ",
+                            child: IconButton(
+                              style: ButtonStyle(
+                                  backgroundColor: MaterialStateProperty.all(
+                                      Colors.teal.shade100)),
+                              onPressed: () {
+                                setState(() {
+                                  selectindex = index;
+                                  _showFrequencyDialog(context, index, true);
+
+                                });
+                              },
+                              icon: const Icon(Icons.settings_applications),
+                            ),
+                          ),
+                        ),
+
+                        userRole == 'admin' ?  Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Tooltip(
+                            message: "LoRa Update ",
+                            child: IconButton(
+                              style: ButtonStyle(
+                                  backgroundColor: MaterialStateProperty.all(
+                                      Colors.teal.shade100)),
+                              onPressed: () {
+                                setState(() {
+                                  selectindex = index;
+
+                                  //Call Siva Ble update Lora class
+
+                                });
+                              },
+                              icon: const Icon(Icons.upgrade),
+                            ),
+                          ),
+                        ): Container(),
                       ],
                     ),
                     Container(

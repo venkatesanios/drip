@@ -9,8 +9,12 @@ class Formatters {
     return format.format(amount);
   }
 
-  static String formatDate(DateTime date) {
-    return DateFormat('yyyy-MM-dd').format(date);
+
+  String formatDate(String dateString) {
+    final date = DateTime.parse(dateString);
+    return "${date.day.toString().padLeft(2, '0')}-"
+        "${date.month.toString().padLeft(2, '0')}-"
+        "${date.year}";
   }
 
   static String formatDateTime(String? dateTimeString) {
@@ -19,7 +23,7 @@ class Formatters {
     }
     try {
       DateTime dateTime = DateTime.parse(dateTimeString);
-      DateFormat formatter = DateFormat('MMM dd, yyyy hh:mm a');
+      DateFormat formatter = DateFormat('MMM dd, yyyy hh:mm:ss a');
       return formatter.format(dateTime);
     } catch (e) {
       return "00 00, 0000, 00:00";

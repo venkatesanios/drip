@@ -117,7 +117,10 @@ class ConnectorWidget extends StatelessWidget {
     // }else if(connectionNo == 2 && selectedDevice.categoryId == 5 && type == '3'){
     //   specificSensor = '(Ph)';
     // }
-    String editConnectionNo = '${connectionNo == 9 ? '' : connectionNo}';
+    String editConnectionNo = '$connectionNo';
+    if(connectionNo == 9 && selectedDevice.categoryId == 6 && type == '3'){
+      editConnectionNo = '';
+    }
     return '$keyWord$editConnectionNo$specificSensor';
   }
 

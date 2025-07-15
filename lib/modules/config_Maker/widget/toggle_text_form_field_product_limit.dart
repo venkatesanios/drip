@@ -74,6 +74,14 @@ class _ToggleTextFormFieldForProductLimitState extends State<ToggleTextFormField
                     integerValue = maxAllowablePumpCount;
                   }
                   widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
+                }else if([AppConstants.pumpObjectId, AppConstants.lightObjectId, AppConstants.pressureSensorObjectId, AppConstants.pressureSwitchObjectId, AppConstants.soilTemperatureObjectId].contains(widget.object.objectId)){
+                  /*only one pump allowed to config*/
+                  int maxAllowableCount = 1;
+                  if(integerValue > maxAllowableCount){
+                    simpleDialogBox(context: context, title: 'Alert', message: 'Only one ${widget.object.objectName} should be connect with ${widget.configPvd.masterData['deviceName']}.');
+                    integerValue = maxAllowableCount;
+                  }
+                  widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
                 }else{
                   doAvailableCountValidate(integerValue: integerValue, availableCount: availableCount);
                 }
@@ -156,7 +164,6 @@ class _ToggleTextFormFieldForProductLimitState extends State<ToggleTextFormField
       }
     });
   }
-
 
   @override
   Widget build(BuildContext context) {

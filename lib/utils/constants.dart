@@ -223,6 +223,12 @@ class AppConstants {
   static const String valveCwsNotON = "valve_orange_cws.png";
   static const String valveCwsNotOFF = "valve_red_cws.png";
 
+  static const String lightOFF = "light_gray.png";
+  static const String lightON = "light_yellow.png";
+
+  static const String gateOFF = "gate_close.png";
+  static const String gateON = "gate_open.png";
+
   static const Map<UserRole, String> formTitle = {
     UserRole.admin: "Dealer Account Form",
     UserRole.dealer: "Customer Account Form",
@@ -270,6 +276,16 @@ class AppConstants {
     UserRole.dealer: "Please enter your customer address",
     UserRole.subUser: "Please enter your sub-user address",
   };
+
+  final Widget anlOvrView = const Text('Analytics Overview',style: TextStyle(fontSize: 20));
+  final Widget txtSNo = const Text('S.No');
+  final Widget txtCategory = const Text('Category');
+  final Widget txtModel = const Text('Model');
+  final Widget txtIMEI = const Text('IMEI');
+  final Widget txtMDate = const Text('M.Date');
+  final Widget txtWarranty = const Text('Warranty');
+  final Widget txtSoldOut = const Text('SOLD OUT',style: TextStyle(fontSize: 18));
+
 
   static String getErrorMessage(UserRole role, Map<UserRole, String> errorMap) {
     return errorMap[role] ?? "Invalid role";
@@ -327,6 +343,12 @@ class AppConstants {
         break;
       case 'valve_cws':
         imagePathFinal = _getValveCWSImagePath(keyTwo);
+        break;
+      case 'light':
+        imagePathFinal = _getLightImagePath(keyTwo);
+        break;
+      case 'gate':
+        imagePathFinal = _getGateImagePath(keyTwo);
         break;
 
       default:
@@ -523,6 +545,28 @@ class AppConstants {
     }
   }
 
+  static String _getLightImagePath(int status) {
+    switch (status) {
+      case 0:
+        return lightOFF;
+      case 1:
+        return lightON;
+      default:
+        return '';
+    }
+  }
+
+  static String _getGateImagePath(int status) {
+    switch (status) {
+      case 0:
+        return gateOFF;
+      case 1:
+        return gateON;
+      default:
+        return '';
+    }
+  }
+
   static String getSettingsSummary(String title) {
     switch (title) {
       case 'General':
@@ -683,36 +727,3 @@ class AppConstants {
   static List<int> ecoNodeList = [36];
 
 }
-
-/*
-class GifImageWeb extends StatelessWidget {
-  final String imagePath;
-  final double width;
-  final double height;
-  final String viewId;
-
-  GifImageWeb({
-    super.key,
-    required this.imagePath,
-    this.width = 70,
-    this.height = 70,
-  }) : viewId = 'gif_${imagePath.hashCode}' {
-    ui.platformViewRegistry.registerViewFactory(
-      viewId,
-          (int viewId) => html.ImageElement()
-        ..src = Uri.base.resolve(imagePath).toString()
-        ..style.width = '${width}px'
-        ..style.height = '${height}px'
-        ..style.objectFit = 'contain',
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      height: height,
-      child: HtmlElementView(viewType: viewId),
-    );
-  }
-}*/

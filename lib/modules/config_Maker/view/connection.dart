@@ -89,7 +89,7 @@ class _ConnectionState extends State<Connection> {
                         getModelBySelectedCategory(),
                         const SizedBox(height: 5,),
                         Text(selectedDevice.modelName),
-                        if(!AppConstants.weatherModelList.contains(selectedDevice.modelId))
+                        if(!AppConstants.weatherModelList.contains(selectedDevice.categoryId))
                           SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             child: Row(
@@ -347,7 +347,7 @@ class _ConnectionState extends State<Connection> {
                         ),
                         const SizedBox(height: 5,),
                       ],
-                    if(type == AppConstants.analogCode)
+                    if(type == AppConstants.analogCode && selectedDevice.categoryId == 6)
                       ...[
                         ConnectorWidget(
                           connectionNo: 9,
@@ -414,14 +414,13 @@ class _ConnectionState extends State<Connection> {
       }else{
         return true;
       }
-    }).where((object) => (object.type == '1,2' && !['', '0', null].contains(object.count)))
+    })
+        .where((object) => (object.type == '1,2' && !['', '0', null].contains(object.count)))
         .toList().where((object) => selectedDevice.connectingObjectId.contains(object.objectId)).toList().map((object) => object.objectId)
         .toList();
 
     List<DeviceObjectModel> filteredList = widget.configPvd.listOfObjectModelConnection.where((object)=> filteredObjectList.contains(object.objectId)).toList();
-
     filteredList = filteredList.where((object) {
-      print("obj => ${object.toJson()}");
       if(['', '0', null].contains(object.count) && getNotConfiguredObjectByObjectId(object.objectId, widget.configPvd) == 0){
         return false;
       }else{

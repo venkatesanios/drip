@@ -46,14 +46,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
   ];
   bool isLoading = false;
   int tabclickindex = 0;
-   String errorMsgstatus = '';
+  String errorMsgstatus = '';
   WeatherData weathernewlive = WeatherData(cC: '', cT: '', cD: '', stations: []) ;
   late List<IrrigationLine>  weatherdatairrigationline ;
   late List<DeviceW>  weatherdatadevicelist ;
   final MqttService manager = MqttService();
 
 
-   late List<ConfigObjectWeather> weatherdataconfigobjects ;
+  late List<ConfigObjectWeather> weatherdataconfigobjects ;
 
 
   @override
@@ -89,7 +89,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           const Center(
               child: Text('Currently No Weather Data Available...')),
           // TextButton.icon(onPressed: (){
-            // Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewExample(userid: widget.userId,controllerid: widget.controllerId,)));
+          // Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewExample(userid: widget.userId,controllerid: widget.controllerId,)));
           // }, label: Text('Click To Open External Weather Data')),
 
         ],
@@ -174,7 +174,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     // List<String> unitlist = ['CB','CB','CB','CB','°C','°C','kPa','%','%','ppm','Lu','MM','km/h',''];
 
     String? irname = findIrrigationLine(weathernewlive.stations[i].deviceId)!;
-print('irname : $irname');
+    print('irname : $irname');
     debugPrint('test stations : ${weathernewlive.stations[0].toJson()}');
     debugPrint('test sensror length : ${ weathernewlive.stations[0].sensors.length}');
 
@@ -418,8 +418,8 @@ print('irname : $irname');
                                         for (var index = 0;
                                         index < weathernewlive.stations[i].sensors.length;
                                         index++)
-                                           gaugeViewWeather(
-                                               getConfigObjectNameBySNo(weatherdataconfigobjects,weathernewlive.stations[i].sensors[index].sno)!,
+                                          gaugeViewWeather(
+                                              getConfigObjectNameBySNo(weatherdataconfigobjects,weathernewlive.stations[i].sensors[index].sno)!,
                                               i,
                                               index)
                                       ],
@@ -462,7 +462,7 @@ print('irname : $irname');
   }
 
   Widget _buildWeatherCard(String title, String value, String status, Color statusColor) {
-     double? extractval = extractNumber(value);
+    double? extractval = extractNumber(value);
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -482,7 +482,7 @@ print('irname : $irname');
             const CircleAvatar(
               backgroundColor:Colors.blueGrey,
               radius: 20,
-             child:  Icon(Icons.air, color: Colors.white, size: 20),
+              child:  Icon(Icons.air, color: Colors.white, size: 20),
             ),
 
             const SizedBox(width: 4),
@@ -496,7 +496,7 @@ print('irname : $irname');
                   ),
                   const SizedBox(height: 4),
                   Text(
-                   title.contains('Direction') ?  degreeToDirection(value) : value,
+                    title.contains('Direction') ?  degreeToDirection(value) : value,
                     style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
@@ -583,7 +583,7 @@ print('irname : $irname');
     String Unit = '0';
     String imageAsserStr = '';
     double Max = 100;
-     String value = '${weathernewlive.stations[i].sensors[index].value}';
+    String value = '${weathernewlive.stations[i].sensors[index].value}';
     String errorStatus = '${weathernewlive.stations[i].sensors[index].errorStatus}';
 
     Color bgcolor = Colors.transparent;
@@ -598,31 +598,31 @@ print('irname : $irname');
     }
 
     if (title.contains('Moisture')) {
-       type = '1';
+      type = '1';
       Unit = 'CB';
       Max = 200;
       imageAsserStr = 'assets/mob_dashboard/SoilMoisture.png';
     }  else if (title.contains('Temperature')) {
-       type = '2';
+      type = '2';
       Unit = '°C';
       Max = 100;
       imageAsserStr = 'assets/mob_dashboard/SoilTemp .png';
     }   else if (title.contains('Atmosphere Pressure')) {
-       type = '3';
+      type = '3';
       Unit = 'kPa';
       Max = 2000;
       imageAsserStr = 'assets/mob_dashboard/pressure.png';
     } else if (title.contains('Leaf')) {
-       type = '2';
+      type = '2';
       Unit = '%';
       Max = 100;
       imageAsserStr = 'assets/mob_dashboard/leafWetness.png';
     }
     else if (title.contains('Humidity')) {
-    type = '2';
-    Unit = '%';
-    Max = 100;
-    imageAsserStr = 'assets/mob_dashboard/pressure.png';
+      type = '2';
+      Unit = '%';
+      Max = 100;
+      imageAsserStr = 'assets/mob_dashboard/pressure.png';
     }
     else if (title.contains('Co2')) {
       type = '2';
@@ -630,32 +630,32 @@ print('irname : $irname');
       Max = 1000;
       imageAsserStr = 'assets/mob_dashboard/CO-2.png';
     } else if (title.contains('LDR')) {
-       type = '5';
+      type = '5';
       Unit = 'Lu';
       Max = 100;
       imageAsserStr = 'assets/mob_dashboard/LDR.png';
     } else if (title.contains('LUX')) {
-       type = '5';
+      type = '5';
       Unit = 'Lu';
       Max = 100;
       imageAsserStr = 'assets/mob_dashboard/Lux.png';
     } else if (title.contains('Wind Direction')) {
-       type = '7';
+      type = '7';
       Unit = 'CB';
       Max = 360;
       imageAsserStr = 'assets/mob_dashboard/WindDirection.png';
     } else if (title.contains('Rain Fall')) {
-       type = '2';
+      type = '2';
       Unit = 'mm';
       Max = 100;
       imageAsserStr = 'assets/mob_dashboard/rainFall.png';
     } else if (title.contains('Wind Speed')) {
-       type = '3';
+      type = '3';
       Unit = 'km/h';
       Max = 100;
       imageAsserStr = 'assets/mob_dashboard/WindSpeed.png';
     } else {
-       type = '0';
+      type = '0';
       Unit = '';
       imageAsserStr = 'assets/mob_dashboard/WindSpeed.png';
     }
@@ -1155,14 +1155,14 @@ print('irname : $irname');
   Request() {
     String payLoadFinal = jsonEncode({
       "5000":
-        {"5001": ""},
+      {"5001": ""},
 
     });
     manager.topicToPublishAndItsMessage(
         payLoadFinal, '${Environment.mqttPublishTopic}/${widget.deviceID}');
 
 
-   }
+  }
   // TODO: implement widget
   Future<void> fetchDataSunRiseSet() async {
     try {
@@ -1228,6 +1228,3 @@ print('irname : $irname');
     }
   }
 }
-
-
-

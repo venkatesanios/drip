@@ -145,9 +145,9 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
       };
       MqttService().topicToPublishAndItsMessage(
         jsonEncode(payload),
-        "$topic${macAddress}",
+        "$topic${_macController.text}",
       );
-      print('payload $payload  \n $topic${macAddress}');
+      print('payload $payload  \n $topic${_macController.text}');
     }
     else {
       final payload = {
@@ -155,9 +155,9 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
       };
       MqttService().topicToPublishAndItsMessage(
         jsonEncode(payload),
-        "$topic${macAddress}",
+        "$topic${_macController.text}",
       );
-      print('payload $payload  \n $topic${macAddress}');
+      print('payload $payload  \n $topic${_macController.text}');
     }
   }
 
@@ -205,7 +205,10 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
       };
       MqttService().topicToPublishAndItsMessage(
         jsonEncode(payload),
-        "$topic${macAddress}",
+        "$topic${_macController.text}",
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("view settings sent")),
       );
     }
     else
@@ -215,7 +218,10 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
       };
       MqttService().topicToPublishAndItsMessage(
         jsonEncode(payload),
-        "$topic${macAddress}",
+        "$topic${_macController.text}",
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("view settings sent")),
       );
     }
 
@@ -231,9 +237,12 @@ if(oldnewcheck == '1') {
   };
   MqttService().topicToPublishAndItsMessage(
     jsonEncode(payload),
-    "$topic${macAddress}",
+    "$topic${_macController.text}",
   );
-  print('payload $payload  \n $topic${macAddress}');
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text("update settings sent")),
+  );
+  print('payload $payload  \n $topic${_macController.text}');
 }
 else
   {
@@ -242,9 +251,12 @@ else
     };
     MqttService().topicToPublishAndItsMessage(
       jsonEncode(payload),
-      "$topic${macAddress}",
+      "$topic${_macController.text}",
     );
-    print('payload $payload  \n $topic${macAddress}');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("update settings sent")),
+    );
+    print('payload $payload  \n $topic${_macController.text}');
   }
 
   }
@@ -416,7 +428,8 @@ else
                   ),
                 ],
               ),
-            ],
+
+             ],
           ),
         ),
       ),

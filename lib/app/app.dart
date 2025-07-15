@@ -27,6 +27,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    print("enter my app..............");
     if(!kIsWeb){
       NotificationServiceCall().initialize();
       NotificationServiceCall().configureFirebaseMessaging();
@@ -55,7 +56,6 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-
     print('Flavor is: ${F.appFlavor}');
     bool isDarkMode = false;
     return FutureBuilder<String>(
@@ -64,11 +64,10 @@ class _MyAppState extends State<MyApp> {
         var isOro = F.appFlavor?.name.contains('oro') ?? false;
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-
           theme: isOro ? OroTheme.lightTheme : SmartCommTheme.lightTheme,
           darkTheme: isOro ? OroTheme.darkTheme : SmartCommTheme.darkTheme,
           themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          // home: ConfigBasePage(masterData: {"userId":3,"customerId":13,"controllerId":56,"productId":55,"deviceId":"9C956EC78315","deviceName":"ORO PUMP","categoryId":2,"categoryName":"ORO PUMP","modelId":48,"modelName":"xMp1000GO3O","groupId":11,"groupName":"ORO THOTTAM","connectingObjectId":["5","13","-"]}),
+          // home: ConfigBasePage(masterData: {"userId":3,"customerId":16,"controllerId":79,"productId":78,"deviceId":"80342882EAZZ","deviceName":"ORO GEM","categoryId":1,"categoryName":"ORO GEM","modelId":3,"modelName":"xMm1000ROOE","groupId":15,"groupName":"ORO NOVA","connectingObjectId":["1","2","3","4","7","10","11","13","14","22","23","24","26","40","41"]}),
           home: navigateToInitialScreen(snapshot.data ?? Routes.login),
           onGenerateRoute: Routes.generateRoute,
         );
@@ -79,7 +78,6 @@ class _MyAppState extends State<MyApp> {
 
 /// Helper function to navigate to the appropriate screen
 Widget navigateToInitialScreen(String route) {
-  print("route:-->$route");
   switch (route) {
     case Routes.login:
        return const LoginScreen();

@@ -7,7 +7,6 @@ class SiteModel {
   SiteModel({required this.data});
 
   factory SiteModel.fromJson(Map<String, dynamic> json) {
-    print('fromJson called');
     return SiteModel(
       data: List<Group>.from(json['data'].map((x) => Group.fromJson(x))),
     );
@@ -306,6 +305,8 @@ class IrrigationLineModel {
   FilterSiteModel? centralFilterSite;
   FertilizerSiteModel? centralFertilizerSite;
   final List<ValveModel> valveObjects;
+  final List<LightModel> lightObjects;
+  final List<GateModel> gateObjects;
   final List<SensorModel> prsSwitch;
   final List<SensorModel> pressureIn;
   final List<SensorModel> pressureOut;
@@ -320,6 +321,8 @@ class IrrigationLineModel {
     required this.centralFiltration,
     required this.centralFertilization,
     required this.valveObjects,
+    required this.lightObjects,
+    required this.gateObjects,
     required this.prsSwitch,
     required this.pressureIn,
     required this.pressureOut,
@@ -343,11 +346,25 @@ class IrrigationLineModel {
       allWaterSources: waterSources,
     );
 
+    final gateSNoSet = ((json['gate'] as List?) ?? []).map((e) => e).toSet();
+    final gates = configObjects
+        .where((obj) => gateSNoSet.contains(obj.sNo))
+        .map((obj) => GateModel.fromConfigObject(obj))
+        .toList();
+
+    final lightSNoSet = ((json['light'] as List?) ?? []).map((e) => e).toSet();
+    final lights = configObjects
+        .where((obj) => lightSNoSet.contains(obj.sNo))
+        .map((obj) => LightModel.fromConfigObject(obj))
+        .toList();
+
     final valveSNoSet = ((json['valve'] as List?) ?? []).map((e) => e).toSet();
     final valves = configObjects
         .where((obj) => valveSNoSet.contains(obj.sNo))
         .map((obj) => ValveModel.fromConfigObject(obj, waterSources))
         .toList();
+
+
 
     final Map<double, List<MoistureSensorModel>> valveToMoistureSensors = {};
 
@@ -420,6 +437,8 @@ class IrrigationLineModel {
       inletSources: matchedInletSources,
       outletSources: matchedOutLetSources,
       valveObjects: valves,
+      lightObjects: lights,
+      gateObjects: gates,
       prsSwitch: pressureSwitch,
       pressureIn: pressureIn,
       pressureOut: pressureOut,
@@ -494,6 +513,7 @@ class ConfigObject {
   final double sNo;
   final String name;
   final String objectName;
+  final int connectionNo;
   final int? controllerId;
   final double? location;
   final List<double> assignObject;
@@ -512,6 +532,7 @@ class ConfigObject {
     required this.sNo,
     required this.name,
     required this.objectName,
+    required this.connectionNo,
     this.controllerId,
     required this.location,
     required this.assignObject,
@@ -542,6 +563,7 @@ class ConfigObject {
       name: json['name'],
       objectName: json['objectName'],
       controllerId: json['controllerId'],
+      connectionNo: json['connectionNo'] ?? 0,
       location: (json['location'] is! double ? 0.0 : json['location']) ?? 0.0,
       assignObject: parsedAssignObject,
     );
@@ -554,6 +576,7 @@ class ConfigObject {
       'name': name,
       'objectName': objectName,
       'controllerId': controllerId,
+      'connectionNo': connectionNo,
       'location': location,
     };
   }
@@ -1121,10 +1144,6 @@ class ValveModel {
       }
     }
 
-    print('assignedSNos:$assignedSNos');
-    print('object name:${obj.name}');
-
-
     /*List<WaterSourceModel> sources = configObjects
         .where((source) => assignedSNos.contains(source.sNo))
         .toList();*/
@@ -1134,6 +1153,61 @@ class ValveModel {
       sNo: obj.sNo,
       name: obj.name,
       waterSources: sources,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'sNo': sNo,
+      'name': name,
+      "status": status,
+    };
+  }
+}
+
+
+class LightModel {
+  final double sNo;
+  final String name;
+  int status;
+
+  LightModel({
+    required this.sNo,
+    required this.name,
+    this.status = 0,
+  });
+
+  factory LightModel.fromConfigObject(ConfigObject obj) {
+    return LightModel(
+      sNo: obj.sNo,
+      name: obj.name,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'sNo': sNo,
+      'name': name,
+      "status": status,
+    };
+  }
+}
+
+class GateModel {
+  final double sNo;
+  final String name;
+  int status;
+
+  GateModel({
+    required this.sNo,
+    required this.name,
+    this.status = 0,
+  });
+
+  factory GateModel.fromConfigObject(ConfigObject obj) {
+    return GateModel(
+      sNo: obj.sNo,
+      name: obj.name,
     );
   }
 

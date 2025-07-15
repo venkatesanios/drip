@@ -56,14 +56,14 @@ class _NodeDashboardState extends State<NodeDashboard> {
                         userAcknowledgementForUpdatingFirmware();
                       }
                     ),
-                    if(!AppConstants.pumpWithValveModelList.contains(bleService.nodeData['modelId']) && !AppConstants.ecoGemModelList.contains(bleService.nodeData['modelId']))
+                    if(!bleService.loraModel.contains(bleService.nodeDataFromHw['MID']) && (!AppConstants.pumpWithValveModelList.contains(bleService.nodeData['modelId']) && !AppConstants.ecoGemModelList.contains(bleService.nodeData['modelId'])))
                     ...[
                       gridItemWidget(
                         imagePath: 'assets/Images/Svg/SmartComm/control.svg',
                         title: 'Control',
                         onTap: () {
                           Navigator.push(context, MaterialPageRoute(builder: (context){
-                            return ControlNode();
+                            return const ControlNode();
                           }));
                         },
                       ),

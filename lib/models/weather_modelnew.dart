@@ -68,7 +68,7 @@ class WeatherData {
     required this.cT,
     required this.cD,
     required this.stations,
-   });
+  });
 
   factory WeatherData.fromJson(Map<String, dynamic> json) {
     final weatherLive = json['data']['weatherLive'];
@@ -86,7 +86,7 @@ class WeatherData {
       cT: weatherLive['cT'],
       cD: weatherLive['cD'],
       stations: stations,
-     );
+    );
   }
 
   Map<String, dynamic> toJson() => {

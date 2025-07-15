@@ -31,38 +31,43 @@ class ConditionLibrary extends StatelessWidget {
         ..getConditionLibraryData(customerId, controllerId),
       child: Consumer<ConditionLibraryViewModel>(
         builder: (context, vm, _) {
-          return vm.isLoading ? _buildLoadingIndicator(context) : _buildScaffold(context, vm);
+          if (vm.isLoading) {
+            return Scaffold(
+              appBar: !kIsWeb ? AppBar(title: const Text('Condition Library')) : null,
+              body: _buildLoadingIndicator(context),
+            );
+          }
+
+          final hasConditions = vm.clData.cnLibrary.condition.isNotEmpty;
+          return Scaffold(
+            appBar: !kIsWeb ? AppBar(title: const Text('Condition Library')) : null,
+            body: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: hasConditions
+                  ? _buildGridView(context, vm)
+                  : const Center(child: Text('No condition available')),
+            ),
+            floatingActionButton: _buildFloatingActionButtons(context, vm),
+          );
         },
       ),
     );
   }
 
   Widget _buildLoadingIndicator(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width / 2 - 95,
-        ),
-        child: const LoadingIndicator(
-          indicatorType: Indicator.ballPulse,
-          strokeWidth: 100,
-        ),
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: kIsWeb?MediaQuery.of(context).size.width / 2 - 50:
+        MediaQuery.of(context).size.width / 2 - 25,
+      ),
+      child: const LoadingIndicator(
+        indicatorType: Indicator.ballPulse,
+        strokeWidth: 100,
       ),
     );
   }
 
-  Widget _buildScaffold(BuildContext context, ConditionLibraryViewModel vm) {
-    return Scaffold(
-      appBar: !kIsWeb ? AppBar(title: const Text('Condition Library')) : null,
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: vm.clData.cnLibrary.condition.isNotEmpty? _buildGridView(context, vm):
-        const Center(child: Text('No condition available')),
-      ),
-      floatingActionButton: _buildFloatingActionButtons(context, vm),
-    );
-  }
+
 
   Widget _buildGridView(BuildContext context, ConditionLibraryViewModel vm) {
     return GridView.builder(

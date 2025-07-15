@@ -94,6 +94,7 @@ class ControllerSettings extends StatelessWidget {
 
   Widget _buildMobileView(BuildContext context, ControllerSettingsViewModel viewModel) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: ListView.separated(
         itemCount: viewModel.filteredSettingList.length,
         separatorBuilder: (context, index) => const Padding(
@@ -256,7 +257,7 @@ class ControllerSettings extends StatelessWidget {
       case 'Controller Log':
         return ControllerLog(deviceID: masterController.deviceId, communicationType: 'MQTT',);
       case 'Crop Advisory':
-        return const CropAdvisoryForm();
+        return CropAdvisoryForm(customerId: userId, controllerId: masterController.controllerId);
       default:
         return const Center(child: Text('Coming Soon'));
     }

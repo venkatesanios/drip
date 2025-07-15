@@ -12,6 +12,7 @@ class ControllerSettingsViewModel extends ChangeNotifier {
 
   List<Map<String, dynamic>> filteredSettingList = [];
 
+
   final List<Map<String, dynamic>> allSettings = [
     {'title': 'General', 'icon': Icons.settings_outlined},
     {'title': 'Name', 'icon': Icons.text_fields},
@@ -40,6 +41,7 @@ class ControllerSettingsViewModel extends ChangeNotifier {
   ControllerSettingsViewModel(this.repository);
 
   Future<void> getSettingsMenu(int customerId, int controllerId, int categoryId) async {
+    setLoading(true);
     try {
       Map<String, Object> body = {
         "userId": customerId,
@@ -93,7 +95,6 @@ class ControllerSettingsViewModel extends ChangeNotifier {
       setLoading(false);
     }
   }
-
 
   void setLoading(bool value) {
     isLoading = value;

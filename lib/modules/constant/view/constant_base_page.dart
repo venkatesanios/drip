@@ -51,6 +51,7 @@ class _ConstantBasePageState extends State<ConstantBasePage> with SingleTickerPr
   void initState() {
     // TODO: implement initState
     super.initState();
+    print("userData : ${widget.userData}");
     constPvd = Provider.of<ConstantProvider>(context, listen: false);
     overAllPvd = Provider.of<OverAllUse>(context, listen: false);
     constantResponse = getData(widget.userData);

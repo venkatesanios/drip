@@ -28,7 +28,6 @@ class ConditionLibraryViewModel extends ChangeNotifier {
 
   Future<void> getConditionLibraryData(int customerId, int controllerId) async {
     setLoading(true);
-
     Future.delayed(const Duration(milliseconds: 500), () async {
       try {
         var response = await repository.fetchConditionLibrary({

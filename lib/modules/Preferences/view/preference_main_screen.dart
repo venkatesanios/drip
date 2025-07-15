@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -20,7 +19,6 @@ import '../model/preference_data_model.dart';
 import '../repository/preferences_repo.dart';
 import '../state_management/preference_provider.dart';
 import '../../SystemDefinitions/widgets/custom_snack_bar.dart';
-
 import '../../../utils/environment.dart';
 import '../../IrrigationProgram/view/program_library.dart';
 import '../widgets/custom_segmented_control.dart';
@@ -49,6 +47,12 @@ final otherSettingsIcons = [
   MdiIcons.toggleSwitch,
   MdiIcons.timerSand,
   MdiIcons.motionSensor,
+  MdiIcons.carBrakeLowPressure,
+  MdiIcons.clock,
+  MdiIcons.windowMinimize,
+  MdiIcons.windowMaximize,
+  MdiIcons.carBrakeLowPressure,
+  MdiIcons.clock,
 ];
 
 final voltageSettingsIcons = [
