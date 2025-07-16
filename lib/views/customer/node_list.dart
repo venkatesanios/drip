@@ -78,21 +78,12 @@ class NodeList extends StatelessWidget {
                         headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColorDark.withOpacity(0.3)),
                         columns: const [
                           DataColumn2(
-                              label: Center(child: Text('S.No', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 13, color: Colors.black),)),
-                              fixedWidth: 35
+                              label: Center(child: Text('SR.No', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 13, color: Colors.black),)),
+                              fixedWidth: 60
                           ),
                           DataColumn2(
-                            label: Center(child: Text('Status', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 13, color: Colors.black),)),
-                            fixedWidth: 50,
-                          ),
-                          DataColumn2(
-                            label: Center(child: Text('Rf.No', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 13, color: Colors.black),)),
-                            fixedWidth: 45,
-                          ),
-                          DataColumn2(
-                            label: Text('Category', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 13, color: Colors.black),),
-                            size: ColumnSize.M,
-                            numeric: true,
+                            label: Text('Status & Category', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 13, color: Colors.black),),
+                            size: ColumnSize.L,
                           ),
                           DataColumn2(
                             label: Center(child: Text('Info', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 13, color: Colors.black),)),
@@ -137,41 +128,51 @@ class NodeList extends StatelessWidget {
                               ],
                             ),
                             backgroundColor: Colors.teal.shade50,
-                            title: Row(
-                              children: [
-                                const SizedBox(width: 5),
-                                SizedBox(width: 30, child: Text('${vm.nodeList[index].serialNumber}', style: const TextStyle(fontSize: 13),)),
-                                SizedBox(
-                                  width:45,
-                                  child: Center(child: CircleAvatar(radius: 7, backgroundColor:
-                                  vm.nodeList[index].status == 1? Colors.green.shade400:
-                                  vm.nodeList[index].status == 2? Colors.grey:
-                                  vm.nodeList[index].status == 3? Colors.redAccent:
-                                  vm.nodeList[index].status == 4? Colors.yellow:
-                                  Colors.grey,
-                                  )),
-                                ),
-                                SizedBox(width: 40, child: Center(child: Text('${vm.nodeList[index].referenceNumber}', style: const TextStyle(fontSize: 13),))),
-                                SizedBox(
-                                  width: 183,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      Text(vm.nodeList[index].deviceName, style: const TextStyle(fontSize: 14)),
-                                      Text(vm.nodeList[index].deviceId, style: const TextStyle(fontWeight: FontWeight.normal,fontSize: 11, color: Colors.black)),
-                                      RichText(
-                                        text: TextSpan(
-                                          children: <TextSpan>[
-                                            TextSpan(text: '${vm.nodeList[index].categoryName} - ', style: const TextStyle(fontWeight: FontWeight.normal,fontSize: 10, color: Colors.black)),
-                                            TextSpan(text: '${vm.mapInterfaceType(vm.nodeList[index].interface)} - v:${vm.nodeList[index].version}', style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 10, color: Colors.black),),
+                            title: Padding(
+                              padding: const EdgeInsets.only(left: 8),
+                              child: Row(
+                                children: [
+                                  const SizedBox(width: 5),
+                                  SizedBox(width: 45, child: Text('${vm.nodeList[index].serialNumber}-${vm.nodeList[index].referenceNumber}', style: const TextStyle(fontSize: 13),)),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            CircleAvatar(radius: 7, backgroundColor:
+                                            vm.nodeList[index].status == 1? Colors.green.shade400:
+                                            vm.nodeList[index].status == 2? Colors.grey:
+                                            vm.nodeList[index].status == 3? Colors.redAccent:
+                                            vm.nodeList[index].status == 4? Colors.yellow:
+                                            Colors.grey,
+                                            ),
+                                            const SizedBox(width: 5),
+                                            Text(vm.nodeList[index].deviceName, style: const TextStyle(fontSize: 14)),
                                           ],
                                         ),
-                                      ),
-                                    ],
+                                        Padding(
+                                          padding: const EdgeInsets.only(left: 17),
+                                          child: Text(vm.nodeList[index].deviceId, style: const TextStyle(fontWeight: FontWeight.normal,fontSize: 11, color: Colors.black)),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(left: 17),
+                                          child: RichText(
+                                            text: TextSpan(
+                                              children: <TextSpan>[
+                                                TextSpan(text: '${vm.nodeList[index].categoryName} - ', style: const TextStyle(fontWeight: FontWeight.normal,fontSize: 10, color: Colors.black)),
+                                                TextSpan(text: '${vm.mapInterfaceType(vm.nodeList[index].interface)} - v:${vm.nodeList[index].version}', style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 10, color: Colors.black),),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                             children: [
                               SizedBox(
@@ -182,20 +183,20 @@ class NodeList extends StatelessWidget {
                                   children: <Widget>[
                                     Container(
                                       color: Colors.teal.shade100,
-                                      width : 370,
+                                      width : MediaQuery.sizeOf(context).width-35,
                                       height: 25,
                                       child: Padding(
                                         padding: const EdgeInsets.only(left: 5, right: 5),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            const Text('Missed communication :', style: TextStyle(fontWeight: FontWeight.normal),),
+                                            const Text('Missed communication', style: TextStyle(color: Colors.black54)),
                                             const Spacer(),
                                             Text(
                                               'Total : ${vm.nodeList[index].communicationCount.split(',').first}',
                                               style: const TextStyle(fontSize: 12),
                                             ),
-                                            const SizedBox(width: 8,),
+                                            const SizedBox(width: 8),
                                             Text(
                                               'Continuous : ${vm.nodeList[index].communicationCount.split(',').last}',
                                               style: const TextStyle(fontSize: 12),
@@ -205,9 +206,10 @@ class NodeList extends StatelessWidget {
                                       ),
                                     ),
                                     ListTile(
+                                      contentPadding: const EdgeInsets.only(left: 8, right: 0, top: 0, bottom: 0),
                                       tileColor: Theme.of(context).primaryColor,
                                       textColor: Colors.black,
-                                      title: const Text('Last feedback', style: TextStyle(fontSize: 10)),
+                                      title: const Text('Last feedback', style: TextStyle(fontSize: 12)),
                                       subtitle: Text(
                                         vm.formatDateTime(vm.nodeList[index].lastFeedbackReceivedTime),
                                         style: const TextStyle(fontSize: 10),

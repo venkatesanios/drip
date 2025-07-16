@@ -42,6 +42,7 @@ class NodeListViewModel extends ChangeNotifier {
     for (String group in nodeLiveMeg) {
       List<String> values = group.split(",");
       int sNo = int.parse(values[0]);
+      print('lastFeedbackReceivedTime:${values[4]}');
       for (var node in nodeList) {
         if (node.serialNumber == sNo) {
           node.sVolt = double.parse(values[1]);
