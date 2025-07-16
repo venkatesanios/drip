@@ -255,7 +255,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                     margin: const EdgeInsets.symmetric(horizontal: 10),
                     child: Column(
                       children: [
-                        if((snapshot.data!.pumps.firstWhere((pump) => pump is PumpValveModel) as PumpValveModel).phaseType != "1")
+                        if(!AppConstants.pumpWithValveModelList.contains(widget.masterData.modelId) || (snapshot.data!.pumps.firstWhere((pump) => pump is PumpValveModel) as PumpValveModel).phaseType != "1")
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
@@ -298,7 +298,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text("VOLTAGE : ", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w400)),
+                                const Text("VOLTAGE : ", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w400)),
                                 Text("${int.parse(snapshot.data!.voltage.split(',')[0]) + int.parse(snapshot.data!.voltage.split(',')[2])}", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                               ],
                             ),
@@ -444,7 +444,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                     // // padding: const EdgeInsets.all(8),
                     margin: const EdgeInsets.symmetric(horizontal: 15),
                     child: Text(
-                      (pumpData.pumps.firstWhere((pump) => pump is PumpValveModel) as PumpValveModel).cycleCompletedFlag == '1'
+                      (!AppConstants.pumpWithValveModelList.contains(widget.masterData.modelId) || (pumpData.pumps.firstWhere((pump) => pump is PumpValveModel) as PumpValveModel).cycleCompletedFlag == '1')
                           ? "Turned off due to Cycles completed".toUpperCase()
                           : pumpItem.reasonCode == 0
                           ? (pumpItem.status == 1 ? "Turned on through the mobile" : "Turned off through the mobile").toUpperCase()
@@ -634,7 +634,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                         ),
                       ],
                     ),
-                    if((pumpData.pumps.firstWhere((pump) => pump is PumpValveModel) as PumpValveModel).phaseType != "1")
+                    if(!AppConstants.pumpWithValveModelList.contains(widget.masterData.modelId) || (pumpData.pumps.firstWhere((pump) => pump is PumpValveModel) as PumpValveModel).phaseType != "1")
                       Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
