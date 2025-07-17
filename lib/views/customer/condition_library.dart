@@ -43,9 +43,11 @@ class ConditionLibrary extends StatelessWidget {
             appBar: !kIsWeb ? AppBar(title: const Text('Condition Library')) : null,
             body: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: hasConditions
-                  ? _buildGridView(context, vm)
-                  : const Center(child: Text('No condition available')),
+              child: hasConditions ? Consumer<ConditionLibraryViewModel>(
+                builder: (context, vm, child) {
+                  return _buildGridView(context, vm);
+                },
+              ) : const Center(child: Text('No condition available')),
             ),
             floatingActionButton: _buildFloatingActionButtons(context, vm),
           );
@@ -118,9 +120,7 @@ class ConditionLibrary extends StatelessWidget {
               rule: vm.clData.cnLibrary.condition[index].rule,
               status: vm.clData.cnLibrary.condition[index].status,
               onStatusChanged: (value) => vm.switchStateOnChange(value, index),
-              onRemove: () {
-                // your remove logic here
-              },
+              onRemove: () => vm.removeCondition(index),
             ),
             const Divider(height: 0),
             ConditionTypeSelector(

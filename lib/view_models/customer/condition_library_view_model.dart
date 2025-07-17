@@ -265,6 +265,11 @@ class ConditionLibraryViewModel extends ChangeNotifier {
     }
   }
 
+  void removeCondition(int index) {
+    clData.cnLibrary.condition.removeAt(index);
+    notifyListeners();
+  }
+
   String formatTime(String time) {
     if (time.contains("Sec")) {
       int seconds = int.parse(time.replaceAll(RegExp(r'[^0-9]'), ''));
