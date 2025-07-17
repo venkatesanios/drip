@@ -237,7 +237,7 @@ class ConditionLibraryViewModel extends ChangeNotifier {
           'StartTime': '00:01:00',
           'StopTime': '23:59:00',
           'notify': 1,
-          'category': condition.type == 'Program' ? 1 :condition.type == 'Sensor' ? 5:6,
+          'category': condition.type == 'Program' ? 1 :condition.type == 'Sensor' ? 7:6,
           'object': condition.componentSNo,
           'operator': condition.threshold == 'Higher than'? 4 : condition.threshold == 'Lower than'? 5 : 6,
           'setValue': numberOnly,
