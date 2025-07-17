@@ -237,7 +237,8 @@ class ConditionLibraryViewModel extends ChangeNotifier {
           'StartTime': '00:01:00',
           'StopTime': '23:59:00',
           'notify': 1,
-          'category': condition.type == 'Program' ? 1 :condition.type == 'Sensor' ? 7:6,
+          'category': condition.type == 'Program' ? 1 : condition.type == 'Sensor' && condition.parameter=='Level'? 9:
+          condition.type == 'Sensor' && condition.parameter=='Moisture'? 8:5,
           'object': condition.componentSNo,
           'operator': condition.threshold == 'Higher than'? 4 : condition.threshold == 'Lower than'? 5 : 6,
           'setValue': numberOnly,
@@ -246,8 +247,9 @@ class ConditionLibraryViewModel extends ChangeNotifier {
       }
 
       String payloadString = payloadList.map((e) => e.values.join(',')).join(';');
+      print(payloadString);
 
-      String payLoadFinal = jsonEncode({
+      /*String payLoadFinal = jsonEncode({
         "1000": {"1001": payloadString}
       });
       MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
@@ -256,7 +258,7 @@ class ConditionLibraryViewModel extends ChangeNotifier {
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
         GlobalSnackBar.show(context, jsonData["message"], jsonData["code"]);
-      }
+      }*/
     } catch (error) {
       debugPrint('Error fetching language list: $error');
     } finally {
