@@ -247,9 +247,8 @@ class ConditionLibraryViewModel extends ChangeNotifier {
       }
 
       String payloadString = payloadList.map((e) => e.values.join(',')).join(';');
-      print(payloadString);
 
-      /*String payLoadFinal = jsonEncode({
+      String payLoadFinal = jsonEncode({
         "1000": {"1001": payloadString}
       });
       MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
@@ -258,7 +257,7 @@ class ConditionLibraryViewModel extends ChangeNotifier {
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
         GlobalSnackBar.show(context, jsonData["message"], jsonData["code"]);
-      }*/
+      }
     } catch (error) {
       debugPrint('Error fetching language list: $error');
     } finally {
