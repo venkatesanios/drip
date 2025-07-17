@@ -652,6 +652,7 @@ class MqttPayloadProvider with ChangeNotifier {
           updateCurrentProgram(data['cM']['2408'].split(";"));
           updateNextProgram(data['cM']['2409'].split(";"));
           updateScheduledProgram(data['cM']['2410'].split(";"));
+          updateCondition(data['cM']['2411'].split(";"));
           updateAlarm(data['cM']['2412'].split(";"));
           notifyListeners();
         }

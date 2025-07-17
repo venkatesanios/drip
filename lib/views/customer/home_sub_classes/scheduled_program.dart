@@ -831,6 +831,7 @@ class ScheduledProgram extends StatelessWidget {
                 condition.conditionStatus = conditionStatus!;
                 condition.actualValue = actualValue;
               } catch (e) {
+                //print(e);
                 // Not found — optionally handle or ignore
               }
             }
