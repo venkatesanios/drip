@@ -358,11 +358,7 @@ class ConditionLabelsColumn extends StatelessWidget {
 class ComponentSelectionMenu extends StatelessWidget {
   final int index;
   final ConditionLibraryViewModel vm;
-
-  const ComponentSelectionMenu({super.key,
-    required this.index,
-    required this.vm,
-  });
+  const ComponentSelectionMenu({super.key, required this.index, required this.vm});
 
   @override
   Widget build(BuildContext context) {

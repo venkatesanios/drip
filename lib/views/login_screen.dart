@@ -17,9 +17,12 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => LoginViewModel(Repository(HttpService()), onLoginSuccess: (pageRoute) {
-        Navigator.pushReplacementNamed(context, '/dashboard');
-      }),
+      create: (_) => LoginViewModel(
+        repository: RepositoryImpl(HttpService()),
+        onLoginSuccess: (pageRoute) {
+          Navigator.pushReplacementNamed(context, '/dashboard');
+        },
+      ),
       child: Consumer<LoginViewModel>(
         builder: (context, viewModel, _) {
           return Scaffold(
@@ -165,7 +168,6 @@ class LoginScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-
                         ],
                       ),
                     )

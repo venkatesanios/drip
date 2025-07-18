@@ -142,8 +142,6 @@ class MqttService {
     }
   }
 
-
-
   Future<void> topicToSubscribe(String topic) async {
 
     try {

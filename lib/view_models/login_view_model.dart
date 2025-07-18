@@ -8,18 +8,23 @@ class LoginViewModel extends ChangeNotifier {
 
   bool isLoading = false;
   String errorMessage = "";
-  final Repository repository;
+
 
   String countryCode = '91';
   late TextEditingController mobileNoController;
   late TextEditingController passwordController;
   bool isObscure = true;
 
+  final ApiRepository repository;
   final Function(String) onLoginSuccess;
 
-  LoginViewModel(this.repository, {required this.onLoginSuccess}){
+  LoginViewModel({required this.repository, required this.onLoginSuccess}) {
     initState();
   }
+
+ /* LoginViewModel(this.repository, {required this.onLoginSuccess}){
+    initState();
+  }*/
 
   void initState() {
     mobileNoController = TextEditingController();

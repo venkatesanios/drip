@@ -9,6 +9,7 @@ import '../../../Models/customer/site_model.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../modules/IrrigationProgram/view/irrigation_program_main.dart';
 import '../../../repository/repository.dart';
+import '../../../services/ai_service.dart';
 import '../../../services/communication_service.dart';
 import '../../../services/http_service.dart';
 import '../../../services/weather_service.dart';
@@ -264,11 +265,9 @@ class ScheduledProgram extends StatelessWidget {
                                     onSelected: (String result) {
                                       if(result=='Edit program'){
                                         bool conditionL = false;
-
                                         if (filteredScheduleProgram[index].conditions.isNotEmpty) {
                                           conditionL = true;
                                         }
-
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -650,7 +649,31 @@ class ScheduledProgram extends StatelessWidget {
                             icon: const Icon(Icons.more_vert),
                             onSelected: (String result) {
                               if (result == 'Edit program') {
-                                // Navigate to edit screen
+                                bool conditionL = false;
+                                if (filteredScheduleProgram[index].conditions.isNotEmpty) {
+                                  conditionL = true;
+                                }
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => IrrigationProgram(
+                                      deviceId: deviceId,
+                                      userId: userId,
+                                      controllerId: controllerId,
+                                      serialNumber: scheduledPrograms[index].serialNumber,
+                                      programType: filteredScheduleProgram[index].programType,
+                                      conditionsLibraryIsNotEmpty: conditionL,
+                                      fromDealer: false,
+                                      toDashboard: true,
+                                      groupId: groupId,
+                                      categoryId: categoryId,
+                                      customerId: customerId,
+                                      modelId: modelId,
+                                      deviceName: deviceName,
+                                      categoryName: categoryName,
+                                    ),
+                                  ),
+                                );
                               }
                             },
                             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -1003,7 +1026,7 @@ class ScheduledProgram extends StatelessWidget {
 
             final prompt = params.toPrompt();
             try {
-              final response = await HttpService().sendTextToAI(prompt, "English");
+              final response = await AIService().sendTextToAI(prompt, "English");
               final lines = response.trim().split('\n');
               final percent = extractPercentageOnly(lines[0]);
               final reason = lines.skip(1).join('\n').trim();

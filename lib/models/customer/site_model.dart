@@ -294,7 +294,6 @@ class WaterSourceModel {
 
 }
 
-
 class IrrigationLineModel {
   final double sNo;
   final String name;
@@ -1164,7 +1163,6 @@ class ValveModel {
     };
   }
 }
-
 
 class LightModel {
   final double sNo;
