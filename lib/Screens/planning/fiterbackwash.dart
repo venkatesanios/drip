@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:oro_drip_irrigation/utils/environment.dart';
 import 'package:provider/provider.dart';
-
 import '../../Models/back_wash_model.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../StateManagement/overall_use.dart';
@@ -32,11 +31,9 @@ class FilterBackwashUI extends StatefulWidget {
 class _FilterBackwashUIState extends State<FilterBackwashUI>
     with SingleTickerProviderStateMixin {
   late MqttPayloadProvider mqttPayloadProvider;
-
   // late TabController _tabController;
    Filterbackwash _filterbackwash = Filterbackwash();
   int tabclickindex = 0;
-
   @override
   void initState() {
     mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
@@ -45,7 +42,6 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
     //MqttWebClient().init();
      fetchData();
   }
-
   Future<void> fetchData() async {
         try{
       final Repository repository = Repository(HttpService());
@@ -71,14 +67,13 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
 
 
   }
-
   @override
   void dispose() {
     super.dispose();
   }
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context)
+  {
     mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: true);
     if (_filterbackwash.code != 200) {
       return Center(
@@ -178,17 +173,15 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
       });
     }
   }
-
   double Changesize(int? count, int val) {
     count ??= 0;
     double size = (count * val).toDouble();
     return size;
   }
-
   changeval(int Selectindexrow) {}
-
   Widget buildTab(List<Filter>? Listofvalue, int i, String? name, double? srno,
-      double width, double height) {
+      double width, double height)
+  {
     var overAllPvd = Provider.of<OverAllUse>(context, listen: true);
      return Row(
       children: [
@@ -292,12 +285,12 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
       ],
     );
   }
-
   Widget filterCard(
       List<Filter>? Listofvalue,
       int index,
       int srno,
-      ) {
+      )
+  {
     var overAllPvd = Provider.of<OverAllUse>(context, listen: true);
     final RegExp _regex = RegExp(r'^([0-9]|[1-9][0-9])(\.[0-9])?$');
     if (Listofvalue?[index].widgetTypeId == 1) {
@@ -560,13 +553,13 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
       return Container();
     }
   }
-
   Widget buildTabMob(
       List<Filter>? listOfValue,
       int i,
       String? name,
       double srNo,
-      ) {
+      )
+  {
     var overAllPvd = Provider.of<OverAllUse>(context, listen: true);
     final RegExp regex = RegExp(r'^([0-9]|[1-9][0-9])(\.[0-9])?$');
     return Container(
@@ -991,7 +984,6 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
       ),
     );
   }
-
   updatefilterbackwash() async {
     var overAllPvd = Provider.of<OverAllUse>(context,listen: false);
      // List<Map<String, dynamic>> filterBackWash =
@@ -1054,7 +1046,6 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
     //   GlobalSnackBar.show(context, 'MQTT is Disconnected', 201);
     // }
   }
-
   manualonoff(int index) async {
     var overAllPvd = Provider.of<OverAllUse>(context,listen: false);
     String payLoadFinal = jsonEncode({
@@ -1069,10 +1060,10 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
       GlobalSnackBar.show(context, 'MQTT is Disconnected', 201);
     }
   }
-
   String toMqttFormat(
       Data? data,
-      ) {
+      )
+  {
     String mqttData = '';
     for (var i = 0; i < data!.filterBackwashing!.length; i++) {
       double sno = data.filterBackwashing![i].sNo!;
