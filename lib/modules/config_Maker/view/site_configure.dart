@@ -1,8 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/view/pump_configuration.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/view/source_configuration.dart';
-
 import '../model/device_object_model.dart';
 import '../state_management/config_maker_provider.dart';
 import 'fertilization_configuration.dart';
@@ -112,7 +110,6 @@ class _SiteConfigureState extends State<SiteConfigure> {
     );
     return child;
   }
-
 }
 
 DeviceObjectModel getObjectName(double sNo,ConfigMakerProvider configPvd){

@@ -133,7 +133,6 @@ class SftpService {
 
       print('✅ File downloaded to: $localPath');
       print('📦 File size: ${content.length} bytes');
-
       return 200;
     } catch (e, stackTrace) {
       print('❌ Error in downloadFile(): $e');
@@ -141,8 +140,6 @@ class SftpService {
       return 404;
     }
   }
-
-
 
   Future<int> downloadFileOld({
     required String remoteFilePath,

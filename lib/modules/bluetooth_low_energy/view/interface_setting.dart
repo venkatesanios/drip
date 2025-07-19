@@ -118,7 +118,6 @@ class _InterfaceSettingState extends State<InterfaceSetting> {
           },
         ),
       ),
-
     );
   }
 

@@ -75,9 +75,13 @@ class _ProductLimitState extends State<ProductLimit> {
   }
 
   Widget outputObject(){
+    print("widget.configPvd.getPossibleConnectingObjectId() : ${widget.configPvd.getPossibleConnectingObjectId()}");
     List<DeviceObjectModel> filteredList = widget.configPvd.listOfSampleObjectModel.where((object) {
       return (object.type == '1,2' && widget.configPvd.getPossibleConnectingObjectId().contains(object.objectId));
     }).toList();
+    for(var obj in filteredList){
+      print("obj name : ${obj.objectName}");
+    }
     return ProductLimitGridListTile(
       listOfObjectModel: filteredList,
       title: 'Output Object',
