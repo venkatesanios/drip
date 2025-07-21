@@ -37,6 +37,7 @@ class MqttPayloadProvider with ChangeNotifier {
   int selectedLine = 0;
   List<dynamic> nodeDetails = [];
   dynamic messageFromHw;
+  dynamic proogressstatus = '0';
   //List<dynamic> currentSchedule = [];
   List<dynamic> PrsIn = [];
   List<dynamic> PrsOut = [];
@@ -674,6 +675,17 @@ class MqttPayloadProvider with ChangeNotifier {
           if (data['mC'] != null && data['cM'].containsKey('4201')) {
             messageFromHw = data['cM']['4201'];
           }
+        }
+        if(data['cM'] is! List<dynamic>) {
+          print('2903 call');
+          if (data['mC'] != null && data['cM'].containsKey('4201'))
+            {
+          if (data['cM']['4201']['PayloadCode'] == '2903') {
+            print('2903');
+            proogressstatus = data['cM']['4201']['Status'];
+            print('2903data:${data['cM']['4201']['Status']}');
+          }
+        }
         }
         if (data.containsKey("cM") && data["cM"] is! List) {
           Map cM = data["cM"];

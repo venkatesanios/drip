@@ -120,6 +120,15 @@ class _ResetVerssionState extends State<ResetVerssion> {
     MqttService().topicToPublishAndItsMessage(jsonEncode(payLoadFinal), "${Environment.mqttPublishTopic}/${mergedList[index]["deviceId"]}");
 
   }
+  statusCheck(int index) async {
+    Map<String, dynamic> payLoadFinal = {
+      "5700":
+      {"5701": "31"},
+
+    };
+    MqttService().topicToPublishAndItsMessage(jsonEncode(payLoadFinal), "${Environment.mqttPublishTopic}/${mergedList[index]["deviceId"]}");
+
+  }
 
   Update(int index) async {
 
@@ -180,7 +189,11 @@ class _ResetVerssionState extends State<ResetVerssion> {
      mqttPayloadProvider =
         Provider.of<MqttPayloadProvider>(context, listen: true);
     status();
-    return Scaffold(
+     double progressValue = double.parse(mqttPayloadProvider.proogressstatus.replaceAll('%', '')) / 100;
+
+     final screenWidth = MediaQuery.of(context).size.width;
+
+        return Scaffold(
       backgroundColor: Colors.teal.shade100,
       appBar: AppBar(
         title: const Text('Controller Info'),
@@ -305,6 +318,9 @@ class _ResetVerssionState extends State<ResetVerssion> {
                             ),
                           ),
                         ): Container(),
+
+
+
                       ],
                     ),
                     Container(
@@ -364,23 +380,37 @@ class _ResetVerssionState extends State<ResetVerssion> {
                     )
                         : const Text('Status'),
 
-                    Padding(
+                    mergedList[index]['status'] != 'Status'
+                        ?  Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Row(
                         children: [
+                          IconButton(
+
+                            onPressed: () {
+                              setState(() {
+                                statusCheck(index);
+
+                                //Call Siva Ble update Lora class
+
+                              });
+                            },
+                            icon: const Icon(Icons.refresh),
+                          ),
                           Expanded(
                             child: LinearProgressIndicator(
-                              value: 0.6,
+                              value: progressValue,
                               minHeight: 8,
                               backgroundColor: Colors.grey[300],
                               valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
                             ),
                           ),
                           SizedBox(width: 12),
-                          Text('${(0.6 * 100).toStringAsFixed(0)}%'),
+                          // Text('${(0.6 * 100).toStringAsFixed(0)}%'),
+                          Text('${ mqttPayloadProvider.proogressstatus}'),
                         ],
                       ),
-                    ),
+                    ) : Container(),
 
                     // Center(child: Text('${mqttPayloadProvider.messageFromHw ?? 'Status'} ',style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),)),
                     Container(
