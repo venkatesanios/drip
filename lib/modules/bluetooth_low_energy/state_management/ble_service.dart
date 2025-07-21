@@ -900,6 +900,14 @@ class BleProvider extends ChangeNotifier {
     }
   }
 
+  String sendThreeDigit(String val){
+    List<String> value = val.split('');
+    for(var i = 0;i < (3 - val.length);i++){
+      value.insert(0, '0');
+    }
+    return value.join('');
+  }
+
   void waitingForCrcPassOrCrcFail()async{
     int crcDelay = 8;
     for(var i = 0; i < crcDelay;i++){
@@ -945,7 +953,7 @@ class BleProvider extends ChangeNotifier {
       // listOfBytes.add(bytes);
       sumOfAscii += bytes;
     }
-    payload += '${sumOfAscii % 256}:\r';
+    payload += '${sendThreeDigit('${sumOfAscii % 256}')}:\r';
     for (var i in payload.split('')) {
       var bytes = i.codeUnitAt(0);
       listOfBytes.add(bytes);
