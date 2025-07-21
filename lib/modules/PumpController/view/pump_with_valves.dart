@@ -210,12 +210,12 @@ class PumpWithValves extends StatelessWidget {
                                   'assets/png/independent_valve_gray.png',
                                   height: 40,
                                   color: valveItem.status == '1'
-                                      ? Colors.greenAccent
+                                      ? Colors.blue
                                       : valveItem.status == '0'
                                       ? Colors.grey.shade100
                                       : valveItem.status == '2'
-                                      ? Colors.redAccent
-                                      : Colors.orange,
+                                      ? Colors.green
+                                      : Colors.red,
                                   colorBlendMode: BlendMode.modulate,
                                 ),
                               );

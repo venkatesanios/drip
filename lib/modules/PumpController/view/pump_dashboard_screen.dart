@@ -337,7 +337,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                   const SizedBox(height: 15,),
                   for(var index = 0; index < int.parse(snapshot.data!.numberOfPumps); index++)
                     buildNewPumpDetails(index: index, pumpData: snapshot.data!,),
-                  if(AppConstants.pumpWithValveModelList.contains(widget.masterData.modelId))
+                  if(widget.masterData.configObjects.any((e) => e.objectId == 19))
                     _buildLight(snapshot.data!.pumps.firstWhere((pump) => pump is PumpValveModel) as PumpValveModel, snapshot.data!),
                   if(AppConstants.pumpWithValveModelList.contains(widget.masterData.modelId))
                     PumpWithValves(

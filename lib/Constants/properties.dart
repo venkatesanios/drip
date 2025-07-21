@@ -178,14 +178,14 @@ class AppProperties {
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(5),
                   // boxShadow: customBoxShadow2,
-                  gradient: selected ? linearGradientLeading : null,
+                  // gradient: selected ? linearGradientLeading : null,
                   border: Border.all(color: Theme.of(context).primaryColor, width: 0.3),
                   color: selected
-                      ? Theme.of(context).primaryColor
-                      : const Color(0xffF2F2F2)
+                      ? const Color(0xffF2F2F2)
+                      : Theme.of(context).primaryColor
               ),
               child: Center(
-                  child: child ?? Text(title, style: TextStyle(color: selected ? Colors.white : Theme.of(context).primaryColor),)
+                  child: child ?? Text(title, style: TextStyle(color: !selected ? Colors.white : Theme.of(context).primaryColor),)
               )
           )
       ),

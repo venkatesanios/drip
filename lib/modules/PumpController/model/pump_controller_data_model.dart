@@ -165,6 +165,8 @@ class IndividualPumpData {
           : reason == 38 ? "$motorOff Cycle pause"
           : reason == 39 ? "$motorOff wrong feedback"
           : reason == 40 ? "No communication"
+          : reason == 41 ? "$motorOff Pressure sensor low"
+          : reason == 42 ? "$motorOff Pressure sensor high"
           : "Unknown",
       waterMeter: json["WM"] ?? "",
       cumulativeFlow: value != "-" ? value.substring(firstIndex) : "-",

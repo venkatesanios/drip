@@ -253,7 +253,7 @@ class _SystemDefinitionState extends State<SystemDefinition> {
                                         padding: const EdgeInsets.all(10),
                                         decoration: BoxDecoration(
                                             gradient: AppProperties.linearGradientLeading,
-                                            borderRadius: BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8))
+                                            borderRadius: const BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8))
                                         ),
                                         child: const Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -304,6 +304,51 @@ class _SystemDefinitionState extends State<SystemDefinition> {
                                               Text(systemDefinitionProvider.irrigationLineSystemData![lineIndex].name, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),),
                                             ],
                                           )
+                                      ),
+                                      const SizedBox(height: 20,),
+                                      if(systemDefinitionProvider.selectedIrrigationLine == 0)
+                                        Row(
+                                          children: [
+                                            SizedBox(width: constraints.maxWidth * 0.02,),
+                                            Checkbox(
+                                                value: systemDefinitionProvider.enableAll,
+                                                onChanged: (newValue) {
+                                                  setState(() {
+                                                    systemDefinitionProvider.enableAll = newValue!;
+                                                    for(var i = 0; i < systemDefinitionProvider.irrigationLineSystemData!.length; i++) {
+                                                      if(systemDefinitionProvider.enableAll) {
+                                                        systemDefinitionProvider.irrigationLineSystemData![i].systemDefinition.irrigationLineOn = true;
+                                                      } else {
+                                                        systemDefinitionProvider.irrigationLineSystemData![i].systemDefinition.irrigationLineOn = false;
+                                                      }
+                                                    }
+                                                  });
+                                                }
+                                            ),
+                                            SizedBox(width: constraints.maxWidth * 0.02,),
+                                            const Text("All irrigation line should run while power off"),
+                                          ],
+                                        ),
+                                      const SizedBox(height: 20,),
+                                      Row(
+                                        children: [
+                                          SizedBox(width: constraints.maxWidth * 0.02,),
+                                          Checkbox(
+                                              value: systemDefinitionProvider.irrigationLineSystemData![lineIndex].systemDefinition.irrigationLineOn,
+                                              onChanged: (newValue) {
+                                                setState(() {
+                                                  systemDefinitionProvider.irrigationLineSystemData![lineIndex].systemDefinition.irrigationLineOn = newValue!;
+                                                  if(systemDefinitionProvider.irrigationLineSystemData!.every((element) => element.systemDefinition.irrigationLineOn == true)){
+                                                    systemDefinitionProvider.enableAll = true;
+                                                  } else {
+                                                    systemDefinitionProvider.enableAll = false;
+                                                  }
+                                                });
+                                              }
+                                          ),
+                                          SizedBox(width: constraints.maxWidth * 0.02,),
+                                          const Text("Should run while power off"),
+                                        ],
                                       ),
                                       const SizedBox(height: 20,),
                                       Row(
