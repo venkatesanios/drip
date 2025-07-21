@@ -522,7 +522,13 @@ class _ResetVerssionState extends State<ResetVerssion> {
           mergedList[selectindex!]['status'] = 'Started';
           iconData = Icons.start;
           iconcolor = Colors.blue;
-        } else if (name.contains('Restarting')) {
+        }
+        else  if (name.contains('Code Update Progress')) {
+          mergedList[selectindex!]['status'] = 'Progress';
+          iconData = Icons.start;
+          iconcolor = Colors.blue;
+        }
+        else if (name.contains('Restarting')) {
           mergedList[selectindex!]['status'] = 'Restarting...';
           iconData = Icons.incomplete_circle;
           iconcolor = Colors.teal;

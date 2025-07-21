@@ -677,14 +677,11 @@ class MqttPayloadProvider with ChangeNotifier {
           }
         }
         if(data['cM'] is! List<dynamic>) {
-          print('2903 call');
-          if (data['mC'] != null && data['cM'].containsKey('4201'))
+           if (data['mC'] != null && data['cM'].containsKey('4201'))
             {
           if (data['cM']['4201']['PayloadCode'] == '2903') {
-            print('2903');
-            proogressstatus = data['cM']['4201']['Status'];
-            print('2903data:${data['cM']['4201']['Status']}');
-          }
+             proogressstatus = data['cM']['4201']['Status'];
+           }
         }
         }
         if (data.containsKey("cM") && data["cM"] is! List) {
