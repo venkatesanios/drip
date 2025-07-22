@@ -9,6 +9,7 @@ import 'package:oro_drip_irrigation/repository/repository.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:oro_drip_irrigation/utils/environment.dart';
+import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 import '../../../Models/customer/site_model.dart';
 import '../../../Screens/dashboard/wave_view.dart';
@@ -363,16 +364,16 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
 
     if (value >= 10 && value <= 30) {
       iconData = MdiIcons.signalCellular1;
-      iconColor = Colors.red;
+      iconColor = Colors.orange;
     } else if (value > 30 && value <= 70) {
       iconData = MdiIcons.signalCellular2;
       iconColor = Colors.orange;
     } else if (value > 70 && value <= 100) {
       iconData = MdiIcons.signalCellular3;
-      iconColor = Colors.green;
+      iconColor = Colors.orange;
     } else {
       iconData = MdiIcons.signalOff;
-      iconColor = Colors.grey;
+      iconColor = Colors.orange;
     }
 
     return Icon(iconData, color: iconColor);
@@ -392,9 +393,10 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
     _formattedTime = pumpItem.onDelayTimer;
     final voltageTripCondition = [3, 4, 5].contains(pumpItem.reasonCode);
     final currentTripCondition = [8, 9, 10].contains(pumpItem.reasonCode);
+    final pressureTripCondition = [41, 42].contains(pumpItem.reasonCode);
     final phase = pumpItem.phase;
     final otherTripCondition = [13, 14, 1, 2].contains(pumpItem.reasonCode);
-    final tripCondition = voltageTripCondition || currentTripCondition || otherTripCondition;
+    final tripCondition = voltageTripCondition || currentTripCondition || otherTripCondition || pressureTripCondition;
     final remainingTimeCondition = mqttService.isConnected && (pumpItem.maximumRunTimeRemaining != "00:00:00"
         && pumpItem.maximumRunTimeRemaining != "")
         && !tripCondition
@@ -498,7 +500,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        if(voltageTripCondition || currentTripCondition)
+                        if(voltageTripCondition || currentTripCondition || pressureTripCondition)
                           Container(
                               padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
                               decoration: BoxDecoration(
@@ -514,7 +516,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                                 text: TextSpan(
                                   children: <TextSpan>[
                                     TextSpan(
-                                      text: 'SET ${voltageTripCondition
+                                      text: 'SET ${!pressureTripCondition ? (voltageTripCondition
                                           ? phase == 1
                                           ? "RY"
                                           : phase == 2
@@ -523,7 +525,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                                           : phase == 1
                                           ? "RC"
                                           : phase == 2
-                                          ? "YC" : "BC"} : ',
+                                          ? "YC" : "BC"): ''} : ',
                                       style: const TextStyle(color: Colors.black),
                                     ),
                                     TextSpan(
@@ -534,7 +536,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                                 ),
                               )
                           ),
-                        if(voltageTripCondition || currentTripCondition)
+                        if(voltageTripCondition || currentTripCondition || pressureTripCondition)
                           Container(
                               padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
                               decoration: BoxDecoration(
@@ -550,7 +552,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                                 text: TextSpan(
                                   children: <TextSpan>[
                                     TextSpan(
-                                      text: 'ACT ${voltageTripCondition
+                                      text: 'ACT ${!pressureTripCondition ? voltageTripCondition
                                           ? phase == 1
                                           ? "RY"
                                           : phase == 2
@@ -559,7 +561,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                                           : phase == 1
                                           ? "RC"
                                           : phase == 2
-                                          ? "YC" : "BC"} : ',
+                                          ? "YC" : "BC" : ''} : ',
                                       style: const TextStyle(color: Colors.black),
                                     ),
                                     TextSpan(

@@ -158,7 +158,7 @@ class IndividualPumpData {
           : reason == 30 ? "Power off"
           : reason == 31 ? "Power on"
           : reason == 32 ? "Ready to start"
-          : reason == 33 ? "3 Phase only"
+          : reason == 33 ? "$motorOff 3 Phase only"
           : reason == 35 ? "$motorOff Cyclic interval"
           : reason == 36 ? "$motorOff Moisture limit"
           : reason == 37 ? "$motorOff Cycles completed"
