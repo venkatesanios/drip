@@ -615,11 +615,10 @@ class CustomerScreenController extends StatelessWidget {
                                           borderRadius: BorderRadius.zero,
                                           child: StatefulBuilder(
                                             builder: (BuildContext context, StateSetter stateSetter) {
-                                              return NodeList(customerId: customerId, nodes: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList,
-                                                deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                                                deviceName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
-                                                controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId, userId: userId,
-                                                configObjects: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].configObjects);
+                                              return NodeList(customerId: customerId, userId: userId,
+                                                  nodes: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList,
+                                                configObjects: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].configObjects,
+                                                  masterData: vm.mySiteList.data[vm.sIndex].master[vm.mIndex]);
                                             },
                                           ),
                                         ),

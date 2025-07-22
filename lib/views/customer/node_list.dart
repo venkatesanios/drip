@@ -11,11 +11,13 @@ import 'hourly_log/node_hourly_logs.dart';
 import 'hourly_log/sensor_hourly_logs.dart';
 
 class NodeList extends StatelessWidget {
-  const NodeList({super.key, required this.customerId, required this.userId, required this.controllerId, required this.deviceId, required this.deviceName, required this.nodes, required this.configObjects});
-  final int userId, controllerId, customerId;
-  final String deviceId, deviceName;
+  const NodeList({super.key, required this.customerId, required this.userId,
+    required this.nodes, required this.configObjects, required this.masterData});
+  final int userId, customerId;
+  final MasterControllerModel masterData;
   final List<NodeListModel> nodes;
   final List<ConfigObject> configObjects;
+
 
   @override
   Widget build(BuildContext context) {
@@ -57,14 +59,13 @@ class NodeList extends StatelessWidget {
           width: kIsWeb ? 400 : MediaQuery.of(context).size.width,
           child: Column(
             children: [
-              if (kIsWeb) ...[
-                buildWebHeader(context),
-                const Divider(),
-              ],
+              buildHeader(context),
+              const Divider(height: 0, thickness: 0.4),
               buildStatusHeaderRow(context, vm),
               SizedBox(
                 width: 400,
-                height: MediaQuery.sizeOf(context).height-190,
+                height: kIsWeb ?MediaQuery.sizeOf(context).height-190:
+                MediaQuery.sizeOf(context).height-274,
                 child: Column(
                   children: [
                     SizedBox(
@@ -113,7 +114,7 @@ class NodeList extends StatelessWidget {
                                       masterData: {
                                         "userId" : userId,
                                         "customerId" : customerId,
-                                        "controllerId" : controllerId
+                                        "controllerId" : masterData.controllerId
                                       },
                                     )));
                                   },
@@ -234,7 +235,7 @@ class NodeList extends StatelessWidget {
                                           IconButton(
                                             tooltip: 'Serial set',
                                             onPressed: vm.getPermissionStatusBySNo(context, 7) ? () {
-                                              vm.actionSerialSet(index, deviceId, customerId, controllerId, userId);
+                                              vm.actionSerialSet(index, masterData.deviceId, customerId, masterData.controllerId, userId);
                                               GlobalSnackBar.show(context, 'Your comment sent successfully', 200);
                                             }:null,
                                             icon: Icon(Icons.fact_check_outlined, color: vm.getPermissionStatusBySNo(context, 7) ?
@@ -355,50 +356,85 @@ class NodeList extends StatelessWidget {
     );
   }
 
-  Widget buildWebHeader(BuildContext context) {
+  Widget buildHeader(BuildContext context) {
     return Column(
       children: [
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: IconButton(
-            tooltip: 'Close',
-            icon: const Icon(Icons.close, color: Colors.redAccent),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          title: Text(deviceName, style: const TextStyle(fontWeight: FontWeight.bold)),
-          subtitle: Text(deviceId, style: const TextStyle(fontWeight: FontWeight.normal, color: Colors.black54, fontSize: 12)),
-          trailing: Consumer<MqttPayloadProvider>(
-            builder: (context, provider, _) {
-              List<Widget> children = [
-                Text(
-                  'V: ${provider.activeDeviceVersion}',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ];
+        Padding(
+          padding: const EdgeInsets.only(left: kIsWeb?0:10, right: 8),
+          child: ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: kIsWeb? IconButton(
+              tooltip: 'Close',
+              icon: const Icon(Icons.close, color: Colors.redAccent),
+              onPressed: () => Navigator.of(context).pop(),
+            ): null,
+            title: Text(masterData.deviceName, style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text(masterData.deviceId, style: const TextStyle(fontWeight: FontWeight.normal, color: Colors.black54, fontSize: 12)),
+            trailing: Consumer<MqttPayloadProvider>(
+              builder: (context, provider, _) {
+                List<Widget> children = [
+                  Text(
+                    'V: ${provider.activeDeviceVersion}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ];
+                if (provider.activeLoraData.isNotEmpty) {
+                  List<String> parts = provider.activeLoraData.split(',');
+                  List<String> versions = [];
+                  for (int i = 0; i < parts.length; i += 3) {
+                    versions.add(parts[i]);
+                  }
 
-              if (provider.activeLoraData.isNotEmpty) {
-                List<String> parts = provider.activeLoraData.split(',');
-                List<String> versions = [];
-                for (int i = 0; i < parts.length; i += 3) {
-                  versions.add(parts[i]);
+                  children.add(
+                    Text(
+                      'LoRa: $versions',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
+                    ),
+                  );
                 }
 
-                children.add(
-                  Text(
-                    'LoRa: $versions',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
-                  ),
-                );
-              }
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: children,
+                    ),
+                    const SizedBox(width: 5),
+                    IconButton(onPressed: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => NodeConnectionPage(
+                        nodeData: {
+                          'controllerId': masterData.controllerId,
+                          'deviceId': masterData.deviceId,
+                          'deviceName': masterData.deviceName,
+                          'categoryId': masterData.categoryId,
+                          'categoryName': masterData.categoryName,
+                          'modelId': masterData.modelId,
+                          'modelName': masterData.modelName,
 
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: children,
-              );
-            },
+                          'interfaceTypeId': masterData.interfaceTypeId,
+                          'interface': masterData.interface,
+                          'relayOutput': masterData.relayOutput,
+                          'latchOutput': masterData.latchOutput,
+                          'analogInput': masterData.analogInput,
+                          'digitalInput': masterData.digitalInput,
+
+                        },
+                        masterData: {
+                          "userId" : userId,
+                          "customerId" : customerId,
+                          "controllerId" : masterData.controllerId
+                        },
+                      )));
+                    }, icon: const Icon(Icons.bluetooth))
+                  ],
+                );
+              },
+            ),
           ),
         ),
+        const Divider(height: 0, thickness: 0.4),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 5),
           child: Row(
@@ -423,7 +459,7 @@ class NodeList extends StatelessWidget {
         onPressed: () {
           Navigator.push(context,
             MaterialPageRoute(
-              builder: (context) => NodeHourlyLogs(userId: customerId, controllerId: controllerId, nodes: nodes),
+              builder: (context) => NodeHourlyLogs(userId: customerId, controllerId: masterData.controllerId, nodes: nodes),
             ),
           );
         },
@@ -434,7 +470,7 @@ class NodeList extends StatelessWidget {
         onPressed: () {
           Navigator.push(context,
             MaterialPageRoute(
-              builder: (context) => SensorHourlyLogs(userId: customerId, controllerId: controllerId,
+              builder: (context) => SensorHourlyLogs(userId: customerId, controllerId: masterData.controllerId,
                 configObjects: configObjects,),
             ),
           );
@@ -527,7 +563,7 @@ class NodeList extends StatelessWidget {
                       color: Theme.of(context).primaryColor,
                       textColor: Colors.white,
                       onPressed: () {
-                        vm.setSerialToAllNodes(deviceId, customerId, controllerId, userId);
+                        vm.setSerialToAllNodes(masterData.deviceId, customerId, masterData.controllerId, userId);
                         GlobalSnackBar.show(context, 'Sent your comment successfully', 200);
                         Navigator.of(context).pop();
                       },
@@ -551,7 +587,7 @@ class NodeList extends StatelessWidget {
               ),
               onPressed: vm.getPermissionStatusBySNo(context, 8)
                   ? () {
-                vm.testCommunication(deviceId, customerId, controllerId, userId);
+                vm.testCommunication(masterData.deviceId, customerId, masterData.controllerId, userId);
                 GlobalSnackBar.show(context, 'Sent your comment successfully', 200);
               }
                   : null,
