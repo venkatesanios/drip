@@ -480,17 +480,10 @@ class MobileScreenController extends StatelessWidget {
                               MaterialPageRoute(
                                 builder: (context) => NodeList(
                                       customerId: customerId,
-                                      nodes: vm.mySiteList.data[vm.sIndex].master[vm
-                                          .mIndex].nodeList,
-                                      deviceId: vm.mySiteList.data[vm.sIndex]
-                                          .master[vm.mIndex].deviceId,
-                                      deviceName: vm.mySiteList.data[vm.sIndex]
-                                          .master[vm.mIndex].categoryName,
-                                      controllerId: vm.mySiteList.data[vm.sIndex]
-                                          .master[vm.mIndex].controllerId,
-                                      userId: userId, configObjects: vm.mySiteList.data[vm.sIndex]
-                                        .master[vm.mIndex].configObjects,
-                                    ),
+                                      nodes: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList,
+                                      userId: userId,
+                                    configObjects: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].configObjects,
+                                  masterData: vm.mySiteList.data[vm.sIndex].master[vm.mIndex]),
                               ),
                             );
                             break;

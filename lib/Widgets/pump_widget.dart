@@ -429,6 +429,7 @@ class PumpWidget extends StatelessWidget {
             onPressed: () {
               String payload = '${pump.sNo},0,1';
               if (modelId == 56 || modelId == 57 || modelId == 58 || modelId == 59) {
+                //for nova model
                 payload = payload.replaceAll(RegExp(r'[.]'), ',');
               }
 
