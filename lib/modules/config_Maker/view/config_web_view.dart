@@ -257,7 +257,6 @@ class _ConfigWebViewState extends State<ConfigWebView> {
             '107' : configPvd.getIrrigationLinePayload(),
         }
       };
-
       setState(() {
         var payloadTitle = AppConstants.ecoGemModelList.contains(configPvd.masterData['modelId']) ? 'Eco Gem Config' : 'Gem Config';
         listOfPayload.insert(0,{

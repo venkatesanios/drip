@@ -25,6 +25,13 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
   List<int> pumpModelList = [5, 6, 7, 8, 9, 10];
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    widget.configPvd.updateFloatForPump();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8),
@@ -197,10 +204,10 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
   Widget getFloatSelection(PumpModel currentPump, int mode){
     int objectId = AppConstants.floatObjectId;
     Map<int, String> controlBy = {
-      1 : 'Sump Top Float',
-      2 : 'Sump Bottom Float',
-      3 : 'Tank Top Float',
-      4 : 'Tank Bottom Float',
+      1 : 'Top Float (Sump)',
+      2 : 'Bottom Float (Sump)',
+      3 : 'Top Float (Tank)',
+      4 : 'Bottom Float (Tank)',
     };
     Map<int, double> sNoSelection = {
       1 : currentPump.topSumpFloat,
@@ -208,9 +215,8 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
       3 : currentPump.topTankFloat,
       4 : currentPump.bottomTankFloat,
     };
-    String objectName = 'Control By ${controlBy[mode]}';
+    String objectName = '${controlBy[mode]}';
     double currentSno = sNoSelection[mode]!;
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
@@ -243,26 +249,26 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
                   if(src.outletPump.contains(currentPump.commonDetails.sNo)){
                     print('take outlet pump');
                     print("src : ${src.toJson()}");
-                    topSumpFloatSnoForAllSource.add(src.topFloat);
-                    bottomSumpFloatSnoForAllSource.add(src.bottomFloat);
+                    topSumpFloatSnoForAllSource.add(src.topFloatForOutletPump);
+                    bottomSumpFloatSnoForAllSource.add(src.bottomFloatForOutletPump);
                   }else if(src.inletPump.contains(currentPump.commonDetails.sNo)){
                     print('take inlet pump');
                     print("src : ${src.toJson()}");
-                    topTankFloatSnoForAllSource.add(src.topFloat);
-                    bottomTankFloatSnoForAllSource.add(src.bottomFloat);
+                    topTankFloatSnoForAllSource.add(src.topFloatForInletPump);
+                    bottomTankFloatSnoForAllSource.add(src.bottomFloatForInletPump);
                   }
                 }
-                for(var pump in widget.configPvd.pump){
-                  if(pump.commonDetails.sNo != currentPump.commonDetails.sNo){
-                    Map<int, double> sNoSelectionForPumpFloat = {
-                      1 : pump.topSumpFloat,
-                      2 : pump.bottomSumpFloat,
-                      3 : pump.topTankFloat,
-                      4 : pump.bottomTankFloat,
-                    };
-                    validateFloat.add(sNoSelectionForPumpFloat[mode]!);
-                  }
-                }
+                // for(var pump in widget.configPvd.pump){
+                //   if(pump.commonDetails.sNo != currentPump.commonDetails.sNo && ){
+                //     Map<int, double> sNoSelectionForPumpFloat = {
+                //       1 : pump.topSumpFloat,
+                //       2 : pump.bottomSumpFloat,
+                //       3 : pump.topTankFloat,
+                //       4 : pump.bottomTankFloat,
+                //     };
+                //     validateFloat.add(sNoSelectionForPumpFloat[mode]!);
+                //   }
+                // }
                 setState(() {
                   widget.configPvd.selectedSno = currentSno;
                 });

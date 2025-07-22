@@ -6,8 +6,10 @@ class SourceModel {
   DeviceObjectModel commonDetails;
   int sourceType;
   double level;
-  double topFloat;
-  double bottomFloat;
+  double topFloatForInletPump;
+  double bottomFloatForInletPump;
+  double topFloatForOutletPump;
+  double bottomFloatForOutletPump;
   List<double> inletPump;
   List<double> outletPump;
   List<double> valves;
@@ -16,8 +18,10 @@ class SourceModel {
     required this.commonDetails,
     this.sourceType = 1,
     this.level = 0.0,
-    this.topFloat = 0.0,
-    this.bottomFloat = 0.0,
+    this.topFloatForInletPump = 0.0,
+    this.bottomFloatForInletPump = 0.0,
+    this.topFloatForOutletPump = 0.0,
+    this.bottomFloatForOutletPump = 0.0,
     required this.inletPump,
     required this.outletPump,
     required this.valves,
@@ -28,8 +32,10 @@ class SourceModel {
     outletPump = outletPump.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
     valves = valves.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
     level = objectIdToBeDeleted.contains(level) ? 0.0 : level;
-    topFloat = objectIdToBeDeleted.contains(topFloat) ? 0.0 : topFloat;
-    bottomFloat = objectIdToBeDeleted.contains(bottomFloat) ? 0.0 : bottomFloat;
+    topFloatForInletPump = objectIdToBeDeleted.contains(topFloatForInletPump) ? 0.0 : topFloatForInletPump;
+    bottomFloatForInletPump = objectIdToBeDeleted.contains(bottomFloatForInletPump) ? 0.0 : bottomFloatForInletPump;
+    topFloatForOutletPump = objectIdToBeDeleted.contains(topFloatForOutletPump) ? 0.0 : topFloatForOutletPump;
+    bottomFloatForOutletPump = objectIdToBeDeleted.contains(bottomFloatForOutletPump) ? 0.0 : bottomFloatForOutletPump;
   }
 
   factory SourceModel.fromJson(data){
@@ -39,8 +45,10 @@ class SourceModel {
         commonDetails: deviceObjectModel,
         sourceType: data['sourceType'],
         level: intOrDoubleValidate(data['level']),
-        topFloat: intOrDoubleValidate(data['topFloat']),
-        bottomFloat: intOrDoubleValidate(data['bottomFloat']),
+        topFloatForInletPump: intOrDoubleValidate(data['topFloatForInletPump']),
+        bottomFloatForInletPump: intOrDoubleValidate(data['bottomFloatForInletPump']),
+        topFloatForOutletPump: intOrDoubleValidate(data['topFloatForOutletPump']),
+        bottomFloatForOutletPump: intOrDoubleValidate(data['bottomFloatForOutletPump']),
         inletPump: (data['inletPump'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         outletPump: (data['outletPump'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         valves: (data['valves'] as List<dynamic>).map((sNo) => sNo as double).toList(),
@@ -52,8 +60,10 @@ class SourceModel {
     commonInfo.addAll({
       'sourceType' : sourceType,
       'level' : level,
-      'topFloat' : topFloat,
-      'bottomFloat' : bottomFloat,
+      'topFloatForInletPump' : topFloatForInletPump,
+      'bottomFloatForInletPump' : bottomFloatForInletPump,
+      'topFloatForOutletPump' : topFloatForOutletPump,
+      'bottomFloatForOutletPump' : bottomFloatForOutletPump,
       'inletPump' : inletPump,
       'outletPump' : outletPump,
       'valves' : valves,

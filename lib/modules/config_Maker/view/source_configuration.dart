@@ -68,8 +68,8 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
                                           if([4, 5].contains(source.sourceType)){
                                             source.inletPump.clear();
                                             source.level = 0.0;
-                                            source.topFloat = 0.0;
-                                            source.bottomFloat = 0.0;
+                                            source.topFloatForInletPump = 0.0;
+                                            source.bottomFloatForInletPump = 0.0;
                                           }
                                         });
                                       }
@@ -92,7 +92,7 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
                                           multiplePump(source, true, widget.configPvd)
                                       ],
                                     Stack(
-                                      children: [
+                                    children: [
                                         getTankImage(source, widget.configPvd),
                                         Positioned(
                                           left : 5,
@@ -169,7 +169,7 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
                                     ),
                                   ),
                                   if(![4,5].contains(source.sourceType))
-                                    for(var mode in [1,2,3])
+                                    for(var mode in [1,2,3,4,5])
                                       getLevelAndFloatSelection(source, mode)
                                 ],
                               ),
@@ -182,7 +182,6 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
               ],
             ),
           ),
-
         );
       }),
     );
@@ -192,7 +191,7 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
     List<double> currentParameter = pumpMode == 1 ? source.inletPump : source.outletPump;
     List<double> checkingParameter = pumpMode == 1 ? source.outletPump : source.inletPump;
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         color: Theme.of(context).primaryColorLight.withOpacity(0.1),
@@ -241,17 +240,21 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
 
   Widget getLevelAndFloatSelection(SourceModel source, int mode){
     int objectId = mode == 1 ? AppConstants.levelObjectId : AppConstants.floatObjectId;
-    String objectName = mode == 1 ? 'Level' : mode == 2 ? 'Top Float' : 'Bottom Float';
-    double currentSno = mode == 1 ? source.level : mode == 2 ? source.topFloat : source.bottomFloat;
-    double checkingParameter = mode == 1 ? 0.0 : mode == 2 ? source.bottomFloat : source.topFloat;
-    List<double> validateSensorFromOtherSource = [];
-    for(var src in widget.configPvd.source){
-      if(src.commonDetails.sNo != source.commonDetails.sNo){
-        validateSensorFromOtherSource.add(src.level);
-        validateSensorFromOtherSource.add(src.topFloat);
-        validateSensorFromOtherSource.add(src.bottomFloat);
-      }
-    }
+    Map<int, String> currentObjectName = {
+      1: 'Level',
+      2: 'Top Float For Inlet Pumps',
+      3: 'Bottom Float For Inlet Pumps',
+      4: 'Top Float For Outlet Pumps',
+      5: 'Bottom Float For Outlet Pumps',
+    };
+    Map<int, double> currentSno = {
+      1: source.level,
+      2: source.topFloatForInletPump,
+      3: source.bottomFloatForInletPump,
+      4: source.topFloatForOutletPump,
+      5: source.bottomFloatForOutletPump,
+    };
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
@@ -263,28 +266,50 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
         children: [
           SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_$objectId.svg', color: Colors.black,),
           const SizedBox(width: 20,),
-          Text('$objectName : ', style: AppProperties.listTileBlackBoldStyle,),
+          Text('${currentObjectName[mode]} : ', style: AppProperties.listTileBlackBoldStyle,),
           Center(
-            child: Text(currentSno == 0.0 ? '-' : getObjectName(currentSno, widget.configPvd).name!, style: TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold),),
+            child: Text(currentSno[mode] == 0.0 ? '-' : getObjectName(currentSno[mode]!, widget.configPvd).name!, style: TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold),),
           ),
           IconButton(
               onPressed: (){
+                List<double> validateSensorFromOtherSource = [];
+                for(var src in widget.configPvd.source){
+                  validateSensorFromOtherSource.add(src.level);
+                  validateSensorFromOtherSource.add(src.topFloatForInletPump);
+                  validateSensorFromOtherSource.add(src.bottomFloatForInletPump);
+                  validateSensorFromOtherSource.add(src.topFloatForOutletPump);
+                  validateSensorFromOtherSource.add(src.bottomFloatForOutletPump);
+                }
+                validateSensorFromOtherSource.remove(currentSno[mode]);
                 setState(() {
-                  widget.configPvd.selectedSno = currentSno;
+                  widget.configPvd.selectedSno = currentSno[mode]!;
                 });
+                print("validateSensorFromOtherSource : $validateSensorFromOtherSource");
                 selectionDialogBox(
                     context: context,
-                    title: 'Select $objectName',
+                    title: 'Select ${currentObjectName[mode]}',
                     singleSelection: true,
-                    listOfObject: widget.configPvd.listOfGeneratedObject.where((object) => (object.objectId == objectId && checkingParameter!= object.sNo && !validateSensorFromOtherSource.contains(object.sNo))).toList(),
+                    listOfObject: widget.configPvd.listOfGeneratedObject.where((object) {
+                      if(object.objectId != objectId){
+                        return false;
+                      }
+                      if(validateSensorFromOtherSource.contains(object.sNo)){
+                        return false;
+                      }
+                      return true;
+                    }).toList(),
                     onPressed: (){
                       setState(() {
                         if(mode == 1){
                           source.level = widget.configPvd.selectedSno;
                         }else if(mode == 2){
-                          source.topFloat = widget.configPvd.selectedSno;
+                          source.topFloatForInletPump = widget.configPvd.selectedSno;
+                        }else if(mode == 3){
+                          source.bottomFloatForInletPump = widget.configPvd.selectedSno;
+                        }else if(mode == 4){
+                          source.topFloatForOutletPump = widget.configPvd.selectedSno;
                         }else{
-                          source.bottomFloat = widget.configPvd.selectedSno;
+                          source.bottomFloatForOutletPump = widget.configPvd.selectedSno;
                         }
                         widget.configPvd.selectedSno = 0.0;
                       });
@@ -297,7 +322,6 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
         ],
       ),
     );
-
   }
 }
 
@@ -446,8 +470,10 @@ Widget multiplePump(SourceModel source, bool fillingPump, ConfigMakerProvider co
 
 Widget getTankImage(SourceModel source ,ConfigMakerProvider configPvd, {bool dashboard = false, bool inlet = true,}){
   bool levelAvailable = source.level != 0.0;
-  bool topFloatAvailable = source.topFloat != 0.0;
-  bool bottomFloatAvailable = source.bottomFloat != 0.0;
+  bool topFloatAvailableForOutlet = source.topFloatForOutletPump != 0.0;
+  bool bottomFloatAvailableForOutlet = source.bottomFloatForOutletPump != 0.0;
+  bool topFloatAvailableForInlet = source.topFloatForInletPump != 0.0;
+  bool bottomFloatAvailableForInlet = source.bottomFloatForInletPump != 0.0;
   if(source.sourceType == 1){
     return Stack(
       children: [
@@ -478,19 +504,19 @@ Widget getTankImage(SourceModel source ,ConfigMakerProvider configPvd, {bool das
               ),
             ),
           ),
-        if(levelAvailable || topFloatAvailable || bottomFloatAvailable)
+        // if(levelAvailable || topFloatAvailable || bottomFloatAvailable)
+        //   Positioned(
+        //     right: 42,
+        //     bottom: 23,
+        //     child: SvgPicture.asset(
+        //       'assets/Images/Source/water_view.svg',
+        //       width: 55,
+        //       height: 55,
+        //     ),
+        //   ),
+        if(topFloatAvailableForOutlet)
           Positioned(
-            right: 42,
-            bottom: 23,
-            child: SvgPicture.asset(
-              'assets/Images/Source/water_view.svg',
-              width: 55,
-              height: 55,
-            ),
-          ),
-        if(topFloatAvailable)
-          Positioned(
-            right: 45,
+            right: 40,
             bottom: 50,
             child: SvgPicture.asset(
               'assets/Images/Source/top_float.svg',
@@ -498,9 +524,29 @@ Widget getTankImage(SourceModel source ,ConfigMakerProvider configPvd, {bool das
               height: 40,
             ),
           ),
-        if(bottomFloatAvailable)
+        if(topFloatAvailableForInlet)
           Positioned(
-            right: 60,
+            left: 40,
+            bottom: 50,
+            child: SvgPicture.asset(
+              'assets/Images/Source/top_float.svg',
+              width: 30,
+              height: 40,
+            ),
+          ),
+        if(bottomFloatAvailableForOutlet)
+          Positioned(
+            right: 50,
+            bottom: 25,
+            child: SvgPicture.asset(
+              'assets/Images/Source/bottom_float.svg',
+              width: 70,
+              height: 70,
+            ),
+          ),
+        if(bottomFloatAvailableForInlet)
+          Positioned(
+            left: 50,
             bottom: 25,
             child: SvgPicture.asset(
               'assets/Images/Source/bottom_float.svg',
@@ -541,7 +587,7 @@ Widget getTankImage(SourceModel source ,ConfigMakerProvider configPvd, {bool das
               ),
             ),
           ),
-        if(topFloatAvailable)
+        if(topFloatAvailableForOutlet)
           Positioned(
             right: 55,
             bottom: 55,
@@ -551,7 +597,7 @@ Widget getTankImage(SourceModel source ,ConfigMakerProvider configPvd, {bool das
               height: 30,
             ),
           ),
-        if(bottomFloatAvailable)
+        if(bottomFloatAvailableForOutlet)
           Positioned(
             right: 70,
             bottom: 35,
@@ -572,16 +618,16 @@ Widget getTankImage(SourceModel source ,ConfigMakerProvider configPvd, {bool das
           width: 120,
           height: 120 * configPvd.ratio,
         ),
-        if(levelAvailable || topFloatAvailable || bottomFloatAvailable)
-          Positioned(
-            right: 47,
-            bottom: 20,
-            child: SvgPicture.asset(
-              'assets/Images/Source/water_view.svg',
-              width: 55,
-              height: 55,
-            ),
-          ),
+        // if(levelAvailable || topFloatAvailable || bottomFloatAvailable)
+        //   Positioned(
+        //     right: 47,
+        //     bottom: 20,
+        //     child: SvgPicture.asset(
+        //       'assets/Images/Source/water_view.svg',
+        //       width: 55,
+        //       height: 55,
+        //     ),
+        //   ),
         if(levelAvailable)
           Positioned(
             left: 45,
@@ -604,7 +650,7 @@ Widget getTankImage(SourceModel source ,ConfigMakerProvider configPvd, {bool das
               ),
             ),
           ),
-        if(topFloatAvailable)
+        if(topFloatAvailableForOutlet)
           Positioned(
             right: 55,
             bottom: 55,
@@ -614,7 +660,7 @@ Widget getTankImage(SourceModel source ,ConfigMakerProvider configPvd, {bool das
               height: 30,
             ),
           ),
-        if(bottomFloatAvailable)
+        if(bottomFloatAvailableForOutlet)
           Positioned(
             right: 70,
             bottom: 35,
@@ -631,9 +677,10 @@ Widget getTankImage(SourceModel source ,ConfigMakerProvider configPvd, {bool das
     return SvgPicture.asset(
       'assets/Images/Source/bore_1.svg',
       width: 120,
-      height: 120* configPvd.ratio,
+      height: 120 * configPvd.ratio,
     );
-  }else{
+  }
+  else{
     return SvgPicture.asset(
       'assets/Images/Source/pond_1.svg',
       width: 120,

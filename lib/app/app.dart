@@ -67,9 +67,9 @@ class _MyAppState extends State<MyApp> {
           theme: isOro ? OroTheme.lightTheme : SmartCommTheme.lightTheme,
           darkTheme: isOro ? OroTheme.darkTheme : SmartCommTheme.darkTheme,
           themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          // home: ConfigBasePage(masterData: {"userId":7,"customerId":8,"controllerId":27,"productId":27,"deviceId":"9C956EC7672B","deviceName":"ORO ELITE GSM","categoryId":1,"categoryName":"ORO GEM","modelId":54,"modelName":"NAm1000GO10V","groupId":4,"groupName":"ORO ELITE","connectingObjectId":["5","13","19","23","24"]}),
-          home: navigateToInitialScreen(snapshot.data ?? Routes.login),
-          onGenerateRoute: Routes.generateRoute,
+          home: ConfigBasePage(masterData: {"userId":3,"customerId":11,"controllerId":111,"productId":110,"deviceId":"1234567890","deviceName":"NAm1000WO16V","categoryId":1,"categoryName":"ORO GEM","modelId":59,"modelName":"NAm1000WO16V","groupId":25,"groupName":"DG_test","connectingObjectId":["1","2","3","4","5","7","10","11","13","14","22","23","24","26","40","41"]}),
+          // home: navigateToInitialScreen(snapshot.data ?? Routes.login),
+          // onGenerateRoute: Routes.generateRoute,
         );
       },
     );

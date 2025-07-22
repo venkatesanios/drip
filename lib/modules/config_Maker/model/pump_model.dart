@@ -1,5 +1,4 @@
 import 'package:oro_drip_irrigation/modules/config_Maker/model/irrigationLine_model.dart';
-
 import 'device_object_model.dart';
 
 class PumpModel{
@@ -13,6 +12,7 @@ class PumpModel{
   double topSumpFloat;
   double bottomSumpFloat;
   int pumpType;
+  bool automateFloatSelection;
 
   PumpModel({
     required this.commonDetails,
@@ -25,6 +25,7 @@ class PumpModel{
     this.topSumpFloat = 0.0,
     this.bottomSumpFloat = 0.0,
     this.pumpType = 1,
+    this.automateFloatSelection = false,
   });
 
   void updateObjectIdIfDeletedInProductLimit(List<double> objectIdToBeDeleted){
@@ -50,7 +51,8 @@ class PumpModel{
         bottomTankFloat: intOrDoubleValidate(data['bottomTankFloat'] ?? 0.0),
         topSumpFloat: intOrDoubleValidate(data['topSumpFloat'] ?? 0.0),
         bottomSumpFloat: intOrDoubleValidate(data['bottomSumpFloat'] ?? 0.0),
-        pumpType: data['pumpType']
+        pumpType: data['pumpType'],
+        automateFloatSelection: data['automateFloatSelection'] ?? false
     );
   }
 
@@ -66,6 +68,7 @@ class PumpModel{
       'topSumpFloat' : topSumpFloat,
       'bottomSumpFloat' : bottomSumpFloat,
       'pumpType' : pumpType,
+      'automateFloatSelection' : automateFloatSelection,
     });
     return commonInfo;
   }

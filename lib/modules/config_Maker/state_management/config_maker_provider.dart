@@ -39,6 +39,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     4 : AppConstants.moistureObjectId,
     5 : AppConstants.irrigationLineObjectId,
   };
+
   int selectedConfigurationTab = 0;
   SelectionMode selectedSelectionMode = SelectionMode.auto;
   int selectedConnectionNo = 0;
@@ -71,6 +72,7 @@ class ConfigMakerProvider extends ChangeNotifier{
   void clearData(){
     listOfSampleObjectModel = (defaultDataFromHttp['objectType'] as List<dynamic>).map(mapToDeviceObject).toList();
     listOfObjectModelConnection = (defaultDataFromHttp['objectType'] as List<dynamic>).map(mapToDeviceObject).toList();
+    print("clear called............");
     for(var i in listOfDeviceModel){
       if(AppConstants.ecoGemModelList.contains(masterData['modelId'])){
         if(i.masterId != masterData['controllerId']){
@@ -79,7 +81,7 @@ class ConfigMakerProvider extends ChangeNotifier{
           i.serialNumber = null;
           i.extendControllerId = null;
         }
-      }else{
+      }else if(AppConstants.gemModelList.contains(masterData['modelId'])){
         print('clear gem');
         i.masterId = null;
         i.serialNumber = null;
@@ -155,6 +157,82 @@ class ConfigMakerProvider extends ChangeNotifier{
       count: '0',
       assignObject: [],
     );
+  }
+
+  void updateFloatForPump()async{
+    await Future.delayed(const Duration(seconds: 0));
+    for(var currentPump in pump){
+      if(currentPump.automateFloatSelection == false){
+        for(var mode in [1,2,3,4]){
+          int objectId = AppConstants.floatObjectId;
+          Map<int, String> controlBy = {
+            1 : 'Top Float (Sump)',
+            2 : 'Bottom Float (Sump)',
+            3 : 'Top Float (Tank)',
+            4 : 'Bottom Float (Tank)',
+          };
+          Map<int, double> sNoSelection = {
+            1 : currentPump.topSumpFloat,
+            2 : currentPump.bottomSumpFloat,
+            3 : currentPump.topTankFloat,
+            4 : currentPump.bottomTankFloat,
+          };
+          String objectName = '${controlBy[mode]}';
+          double currentSno = sNoSelection[mode]!;
+          List<double> validateFloat = [];
+          List<double> topTankFloatSnoForAllSource = [];
+          List<double> bottomTankFloatSnoForAllSource = [];
+          List<double> topSumpFloatSnoForAllSource = [];
+          List<double> bottomSumpFloatSnoForAllSource = [];
+          Map<int, List<double>> validateFloatAvailableInSource = {
+            1 : topSumpFloatSnoForAllSource,
+            2 : bottomSumpFloatSnoForAllSource,
+            3 : topTankFloatSnoForAllSource,
+            4 : bottomTankFloatSnoForAllSource,
+          };
+          for(var src in source){
+            if(src.outletPump.contains(currentPump.commonDetails.sNo)){
+              // print('take outlet pump');
+              // print("src : ${src.toJson()}");
+              topSumpFloatSnoForAllSource.add(src.topFloatForOutletPump);
+              bottomSumpFloatSnoForAllSource.add(src.bottomFloatForOutletPump);
+            }else if(src.inletPump.contains(currentPump.commonDetails.sNo)){
+              // print('take inlet pump');
+              // print("src : ${src.toJson()}");
+              topTankFloatSnoForAllSource.add(src.topFloatForInletPump);
+              bottomTankFloatSnoForAllSource.add(src.bottomFloatForInletPump);
+            }
+          }
+          // for(var pump in widget.configPvd.pump){
+          //   if(pump.commonDetails.sNo != currentPump.commonDetails.sNo && ){
+          //     Map<int, double> sNoSelectionForPumpFloat = {
+          //       1 : pump.topSumpFloat,
+          //       2 : pump.bottomSumpFloat,
+          //       3 : pump.topTankFloat,
+          //       4 : pump.bottomTankFloat,
+          //     };
+          //     validateFloat.add(sNoSelectionForPumpFloat[mode]!);
+          //   }
+          // }
+          List<double> filteredSno =  listOfGeneratedObject.where((object) => (object.objectId == objectId && !validateFloat.contains(object.sNo) && validateFloatAvailableInSource[mode]!.contains(object.sNo))).map((object) => object.sNo!).toList();
+          if(filteredSno.isNotEmpty){
+            double firstValue = filteredSno[0];
+            double oldValue = currentPump.topSumpFloat;
+            if(mode == 1){
+              currentPump.topSumpFloat = oldValue == 0.0 ? filteredSno[0] : filteredSno.contains(oldValue) ? oldValue : firstValue;
+            }else if(mode == 2){
+              currentPump.bottomSumpFloat = oldValue == 0.0 ? filteredSno[0] : filteredSno.contains(oldValue) ? oldValue : firstValue;
+            }else if(mode == 3){
+              currentPump.topTankFloat = oldValue == 0.0 ? filteredSno[0] : filteredSno.contains(oldValue) ? oldValue : firstValue;
+            }else{
+              currentPump.bottomTankFloat = oldValue == 0.0 ? filteredSno[0] : filteredSno.contains(oldValue) ? oldValue : firstValue;
+            }
+          }
+        }
+        currentPump.automateFloatSelection = true;
+      }
+    }
+    notifyListeners();
   }
 
   List<int> getPossibleConnectingObjectId(){
@@ -857,8 +935,8 @@ class ConfigMakerProvider extends ChangeNotifier{
     for (var i = 0; i < pump.length; i++) {
       var pumpModelObject = pump[i];
       var relatedSources = source.where((e) => e.inletPump.contains(pumpModelObject.commonDetails.sNo) || e.outletPump.contains(pumpModelObject.commonDetails.sNo)).toList();
-      var sumpTankLevel = relatedSources.cast<SourceModel?>().firstWhere((source) => source!.sourceType == 2, orElse: ()=>null);
-      var topTankLevel = relatedSources.cast<SourceModel?>().firstWhere((source) => source!.sourceType == 1, orElse: ()=>null as SourceModel?);
+      var sumpTankLevel = relatedSources.cast<SourceModel?>().firstWhere((source) => source!.outletPump.contains(pumpModelObject.commonDetails.sNo), orElse: ()=>null);
+      var topTankLevel = relatedSources.cast<SourceModel?>().firstWhere((source) => source!.inletPump.contains(pumpModelObject.commonDetails.sNo), orElse: ()=>null as SourceModel?);
 
       Map<String, dynamic> payload = {
         "S_No": pumpModelObject.commonDetails.sNo,
@@ -868,10 +946,10 @@ class ConfigMakerProvider extends ChangeNotifier{
         "WaterMeter": serialNoOrEmpty(pumpModelObject.waterMeter),
         "SumpTankLevel" : sumpTankLevel == null ? '' : serialNoOrEmpty(sumpTankLevel.level),
         "TopTankLevel" : topTankLevel == null ? '' : serialNoOrEmpty(topTankLevel.level),
-        "TopTankFloatHigh" : topTankLevel == null ? '' : serialNoOrEmpty(topTankLevel.topFloat),
-        "TopTankFloatLow" : topTankLevel == null ? '' : serialNoOrEmpty(topTankLevel.bottomFloat),
-        "SumpTankFloatHigh" : sumpTankLevel == null ? '' : serialNoOrEmpty(sumpTankLevel.topFloat),
-        "SumpTankFloatLow" : sumpTankLevel == null ? '' : serialNoOrEmpty(sumpTankLevel.bottomFloat),
+        "TopTankFloatHigh" : serialNoOrEmpty(pumpModelObject.topTankFloat),
+        "TopTankFloatLow" : serialNoOrEmpty(pumpModelObject.bottomTankFloat),
+        "SumpTankFloatHigh" : serialNoOrEmpty(pumpModelObject.topSumpFloat),
+        "SumpTankFloatLow" : serialNoOrEmpty(pumpModelObject.bottomTankFloat),
         "IrrigationLine" : line.where((line) => (line.sourcePump.contains(pumpModelObject.commonDetails.sNo) || line.irrigationPump.contains(pumpModelObject.commonDetails.sNo))).map((line) => line.commonDetails.sNo).join('_'),
       };
 
@@ -1160,9 +1238,8 @@ class ConfigMakerProvider extends ChangeNotifier{
     List<int> modelIdForPump2000 = [8, 9, 10, ...AppConstants.ecoGemModelList];
     List<DeviceModel> listOfPump1000 = listOfDeviceModel.where((device) => modelIdForPump1000.contains(device.modelId) && device.masterId != null).toList();
     List<DeviceModel> listOfPump2000 = listOfDeviceModel.where((device) => modelIdForPump2000.contains(device.modelId) && device.masterId != null).toList();
-    int pumpCodeUnderGem = 5900;
+    // int pumpCodeUnderGem = 5900;
     var payloadPumpCount = 3;
-
     for(var p1000 in listOfPump1000){
       int pumpCount = listOfGeneratedObject.where((object) => (object.controllerId == p1000.controllerId && object.objectId == 5)).length;
       List<String> findOutHowManySourceAndIrrigationPump = pump.where((pumpModel) => ((pumpModel.commonDetails.controllerId == p1000.controllerId || AppConstants.ecoGemModelList.contains(masterData['modelId'])) && pumpModel.commonDetails.objectId == 5))
@@ -1189,7 +1266,6 @@ class ConfigMakerProvider extends ChangeNotifier{
       };
       String deviceIdToSend = hardwareType == HardwareType.master ? masterData['deviceId'] : p1000.deviceId;
       Map<String, dynamic> payloadToSend = hardwareType == HardwareType.master ? gemPayload : pumpPayload;
-
       listOfPumpPayload.add({
         'title' : '${p1000.deviceName}(pumpconfig)',
         'deviceId' : p1000.deviceId,
@@ -1201,8 +1277,6 @@ class ConfigMakerProvider extends ChangeNotifier{
         'hardwareType' : HardwareType.pump
       });
     }
-
-
     for(var p2000 in listOfPump2000){
       String deviceIdToSend = p2000.interfaceTypeId == 2 ? masterData['deviceId'] : p2000.deviceId;
       int pumpCount = listOfGeneratedObject.where((object) => (object.controllerId == p2000.controllerId && object.objectId == 5)).length;
@@ -1219,9 +1293,7 @@ class ConfigMakerProvider extends ChangeNotifier{
       for(var pump = 0;pump < loopingLimit;pump++){
         findOutHowManySourceAndIrrigationPump.add('0');
       }
-
       String joinPump = findOutHowManySourceAndIrrigationPump.join(',');
-
       var pumpPayload = {"sentSms":"pumpconfig,$pumpCount,${findOutReferenceNumber(p2000)},$joinPump,${hardwareType == HardwareType.master ? 1 : 0}"};
       int pumpConfigCode = 700;
       var gemPayload = {
@@ -1264,42 +1336,66 @@ class ConfigMakerProvider extends ChangeNotifier{
         int levelConnectionNo = 0;
         int availableOfWaterMeter = listOfWaterMeter.isNotEmpty ? 1 : 0;
         int availableOfPressure = listOfPressure.isNotEmpty ? 1 : 0;
-        for(var src in source){
-          if([...src.inletPump, ...src.outletPump].contains(p.sNo)){
-            if(src.sourceType == 1){
-              if(src.topFloat != 0.0 && listOfFloat.any((floatObject) => floatObject.sNo == src.topFloat)){
-                DeviceObjectModel float = listOfFloat.firstWhere((floatObject) => floatObject.sNo == src.topFloat);
-                tankPinCount += 1;
-                tankHighConnectionNo = float.connectionNo!;
-              }
-              if(src.bottomFloat != 0.0 && listOfFloat.any((floatObject) => floatObject.sNo == src.bottomFloat)){
-                DeviceObjectModel float = listOfFloat.firstWhere((floatObject) => floatObject.sNo == src.bottomFloat);
-                tankPinCount += 1;
-                tankLowConnectionNo = float.connectionNo!;
-              }
-              if(src.level != 0.0 && listOfLevel.any((levelObject) => levelObject.sNo == src.level)){
-                DeviceObjectModel level = listOfLevel.firstWhere((levelObject) => levelObject.sNo == src.level);
-                levelConnectionNo = level.connectionNo!;
-              }
-            }
-            if([2, 3].contains(src.sourceType)){
-              if(src.topFloat != 0.0 && listOfFloat.any((floatObject) => floatObject.sNo == src.topFloat)){
-                DeviceObjectModel float = listOfFloat.firstWhere((floatObject) => floatObject.sNo == src.topFloat);
-                sumpPinCount += 1;
-                sumpHighConnectionNo = float.connectionNo!;
-              }
-              if(src.bottomFloat != 0.0 && listOfFloat.any((floatObject) => floatObject.sNo == src.bottomFloat)){
-                DeviceObjectModel float = listOfFloat.firstWhere((floatObject) => floatObject.sNo == src.bottomFloat);
-                sumpPinCount += 1;
-                sumpLowConnectionNo = float.connectionNo!;
-              }
-              if(src.level != 0.0 && listOfLevel.any((levelObject) => levelObject.sNo == src.level)){
-                DeviceObjectModel level = listOfLevel.firstWhere((levelObject) => levelObject.sNo == src.level);
-                levelConnectionNo = level.connectionNo!;
-              }
-            }
+        for(var float in listOfFloat){
+          if(pumpModel.topSumpFloat == float.sNo){
+            sumpPinCount += 1;
+            sumpHighConnectionNo = float.connectionNo!;
+          }
+          if(pumpModel.bottomSumpFloat == float.sNo){
+            sumpPinCount += 1;
+            sumpLowConnectionNo = float.connectionNo!;
+          }
+          if(pumpModel.topTankFloat == float.sNo){
+            tankPinCount += 1;
+            tankHighConnectionNo = float.connectionNo!;
+          }
+          if(pumpModel.bottomTankFloat == float.sNo){
+            tankPinCount += 1;
+            tankLowConnectionNo = float.connectionNo!;
           }
         }
+        for(var src in source){
+          if((src.inletPump.contains(pumpModel.commonDetails.sNo) || src.outletPump.contains(pumpModel.commonDetails.sNo)) && listOfLevel.any((levelObject) => levelObject.sNo == src.level)){
+            DeviceObjectModel levelObject = listOfLevel.firstWhere((levelObject) => levelObject.sNo == src.level);
+            levelConnectionNo = levelObject.connectionNo!;
+          }
+        }
+        // for(var src in source){
+        //   if([...src.inletPump, ...src.outletPump].contains(p.sNo)){
+        //     if(src.sourceType == 1){
+        //       if(src.topFloat != 0.0 && listOfFloat.any((floatObject) => floatObject.sNo == src.topFloat)){
+        //         DeviceObjectModel float = listOfFloat.firstWhere((floatObject) => floatObject.sNo == src.topFloat);
+        //         tankPinCount += 1;
+        //         tankHighConnectionNo = float.connectionNo!;
+        //       }
+        //       if(src.bottomFloat != 0.0 && listOfFloat.any((floatObject) => floatObject.sNo == src.bottomFloat)){
+        //         DeviceObjectModel float = listOfFloat.firstWhere((floatObject) => floatObject.sNo == src.bottomFloat);
+        //         tankPinCount += 1;
+        //         tankLowConnectionNo = float.connectionNo!;
+        //       }
+        //       if(src.level != 0.0 && listOfLevel.any((levelObject) => levelObject.sNo == src.level)){
+        //         DeviceObjectModel level = listOfLevel.firstWhere((levelObject) => levelObject.sNo == src.level);
+        //         levelConnectionNo = level.connectionNo!;
+        //       }
+        //     }
+        //     if([2, 3].contains(src.sourceType)){
+        //       if(src.topFloat != 0.0 && listOfFloat.any((floatObject) => floatObject.sNo == src.topFloat)){
+        //         DeviceObjectModel float = listOfFloat.firstWhere((floatObject) => floatObject.sNo == src.topFloat);
+        //         sumpPinCount += 1;
+        //         sumpHighConnectionNo = float.connectionNo!;
+        //       }
+        //       if(src.bottomFloat != 0.0 && listOfFloat.any((floatObject) => floatObject.sNo == src.bottomFloat)){
+        //         DeviceObjectModel float = listOfFloat.firstWhere((floatObject) => floatObject.sNo == src.bottomFloat);
+        //         sumpPinCount += 1;
+        //         sumpLowConnectionNo = float.connectionNo!;
+        //       }
+        //       if(src.level != 0.0 && listOfLevel.any((levelObject) => levelObject.sNo == src.level)){
+        //         DeviceObjectModel level = listOfLevel.firstWhere((levelObject) => levelObject.sNo == src.level);
+        //         levelConnectionNo = level.connectionNo!;
+        //       }
+        //     }
+        //   }
+        // }
         listOfTankPayload.add({
           "No.of sump pins" : sumpPinCount,
           "Sump low pin float" : sumpLowConnectionNo,
