@@ -1216,6 +1216,6 @@ void showAlertDialog({required String message, Widget? child, required BuildCont
   );
 }
 
-void showSnackBar({required String message, required BuildContext context, Color color = Colors.red}) {
-  ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: message, color: color,));
+void showSnackBar({required String message, required BuildContext context}) {
+  ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: message));
 }

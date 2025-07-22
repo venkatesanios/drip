@@ -103,10 +103,10 @@ class ProgramWaterSource {
   factory ProgramWaterSource.fromJson(Map<String, dynamic> json) {
     return ProgramWaterSource(
       waterSource: DeviceObjectModel.fromJson(json),
-      sourceType: (json['sourceType'].isNotEmpty && json['sourceType'] != null) ? DeviceObjectModel.fromJson(json['sourceType']) : null,
-      level: (json['level'].isNotEmpty && json['level'] != null) ? DeviceObjectModel.fromJson(json['level']) : null,
-      topFloat: (json['topFloat'].isNotEmpty && json['topFloat'] != null) ? DeviceObjectModel.fromJson(json['topFloat']) : null,
-      bottomFloat: (json['bottomFloat'].isNotEmpty && json['bottomFloat'] != null) ? DeviceObjectModel.fromJson(json['bottomFloat']) : null,
+      sourceType: (json['sourceType'] != null && json['sourceType'].isNotEmpty ) ? DeviceObjectModel.fromJson(json['sourceType']) : null,
+      level: (json['level'] != null && json['level'].isNotEmpty) ? DeviceObjectModel.fromJson(json['level']) : null,
+      topFloat: (json['topFloat'] != null && json['topFloat'].isNotEmpty) ? DeviceObjectModel.fromJson(json['topFloat']) : null,
+      bottomFloat: (json['bottomFloat'] != null && json['bottomFloat'].isNotEmpty) ? DeviceObjectModel.fromJson(json['bottomFloat']) : null,
       inletPump: (json['inletPump'] as List?)?.where((e) => (e != null && e.isNotEmpty)).map((e) => DeviceObjectModel.fromJson(Map<String, dynamic>.from(e))).toList(),
       outletPump: (json['outletPump'] as List?)?.where((e) => (e != null && e.isNotEmpty)).map((e) => DeviceObjectModel.fromJson(Map<String, dynamic>.from(e))).toList(),
       valves: (json['valves'] as List?)?.where((e) => (e != null && e.isNotEmpty)).map((e) => DeviceObjectModel.fromJson(Map<String, dynamic>.from(e))).toList(),

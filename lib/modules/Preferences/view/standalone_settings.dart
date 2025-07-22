@@ -79,10 +79,42 @@ class _StandAloneSettingsState extends State<StandAloneSettings> {
         },
       ),
       floatingActionButton: FilledButton.icon(
-        onPressed: () => _sendSettings(context),
+        onPressed: () {
+          final provider = Provider.of<PreferenceProvider>(context, listen: false);
+          print(provider.standaloneSettings!.setting.map((e) => e.serialNumber));
+          print(provider.standaloneSettings!.setting.map((e) => e.title));
+          if(widget.selectedIndex == 1 && provider.standaloneSettings!.setting.where((e) => e.serialNumber != 1).every((ele) => ele.value == false)){
+            _showAlert();
+          } else {
+            _sendSettings(context);
+          }
+        },
         label: const Text('Send'),
         icon: const Icon(Icons.send),
       ),
+    );
+  }
+
+  void _showAlert() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Alert!", style: TextStyle(color: Colors.red, fontSize: 16),),
+            content: const SizedBox(
+              height: 100,
+              child: Center(
+                child: Text("The standalone system cannot be activated without opening the valves, as this may cause the pipeline to burst."),
+              ),
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("OK")
+              )
+            ],
+          );
+        }
     );
   }
 
@@ -204,11 +236,6 @@ class _StandAloneSettingsState extends State<StandAloneSettings> {
     }
   }
 
-  String getValvePayload() {
-
-    return '';
-  }
-
   Future<void> _sendSettings(BuildContext context) async {
     final provider = Provider.of<PreferenceProvider>(context, listen: false);
     Map<String, dynamic> rawPayload = {};
@@ -282,12 +309,12 @@ class _StandAloneSettingsState extends State<StandAloneSettings> {
             : await repository.createUserPreferenceMoistureSetting(userData);
         final response = jsonDecode(result.body);
         showSnackBar(
-            message: response['message'], context: context, color: response['code'] == 200 ? Colors.green : Colors.red);
+            message: response['message'], context: context);
       } catch (error, stackTrace) {
         if (kDebugMode) {
           print('Stack trace in the sending valve settings :: $stackTrace');
         }
-        showSnackBar(message: '$error', context: context, color: Colors.red);
+        showSnackBar(message: '$error', context: context);
       }
     }
   }
