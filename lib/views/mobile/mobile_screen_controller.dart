@@ -692,6 +692,7 @@ class MobileScreenController extends StatelessWidget {
                                 customerId: userId,
                                 controllerId: master.controllerId,
                                 deviceId: master.deviceId,
+                                modelId: master.modelId,
                               );
 
                             case 1:

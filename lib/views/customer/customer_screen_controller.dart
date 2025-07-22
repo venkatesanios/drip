@@ -980,7 +980,7 @@ class CustomerScreenController extends StatelessWidget {
     switch (index) {
       case 0:
         return [...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId) ?
-        CustomerHome(customerId: userId, controllerId: controllerId, deviceId: masterData[masterIndex].deviceId):
+        CustomerHome(customerId: userId, controllerId: controllerId, deviceId: masterData[masterIndex].deviceId, modelId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId,):
         isChanged ? PumpControllerHome(
       /*    deviceId: masterData[masterIndex].deviceId,
           liveData: masterData[masterIndex].live!.cM as PumpControllerData,

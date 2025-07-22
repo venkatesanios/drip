@@ -25,8 +25,8 @@ import 'home_sub_classes/scheduled_program.dart';
 
 class CustomerHome extends StatelessWidget {
   const CustomerHome({super.key, required this.customerId, required this.controllerId,
-    required this.deviceId});
-  final int customerId, controllerId;
+    required this.deviceId, required this.modelId});
+  final int customerId, controllerId, modelId;
   final String deviceId;
 
   @override
@@ -137,7 +137,7 @@ class CustomerHome extends StatelessWidget {
                       ),
                     ),
                   ),
-                  buildIrrigationLine(context, line, customerId, controllerId),
+                  buildIrrigationLine(context, line, customerId, controllerId, modelId),
                 ],
               ),
             ),
@@ -255,7 +255,7 @@ class CustomerHome extends StatelessWidget {
                       ],
                     ),
                   ),
-                  buildIrrigationLine(context, line, customerId, controllerId),
+                  buildIrrigationLine(context, line, customerId, controllerId, modelId),
                 ],
               ),
             ),
@@ -266,7 +266,7 @@ class CustomerHome extends StatelessWidget {
     );
   }
 
-  Widget buildIrrigationLine(BuildContext context, IrrigationLineModel irrLine, int customerId, int controllerId){
+  Widget buildIrrigationLine(BuildContext context, IrrigationLineModel irrLine, int customerId, int controllerId, int modelId){
 
     final inletWaterSources = {
       for (var source in irrLine.inletSources) source.sNo: source
@@ -300,6 +300,7 @@ class CustomerHome extends StatelessWidget {
       controllerId: controllerId,
       containerWidth: MediaQuery.sizeOf(context).width,
       deviceId: deviceId,
+      modelId: modelId,
     );
 
     int totalInletPumps = inletWaterSources.fold(0, (sum, source) => sum + source.outletPump.length);
@@ -344,7 +345,7 @@ class CustomerHome extends StatelessWidget {
 }
 
 class PumpStationWithLine extends StatelessWidget {
-  final int customerId, controllerId;
+  final int customerId, controllerId, modelId;
   final String deviceId;
   final List<WaterSourceModel> inletWaterSources;
   final List<WaterSourceModel> outletWaterSources;
@@ -376,6 +377,7 @@ class PumpStationWithLine extends StatelessWidget {
     required this.controllerId,
     required this.deviceId,
     required this.containerWidth,
+    required this.modelId,
   });
 
   @override
@@ -592,6 +594,7 @@ class PumpStationWithLine extends StatelessWidget {
           customerId: customerId,
           controllerId: controllerId,
           isMobile: false,
+          modelId: modelId,
         ),
       )));
     }
@@ -813,7 +816,7 @@ class PumpStationWithLine extends StatelessWidget {
 class BuildInletSource extends StatelessWidget {
   final List<WaterSourceModel> waterSources;
   final String deviceId;
-  final int customerId, controllerId;
+  final int customerId, controllerId, modelId;
 
   const BuildInletSource({
     super.key,
@@ -821,6 +824,7 @@ class BuildInletSource extends StatelessWidget {
     required this.deviceId,
     required this.customerId,
     required this.controllerId,
+    required this.modelId,
   });
 
   @override
@@ -832,7 +836,7 @@ class BuildInletSource extends StatelessWidget {
       gridItems.add(_buildSourceColumn(context, source, index, waterSources.length));
       for (final pump in source.outletPump) {
         gridItems.add(PumpWidget(pump: pump, isSourcePump: !source.isWaterInAndOut, deviceId: deviceId,
-            customerId: customerId, controllerId: controllerId, isMobile: false));
+            customerId: customerId, controllerId: controllerId, isMobile: false, modelId: modelId));
       }
     }
 

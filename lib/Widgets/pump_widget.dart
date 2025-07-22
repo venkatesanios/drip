@@ -17,11 +17,12 @@ class PumpWidget extends StatelessWidget {
   final PumpModel pump;
   final bool isSourcePump;
   final String deviceId;
-  final int customerId, controllerId;
+  final int customerId, controllerId, modelId;
   final bool isMobile;
 
   PumpWidget({super.key, required this.pump, required this.isSourcePump,
-    required this.deviceId, required this.customerId, required this.controllerId, required this.isMobile});
+    required this.deviceId, required this.customerId, required this.controllerId,
+    required this.isMobile, required this.modelId});
 
   final ValueNotifier<int> popoverUpdateNotifier = ValueNotifier<int>(0);
 
@@ -408,7 +409,11 @@ class PumpWidget extends StatelessWidget {
             color: Colors.green,
             textColor: Colors.white,
             onPressed: () {
-              final payload = '${pump.sNo},1,1';
+              String payload = '${pump.sNo},1,1';
+              if (modelId == 56 || modelId == 57 || modelId == 58 || modelId == 59) {
+                payload = payload.replaceAll(RegExp(r'[.]'), ',');
+              }
+
               final payLoadFinal = jsonEncode({"6200": {"6201": payload}});
               MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
               sentUserOperationToServer('${pump.name} Start Manually', payLoadFinal);
@@ -422,7 +427,11 @@ class PumpWidget extends StatelessWidget {
             color: Colors.redAccent,
             textColor: Colors.white,
             onPressed: () {
-              final payload = '${pump.sNo},0,1';
+              String payload = '${pump.sNo},0,1';
+              if (modelId == 56 || modelId == 57 || modelId == 58 || modelId == 59) {
+                payload = payload.replaceAll(RegExp(r'[.]'), ',');
+              }
+
               final payLoadFinal = jsonEncode({"6200": {"6201": payload}});
               MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
               sentUserOperationToServer('${pump.name} Stop Manually', payLoadFinal);
