@@ -6,8 +6,7 @@ import '../../Models/customer/site_model.dart';
 import '../../Models/customer/stand_alone_model.dart';
 import '../../repository/repository.dart';
 import '../../services/communication_service.dart';
-import '../../services/mqtt_service.dart';
-import '../../utils/constants.dart';
+
 
 enum SegmentWithFlow {manual, duration, flow}
 
@@ -508,8 +507,7 @@ class StandAloneViewModel extends ChangeNotifier {
     );
 
     String strSldIrrigationPumpSrlNo = extractRelaySrlNosFromSources(
-      masterData.irrigationLine.expand((line) => line.outletSources).toList(),
-    );
+        masterData.irrigationLine.expand((line) => line.outletSources).toList());
 
     String strSldCtrlFilterSrlNo = extractFilterRelaySrlNos(masterData.irrigationLine,'central');
     String strSldCtrlFrtBoosterSrlNo = extractCFrtBoosterSNos(masterData.irrigationLine,'central');
@@ -658,8 +656,11 @@ class StandAloneViewModel extends ChangeNotifier {
       }else if (strSldIrrigationPumpSrlNo.isEmpty) {
         displayAlert(context, 'You must select an irrigation pump.');
       }else{
-        print(strSldSqnNo);
-        print(strSldIrrigationPumpSrlNo);
+        int modelId = masterData.modelId;
+        if (modelId == 56 || modelId == 57 || modelId == 58 || modelId == 59) {
+          strSldIrrigationPumpSrlNo = strSldIrrigationPumpSrlNo.replaceAll(RegExp(r'[._]'), ',');
+          strSldSqnNo = strSldSqnNo.replaceAll(RegExp(r'[.]'), ',');
+        }
 
         String payload = '';
         String payLoadFinal = '';

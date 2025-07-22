@@ -906,6 +906,7 @@ class ScheduledProgram extends StatelessWidget {
       2: 'Pause',
       3: 'Resume',
       4: 'Cont Manually',
+      5: 'Bypass Start Rtc',
     };
     return codeDescriptionMap[code] ?? 'Code not found';
   }
@@ -924,6 +925,7 @@ class ScheduledProgram extends StatelessWidget {
       2: 'Pause',
       3: 'Resume',
       4: 'Continue Manually',
+      5: 'ByPass And Start By Rtc',
     };
     return codeDescriptionMap[code] ?? 'Code not found';
   }
