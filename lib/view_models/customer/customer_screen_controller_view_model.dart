@@ -305,11 +305,6 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     if (!mqttService.isConnected) {
       debugPrint("MQTT not connected. Attempting to reconnect...");
       _initializeMqttConnection();
-
-     /* if (!mqttService.isConnected) {
-        debugPrint("Failed to reconnect to MQTT.");
-        return;
-      }*/
     }
 
     if (mySiteList.data.isEmpty ||

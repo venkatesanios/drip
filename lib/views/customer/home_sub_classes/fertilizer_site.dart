@@ -68,6 +68,51 @@ class BoosterWidget extends StatelessWidget {
                       ):
                       const SizedBox(),
                     ),
+                    //ec&ph
+                    Positioned(
+                      top: 55,
+                      left: 18,
+                      child: fertilizerSite.ec!.isNotEmpty ? SizedBox(
+                        width: 55,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Center(child: Text('Ec : ', style: TextStyle(fontSize: 10, color: Colors.black45))),
+                            Center(
+                              child: Text(
+                                double.parse('${fertilizerSite.ec?[0].value}')
+                                    .toStringAsFixed(2),
+                                style: const TextStyle(fontSize: 10),
+                              ),
+                            ),
+                            const SizedBox(width: 5,),
+                          ],
+                        ),
+                      ) :
+                      const SizedBox(),
+                    ),
+                    Positioned(
+                      top: 68,
+                      left: 18,
+                      child: fertilizerSite.ph!.isNotEmpty ? SizedBox(
+                        width: 55,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Center(child: Text('pH : ', style: TextStyle(fontSize: 10, color: Colors.black45))),
+                            Center(
+                              child: Text(
+                                double.parse('${fertilizerSite.ph?[0].value}')
+                                    .toStringAsFixed(2),
+                                style: const TextStyle(fontSize: 10),
+                              ),
+                            ),
+                            const SizedBox(width: 5,),
+                          ],
+                        ),
+                      ) :
+                      const SizedBox(),
+                    ),
                   ],
                 )
             ),
