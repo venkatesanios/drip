@@ -425,7 +425,7 @@ class _InterfaceSettingState extends State<InterfaceSetting> {
       );
     }
     );
-    await Future.delayed(Duration(seconds: 2), (){
+    await Future.delayed(const Duration(seconds: 2), (){
       Navigator.pop(context);
     });
     simpleDialogBox(context: context, title: 'Success', message: 'Interface Setting Sent Successfully...');

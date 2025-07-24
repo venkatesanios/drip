@@ -250,7 +250,6 @@ class BleProvider extends ChangeNotifier {
     notifyListeners();
     listeningConnectionState();
     for(var connectLoop = 0;connectLoop < 30;connectLoop++){
-
       await Future.delayed(const Duration(seconds: 1));
       print("connecting seconds :: ${connectLoop+1}");
       if(forceStop){
@@ -664,7 +663,12 @@ class BleProvider extends ChangeNotifier {
         for(var file in listOfFile){
           print(file);
           if(loraModel.contains(nodeDataFromHw['MID'])){
-            if(file.filename.contains('lora')){
+            Map<String, String> checkFileName = {
+              "40" : "lora",
+              "41" : "lora1",
+              "42" : "lora2",
+            };
+            if(checkFileName.containsKey(nodeDataFromHw['MID']) && file.filename.contains(checkFileName[nodeDataFromHw['MID']]!)){
               nodeFirmwareFileName = file.filename;
             }
           }else{

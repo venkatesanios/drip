@@ -17,7 +17,7 @@ import '../view/connection.dart';
 
 class ConfigMakerProvider extends ChangeNotifier{
   double ratio = 1.0;
-  ConfigMakerTabs selectedTab = ConfigMakerTabs.productLimit;
+  ConfigMakerTabs selectedTab = ConfigMakerTabs.deviceList;
   Map<String, dynamic> configMakerDataFromHttp = {};
   Map<String, dynamic> defaultDataFromHttp = {};
   Map<int, String> configurationTab = {
@@ -62,6 +62,7 @@ class ConfigMakerProvider extends ChangeNotifier{
   List<PumpModel> pump = [];
   List<MoistureModel> moisture = [];
   List<IrrigationLineModel> line = [];
+  List<dynamic> productStock = [];
 
   void updateRangeMode(bool value){
     rangeMode = value;
@@ -247,6 +248,7 @@ class ConfigMakerProvider extends ChangeNotifier{
 
 
   Future<List<DeviceModel>> fetchData(masterDataFromSiteConfigure)async {
+    productStock = masterDataFromSiteConfigure['productStock'];
     await Future.delayed(const Duration(seconds: 0));
     reInitialize();
     try{
@@ -393,6 +395,35 @@ class ConfigMakerProvider extends ChangeNotifier{
     notifyListeners();
     return listOfDeviceModel;
   }
+
+  Future<int> replaceDevice({required dynamic deviceData})async {
+    print("deviceData : ${deviceData}");
+    try{
+      var body = {
+        "userId" : masterData['userId'],
+        "oldControllerId" : masterData['controllerId'],
+        "oldDeviceId" : masterData['deviceId'],
+        "newDeviceId" : deviceData['deviceId'],
+        "oldModelId" : masterData['modelId'],
+        "newModelId" : deviceData['modelId'],
+        "modifyUser" : masterData['userId']
+      };
+      var response = await ConfigMakerRepository().productReplace(body);
+      Map<String, dynamic> jsonData = jsonDecode(response.body);
+      print('jsonData : $jsonData');
+      notifyListeners();
+      if(jsonData['code'] == 200){
+        return 200;
+      }else{
+        return 400;
+      }
+    } catch (e, stackTrace){
+      print('Error on replace deviceId :: $e');
+      print('stackTrace on replace deviceId :: $stackTrace');
+      return 400;
+    }
+  }
+
 
   void updateObjectCount(int objectId, String count){
     print('objectId : $objectId count : $count');

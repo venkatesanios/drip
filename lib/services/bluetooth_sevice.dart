@@ -49,7 +49,6 @@ class BluService {
   bool isLogging = false;
   String traceChunk = '';
   bool get isConnected => _connection != null && _connection!.isConnected;
-
   StreamSubscription<BluetoothDiscoveryResult>? _scanSubscription;
 
   Future<void> initializeBluService({MqttPayloadProvider? state}) async {
@@ -58,7 +57,6 @@ class BluService {
     await requestPermissions();
     await initPermissions();
     await checkLocationServices();
-
     _listenToData();
   }
 

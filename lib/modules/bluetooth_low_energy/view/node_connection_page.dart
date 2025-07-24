@@ -46,6 +46,7 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
         "userId": widget.masterData['customerId'],
         "controllerId": widget.masterData['controllerId'],
         "categoryId": widget.nodeData['categoryId'],
+        "modelId": widget.nodeData['modelId'],
         "nodeControllerId": widget.nodeData['controllerId'],
         "deviceId": widget.nodeData['deviceId'],
       };

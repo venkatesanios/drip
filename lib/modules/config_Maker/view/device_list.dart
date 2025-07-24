@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/modules/config_Maker/widget/drop_down_search_field.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
 import '../../../Constants/communication_codes.dart';
@@ -9,6 +10,7 @@ import '../../../Constants/dialog_boxes.dart';
 import '../../../Constants/properties.dart';
 import '../../../services/mqtt_service.dart';
 import '../../../utils/environment.dart';
+import '../../../utils/shared_preferences_helper.dart';
 import '../model/device_model.dart';
 import '../repository/config_maker_repository.dart';
 import '../state_management/config_maker_provider.dart';
@@ -36,12 +38,23 @@ class _DeviceListState extends State<DeviceList> {
   late bool themeMode;
   String replaceDeviceId = '';
   MqttService mqttService = MqttService();
+  String userRole = '';
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     configPvd = Provider.of<ConfigMakerProvider>(context, listen: false);
+    //final token = await PreferenceHelper.getToken();
+    //userRole = getUserRole();
+    getUserRole();
+  }
+
+  void getUserRole() async {
+    String? role = await PreferenceHelper.getUserRole();
+    setState(() {
+      userRole = role!;
+    });
   }
 
   @override
@@ -168,7 +181,7 @@ class _DeviceListState extends State<DeviceList> {
                                       if(configured){
                                         simpleDialogBox(context: context, title: 'Alert', message: '${device.deviceName} cannot be removed. Please detach all connected objects first.');
                                       }else if(
-                                          AppConstants.pumpWithValveModelList.contains(configPvd.masterData['modelId'])
+                                      AppConstants.pumpWithValveModelList.contains(configPvd.masterData['modelId'])
                                           &&
                                           ((AppConstants.senseModelList.contains(device.modelId) && moistureCount != 0) || (![...AppConstants.pumpWithValveModelList, ...AppConstants.senseModelList].contains(device.modelId) && valveCount > 2))){
                                         if(AppConstants.senseModelList.contains(device.modelId) && moistureCount != 0){
@@ -190,7 +203,7 @@ class _DeviceListState extends State<DeviceList> {
                                       }
                                     },
                                   ),
-                                  replaceDeviceIdWidget(masterOrNode: 2, device: device)
+                                  replaceDeviceIdWidget(masterOrNode: 2, device: device),
                                 ],
                               ),
                             ),
@@ -361,7 +374,22 @@ class _DeviceListState extends State<DeviceList> {
           spacing: 20,
           children: [
             SelectableText('${configPvd.masterData['deviceId']}', style: themeData.textTheme.bodySmall,),
-            replaceDeviceIdWidget(masterOrNode: 1)
+            if(userRole == 'admin')
+              replaceDeviceIdWidget(masterOrNode: 1),
+            if(userRole == 'dealer')
+              IconButton(
+                onPressed: (){
+                  showDialog(
+                      context: context,
+                      builder: (context){
+                        return AlertDialog(
+                          content: DropDownSearchField(productStock: configPvd.productStock, modelId: configPvd.masterData['modelId'],),
+                        );
+                      }
+                  );
+                },
+                icon: Icon(Icons.find_replace)
+            )
           ],
         ),
         trailing: IntrinsicWidth(

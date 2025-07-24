@@ -530,7 +530,7 @@ class MasterListForSite extends StatelessWidget {
                                     ...masterData.outputObjectId.split(','),
                                     ...masterData.inputObjectId.split(','),
                                   ],
-                                  "ProductStock": productStock.map((e) => e.toJson()).toList(),
+                                  "productStock": productStock.map((e) => e.toJson()).toList(),
                                 },
                               );
                             }),
