@@ -95,6 +95,7 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
                   viewModel: viewModel,
                   currentSiteInx: currentSiteInx,
                   onSiteChange: (index) => setState(() => currentSiteInx = index),
+                  productStock: widget.productStockList,
                 ),
               ],
             ),
@@ -356,12 +357,14 @@ class CustomerSiteTabView extends StatelessWidget {
   final dynamic viewModel;
   final int currentSiteInx;
   final ValueChanged<int> onSiteChange;
+  final List<StockModel> productStock;
 
   const CustomerSiteTabView({
     super.key,
     required this.viewModel,
     required this.currentSiteInx,
     required this.onSiteChange,
+    required this.productStock,
   });
 
   @override
@@ -393,7 +396,7 @@ class CustomerSiteTabView extends StatelessWidget {
             child: TabBarView(
               children: [
                 for (var site in viewModel.customerSiteList)
-                  MasterListForSite(site: site, viewModel: viewModel)
+                  MasterListForSite(site: site, viewModel: viewModel, productStock: productStock)
               ],
             ),
           ),
@@ -477,11 +480,12 @@ class AddMasterPopup extends StatelessWidget {
 class MasterListForSite extends StatelessWidget {
   final dynamic site;
   final dynamic viewModel;
+  final List<StockModel> productStock;
 
   const MasterListForSite({
     super.key,
     required this.site,
-    required this.viewModel,
+    required this.viewModel, required this.productStock,
   });
 
   @override
@@ -500,68 +504,49 @@ class MasterListForSite extends StatelessWidget {
                     subtitle: SelectableText(
                         site.master[mstIndex].deviceId.toString(),
                         style: const TextStyle(fontSize: 12)),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        MaterialButton(
-                          onPressed: () {
-                            // TODO: Reset Serial Connection
-                          },
-                          color: Colors.redAccent,
-                          child: const Text('Reset Serial Connection',
-                              style: TextStyle(color: Colors.white)),
+                    trailing: SizedBox(
+                      width: 125,
+                      child: MaterialButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) {
+                              var masterData = site.master[mstIndex];
+                              return ConfigBasePage(
+                                masterData: {
+                                  "userId": viewModel.userId,
+                                  "customerId": viewModel.customerId,
+                                  "controllerId": masterData.controllerId,
+                                  "productId": masterData.productId,
+                                  "deviceId": masterData.deviceId,
+                                  "deviceName": masterData.deviceName,
+                                  "categoryId": masterData.categoryId,
+                                  "categoryName": masterData.categoryName,
+                                  "modelId": masterData.modelId,
+                                  "modelName": masterData.modelName,
+                                  "groupId": site.userGroupId,
+                                  "groupName": site.groupName,
+                                  "connectingObjectId": [
+                                    ...masterData.outputObjectId.split(','),
+                                    ...masterData.inputObjectId.split(','),
+                                  ],
+                                  "ProductStock": productStock.map((e) => e.toJson()).toList(),
+                                },
+                              );
+                            }),
+                          );
+                        },
+                        color: Colors.teal,
+                        child: const Row(
+                          children: [
+                            Icon(Icons.confirmation_number_outlined,
+                                color: Colors.white),
+                            SizedBox(width: 5),
+                            Text('Site Config',
+                                style: TextStyle(color: Colors.white)),
+                          ],
                         ),
-                        const SizedBox(width: 8),
-                        MaterialButton(
-                          onPressed: () {
-                            // TODO: Delete
-                          },
-                          color: Colors.redAccent,
-                          child: const Text('Delete',
-                              style: TextStyle(color: Colors.white)),
-                        ),
-                        const SizedBox(width: 8),
-                        MaterialButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) {
-                                var masterData = site.master[mstIndex];
-                                return ConfigBasePage(
-                                  masterData: {
-                                    "userId": viewModel.userId,
-                                    "customerId": viewModel.customerId,
-                                    "controllerId": masterData.controllerId,
-                                    "productId": masterData.productId,
-                                    "deviceId": masterData.deviceId,
-                                    "deviceName": masterData.deviceName,
-                                    "categoryId": masterData.categoryId,
-                                    "categoryName": masterData.categoryName,
-                                    "modelId": masterData.modelId,
-                                    "modelName": masterData.modelName,
-                                    "groupId": site.userGroupId,
-                                    "groupName": site.groupName,
-                                    "connectingObjectId": [
-                                      ...masterData.outputObjectId.split(','),
-                                      ...masterData.inputObjectId.split(','),
-                                    ],
-                                  },
-                                );
-                              }),
-                            );
-                          },
-                          color: Colors.teal,
-                          child: const Row(
-                            children: [
-                              Icon(Icons.confirmation_number_outlined,
-                                  color: Colors.white),
-                              SizedBox(width: 5),
-                              Text('Site Config',
-                                  style: TextStyle(color: Colors.white)),
-                            ],
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                   if (site.master.length > 1) const Divider(),
