@@ -25,4 +25,16 @@ class StockModel
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'productId': productId,
+      'categoryName': categoryName,
+      'modelName': model,
+      'modelId': modelId,
+      'deviceId': imeiNo,
+      'dateOfManufacturing': dtOfMnf,
+      'warrantyMonths': warranty,
+    };
+  }
+
 }
