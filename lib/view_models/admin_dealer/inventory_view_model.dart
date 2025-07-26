@@ -485,6 +485,7 @@ class InventoryViewModel extends ChangeNotifier {
                     if(selectedOption == 'Option 1' && selectedStock != null){
                       final body = {
                         "userId": customerId,
+                        "oldControllerId": controllerId,
                         "oldDeviceId": imeiNo,
                         "newDeviceId": selectedStock?.imeiNo,
                         "oldModelId": modelId,

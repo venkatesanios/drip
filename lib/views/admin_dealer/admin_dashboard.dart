@@ -24,6 +24,8 @@ class AdminDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLargeScreen = MediaQuery.of(context).size.width > 1130;
+
     return ChangeNotifierProvider(
       create: (_) => AdminAndDealerDashboardViewModel(Repository(HttpService()), userId, 1)
         ..getMySalesData(userId, MySegment.all)
@@ -33,44 +35,36 @@ class AdminDashboard extends StatelessWidget {
       child: Consumer<AdminAndDealerDashboardViewModel>(
         builder: (context, viewModel, _) {
           handleAccountCreated(viewModel, context);
+
           return Scaffold(
             body: Padding(
               padding: const EdgeInsets.all(3.0),
-              child: Row(
+              child: isLargeScreen ? Row(
                 children: [
                   Expanded(
                     child: Column(
                       children: [
-                        buildAnalyticsCard(viewModel),
+                        buildAnalyticsCard(context, viewModel),
                         Expanded(
-                          child: Card(
-                            color: Colors.white,
-                            child: Column(
-                              children: [
-                                SizedBox(
-                                  height: 44,
-                                  child: ListTile(
-                                    title: const Text('My Dealers', style: TextStyle(fontSize: 17)),
-                                    trailing: IconButton(
-                                      tooltip: 'Create Dealer account',
-                                      icon: const Icon(Icons.person_add_outlined),
-                                      color: primaryDark,
-                                      onPressed: () => openCreateDealerBottomSheet(context, viewModel, userId),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: buildProductList(context, viewModel),
-                                ),
-                              ],
-                            ),
-                          ),
+                          child: buildDealerDataTable(context, viewModel),
                         ),
                       ],
                     ),
                   ),
-                  buildDealerListCard(context, viewModel),
+                  buildProductListCard(context, viewModel, 300),
                 ],
+              ): SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Column(
+                  children: [
+                    buildAnalyticsCard(context, viewModel),
+                    SizedBox(
+                      height: (viewModel.myCustomerList.length*45)+95,
+                      child: buildDealerDataTable(context, viewModel),
+                    ),
+                    buildProductListCard(context, viewModel, MediaQuery.of(context).size.width),
+                  ],
+                ),
               ),
             ),
           );
@@ -89,37 +83,124 @@ class AdminDashboard extends StatelessWidget {
     }
   }
 
-  Widget buildAnalyticsCard(AdminAndDealerDashboardViewModel viewModel) {
+  Widget buildAnalyticsCard(BuildContext context,
+      AdminAndDealerDashboardViewModel viewModel) {
+    final screenWidth = MediaQuery.of(context).size.width;
     return SizedBox(
-      height: 360,
+      height: screenWidth>800?360:410,
       child: Card(
         color: Colors.white,
         child: Padding(
           padding: const EdgeInsets.all(3.0),
           child: Column(
             children: [
-              ListTile(
-                title: AppConstants().anlOvrView,
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    buildSegmentedButton(viewModel, userId),
-                    const SizedBox(width: 16),
-                    Text.rich(
-                      TextSpan(
-                        text: 'Total Sales: ',
-                        style: const TextStyle(fontSize: 15),
-                        children: [
-                          TextSpan(
-                            text: viewModel.totalSales.toString().padLeft(2, '0'),
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+              if(screenWidth<600)...[
+                ListTile(
+                  tileColor: Colors.white,
+                  title: AppConstants().anlOvrView,
+                ),
+                ListTile(
+                  tileColor: Colors.white,
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SegmentedButton<MySegment>(
+                        segments: const <ButtonSegment<MySegment>>[
+                          ButtonSegment<MySegment>(
+                            value: MySegment.all,
+                            label: SizedBox(
+                              width: 45,
+                              child: Text('All', textAlign: TextAlign.center),
+                            ),
+                            icon: Icon(Icons.calendar_view_day),
+                          ),
+                          ButtonSegment<MySegment>(
+                            value: MySegment.year,
+                            label: SizedBox(
+                              width: 45,
+                              child: Text('Year', textAlign: TextAlign.center),
+                            ),
+                            icon: Icon(Icons.calendar_view_month),
                           ),
                         ],
+                        selected: <MySegment>{viewModel.segmentView},
+                        onSelectionChanged: (Set<MySegment> newSelection) {
+                          if (newSelection.isNotEmpty) {
+                            viewModel.updateSegmentView(newSelection.first);
+                            viewModel.getMySalesData(userId, newSelection.first); // Refresh data based on the new selection
+                          }
+                        },
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 16,),
+                      Text.rich(
+                        TextSpan(
+                          text: 'Total Sales: ', // Regular text
+                          style: const TextStyle(fontSize: 15),
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: viewModel.totalSales.toString().padLeft(2, '0'),
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+              ]
+              else...[
+                ListTile(
+                  tileColor: Colors.white,
+                  title: AppConstants().anlOvrView,
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SegmentedButton<MySegment>(
+                        segments: const <ButtonSegment<MySegment>>[
+                          ButtonSegment<MySegment>(
+                            value: MySegment.all,
+                            label: SizedBox(
+                              width: 45,
+                              child: Text('All', textAlign: TextAlign.center),
+                            ),
+                            icon: Icon(Icons.calendar_view_day),
+                          ),
+                          ButtonSegment<MySegment>(
+                            value: MySegment.year,
+                            label: SizedBox(
+                              width: 45,
+                              child: Text('Year', textAlign: TextAlign.center),
+                            ),
+                            icon: Icon(Icons.calendar_view_month),
+                          ),
+                        ],
+                        selected: <MySegment>{viewModel.segmentView},
+                        onSelectionChanged: (Set<MySegment> newSelection) {
+                          if (newSelection.isNotEmpty) {
+                            viewModel.updateSegmentView(newSelection.first);
+                            viewModel.getMySalesData(userId, newSelection.first); // Refresh data based on the new selection
+                          }
+                        },
+                      ),
+                      const SizedBox(width: 16,),
+                      Text.rich(
+                        TextSpan(
+                          text: 'Total Sales: ', // Regular text
+                          style: const TextStyle(fontSize: 15),
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: viewModel.totalSales.toString().padLeft(2, '0'),
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               Expanded(
                 child: viewModel.isLoadingSalesData
                     ? const Center(child: SizedBox(width: 40, child: LoadingIndicator(indicatorType: Indicator.ballPulse)))
@@ -143,150 +224,172 @@ class AdminDashboard extends StatelessWidget {
     );
   }
 
-  Widget buildProductList(BuildContext context, AdminAndDealerDashboardViewModel viewModel) {
-
-    /*return Padding(
-      padding: const EdgeInsets.only(left: 8, right: 8),
-      child: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 10,
-          crossAxisSpacing: 10.0,
-          mainAxisSpacing: 10.0,
-          childAspectRatio: 1.0,
-        ),
-        itemCount: viewModel.categoryList.length,
-        itemBuilder: (context, index) {
-          final item = viewModel.categoryList[index];
-          return Card(
-            color: Colors.white,
-            elevation: 2,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Expanded(child: F.appFlavor!.name.contains('oro') ?
-                Image.asset("assets/images/Png/Oro/category_${index+1}.png"):
-                Image.asset("assets/images/Png/SmartComm/category_${index+1}.png")),
-                Container(
-                  height: 30,
-                  color: Theme.of(context).primaryColorLight.withOpacity(0.2),
-                  child: Center(
-                    child: Text(item.categoryName, style: const TextStyle(fontSize: 12, color: Colors.black54)),
+  Widget buildDealerDataTable(BuildContext context,
+      AdminAndDealerDashboardViewModel viewModel) {
+    final screenHeight = MediaQuery.of(context).size.width;
+    return Card(
+      color: Colors.white,
+      child: Column(
+        children: [
+          SizedBox(
+            height: 44,
+            child: ListTile(
+              title: const Text('My Dealers', style: TextStyle(fontSize: 20)),
+              trailing: IconButton(
+                tooltip: 'Create Dealer account',
+                icon: const Icon(Icons.person_add_outlined),
+                color: primaryDark,
+                onPressed: () => openCreateDealerBottomSheet(context, viewModel, userId),
+              ),
+            ),
+          ),
+          Expanded(
+            child: DataTable2(
+              columnSpacing: 12,
+              horizontalMargin: 12,
+              minWidth: 850,
+              headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColorLight.withOpacity(0.1)),
+              headingRowHeight: 35,
+              dataRowHeight: 40,
+              columns: const [
+                DataColumn(
+                  label: Text('Name',
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
+                ),
+                DataColumn(
+                  label: Text('Mobile No',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                DataColumn2(
+                  label: Text(
+                    'E-mail Address',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  size: ColumnSize.L,
+                ),
+                DataColumn2(
+                  label: Text('Address',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  size: ColumnSize.L,
+                ),
+                DataColumn2(
+                  label: Text('',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  fixedWidth: 100,
                 ),
               ],
+              rows: List<DataRow>.generate(
+                viewModel.myCustomerList.length, (index) => DataRow(
+                cells: [
+                  DataCell(Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const CircleAvatar(
+                        backgroundImage: AssetImage("assets/png/user_thumbnail.png"),
+                        backgroundColor: Colors.transparent,
+                        radius: 14,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(viewModel.myCustomerList[index].userName),
+                    ],
+                  )),
+                  DataCell(Text('+ ${viewModel.myCustomerList[index].countryCode} ${viewModel.myCustomerList[index].mobileNumber}')),
+                  DataCell(Text(viewModel.myCustomerList[index].emailId)),
+                  const DataCell(Text('--')),
+                  DataCell(Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        tooltip: 'View and Add new product',
+                        icon: const Icon(Icons.playlist_add),
+                        onPressed: () => openDealerDeviceListBottomSheet(context, viewModel.myCustomerList[index], viewModel, userId),
+                      ),
+                      IconButton(
+                        tooltip: 'View dealer dashboard',
+                        icon: const Icon(Icons.dashboard_outlined),
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DealerScreenController(
+                              userId: viewModel.myCustomerList[index].userId,
+                              userName: viewModel.myCustomerList[index].userName,
+                              mobileNo: viewModel.myCustomerList[index].mobileNumber,
+                              fromLogin: false,
+                              emailId: viewModel.myCustomerList[index].emailId,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )),
+                ],
+              ),
+              ),
             ),
-          );
-        },
-      ),
-    );*/
-    return DataTable2(
-      columnSpacing: 12,
-      horizontalMargin: 12,
-      minWidth: 600,
-      headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColorLight.withOpacity(0.1)),
-      headingRowHeight: 35,
-      dataRowHeight: 40,
-      columns: const [
-        DataColumn(
-          label: Text('Name',
-            style: TextStyle(fontWeight: FontWeight.bold),
           ),
-        ),
-        DataColumn(
-          label: Text('Mobile No',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
-        DataColumn2(
-          label: Text(
-            'E-mail Address',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          size: ColumnSize.L,
-        ),
-        DataColumn2(
-          label: Text('Address',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          size: ColumnSize.L,
-        ),
-        DataColumn2(
-          label: Text('',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          fixedWidth: 100,
-        ),
-      ],
-      rows: List<DataRow>.generate(
-        viewModel.myCustomerList.length, (index) => DataRow(
-        cells: [
-          DataCell(Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const CircleAvatar(
-                backgroundImage: AssetImage("assets/png/user_thumbnail.png"),
-                backgroundColor: Colors.transparent,
-                radius: 14,
-              ),
-              const SizedBox(width: 12),
-              Text(viewModel.myCustomerList[index].userName),
-            ],
-          )),
-          DataCell(Text('+ ${viewModel.myCustomerList[index].countryCode} ${viewModel.myCustomerList[index].mobileNumber}')),
-          DataCell(Text(viewModel.myCustomerList[index].emailId)),
-          const DataCell(Text('--')),
-          DataCell(Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                tooltip: 'View and Add new product',
-                icon: const Icon(Icons.playlist_add),
-                onPressed: () => openDealerDeviceListBottomSheet(context, viewModel.myCustomerList[index], viewModel, userId),
-              ),
-              IconButton(
-                tooltip: 'View dealer dashboard',
-                icon: const Icon(Icons.dashboard_outlined),
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DealerScreenController(
-                      userId: viewModel.myCustomerList[index].userId,
-                      userName: viewModel.myCustomerList[index].userName,
-                      mobileNo: viewModel.myCustomerList[index].mobileNumber,
-                      fromLogin: false,
-                      emailId: viewModel.myCustomerList[index].emailId,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          )),
         ],
       ),
-      ),
     );
+
   }
 
-  Widget buildDealerListCard(BuildContext context, AdminAndDealerDashboardViewModel viewModel) {
+  Widget buildProductListCard(BuildContext context,
+      AdminAndDealerDashboardViewModel viewModel,
+      double sWidth)
+  {
+    print(MediaQuery.of(context).size.width);
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    int crossAxisCount;
+    if (sWidth >= 1000) {
+      crossAxisCount = 8;
+    }else if (sWidth >= 850) {
+      crossAxisCount = 7;
+    }else if (sWidth >= 800) {
+      crossAxisCount = 7;
+    }else if (sWidth >= 650) {
+      crossAxisCount = 6;
+    }else if (sWidth >= 570) {
+      crossAxisCount = 5;
+    } else if (sWidth >= 500) {
+      crossAxisCount = 4;
+    }else {
+      crossAxisCount = 2;
+    }
+
+    final int itemRows = (viewModel.categoryList.length / crossAxisCount).ceil();
+    final double dynamicHeight = itemRows * 120.0 + 80.0;
+
     return SizedBox(
-      width: 300,
-      height: MediaQuery.sizeOf(context).height,
+      width: sWidth,
+      height: viewModel.categoryList.isEmpty ? 200 :
+      dynamicHeight,
       child: Card(
+        color: Colors.white,
         child: viewModel.isLoadingCustomerData
-            ? const Center(child: SizedBox(width: 40, child: LoadingIndicator(indicatorType: Indicator.ballPulse)))
+            ? const Center(
+          child: SizedBox(
+            width: 40,
+            child: LoadingIndicator(indicatorType: Indicator.ballPulse),
+          ),
+        )
             : Column(
           children: [
             const ListTile(
-              title: Text('All My Devices', style: TextStyle(fontSize: 17)),
+              title: Text('All My Devices', style: TextStyle(fontSize: 20)),
             ),
             const Divider(height: 0),
             Expanded(
-              child: viewModel.myCustomerList.isNotEmpty
+              child: viewModel.categoryList.isNotEmpty
                   ? Padding(
-                padding: const EdgeInsets.only(left: 8, right: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
                     crossAxisSpacing: 5.0,
                     mainAxisSpacing: 5.0,
                     childAspectRatio: 1.0,
@@ -296,32 +399,30 @@ class AdminDashboard extends StatelessWidget {
                     final item = viewModel.categoryList[index];
                     return Card(
                       color: Colors.white,
-                      elevation: 2,
+                      elevation: 0,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Expanded(
-                              child: F.appFlavor!.name.contains('oro')
-                                  ? Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: Image.asset(
-                              "assets/images/Png/Oro/category_${index+1}.png",
-                              errorBuilder: (context, error, stackTrace) {
-                                print('error:$error');
-                                return const Icon(Icons.error);
-                              },
+                            child: Padding(
+                              padding: const EdgeInsets.all(5.0),
+                              child: Image.asset(
+                                "assets/images/Png/${F.appFlavor!.name.contains('oro') ? 'Oro' : 'SmartComm'}/category_${index + 1}.png",
+                                errorBuilder: (context, error, stackTrace) {
+                                  print('error: $error');
+                                  return const Icon(Icons.error);
+                                },
+                              ),
                             ),
-                          )
-                                  : Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: Image.asset("assets/images/Png/SmartComm/category_${index+1}.png"),
-                          )
                           ),
                           Container(
                             height: 25,
-                            color: Theme.of(context).primaryColorLight.withOpacity(0.2),
+                            color: Colors.white,
                             child: Center(
-                              child: Text(item.categoryName, style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                              child: Text(
+                                item.categoryName,
+                                style: const TextStyle(fontSize: 12, color: Colors.black87),
+                              ),
                             ),
                           ),
                         ],
@@ -337,6 +438,7 @@ class AdminDashboard extends StatelessWidget {
       ),
     );
   }
+
 
   Widget buildSegmentedButton(AdminAndDealerDashboardViewModel viewModel, int userId) {
     return SegmentedButton<MySegment>(

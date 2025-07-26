@@ -85,7 +85,7 @@ class OroTheme {
     ),
     textTheme: TextTheme(
       titleLarge: GoogleFonts.roboto(fontSize: 22, color: Colors.black),
-      titleMedium: GoogleFonts.roboto(fontSize: 15, color: Colors.black),
+      titleMedium: GoogleFonts.roboto(fontSize: 14, color: Colors.black),
       titleSmall: GoogleFonts.roboto(fontSize: 12, color: Colors.black),
 
       headlineLarge: GoogleFonts.roboto(fontSize: 15, color: const Color(0xFF1E1E1E), fontWeight: FontWeight.bold), // siva
@@ -219,7 +219,7 @@ class OroTheme {
     ),
     textTheme: TextTheme(
       titleLarge: GoogleFonts.roboto(fontSize: 22, color: Colors.black),
-      titleMedium: GoogleFonts.roboto(fontSize: 15, color: Colors.black),
+      titleMedium: GoogleFonts.roboto(fontSize: 14, color: Colors.black),
       titleSmall: GoogleFonts.roboto(fontSize: 12, color: Colors.black),
 
       headlineLarge: GoogleFonts.roboto(fontSize: 15, color: Colors.white70, fontWeight: FontWeight.bold), // siva
