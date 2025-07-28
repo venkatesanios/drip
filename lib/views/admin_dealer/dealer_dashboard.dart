@@ -349,8 +349,8 @@ class DealerDashboard extends StatelessWidget {
                 onChanged: (value) => viewModel.filterCustomer(value),
               ),
             ): ListTile(
-              title: const Text('My Customers',
-                  style: TextStyle(fontSize: 20)),
+              title: Text('My Customers(${viewModel.myCustomerList.length})',
+                  style: const TextStyle(fontSize: 17)),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
