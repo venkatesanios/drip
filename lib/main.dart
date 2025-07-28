@@ -34,10 +34,14 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print("Handling a background message: ${message.messageId}");
 }
 
+
+
+
+
 FutureOr<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   tz.initializeTimeZones();
-  //F.appFlavor = Flavor.oroProduction;
+  // F.appFlavor = Flavor.oroProduction;
 
   if(!kIsWeb){
     try {
