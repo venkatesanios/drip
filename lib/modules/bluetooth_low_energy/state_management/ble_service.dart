@@ -988,3 +988,4 @@ class BleProvider extends ChangeNotifier {
   }
 
 }
+

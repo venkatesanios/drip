@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
-import 'package:oro_drip_irrigation/app.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/repository/config_maker_repository.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import '../model/device_model.dart';
@@ -413,6 +412,8 @@ class ConfigMakerProvider extends ChangeNotifier{
       print('jsonData : $jsonData');
       notifyListeners();
       if(jsonData['code'] == 200){
+        masterData['deviceId'] = deviceData['deviceId'];
+        notifyListeners();
         return 200;
       }else{
         return 400;
@@ -1003,6 +1004,16 @@ class ConfigMakerProvider extends ChangeNotifier{
     return referenceNo == 0 ? null : referenceNo;
   }
 
+  int validateDeviceTypeNumber(DeviceModel device){
+    if(AppConstants.extendLoraList.contains(device.modelId)){
+      return 102;
+    }else if(AppConstants.extendGsmList.contains(device.modelId)){
+      return 103;
+    }else{
+      return device.categoryId;
+    }
+  }
+
   //Todo : getDeviceListPayload
   String getDeviceListPayload() {
     List<dynamic> devicePayload = [];
@@ -1011,7 +1022,7 @@ class ConfigMakerProvider extends ChangeNotifier{
       if (device.masterId != null) {
         devicePayload.add({
           "S_No": device.serialNumber,
-          "DeviceTypeNumber": device.categoryId,
+          "DeviceTypeNumber": validateDeviceTypeNumber(device),
           "DeviceRunningNumber": findOutReferenceNumber(device),
           "DeviceId": device.deviceId,
           "InterfaceType": device.interfaceTypeId,
