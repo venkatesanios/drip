@@ -656,8 +656,7 @@ class StandAloneViewModel extends ChangeNotifier {
       }else if (strSldIrrigationPumpSrlNo.isEmpty) {
         displayAlert(context, 'You must select an irrigation pump.');
       }else{
-        int modelId = masterData.modelId;
-        if (modelId == 56 || modelId == 57 || modelId == 58 || modelId == 59) {
+        if ([56, 57, 58, 59].contains(masterData.modelId)) {
           strSldIrrigationPumpSrlNo = strSldIrrigationPumpSrlNo.replaceAll(RegExp(r'[._]'), ',');
           strSldSqnNo = strSldSqnNo.replaceAll(RegExp(r'[.]'), ',');
         }

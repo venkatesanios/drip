@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart' hide BluetoothDevice;
 import 'package:oro_drip_irrigation/Screens/Dealer/sevicecustomer.dart';
 import 'package:oro_drip_irrigation/Screens/Logs/irrigation_and_pump_log.dart';
@@ -11,6 +10,7 @@ import 'package:oro_drip_irrigation/modules/ScheduleView/view/schedule_view_scre
 import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
 import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
+import '../../Models/customer/site_model.dart';
 import '../../Screens/Dealer/ble_mobile_screen.dart';
 import '../../StateManagement/customer_provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
@@ -20,9 +20,7 @@ import '../../modules/PumpController/view/node_settings.dart';
 import '../../modules/PumpController/view/pump_controller_home.dart';
 import '../../modules/bluetooth_low_energy/view/node_connection_page.dart';
 import '../../modules/open_ai/view/open_ai_screen.dart';
-import '../../repository/repository.dart';
 import '../../services/communication_service.dart';
-import '../../services/http_service.dart';
 import '../../utils/constants.dart';
 import '../../utils/formatters.dart';
 import '../../utils/my_function.dart';
@@ -40,694 +38,722 @@ import '../customer/node_list.dart';
 import '../customer/stand_alone.dart';
 
 
-class MobileScreenController extends StatelessWidget {
+class MobileScreenController extends StatefulWidget {
   const MobileScreenController({super.key, required this.userId, required this.customerName, required this.mobileNo, required this.emailId, required this.customerId, required this.fromLogin});
   final int customerId, userId;
   final String customerName, mobileNo, emailId;
   final bool fromLogin;
+
+  @override
+  State<MobileScreenController> createState() => _MobileScreenControllerState();
+}
+
+class _MobileScreenControllerState extends State<MobileScreenController> with WidgetsBindingObserver {
+
+  late CustomerScreenControllerViewModel viewModel;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    Future.delayed(Duration.zero, () {
+      viewModel = Provider.of<CustomerScreenControllerViewModel>(context, listen: false);
+      viewModel.getAllMySites(context, widget.customerId);
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      debugPrint('App is resumed');
+      Future.delayed(const Duration(milliseconds: 200), () {
+        try {
+          viewModel.onRefreshClicked();
+        } catch (e) {
+          debugPrint("Provider not found: $e");
+        }
+      });
+    }
+  }
 
   void callbackFunction(message){
   }
 
   @override
   Widget build(BuildContext context) {
-    MqttPayloadProvider mqttProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
+    final vm = Provider.of<CustomerScreenControllerViewModel>(context);
+    final commMode = Provider.of<CustomerProvider>(context).controllerCommMode;
 
-    return ChangeNotifierProvider(
-      create: (_) => CustomerScreenControllerViewModel(context, Repository(HttpService()), mqttProvider)
-        ..getAllMySites(context, customerId),
-      child: Consumer<CustomerScreenControllerViewModel>(
-        builder: (context, vm, _) {
+    if (vm.isLoading) {
+      return const Scaffold(
+          body: Center(child: Text('Site loading please wait....')));
+    }
 
-          final commMode = Provider.of<CustomerProvider>(context).controllerCommMode;
+    final currentMaster = vm.mySiteList.data[vm.sIndex].master[vm.mIndex];
 
-          if (vm.isLoading) {
-            return const Scaffold(
-                body: Center(child: Text('Site loading please wait....')));
-          }
-
-          return Scaffold(
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            appBar: AppBar(
-              title: F.appFlavor!.name.contains('oro') ?
-              Image.asset(
-                width: 70,
-                "assets/png/oro_logo_white.png",
-                fit: BoxFit.fitWidth,
-              ) :
-              Image.asset(
-                width: 160,
-                "assets/png/lk_logo_white.png",
-                fit: BoxFit.fitWidth,
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: AppBar(
+        title: F.appFlavor!.name.contains('oro') ?
+        Image.asset(
+          width: 70,
+          "assets/png/oro_logo_white.png",
+          fit: BoxFit.fitWidth,
+        ) :
+        Image.asset(
+          width: 160,
+          "assets/png/lk_logo_white.png",
+          fit: BoxFit.fitWidth,
+        ),
+        actions: [
+          if([...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(currentMaster.modelId))...[
+            Consumer<CustomerScreenControllerViewModel>(
+              builder: (context, vm, child) {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    vm.programRunning ? CircleAvatar(
+                      radius: 15,
+                      backgroundImage: const AssetImage('assets/gif/water_drop_ani.gif'),
+                      backgroundColor: Colors.blue.shade100,
+                    )
+                        : const SizedBox(),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(width: 8),
+            AlarmButton(alarmPayload: vm.alarmDL, deviceID: currentMaster.deviceId,
+                customerId: widget.customerId, controllerId: currentMaster.controllerId),
+            IconButton(
+                onPressed: (){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AIChatScreen()),
+                  );
+                },
+                icon: const Icon(Icons.assistant)
+            ),
+            // const SizedBox(width: 16),
+          ],
+          if(![...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(currentMaster.modelId))...[
+            Container(
+              height: 35,
+              decoration: BoxDecoration(
+                  color: MediaQuery.of(context).size.width >= 600 ? Colors.transparent: Theme.of(context).primaryColorLight,
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(25), bottomLeft: Radius.circular(25))
               ),
-              actions: [
-                if([...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId))...[
-                  Consumer<CustomerScreenControllerViewModel>(
-                    builder: (context, vm, child) {
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          vm.programRunning ? CircleAvatar(
-                            radius: 15,
-                            backgroundImage: const AssetImage('assets/gif/water_drop_ani.gif'),
-                            backgroundColor: Colors.blue.shade100,
-                          )
-                              : const SizedBox(),
-                        ],
-                      );
-                    },
+              child: Row(
+                children: [
+                  if(currentMaster.nodeList.isNotEmpty
+                      && [48, 49].contains(currentMaster.modelId))
+                    InkWell(
+                        onTap: (){
+                          showModalBottomSheet(
+                              context: context,
+                              builder: (context) {
+                                return NodeSettings(
+                                  userId: widget.userId,
+                                  controllerId: currentMaster.controllerId,
+                                  customerId: widget.customerId,
+                                  nodeList: currentMaster.nodeList,
+                                  deviceId: currentMaster.deviceId,
+                                );
+                              }
+                          );
+                        },
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8),
+                          child: Icon(Icons.settings_remote),
+                        )
+                    ),
+                  InkWell(
+                      onTap: (){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                SentAndReceived(
+                                  customerId: widget.userId,
+                                  controllerId: currentMaster.controllerId,
+                                ),
+                          ),
+                        );
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        child: Icon(Icons.question_answer_outlined),
+                      )
                   ),
-                  const SizedBox(width: 8),
-                  AlarmButton(alarmPayload: vm.alarmDL, deviceID: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                      customerId: customerId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId),
-                  IconButton(
-                      onPressed: (){
+                  if(!kIsWeb)
+                    InkWell(
+                        onTap: (){
+                          final Map<String, dynamic> data = {
+                            'controllerId': currentMaster.controllerId,
+                            'deviceId': currentMaster.deviceId,
+                            'deviceName': currentMaster.deviceName,
+                            'categoryId': currentMaster.categoryId,
+                            'categoryName': currentMaster.categoryName,
+                            'modelId': currentMaster.modelId,
+                            'modelName': currentMaster.modelName,
+                            'InterfaceType': 1,
+                            'interface': 'GSM',
+                            'relayOutput': 3,
+                            'latchOutput': 0,
+                            'analogInput': 8,
+                            'digitalInput': 4,
+                          };
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => NodeConnectionPage(
+                            nodeData: data,
+                            masterData: {
+                              "userId" : widget.userId,
+                              "customerId" : widget.customerId,
+                              "controllerId" : currentMaster.controllerId
+                            },
+                          )));
+                        },
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8),
+                          child: Icon(Icons.bluetooth),
+                        )
+                    ),
+                  InkWell(
+                      onTap: (){
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => const AIChatScreen()),
                         );
                       },
-                      icon: const Icon(Icons.assistant)
-                  ),
-                  // const SizedBox(width: 16),
-                ],
-                if(![...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId))...[
-                  Container(
-                    height: 35,
-                    decoration: BoxDecoration(
-                        color: MediaQuery.of(context).size.width >= 600 ? Colors.transparent: Theme.of(context).primaryColorLight,
-                        borderRadius: const BorderRadius.only(topLeft: Radius.circular(25), bottomLeft: Radius.circular(25))
-                    ),
-                    child: Row(
-                      children: [
-                        if(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList.isNotEmpty
-                            && [48, 49].contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId))
-                          InkWell(
-                              onTap: (){
-                                showModalBottomSheet(
-                                    context: context,
-                                    builder: (context) {
-                                      return NodeSettings(
-                                        userId: userId,
-                                        controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                                        customerId: customerId,
-                                        nodeList: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList,
-                                        deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                                      );
-                                    }
-                                );
-                              },
-                              child: const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 8),
-                                child: Icon(Icons.settings_remote),
-                              )
-                          ),
-                        InkWell(
-                            onTap: (){
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      SentAndReceived(
-                                        customerId: userId,
-                                        controllerId: vm.mySiteList.data[vm.sIndex]
-                                            .master[vm.mIndex].controllerId,
-                                      ),
-                                ),
-                              );
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8),
-                              child: Icon(Icons.question_answer_outlined),
-                            )
-                        ),
-                        if(!kIsWeb)
-                          InkWell(
-                              onTap: (){
-                                final Map<String, dynamic> data = {
-                                  'controllerId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                                  'deviceId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                                  'deviceName': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceName,
-                                  'categoryId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
-                                  'categoryName': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
-                                  'modelId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId,
-                                  'modelName': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelName,
-                                  'InterfaceType': 1,
-                                  'interface': 'GSM',
-                                  'relayOutput': 3,
-                                  'latchOutput': 0,
-                                  'analogInput': 8,
-                                  'digitalInput': 4,
-                                };
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => NodeConnectionPage(
-                                  nodeData: data,
-                                  masterData: {
-                                    "userId" : userId,
-                                    "customerId" : customerId,
-                                    "controllerId" : vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId
-                                  },
-                                )));
-                              },
-                              child: const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 8),
-                                child: Icon(Icons.bluetooth),
-                              )
-                          ),
-                        InkWell(
-                            onTap: (){
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const AIChatScreen()),
-                              );
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8),
-                              child: Icon(Icons.assistant),
-                            )
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ],
-              bottom: PreferredSize(
-                preferredSize: const Size.fromHeight(50),
-                child: Container(
-                  color: Theme.of(context).primaryColor,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 7.0),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(width: 15),
-                          SiteSelectorWidget(vm: vm, context: context),
-                          const VerticalDividerWhite(),
-                          MasterSelectorWidget(vm: vm, sIndex: vm.sIndex, mIndex: vm.mIndex),
-                          if (vm.mySiteList.data[vm.sIndex].master.length > 1)
-                            const VerticalDividerWhite(),
-                          IrrigationLineSelectorWidget(vm: vm),
-                          if ([...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId) &&
-                              vm.mySiteList.data[vm.sIndex].master[vm.mIndex].irrigationLine.length > 1)
-                            const VerticalDividerWhite(),
-
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                              color: Colors.transparent,
-                            ),
-                            width: 45,
-                            height: 45,
-                            child: IconButton(
-                              tooltip: 'refresh',
-                              onPressed: vm.onRefreshClicked,
-                              icon: const Icon(Icons.refresh),
-                              color: Colors.white,
-                              iconSize: 24.0,
-                              hoverColor: Theme.of(context).primaryColorLight,
-                            ),
-                          ),
-
-                          Selector<CustomerScreenControllerViewModel, String>(
-                            selector: (_, vm) => vm.mqttProvider.liveDateAndTime,
-                            builder: (_, liveDateAndTime, __) => Text('Last sync @ - ${Formatters.formatDateTime(liveDateAndTime)}',
-                                style: const TextStyle(fontSize: 14, color: Colors.white60)),
-                          ),
-
-                          const SizedBox(width: 15),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            drawer: Drawer(
-              shape: const RoundedRectangleBorder(),
-              surfaceTintColor: Colors.white,
-              child: Column(
-                children: [
-                  DrawerHeader(
-                    decoration: BoxDecoration(color: Theme
-                        .of(context)
-                        .primaryColor),
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              children: [
-                                Text(customerName, style: const TextStyle(
-                                    color: Colors.white)),
-                                Text(mobileNo, style: const TextStyle(
-                                    color: Colors.white, fontSize: 14)),
-                                Text(emailId,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(color: Colors.white, fontSize: 14)),
-                                const SizedBox(height: 20),
-                                const Text("Version 1.0.0",
-                                    style: TextStyle(color: Colors.white54)),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 75,
-                            height: 75,
-                            child: CircleAvatar(),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.account_circle_outlined, color: Theme
-                        .of(context)
-                        .primaryColor),
-                    title: const Text("Profile",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    trailing: const Icon(Icons.keyboard_arrow_right_rounded),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AccountSettings(userId: customerId, customerId: customerId, userName: customerName, mobileNo: mobileNo, emailId: emailId, hideAppbar: false),
-                        ),
-                      );
-                    },
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 40, right: 25),
-                    child: Divider(height: 0, color: Colors.grey.shade300),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.info_outline, color: Theme
-                        .of(context)
-                        .primaryColor),
-                    title: const Text("App Info",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    trailing: const Icon(Icons.keyboard_arrow_right_rounded),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const AppInfo(),
-                        ),
-                      );
-                    },
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 40, right: 25),
-                    child: Divider(height: 0, color: Colors.grey.shade300),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.help_outline, color: Theme
-                        .of(context)
-                        .primaryColor),
-                    title: const Text(
-                        "Help", style: TextStyle(fontWeight: FontWeight.bold)),
-                    trailing: const Icon(Icons.keyboard_arrow_right_rounded),
-                    onTap: () {},
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 40, right: 25),
-                    child: Divider(height: 0, color: Colors.grey.shade300),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.feedback_outlined, color: Theme
-                        .of(context)
-                        .primaryColor),
-                    title: const Text("Send Feedback",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    trailing: const Icon(Icons.keyboard_arrow_right_rounded),
-                    onTap: () {},
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 40, right: 25),
-                    child: Divider(height: 0, color: Colors.grey.shade300),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.support_agent_sharp, color: Theme
-                        .of(context)
-                        .primaryColor),
-                    title: const Text("Service Request",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    trailing: const Icon(Icons.keyboard_arrow_right_rounded),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) =>  TicketHomePage(userId: userId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm
-                            .mIndex].controllerId,)),
-                      );
-                    },
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 40, right: 25),
-                    child: Divider(height: 0, color: Colors.grey.shade300),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.devices, color: Theme
-                        .of(context)
-                        .primaryColor),
-                    title: const Text("All my devices",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    trailing: const Icon(Icons.keyboard_arrow_right_rounded),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) =>  CustomerProduct(customerId: userId)),
-                      );
-                    },
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 40, right: 25),
-                    child: Divider(height: 0, color: Colors.grey.shade300),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                        left: 16, top: 16, right: 16),
-                    child: TextButton.icon(
-                      onPressed: () async {
-                        await PreferenceHelper.clearAll();
-                        Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false,);
-                      },
-                      icon: const Icon(Icons.logout, color: Colors.red),
-                      label: const Text("Logout", style: TextStyle(color: Colors
-                          .red, fontSize: 17)),
-                      style: TextButton.styleFrom(
-                        alignment: Alignment.centerLeft,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                      ),
-                    ),
-                  ),
-                  const Spacer(), // Pushes the version/logo to the bottom
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        F.appFlavor!.name.contains('oro') ?
-                        Image.asset('assets/png/company_logo_nia.png', width: 60):
-                        SizedBox(
-                          height: 60,
-                          child: Image.asset('assets/png/company_logo.png'),
-                        ),
-                        const SizedBox(height: 8),
-                      ],
-                    ),
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        child: Icon(Icons.assistant),
+                      )
                   ),
                 ],
               ),
             ),
-            floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
-            bottomNavigationBar: [...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId) ?
-            BottomNavigationBar(
-              backgroundColor: Theme.of(context).primaryColor,
-              type: BottomNavigationBarType.fixed,
-              selectedFontSize: 14,
-              unselectedFontSize: 12,
-              currentIndex: vm.selectedIndex,
-              onTap: vm.onItemTapped,
-              selectedItemColor: Colors.white,
-              unselectedItemColor: Colors.white54,
-              items: const [
-                BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-                BottomNavigationBarItem(icon: Icon(Icons.list), label: "Scheduled Program"),
-                BottomNavigationBarItem(icon: Icon(Icons.report_gmailerrorred), label: "Log"),
-                BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), label: "Settings"),
-              ],
-            )
-            : null,
-            floatingActionButton: [...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId) ?
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                FloatingActionButton(
-                  onPressed: null,
-                  backgroundColor: Theme.of(context).primaryColorLight,
-                  child: PopupMenuButton<String>(
-                      offset: const Offset(0, -180),
-                      color: Colors.white,
-                      onSelected: (String value) {
-                        switch (value) {
-                          case 'Node Status':
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => NodeList(
-                                      customerId: customerId,
-                                      nodes: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList,
-                                      userId: userId,
-                                    configObjects: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].configObjects,
-                                  masterData: vm.mySiteList.data[vm.sIndex].master[vm.mIndex]),
-                              ),
-                            );
-                            break;
-
-                          case 'I/O Connection':
-                            Navigator.push(context,
-                              MaterialPageRoute(
-                                builder: (context) => InputOutputConnectionDetails(masterInx: vm.mIndex,
-                                    nodes: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].nodeList),
-                              ),
-                            );
-                            break;
-
-                          case 'Sent & Received':
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    SentAndReceived(
-                                      customerId: userId,
-                                      controllerId: vm.mySiteList.data[vm.sIndex]
-                                          .master[vm.mIndex].controllerId,
-                                    ),
-                              ),
-                            );
-                            break;
-                          case 'Program':
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (BuildContext context) {
-                                      return ProgramLibraryScreenNew(
-                                        customerId: customerId,
-                                        controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                                        deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                                        userId: userId,
-                                        groupId: vm.mySiteList.data[vm.sIndex].groupId,
-                                        categoryId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
-                                        modelId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId,
-                                        deviceName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceName,
-                                        categoryName: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
-                                      );
-                                    }
-                                )
-                            );
-                            break;
-                          case 'ScheduleView':
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (BuildContext context) {
-                                      return ScheduleViewScreen(
-                                        deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                                        userId: userId,
-                                        controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                                        customerId: customerId,
-                                        groupId: vm.mySiteList.data[vm.sIndex].groupId,
-                                      );
-                                    }
-                                )
-                            );
-                            break;
-                          case 'Manual':
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (BuildContext context) {
-                                      return StandAlone(siteId: vm.mySiteList.data[vm.sIndex].groupId,
-                                          controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                                          customerId: customerId,
-                                          deviceId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                                          callbackFunction: callbackFunction, userId: userId, masterData: vm.mySiteList.data[vm.sIndex].master[vm.mIndex]);
-                                    }
-                                )
-                            );
-                            break;
-                        }
-                      },
-                      icon: const Icon(Icons.menu, color: Colors.white),
-                      itemBuilder: (BuildContext context) =>
-                      [
-                        _buildPopupItem(
-                            context, 'Node Status', Icons.format_list_numbered,
-                            'Node Status'),
-                        _buildPopupItem(context, 'I/O Connection',
-                            Icons.settings_input_component_outlined,
-                            'I/O\nConnection\ndetails'),
-                        _buildPopupItem(
-                            context, 'Program', Icons.list_alt, 'Program'),
-                        _buildPopupItem(
-                            context, 'ScheduleView', Icons.view_list_outlined,
-                            'Scheduled\nprogram\ndetails'),
-                        _buildPopupItem(
-                            context, 'Manual', Icons.touch_app_outlined, 'Manual'),
-                        _buildPopupItem(context, 'Sent & Received',
-                            Icons.question_answer_outlined, 'Sent &\nReceived'),
-                      ]
-                  ),
-                ),
-                const SizedBox(height: 10),
-                FloatingActionButton(
-                  backgroundColor: commMode == 1? Theme.of(context).primaryColorLight:
-                  (commMode == 2 && vm.blueService.isConnected) ?
-                  Theme.of(context).primaryColorLight : Colors.redAccent,
-                  onPressed: ()=>_showBottomSheet(context, vm, vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId),
-                  tooltip: 'Second Action',
-                  child: commMode == 1?
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Icon(vm.wifiStrength == 0? Icons.wifi_off:
-                      vm.wifiStrength >= 1 && vm.wifiStrength <= 20 ? Icons.network_wifi_1_bar_outlined:
-                      vm.wifiStrength >= 21 && vm.wifiStrength <= 40 ? Icons.network_wifi_2_bar_outlined:
-                      vm.wifiStrength >= 41 && vm.wifiStrength <= 60 ? Icons.network_wifi_3_bar_outlined:
-                      vm.wifiStrength >= 61 && vm.wifiStrength <= 80 ? Icons.network_wifi_3_bar_outlined:
-                      Icons.wifi, color: Colors.white,),
-                      Text('${vm.wifiStrength} %',style: const TextStyle(fontSize: 11.0, color: Colors.white70),
-                      ),
-                    ],
-                  ) :
-                  Icon((commMode == 2 && vm.blueService.isConnected)?Icons.bluetooth:Icons.bluetooth_disabled,
-                      color: Colors.white),
-                ),
-              ],
-            ) : null,
-            body: ![...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId) ?
-            vm.isChanged ? PumpControllerHome(
-              userId: userId,
-              customerId: customerId,
-              masterData: vm.mySiteList.data[vm.sIndex].master[vm.mIndex],
-            ) : const Scaffold(
-              body: Center(
-                child: Column(
+          ],
+        ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(50),
+          child: Container(
+            color: Theme.of(context).primaryColor,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 7.0),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Please wait...'),
-                    SizedBox(height: 10),
-                    CircularProgressIndicator(),
-                  ],
-                ),
-              ),
-            ) : RefreshIndicator(
-              onRefresh: () => _handleRefresh(vm),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(8), topRight: Radius.circular(8)),
-                ),
-                child: Column(
-                  children: [
-                    if ([...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId)) ...[
-                      if (vm.isNotCommunicate)
-                        Container(
-                          height: 25,
-                          decoration: BoxDecoration(
-                            color: Colors.red.shade200,
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(5),
-                              topRight: Radius.circular(5),
-                            ),
-                          ),
-                          child: const Center(
-                            child: Text(
-                              'NO COMMUNICATION TO CONTROLLER',
-                              style: TextStyle(
-                                color: Colors.black87,
-                                fontSize: 13.0,
-                              ),
-                            ),
-                          ),
-                        )
-                      else if (vm.powerSupply == 0)
-                        Container(
-                          height: 25,
-                          color: Colors.red.shade300,
-                          child: const Center(
-                            child: Text(
-                              'NO POWER SUPPLY TO CONTROLLER',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 13.0,
-                              ),
-                            ),
-                          ),
-                        )
-                      else
-                        const SizedBox(),
-                    ],
-                    Expanded(
-                      child: Builder(
-                        builder: (context) {
-                          final master = vm.mySiteList.data[vm.sIndex].master[vm.mIndex];
+                    const SizedBox(width: 15),
+                    SiteSelectorWidget(vm: vm, context: context),
+                    const VerticalDividerWhite(),
+                    MasterSelectorWidget(vm: vm, sIndex: vm.sIndex, mIndex: vm.mIndex),
+                    if (vm.mySiteList.data[vm.sIndex].master.length > 1)
+                      const VerticalDividerWhite(),
+                    IrrigationLineSelectorWidget(vm: vm),
+                    if ([...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(currentMaster.modelId) &&
+                        currentMaster.irrigationLine.length > 1)
+                      const VerticalDividerWhite(),
 
-                          switch (vm.selectedIndex) {
-                            case 0:
-                              return CustomerHome(
-                                customerId: userId,
-                                controllerId: master.controllerId,
-                                deviceId: master.deviceId,
-                                modelId: master.modelId,
-                              );
-
-                            case 1:
-                              return ScheduledProgram(
-                                userId: customerId,
-                                scheduledPrograms: master.programList,
-                                controllerId: master.controllerId,
-                                deviceId: master.deviceId,
-                                customerId: customerId,
-                                currentLineSNo: master.irrigationLine[vm.lIndex].sNo,
-                                groupId: vm.mySiteList.data[vm.sIndex].groupId,
-                                categoryId: master.categoryId,
-                                modelId: master.modelId,
-                                deviceName: master.deviceName,
-                                categoryName: master.categoryName,
-                              );
-
-                            case 2:
-                              return IrrigationAndPumpLog(
-                                userData: {
-                                  'userId': userId,
-                                  'controllerId': master.controllerId,
-                                },
-                                masterData: master,
-                              );
-
-                            default:
-                              return ControllerSettings(
-                                customerId: customerId,
-                                userId: userId,
-                                masterController: master,
-                              );
-                          }
-                        },
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: Colors.transparent,
+                      ),
+                      width: 45,
+                      height: 45,
+                      child: IconButton(
+                        tooltip: 'refresh',
+                        onPressed: vm.onRefreshClicked,
+                        icon: const Icon(Icons.refresh),
+                        color: Colors.white,
+                        iconSize: 24.0,
+                        hoverColor: Theme.of(context).primaryColorLight,
                       ),
                     ),
+
+                    Selector<CustomerScreenControllerViewModel, String>(
+                      selector: (_, vm) => vm.mqttProvider.liveDateAndTime,
+                      builder: (_, liveDateAndTime, __) => Text('Last sync @ - ${Formatters.formatDateTime(liveDateAndTime)}',
+                          style: const TextStyle(fontSize: 14, color: Colors.white60)),
+                    ),
+
+                    const SizedBox(width: 15),
                   ],
                 ),
               ),
             ),
-          );
-        },
+          ),
+        ),
+      ),
+      drawer: Drawer(
+        shape: const RoundedRectangleBorder(),
+        surfaceTintColor: Colors.white,
+        child: Column(
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(color: Theme
+                  .of(context)
+                  .primaryColor),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Text(widget.customerName, style: const TextStyle(
+                              color: Colors.white)),
+                          Text(widget.mobileNo, style: const TextStyle(
+                              color: Colors.white, fontSize: 14)),
+                          Text(widget.emailId,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(color: Colors.white, fontSize: 14)),
+                          const SizedBox(height: 20),
+                          const Text("Version 1.0.0",
+                              style: TextStyle(color: Colors.white54)),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 75,
+                      height: 75,
+                      child: CircleAvatar(),
+                    )
+                  ],
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.account_circle_outlined, color: Theme
+                  .of(context)
+                  .primaryColor),
+              title: const Text("Profile",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              trailing: const Icon(Icons.keyboard_arrow_right_rounded),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AccountSettings(userId: widget.customerId, customerId: widget.customerId, userName: widget.customerName, mobileNo: widget.mobileNo, emailId: widget.emailId, hideAppbar: false),
+                  ),
+                );
+              },
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 40, right: 25),
+              child: Divider(height: 0, color: Colors.grey.shade300),
+            ),
+            ListTile(
+              leading: Icon(Icons.info_outline, color: Theme
+                  .of(context)
+                  .primaryColor),
+              title: const Text("App Info",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              trailing: const Icon(Icons.keyboard_arrow_right_rounded),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AppInfo(),
+                  ),
+                );
+              },
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 40, right: 25),
+              child: Divider(height: 0, color: Colors.grey.shade300),
+            ),
+            ListTile(
+              leading: Icon(Icons.help_outline, color: Theme
+                  .of(context)
+                  .primaryColor),
+              title: const Text(
+                  "Help", style: TextStyle(fontWeight: FontWeight.bold)),
+              trailing: const Icon(Icons.keyboard_arrow_right_rounded),
+              onTap: () {},
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 40, right: 25),
+              child: Divider(height: 0, color: Colors.grey.shade300),
+            ),
+            ListTile(
+              leading: Icon(Icons.feedback_outlined, color: Theme
+                  .of(context)
+                  .primaryColor),
+              title: const Text("Send Feedback",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              trailing: const Icon(Icons.keyboard_arrow_right_rounded),
+              onTap: () {},
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 40, right: 25),
+              child: Divider(height: 0, color: Colors.grey.shade300),
+            ),
+            ListTile(
+              leading: Icon(Icons.support_agent_sharp, color: Theme
+                  .of(context)
+                  .primaryColor),
+              title: const Text("Service Request",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              trailing: const Icon(Icons.keyboard_arrow_right_rounded),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  TicketHomePage(userId: widget.userId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm
+                      .mIndex].controllerId,)),
+                );
+              },
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 40, right: 25),
+              child: Divider(height: 0, color: Colors.grey.shade300),
+            ),
+            ListTile(
+              leading: Icon(Icons.devices, color: Theme
+                  .of(context)
+                  .primaryColor),
+              title: const Text("All my devices",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              trailing: const Icon(Icons.keyboard_arrow_right_rounded),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  CustomerProduct(customerId: widget.userId)),
+                );
+              },
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 40, right: 25),
+              child: Divider(height: 0, color: Colors.grey.shade300),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(
+                  left: 16, top: 16, right: 16),
+              child: TextButton.icon(
+                onPressed: () async {
+                  await PreferenceHelper.clearAll();
+                  Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false,);
+                },
+                icon: const Icon(Icons.logout, color: Colors.red),
+                label: const Text("Logout", style: TextStyle(color: Colors
+                    .red, fontSize: 17)),
+                style: TextButton.styleFrom(
+                  alignment: Alignment.centerLeft,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                ),
+              ),
+            ),
+            const Spacer(), // Pushes the version/logo to the bottom
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  F.appFlavor!.name.contains('oro') ?
+                  Image.asset('assets/png/company_logo_nia.png', width: 60):
+                  SizedBox(
+                    height: 60,
+                    child: Image.asset('assets/png/company_logo.png'),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
+      bottomNavigationBar: [...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(currentMaster.modelId) ?
+      BottomNavigationBar(
+        backgroundColor: Theme.of(context).primaryColor,
+        type: BottomNavigationBarType.fixed,
+        selectedFontSize: 14,
+        unselectedFontSize: 12,
+        currentIndex: vm.selectedIndex,
+        onTap: vm.onItemTapped,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white54,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.list), label: "Scheduled Program"),
+          BottomNavigationBarItem(icon: Icon(Icons.report_gmailerrorred), label: "Log"),
+          BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), label: "Settings"),
+        ],
+      )
+          : null,
+      floatingActionButton: [...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(currentMaster.modelId) ?
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: null,
+            backgroundColor: Theme.of(context).primaryColorLight,
+            child: PopupMenuButton<String>(
+                offset: const Offset(0, -180),
+                color: Colors.white,
+                onSelected: (String value) {
+                  switch (value) {
+                    case 'Node Status':
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => NodeList(
+                              customerId: widget.customerId,
+                              nodes: currentMaster.nodeList,
+                              userId: widget.userId,
+                              configObjects: currentMaster.configObjects,
+                              masterData: currentMaster),
+                        ),
+                      );
+                      break;
+
+                    case 'I/O Connection':
+                      Navigator.push(context,
+                        MaterialPageRoute(
+                          builder: (context) => InputOutputConnectionDetails(
+                              masterInx: vm.mIndex, nodes: currentMaster.nodeList),
+                        ),
+                      );
+                      break;
+
+                    case 'Sent & Received':
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SentAndReceived(
+                              customerId: widget.userId,
+                              controllerId: currentMaster.controllerId
+                          ),
+                        ),
+                      );
+                      break;
+                    case 'Program':
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) {
+                                return ProgramLibraryScreenNew(
+                                  customerId: widget.customerId,
+                                  controllerId: currentMaster.controllerId,
+                                  deviceId: currentMaster.deviceId,
+                                  userId: widget.userId,
+                                  groupId: vm.mySiteList.data[vm.sIndex].groupId,
+                                  categoryId: currentMaster.categoryId,
+                                  modelId: currentMaster.modelId,
+                                  deviceName: currentMaster.deviceName,
+                                  categoryName: currentMaster.categoryName,
+                                );
+                              }
+                          )
+                      );
+                      break;
+                    case 'ScheduleView':
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) {
+                                return ScheduleViewScreen(
+                                  deviceId: currentMaster.deviceId,
+                                  userId: widget.userId,
+                                  controllerId: currentMaster.controllerId,
+                                  customerId: widget.customerId,
+                                  groupId: vm.mySiteList.data[vm.sIndex].groupId,
+                                );
+                              }
+                          )
+                      );
+                      break;
+                    case 'Manual':
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) {
+                                return StandAlone(siteId: vm.mySiteList.data[vm.sIndex].groupId,
+                                    controllerId: currentMaster.controllerId,
+                                    customerId: widget.customerId,
+                                    deviceId: currentMaster.deviceId,
+                                    callbackFunction: callbackFunction, userId: widget.userId, masterData: currentMaster);
+                              }
+                          )
+                      );
+                      break;
+                  }
+                },
+                icon: const Icon(Icons.menu, color: Colors.white),
+                itemBuilder: (BuildContext context) =>
+                [
+                  _buildPopupItem(
+                      context, 'Node Status', Icons.format_list_numbered,
+                      'Node Status'),
+                  _buildPopupItem(context, 'I/O Connection',
+                      Icons.settings_input_component_outlined,
+                      'I/O\nConnection\ndetails'),
+                  _buildPopupItem(
+                      context, 'Program', Icons.list_alt, 'Program'),
+                  _buildPopupItem(
+                      context, 'ScheduleView', Icons.view_list_outlined,
+                      'Scheduled\nprogram\ndetails'),
+                  _buildPopupItem(
+                      context, 'Manual', Icons.touch_app_outlined, 'Manual'),
+                  _buildPopupItem(context, 'Sent & Received',
+                      Icons.question_answer_outlined, 'Sent &\nReceived'),
+                ]
+            ),
+          ),
+          const SizedBox(height: 10),
+          FloatingActionButton(
+            backgroundColor: commMode == 1? Theme.of(context).primaryColorLight:
+            (commMode == 2 && vm.blueService.isConnected) ?
+            Theme.of(context).primaryColorLight : Colors.redAccent,
+            onPressed: ()=>_showBottomSheet(context, currentMaster, vm),
+            tooltip: 'Second Action',
+            child: commMode == 1?
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(vm.wifiStrength == 0? Icons.wifi_off:
+                vm.wifiStrength >= 1 && vm.wifiStrength <= 20 ? Icons.network_wifi_1_bar_outlined:
+                vm.wifiStrength >= 21 && vm.wifiStrength <= 40 ? Icons.network_wifi_2_bar_outlined:
+                vm.wifiStrength >= 41 && vm.wifiStrength <= 60 ? Icons.network_wifi_3_bar_outlined:
+                vm.wifiStrength >= 61 && vm.wifiStrength <= 80 ? Icons.network_wifi_3_bar_outlined:
+                Icons.wifi, color: Colors.white,),
+                Text('${vm.wifiStrength} %',style: const TextStyle(fontSize: 11.0, color: Colors.white70),
+                ),
+              ],
+            ) :
+            Icon((commMode == 2 && vm.blueService.isConnected)?Icons.bluetooth:Icons.bluetooth_disabled,
+                color: Colors.white),
+          ),
+        ],
+      ) : null,
+      body: ![...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(currentMaster.modelId) ?
+      vm.isChanged ? PumpControllerHome(
+        userId: widget.userId,
+        customerId: widget.customerId,
+        masterData: currentMaster,
+      ) :
+      const Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Please wait...'),
+              SizedBox(height: 10),
+              CircularProgressIndicator(),
+            ],
+          ),
+        ),
+      ) :
+      RefreshIndicator(
+        onRefresh: () => _handleRefresh(vm),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+          ),
+          child: Column(
+            children: [
+              if ([...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(currentMaster.modelId)) ...[
+                if (vm.isNotCommunicate)
+                  Container(
+                    height: 25,
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade200,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(5),
+                        topRight: Radius.circular(5),
+                      ),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'NO COMMUNICATION TO CONTROLLER',
+                        style: TextStyle(
+                          color: Colors.black87,
+                          fontSize: 13.0,
+                        ),
+                      ),
+                    ),
+                  )
+                else if (vm.powerSupply == 0)
+                  Container(
+                    height: 25,
+                    color: Colors.red.shade300,
+                    child: const Center(
+                      child: Text(
+                        'NO POWER SUPPLY TO CONTROLLER',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 13.0,
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  const SizedBox(),
+              ],
+              Expanded(
+                child: Builder(
+                  builder: (context) {
+
+                    switch (vm.selectedIndex) {
+                      case 0:
+                        return CustomerHome(
+                          customerId: widget.userId,
+                          controllerId: currentMaster.controllerId,
+                          deviceId: currentMaster.deviceId,
+                          modelId: currentMaster.modelId,
+                        );
+
+                      case 1:
+                        return ScheduledProgram(
+                          userId: widget.customerId,
+                          scheduledPrograms: currentMaster.programList,
+                          controllerId: currentMaster.controllerId,
+                          deviceId: currentMaster.deviceId,
+                          customerId: widget.customerId,
+                          currentLineSNo: currentMaster.irrigationLine[vm.lIndex].sNo,
+                          groupId: vm.mySiteList.data[vm.sIndex].groupId,
+                          categoryId: currentMaster.categoryId,
+                          modelId: currentMaster.modelId,
+                          deviceName: currentMaster.deviceName,
+                          categoryName: currentMaster.categoryName,
+                        );
+
+                      case 2:
+                        return IrrigationAndPumpLog(
+                          userData: {
+                            'userId': widget.userId,
+                            'controllerId': currentMaster.controllerId,
+                          },
+                          masterData: currentMaster,
+                        );
+
+                      default:
+                        return ControllerSettings(
+                          customerId: widget.customerId,
+                          userId: widget.userId,
+                          masterController: currentMaster,
+                        );
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -762,13 +788,12 @@ class MobileScreenController extends StatelessWidget {
     );
   }
 
-  void _showBottomSheet(BuildContext context, CustomerScreenControllerViewModel vm, controllerId) {
+  void _showBottomSheet(BuildContext context, MasterControllerModel currentMaster, CustomerScreenControllerViewModel vm) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       backgroundColor: Colors.white,
       builder: (_) {
         return StatefulBuilder(builder: (context, setModalState) {
@@ -788,7 +813,7 @@ class MobileScreenController extends StatelessWidget {
                   trailing: commMode == 1 ?
                   Icon(Icons.check, color: Theme.of(context).primaryColorLight) : null,
                   onTap: () {
-                    vm.updateCommunicationMode(1, customerId);
+                    vm.updateCommunicationMode(1, widget.customerId);
                   },
                 ),
                 ListTile(
@@ -798,12 +823,12 @@ class MobileScreenController extends StatelessWidget {
                       ? Icon(Icons.check, color: Theme.of(context).primaryColorLight)
                       : null,
                   onTap: () {
-                    vm.updateCommunicationMode(2, customerId);
+                    vm.updateCommunicationMode(2, widget.customerId);
                   },
                 ),
                 if (commMode == 2) ...[
                   const Divider(),
-                  if(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId==3)...[
+                  if(currentMaster.modelId==3)...[
                     ListTile(
                       title: const Text('Scan & Connect the controller via Bluetooth',
                         style: TextStyle(fontWeight: FontWeight.bold)),
@@ -812,26 +837,26 @@ class MobileScreenController extends StatelessWidget {
                       trailing: const Icon(CupertinoIcons.arrow_right_circle),
                       onTap: (){
                         final Map<String, dynamic> data = {
-                          'controllerId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-                          'deviceId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceId,
-                          'deviceName': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].deviceName,
-                          'categoryId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryId,
-                          'categoryName': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].categoryName,
-                          'modelId': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId,
-                          'modelName': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelName,
-                          'InterfaceType': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].interfaceTypeId,
-                          'interface': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].interface,
-                          'relayOutput': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].relayOutput,
-                          'latchOutput': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].latchOutput,
-                          'analogInput': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].analogInput,
-                          'digitalInput': vm.mySiteList.data[vm.sIndex].master[vm.mIndex].digitalInput,
+                          'controllerId': currentMaster.controllerId,
+                          'deviceId': currentMaster.deviceId,
+                          'deviceName': currentMaster.deviceName,
+                          'categoryId': currentMaster.categoryId,
+                          'categoryName': currentMaster.categoryName,
+                          'modelId': currentMaster.modelId,
+                          'modelName': currentMaster.modelName,
+                          'InterfaceType': currentMaster.interfaceTypeId,
+                          'interface': currentMaster.interface,
+                          'relayOutput': currentMaster.relayOutput,
+                          'latchOutput': currentMaster.latchOutput,
+                          'analogInput': currentMaster.analogInput,
+                          'digitalInput': currentMaster.digitalInput,
                         };
                         Navigator.push(context, MaterialPageRoute(builder: (context) => NodeConnectionPage(
                           nodeData: data,
                           masterData: {
-                            "userId" : userId,
-                            "customerId" : customerId,
-                            "controllerId" : vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId
+                            "userId" : widget.userId,
+                            "customerId" : widget.customerId,
+                            "controllerId" : currentMaster.controllerId
                           },
                         )));
                       },
@@ -865,8 +890,8 @@ class MobileScreenController extends StatelessWidget {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => BLEMobileScreen(deviceID: vm.mySiteList.data[vm.sIndex]
-                                                .master[vm.mIndex].deviceId, communicationType: 'Bluetooth',),
+                                            builder: (context) => BLEMobileScreen(deviceID: currentMaster.deviceId,
+                                              communicationType: 'Bluetooth'),
                                           ),
                                         );
                                       },
@@ -1019,7 +1044,7 @@ class MobileScreenController extends StatelessWidget {
                       },
                       icon: const Icon(Icons.refresh),
                     ),
-                  ):
+                  ) :
                   const SizedBox(),
                 ],
               ),
@@ -1120,7 +1145,6 @@ class MobileScreenController extends StatelessWidget {
       ),
     );
   }
-
 }
 
 class BadgeButton extends StatelessWidget {
