@@ -52,7 +52,6 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   }
 
 
-
   void _onPayloadReceived() {
     print('object');
     final activeDeviceId = mqttProvider.activeDeviceId;
@@ -106,28 +105,6 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
       }
     });
   }
-
-  /*Future<void> _handleReconnection() async {
-    if (_isReconnecting || mqttService.isConnected) return;
-
-    _isReconnecting = true;
-    const int maxRetries = 5;
-    const Duration delay = Duration(seconds: 3);
-    int attempt = 0;
-
-    while (!mqttService.isConnected && attempt < maxRetries) {
-      attempt++;
-      debugPrint('MQTT reconnect attempt $attempt...');
-      await mqttService.connect();
-      await Future.delayed(delay);
-    }
-
-    if (!mqttService.isConnected) {
-      debugPrint("MQTT reconnection failed after $maxRetries attempts.");
-    }
-
-    _isReconnecting = false;
-  }*/
 
   void _subscribeToDeviceTopic() async {
 
