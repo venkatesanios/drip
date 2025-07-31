@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/utils/constants.dart';
 import '../../repository/repository.dart';
 
 class ControllerSettingsViewModel extends ChangeNotifier {
@@ -59,14 +60,15 @@ class ControllerSettingsViewModel extends ChangeNotifier {
               .map((e) => e["parameter"]?.toString() ?? '')
               .toSet();
 
-          if(categoryId==2){
+          if(![...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(categoryId)){
             final allowedTitles = {
               'General',
               'Preference',
               'Name',
-              'Geography',
+              // 'Dealer Definition'
+             /* 'Geography',
               'Geography Area',
-              'Crop Advisory',
+              'Crop Advisory',*/
             };
             filteredSettingList = allSettings.where((setting) {
               final title = setting['title'];

@@ -276,6 +276,8 @@ class _LineConfigurationState extends State<LineConfiguration> {
     for(var src in widget.configPvd.source){
       if(src.valves.any((valves) => selectedIrrigationLine.valve.contains(valves))){
         externalSource.add(src);
+      }else if(src.inletPump.isNotEmpty && src.outletPump.isEmpty){
+        externalSource.add(src);
       }
     }
     return Container(
@@ -284,7 +286,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
       child: ResponsiveGridList(
         horizontalGridMargin: 0,
         verticalGridMargin: 10,
-        minItemWidth: 300,
+        minItemWidth: 400,
         shrinkWrap: true,
         listViewBuilderOptions: ListViewBuilderOptions(
           physics: const NeverScrollableScrollPhysics(),
@@ -686,6 +688,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
     required List<SourceModel> multipleTank,
     required IrrigationLineModel selectedIrrigationLine
 }){
+    print("${selectedIrrigationLine.commonDetails.name} == multipleSourceAndMultipleTank");
     List<FiltrationModel> filterSite = [];
     for(var site in widget.configPvd.filtration){
       if(site.commonDetails.sNo == selectedIrrigationLine.centralFiltration){
@@ -704,6 +707,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
     }
     print('filterSite : $filterSite');
     print('fertilizerSite : $fertilizerSite');
+    print('multipleTank : $multipleTank');
     int maxLength = multipleSource.length > multipleTank.length ? multipleSource.length : multipleTank.length;
     int maxOutletPumpForTank = 0;
     int maxOutletPumpForSource = 0;
@@ -992,7 +996,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
     print("oneSourceList maxOutletPumpForTank : $maxOutletPumpForTank");
     pumpExtendedWidth += (120 * 2);
     return [
-      getSource(source,widget.configPvd , inlet: false, dashboard: true),
+        getSource(source,widget.configPvd , inlet: false, dashboard: true),
       if(source.outletPump.length == 1)
         Row(
           children: [

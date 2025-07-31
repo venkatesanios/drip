@@ -1237,7 +1237,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     var generateNew = [];
     var central = [];
     var local = [];
-    print("apiData : $apiData");
+    // print("apiData : $apiData");
     for(var site in apiData['fertilizerSite']){
       if(site['siteMode'] == 1){
         central.add(site);
@@ -1333,7 +1333,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     }
   }
 
-  dynamic hwPayloadForWF(serialNumber){
+  dynamic hwPayloadForWF(serialNumber, programType){
     var wf = '';
     var payload = '';
     editGroupSiteInjector('selectedGroup', 0);
@@ -1432,7 +1432,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         'SequenceData' : sq['valve'].map((valve) => valve['sNo']).toList().join('_'),
         'MainValve' : sq['mainValve'].map((mainValve) => mainValve['sNo']).toList().join('_'),
         'Pump' : '',
-        'ValveFlowrate' : getNominalFlow(),
+        'ValveFlowrate' : programType == "Irrigation Program" ? getNominalFlow() : 1,
         'IrrigationMethod' : sq['method'] == 'Time' ? 1 : 2,
         'IrrigationDuration_Quantity' : sq['method'] == 'Time' ? sq['timeValue'] : sq['quantityValue'],
         'CentralFertOnOff' : sq['applyFertilizerForCentral'] == false ? 0 : sq['selectedCentralSite'] == -1 ? 0 : 1,
@@ -2928,7 +2928,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         }).map((e) => e.irrigationLine.sNo).join("_")}');
     return {
       "2500" : {
-        "2501" : "${hwPayloadForWF(serialNumber)};",
+        "2501" : "${hwPayloadForWF(serialNumber, programType)};",
         "2502": "${
             {
               "S_No": '$serialNumber',/*S_No*/

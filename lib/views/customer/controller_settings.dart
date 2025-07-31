@@ -41,7 +41,7 @@ class ControllerSettings extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => ControllerSettingsViewModel(Repository(HttpService()))
-        ..getSettingsMenu(customerId, masterController.controllerId, masterController.categoryId),
+        ..getSettingsMenu(customerId, masterController.controllerId, masterController.modelId),
       child: Consumer<ControllerSettingsViewModel>(
         builder: (context, viewModel, _) {
           if (viewModel.isLoading) {

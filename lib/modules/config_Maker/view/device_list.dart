@@ -129,11 +129,11 @@ class _DeviceListState extends State<DeviceList> {
                             ),
                             DataCell(
                               Column(
-                                children: [
-                                  Text(device.deviceName, style: themeData.textTheme.headlineSmall),
-                                  Text(device.modelName, style: TextStyle(fontWeight: FontWeight.normal, color: Colors.black54)),
-                                ],
                                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Text(device.modelName, style: themeData.textTheme.headlineSmall),
+                                  Text(device.modelDescription, style: const TextStyle(fontWeight: FontWeight.normal, color: Colors.black54, fontSize: 10)),
+                                ],
                               ),
                             ),
                             DataCell(
@@ -518,7 +518,7 @@ class _DeviceListState extends State<DeviceList> {
                                                   Column(
                                                     children: [
                                                       Text(device.deviceName,style: themeData.textTheme.headlineSmall,),
-                                                      Text(device.modelName, style: const TextStyle(fontWeight: FontWeight.normal, color: Colors.black54)),
+                                                      Text(device.modelDescription, style: TextStyle(fontWeight: FontWeight.normal, color: Theme.of(context).primaryColor, fontSize: 10)),
                                                     ],
                                                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                                   )

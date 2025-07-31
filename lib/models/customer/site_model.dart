@@ -86,7 +86,6 @@ class MasterControllerModel {
     required this.analogInput,
     required this.digitalInput,
 
-
     required this.communicationMode,
     required this.units,
     required this.irrigationLine,

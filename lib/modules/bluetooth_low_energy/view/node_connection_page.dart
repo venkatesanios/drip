@@ -66,8 +66,6 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
     }
   }
 
-  /// Checks the necessary conditions to start scanning:
-  /// Bluetooth ON and Location enabled.
   Future<void> _checkRequirements() async {
     bool isBluetoothOn = await _isBluetoothEnabled();
     if (!isBluetoothOn) {
@@ -85,7 +83,6 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
     }
   }
 
-  /// Checks whether Bluetooth is currently enabled.
   Future<bool> _isBluetoothEnabled() async {
     try {
       final adapterState = await FlutterBluePlus.adapterState.first;
@@ -104,7 +101,6 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
     }
   }
 
-  /// Checks whether location services are enabled.
   Future<bool> _isLocationEnabled() async {
     return await Geolocator.isLocationServiceEnabled();
   }
@@ -459,7 +455,6 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
     );
   }
 
-
   Widget _bluetoothOffWidget() {
     return Padding(
       padding: const EdgeInsets.all(24.0),
@@ -522,7 +517,6 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
       ),
     );
   }
-
 
   Widget _locationOffWidget() {
     return Center(

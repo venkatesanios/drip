@@ -328,6 +328,15 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                                                           ),
                                                           TextButton(
                                                               onPressed: () async {
+                                                                if (AppConstants.gemModelList.contains(widget.masterData.modelId)) {
+                                                                  final pump = preferenceProvider.commonPumpSettings![preferenceProvider.selectedTabIndex];
+                                                                  final payload = jsonEncode({"sentSms": "viewconfig,4"});
+                                                                  final payload2 = jsonEncode({"0": payload});
+                                                                  final viewConfig = {
+                                                                    "5900": {"5901": "${pump.serialNumber}+${pump.referenceNumber}+${pump.deviceId}+${pump.interfaceTypeId}+$payload2+${pump.categoryId}"}
+                                                                  };
+                                                                  mqttService.topicToPublishAndItsMessage(jsonEncode(viewConfig), "${Environment.mqttPublishTopic}/${preferenceProvider.generalData!.deviceId}");
+                                                                }
                                                                 await Future.delayed(Duration.zero, () {
                                                                   preferenceProvider.updateValidationCode();
                                                                 });
@@ -1843,7 +1852,7 @@ Widget buildCustomListTileWidget({
         onChanged: (newValue) {
           enabled ? onValueChange?.call(newValue) : null;
         },
-      ) : Text(value,  overflow: TextOverflow.ellipsis,
+      ) : Text(value, overflow: TextOverflow.ellipsis,
         textAlign: TextAlign.right,
         style: const TextStyle(fontSize: 14),
       );

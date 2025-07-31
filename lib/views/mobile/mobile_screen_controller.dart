@@ -793,7 +793,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       backgroundColor: Colors.white,
       builder: (_) {
         return StatefulBuilder(builder: (context, setModalState) {
@@ -831,7 +831,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                   if(currentMaster.modelId==3)...[
                     ListTile(
                       title: const Text('Scan & Connect the controller via Bluetooth',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                       subtitle: const Text('Stay close to the controller near by 10 meters',
                           style: TextStyle(color: Colors.black45)),
                       trailing: const Icon(CupertinoIcons.arrow_right_circle),
@@ -891,7 +891,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) => BLEMobileScreen(deviceID: currentMaster.deviceId,
-                                              communicationType: 'Bluetooth'),
+                                                communicationType: 'Bluetooth'),
                                           ),
                                         );
                                       },

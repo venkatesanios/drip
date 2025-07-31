@@ -61,7 +61,6 @@ class _ViewConfigState extends State<ViewConfig> {
       final viewConfig = {
         "5900": {"5901": "${pump.serialNumber}+${pump.referenceNumber}+${pump.deviceId}+${pump.interfaceTypeId}+$payload2+${pump.categoryId}"}
       };
-      // print("published data ${pump.deviceId}");
       mqttService.topicToPublishAndItsMessage(jsonEncode(viewConfig), "${Environment.mqttPublishTopic}/${preferenceProvider.generalData!.deviceId}");
     } else {
       mqttService.topicToPublishAndItsMessage(jsonEncode({"sentSms": "viewconfig"}), "${Environment.mqttPublishTopic}/${preferenceProvider.generalData!.deviceId}");
@@ -419,6 +418,8 @@ class _ViewConfigState extends State<ViewConfig> {
                 final values = widget.isLora
                     ? provider.viewSetting['cM'].first['ctconfig'].split(',')
                     : '${jsonDecode(provider.viewSettingsList[0])[1]['ctconfig']}'.split(',');
+                print("settings.length :: ${setting.setting.length}");
+                print("settings.values :: ${values.length}");
                 return _buildSettingCard(setting, values);
               } else if ([204].contains(setting.type) && _hasPayload('voltageconfig', provider, deviceId)) {
                 final values = widget.isLora

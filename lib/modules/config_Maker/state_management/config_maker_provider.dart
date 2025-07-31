@@ -27,6 +27,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     4 : 'Moisture Configuration',
     5 : 'Line Configuration',
   };
+  int selectedConfigurationTab = 0;
   int rangeStart = -1;
   int rangeEnd = -1;
   bool rangeMode = false;
@@ -39,7 +40,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     5 : AppConstants.irrigationLineObjectId,
   };
 
-  int selectedConfigurationTab = 0;
+
   SelectionMode selectedSelectionMode = SelectionMode.auto;
   int selectedConnectionNo = 0;
   String selectedType = '';
@@ -314,6 +315,7 @@ class ConfigMakerProvider extends ChangeNotifier{
           categoryId: devices['categoryId'],
           categoryName: devices['categoryName'],
           modelId: devices['modelId'],
+          modelDescription: devices['modelDescription'] ?? '',
           modelName: devices['modelName'],
           interfaceTypeId: devices['interfaceTypeId'],
           interfaceInterval: 5,

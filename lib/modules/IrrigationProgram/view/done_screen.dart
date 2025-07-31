@@ -2,8 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/program_library.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/schedule_screen.dart';
 import 'package:provider/provider.dart';
+import '../../../services/mqtt_service.dart';
+import '../../../utils/constants.dart';
 import '../../../views/customer/program_schedule.dart';
 import '../repository/irrigation_program_repo.dart';
 import '../state_management/irrigation_program_provider.dart';
@@ -14,6 +17,7 @@ import '../widgets/custom_native_time_picker.dart';
 import '../../SystemDefinitions/widgets/custom_snack_bar.dart';
 import '../../../services/http_service.dart';
 import '../widgets/custom_sliding_button.dart';
+import '../widgets/progress_dialog_ecogem.dart';
 import 'conditions_screen.dart';
 
 class AdditionalDataScreen extends StatefulWidget {
@@ -312,7 +316,19 @@ class _AdditionalDataScreenState extends State<AdditionalDataScreen> {
   void sendFunction() async{
     final mainProvider = Provider.of<IrrigationProgramMainProvider>(context, listen: false);
     Map<String, dynamic> dataToMqtt = mainProvider.dataToMqtt(widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber, widget.programType);
-    var userData = {
+    Map<String, dynamic> dataToMqttEcoGem = mainProvider.dataToMqttForEcoGem(widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber, widget.programType);
+    final ecoGemWFPayload = mainProvider.ecoGemPayloadForWF(widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber);
+    List<String> ecoGemWFPayloadList = [];
+    ecoGemWFPayloadList.add(jsonEncode(dataToMqttEcoGem));
+    for(int i = 0; i < ecoGemWFPayload.length; i++) {
+      final payload = {
+        "260${i + 1}": {
+          "2501": ecoGemWFPayload[i]
+        }
+      };
+      ecoGemWFPayloadList.add(jsonEncode(payload));
+    }
+    Map<String, dynamic> userData = {
       "defaultProgramName": mainProvider.defaultProgramName,
       "userId": widget.customerId,
       "controllerId": widget.controllerId,
@@ -325,9 +341,9 @@ class _AdditionalDataScreenState extends State<AdditionalDataScreen> {
       var dataToSend = {
         "sequence": mainProvider.irrigationLine!.sequence,
         "schedule": mainProvider.sampleScheduleModel!.toJson(),
-        "conditions": {},
-        // "conditions": mainProvider.sampleConditions!.toJson(),
-        // "waterAndFert": [],
+        "conditions": mainProvider.sampleConditions != null
+            ? mainProvider.sampleConditions!.toJson()
+            : [],
         "waterAndFert": mainProvider.sequenceData,
         "selection": {
           ...mainProvider.additionalData!.toJson(),
@@ -341,76 +357,62 @@ class _AdditionalDataScreenState extends State<AdditionalDataScreen> {
         "incompleteRestart": mainProvider.isCompletionEnabled ? "1" : "0",
         "controllerReadStatus": '0',
         "programType": mainProvider.selectedProgramType,
-        "hardware": dataToMqtt
+        "hardware": AppConstants.ecoGemModelList.contains(widget.modelId) ? ecoGemWFPayloadList : dataToMqtt
       };
       userData.addAll(dataToSend);
-      // print(dataToMqtt['2500'][1]['2502'].split(',').join('\n'));
-      // print(dataToMqtt['2500'][1]['2502'].split(',').length);
+      // print("ecoGemWFPayloadList :: $ecoGemWFPayloadList");
+      // print("dataToMqtt :: ${dataToMqtt['2500']['2501']}");
+      // print("dataToMqtt :: ${dataToMqtt['2500']['2502']}");
       try {
-        // MQTTManager().publish(jsonEncode(dataToMqtt), "AppToFirmware/${widget.deviceId}");
-        /*await validatePayloadSent(
-            dialogContext: context,
+        if(AppConstants.ecoGemModelList.contains(widget.modelId)) {
+          final result = await showDialog<String>(
             context: context,
-            mqttPayloadProvider: mqttPayloadProvider,
-            acknowledgedFunction: () {
-              setState(() {
-                userData['controllerReadStatus'] = "1";
-              });
-              // showSnackBar(message: "${mqttPayloadProvider.messageFromHw['Name']} from controller", context: context);
-            },
-            payload: dataToMqtt,
-            payloadCode: "2500",
-            deviceId: widget.deviceId
-        ).whenComplete(() {
-          Future.delayed(const Duration(milliseconds: 300), () async {
-            final Repository repository = Repository(HttpService());
-            final createUserProgram = await repository.createUserProgram(userData);
-            final response = jsonDecode(createUserProgram.body);
-            if(createUserProgram.statusCode == 200) {
-              await irrigationProvider.programLibraryData(widget.userId, widget.controllerId);
-              ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: response['message']));
-              if(widget.toDashboard) {
-                irrigationProvider.updateBottomNavigation(0);
-                Navigator.of(context).pop();
-                print(irrigationProvider.selectedIndex);
-                // Navigator.push(
-                //   context,
-                //   // MaterialPageRoute(builder: (context) => HomeScreen(userId: widget.userId, fromDealer: widget.fromDealer,)),
-                // );
-              } else {
-                Navigator.of(context).pop();
-                irrigationProvider.updateBottomNavigation(1);
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) => HomeScreen(userId: widget.userId, fromDealer: widget.fromDealer,)),
-                // );
-              }
-            }
-          });
-        });*/
-        Future.delayed(const Duration(milliseconds: 300), () async {
-          final IrrigationProgramRepository repository = IrrigationProgramRepository(HttpService());
-          final createUserProgram = await repository.createUserProgram(userData);
-          final response = jsonDecode(createUserProgram.body);
-          if(createUserProgram.statusCode == 200) {
-            await mainProvider.programLibraryData(widget.userId, widget.controllerId);
-            ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: response['message']));
-            if(widget.toDashboard) {
-              Navigator.of(context).pop();
-            } else {
-              // Navigator.of(context).pop();
-              Navigator.of(context).pop();
-              Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => ProgramSchedule(customerID: widget.userId, controllerID: widget.controllerId, siteName: "", imeiNumber: widget.deviceId, userId: widget.userId, groupId: widget.groupId, categoryId: widget.categoryId, modelId: widget.modelId, deviceName: widget.deviceName, categoryName: widget.categoryName,))
+            barrierDismissible: false,
+            builder: (BuildContext context) {
+              return EcoGemProgressDialog(
+                payloads: ecoGemWFPayloadList,
+                deviceId: widget.deviceId,
+                mqttService: MqttService(),
               );
-            }
-        }});
-      } catch (error) {
+            },
+          );
+
+          if (result != null) {
+            setState(() {
+              userData['controllerReadStatus'] = result;
+            });
+          }
+        } else {
+          await validatePayloadSent(
+              dialogContext: context,
+              context: context,
+              mqttPayloadProvider: mqttPayloadProvider,
+              acknowledgedFunction: () {
+                setState(() {
+                  userData['controllerReadStatus'] = "1";
+                });
+                // showSnackBar(message: "${mqttPayloadProvider.messageFromHw['Name']} from controller", context: context);
+              },
+              payload: dataToMqtt,
+              payloadCode: "2500",
+              deviceId: widget.deviceId
+          );
+        }
+      } catch(error) {
         ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: 'Failed to update because of $error'));
         print("Error: $error");
       }
-      // print(mainProvider.selectionModel.data!.localFertilizerSet!.map((e) => e.toJson()));
+
+      Future.delayed(const Duration(milliseconds: 300), () async {
+        final IrrigationProgramRepository repository = IrrigationProgramRepository(HttpService());
+        final createUserProgram = await repository.createUserProgram(userData);
+        final response = jsonDecode(createUserProgram.body);
+        if(createUserProgram.statusCode == 200) {
+          await mainProvider.programLibraryData(widget.userId, widget.controllerId);
+          ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: response['message']));
+          Navigator.of(context).pop();
+        }
+      });
     }
     else {
       showAdaptiveDialog<Future>(
