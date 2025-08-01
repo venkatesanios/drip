@@ -6,6 +6,7 @@ import '../../StateManagement/search_provider.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/constants.dart';
+import '../../utils/enums.dart';
 import '../../view_models/admin_dealer/inventory_view_model.dart';
 
 class ProductInventory extends StatefulWidget {

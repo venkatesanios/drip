@@ -4,6 +4,7 @@ import '../models/country_list_model.dart';
 import '../models/state_list_model.dart';
 import '../repository/repository.dart';
 import '../utils/constants.dart';
+import '../utils/enums.dart';
 
 class CreateAccountViewModel extends ChangeNotifier {
   final Repository repository;

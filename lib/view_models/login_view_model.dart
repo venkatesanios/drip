@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import '../models/user_model.dart';
 import '../repository/repository.dart';
 import '../utils/shared_preferences_helper.dart';
 
@@ -9,22 +10,17 @@ class LoginViewModel extends ChangeNotifier {
   bool isLoading = false;
   String errorMessage = "";
 
-
   String countryCode = '91';
   late TextEditingController mobileNoController;
   late TextEditingController passwordController;
   bool isObscure = true;
 
   final ApiRepository repository;
-  final Function(String) onLoginSuccess;
+  final Function(UserModel) onLoginSuccess;
 
   LoginViewModel({required this.repository, required this.onLoginSuccess}) {
     initState();
   }
-
- /* LoginViewModel(this.repository, {required this.onLoginSuccess}){
-    initState();
-  }*/
 
   void initState() {
     mobileNoController = TextEditingController();
@@ -65,35 +61,31 @@ class LoginViewModel extends ChangeNotifier {
         'isMobile' : kIsWeb? false : true,
       };
 
-
       final response = await repository.checkLoginAuth(body);
       final data = jsonDecode(response.body);
       if (response.statusCode == 200 && data['code'] == 200) {
 
-        final customerData = data["data"];
-        final user = customerData["user"];
-        print("login user $user");
-        String countryCodeFinal = countryCode.replaceAll('+', '');
+        final userData = data['data']['user'];
+        final userModel = UserModel.fromJson(userData);
 
         await PreferenceHelper.saveUserDetails(
-          token: user['accessToken'],
-          userId: user['userId'],
-          userName: user['userName'],
-          role: user['userType']=='1'? 'admin' : user['userType']=='2' ? 'dealer' :'customer',
-          countryCode: countryCodeFinal,
-          mobileNumber: mobileNumber,
-          email: user['email'],
+          token: userModel.token,
+          userId: userModel.userId,
+          userName: userModel.userName,
+          role: userModel.role.name,
+          countryCode: userModel.countryCode.replaceAll('+', ''),
+          mobileNumber: userModel.mobileNumber,
+          email: userModel.email,
         );
 
-        onLoginSuccess(user['userType']=='1'? 'admin' :
-        user['userType']=='2'? 'dealer':'customer');
+        onLoginSuccess(userModel);
 
       } else {
         isLoading = false;
         errorMessage = data['message'];
         notifyListeners();
       }
-    } catch (error, stackTrace) {
+    } catch (error) {
       isLoading = false;
       errorMessage = "An error occurred: $error";
       notifyListeners();

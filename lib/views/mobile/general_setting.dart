@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/constants.dart';
+import '../../utils/enums.dart';
 import '../../view_models/customer/general_setting_view_model.dart';
 import '../create_account.dart';
 

@@ -5,7 +5,7 @@ import '../Constants/data_convertion.dart';
 import '../Models/Weather_model.dart';
 import '../Models/customer/site_model.dart';
 import '../Screens/Map/googlemap_model.dart';
-import '../services/bluetooth_sevice.dart';
+import '../services/bluetooth_service.dart';
 
 enum MQTTConnectionState { connected, disconnected, connecting }
 

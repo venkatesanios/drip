@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:provider/provider.dart';
 import '../flavors.dart';
+import '../providers/user_provider.dart';
 import '../repository/repository.dart';
 import '../services/http_service.dart';
 import '../utils/constants.dart';
@@ -20,7 +21,8 @@ class LoginScreen extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => LoginViewModel(
         repository: RepositoryImpl(HttpService()),
-        onLoginSuccess: (pageRoute) {
+        onLoginSuccess: (userModel) {
+          Provider.of<UserProvider>(context, listen: false).setLoggedInUser(userModel);
           Navigator.pushReplacementNamed(context, '/dashboard');
         },
       ),
@@ -45,12 +47,10 @@ class LoginScreen extends StatelessWidget {
           child: Container(
             height: double.infinity,
             color: Theme.of(context).primaryColorDark,
-            child: F.appFlavor!.name.contains('oro')
-                ? Padding(
+            child: F.appFlavor!.name.contains('oro') ? Padding(
               padding: const EdgeInsets.all(50.0),
               child: SvgPicture.asset('assets/svg_images/login_left_picture.svg'),
-            )
-                : const Image(
+            ) : const Image(
               image: AssetImage('assets/png/lk_login_left_picture.png'),
               fit: BoxFit.fill,
             ),
@@ -64,7 +64,7 @@ class LoginScreen extends StatelessWidget {
               color: Colors.white,
               child: Column(
                 children: [
-                  F.appFlavor!.name.contains('oro')?Expanded(
+                  F.appFlavor!.name.contains('oro') ? Expanded(
                     child: Container(
                       color: Colors.white,
                       child: Row(
@@ -258,7 +258,7 @@ class LoginScreen extends StatelessWidget {
                             style: TextStyle(color: Colors.white70, fontSize: 11),
                             textAlign: TextAlign.center),
                       ),
-                    )
+                    ),
                   ],
                 ),
                 Padding(
