@@ -5,7 +5,6 @@ import 'package:oro_drip_irrigation/views/admin/mobile/admin_mobile.dart';
 import 'package:oro_drip_irrigation/views/admin/tablet/admin_tablet.dart';
 import 'package:provider/provider.dart';
 
-import '../flavors.dart';
 import '../view_models/admin_header_view_model.dart';
 import '../views/admin/web/admin_web.dart';
 

@@ -602,9 +602,9 @@ class CustomerScreenController extends StatelessWidget {
                               child: SizedBox(
                                 height: 45,
                                 width: 45,
-                                child: [56, 57, 58, 59].contains(currentMaster.modelId) ?
+                                child:/* [56, 57, 58, 59].contains(currentMaster.modelId) ?
                                 NovaInfoButton(deviceID: currentMaster.deviceId,
-                                    customerId: customerId, controllerId: currentMaster.controllerId):
+                                    customerId: customerId, controllerId: currentMaster.controllerId):*/
                                 IconButton(
                                   tooltip: 'Node status',
                                   onPressed: () {
