@@ -516,8 +516,14 @@ class StandAloneViewModel extends ChangeNotifier {
 
 
     if(ddCurrentPosition==0) {
+      List<String> allPumpSrlNo = [];
       List<String> allRelaySrlNo = [];
       String strSldValveSrlNo = '';
+
+      allPumpSrlNo = [
+        strSldSourcePumpSrlNo,
+        strSldIrrigationPumpSrlNo
+      ];
 
       for (var line in masterData.irrigationLine) {
         for (int j = 0; j < line.valveObjects.length; j++) {
@@ -535,13 +541,14 @@ class StandAloneViewModel extends ChangeNotifier {
           0, strSldValveSrlNo.length - 1) : '';
 
       allRelaySrlNo = [
-        strSldSourcePumpSrlNo,
         strSldValveSrlNo,
         strSldCtrlFilterSrlNo,
         strSldCtrlFrtBoosterSrlNo,
         strSldCtrlFrtChannelSrlNo,
         strSldCtrlFrtAgitatorSrlNo,
       ];
+
+      print(allRelaySrlNo);
 
       if (strSldIrrigationPumpSrlNo.isNotEmpty && strSldValveSrlNo.isEmpty)
       {
@@ -559,7 +566,7 @@ class StandAloneViewModel extends ChangeNotifier {
                     ),
                     TextButton(
                       onPressed: () {
-                        startByStandaloneDefault(context, allRelaySrlNo, strSldIrrigationPumpSrlNo);
+                        startByStandaloneDefault(context, allRelaySrlNo, allPumpSrlNo);
                         Navigator.pop(dgContext, 'OK');
                       },
                       child: const Text('Yes'),
@@ -569,7 +576,7 @@ class StandAloneViewModel extends ChangeNotifier {
         );
       }
       else {
-        startByStandaloneDefault(context, allRelaySrlNo, strSldIrrigationPumpSrlNo);
+        startByStandaloneDefault(context, allRelaySrlNo, allPumpSrlNo);
         Navigator.pop(context, 'OK');
       }
     }
@@ -795,11 +802,12 @@ class StandAloneViewModel extends ChangeNotifier {
     return result.isNotEmpty ? result.substring(0, result.length - 1) : '';
   }
 
-  void startByStandaloneDefault(context, List<String> allRelaySrlNo, String pumpRelay){
-    String finalResult = allRelaySrlNo.where((s) => s.isNotEmpty).join('_');
+  void startByStandaloneDefault(context, List<String> allRelaySrlNo, List<String> allPumpSno){
+    String pumpRelays = allPumpSno.where((s) => s.isNotEmpty).join('_');
+    String otherRelays = allRelaySrlNo.where((s) => s.isNotEmpty).join('_');
+
     String payload = '';
     String payLoadFinal = '';
-    print('all Relay : $finalResult');
 
     if(standAloneMethod==1 && strDuration=='00:00:00'){
       ScaffoldMessenger.of(context).showSnackBar(
@@ -809,7 +817,7 @@ class StandAloneViewModel extends ChangeNotifier {
         ),
       );
     }else{
-      payload = '${finalResult==''?0:1},$pumpRelay,${finalResult==''?0:finalResult},$standAloneMethod,${standAloneMethod==3?'0':standAloneMethod==1?strDuration:strFlow}';
+      payload = '1,$pumpRelays,$otherRelays,$standAloneMethod,${standAloneMethod==3?'0':standAloneMethod==1?strDuration:strFlow}';
       payLoadFinal = jsonEncode({
         "800": {"801": payload}
       });

@@ -8,7 +8,7 @@ import '../../Models/customer/site_model.dart';
 import '../../StateManagement/customer_provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../repository/repository.dart';
-import '../../services/bluetooth_sevice.dart';
+import '../../services/bluetooth_service.dart';
 import '../../services/communication_service.dart';
 import '../../services/mqtt_service.dart';
 import '../../utils/constants.dart';

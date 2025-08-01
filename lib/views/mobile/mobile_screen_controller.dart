@@ -7,6 +7,7 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart' hide BluetoothDevice;
 import 'package:oro_drip_irrigation/Screens/Dealer/sevicecustomer.dart';
 import 'package:oro_drip_irrigation/Screens/Logs/irrigation_and_pump_log.dart';
 import 'package:oro_drip_irrigation/modules/ScheduleView/view/schedule_view_screen.dart';
+import 'package:oro_drip_irrigation/modules/UserChat/view/user_chat.dart';
 import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
 import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
@@ -381,7 +382,12 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
               title: const Text(
                   "Help", style: TextStyle(fontWeight: FontWeight.bold)),
               trailing: const Icon(Icons.keyboard_arrow_right_rounded),
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                    context,
+                  MaterialPageRoute(builder: (BuildContext context) => UserChatScreen(userId: widget.customerId, userName: widget.customerName, phoneNumber: widget.mobileNo))
+                );
+              },
             ),
             Padding(
               padding: const EdgeInsets.only(left: 40, right: 25),

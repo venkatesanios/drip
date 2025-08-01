@@ -17,7 +17,7 @@ class StockModel
     return StockModel(
       productId: int.tryParse(json['productId'].toString()) ?? 0,
       categoryName: json['categoryName'],
-      model: json['modelName'],
+      model: json['modelDescription'],
       modelId: int.tryParse(json['modelId'].toString()) ?? 0,
       imeiNo: json['deviceId'],
       dtOfMnf: json['dateOfManufacturing'],

@@ -21,8 +21,9 @@ import '../../flavors.dart';
 import '../../modules/PumpController/view/node_settings.dart';
 import '../../modules/ScheduleView/view/schedule_view_screen.dart';
 import '../../modules/PumpController/view/pump_controller_home.dart';
+import '../../modules/UserChat/view/user_chat.dart';
 import '../../repository/repository.dart';
-import '../../services/bluetooth_sevice.dart';
+import '../../services/bluetooth_service.dart';
 import '../../services/communication_service.dart';
 import '../../services/http_service.dart';
 import '../../utils/constants.dart';
@@ -337,6 +338,10 @@ class CustomerScreenController extends StatelessWidget {
                                   title: const Text('Help'),
                                   onTap: () {
                                     Navigator.pop(context);
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (BuildContext context) => UserChatScreen(userId: customerId, userName: customerName, phoneNumber: mobileNo))
+                                    );
                                   },
                                 ),
                                 ListTile(

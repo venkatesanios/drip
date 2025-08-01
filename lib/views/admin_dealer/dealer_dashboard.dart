@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:oro_drip_irrigation/views/admin_dealer/sales_bar_chart.dart';
 import 'package:provider/provider.dart';
+import '../../modules/UserChat/view/user_chat.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/constants.dart';
+import '../../utils/enums.dart';
 import '../../utils/snack_bar.dart';
 import '../../view_models/admin_dealer/admin_dealer_dashboard_view_model.dart';
 import '../create_account.dart';
@@ -290,8 +292,8 @@ class DealerDashboard extends StatelessWidget {
                   columns: [
                     DataColumn2(label: Center(child: AppConstants().txtSNo), fixedWidth: 50),
                     DataColumn(label: AppConstants().txtCategory),
-                    DataColumn(label: AppConstants().txtModel),
-                    DataColumn2(label: Center(child: AppConstants().txtIMEI), size: ColumnSize.L),
+                    DataColumn2(label: AppConstants().txtModel, size: ColumnSize.L),
+                    DataColumn2(label: Center(child: AppConstants().txtIMEI), size: ColumnSize.S),
                     DataColumn2(label: Center(child: AppConstants().txtMDate), fixedWidth: 150),
                     DataColumn2(label: Center(child: AppConstants().txtWarranty), fixedWidth: 100),
                   ],
@@ -397,10 +399,25 @@ class DealerDashboard extends StatelessWidget {
                       backgroundImage: AssetImage("assets/png/user_thumbnail.png"),
                       backgroundColor: Colors.transparent,
                     ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        /* IconButton(
+                    contentPadding: EdgeInsets.only(left: 10),
+                    trailing: IntrinsicWidth(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                              onPressed: (){
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (BuildContext context) => UserChatScreen(
+                                        userId: viewModel.myCustomerList[index].userId,
+                                        userName: viewModel.myCustomerList[index].userName,
+                                        phoneNumber: '+${customer.countryCode} ${customer.mobileNumber}')
+                                    )
+                                );
+                              },
+                              icon: const Icon(Icons.chat)
+                          ),
+                          /* IconButton(
                                         tooltip: 'chart',
                                         onPressed: (){
                                           Navigator.push(
@@ -446,25 +463,26 @@ class DealerDashboard extends StatelessWidget {
                                         badgeNumber: customer.criticalAlarmCount + customer.serviceRequestCount,
                                       ):
                                       const SizedBox(),*/
-                        IconButton(
-                          tooltip: 'View and Add new product',
-                          onPressed: (){
-                            showModalBottomSheet(
-                              context: context,
-                              elevation: 10,
-                              isScrollControlled: true,
-                              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5))),
-                              builder: (BuildContext context) {
-                                return CustomerDeviceList(userId: userId, customerName: viewModel.myCustomerList[index]
-                                    .userName, customerId: viewModel.myCustomerList[index]
-                                    .userId, userRole: 'Customer', productStockList: viewModel.productStockList,
-                                    onCustomerProductChanged: viewModel.onCustomerProductChanged);
-                              },
-                            );
-                          },
-                          icon: const Icon(Icons.playlist_add),
-                        ),
-                      ],
+                          IconButton(
+                            tooltip: 'View and Add new product',
+                            onPressed: (){
+                              showModalBottomSheet(
+                                context: context,
+                                elevation: 10,
+                                isScrollControlled: true,
+                                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5))),
+                                builder: (BuildContext context) {
+                                  return CustomerDeviceList(userId: userId, customerName: viewModel.myCustomerList[index]
+                                      .userName, customerId: viewModel.myCustomerList[index]
+                                      .userId, userRole: 'Customer', productStockList: viewModel.productStockList,
+                                      onCustomerProductChanged: viewModel.onCustomerProductChanged);
+                                },
+                              );
+                            },
+                            icon: const Icon(Icons.playlist_add),
+                          ),
+                        ],
+                      ),
                     ),
                     title: Text(customer.userName, style: const TextStyle(fontSize: 13,fontWeight: FontWeight.bold)),
                     subtitle: Text('+${customer.countryCode} ${customer.mobileNumber}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.normal)),

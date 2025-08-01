@@ -17,7 +17,7 @@ class DeviceListModel
     productId: json['productId'],
     productStatus: json['productStatus'],
     categoryName: json['categoryName'],
-    model: json['modelName'],
+    model: json['modelDescription'],
     deviceId: json['deviceId'],
     siteName: json['siteName'] ?? '',
     modifyDate: json['modifyDate'],

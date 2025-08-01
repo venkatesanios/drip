@@ -27,7 +27,6 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    print("enter my app..............");
     if(!kIsWeb){
       NotificationServiceCall().initialize();
       NotificationServiceCall().configureFirebaseMessaging();
@@ -37,15 +36,10 @@ class _MyAppState extends State<MyApp> {
   /// Decide the initial route based on whether a token exists
   Future<String> getInitialRoute() async {
     try {
-      print("getInitialRoute---");
       final token = await PreferenceHelper.getToken();
-      print("token--->$token");
-      // Check if token is valid
       if (token != null && token.trim().isNotEmpty) {
-        print("Navigating to dashboard");
         return Routes.dashboard;
       } else {
-        print("No valid token, navigating to login");
         return Routes.login;
       }
     } catch (e) {
@@ -56,7 +50,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    print('Flavor is: ${F.appFlavor}');
+    debugPrint('Flavor is: ${F.appFlavor}');
     bool isDarkMode = false;
     return FutureBuilder<String>(
       future: getInitialRoute(),

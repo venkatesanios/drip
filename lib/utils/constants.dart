@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
+import 'enums.dart';
 import 'environment.dart';
 
-enum UserRole { admin, dealer, subUser }
+/*enum UserRole { admin, dealer, subUser }*/
 
 enum GemProgramStartStopReasonCode {
   rs1(1, 'Running As Per Schedule'),
@@ -230,49 +230,49 @@ class AppConstants {
   static const String gateOFF = "gate_close.png";
   static const String gateON = "gate_open.png";
 
-  static const Map<UserRole, String> formTitle = {
+  static final Map<UserRole, String> formTitle = {
     UserRole.admin: "Dealer Account Form",
     UserRole.dealer: "Customer Account Form",
     UserRole.subUser: "Sub User Account Form",
   };
 
-  static const Map<UserRole, String> nameErrors = {
+  static final Map<UserRole, String> nameErrors = {
     UserRole.admin: "Please enter your dealer name",
     UserRole.dealer: "Please enter your customer name",
     UserRole.subUser: "Please enter your sub-user name",
   };
 
-  static const Map<UserRole, String> mobileErrors = {
+  static final Map<UserRole, String> mobileErrors = {
     UserRole.admin: "Please enter your dealer mobile number",
     UserRole.dealer: "Please enter your customer mobile number",
     UserRole.subUser: "Please enter your sub-user mobile number",
   };
 
-  static const Map<UserRole, String> emailErrors = {
+  static final Map<UserRole, String> emailErrors = {
     UserRole.admin: "Please enter your dealer email",
     UserRole.dealer: "Please enter your customer email",
     UserRole.subUser: "Please enter your sub-user email",
   };
 
-  static const Map<UserRole, String> countryErrors = {
+  static final Map<UserRole, String> countryErrors = {
     UserRole.admin: "Please select your dealer country",
     UserRole.dealer: "Please select your customer country",
     UserRole.subUser: "Please select your sub-user country",
   };
 
-  static const Map<UserRole, String> stateErrors = {
+  static final Map<UserRole, String> stateErrors = {
     UserRole.admin: "Please select your dealer state",
     UserRole.dealer: "Please select your customer state",
     UserRole.subUser: "Please select your sub-user state",
   };
 
-  static const Map<UserRole, String> cityErrors = {
+  static final Map<UserRole, String> cityErrors = {
     UserRole.admin: "Please enter your dealer city",
     UserRole.dealer: "Please enter your customer city",
     UserRole.subUser: "Please enter your sub-user city",
   };
 
-  static const Map<UserRole, String> addressErrors = {
+  static final Map<UserRole, String> addressErrors = {
     UserRole.admin: "Please enter your dealer address",
     UserRole.dealer: "Please enter your customer address",
     UserRole.subUser: "Please enter your sub-user address",

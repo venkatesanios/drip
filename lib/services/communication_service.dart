@@ -1,14 +1,11 @@
 import 'dart:convert';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:mqtt_client/mqtt_client.dart';
 import '../StateManagement/customer_provider.dart';
 import '../repository/repository.dart';
 import '../utils/constants.dart';
 import '../utils/network_utils.dart';
 import '../utils/shared_preferences_helper.dart';
-import 'bluetooth_sevice.dart';
+import 'bluetooth_service.dart';
 import 'http_service.dart';
 import 'mqtt_service.dart';
 
