@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/repository/config_maker_repository.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
@@ -27,7 +28,6 @@ class ConfigMakerProvider extends ChangeNotifier{
     4 : 'Moisture Configuration',
     5 : 'Line Configuration',
   };
-  int selectedConfigurationTab = 0;
   int rangeStart = -1;
   int rangeEnd = -1;
   bool rangeMode = false;
@@ -40,7 +40,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     5 : AppConstants.irrigationLineObjectId,
   };
 
-
+  int selectedConfigurationTab = 0;
   SelectionMode selectedSelectionMode = SelectionMode.auto;
   int selectedConnectionNo = 0;
   String selectedType = '';
@@ -397,16 +397,16 @@ class ConfigMakerProvider extends ChangeNotifier{
     return listOfDeviceModel;
   }
 
-  Future<int> replaceDevice({required dynamic deviceData})async {
-    print("deviceData : ${deviceData}");
+  Future<int> replaceDevice({required dynamic newDevice,required dynamic oldDevice, required int masterOrNode})async {
+    print("newDevice : ${newDevice}");
     try{
       var body = {
         "userId" : masterData['userId'],
-        "oldControllerId" : masterData['controllerId'],
-        "oldDeviceId" : masterData['deviceId'],
-        "newDeviceId" : deviceData['deviceId'],
-        "oldModelId" : masterData['modelId'],
-        "newModelId" : deviceData['modelId'],
+        "oldControllerId" : oldDevice['controllerId'],
+        "oldDeviceId" : oldDevice['deviceId'],
+        "newDeviceId" : newDevice['deviceId'],
+        "oldModelId" : oldDevice['modelId'],
+        "newModelId" : newDevice['modelId'],
         "modifyUser" : masterData['userId']
       };
       var response = await ConfigMakerRepository().productReplace(body);
@@ -414,7 +414,15 @@ class ConfigMakerProvider extends ChangeNotifier{
       print('jsonData : $jsonData');
       notifyListeners();
       if(jsonData['code'] == 200){
-        masterData['deviceId'] = deviceData['deviceId'];
+        if(masterOrNode == 1){
+          masterData['deviceId'] = newDevice['deviceId'];
+        }else{
+          for(var device in listOfDeviceModel){
+            if(device.controllerId == oldDevice["controllerId"]){
+              device.deviceId = oldDevice["deviceId"];
+            }
+          }
+        }
         notifyListeners();
         return 200;
       }else{

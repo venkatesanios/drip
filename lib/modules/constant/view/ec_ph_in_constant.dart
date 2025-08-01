@@ -122,7 +122,6 @@ class _EcPhInConstantState extends State<EcPhInConstant> {
                                 );
                               }
                           )
-
                       ],
                     )
                 );
@@ -130,8 +129,6 @@ class _EcPhInConstantState extends State<EcPhInConstant> {
             ]
         );
       }),
-
     );
-
   }
 }

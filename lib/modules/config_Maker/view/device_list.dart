@@ -203,7 +203,22 @@ class _DeviceListState extends State<DeviceList> {
                                       }
                                     },
                                   ),
-                                  replaceDeviceIdWidget(masterOrNode: 2, device: device),
+                                  if(userRole == 'admin')
+                                    editDeviceIdWidget(masterOrNode: 2, device: device),
+                                  if(userRole == 'dealer')
+                                    IconButton(
+                                        onPressed: (){
+                                          showDialog(
+                                              context: context,
+                                              builder: (context){
+                                                return AlertDialog(
+                                                  content: DropDownSearchField(productStock: configPvd.productStock,oldDevice: device.toJson(), masterOrNode: 2, ),
+                                                );
+                                              }
+                                          );
+                                        },
+                                        icon: Icon(Icons.find_replace)
+                                    )
                                 ],
                               ),
                             ),
@@ -219,13 +234,10 @@ class _DeviceListState extends State<DeviceList> {
     );
   }
 
-  Widget replaceDeviceIdWidget({required int masterOrNode, DeviceModel? device}){
+  Widget editDeviceIdWidget({required int masterOrNode, DeviceModel? device}){
     return IconButton(
       icon: const Icon(Icons.edit_note_outlined,),
       onPressed: (){
-        if(device != null){
-          print("device : ${device!.toJson()}");
-        }
         setState(() {
           replaceDeviceId = masterOrNode == 1 ? configPvd.masterData['deviceId'] : device!.deviceId;
         });
@@ -236,7 +248,7 @@ class _DeviceListState extends State<DeviceList> {
                 title: const Text('Replace Device ID'),
                 content: TextFormField(
                   initialValue: replaceDeviceId,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                       border: OutlineInputBorder()
                   ),
                   onChanged: (value){
@@ -375,7 +387,7 @@ class _DeviceListState extends State<DeviceList> {
           children: [
             SelectableText('${configPvd.masterData['deviceId']}', style: themeData.textTheme.bodySmall,),
             if(userRole == 'admin')
-              replaceDeviceIdWidget(masterOrNode: 1),
+              editDeviceIdWidget(masterOrNode: 1),
             if(userRole == 'dealer')
               IconButton(
                 onPressed: (){
@@ -383,7 +395,7 @@ class _DeviceListState extends State<DeviceList> {
                       context: context,
                       builder: (context){
                         return AlertDialog(
-                          content: DropDownSearchField(productStock: configPvd.productStock, modelId: configPvd.masterData['modelId'],),
+                          content: DropDownSearchField(productStock: configPvd.productStock,oldDevice: configPvd.masterData, masterOrNode: 1, ),
                         );
                       }
                   );

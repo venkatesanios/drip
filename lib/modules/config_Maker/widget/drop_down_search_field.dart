@@ -7,9 +7,10 @@ import '../state_management/config_maker_provider.dart';
 
 class DropDownSearchField extends StatefulWidget {
   final List<dynamic> productStock;
-  final int modelId;
+  final Map<String, dynamic> oldDevice;
+  final int masterOrNode;
 
-  DropDownSearchField({super.key, required this.productStock, required this.modelId});
+  DropDownSearchField({super.key, required this.productStock, required this.oldDevice, required this.masterOrNode});
 
   @override
   _DropDownSearchFieldState createState() => _DropDownSearchFieldState();
@@ -26,7 +27,7 @@ class _DropDownSearchFieldState extends State<DropDownSearchField> {
   List<String> getSuggestions(String query) {
     List<String> matches = <String>[];
     matches.addAll(widget.productStock
-        .where((device) => device['modelId'] == widget.modelId)
+        .where((device) => device['modelId'] == widget.oldDevice["modelId"])
         .map((device) => device['deviceId'].toString())
         .toList());
 
@@ -87,7 +88,7 @@ class _DropDownSearchFieldState extends State<DropDownSearchField> {
                     _formKey.currentState!.save();
                     // Optionally use `_selectedFruit` here
                   }
-                  int statusCode = await configPvd.replaceDevice(deviceData: widget.productStock.firstWhere((device) => device['deviceId'] == _dropdownSearchFieldController.text));
+                  int statusCode = await configPvd.replaceDevice(newDevice: widget.productStock.firstWhere((device) => device['deviceId'] == _dropdownSearchFieldController.text), oldDevice: widget.oldDevice, masterOrNode: widget.masterOrNode);
                   if(statusCode == 200){
                     Navigator.pop(context);
                     simpleDialogBox(
