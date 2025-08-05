@@ -17,7 +17,7 @@ class LayoutSelector extends StatelessWidget {
       case UserRole.subUser:
         return const CustomerLayout();
       case UserRole.superAdmin:
-        throw UnimplementedError('SuperAdmin layout not implemented');
+        throw UnimplementedError('Super Admin layout');
     }
   }
 

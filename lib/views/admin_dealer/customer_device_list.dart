@@ -85,9 +85,9 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
                 tabs: tabList.map((label) => Tab(child: Text(label))).toList(),
               ),
             ),
-            body: viewModel.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : TabBarView(
+            body: viewModel.isLoading ?
+            const Center(child: CircularProgressIndicator()) :
+            TabBarView(
               controller: tabController,
               children: [
                 const CustomerDeviceTable(),

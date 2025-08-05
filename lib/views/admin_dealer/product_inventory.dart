@@ -60,10 +60,12 @@ class _ProductInventoryState extends State<ProductInventory> {
     return ChangeNotifierProvider.value(
       value: viewModel,
       child: Consumer<InventoryViewModel>(
-        builder: (context, viewModel, _) {
+        builder: (context, vm, _) {
+
+          print("viewModel.userRole:${vm.userRole}");
           return Scaffold(
               backgroundColor: Theme.of(context).primaryColorDark.withAlpha(1),
-              body: viewModel.isLoading? Center(
+              body: vm.isLoading? Center(
                 child: Visibility(
                   visible: true,
                   child: Container(
@@ -80,7 +82,7 @@ class _ProductInventoryState extends State<ProductInventory> {
                     children: [
                       Expanded(
                         child: DataTable2(
-                          scrollController: viewModel.scrollController,
+                          scrollController: vm.scrollController,
                           columnSpacing: 12,
                           horizontalMargin: 12,
                           minWidth: 1200,
@@ -129,37 +131,36 @@ class _ProductInventoryState extends State<ProductInventory> {
                               fixedWidth: 55,
                             ),
                           ],
-                          rows: viewModel.searched ? List<DataRow>.generate(viewModel.filterProductInventoryList.length, (index) => DataRow(cells: [
+                          rows: vm.searched ? List<DataRow>.generate(vm.filterProductInventoryList.length, (index) => DataRow(cells: [
                             DataCell(Center(child: Text('${index + 1}'))),
-                            DataCell(Center(child: Text(viewModel.filterProductInventoryList[index].categoryName))),
-                            DataCell(Center(child: Text(viewModel.filterProductInventoryList[index].modelName))),
-                            DataCell(
-                              Center(
+                            DataCell(Center(child: Text(vm.filterProductInventoryList[index].categoryName))),
+                            DataCell(Center(child: Text(vm.filterProductInventoryList[index].modelName))),
+                            DataCell(Center(
                                 child: SelectableText(
-                                    viewModel.filterProductInventoryList[index].deviceId, style: const TextStyle(fontSize: 12)
+                                    vm.filterProductInventoryList[index].deviceId, style: const TextStyle(fontSize: 12)
                                 ),
                               ),
                             ),
-                            DataCell(Center(child: Text(viewModel.filterProductInventoryList[index].dateOfManufacturing))),
-                            DataCell(Center(child: Text('${viewModel.filterProductInventoryList[index].warrantyMonths}'))),
+                            DataCell(Center(child: Text(vm.filterProductInventoryList[index].dateOfManufacturing))),
+                            DataCell(Center(child: Text('${vm.filterProductInventoryList[index].warrantyMonths}'))),
                             DataCell(
-                                viewedCustomer!.role == UserRole.admin ? Row(
+                                vm.userRole == UserRole.admin ? Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     CircleAvatar(radius: 5,
                                       backgroundColor:
-                                      viewModel.filterProductInventoryList[index].productStatus==1? Colors.pink:
-                                      viewModel.filterProductInventoryList[index].productStatus==2? Colors.blue:
-                                      viewModel.filterProductInventoryList[index].productStatus==3? Colors.purple:
-                                      viewModel.filterProductInventoryList[index].productStatus==4? Colors.yellow:
-                                      viewModel.filterProductInventoryList[index].productStatus==5? Colors.deepOrangeAccent:
+                                      vm.filterProductInventoryList[index].productStatus==1? Colors.pink:
+                                      vm.filterProductInventoryList[index].productStatus==2? Colors.blue:
+                                      vm.filterProductInventoryList[index].productStatus==3? Colors.purple:
+                                      vm.filterProductInventoryList[index].productStatus==4? Colors.yellow:
+                                      vm.filterProductInventoryList[index].productStatus==5? Colors.deepOrangeAccent:
                                       Colors.green,
                                     ),
-                                    const SizedBox(width: 5,),
-                                    viewModel.filterProductInventoryList[index].productStatus==1? const Text('In-Stock'):
-                                    viewModel.filterProductInventoryList[index].productStatus==2? const Text('Stock'):
-                                    viewModel.filterProductInventoryList[index].productStatus==3? const Text('Sold-Out'):
+                                    const SizedBox(width: 5),
+                                    vm.filterProductInventoryList[index].productStatus==1? const Text('In-Stock'):
+                                    vm.filterProductInventoryList[index].productStatus==2? const Text('Stock'):
+                                    vm.filterProductInventoryList[index].productStatus==3? const Text('Sold-Out'):
                                     const Text('Active'),
                                   ],
                                 ):
@@ -169,62 +170,62 @@ class _ProductInventoryState extends State<ProductInventory> {
                                   children: [
                                     CircleAvatar(radius: 5,
                                       backgroundColor:
-                                      viewModel.filterProductInventoryList[index].productStatus==1? Colors.pink:
-                                      viewModel.filterProductInventoryList[index].productStatus==2? Colors.purple:
-                                      viewModel.filterProductInventoryList[index].productStatus==3? Colors.yellow:
+                                      vm.filterProductInventoryList[index].productStatus==1? Colors.pink:
+                                      vm.filterProductInventoryList[index].productStatus==2? Colors.purple:
+                                      vm.filterProductInventoryList[index].productStatus==3? Colors.yellow:
                                       Colors.green,
                                     ),
                                     const SizedBox(width: 5,),
-                                    viewModel.filterProductInventoryList[index].productStatus==2? const Text('In-Stock'):
-                                    viewModel.filterProductInventoryList[index].productStatus==3? const Text('Sold-Out'):
+                                    vm.filterProductInventoryList[index].productStatus==2? const Text('In-Stock'):
+                                    vm.filterProductInventoryList[index].productStatus==3? const Text('Sold-Out'):
                                     const Text('Active'),
                                   ],
                                 )
                             ),
-                            DataCell(Center(child: viewedCustomer.name==viewModel.filterProductInventoryList[index].latestBuyer? Text('-'):Text(viewModel.filterProductInventoryList[index].latestBuyer))),
+                            DataCell(Center(child: viewedCustomer!.name == vm.filterProductInventoryList[index].latestBuyer? Text('-'):Text(viewModel.filterProductInventoryList[index].latestBuyer))),
                             const DataCell(Center(child: Text('25-09-2023'))),
-                            viewedCustomer.role == UserRole.admin ? DataCell(Center(child:
+                            vm.userRole == UserRole.admin ? DataCell(Center(child:
                             IconButton(tooltip:'Edit product', onPressed: () {
-                              viewModel.getModelByActiveList(context, viewModel.filterProductInventoryList[index].categoryId, viewModel.filterProductInventoryList[index].categoryName,
-                                  viewModel.filterProductInventoryList[index].modelName, viewModel.filterProductInventoryList[index].modelId, viewModel.filterProductInventoryList[index].deviceId,
-                                  viewModel.filterProductInventoryList[index].warrantyMonths, viewModel.filterProductInventoryList[index].productId, viewedCustomer.id);
+                              vm.getModelByActiveList(context, vm.filterProductInventoryList[index].categoryId, vm.filterProductInventoryList[index].categoryName,
+                                  vm.filterProductInventoryList[index].modelName, vm.filterProductInventoryList[index].modelId, viewModel.filterProductInventoryList[index].deviceId,
+                                  vm.filterProductInventoryList[index].warrantyMonths, vm.filterProductInventoryList[index].productId, viewedCustomer.id);
                             },
                               icon: const Icon(Icons.edit_outlined),))):
                             DataCell(Center(child: IconButton(tooltip:'replace product',onPressed: () {
-                              viewModel.displayReplaceProductDialog(context, viewModel.filterProductInventoryList[index].categoryId, viewModel.filterProductInventoryList[index].categoryName,
-                                  viewModel.filterProductInventoryList[index].modelName, viewModel.filterProductInventoryList[index].modelId, viewModel.filterProductInventoryList[index].deviceId,
-                                  viewModel.filterProductInventoryList[index].warrantyMonths, viewModel.filterProductInventoryList[index].productId, viewModel.filterProductInventoryList[index].buyerId,viewModel.filterProductInventoryList[index].modelId);
+                              vm.displayReplaceProductDialog(context, vm.filterProductInventoryList[index].categoryId, vm.filterProductInventoryList[index].categoryName,
+                                  vm.filterProductInventoryList[index].modelName, vm.filterProductInventoryList[index].modelId, viewModel.filterProductInventoryList[index].deviceId,
+                                  vm.filterProductInventoryList[index].warrantyMonths, vm.filterProductInventoryList[index].productId, viewModel.filterProductInventoryList[index].buyerId,viewModel.filterProductInventoryList[index].modelId);
                             }, icon: const Icon(Icons.repeat),)))
                           ])):
                           List<DataRow>.generate(
-                              viewModel.productInventoryList.length, (index) => DataRow(
+                              vm.productInventoryList.length, (index) => DataRow(
                               color: WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
                                   return index % 2 == 0 ? Colors.white : Colors.grey.shade100;
                                 },
                               ),
                               cells: [
                                 DataCell(Center(child: Text('${index + 1}', style: const TextStyle(fontSize: 12),))),
-                                DataCell(Text(viewModel.productInventoryList[index].categoryName, style: const TextStyle(fontSize: 12))),
-                                DataCell(Text(viewModel.productInventoryList[index].modelName, style: const TextStyle(fontSize: 12))),
-                                DataCell(SelectableText(viewModel.productInventoryList[index].deviceId, style: const TextStyle(fontSize: 12),)),
-                                DataCell(Center(child: Text(viewModel.productInventoryList[index].dateOfManufacturing, style: const TextStyle(fontSize: 12)))),
-                                DataCell(Center(child: Text('${viewModel.productInventoryList[index].warrantyMonths}', style: const TextStyle(fontSize: 12)))),
+                                DataCell(Text(vm.productInventoryList[index].categoryName, style: const TextStyle(fontSize: 12))),
+                                DataCell(Text(vm.productInventoryList[index].modelName, style: const TextStyle(fontSize: 12))),
+                                DataCell(SelectableText(vm.productInventoryList[index].deviceId, style: const TextStyle(fontSize: 12),)),
+                                DataCell(Center(child: Text(vm.productInventoryList[index].dateOfManufacturing, style: const TextStyle(fontSize: 12)))),
+                                DataCell(Center(child: Text('${vm.productInventoryList[index].warrantyMonths}', style: const TextStyle(fontSize: 12)))),
                                 DataCell(
-                                  viewedCustomer!.role == UserRole.admin? Row(
+                                  vm.userRole == UserRole.admin? Row(
                                     crossAxisAlignment: CrossAxisAlignment.center,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       CircleAvatar(radius: 5,
                                         backgroundColor:
-                                        viewModel.productInventoryList[index].productStatus==1? Colors.pink:
-                                        viewModel.productInventoryList[index].productStatus==2? Colors.blue:
-                                        viewModel.productInventoryList[index].productStatus==3? Colors.purple:
+                                        vm.productInventoryList[index].productStatus==1? Colors.pink:
+                                        vm.productInventoryList[index].productStatus==2? Colors.blue:
+                                        vm.productInventoryList[index].productStatus==3? Colors.purple:
                                         Colors.green,
                                       ),
                                       const SizedBox(width: 5,),
-                                      viewModel.productInventoryList[index].productStatus==1? const Text('In-Stock', style: const TextStyle(fontSize: 12)):
-                                      viewModel.productInventoryList[index].productStatus==2? const Text('Stock', style: const TextStyle(fontSize: 12)):
-                                      viewModel.productInventoryList[index].productStatus==3? const Text('Sold-Out', style: const TextStyle(fontSize: 12)):
+                                      vm.productInventoryList[index].productStatus==1? const Text('In-Stock', style: const TextStyle(fontSize: 12)):
+                                      vm.productInventoryList[index].productStatus==2? const Text('Stock', style: const TextStyle(fontSize: 12)):
+                                      vm.productInventoryList[index].productStatus==3? const Text('Sold-Out', style: const TextStyle(fontSize: 12)):
                                       const Text('Active', style: TextStyle(fontSize: 12)),
                                     ],
                                   ):
@@ -234,37 +235,38 @@ class _ProductInventoryState extends State<ProductInventory> {
                                     children: [
                                       CircleAvatar(radius: 5,
                                         backgroundColor:
-                                        viewModel.productInventoryList[index].productStatus==1? Colors.pink:
-                                        viewModel.productInventoryList[index].productStatus==2? Colors.purple:
-                                        viewModel.productInventoryList[index].productStatus==3? Colors.yellow:
+                                        vm.productInventoryList[index].productStatus==1? Colors.pink:
+                                        vm.productInventoryList[index].productStatus==2? Colors.purple:
+                                        vm.productInventoryList[index].productStatus==3? Colors.yellow:
                                         Colors.green,
                                       ),
                                       const SizedBox(width: 5,),
-                                      viewModel.productInventoryList[index].productStatus==2? const Text('In-Stock', style: const TextStyle(fontSize: 12)):
-                                      viewModel.productInventoryList[index].productStatus==3? const Text('Sold-Out', style: const TextStyle(fontSize: 12)):
+                                      vm.productInventoryList[index].productStatus==2? const Text('In-Stock', style: const TextStyle(fontSize: 12)):
+                                      vm.productInventoryList[index].productStatus==3? const Text('Sold-Out', style: const TextStyle(fontSize: 12)):
                                       const Text('Active', style: const TextStyle(fontSize: 12)),
                                     ],
                                   ),
                                 ),
-                                DataCell(viewedCustomer.name==viewModel.productInventoryList[index].latestBuyer? const Text('-'):Text(viewModel.productInventoryList[index].latestBuyer, style: const TextStyle(fontSize: 12))),
+                                DataCell(viewedCustomer!.name == vm.productInventoryList[index].latestBuyer? const Text('-'):Text(viewModel.productInventoryList[index].latestBuyer, style: const TextStyle(fontSize: 12))),
                                 const DataCell(Center(child: Text('25-09-2023', style: TextStyle(fontSize: 12)))),
-                                viewedCustomer.name == 'admin' ? DataCell(Center(child: IconButton(tooltip:'Edit product', onPressed: () {
-                                  viewModel.getModelByActiveList(context, viewModel.productInventoryList[index].categoryId, viewModel.productInventoryList[index].categoryName,
-                                      viewModel.productInventoryList[index].modelName, viewModel.productInventoryList[index].modelId, viewModel.productInventoryList[index].deviceId,
-                                      viewModel.productInventoryList[index].warrantyMonths, viewModel.productInventoryList[index].productId, viewedCustomer.id
+                                vm.userRole == UserRole.admin ? DataCell(Center(child: IconButton(tooltip:'Edit product', onPressed: () {
+                                  print('kamaraj');
+                                  vm.getModelByActiveList(context, vm.productInventoryList[index].categoryId, vm.productInventoryList[index].categoryName,
+                                      vm.productInventoryList[index].modelName, vm.productInventoryList[index].modelId, vm.productInventoryList[index].deviceId,
+                                      vm.productInventoryList[index].warrantyMonths, vm.productInventoryList[index].productId, viewedCustomer.id
                                   );
                                 }, icon: const Icon(Icons.edit_outlined),))):
                                 DataCell(Center(child: IconButton(tooltip:'replace product',onPressed: () {
-                                  viewModel.displayReplaceProductDialog(context, viewModel.productInventoryList[index].categoryId, viewModel.productInventoryList[index].categoryName,
-                                      viewModel.productInventoryList[index].modelName, viewModel.productInventoryList[index].modelId, viewModel.productInventoryList[index].deviceId,
-                                      viewModel.productInventoryList[index].warrantyMonths, viewModel.productInventoryList[index].productId, viewModel.productInventoryList[index].buyerId,
-                                      viewModel.productInventoryList[index].modelId);
+                                  vm.displayReplaceProductDialog(context, vm.productInventoryList[index].categoryId, vm.productInventoryList[index].categoryName,
+                                      vm.productInventoryList[index].modelName, vm.productInventoryList[index].modelId, vm.productInventoryList[index].deviceId,
+                                      vm.productInventoryList[index].warrantyMonths, vm.productInventoryList[index].productId, vm.productInventoryList[index].buyerId,
+                                      vm.productInventoryList[index].modelId);
                                 }, icon: const Icon(Icons.repeat),)))
                               ])
                           ),
                         ),
                       ),
-                      viewModel.isLoadingMore ? Container(
+                      vm.isLoadingMore ? Container(
                         width: double.infinity,
                         height: 20,
                         color: Colors.white,
