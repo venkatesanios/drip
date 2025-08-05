@@ -229,6 +229,7 @@ class MqttService {
   }
 
   void onDisconnected() {
+
     debugPrint('MQTT disconnected');
     _connectionController.add(MqttConnectionState.disconnected);
   }

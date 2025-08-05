@@ -109,82 +109,169 @@ class _GlobalAlarmInConstantState extends State<GlobalAlarmInConstant> {
                 );
               }).toList(),
             ),
-            SlidingSendButton(
-                onSend: (){
-                  setState(() {
-                    payloadState = HardwareAcknowledgementState.notSent;
-                    mqttService.acknowledgementPayload = null;
-                  });
-                  showDialog(
-                      barrierDismissible: false,
-                      context: context,
-                      builder: (context){
-                        return StatefulBuilder(
-                            builder: (context, stateSetter){
-                              return AlertDialog(
-                                title: Text('Send Payload', style: Theme.of(context).textTheme.labelLarge,),
-                                content: getHardwareAcknowledgementWidget(payloadState),
-                                actions: [
-                                  if(payloadState != HardwareAcknowledgementState.sending && payloadState != HardwareAcknowledgementState.notSent)
-                                    CustomMaterialButton(),
-                                  if(payloadState == HardwareAcknowledgementState.notSent)
-                                    CustomMaterialButton(title: 'Cancel',outlined: true,),
-                                  if(payloadState == HardwareAcknowledgementState.notSent)
-                                    CustomMaterialButton(
-                                      onPressed: ()async{
-                                        sendToHttp();
-                                        var payload = jsonEncode(getConstantHardwarePayload());
-                                        int delayDuration = 50;
-                                        for(var delay = 0; delay < delayDuration; delay++){
-                                          if(delay == 0){
-                                            stateSetter((){
-                                              setState((){
-                                                mqttService.topicToPublishAndItsMessage(payload, '${Environment.mqttPublishTopic}/${widget.userData['deviceId']}');
-                                                payloadState = HardwareAcknowledgementState.sending;
-                                              });
-                                            });
-                                          }
+            // SlidingSendButton(
+            //     onSend: (){
+            //       setState(() {
+            //         payloadState = HardwareAcknowledgementState.notSent;
+            //         mqttService.acknowledgementPayload = null;
+            //       });
+            //       showDialog(
+            //           barrierDismissible: false,
+            //           context: context,
+            //           builder: (context){
+            //             return StatefulBuilder(
+            //                 builder: (context, stateSetter){
+            //                   return AlertDialog(
+            //                     title: Text('Send Payload', style: Theme.of(context).textTheme.labelLarge,),
+            //                     content: getHardwareAcknowledgementWidget(payloadState),
+            //                     actions: [
+            //                       if(payloadState != HardwareAcknowledgementState.sending && payloadState != HardwareAcknowledgementState.notSent)
+            //                         CustomMaterialButton(),
+            //                       if(payloadState == HardwareAcknowledgementState.notSent)
+            //                         CustomMaterialButton(title: 'Cancel',outlined: true,),
+            //                       if(payloadState == HardwareAcknowledgementState.notSent)
+            //                         CustomMaterialButton(
+            //                           onPressed: ()async{
+            //                             sendToHttp();
+            //                             var payload = jsonEncode(getConstantHardwarePayload());
+            //                             int delayDuration = 50;
+            //                             for(var delay = 0; delay < delayDuration; delay++){
+            //                               if(delay == 0){
+            //                                 stateSetter((){
+            //                                   setState((){
+            //                                     mqttService.topicToPublishAndItsMessage(payload, '${Environment.mqttPublishTopic}/${widget.userData['deviceId']}');
+            //                                     payloadState = HardwareAcknowledgementState.sending;
+            //                                   });
+            //                                 });
+            //                               }
+            //                               stateSetter((){
+            //                                 setState((){
+            //                                   if(mqttService.acknowledgementPayload != null){
+            //                                     if(validatePayloadFromHardware(mqttService.acknowledgementPayload, ['cC'], widget.userData['deviceId']) && validatePayloadFromHardware(mqttService.acknowledgementPayload!, ['cM', '4201', 'PayloadCode'], '300')){
+            //                                       if(mqttService.acknowledgementPayload!['cM']['4201']['Code'] == '200'){
+            //                                         payloadState = HardwareAcknowledgementState.success;
+            //                                       }else if(mqttService.acknowledgementPayload!['cM']['4201']['Code'] == '90'){
+            //                                         payloadState = HardwareAcknowledgementState.programRunning;
+            //                                       }else if(mqttService.acknowledgementPayload!['cM']['4201']['Code'] == '1'){
+            //                                         payloadState = HardwareAcknowledgementState.hardwareUnknownError;
+            //                                       }else{
+            //                                         payloadState = HardwareAcknowledgementState.errorOnPayload;
+            //                                       }
+            //                                       mqttService.acknowledgementPayload == null;
+            //                                     }
+            //                                   }
+            //                                 });
+            //                               });
+            //                               await Future.delayed(const Duration(seconds: 1));
+            //                               if(delay == delayDuration-1){
+            //                                 stateSetter((){
+            //                                   setState((){
+            //                                     payloadState = HardwareAcknowledgementState.failed;
+            //                                   });
+            //                                 });
+            //                               }
+            //                               if(payloadState != HardwareAcknowledgementState.sending){
+            //                                 break;
+            //                               }
+            //                             }
+            //                           },
+            //                           title: 'Send',
+            //                         ),
+            //                     ],
+            //                   );
+            //                 }
+            //             );
+            //           }
+            //       );
+            //     }
+            // ),
+            FilledButton.icon(
+              icon: const Icon(Icons.send),
+              onPressed: (){
+                setState(() {
+                  payloadState = HardwareAcknowledgementState.notSent;
+                  mqttService.acknowledgementPayload = null;
+                });
+                showDialog(
+                    barrierDismissible: false,
+                    context: context,
+                    builder: (context){
+                      return StatefulBuilder(
+                          builder: (context, stateSetter){
+                            return AlertDialog(
+                              title: Text('Send Payload', style: Theme.of(context).textTheme.labelLarge,),
+                              content: getHardwareAcknowledgementWidget(payloadState),
+                              actions: [
+                                if(payloadState != HardwareAcknowledgementState.sending && payloadState != HardwareAcknowledgementState.notSent)
+                                  CustomMaterialButton(),
+                                if(payloadState == HardwareAcknowledgementState.notSent)
+                                  CustomMaterialButton(title: 'Cancel',outlined: true,),
+                                if(payloadState == HardwareAcknowledgementState.notSent)
+                                  CustomMaterialButton(
+                                    onPressed: ()async{
+                                      sendToHttp();
+                                      var payload = jsonEncode(getConstantHardwarePayload());
+                                      int delayDuration = 50;
+                                      for(var delay = 0; delay < delayDuration; delay++){
+                                        if(delay == 0){
                                           stateSetter((){
                                             setState((){
-                                              if(mqttService.acknowledgementPayload != null){
-                                                if(validatePayloadFromHardware(mqttService.acknowledgementPayload, ['cC'], widget.userData['deviceId']) && validatePayloadFromHardware(mqttService.acknowledgementPayload!, ['cM', '4201', 'PayloadCode'], '300')){
-                                                  if(mqttService.acknowledgementPayload!['cM']['4201']['Code'] == '200'){
-                                                    payloadState = HardwareAcknowledgementState.success;
-                                                  }else if(mqttService.acknowledgementPayload!['cM']['4201']['Code'] == '90'){
-                                                    payloadState = HardwareAcknowledgementState.programRunning;
-                                                  }else if(mqttService.acknowledgementPayload!['cM']['4201']['Code'] == '1'){
-                                                    payloadState = HardwareAcknowledgementState.hardwareUnknownError;
-                                                  }else{
-                                                    payloadState = HardwareAcknowledgementState.errorOnPayload;
-                                                  }
-                                                  mqttService.acknowledgementPayload == null;
-                                                }
-                                              }
+                                              mqttService.topicToPublishAndItsMessage(payload, '${Environment.mqttPublishTopic}/${widget.userData['deviceId']}');
+                                              payloadState = HardwareAcknowledgementState.sending;
                                             });
                                           });
-                                          await Future.delayed(const Duration(seconds: 1));
-                                          if(delay == delayDuration-1){
-                                            stateSetter((){
-                                              setState((){
-                                                payloadState = HardwareAcknowledgementState.failed;
-                                              });
-                                            });
-                                          }
-                                          if(payloadState != HardwareAcknowledgementState.sending){
-                                            break;
-                                          }
                                         }
-                                      },
-                                      title: 'Send',
-                                    ),
-                                ],
-                              );
-                            }
-                        );
-                      }
-                  );
-                }
-            )
+                                        stateSetter((){
+                                          setState((){
+                                            if(mqttService.acknowledgementPayload != null){
+                                              if(validatePayloadFromHardware(mqttService.acknowledgementPayload, ['cC'], widget.userData['deviceId']) && validatePayloadFromHardware(mqttService.acknowledgementPayload!, ['cM', '4201', 'PayloadCode'], '300')){
+                                                if(mqttService.acknowledgementPayload!['cM']['4201']['Code'] == '200'){
+                                                  payloadState = HardwareAcknowledgementState.success;
+                                                }else if(mqttService.acknowledgementPayload!['cM']['4201']['Code'] == '90'){
+                                                  payloadState = HardwareAcknowledgementState.programRunning;
+                                                }else if(mqttService.acknowledgementPayload!['cM']['4201']['Code'] == '1'){
+                                                  payloadState = HardwareAcknowledgementState.hardwareUnknownError;
+                                                }else{
+                                                  payloadState = HardwareAcknowledgementState.errorOnPayload;
+                                                }
+                                                mqttService.acknowledgementPayload == null;
+                                              }
+                                            }
+                                          });
+                                        });
+                                        await Future.delayed(const Duration(seconds: 1));
+                                        if(delay == delayDuration-1){
+                                          stateSetter((){
+                                            setState((){
+                                              payloadState = HardwareAcknowledgementState.failed;
+                                            });
+                                          });
+                                        }
+                                        if(payloadState != HardwareAcknowledgementState.sending){
+                                          break;
+                                        }
+                                      }
+                                    },
+                                    title: 'Send',
+                                  ),
+                              ],
+                            );
+                          }
+                      );
+                    }
+                );
+              },
+              label: const Text('Click to send constant'),
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(context).primaryColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                textStyle: const TextStyle(fontSize: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
           ],
         ),
       ),

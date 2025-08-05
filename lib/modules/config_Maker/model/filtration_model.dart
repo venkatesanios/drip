@@ -49,3 +49,27 @@ class FiltrationModel {
     return commonInfo;
   }
 }
+
+class Filter{
+  final double sNo;
+  int filterMode;
+  Filter({
+    required this.sNo,
+    this.filterMode = 1,
+  });
+
+  factory Filter.fromJson(data){
+    return Filter(
+        sNo: data['sNo'],
+        filterMode: data['filterMode'] ?? 1
+    );
+  }
+
+
+  Map<String, dynamic> toJson(){
+    return {
+      'sNo' : sNo,
+      'filterMode' : filterMode
+    };
+  }
+}

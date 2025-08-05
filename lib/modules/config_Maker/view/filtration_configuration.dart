@@ -366,6 +366,15 @@ class _FiltrationDashboardFormationState extends State<FiltrationDashboardFormat
               height: 150 * configPvd.ratio,
             ),
             Positioned(
+              bottom: 40,
+              left: 47,
+              child: SvgPicture.asset(
+                'assets/Images/Filtration/disc.svg',
+                width: 50,
+                height: 50 * configPvd.ratio,
+              ),
+            ),
+            Positioned(
               left : 20,
               top: 6 * configPvd.ratio,
               child: Text(getObjectName(widget.filtrationSite.filters[0], configPvd).name!,style: TextStyle(fontSize: 12 * configPvd.ratio, fontWeight: FontWeight.bold),),
@@ -403,6 +412,15 @@ class _FiltrationDashboardFormationState extends State<FiltrationDashboardFormat
           height: 150 * configPvd.ratio,
         ),
         Positioned(
+          bottom: 40,
+          left: 37,
+          child: SvgPicture.asset(
+            'assets/Images/Filtration/disc.svg',
+            width: 50,
+            height: 50 * configPvd.ratio,
+          ),
+        ),
+        Positioned(
           top: 20 * configPvd.ratio,
           child: SvgPicture.asset(
             'assets/Images/Filtration/multiple_filter_first_backwash_pipe_0.svg',
@@ -426,6 +444,15 @@ class _FiltrationDashboardFormationState extends State<FiltrationDashboardFormat
           'assets/Images/Filtration/multiple_filter_middle_4.svg',
           width: 150,
           height: 150 * configPvd.ratio,
+        ),
+        Positioned(
+          bottom: 40,
+          left: 47,
+          child: SvgPicture.asset(
+            'assets/Images/Filtration/disc.svg',
+            width: 50,
+            height: 50 * configPvd.ratio,
+          ),
         ),
         Positioned(
           top: 20 * configPvd.ratio,
@@ -452,6 +479,15 @@ class _FiltrationDashboardFormationState extends State<FiltrationDashboardFormat
           'assets/Images/Filtration/multiple_filter_last_4.svg',
           width: 150,
           height: 150 * configPvd.ratio,
+        ),
+        Positioned(
+          bottom: 40,
+          left: 47,
+          child: SvgPicture.asset(
+            'assets/Images/Filtration/disc.svg',
+            width: 50,
+            height: 50 * configPvd.ratio,
+          ),
         ),
         Positioned(
           bottom: 0,

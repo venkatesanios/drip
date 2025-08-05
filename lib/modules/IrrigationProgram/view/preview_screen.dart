@@ -479,8 +479,6 @@ class _PreviewScreenState extends State<PreviewScreen> {
       "serialNumber": widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber,
     };
     if(mainProvider.irrigationLine!.sequence.isNotEmpty) {
-      // print(mainProvider.selectionModel.data!.toJson());
-      // print(mainProvider.additionalData!.toJson());
       var dataToSend = {
         "sequence": mainProvider.irrigationLine!.sequence,
         "schedule": mainProvider.sampleScheduleModel!.toJson(),
@@ -1005,7 +1003,6 @@ class _PreviewScreenState extends State<PreviewScreen> {
     required showRow, required show4thWidget, required String title3,
     required String title4, required itemList3, required itemList4, bool show2ndWidget = true, String? title5,
     String? title6, itemList5, itemList6, String? title7, itemList7, bool showRow2 = false, bool showWidget2 = false}) {
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

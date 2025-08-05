@@ -67,3 +67,5 @@ class Environment {
   static int get sftpPort => config[F.name]?['sftpPort'] ?? 0;
   static String get privateKeyPath => config[F.name]?['privateKeyPath'] ?? '';
 }
+
+var command = "#live";
