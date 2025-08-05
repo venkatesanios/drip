@@ -7,27 +7,23 @@ import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../StateManagement/mqtt_payload_provider.dart';
 import 'package:oro_drip_irrigation/plugins/flutter_bluetooth_serial/lib/flutter_bluetooth_serial.dart';
+import '../utils/enums.dart';
 
 
-enum BluDevice {
-  connected,
-  connecting,
-  disconnected
-}
 
 class CustomDevice {
   final BluetoothDevice device;
 
-  BluDevice status;
+  BlueConnectionSate status;
 
   CustomDevice({
     required this.device,
-    this.status = BluDevice.disconnected,
+    this.status = BlueConnectionSate.disconnected,
   });
 
-  bool get isConnected => status == BluDevice.connected;
-  bool get isConnecting => status == BluDevice.connecting;
-  bool get isDisConnected => status == BluDevice.disconnected;
+  bool get isConnected => status == BlueConnectionSate.connected;
+  bool get isConnecting => status == BlueConnectionSate.connecting;
+  bool get isDisConnected => status == BlueConnectionSate.disconnected;
 }
 
 class BluService {
@@ -96,40 +92,6 @@ class BluService {
     }
   }
 
-  /*Future<void> requestPermissions() async {
-    if (Platform.isAndroid) {
-      Map<Permission, PermissionStatus> statuses = await [
-        Permission.bluetooth,
-        Permission.bluetoothConnect,
-        Permission.bluetoothScan,
-        Permission.locationWhenInUse,
-        Permission.location,
-      ].request();
-
-      if (statuses.values.any((status) => status.isDenied || status.isPermanentlyDenied)) {
-        print('Permissions not granted.');
-        // Optionally show dialog to enable them in settings
-      }
-    }
-  }*/
-
-  /*Future<void> requestPermissions() async {
-    if (Platform.isAndroid) {
-      Map<Permission, PermissionStatus> statuses = await [
-        Permission.bluetooth,
-        Permission.bluetoothConnect,
-        Permission.bluetoothScan,
-        Permission.locationWhenInUse,
-        Permission.location,
-      ].request();
-
-      if (statuses.values.any((status) => status.isDenied || status.isPermanentlyDenied)) {
-        print('Permissions not granted.');
-        // Optionally show dialog to enable them in settings
-      }
-    }
-  }*/
-
   int getTraceLogSize() {
     int totalBytes = 0;
     for (final str in traceLog) {
@@ -172,7 +134,7 @@ class BluService {
 
           final updatedDevice = CustomDevice(
             device: device,
-            status: existing?.status ?? BluDevice.disconnected,
+            status: existing?.status ?? BlueConnectionSate.disconnected,
           );
 
           final updatedList = [
@@ -194,83 +156,12 @@ class BluService {
     print("Bluetooth discovery stopped after 10 seconds.");
   }
 
-  /*Future<void> getDevices() async {
 
-    await requestPermissions();
-    await FlutterBluetoothSerial.instance.requestEnable();
-
-    _devices.clear();
-    await FlutterBluetoothSerial.instance.cancelDiscovery();
-
-    final completer = Completer<void>();
-
-    _scanSubscription = FlutterBluetoothSerial.instance.startDiscovery().listen((result) {
-      final device = result.device;
-
-      if ((device.name?.startsWith('NIA_') ?? false)) {
-        final exists = _devices.any((d) => d.address == device.address);
-        if (!exists) {
-          _devices.add(device);
-
-          final existing = providerState?.pairedDevices.firstWhere(
-                (e) => e.device.address == device.address,
-            orElse: () => CustomDevice(device: device),
-          );
-
-          final updatedDevice = CustomDevice(
-            device: device,
-            status: existing?.status ?? BluDevice.disconnected,
-          );
-
-          final List<CustomDevice> updatedList = [
-            ...(providerState?.pairedDevices
-                .where((d) => d.device.address != device.address)
-                .toList() ??
-                <CustomDevice>[]),
-            updatedDevice,
-          ];
-
-          providerState?.updatePairedDevices(updatedList);
-        }
-      }
-    });
-
-    // Cancel after 10 seconds and complete the future
-    Future.delayed(const Duration(seconds: 10)).then((_) async {
-      await _scanSubscription?.cancel();
-      FlutterBluetoothSerial.instance.cancelDiscovery();
-      print("Discovery stopped.");
-      completer.complete();
-    });
-
-    return completer.future;
-  }*/
-
-
-  /*Future<void> startScan() async {
-    _scanSubscription?.cancel();
-    _scanSubscription = _bluetooth.startDiscovery().listen((result) {
-      if (result.device.name?.startsWith('NIA_') ?? false) {
-        final exists = _devices.any((d) => d.address == result.device.address);
-        if (!exists) {
-          _devices.add(result.device);
-          providerState?.updatePairedDevices(
-            _devices.map((d) => CustomDevice(device: d)).toList(),
-          );
-        }
-      }
-    });
-
-    // Stop scan after timeout
-    Future.delayed(const Duration(seconds: 10)).then((_) async {
-      await _scanSubscription?.cancel();
-    });
-  }*/
 
   Future<void> connectToDevice(CustomDevice device) async {
     try {
       // Update to connecting
-      providerState?.updateDeviceStatus(device.device.address, BluDevice.connecting.index);
+      providerState?.updateDeviceStatus(device.device.address, BlueConnectionSate.connecting.index);
 
       // Disconnect any existing connection
       if (isConnected) {
@@ -283,7 +174,7 @@ class BluService {
       _connection = connection;
 
       //  Update to connected
-      providerState?.updateDeviceStatus(device.device.address, BluDevice.connected.index);
+      providerState?.updateDeviceStatus(device.device.address, BlueConnectionSate.connected.index);
       providerState?.updateConnectedDeviceStatus(device);
 
       connection.input?.listen((Uint8List data) {
@@ -295,14 +186,14 @@ class BluService {
         _connection = null;
 
         // Update to disconnected when done
-        providerState?.updateDeviceStatus(device.device.address, BluDevice.disconnected.index);
+        providerState?.updateDeviceStatus(device.device.address, BlueConnectionSate.disconnected.index);
         providerState?.updateConnectedDeviceStatus(null);
       });
     } catch (e) {
       print("Connection failed: $e");
 
       // Update to disconnected on error
-      providerState?.updateDeviceStatus(device.device.address, BluDevice.disconnected.index);
+      providerState?.updateDeviceStatus(device.device.address, BlueConnectionSate.disconnected.index);
       providerState?.updateConnectedDeviceStatus(null);
     }
   }
@@ -322,9 +213,6 @@ class BluService {
          final totalSize = int.tryParse(sizeStr ?? '0') ?? 0;
         providerState?.setTotalTraceSize(totalSize);
       }
-
-
-
     }
 
     providerState?.setTraceLoading(true);
@@ -368,7 +256,6 @@ class BluService {
     print('_buffer----> $_buffer');
 
     // Start logging when *StartLog appears
-
     if (_buffer.contains('LogFileSentSuccess')) {
       isLogging = false;
 

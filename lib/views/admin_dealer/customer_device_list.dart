@@ -85,9 +85,9 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
                 tabs: tabList.map((label) => Tab(child: Text(label))).toList(),
               ),
             ),
-            body: viewModel.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : TabBarView(
+            body: viewModel.isLoading ?
+            const Center(child: CircularProgressIndicator()) :
+            TabBarView(
               controller: tabController,
               children: [
                 const CustomerDeviceTable(),
@@ -270,8 +270,8 @@ class CustomerDeviceTable extends StatelessWidget {
               DataColumn2(label: Text('Category'), size: ColumnSize.M),
               DataColumn2(label: Text('Model'), size: ColumnSize.M),
               DataColumn2(label: Text('IMEI'), size: ColumnSize.M),
-              DataColumn2(label: Text('Status'), fixedWidth: 80),
-              DataColumn2(label: Text('Modify Date'), fixedWidth: 110),
+              DataColumn2(label: Text('Status'), fixedWidth: 75),
+              DataColumn2(label: Text('Modify Date'), fixedWidth: 80),
             ],
             rows: List.generate(viewModel.customerDeviceList.length, (index) {
               final device = viewModel.customerDeviceList[index];

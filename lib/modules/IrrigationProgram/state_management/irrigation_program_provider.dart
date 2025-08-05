@@ -1531,7 +1531,11 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       var getValve = [];
       for(var v = 0;v < 4;v++){
         if(sq['valve'].length > v){
-          getValve.add(sq['valve'][v]['sNo'].toString().split('.')[1]);
+          String valSerialNo = sq['valve'][v]['sNo'].toString().split('.')[1];
+          if(valSerialNo.length == 2){
+            valSerialNo += '0';
+          }
+          getValve.add(valSerialNo);
         }else{
           getValve.add('0');
         }

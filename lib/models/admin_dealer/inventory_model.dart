@@ -24,7 +24,7 @@ class InventoryModel
     categoryId: json['categoryId'],
     categoryName: json['categoryName'],
     modelId: json['modelId'],
-    modelName: json['modelName'],
+    modelName: json['modelDescription'],
     deviceId: json['deviceId'],
     productDescription: json['productDescription'],
     dateOfManufacturing: json['dateOfManufacturing'],

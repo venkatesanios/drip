@@ -169,9 +169,12 @@ class _ConstantBasePageState extends State<ConstantBasePage> with SingleTickerPr
 
   List<Widget> getTabBarView(){
     return List.generate(tabController.length, (index){
+      print("constPvd.listOfConstantMenuModel[index].dealerDefinitionId : ${constPvd.listOfConstantMenuModel[index].dealerDefinitionId}");
       if(constPvd.listOfConstantMenuModel[index].dealerDefinitionId == AppConstants.generalInConstant){
         return GeneralInConstant(constPvd: constPvd, overAllPvd: overAllPvd,);
       }else if(constPvd.listOfConstantMenuModel[index].dealerDefinitionId == AppConstants.pumpInConstant){
+        print("pump screen called........ $constPvd");
+        print("pump screen called........ $overAllPvd");
         return PumpInConstant(constPvd: constPvd, overAllPvd: overAllPvd,);
       }else if(constPvd.listOfConstantMenuModel[index].dealerDefinitionId == AppConstants.filterSiteInConstant){
         return FilterSiteInConstant(constPvd: constPvd, overAllPvd: overAllPvd,);
@@ -180,6 +183,7 @@ class _ConstantBasePageState extends State<ConstantBasePage> with SingleTickerPr
       }else if(constPvd.listOfConstantMenuModel[index].dealerDefinitionId == AppConstants.mainValveInConstant){
         return MainValveInConstant(constPvd: constPvd, overAllPvd: overAllPvd,);
       }else if(constPvd.listOfConstantMenuModel[index].dealerDefinitionId == AppConstants.valveInConstant){
+        print("valve screen called........");
         return ValveInConstant(constPvd: constPvd, overAllPvd: overAllPvd,);
       }else if(constPvd.listOfConstantMenuModel[index].dealerDefinitionId == AppConstants.waterMeterInConstant){
         return WaterMeterInConstant(constPvd: constPvd, overAllPvd: overAllPvd,);
@@ -242,6 +246,9 @@ class _ConstantBasePageState extends State<ConstantBasePage> with SingleTickerPr
         setState(() {
           tabController.animateTo(value);
         });
+        print("value ==> ${value}");
+        print("constant tab length ==> ${tabController.length}");
+        print("constant tab index ==> ${tabController.index}");
       },
     );
   }

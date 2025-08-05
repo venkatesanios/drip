@@ -174,10 +174,12 @@ class StockEntryViewModel extends ChangeNotifier {
           addProductToList();
         } else {
           errorMsg = 'The product ID already exists!';
+          notifyListeners();
         }
       }
     } catch (error) {
       errorMsg = 'Error checking product: $error';
+      notifyListeners();
     }
   }
 

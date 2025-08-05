@@ -5,18 +5,27 @@ class NetworkUtils {
   static final Connectivity _connectivity = Connectivity();
   static final StreamController<bool> _connectionController = StreamController<bool>.broadcast();
 
+  static bool _isOnline = false; // Global status
+
+  static bool get isOnline => _isOnline; // Accessor
   static Stream<bool> get connectionStream => _connectionController.stream;
 
-  static void initialize() {
-    _connectivity.onConnectivityChanged.listen((List<ConnectivityResult> results) async {
-      bool isConnected = results.any((result) => result != ConnectivityResult.none);
-      _connectionController.add(isConnected);
+  static Future<void> initialize() async {
+    // Initial check
+    final initialResult = await _connectivity.checkConnectivity();
+    _isOnline = initialResult != ConnectivityResult.none;
+    _connectionController.add(_isOnline);
+
+    // Listen to changes
+    _connectivity.onConnectivityChanged.listen((List<ConnectivityResult> results) {
+      _isOnline = results.any((result) => result != ConnectivityResult.none);
+      _connectionController.add(_isOnline);
     });
   }
 
-  static Future<bool> isConnected() async {
-    final connectivityResult = await _connectivity.checkConnectivity();
-    return connectivityResult != ConnectivityResult.none;
+  static Future<bool> checkNow() async {
+    final result = await _connectivity.checkConnectivity();
+    return result != ConnectivityResult.none;
   }
 
   static void dispose() {

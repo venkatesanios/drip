@@ -110,123 +110,171 @@ class _ConfigWebViewState extends State<ConfigWebView> {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: _onPopInvokedWithResult,
-      child: Material(
-        color: themeData.primaryColorDark.withOpacity(themeMode ? 1.0 : 0.2),
-        child: Column(
+      child: Scaffold(
+        backgroundColor: themeData.primaryColorDark.withOpacity(themeMode ? 1.0 : 0.2),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: Row(
+          spacing: 20,
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            SizedBox(
-              height: 50,
-              width: double.infinity,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TitleWithBackButton(
-                    onPressed: (){
-                      Navigator.pop(context);
-                    },
-                    title: 'Config Maker',
-      
-                    // titleWidth: screenWidth * sideNavigationTabRatio,
-                    titleWidth: sideNavigationTabWidth,
-                  ),
-                  Row(
-                    spacing:20,
-                    children: [
-                      StreamBuilder(
-                          stream: mqttService.mqttConnectionStream,
-                          initialData: MqttConnectionState.disconnected,
-                          builder: (context, snapShot){
-                            return Row(
-                              spacing: 10,
-                              children: [
-                                CircleAvatar(
-                                  backgroundColor: mqttService.isConnected ? Colors.greenAccent : Colors.red,
-                                  radius: 20,
-                                  child: const Icon(Icons.computer, color: Colors.white,),
-                                ),
-                                Text('MQTT ${mqttService.mqttConnectionState.name}', style: const TextStyle(color: Colors.white),)
-      
-                              ],
-                            );
-                          }
-                      ),
-                      InkWell(
-                        onHover: (value){
-                          setState(() {
-                            clearOnHover = value;
-                          });
-                        },
-                        onTap: (){
-                          configPvd.clearData();
-                        },
-                        child:  Row(
-                          spacing: 10,
-                          children: [
-                            CircleAvatar(
-                              backgroundColor: clearOnHover ? themeData.primaryColorLight : themeData.primaryColorLight.withOpacity(0.5),
-                              radius: 20,
-                              child: SizedImageSmall(imagePath: '${AppConstants.svgObjectPath}clear.svg',color:  Colors.white,),
-                            ),
-                            const Text('Click To Clear Config', style: TextStyle(color: Colors.white),)
-                          ],
-                        ),
-                      ),
-                      InkWell(
-                        onHover: (value){
-                          setState(() {
-                            sendOnHover = value;
-                          });
-                        },
-                        onTap: (){
-                          setState(() {
-                            payloadSendState = PayloadSendState.idle;
-                          });
-                          sendToMqtt();
-                          sendToHttp();
-                        },
-                        child:  Row(
-                          spacing: 10,
-                          children: [
-                            CircleAvatar(
-                              backgroundColor: sendOnHover ? themeData.primaryColorLight : themeData.primaryColorLight.withOpacity(0.5),
-                              radius: 20,
-                              child: SizedImageSmall(imagePath: '${AppConstants.svgObjectPath}send.svg',color:  Colors.white,),
-                            ),
-                            const Text('Click To Send Config', style: TextStyle(color: Colors.white),)
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 10,)
-                    ],
-                  ),
-      
-      
-                ],
-              ),
+            IconButton(
+                style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all(configPvd.selectedTab == ConfigMakerTabs.deviceList ? Colors.grey.shade500 : Theme.of(context).primaryColor)
+                ),
+                onPressed: (){
+                  if(configPvd.selectedTab != ConfigMakerTabs.deviceList){
+                    setState(() {
+                      if(configPvd.selectedTab == ConfigMakerTabs.productLimit){
+                        configPvd.selectedTab = ConfigMakerTabs.deviceList;
+                      }else if(configPvd.selectedTab == ConfigMakerTabs.connection){
+                        configPvd.selectedTab = ConfigMakerTabs.productLimit;
+                      }else if(configPvd.selectedTab == ConfigMakerTabs.siteConfigure){
+                        configPvd.selectedTab = ConfigMakerTabs.connection;
+                      }
+                    });
+                  }
+                },
+                icon: const Icon(Icons.arrow_back_ios_new_outlined, color: Colors.white)
             ),
-            Expanded(
-              child: Row(
-                children: [
-                  sideNavigationWidget(screenWidth, screenHeight),
-                  Expanded(
-                    child: Container(
-                        decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.only(topLeft: Radius.circular(10))
-                        ),
-                        child: configPvd.selectedTab == ConfigMakerTabs.deviceList
-                            ? DeviceList(listOfDevices: widget.listOfDevices)
-                            : configPvd.selectedTab == ConfigMakerTabs.productLimit
-                            ? ProductLimit(listOfDevices: widget.listOfDevices,configPvd: configPvd,)
-                            : configPvd.selectedTab == ConfigMakerTabs.connection
-                            ? Connection(configPvd: configPvd,) : SiteConfigure(configPvd: configPvd)
-                    ),
-                  )
-      
-                ],
-              ),
+            IconButton(
+                alignment: Alignment.center,
+                style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all(configPvd.selectedTab == ConfigMakerTabs.siteConfigure ? Colors.grey.shade500 : Theme.of(context).primaryColor)
+                ),
+                onPressed: (){
+                  if(configPvd.selectedTab != ConfigMakerTabs.siteConfigure){
+                    setState(() {
+                      if(configPvd.selectedTab == ConfigMakerTabs.deviceList){
+                        configPvd.selectedTab = ConfigMakerTabs.productLimit;
+                      }else if(configPvd.selectedTab == ConfigMakerTabs.productLimit){
+                        configPvd.selectedTab = ConfigMakerTabs.connection;
+                      }else if(configPvd.selectedTab == ConfigMakerTabs.connection){
+                        configPvd.selectedTab = ConfigMakerTabs.siteConfigure;
+                      }
+                    });
+                  }
+                },
+                icon: const Icon(Icons.arrow_forward_ios, color: Colors.white,)
             ),
           ],
+        ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              SizedBox(
+                height: 50,
+                width: double.infinity,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TitleWithBackButton(
+                      onPressed: (){
+                        Navigator.pop(context);
+                      },
+                      title: 'Config Maker',
+
+                      // titleWidth: screenWidth * sideNavigationTabRatio,
+                      titleWidth: sideNavigationTabWidth,
+                    ),
+                    Row(
+                      spacing:20,
+                      children: [
+                        StreamBuilder(
+                            stream: mqttService.mqttConnectionStream,
+                            initialData: MqttConnectionState.disconnected,
+                            builder: (context, snapShot){
+                              return Row(
+                                spacing: 10,
+                                children: [
+                                  CircleAvatar(
+                                    backgroundColor: mqttService.isConnected ? Colors.greenAccent : Colors.red,
+                                    radius: 20,
+                                    child: const Icon(Icons.computer, color: Colors.white,),
+                                  ),
+                                  Text('MQTT ${mqttService.mqttConnectionState.name}', style: const TextStyle(color: Colors.white),)
+
+                                ],
+                              );
+                            }
+                        ),
+                        InkWell(
+                          onHover: (value){
+                            setState(() {
+                              clearOnHover = value;
+                            });
+                          },
+                          onTap: (){
+                            configPvd.clearData();
+                          },
+                          child:  Row(
+                            spacing: 10,
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: clearOnHover ? themeData.primaryColorLight : themeData.primaryColorLight.withOpacity(0.5),
+                                radius: 20,
+                                child: SizedImageSmall(imagePath: '${AppConstants.svgObjectPath}clear.svg',color:  Colors.white,),
+                              ),
+                              const Text('Click To Clear Config', style: TextStyle(color: Colors.white),)
+                            ],
+                          ),
+                        ),
+                        InkWell(
+                          onHover: (value){
+                            setState(() {
+                              sendOnHover = value;
+                            });
+                          },
+                          onTap: (){
+                            setState(() {
+                              payloadSendState = PayloadSendState.idle;
+                            });
+                            sendToMqtt();
+                            sendToHttp();
+                          },
+                          child:  Row(
+                            spacing: 10,
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: sendOnHover ? themeData.primaryColorLight : themeData.primaryColorLight.withOpacity(0.5),
+                                radius: 20,
+                                child: SizedImageSmall(imagePath: '${AppConstants.svgObjectPath}send.svg',color:  Colors.white,),
+                              ),
+                              const Text('Click To Send Config', style: TextStyle(color: Colors.white),)
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 10,)
+                      ],
+                    ),
+
+
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Row(
+                  children: [
+                    sideNavigationWidget(screenWidth, screenHeight),
+                    Expanded(
+                      child: Container(
+                          decoration: const BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.only(topLeft: Radius.circular(10))
+                          ),
+                          child: configPvd.selectedTab == ConfigMakerTabs.deviceList
+                              ? DeviceList(listOfDevices: widget.listOfDevices)
+                              : configPvd.selectedTab == ConfigMakerTabs.productLimit
+                              ? ProductLimit(listOfDevices: widget.listOfDevices,configPvd: configPvd,)
+                              : configPvd.selectedTab == ConfigMakerTabs.connection
+                              ? Connection(configPvd: configPvd,) : SiteConfigure(configPvd: configPvd)
+                      ),
+                    )
+
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

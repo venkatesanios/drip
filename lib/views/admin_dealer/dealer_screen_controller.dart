@@ -6,6 +6,7 @@ import '../../flavors.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/constants.dart';
+import '../../utils/enums.dart';
 import '../../view_models/nav_rail_view_model.dart';
 import '../account_settings.dart';
 import 'dealer_dashboard.dart';
@@ -105,8 +106,7 @@ class _DealerScreenControllerState extends State<DealerScreenController> {
                                   isScrollControlled: true,
                                   shape: const RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5))),
                                   builder: (BuildContext context) {
-                                    return AccountSettings(userId: widget.userId, userName: widget.userName,
-                                      mobileNo: widget.mobileNo, emailId: widget.emailId, customerId: widget.userId, hideAppbar: false,);
+                                    return AccountSettings(hideAppbar: false);
                                   },
                                 );
                               } else if (value == 'logout') {
@@ -467,18 +467,11 @@ class _DealerScreenControllerState extends State<DealerScreenController> {
       switch (index) {
         case 0:
           _pages[0] = DealerDashboard(
-            userId: widget.userId,
-            userName: widget.userName,
-            mobileNo: widget.mobileNo,
             fromLogin: widget.fromLogin,
           );
           break;
         case 1:
-          _pages[1] = ProductInventory(
-            userId: widget.userId,
-            userName: widget.userName,
-            userRole: UserRole.dealer,
-          );
+          _pages[1] = const ProductInventory();
           break;
       }
     }

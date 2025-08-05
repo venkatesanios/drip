@@ -6,6 +6,7 @@ class DeviceModel {
   final int categoryId;
   final String categoryName;
   final int modelId;
+  final String modelDescription;
   final String modelName;
   int interfaceTypeId;
   int? interfaceInterval;
@@ -30,6 +31,7 @@ class DeviceModel {
     required this.categoryId,
     required this.categoryName,
     required this.modelId,
+    required this.modelDescription,
     required this.modelName,
     required this.interfaceTypeId,
     required this.interfaceInterval,
@@ -56,6 +58,7 @@ class DeviceModel {
       categoryId: data['categoryId'],
       categoryName: data['categoryName'],
       modelId: data['modelId'],
+      modelDescription: data['modelDescription'],
       modelName: data['modelName'],
       interfaceTypeId: data['interfaceTypeId'],
       interfaceInterval: data['interfaceInterval'],

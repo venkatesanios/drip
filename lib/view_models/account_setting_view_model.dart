@@ -1,7 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import '../models/admin_dealer/language_list.dart';
+import '../models/user_model.dart';
+import '../providers/user_provider.dart';
 import '../repository/repository.dart';
+import '../utils/enums.dart';
 import '../utils/snack_bar.dart';
 
 class UserSettingViewModel extends ChangeNotifier {
@@ -14,10 +18,11 @@ class UserSettingViewModel extends ChangeNotifier {
   String mySelection = 'English';
 
   String userName, mobileNo, emailId;
-  String countryCode = '91';
+  String countryCode;
 
   final TextEditingController controllerMblNo = TextEditingController();
   final TextEditingController controllerUsrName = TextEditingController();
+  final TextEditingController controllerAccountTye = TextEditingController();
   final TextEditingController controllerEmail = TextEditingController();
 
   final TextEditingController controllerOldPwd = TextEditingController();
@@ -28,32 +33,21 @@ class UserSettingViewModel extends ChangeNotifier {
   final formKey = GlobalKey<FormState>();
   final formSKey = GlobalKey<FormState>();
 
-  UserSettingViewModel(this.repository, this.userName, this.mobileNo, this.emailId) {
-    _setupInitialValues();
+  UserSettingViewModel(this.repository, this.userName, this.countryCode, this.mobileNo, this.emailId, String role) {
+    print('countryCode:$countryCode');
+    _setupInitialValues(role);
   }
 
-  void _setupInitialValues() {
+  void _setupInitialValues(String role) {
     controllerUsrName.text = userName;
+    controllerAccountTye.text = role;
     controllerEmail.text = emailId;
-    countryCode = getCountryCode(mobileNo);
-    String phoneWithoutCountryCode = removeCountryCode(mobileNo);
-    controllerMblNo.text = phoneWithoutCountryCode;
-  }
-
-  String getCountryCode(String phoneNumber) {
-    RegExp regExp = RegExp(r'^\+(\d{1,4})');
-    Match? match = regExp.firstMatch(phoneNumber);
-
-    if (match != null) {
-      return match.group(0) ?? '';
-    } else {
-      return '';
-    }
+    controllerMblNo.text = mobileNo;
   }
 
   String removeCountryCode(String phoneNumber) {
-    RegExp regExp = RegExp(r'^\+\d{1,4}\s?');  // Matches the country code (e.g., +91 or +1) and optional space
-    return phoneNumber.replaceAll(regExp, '');  // Removes the matched country code
+    RegExp regExp = RegExp(r'^\+\d{1,4}\s?');
+    return phoneNumber.replaceAll(regExp, '');
   }
 
   void onIsObscureChanged() {
@@ -94,8 +88,24 @@ class UserSettingViewModel extends ChangeNotifier {
         var response = await repository.updateUserDetails(body);
         if (response.statusCode == 200) {
           final jsonData = jsonDecode(response.body);
+          print(response.body);
           if (jsonData["code"] == 200) {
             GlobalSnackBar.show(context, jsonData["message"], jsonData["code"]);
+
+            final userProvider = context.read<UserProvider>();
+            final updatedUser = UserModel(
+              id: customerId,
+              name: controllerUsrName.text,
+              mobileNo: controllerMblNo.text,
+              countryCode: countryCode.replaceAll('+', ''),
+              email: controllerEmail.text,
+              token: userProvider.loggedInUser.token,
+              role: userProvider.loggedInUser.id == customerId ?
+              userProvider.loggedInUser.role :
+              userProvider.viewedCustomer?.role ?? UserRole.customer,
+            );
+            userProvider.updateUser(updatedUser);
+
           }
         }
       } catch (error) {
@@ -116,6 +126,7 @@ class UserSettingViewModel extends ChangeNotifier {
   void dispose() {
     controllerMblNo.dispose();
     controllerUsrName.dispose();
+    controllerAccountTye.dispose();
     controllerEmail.dispose();
     controllerOldPwd.dispose();
     controllerNewPwd.dispose();

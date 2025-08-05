@@ -6,14 +6,14 @@ import 'package:provider/provider.dart';
 
 import '../../models/admin_dealer/new_stock_model.dart';
 import '../../models/admin_dealer/simple_category.dart';
+import '../../providers/user_provider.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../view_models/admin_dealer/stock_entry_view_model.dart';
 import 'add_new_stock.dart';
 
 class StockEntry extends StatefulWidget {
-  const StockEntry({super.key, required this.userId});
-  final int userId;
+  const StockEntry({super.key});
 
   @override
   State<StockEntry> createState() => _StockEntryState();
@@ -22,9 +22,9 @@ class StockEntry extends StatefulWidget {
 class _StockEntryState extends State<StockEntry> {
   @override
   Widget build(BuildContext context) {
-
+    final viewedCustomer = Provider.of<UserProvider>(context).viewedCustomer;
     return ChangeNotifierProvider(
-      create: (_) => StockEntryViewModel(Repository(HttpService()))..getMyStock(widget.userId, 1),
+      create: (_) => StockEntryViewModel(Repository(HttpService()))..getMyStock(viewedCustomer!.id, 1),
       child: Consumer<StockEntryViewModel>(
         builder: (context, viewModel, _) {
 
@@ -266,7 +266,7 @@ class _StockEntryState extends State<StockEntry> {
                                                   child: const Text('Cancel'),
                                                 ),
                                                 TextButton(
-                                                onPressed: () => viewModel.addProductStock(widget.userId, context),
+                                                onPressed: () => viewModel.addProductStock(viewedCustomer!.id, context),
                                                 child: const Text('Save'),
                                               ),
                                               ],

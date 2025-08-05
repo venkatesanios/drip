@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:provider/provider.dart';
 import '../flavors.dart';
+import '../providers/user_provider.dart';
 import '../repository/repository.dart';
 import '../services/http_service.dart';
 import '../utils/constants.dart';
@@ -20,7 +21,7 @@ class LoginScreen extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => LoginViewModel(
         repository: RepositoryImpl(HttpService()),
-        onLoginSuccess: (pageRoute) {
+        onLoginSuccess: (message) {
           Navigator.pushReplacementNamed(context, '/dashboard');
         },
       ),
@@ -45,12 +46,10 @@ class LoginScreen extends StatelessWidget {
           child: Container(
             height: double.infinity,
             color: Theme.of(context).primaryColorDark,
-            child: F.appFlavor!.name.contains('oro')
-                ? Padding(
+            child: F.appFlavor!.name.contains('oro') ? Padding(
               padding: const EdgeInsets.all(50.0),
               child: SvgPicture.asset('assets/svg_images/login_left_picture.svg'),
-            )
-                : const Image(
+            ) : const Image(
               image: AssetImage('assets/png/lk_login_left_picture.png'),
               fit: BoxFit.fill,
             ),
@@ -64,7 +63,7 @@ class LoginScreen extends StatelessWidget {
               color: Colors.white,
               child: Column(
                 children: [
-                  F.appFlavor!.name.contains('oro')?Expanded(
+                  F.appFlavor!.name.contains('oro') ? Expanded(
                     child: Container(
                       color: Colors.white,
                       child: Row(
@@ -205,24 +204,39 @@ class LoginScreen extends StatelessWidget {
             scrollDirection: Axis.vertical,
             child: Column(
               children: [
+                F.appFlavor!.name.contains('oro')? SizedBox(
+                  width: double.infinity,
+                  height: (MediaQuery.of(context).size.height / 2)-100,
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Spacer(),
+                      Image(
+                        image: AssetImage('assets/png/oro_logo_white.png'),
+                        height: 70,
+                        fit: BoxFit.fitHeight,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 20, right: 20, bottom: 10, top: 20),
+                        child: Text(AppConstants.appShortContent,
+                            style: TextStyle(color: Colors.white70, fontSize: 13),
+                            textAlign: TextAlign.center),
+                      ),
+                    ],
+                  ),
+                ):
                 Stack(
                   children: [
                     Container(
-                      height: F.appFlavor!.name.contains('oro')? (MediaQuery.of(context).size.height / 3):
-                      (MediaQuery.of(context).size.height / 2),
+                      height: (MediaQuery.of(context).size.height / 2),
                       width: double.infinity,
                       color: Theme.of(context).primaryColor,
-                      child: F.appFlavor!.name.contains('oro')? const Image(
-                        image: AssetImage('assets/png/oro_logo_white.png'),
-                        height: 75,
-                        width: 150,
-                      ):
-                      const Image(
+                      child: const Image(
                         image: AssetImage('assets/png/lk_login_left_picture.png'),
                         fit: BoxFit.fill,
                       ),
                     ),
-                    F.appFlavor!.name.contains('oro')? const SizedBox():
                     Positioned(
                       top: 5,
                       right: 1,
@@ -233,17 +247,17 @@ class LoginScreen extends StatelessWidget {
                         fit: BoxFit.contain,
                       ),
                     ),
-                    Positioned(
-                      bottom: F.appFlavor!.name.contains('oro')? 0:10,
+                    const Positioned(
+                      bottom: 10,
                       left: 25,
                       right: 25,
-                      child: const Padding(
+                      child: Padding(
                         padding: EdgeInsets.only(left: 5, right: 5, bottom: 5),
                         child: Text(AppConstants.appShortContent,
                             style: TextStyle(color: Colors.white70, fontSize: 11),
                             textAlign: TextAlign.center),
                       ),
-                    )
+                    ),
                   ],
                 ),
                 Padding(
@@ -326,7 +340,7 @@ class LoginScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                    )
+                    ),
                 ),
               ],
             ),

@@ -433,6 +433,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
                     ),
                   if(fertilizerCondition)
                     const SizedBox(height: 20,),
+
                   SlidingSendButton(
                     onSend: (){
                       // print(irrigationProvider.dataToMqtt(widget.serialNumber == 0 ? irrigationProvider.serialNumberCreation : widget.serialNumber, widget.programType));
@@ -450,20 +451,26 @@ class _PreviewScreenState extends State<PreviewScreen> {
   }
 
   void sendFunction() async{
+    print("widget.modelId :::::: ${widget.modelId}");
     final mainProvider = Provider.of<IrrigationProgramMainProvider>(context, listen: false);
     Map<String, dynamic> dataToMqtt = mainProvider.dataToMqtt(widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber, widget.programType);
-    Map<String, dynamic> dataToMqttEcoGem = mainProvider.dataToMqttForEcoGem(widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber, widget.programType);
-    final ecoGemWFPayload = mainProvider.ecoGemPayloadForWF(widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber);
+    Map<String, dynamic> dataToMqttEcoGem = {};
+    dynamic ecoGemWFPayload;
     List<String> ecoGemWFPayloadList = [];
-    ecoGemWFPayloadList.add(jsonEncode(dataToMqttEcoGem));
-    for(int i = 0; i < ecoGemWFPayload.length; i++) {
-      final payload = {
-        "260${i + 1}": {
-          "2501": ecoGemWFPayload[i]
-        }
-      };
-      ecoGemWFPayloadList.add(jsonEncode(payload));
+    if(AppConstants.ecoGemModelList.contains(widget.modelId)){
+      dataToMqttEcoGem = mainProvider.dataToMqttForEcoGem(widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber, widget.programType);
+      ecoGemWFPayload = mainProvider.ecoGemPayloadForWF(widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber);
+      ecoGemWFPayloadList.add(jsonEncode(dataToMqttEcoGem));
+      for(int i = 0; i < ecoGemWFPayload.length; i++) {
+        final payload = {
+          "260${i + 1}": {
+            "2501": ecoGemWFPayload[i]
+          }
+        };
+        ecoGemWFPayloadList.add(jsonEncode(payload));
+      }
     }
+
     Map<String, dynamic> userData = {
       "defaultProgramName": mainProvider.defaultProgramName,
       "userId": widget.customerId,

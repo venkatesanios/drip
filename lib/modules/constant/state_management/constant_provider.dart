@@ -158,32 +158,34 @@ class ConstantProvider extends ChangeNotifier{
 
       for (var object in configObjectDataFromHttp) {
         print("objectId : ${object['objectId']} == ${object['name']}");
-        if(object['objectId'] == AppConstants.pumpObjectId){
-          listOfPumpObject.add(object);
-        }else if(object['objectId'] == AppConstants.filterSiteObjectId){
-          listOfFilterSiteObject.add(object);
-        }else if(object['objectId'] == AppConstants.filterObjectId){
-          listOfFilterObject.add(object);
-        }else if(object['objectId'] == AppConstants.mainValveObjectId){
-          listOfMainValveObject.add(object);
-        }else if(object['objectId'] == AppConstants.valveObjectId){
-          listOfValveObject.add(object);
-        }else if(object['objectId'] == AppConstants.waterMeterObjectId){
-          listOfWaterMeterObject.add(object);
-        }else if(object['objectId'] == AppConstants.fertilizerSiteObjectId){
-          listOfFertilizerSiteObject.add(object);
-        }else if(object['objectId'] == AppConstants.channelObjectId){
-          listOfChannelObject.add(object);
-        }else if(object['objectId'] == AppConstants.ecObjectId){
-          listOfEcObject.add(object);
-        }else if(object['objectId'] == AppConstants.phObjectId){
-          listOfPhObject.add(object);
-        }else if(object['objectId'] == AppConstants.moistureObjectId){
-          listOfMoistureObject.add(object);
-        }else if(object['objectId'] == AppConstants.levelObjectId){
-          listOfLevelObject.add(object);
-        }else if(object['objectId'] == AppConstants.irrigationLineObjectId){
-          listOfIrrigationLineObject.add(object);
+        if(object["controllerId"] != null){
+          if(object['objectId'] == AppConstants.pumpObjectId){
+            listOfPumpObject.add(object);
+          }else if(object['objectId'] == AppConstants.filterSiteObjectId){
+            listOfFilterSiteObject.add(object);
+          }else if(object['objectId'] == AppConstants.filterObjectId){
+            listOfFilterObject.add(object);
+          }else if(object['objectId'] == AppConstants.mainValveObjectId){
+            listOfMainValveObject.add(object);
+          }else if(object['objectId'] == AppConstants.valveObjectId){
+            listOfValveObject.add(object);
+          }else if(object['objectId'] == AppConstants.waterMeterObjectId){
+            listOfWaterMeterObject.add(object);
+          }else if(object['objectId'] == AppConstants.fertilizerSiteObjectId){
+            listOfFertilizerSiteObject.add(object);
+          }else if(object['objectId'] == AppConstants.channelObjectId){
+            listOfChannelObject.add(object);
+          }else if(object['objectId'] == AppConstants.ecObjectId){
+            listOfEcObject.add(object);
+          }else if(object['objectId'] == AppConstants.phObjectId){
+            listOfPhObject.add(object);
+          }else if(object['objectId'] == AppConstants.moistureObjectId){
+            listOfMoistureObject.add(object);
+          }else if(object['objectId'] == AppConstants.levelObjectId){
+            listOfLevelObject.add(object);
+          }else if(object['objectId'] == AppConstants.irrigationLineObjectId){
+            listOfIrrigationLineObject.add(object);
+          }
         }
       }
 

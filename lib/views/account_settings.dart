@@ -4,21 +4,25 @@ import 'package:flutter/services.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
  import 'package:provider/provider.dart';
 
+import '../providers/user_provider.dart';
 import '../repository/repository.dart';
 import '../services/http_service.dart';
 import '../view_models/account_setting_view_model.dart';
 
 class AccountSettings extends StatelessWidget {
-  const AccountSettings({super.key, required this.userId, required this.userName, required this.mobileNo,
-    required this.emailId, required this.customerId, required this.hideAppbar});
-  final int userId, customerId;
-  final String userName, mobileNo, emailId;
+  const AccountSettings({super.key, required this.hideAppbar});
   final bool hideAppbar;
 
   @override
   Widget build(BuildContext context) {
+
+    final loggedInUser = Provider.of<UserProvider>(context).loggedInUser;
+    final viewedCustomer = Provider.of<UserProvider>(context).viewedCustomer;
+
     return ChangeNotifierProvider(
-      create: (_) => UserSettingViewModel(Repository(HttpService()), userName, mobileNo, emailId)..getLanguage(),
+      create: (_) => UserSettingViewModel(Repository(HttpService()),
+          viewedCustomer!.name, viewedCustomer.countryCode, viewedCustomer.mobileNo,
+          viewedCustomer.email, viewedCustomer.role.name)..getLanguage(),
       child: Consumer<UserSettingViewModel>(
         builder: (context, viewModel, _) {
           return Scaffold(
@@ -80,7 +84,7 @@ class AccountSettings extends StatelessWidget {
                                       Flexible(
                                         flex:1,
                                         child: TextFormField(
-                                          controller: viewModel.controllerUsrName,
+                                          controller: viewModel.controllerAccountTye,
                                           readOnly: true,
                                           decoration: const InputDecoration(
                                             labelText: 'Account type',
@@ -106,7 +110,7 @@ class AccountSettings extends StatelessWidget {
                                             border: const OutlineInputBorder(
                                               borderSide: BorderSide(),
                                             ),
-                                            prefixIcon: Icon(Icons.phone),
+                                            prefixIcon: const Icon(Icons.phone),
                                             suffixIcon: IconButton(
                                               icon: const Icon(Icons.clear, color: Colors.red),
                                               onPressed: () => viewModel.controllerMblNo.clear(),
@@ -125,7 +129,7 @@ class AccountSettings extends StatelessWidget {
                                           onCountryChanged: (country) => viewModel.countryCode = country.dialCode,
                                         ),
                                       ),
-                                      SizedBox(width: 8),
+                                      const SizedBox(width: 8),
                                       Flexible(
                                         flex:1,
                                         child: TextFormField(
@@ -156,19 +160,19 @@ class AccountSettings extends StatelessWidget {
                       ),
                     ),
 
-                    Padding(
-                      padding: const EdgeInsets.only(left: 16),
+                    const Padding(
+                      padding: EdgeInsets.only(left: 16),
                       child: Text('When Mobile Number and Email update', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20, right: 8, top: 5),
+                    const Padding(
+                      padding: EdgeInsets.only(left: 20, right: 8, top: 5),
                       child: Text("OTP (One-Time Password) is crucial when changing your "
                           "mobile number or email associated with the account"
                         , style: TextStyle(color: Colors.black45, fontSize: 12),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20, right: 8, top: 5),
+                    const Padding(
+                      padding: EdgeInsets.only(left: 20, right: 8, top: 5),
                       child: Text("When you initiate such changes, the app often sends"
                           " an OTP to your current registered mobile number or email address."
                           " You need to enter this OTP to confirm and complete the update"
@@ -189,18 +193,18 @@ class AccountSettings extends StatelessWidget {
                             color: Colors.green,
                             textColor: Colors.white,
                             child: const Text('SAVE CHANGES'),
-                            onPressed: ()=> viewModel.updateUserProfile(context, customerId, userId),
+                            onPressed: ()=> viewModel.updateUserProfile(context, viewedCustomer!.id, loggedInUser.id),
                           ),
-                          SizedBox(width: 16),
+                          const SizedBox(width: 16),
                         ],
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8),
+                    const Padding(
+                      padding: EdgeInsets.only(left: 8),
                       child: Divider(height: 2, color: Colors.black12),
                     ),
 
-                    ListTile(
+                    const ListTile(
                       title: Text("Security", style: TextStyle(fontSize: 20, color: Colors.black)),
                       subtitle: Text('Modify your current password'),
                     ),
@@ -334,7 +338,7 @@ class AccountSettings extends StatelessWidget {
                             color: Colors.green,
                             textColor: Colors.white,
                             child: const Text('SAVE CHANGES'),
-                            onPressed: ()=> viewModel.updateUserProfile(context, customerId, userId),
+                            onPressed: ()=> viewModel.updateUserProfile(context, viewedCustomer!.id, loggedInUser.id),
                           ),
                           SizedBox(width: 16),
                         ],
@@ -468,7 +472,7 @@ class AccountSettings extends StatelessWidget {
                             color: Theme.of(context).primaryColorLight,
                             textColor: Colors.white,
                             child: const Text('SAVE CHANGES'),
-                            onPressed: ()=> viewModel.updateUserProfile(context, customerId, userId),
+                            onPressed: ()=> viewModel.updateUserProfile(context, viewedCustomer!.id, loggedInUser.id),
                           ),
                           const SizedBox(width: 16),
                         ],
@@ -606,7 +610,7 @@ class AccountSettings extends StatelessWidget {
                               color: Theme.of(context).primaryColorLight,
                               textColor: Colors.white,
                               child: const Text('SAVE CHANGES'),
-                              onPressed: ()=> viewModel.updateUserProfile(context, customerId, userId),
+                              onPressed: ()=> viewModel.updateUserProfile(context, viewedCustomer!.id, loggedInUser.id),
                             ),
                             const SizedBox(width: 16),
                           ],

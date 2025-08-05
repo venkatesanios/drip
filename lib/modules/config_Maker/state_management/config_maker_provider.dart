@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/repository/config_maker_repository.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
@@ -27,6 +28,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     4 : 'Moisture Configuration',
     5 : 'Line Configuration',
   };
+
   int rangeStart = -1;
   int rangeEnd = -1;
   bool rangeMode = false;
@@ -314,6 +316,7 @@ class ConfigMakerProvider extends ChangeNotifier{
           categoryId: devices['categoryId'],
           categoryName: devices['categoryName'],
           modelId: devices['modelId'],
+          modelDescription: devices['modelDescription'] ?? '',
           modelName: devices['modelName'],
           interfaceTypeId: devices['interfaceTypeId'],
           interfaceInterval: 5,
@@ -395,16 +398,16 @@ class ConfigMakerProvider extends ChangeNotifier{
     return listOfDeviceModel;
   }
 
-  Future<int> replaceDevice({required dynamic deviceData})async {
-    print("deviceData : ${deviceData}");
+  Future<int> replaceDevice({required dynamic newDevice,required dynamic oldDevice, required int masterOrNode})async {
+    print("newDevice : ${newDevice}");
     try{
       var body = {
         "userId" : masterData['userId'],
-        "oldControllerId" : masterData['controllerId'],
-        "oldDeviceId" : masterData['deviceId'],
-        "newDeviceId" : deviceData['deviceId'],
-        "oldModelId" : masterData['modelId'],
-        "newModelId" : deviceData['modelId'],
+        "oldControllerId" : oldDevice['controllerId'],
+        "oldDeviceId" : oldDevice['deviceId'],
+        "newDeviceId" : newDevice['deviceId'],
+        "oldModelId" : oldDevice['modelId'],
+        "newModelId" : newDevice['modelId'],
         "modifyUser" : masterData['userId']
       };
       var response = await ConfigMakerRepository().productReplace(body);
@@ -412,7 +415,16 @@ class ConfigMakerProvider extends ChangeNotifier{
       print('jsonData : $jsonData');
       notifyListeners();
       if(jsonData['code'] == 200){
-        masterData['deviceId'] = deviceData['deviceId'];
+        if(masterOrNode == 1){
+          masterData['deviceId'] = newDevice['deviceId'];
+        }else{
+          print("replacing node.......");
+          for(var device in listOfDeviceModel){
+            if(device.controllerId == oldDevice["controllerId"]){
+              device.deviceId = newDevice["deviceId"];
+            }
+          }
+        }
         notifyListeners();
         return 200;
       }else{
@@ -1130,8 +1142,13 @@ class ConfigMakerProvider extends ChangeNotifier{
       if(object.connectionNo != 0 && object.connectionNo != null && !weatherControllerId.contains(object.controllerId)){
         print(object.toJson());
         var controller = listOfDeviceModel.firstWhere((e) => e.controllerId == object.controllerId);
+        List<String> objectSerialNoForEcoGemSplitList = object.sNo.toString().split('.');
+        if(objectSerialNoForEcoGemSplitList[1].length == 2){
+          objectSerialNoForEcoGemSplitList[1] += '0';
+        }
+        String objectSerialNoForEcoGem = objectSerialNoForEcoGemSplitList.join(',');
         objectPayload.add({
-          "S_No": AppConstants.gemModelList.contains(masterData['modelId']) ? object.sNo : object.sNo.toString().split('.').join(','),
+          "S_No": AppConstants.gemModelList.contains(masterData['modelId']) ? object.sNo : objectSerialNoForEcoGem,
           "ObjectType": object.objectId,
           "DeviceTypeNumber": controller.categoryId,
           "DeviceRunningNumber": findOutReferenceNumber(controller),

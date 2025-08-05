@@ -27,7 +27,6 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    print("enter my app..............");
     if(!kIsWeb){
       NotificationServiceCall().initialize();
       NotificationServiceCall().configureFirebaseMessaging();
@@ -37,15 +36,10 @@ class _MyAppState extends State<MyApp> {
   /// Decide the initial route based on whether a token exists
   Future<String> getInitialRoute() async {
     try {
-      print("getInitialRoute---");
       final token = await PreferenceHelper.getToken();
-      print("token--->$token");
-      // Check if token is valid
       if (token != null && token.trim().isNotEmpty) {
-        print("Navigating to dashboard");
         return Routes.dashboard;
       } else {
-        print("No valid token, navigating to login");
         return Routes.login;
       }
     } catch (e) {
@@ -56,7 +50,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    print('Flavor is: ${F.appFlavor}');
+    debugPrint('Flavor is: ${F.appFlavor}');
     bool isDarkMode = false;
     return FutureBuilder<String>(
       future: getInitialRoute(),
@@ -67,7 +61,7 @@ class _MyAppState extends State<MyApp> {
           theme: isOro ? OroTheme.lightTheme : SmartCommTheme.lightTheme,
           darkTheme: isOro ? OroTheme.darkTheme : SmartCommTheme.darkTheme,
           themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          // home: ConfigBasePage(masterData: {"userId":4,"customerId":26,"controllerId":124,"productId":123,"deviceId":"2CCF676A93BA","deviceName":"NAm2000ROOL","categoryId":1,"categoryName":"ORO GEM","modelId":4,"modelName":"NAm2000ROOL","groupId":29,"groupName":"Madhavan","connectingObjectId":["1","2","3","4","-"],"productStock":[{"productId":48,"categoryName":"ORO PUMP","modelName":"NAp1000LOOO","modelId":5,"deviceId":"TEST12345679","dateOfManufacturing":"2025-06-17","warrantyMonths":12}]}),
+          // home: ConfigBasePage(masterData: {"userId":4,"customerId":18,"controllerId":94,"productId":93,"deviceId":"ADCAEAC11114","deviceName":"ORO GEM","categoryId":1,"categoryName":"ORO GEM","modelId":4,"modelName":"NAm2000ROOL","groupId":20,"groupName":"Vanam India Foundati","connectingObjectId":["1","2","3","4","-"],"productStock":[{"productId":48,"categoryName":"ORO PUMP","modelName":"NAp1000LOOO","modelId":5,"deviceId":"TEST12345679","dateOfManufacturing":"2025-06-17","warrantyMonths":12}]}),
           home: navigateToInitialScreen(snapshot.data ?? Routes.login),
           onGenerateRoute: Routes.generateRoute,
         );

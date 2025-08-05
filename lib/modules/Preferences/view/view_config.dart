@@ -418,6 +418,8 @@ class _ViewConfigState extends State<ViewConfig> {
                 final values = widget.isLora
                     ? provider.viewSetting['cM'].first['ctconfig'].split(',')
                     : '${jsonDecode(provider.viewSettingsList[0])[1]['ctconfig']}'.split(',');
+                print("settings.length :: ${setting.setting.length}");
+                print("settings.values :: ${values.length}");
                 return _buildSettingCard(setting, values);
               } else if ([204].contains(setting.type) && _hasPayload('voltageconfig', provider, deviceId)) {
                 final values = widget.isLora

@@ -435,7 +435,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                 ),
               ),
               if(![30, 31, 100].contains(pumpItem.reasonCode))
-                Expanded(
+                Flexible(
                   child: Container(
                     // width: double.maxFinite,
                     // color: pumpItem.reasonCode == 0
@@ -457,6 +457,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                             : Colors.red.shade700)
                             : (pumpItem.reason.contains('on') ? Colors.green.shade700 : Colors.red.shade700),
                         fontWeight: FontWeight.bold,
+                        fontSize: 12
                         // fontSize: titleFontSize
                       ),
                       textAlign: TextAlign.right,
@@ -1105,7 +1106,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: CountdownTimerWidget(
               initialSeconds: initialSeconds,
-              fontColor: Colors.white,
+              fontColor: Colors.black,
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),

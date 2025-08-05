@@ -9,10 +9,11 @@ import '../../Models/customer/site_model.dart';
 import '../../StateManagement/customer_provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../repository/repository.dart';
-import '../../services/bluetooth_sevice.dart';
+import '../../services/bluetooth_service.dart';
 import '../../services/communication_service.dart';
 import '../../services/mqtt_service.dart';
 import '../../utils/constants.dart';
+import '../../utils/network_utils.dart';
 
 class CustomerScreenControllerViewModel extends ChangeNotifier {
   final Repository repository;
@@ -21,6 +22,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   final BluService blueService = BluService();
 
   late MqttPayloadProvider mqttProvider;
+  bool _disposed = false;
 
   bool isLoading = false;
   String errorMsg = '';
@@ -42,20 +44,30 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
 
   late SiteModel mySiteList = SiteModel(data: []);
   StreamSubscription<MqttConnectionState>? mqttSubscription;
-  bool _isReconnecting = false;
+
 
   List<String> pairedDevices = ['Device A', 'Device B', 'Device C'];
+
+  bool _isConnecting = false;
+  int reconnectAttempts = 0;
+
 
   CustomerScreenControllerViewModel(this.context, this.repository, this.mqttProvider) {
     fromWhere = 'init';
     _initializeMqttConnection();
     mqttProvider.addListener(_onPayloadReceived);
+
+    NetworkUtils.connectionStream.listen((connected) {
+      if (_disposed) return;
+      if (connected) {
+        _initializeMqttConnection();
+        mqttProvider.addListener(_onPayloadReceived);
+      }
+    });
   }
 
-
-
   void _onPayloadReceived() {
-    print('object');
+    if (_disposed) return;
     final activeDeviceId = mqttProvider.activeDeviceId;
     final liveDateAndTime = mqttProvider.liveDateAndTime;
     final wifiStrength = mqttProvider.wifiStrength;
@@ -67,7 +79,6 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     if(activeDeviceId == mySiteList.data[sIndex].master[mIndex].deviceId){
       updateLivePayload(wifiStrength, liveDateAndTime, currentSchedule, lineLiveMessage);
     }
-
   }
 
   bool isDeviceNotCommunicating(String lastSyncTimeString) {
@@ -89,11 +100,9 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
       switch (state) {
         case MqttConnectionState.connected:
           debugPrint("MQTT Connected! Callback");
-          _isReconnecting = false;
           Future.delayed(const Duration(milliseconds: 1000), () {
             _subscribeToDeviceTopic();
           });
-
           break;
 
         case MqttConnectionState.connecting:
@@ -103,32 +112,30 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
         case MqttConnectionState.disconnected:
         default:
           debugPrint("MQTT Disconnected Callback");
-          //_handleMqttReconnection();
+          _handleMqttReconnection();
       }
     });
   }
 
-  /*Future<void> _handleReconnection() async {
-    if (_isReconnecting || mqttService.isConnected) return;
+  void _handleMqttReconnection() {
+    if (_isConnecting || mqttService.isConnected) return;
 
-    _isReconnecting = true;
-    const int maxRetries = 5;
-    const Duration delay = Duration(seconds: 3);
-    int attempt = 0;
-
-    while (!mqttService.isConnected && attempt < maxRetries) {
-      attempt++;
-      debugPrint('MQTT reconnect attempt $attempt...');
-      await mqttService.connect();
-      await Future.delayed(delay);
+    if (NetworkUtils.isOnline) {
+      _isConnecting = true;
+      final delay = Duration(seconds: 2 * (1 << reconnectAttempts).clamp(1, 32));
+      Future.delayed(delay, () async {
+        try {
+          await mqttService.connect();
+          reconnectAttempts = 0;
+        } catch (_) {
+          reconnectAttempts++;
+        } finally {
+          _isConnecting = false;
+        }
+      });
     }
+  }
 
-    if (!mqttService.isConnected) {
-      debugPrint("MQTT reconnection failed after $maxRetries attempts.");
-    }
-
-    _isReconnecting = false;
-  }*/
 
   void _subscribeToDeviceTopic() async {
 
@@ -394,6 +401,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   @override
   void dispose() {
     super.dispose();
+    _disposed = true;
     mqttProvider.removeListener(_onPayloadReceived);
     mqttSubscription?.cancel();
     mqttService.disConnect();

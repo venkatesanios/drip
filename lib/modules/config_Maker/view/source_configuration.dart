@@ -138,8 +138,10 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
                                         SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_${AppConstants.valveObjectId}.svg', color: Colors.black,),
                                         const SizedBox(width: 20,),
                                         const Text('Valve : ', style: AppProperties.listTileBlackBoldStyle,),
-                                        Center(
-                                          child: Text(source.valves.map((sNo) => getObjectName(sNo, widget.configPvd).name!).join(', '), style: TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold),),
+                                        Expanded(
+                                          child: Center(
+                                            child: Text(source.valves.map((sNo) => getObjectName(sNo, widget.configPvd).name!).join(', '), style: TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),),
+                                          ),
                                         ),
                                         IconButton(
                                             onPressed: (){

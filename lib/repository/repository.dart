@@ -54,7 +54,6 @@ class Repository{
     return await apiService.postRequest('/product/getByFilter', body);
   }
 
-
   Future<http.Response> fetchDeviceList(body) async {
     return await apiService.postRequest('/product/getList', body);
   }

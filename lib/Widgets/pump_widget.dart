@@ -10,6 +10,7 @@ import '../repository/repository.dart';
 import '../services/http_service.dart';
 import '../services/mqtt_service.dart';
 import '../utils/constants.dart';
+import '../utils/enums.dart';
 import '../utils/formatters.dart';
 import '../utils/snack_bar.dart';
 

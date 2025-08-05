@@ -119,17 +119,19 @@ class MqttService {
   }
 
   Future<void> connect() async {
-    assert(_client != null);
-    if (!isConnected) {
-      try {
-        _connectionController.add(MqttConnectionState.connecting);
-        await _client!.connect();
-      } catch (e, stackTrace) {
-        debugPrint('MQTT Connect Exception: $e');
-        debugPrint('$stackTrace');
-      }
+    if (_client == null || isConnected || _client!.connectionStatus!.state == MqttConnectionState.connecting) {
+      return;
+    }
+    try {
+      _connectionController.add(MqttConnectionState.connecting);
+      await _client!.connect();
+    } catch (e, stackTrace) {
+      debugPrint('MQTT Connect Exception: $e');
+      debugPrint('$stackTrace');
+      rethrow;
     }
   }
+
 
   Future<void> disConnect() async {
     assert(_client != null);
@@ -179,28 +181,6 @@ class MqttService {
     }
   }
 
-/*  Future<void> topicToSubscribe(String topic) async {
-    try {
-      if (currentTopic != null && currentTopic != topic) {
-        _client?.unsubscribe(currentTopic!);
-      }
-      await _subscription?.cancel();
-      await Future.delayed(const Duration(milliseconds: 1000));
-
-      _client?.subscribe(topic, MqttQos.atLeastOnce);
-      currentTopic = topic;
-
-      _subscription = _client?.updates?.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
-        if (c != null && c.isNotEmpty) {
-          final MqttPublishMessage recMess = c[0].payload as MqttPublishMessage;
-          final String pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-          onMqttPayloadReceived(pt);
-        }
-      });
-    } catch (e, stacktrace) {
-      print('MQTT subscribe error: $e\n$stacktrace');
-    }
-  }*/
 
   void topicToUnSubscribe(String topic) {
     if (_client == null) return;

@@ -3,9 +3,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/PumpController/state_management/pump_controller_provider.dart';
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/state_management/ble_service.dart';
-import 'package:oro_drip_irrigation/services/bluetooth_sevice.dart';
+import 'package:oro_drip_irrigation/providers/user_provider.dart';
+import 'package:oro_drip_irrigation/services/bluetooth_service.dart';
 import 'package:oro_drip_irrigation/services/communication_service.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
+import 'package:oro_drip_irrigation/utils/network_utils.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -34,14 +36,12 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print("Handling a background message: ${message.messageId}");
 }
 
-
-
-
-
 FutureOr<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   tz.initializeTimeZones();
-  F.appFlavor = Flavor.oroProduction;
+  await NetworkUtils.initialize();
+
+  // F.appFlavor = Flavor.oroProduction;
 
   if(!kIsWeb){
     try {
@@ -80,6 +80,7 @@ FutureOr<void> main() async {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => CustomerProvider()),
         ChangeNotifierProvider(create: (_) => ConfigMakerProvider()),
         ChangeNotifierProvider(create: (_) => IrrigationProgramMainProvider()),

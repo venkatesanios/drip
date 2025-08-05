@@ -21,6 +21,7 @@ class FindSuitableWidget extends StatefulWidget {
 class _FindSuitableWidgetState extends State<FindSuitableWidget> {
   @override
   Widget build(BuildContext context) {
+    print("widget.constantSettingModel.widgetTypeId ${widget.constantSettingModel.widgetTypeId}");
     if(widget.constantSettingModel.widgetTypeId == 1){
       return CustomTextFormField(
           value: widget.constantSettingModel.value.value.toString(),

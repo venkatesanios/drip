@@ -1,14 +1,15 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import '../models/user_model.dart';
 import '../repository/repository.dart';
+import '../utils/enums.dart';
 import '../utils/shared_preferences_helper.dart';
 
 class LoginViewModel extends ChangeNotifier {
 
   bool isLoading = false;
   String errorMessage = "";
-
 
   String countryCode = '91';
   late TextEditingController mobileNoController;
@@ -21,10 +22,6 @@ class LoginViewModel extends ChangeNotifier {
   LoginViewModel({required this.repository, required this.onLoginSuccess}) {
     initState();
   }
-
- /* LoginViewModel(this.repository, {required this.onLoginSuccess}){
-    initState();
-  }*/
 
   void initState() {
     mobileNoController = TextEditingController();
@@ -65,38 +62,30 @@ class LoginViewModel extends ChangeNotifier {
         'isMobile' : kIsWeb? false : true,
       };
 
-
       final response = await repository.checkLoginAuth(body);
       final data = jsonDecode(response.body);
       if (response.statusCode == 200 && data['code'] == 200) {
-
-        final customerData = data["data"];
-        final user = customerData["user"];
-        print("login user $user");
-        String countryCodeFinal = countryCode.replaceAll('+', '');
-
+        final userData = data['data']['user'];
         await PreferenceHelper.saveUserDetails(
-          token: user['accessToken'],
-          userId: user['userId'],
-          userName: user['userName'],
-          role: user['userType']=='1'? 'admin' : user['userType']=='2' ? 'dealer' :'customer',
-          countryCode: countryCodeFinal,
+          token: userData['accessToken'],
+          userId: userData['userId'],
+          userName: userData['userName'],
+          role: userData['userType'],
+          countryCode: cleanedCountryCode,
           mobileNumber: mobileNumber,
-          email: user['email'],
+          email: userData['email'],
         );
-
-        onLoginSuccess(user['userType']=='1'? 'admin' :
-        user['userType']=='2'? 'dealer':'customer');
-
+        onLoginSuccess(data['message']);
       } else {
         isLoading = false;
         errorMessage = data['message'];
         notifyListeners();
       }
-    } catch (error, stackTrace) {
+    } catch (error) {
       isLoading = false;
       errorMessage = "An error occurred: $error";
       notifyListeners();
     }
   }
+
 }
