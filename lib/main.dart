@@ -7,6 +7,7 @@ import 'package:oro_drip_irrigation/providers/user_provider.dart';
 import 'package:oro_drip_irrigation/services/bluetooth_service.dart';
 import 'package:oro_drip_irrigation/services/communication_service.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
+import 'package:oro_drip_irrigation/utils/network_utils.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -37,11 +38,11 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 
 
-
-
 FutureOr<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   tz.initializeTimeZones();
+  await NetworkUtils.initialize();
+
   // F.appFlavor = Flavor.oroProduction;
 
   if(!kIsWeb){

@@ -4,8 +4,13 @@ import 'package:loading_indicator/loading_indicator.dart';
 import 'package:oro_drip_irrigation/utils/Theme/oro_theme.dart';
 import 'package:oro_drip_irrigation/views/admin_dealer/sales_bar_chart.dart';
 import 'package:provider/provider.dart';
+import '../../Widgets/analytics_overview.dart';
+import '../../Widgets/empty_customer.dart';
 import '../../flavors.dart';
+import '../../layouts/user_layout.dart';
 import '../../models/admin_dealer/customer_list_model.dart';
+import '../../models/user_model.dart';
+import '../../providers/user_provider.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/constants.dart';
@@ -19,21 +24,20 @@ import 'dealer_screen_controller.dart';
 enum MySegment {all, year}
 
 class AdminDashboard extends StatelessWidget {
-  const AdminDashboard({super.key, required this.userId, required this.userName, required this.mobileNo});
-  final int userId;
-  final String userName, mobileNo;
+  const AdminDashboard({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final viewedCustomer = Provider.of<UserProvider>(context).viewedCustomer;
     final isLargeScreen = MediaQuery.of(context).size.width > 1130;
 
     return ChangeNotifierProvider(
-      create: (_) => AdminAndDealerDashboardViewModel(Repository(HttpService()), userId, 1)
-        ..getMySalesData(userId, MySegment.all)
+      create: (_) => UserDashboardViewModel(Repository(HttpService()), viewedCustomer!.id, 1)
+        ..getMySalesData(viewedCustomer.id, MySegment.all)
         ..getMyStock()
         ..getMyCustomers()
         ..getCategoryList(),
-      child: Consumer<AdminAndDealerDashboardViewModel>(
+      child: Consumer<UserDashboardViewModel>(
         builder: (context, viewModel, _) {
           handleAccountCreated(viewModel, context);
 
@@ -45,10 +49,8 @@ class AdminDashboard extends StatelessWidget {
                   Expanded(
                     child: Column(
                       children: [
-                        buildAnalyticsCard(context, viewModel),
-                        Expanded(
-                          child: buildDealerDataTable(context, viewModel),
-                        ),
+                        AnalyticsOverview(viewModel: viewModel, userId: viewedCustomer!.id),
+                        Expanded(child: buildDealerDataTable(context, viewModel, viewedCustomer.id)),
                       ],
                     ),
                   ),
@@ -58,10 +60,10 @@ class AdminDashboard extends StatelessWidget {
                 scrollDirection: Axis.vertical,
                 child: Column(
                   children: [
-                    buildAnalyticsCard(context, viewModel),
+                    AnalyticsOverview(viewModel: viewModel, userId: viewedCustomer!.id),
                     SizedBox(
                       height: (viewModel.myCustomerList.length*45)+95,
-                      child: buildDealerDataTable(context, viewModel),
+                      child: buildDealerDataTable(context, viewModel, viewedCustomer.id),
                     ),
                     buildProductListCard(context, viewModel, MediaQuery.of(context).size.width),
                   ],
@@ -74,7 +76,7 @@ class AdminDashboard extends StatelessWidget {
     );
   }
 
-  void handleAccountCreated(AdminAndDealerDashboardViewModel viewModel, BuildContext context) {
+  void handleAccountCreated(UserDashboardViewModel viewModel, BuildContext context) {
     if (viewModel.accountCreated) {
       viewModel.accountCreated = false;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -84,150 +86,9 @@ class AdminDashboard extends StatelessWidget {
     }
   }
 
-  Widget buildAnalyticsCard(BuildContext context,
-      AdminAndDealerDashboardViewModel viewModel) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    return SizedBox(
-      height: screenWidth>800?360:410,
-      child: Card(
-        color: Colors.white,
-        child: Padding(
-          padding: const EdgeInsets.all(3.0),
-          child: Column(
-            children: [
-              if(screenWidth<600)...[
-                ListTile(
-                  tileColor: Colors.white,
-                  title: AppConstants().anlOvrView,
-                ),
-                ListTile(
-                  tileColor: Colors.white,
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SegmentedButton<MySegment>(
-                        segments: const <ButtonSegment<MySegment>>[
-                          ButtonSegment<MySegment>(
-                            value: MySegment.all,
-                            label: SizedBox(
-                              width: 45,
-                              child: Text('All', textAlign: TextAlign.center),
-                            ),
-                            icon: Icon(Icons.calendar_view_day),
-                          ),
-                          ButtonSegment<MySegment>(
-                            value: MySegment.year,
-                            label: SizedBox(
-                              width: 45,
-                              child: Text('Year', textAlign: TextAlign.center),
-                            ),
-                            icon: Icon(Icons.calendar_view_month),
-                          ),
-                        ],
-                        selected: <MySegment>{viewModel.segmentView},
-                        onSelectionChanged: (Set<MySegment> newSelection) {
-                          if (newSelection.isNotEmpty) {
-                            viewModel.updateSegmentView(newSelection.first);
-                            viewModel.getMySalesData(userId, newSelection.first); // Refresh data based on the new selection
-                          }
-                        },
-                      ),
-                      const SizedBox(width: 16,),
-                      Text.rich(
-                        TextSpan(
-                          text: 'Total Sales: ', // Regular text
-                          style: const TextStyle(fontSize: 15),
-                          children: <TextSpan>[
-                            TextSpan(
-                              text: viewModel.totalSales.toString().padLeft(2, '0'),
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ]
-              else...[
-                ListTile(
-                  tileColor: Colors.white,
-                  title: AppConstants().anlOvrView,
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SegmentedButton<MySegment>(
-                        segments: const <ButtonSegment<MySegment>>[
-                          ButtonSegment<MySegment>(
-                            value: MySegment.all,
-                            label: SizedBox(
-                              width: 45,
-                              child: Text('All', textAlign: TextAlign.center),
-                            ),
-                            icon: Icon(Icons.calendar_view_day),
-                          ),
-                          ButtonSegment<MySegment>(
-                            value: MySegment.year,
-                            label: SizedBox(
-                              width: 45,
-                              child: Text('Year', textAlign: TextAlign.center),
-                            ),
-                            icon: Icon(Icons.calendar_view_month),
-                          ),
-                        ],
-                        selected: <MySegment>{viewModel.segmentView},
-                        onSelectionChanged: (Set<MySegment> newSelection) {
-                          if (newSelection.isNotEmpty) {
-                            viewModel.updateSegmentView(newSelection.first);
-                            viewModel.getMySalesData(userId, newSelection.first); // Refresh data based on the new selection
-                          }
-                        },
-                      ),
-                      const SizedBox(width: 16,),
-                      Text.rich(
-                        TextSpan(
-                          text: 'Total Sales: ', // Regular text
-                          style: const TextStyle(fontSize: 15),
-                          children: <TextSpan>[
-                            TextSpan(
-                              text: viewModel.totalSales.toString().padLeft(2, '0'),
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-              Expanded(
-                child: viewModel.isLoadingSalesData
-                    ? const Center(child: SizedBox(width: 40, child: LoadingIndicator(indicatorType: Indicator.ballPulse)))
-                    : MySalesBarChart(graph: viewModel.mySalesData.graph),
-              ),
-              const SizedBox(height: 6),
-              if ((viewModel.mySalesData.total ?? []).isNotEmpty)
-                Wrap(
-                  spacing: 5,
-                  runSpacing: 5,
-                  children: List.generate(
-                    viewModel.mySalesData.total!.length,
-                        (index) => buildSalesChip(index, viewModel),
-                  ),
-                ),
-              const SizedBox(height: 8),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget buildDealerDataTable(BuildContext context,
-      AdminAndDealerDashboardViewModel viewModel) {
-    final screenHeight = MediaQuery.of(context).size.width;
+      UserDashboardViewModel viewModel, int userId) {
     return Card(
       color: Colors.white,
       child: Column(
@@ -312,7 +173,22 @@ class AdminDashboard extends StatelessWidget {
                       IconButton(
                         tooltip: 'View dealer dashboard',
                         icon: const Icon(Icons.dashboard_outlined),
-                        onPressed: () => Navigator.push(
+                        onPressed: () {
+                          final user = UserModel(
+                            token: 'token',
+                            id: viewModel.myCustomerList[index].userId ?? 0,
+                            name: viewModel.myCustomerList[index].userName ?? '',
+                            role: UserRole.dealer,
+                            countryCode: viewModel.myCustomerList[index].countryCode ?? '',
+                            mobileNo: viewModel.myCustomerList[index].mobileNumber ?? '',
+                            email: viewModel.myCustomerList[index].emailId ?? '',
+                          );
+                          final userProvider = context.read<UserProvider>();
+                          userProvider.setViewedCustomer(user);
+
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const DealerLayout()));
+                        },
+                        /*onPressed: () => Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => DealerScreenController(
@@ -323,7 +199,7 @@ class AdminDashboard extends StatelessWidget {
                               emailId: viewModel.myCustomerList[index].emailId,
                             ),
                           ),
-                        ),
+                        ),*/
                       ),
                     ],
                   )),
@@ -335,16 +211,11 @@ class AdminDashboard extends StatelessWidget {
         ],
       ),
     );
-
   }
 
   Widget buildProductListCard(BuildContext context,
-      AdminAndDealerDashboardViewModel viewModel,
-      double sWidth)
+      UserDashboardViewModel viewModel, double sWidth)
   {
-    print(MediaQuery.of(context).size.width);
-    final screenHeight = MediaQuery.of(context).size.height;
-
     int crossAxisCount;
     if (sWidth >= 1000) {
       crossAxisCount = 8;
@@ -431,8 +302,7 @@ class AdminDashboard extends StatelessWidget {
                     );
                   },
                 ),
-              )
-                  : const _NoCustomersWidget(),
+              ) : const NoCustomers(),
             ),
           ],
         ),
@@ -440,46 +310,7 @@ class AdminDashboard extends StatelessWidget {
     );
   }
 
-
-  Widget buildSegmentedButton(AdminAndDealerDashboardViewModel viewModel, int userId) {
-    return SegmentedButton<MySegment>(
-      segments: const <ButtonSegment<MySegment>>[
-        ButtonSegment(
-          value: MySegment.all,
-          label: SizedBox(width: 45, child: Text('All', textAlign: TextAlign.center)),
-          icon: Icon(Icons.calendar_view_day),
-        ),
-        ButtonSegment(
-          value: MySegment.year,
-          label: SizedBox(width: 45, child: Text('Year', textAlign: TextAlign.center)),
-          icon: Icon(Icons.calendar_view_month),
-        ),
-      ],
-      selected: <MySegment>{viewModel.segmentView},
-      onSelectionChanged: (Set<MySegment> newSelection) {
-        if (newSelection.isNotEmpty) {
-          viewModel.updateSegmentView(newSelection.first);
-          viewModel.getMySalesData(userId, newSelection.first);
-        }
-      },
-    );
-  }
-
-  Widget buildSalesChip(int index, AdminAndDealerDashboardViewModel viewModel) {
-    final item = viewModel.mySalesData.total![index];
-    return Chip(
-      avatar: CircleAvatar(backgroundColor: item.color),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(color: Colors.black12, width: 0.1),
-      ),
-      color: WidgetStateProperty.resolveWith<Color>((states) => Colors.blueGrey.shade50),
-      label: Text('${index + 1} - ${item.categoryName}', style: const TextStyle(fontSize: 11)),
-      visualDensity: VisualDensity.compact,
-    );
-  }
-
-  void openCreateDealerBottomSheet(BuildContext context, AdminAndDealerDashboardViewModel viewModel, int userId) {
+  void openCreateDealerBottomSheet(BuildContext context, UserDashboardViewModel viewModel, int userId) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -504,7 +335,7 @@ class AdminDashboard extends StatelessWidget {
     );
   }
 
-  void openDealerDeviceListBottomSheet(BuildContext context, CustomerListModel customer, AdminAndDealerDashboardViewModel viewModel, int userId) {
+  void openDealerDeviceListBottomSheet(BuildContext context, CustomerListModel customer, UserDashboardViewModel viewModel, int userId) {
 
     showModalBottomSheet(
       context: context,
@@ -520,31 +351,6 @@ class AdminDashboard extends StatelessWidget {
         userRole: 'Dealer',
         productStockList: viewModel.productStockList,
         onDeviceListAdded: viewModel.removeStockList,
-      ),
-    );
-  }
-}
-
-class _NoCustomersWidget extends StatelessWidget {
-  const _NoCustomersWidget();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Padding(
-        padding: EdgeInsets.all(25.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Customers not found.', style: TextStyle(fontSize: 17)),
-            SizedBox(height: 5),
-            Text(
-              'Add your customer using top of the customer adding button.',
-              textAlign: TextAlign.center,
-            ),
-            Icon(Icons.person_add_outlined),
-          ],
-        ),
       ),
     );
   }

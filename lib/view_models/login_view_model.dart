@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import '../models/user_model.dart';
 import '../repository/repository.dart';
+import '../utils/enums.dart';
 import '../utils/shared_preferences_helper.dart';
 
 class LoginViewModel extends ChangeNotifier {
@@ -16,7 +17,7 @@ class LoginViewModel extends ChangeNotifier {
   bool isObscure = true;
 
   final ApiRepository repository;
-  final Function(UserModel) onLoginSuccess;
+  final Function(String) onLoginSuccess;
 
   LoginViewModel({required this.repository, required this.onLoginSuccess}) {
     initState();
@@ -64,22 +65,17 @@ class LoginViewModel extends ChangeNotifier {
       final response = await repository.checkLoginAuth(body);
       final data = jsonDecode(response.body);
       if (response.statusCode == 200 && data['code'] == 200) {
-
         final userData = data['data']['user'];
-        final userModel = UserModel.fromJson(userData);
-
         await PreferenceHelper.saveUserDetails(
-          token: userModel.token,
-          userId: userModel.userId,
-          userName: userModel.userName,
-          role: userModel.role.name,
-          countryCode: userModel.countryCode.replaceAll('+', ''),
-          mobileNumber: userModel.mobileNumber,
-          email: userModel.email,
+          token: userData['accessToken'],
+          userId: userData['userId'],
+          userName: userData['userName'],
+          role: userData['userType'],
+          countryCode: cleanedCountryCode,
+          mobileNumber: mobileNumber,
+          email: userData['email'],
         );
-
-        onLoginSuccess(userModel);
-
+        onLoginSuccess(data['message']);
       } else {
         isLoading = false;
         errorMessage = data['message'];
@@ -91,4 +87,5 @@ class LoginViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+
 }

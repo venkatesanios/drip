@@ -8,7 +8,7 @@ import '../../repository/repository.dart';
 import '../../views/admin_dealer/admin_dashboard.dart';
 import 'package:flutter/material.dart';
 
-class AdminAndDealerDashboardViewModel extends ChangeNotifier {
+class UserDashboardViewModel extends ChangeNotifier {
   final Repository repository;
 
   final int userId, userType;
@@ -31,7 +31,7 @@ class AdminAndDealerDashboardViewModel extends ChangeNotifier {
 
   List<ProductCategoryModel> categoryList = <ProductCategoryModel>[];
 
-  AdminAndDealerDashboardViewModel(this.repository, this.userId, this.userType) {
+  UserDashboardViewModel(this.repository, this.userId, this.userType) {
     getCategoryList();
   }
 

@@ -8,7 +8,6 @@ import '../../StateManagement/search_provider.dart';
 import '../../flavors.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
-import '../../utils/constants.dart';
 import '../../utils/enums.dart';
 import '../../view_models/nav_rail_view_model.dart';
 import '../account_settings.dart';
@@ -28,7 +27,6 @@ class _AdminScreenControllerState extends State<AdminScreenController> {
   int selectedIndex = 0;
   int hoveredIndex = -1;
   final List<String> menuTitles = ['Dashboard', 'Products', 'Stock'];
-  final List<Widget?> _pages = List.filled(3, null);
 
   Timer? _debounce;
 
@@ -110,8 +108,7 @@ class _AdminScreenControllerState extends State<AdminScreenController> {
                                   isScrollControlled: true,
                                   shape: const RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5))),
                                   builder: (BuildContext context) {
-                                    return AccountSettings(userId: widget.userId, userName: widget.userName,
-                                        mobileNo: widget.mobileNo, emailId: widget.emailId, customerId: widget.userId, hideAppbar: false,);
+                                    return const AccountSettings(hideAppbar: false);
                                   },
                                 );
                               } else if (value == 'logout') {
@@ -372,28 +369,16 @@ class _AdminScreenControllerState extends State<AdminScreenController> {
   }
 
   Widget getPage(int index) {
-    if (_pages[index] == null) {
-      switch (index) {
-        case 0:
-          _pages[0] = AdminDashboard(
-            userId: widget.userId,
-            userName: widget.userName,
-            mobileNo: widget.mobileNo,
-          );
-          break;
-        case 1:
-          _pages[1] = ProductInventory(
-            userId: widget.userId,
-            userName: widget.userName,
-            userRole: UserRole.admin,
-          );
-          break;
-        case 2:
-          _pages[2] = StockEntry(userId: widget.userId);
-          break;
-      }
+    switch (index) {
+      case 0:
+        return const AdminDashboard();
+      case 1:
+        return const ProductInventory();
+      case 2:
+        return const StockEntry();
+      default:
+        return const SizedBox();
     }
-    return _pages[index]!;
   }
 
 }

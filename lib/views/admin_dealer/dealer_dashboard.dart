@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:oro_drip_irrigation/views/admin_dealer/sales_bar_chart.dart';
 import 'package:provider/provider.dart';
+import '../../Widgets/analytics_overview.dart';
 import '../../modules/UserChat/view/user_chat.dart';
+import '../../providers/user_provider.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/constants.dart';
@@ -16,20 +18,18 @@ import 'admin_dashboard.dart';
 import 'customer_device_list.dart';
 
 class DealerDashboard extends StatelessWidget {
-  const DealerDashboard({super.key, required this.userId, required this.userName, required this.mobileNo, required this.fromLogin});
-  final int userId;
-  final String userName, mobileNo;
+  const DealerDashboard({super.key, required this.fromLogin});
   final bool fromLogin;
-
 
   @override
   Widget build(BuildContext context) {
+    final viewedCustomer = Provider.of<UserProvider>(context).viewedCustomer;
     final isLargeScreen = MediaQuery.of(context).size.width > 975;
-    print(MediaQuery.of(context).size.width);
     return ChangeNotifierProvider(
-      create: (_) => AdminAndDealerDashboardViewModel(Repository(HttpService()), userId, 2)..getMySalesData(userId, MySegment.all)
+      create: (_) => UserDashboardViewModel(Repository(HttpService()), viewedCustomer!.id, 2)
+        ..getMySalesData(viewedCustomer.id, MySegment.all)
         ..getMyStock()..getMyCustomers(),
-      child: Consumer<AdminAndDealerDashboardViewModel>(
+      child: Consumer<UserDashboardViewModel>(
         builder: (context, viewModel, _) {
           if(viewModel.accountCreated){
             viewModel.accountCreated = false;
@@ -47,14 +47,14 @@ class DealerDashboard extends StatelessWidget {
                   Expanded(
                     child: Column(
                       children: [
-                        buildAnalyticsCard(context, viewModel),
+                        AnalyticsOverview(viewModel: viewModel, userId: viewedCustomer!.id),
                         Expanded(
                           child: buildProductStock(context, viewModel),
                         ),
                       ],
                     ),
                   ),
-                  buildCustomerListCard(context, viewModel, 300),
+                  buildCustomerListCard(context, viewModel, 300, viewedCustomer.id),
                 ],
               ):
               SingleChildScrollView(
@@ -62,13 +62,13 @@ class DealerDashboard extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    buildAnalyticsCard(context, viewModel),
+                    AnalyticsOverview(viewModel: viewModel, userId: viewedCustomer!.id),
                     SizedBox(
                       width: MediaQuery.sizeOf(context).width,
                         height: (viewModel.productStockList.length * 35)+95,
                         child: buildProductStock(context, viewModel)
                     ),
-                    buildCustomerListCard(context, viewModel, MediaQuery.sizeOf(context).width),
+                    buildCustomerListCard(context, viewModel, MediaQuery.sizeOf(context).width, viewedCustomer.id),
                   ],
                 ),
               ),
@@ -79,164 +79,8 @@ class DealerDashboard extends StatelessWidget {
     );
   }
 
-  Widget buildAnalyticsCard(BuildContext context,
-      AdminAndDealerDashboardViewModel viewModel) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    return SizedBox(
-      height: screenWidth>800?360:410,
-      child: Card(
-        elevation: 1,
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5.0),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(3.0),
-          child: Column(
-            children: [
-              if(screenWidth<600)...[
-                ListTile(
-                  tileColor: Colors.white,
-                  title: AppConstants().anlOvrView,
-                ),
-                ListTile(
-                  tileColor: Colors.white,
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SegmentedButton<MySegment>(
-                        segments: const <ButtonSegment<MySegment>>[
-                          ButtonSegment<MySegment>(
-                            value: MySegment.all,
-                            label: SizedBox(
-                              width: 45,
-                              child: Text('All', textAlign: TextAlign.center),
-                            ),
-                            icon: Icon(Icons.calendar_view_day),
-                          ),
-                          ButtonSegment<MySegment>(
-                            value: MySegment.year,
-                            label: SizedBox(
-                              width: 45,
-                              child: Text('Year', textAlign: TextAlign.center),
-                            ),
-                            icon: Icon(Icons.calendar_view_month),
-                          ),
-                        ],
-                        selected: <MySegment>{viewModel.segmentView},
-                        onSelectionChanged: (Set<MySegment> newSelection) {
-                          if (newSelection.isNotEmpty) {
-                            viewModel.updateSegmentView(newSelection.first);
-                            viewModel.getMySalesData(userId, newSelection.first); // Refresh data based on the new selection
-                          }
-                        },
-                      ),
-                      const SizedBox(width: 16,),
-                      Text.rich(
-                        TextSpan(
-                          text: 'Total Sales: ', // Regular text
-                          style: const TextStyle(fontSize: 15),
-                          children: <TextSpan>[
-                            TextSpan(
-                              text: viewModel.totalSales.toString().padLeft(2, '0'),
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ]else...[
-                ListTile(
-                  tileColor: Colors.white,
-                  title: AppConstants().anlOvrView,
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SegmentedButton<MySegment>(
-                        segments: const <ButtonSegment<MySegment>>[
-                          ButtonSegment<MySegment>(
-                            value: MySegment.all,
-                            label: SizedBox(
-                              width: 45,
-                              child: Text('All', textAlign: TextAlign.center),
-                            ),
-                            icon: Icon(Icons.calendar_view_day),
-                          ),
-                          ButtonSegment<MySegment>(
-                            value: MySegment.year,
-                            label: SizedBox(
-                              width: 45,
-                              child: Text('Year', textAlign: TextAlign.center),
-                            ),
-                            icon: Icon(Icons.calendar_view_month),
-                          ),
-                        ],
-                        selected: <MySegment>{viewModel.segmentView},
-                        onSelectionChanged: (Set<MySegment> newSelection) {
-                          if (newSelection.isNotEmpty) {
-                            viewModel.updateSegmentView(newSelection.first);
-                            viewModel.getMySalesData(userId, newSelection.first); // Refresh data based on the new selection
-                          }
-                        },
-                      ),
-                      const SizedBox(width: 16,),
-                      Text.rich(
-                        TextSpan(
-                          text: 'Total Sales: ', // Regular text
-                          style: const TextStyle(fontSize: 15),
-                          children: <TextSpan>[
-                            TextSpan(
-                              text: viewModel.totalSales.toString().padLeft(2, '0'),
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-              Expanded(
-                child: viewModel.isLoadingSalesData? const Center(child: SizedBox(
-                    width: 40,
-                    child: LoadingIndicator(indicatorType: Indicator.ballPulse))) :
-                MySalesBarChart(graph: viewModel.mySalesData.graph),
-              ),
-              Wrap(
-                spacing: 5,
-                runSpacing: 5,
-                alignment: WrapAlignment.start,
-                runAlignment: WrapAlignment.spaceBetween,
-                children: List.generate(
-                  viewModel.mySalesData.total!.length, (index) =>
-                    Chip(
-                      avatar: CircleAvatar(
-                          backgroundColor: viewModel.mySalesData
-                              .total![index].color),
-                      elevation: 3,
-                      shape: const LinearBorder(),
-                      label: Text(
-                        '${index + 1} - ${viewModel.mySalesData
-                            .total![index].categoryName}',
-                        style: const TextStyle(fontSize: 11),
-                      ),
-                      visualDensity: VisualDensity.compact,
-                    ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
-  Widget buildProductStock(BuildContext context,
-      AdminAndDealerDashboardViewModel viewModel) {
+  Widget buildProductStock(BuildContext context, UserDashboardViewModel viewModel) {
     return Card(
       elevation: 1,
       surfaceTintColor: Colors.white,
@@ -320,8 +164,8 @@ class DealerDashboard extends StatelessWidget {
   }
 
   Widget buildCustomerListCard(BuildContext context,
-      AdminAndDealerDashboardViewModel viewModel,
-      double sWidth) {
+      UserDashboardViewModel viewModel,
+      double sWidth, int userId) {
     return SizedBox(
       width: sWidth == 300 ? 300: MediaQuery.sizeOf(context).width,
       height: MediaQuery.sizeOf(context).height,

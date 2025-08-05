@@ -12,7 +12,6 @@ import '../../utils/snack_bar.dart';
 class InventoryViewModel extends ChangeNotifier {
 
   final Repository repository;
-
   final int userId;
   final UserRole userRole;
 
@@ -69,7 +68,6 @@ class InventoryViewModel extends ChangeNotifier {
   }
 
   Future<void> loadInventoryData(int set) async {
-
     if(set==1){
       isLoading = true;
       notifyListeners();
@@ -521,7 +519,7 @@ class InventoryViewModel extends ChangeNotifier {
     );
   }
 
-  Future<void> fetchFilterData(dynamic categoryId, dynamic modelId, dynamic value, UserRole userRole, int userId) async {
+  Future<void> fetchFilterData(dynamic categoryId, dynamic modelId, dynamic value) async {
 
     Map<String, dynamic> body = {};
     bool isNameInput = false;

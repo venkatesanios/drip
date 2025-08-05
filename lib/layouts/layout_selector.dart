@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/layouts/base_layout.dart';
-
+import 'package:oro_drip_irrigation/layouts/user_layout.dart';
 import '../utils/enums.dart';
-import 'admin_layout.dart';
-import 'customer_layout.dart';
-import 'dealer_layout.dart';
+import 'base_layout.dart';
 
 class LayoutSelector extends StatelessWidget {
   const LayoutSelector({super.key, required this.userRole});

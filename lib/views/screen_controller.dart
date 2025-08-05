@@ -11,7 +11,6 @@ import '../services/http_service.dart';
 import '../utils/enums.dart';
 import '../utils/shared_preferences_helper.dart';
 import '../view_models/customer/customer_screen_controller_view_model.dart';
-import '../view_models/screen_controller_view_model.dart';
 import 'admin_dealer/admin_screen_controller.dart';
 import 'admin_dealer/dealer_screen_controller.dart';
 import 'customer/customer_screen_controller.dart';
@@ -32,29 +31,32 @@ class ScreenController extends StatelessWidget {
     final role = getRoleFromString(roleString);
     final user = UserModel(
       token: token,
-      userId: userId ?? 0,
-      userName: userName ?? '',
+      id: userId ?? 0,
+      name: userName ?? '',
       role: role,
       countryCode: countryCode ?? '',
-      mobileNumber: mobile ?? '',
+      mobileNo: mobile ?? '',
       email: email ?? '',
     );
 
-    // Update user provider
-    context.read<UserProvider>().setLoggedInUser(user);
+    final userProvider = context.read<UserProvider>();
+    userProvider.setLoggedInUser(user);
+    userProvider.setViewedCustomer(user);
+
 
     return true;
   }
 
+
   UserRole getRoleFromString(String? role) {
     switch (role?.toLowerCase()) {
-      case 'super admin':
+      case '0':
         return UserRole.superAdmin;
-      case 'admin':
+      case '1':
         return UserRole.admin;
-      case 'dealer':
+      case '2':
         return UserRole.dealer;
-      case 'customer':
+      case '3':
         return UserRole.customer;
       case 'sub user':
         return UserRole.subUser;
@@ -63,7 +65,7 @@ class ScreenController extends StatelessWidget {
     }
   }
 
-  /*@override
+  @override
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
       future: initializeUser(context),
@@ -79,10 +81,10 @@ class ScreenController extends StatelessWidget {
 
       },
     );
-  }*/
+  }
 
 
-  @override
+  /*@override
   Widget build(BuildContext context) {
 
     return ChangeNotifierProvider(
@@ -126,7 +128,7 @@ class ScreenController extends StatelessWidget {
         },
       ),
     );
-  }
+  }*/
 
   Widget controllerScreen(String userRole, int userId, String userName, String mobileNo, String emailId) {
     switch (userRole) {

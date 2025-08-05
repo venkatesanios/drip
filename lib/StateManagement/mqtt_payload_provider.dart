@@ -6,12 +6,11 @@ import '../Models/Weather_model.dart';
 import '../Models/customer/site_model.dart';
 import '../Screens/Map/googlemap_model.dart';
 import '../services/bluetooth_service.dart';
+import '../utils/enums.dart';
 
-enum MQTTConnectionState { connected, disconnected, connecting }
 
 class MqttPayloadProvider with ChangeNotifier {
-   MQTTConnectionState _appConnectionState = MQTTConnectionState.disconnected;
-  // SiteModel dashboardLiveInstance = SiteModel(data: data);
+   final MQTTConnectionState _appConnectionState = MQTTConnectionState.disconnected;
   SiteModel? _dashboardLiveInstance;
   SiteModel? get dashboardLiveInstance => _dashboardLiveInstance;
   dynamic spa = '';
@@ -168,8 +167,8 @@ class MqttPayloadProvider with ChangeNotifier {
    void updateDeviceStatus(String address, int status) {
      for (var device in _pairedDevices) {
        if (device.device.address == address) {
-         if (status >= 0 && status < BluDevice.values.length) {
-           device.status = BluDevice.values[status];
+         if (status >= 0 && status < BlueConnectionSate.values.length) {
+           device.status = BlueConnectionSate.values[status];
            notifyListeners();
          } else {
            print('Invalid status int: $status');
@@ -179,15 +178,6 @@ class MqttPayloadProvider with ChangeNotifier {
      }
    }
 
-   /*void updateDeviceStatus(String address, int status) {
-     for (var device in _pairedDevices) {
-       if (device.device.address == address) {
-         device.status = status;
-         notifyListeners();
-         break;
-       }
-     }
-   }*/
 
    void updateWifiList(List<Map<String, dynamic>> list) {
      _wifiList = list;
@@ -767,10 +757,6 @@ class MqttPayloadProvider with ChangeNotifier {
     updateLocalFiltrationSite();
   }
 
-
-
-
-  //Todo : Dashboard stop
 
   Future<void> updateDashboardPayload(Map<String, dynamic> payload) async{
     _dashboardLiveInstance = SiteModel.fromJson(payload);

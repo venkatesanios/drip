@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 import '../../../Models/customer/site_model.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../services/communication_service.dart';
-import '../../../utils/constants.dart';
+import '../../../utils/enums.dart';
 import '../../../utils/formatters.dart';
 import '../../../utils/snack_bar.dart';
 import '../../../view_models/customer/current_program_view_model.dart';

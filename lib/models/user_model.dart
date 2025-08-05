@@ -1,19 +1,19 @@
 import '../utils/enums.dart';
 
 class UserModel {
-  final int userId;
-  final String userName;
+  final int id;
+  final String name;
   final String email;
-  final String mobileNumber;
+  final String mobileNo;
   final String countryCode;
   final UserRole role;
   final String token;
 
   UserModel({
-    required this.userId,
-    required this.userName,
+    required this.id,
+    required this.name,
     required this.email,
-    required this.mobileNumber,
+    required this.mobileNo,
     required this.countryCode,
     required this.role,
     required this.token,
@@ -21,10 +21,10 @@ class UserModel {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      userId: json['userId'] ?? 0,
-      userName: json['userName'] ?? '',
+      id: json['userId'] ?? 0,
+      name: json['userName'] ?? '',
       email: json['email'] ?? '',
-      mobileNumber: json['mobileNumber'] ?? '',
+      mobileNo: json['mobileNumber'] ?? '',
       countryCode: json['countryCode'] ?? '',
       role: _mapRole(json['userType']),
       token: json['accessToken'] ?? '',
@@ -45,10 +45,10 @@ class UserModel {
 
   factory UserModel.empty() {
     return UserModel(
-      userId: 0,
-      userName: '',
+      id: 0,
+      name: '',
       email: '',
-      mobileNumber: '',
+      mobileNo: '',
       countryCode: '',
       role: UserRole.customer,
       token: '',

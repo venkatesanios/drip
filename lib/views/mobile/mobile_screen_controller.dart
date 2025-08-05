@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart' hide BluetoothDevice;
 import 'package:oro_drip_irrigation/Screens/Dealer/sevicecustomer.dart';
 import 'package:oro_drip_irrigation/Screens/Logs/irrigation_and_pump_log.dart';
+import 'package:oro_drip_irrigation/Widgets/network_connection_banner.dart';
 import 'package:oro_drip_irrigation/modules/ScheduleView/view/schedule_view_screen.dart';
 import 'package:oro_drip_irrigation/modules/UserChat/view/user_chat.dart';
 import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
@@ -21,10 +22,12 @@ import '../../modules/PumpController/view/node_settings.dart';
 import '../../modules/PumpController/view/pump_controller_home.dart';
 import '../../modules/bluetooth_low_energy/view/node_connection_page.dart';
 import '../../modules/open_ai/view/open_ai_screen.dart';
+import '../../providers/user_provider.dart';
 import '../../services/communication_service.dart';
 import '../../utils/constants.dart';
 import '../../utils/formatters.dart';
 import '../../utils/my_function.dart';
+import '../../utils/network_utils.dart';
 import '../../utils/routes.dart';
 import '../../utils/shared_preferences_helper.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
@@ -40,10 +43,9 @@ import '../customer/stand_alone.dart';
 
 
 class MobileScreenController extends StatefulWidget {
-  const MobileScreenController({super.key, required this.userId, required this.customerName, required this.mobileNo, required this.emailId, required this.customerId, required this.fromLogin});
-  final int customerId, userId;
-  final String customerName, mobileNo, emailId;
+  const MobileScreenController({super.key, required this.fromLogin, required this.userId});
   final bool fromLogin;
+  final int userId;
 
   @override
   State<MobileScreenController> createState() => _MobileScreenControllerState();
@@ -59,7 +61,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
     WidgetsBinding.instance.addObserver(this);
     Future.delayed(Duration.zero, () {
       viewModel = Provider.of<CustomerScreenControllerViewModel>(context, listen: false);
-      viewModel.getAllMySites(context, widget.customerId);
+      viewModel.getAllMySites(context, widget.userId);
     });
   }
 
@@ -88,6 +90,9 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
 
   @override
   Widget build(BuildContext context) {
+    final loggedInUser = Provider.of<UserProvider>(context).loggedInUser;
+    final viewedCustomer = Provider.of<UserProvider>(context).viewedCustomer;
+
     final vm = Provider.of<CustomerScreenControllerViewModel>(context);
     final commMode = Provider.of<CustomerProvider>(context).controllerCommMode;
 
@@ -131,7 +136,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
             ),
             const SizedBox(width: 8),
             AlarmButton(alarmPayload: vm.alarmDL, deviceID: currentMaster.deviceId,
-                customerId: widget.customerId, controllerId: currentMaster.controllerId),
+                customerId: viewedCustomer!.id, controllerId: currentMaster.controllerId),
             IconButton(
                 onPressed: (){
                   Navigator.push(
@@ -160,9 +165,9 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                               context: context,
                               builder: (context) {
                                 return NodeSettings(
-                                  userId: widget.userId,
+                                  userId: viewedCustomer!.id,
                                   controllerId: currentMaster.controllerId,
-                                  customerId: widget.customerId,
+                                  customerId: viewedCustomer.id,
                                   nodeList: currentMaster.nodeList,
                                   deviceId: currentMaster.deviceId,
                                 );
@@ -181,7 +186,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                           MaterialPageRoute(
                             builder: (context) =>
                                 SentAndReceived(
-                                  customerId: widget.userId,
+                                  customerId: loggedInUser.id,
                                   controllerId: currentMaster.controllerId,
                                 ),
                           ),
@@ -213,8 +218,8 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                           Navigator.push(context, MaterialPageRoute(builder: (context) => NodeConnectionPage(
                             nodeData: data,
                             masterData: {
-                              "userId" : widget.userId,
-                              "customerId" : widget.customerId,
+                              "userId" : loggedInUser.id,
+                              "customerId" : viewedCustomer!.id,
                               "controllerId" : currentMaster.controllerId
                             },
                           )));
@@ -312,11 +317,11 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                     Expanded(
                       child: Column(
                         children: [
-                          Text(widget.customerName, style: const TextStyle(
+                          Text(viewedCustomer!.name, style: const TextStyle(
                               color: Colors.white)),
-                          Text(widget.mobileNo, style: const TextStyle(
+                          Text(viewedCustomer.mobileNo, style: const TextStyle(
                               color: Colors.white, fontSize: 14)),
-                          Text(widget.emailId,
+                          Text(viewedCustomer.email,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(color: Colors.white, fontSize: 14)),
@@ -346,7 +351,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => AccountSettings(userId: widget.customerId, customerId: widget.customerId, userName: widget.customerName, mobileNo: widget.mobileNo, emailId: widget.emailId, hideAppbar: false),
+                    builder: (context) => const AccountSettings(hideAppbar: false),
                   ),
                 );
               },
@@ -385,7 +390,8 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
               onTap: () {
                 Navigator.push(
                     context,
-                  MaterialPageRoute(builder: (BuildContext context) => UserChatScreen(userId: widget.customerId, userName: widget.customerName, phoneNumber: widget.mobileNo))
+                  MaterialPageRoute(builder: (BuildContext context) => UserChatScreen(userId: viewedCustomer.id,
+                      userName: viewedCustomer.name, phoneNumber: viewedCustomer.mobileNo))
                 );
               },
             ),
@@ -416,8 +422,8 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) =>  TicketHomePage(userId: widget.userId, controllerId: vm.mySiteList.data[vm.sIndex].master[vm
-                      .mIndex].controllerId,)),
+                  MaterialPageRoute(builder: (context) =>  TicketHomePage(userId: loggedInUser.id,
+                    controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,)),
                 );
               },
             ),
@@ -435,7 +441,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) =>  CustomerProduct(customerId: widget.userId)),
+                  MaterialPageRoute(builder: (context) =>  CustomerProduct(customerId: loggedInUser.id)),
                 );
               },
             ),
@@ -515,9 +521,9 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                         context,
                         MaterialPageRoute(
                           builder: (context) => NodeList(
-                              customerId: widget.customerId,
+                              customerId: viewedCustomer.id,
                               nodes: currentMaster.nodeList,
-                              userId: widget.userId,
+                              userId: loggedInUser.id,
                               configObjects: currentMaster.configObjects,
                               masterData: currentMaster),
                         ),
@@ -538,7 +544,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                         context,
                         MaterialPageRoute(
                           builder: (context) => SentAndReceived(
-                              customerId: widget.userId,
+                              customerId: viewedCustomer.id,
                               controllerId: currentMaster.controllerId
                           ),
                         ),
@@ -550,10 +556,10 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                           MaterialPageRoute(
                               builder: (BuildContext context) {
                                 return ProgramLibraryScreenNew(
-                                  customerId: widget.customerId,
+                                  customerId: viewedCustomer.id,
                                   controllerId: currentMaster.controllerId,
                                   deviceId: currentMaster.deviceId,
-                                  userId: widget.userId,
+                                  userId: loggedInUser.id,
                                   groupId: vm.mySiteList.data[vm.sIndex].groupId,
                                   categoryId: currentMaster.categoryId,
                                   modelId: currentMaster.modelId,
@@ -571,9 +577,9 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                               builder: (BuildContext context) {
                                 return ScheduleViewScreen(
                                   deviceId: currentMaster.deviceId,
-                                  userId: widget.userId,
+                                  userId: loggedInUser.id,
                                   controllerId: currentMaster.controllerId,
-                                  customerId: widget.customerId,
+                                  customerId: viewedCustomer.id,
                                   groupId: vm.mySiteList.data[vm.sIndex].groupId,
                                 );
                               }
@@ -587,9 +593,10 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                               builder: (BuildContext context) {
                                 return StandAlone(siteId: vm.mySiteList.data[vm.sIndex].groupId,
                                     controllerId: currentMaster.controllerId,
-                                    customerId: widget.customerId,
+                                    customerId: viewedCustomer.id,
                                     deviceId: currentMaster.deviceId,
-                                    callbackFunction: callbackFunction, userId: widget.userId, masterData: currentMaster);
+                                    callbackFunction: callbackFunction,
+                                    userId: loggedInUser.id, masterData: currentMaster);
                               }
                           )
                       );
@@ -622,7 +629,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
             backgroundColor: commMode == 1? Theme.of(context).primaryColorLight:
             (commMode == 2 && vm.blueService.isConnected) ?
             Theme.of(context).primaryColorLight : Colors.redAccent,
-            onPressed: ()=>_showBottomSheet(context, currentMaster, vm),
+            onPressed: ()=>_showBottomSheet(context, currentMaster, vm, viewedCustomer.id, loggedInUser.id),
             tooltip: 'Second Action',
             child: commMode == 1?
             Column(
@@ -646,8 +653,8 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
       ) : null,
       body: ![...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(currentMaster.modelId) ?
       vm.isChanged ? PumpControllerHome(
-        userId: widget.userId,
-        customerId: widget.customerId,
+        userId: loggedInUser.id,
+        customerId: viewedCustomer.id,
         masterData: currentMaster,
       ) :
       const Scaffold(
@@ -673,6 +680,24 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
           child: Column(
             children: [
               if ([...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(currentMaster.modelId)) ...[
+
+                const NetworkConnectionBanner(),
+
+                if (commMode == 2) ...[
+                  Container(
+                    width: double.infinity,
+                    color: Colors.black38,
+                    child: const Padding(
+                      padding: EdgeInsets.only(top: 3, bottom: 4),
+                      child: Text(
+                        'Bluetooth mode enabled. Please ensure Bluetooth is connected.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 13, color: Colors.white70),
+                      ),
+                    ),
+                  ),
+                ],
+
                 if (vm.isNotCommunicate)
                   Container(
                     height: 25,
@@ -717,7 +742,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                     switch (vm.selectedIndex) {
                       case 0:
                         return CustomerHome(
-                          customerId: widget.userId,
+                          customerId: loggedInUser.id,
                           controllerId: currentMaster.controllerId,
                           deviceId: currentMaster.deviceId,
                           modelId: currentMaster.modelId,
@@ -725,11 +750,11 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
 
                       case 1:
                         return ScheduledProgram(
-                          userId: widget.customerId,
+                          userId: loggedInUser.id,
                           scheduledPrograms: currentMaster.programList,
                           controllerId: currentMaster.controllerId,
                           deviceId: currentMaster.deviceId,
-                          customerId: widget.customerId,
+                          customerId: viewedCustomer.id,
                           currentLineSNo: currentMaster.irrigationLine[vm.lIndex].sNo,
                           groupId: vm.mySiteList.data[vm.sIndex].groupId,
                           categoryId: currentMaster.categoryId,
@@ -741,7 +766,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                       case 2:
                         return IrrigationAndPumpLog(
                           userData: {
-                            'userId': widget.userId,
+                            'userId': loggedInUser.id,
                             'controllerId': currentMaster.controllerId,
                           },
                           masterData: currentMaster,
@@ -749,8 +774,8 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
 
                       default:
                         return ControllerSettings(
-                          customerId: widget.customerId,
-                          userId: widget.userId,
+                          customerId: viewedCustomer.id,
+                          userId: loggedInUser.id,
                           masterController: currentMaster,
                         );
                     }
@@ -794,7 +819,8 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
     );
   }
 
-  void _showBottomSheet(BuildContext context, MasterControllerModel currentMaster, CustomerScreenControllerViewModel vm) {
+  void _showBottomSheet(BuildContext context, MasterControllerModel currentMaster,
+      CustomerScreenControllerViewModel vm, int customerId, int userId) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -819,7 +845,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                   trailing: commMode == 1 ?
                   Icon(Icons.check, color: Theme.of(context).primaryColorLight) : null,
                   onTap: () {
-                    vm.updateCommunicationMode(1, widget.customerId);
+                    vm.updateCommunicationMode(1, customerId);
                   },
                 ),
                 ListTile(
@@ -829,7 +855,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                       ? Icon(Icons.check, color: Theme.of(context).primaryColorLight)
                       : null,
                   onTap: () {
-                    vm.updateCommunicationMode(2, widget.customerId);
+                    vm.updateCommunicationMode(2, customerId);
                   },
                 ),
                 if (commMode == 2) ...[
@@ -860,8 +886,8 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                         Navigator.push(context, MaterialPageRoute(builder: (context) => NodeConnectionPage(
                           nodeData: data,
                           masterData: {
-                            "userId" : widget.userId,
-                            "customerId" : widget.customerId,
+                            "userId" : userId,
+                            "customerId" : customerId,
                             "controllerId" : currentMaster.controllerId
                           },
                         )));

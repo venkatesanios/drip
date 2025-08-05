@@ -45,7 +45,7 @@ class CommunicationService {
           }
         }
 
-        if (await NetworkUtils.isConnected() && serverMsg.isNotEmpty) {
+        if (NetworkUtils.isOnline) {
           try {
             await sendCommandToServer(serverMsg, payload);
             result['http'] = true;

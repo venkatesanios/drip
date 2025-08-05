@@ -24,4 +24,14 @@ class UserProvider extends ChangeNotifier {
     _viewedCustomer = null;
     notifyListeners();
   }
+
+  void updateUser(UserModel updatedUser) {
+    if (_loggedInUser.id == updatedUser.id) {
+      _loggedInUser = updatedUser;
+      _viewedCustomer = updatedUser;
+    } else if (_viewedCustomer?.id == updatedUser.id) {
+      _viewedCustomer = updatedUser;
+    }
+    notifyListeners();
+  }
 }

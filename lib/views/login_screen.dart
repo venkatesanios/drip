@@ -21,8 +21,7 @@ class LoginScreen extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => LoginViewModel(
         repository: RepositoryImpl(HttpService()),
-        onLoginSuccess: (userModel) {
-          Provider.of<UserProvider>(context, listen: false).setLoggedInUser(userModel);
+        onLoginSuccess: (message) {
           Navigator.pushReplacementNamed(context, '/dashboard');
         },
       ),

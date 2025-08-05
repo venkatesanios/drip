@@ -106,8 +106,7 @@ class _DealerScreenControllerState extends State<DealerScreenController> {
                                   isScrollControlled: true,
                                   shape: const RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5))),
                                   builder: (BuildContext context) {
-                                    return AccountSettings(userId: widget.userId, userName: widget.userName,
-                                      mobileNo: widget.mobileNo, emailId: widget.emailId, customerId: widget.userId, hideAppbar: false,);
+                                    return AccountSettings(hideAppbar: false);
                                   },
                                 );
                               } else if (value == 'logout') {
@@ -468,18 +467,11 @@ class _DealerScreenControllerState extends State<DealerScreenController> {
       switch (index) {
         case 0:
           _pages[0] = DealerDashboard(
-            userId: widget.userId,
-            userName: widget.userName,
-            mobileNo: widget.mobileNo,
             fromLogin: widget.fromLogin,
           );
           break;
         case 1:
-          _pages[1] = ProductInventory(
-            userId: widget.userId,
-            userName: widget.userName,
-            userRole: UserRole.dealer,
-          );
+          _pages[1] = const ProductInventory();
           break;
       }
     }
