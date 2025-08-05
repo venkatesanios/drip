@@ -119,17 +119,19 @@ class MqttService {
   }
 
   Future<void> connect() async {
-    assert(_client != null);
-    if (!isConnected) {
-      try {
-        _connectionController.add(MqttConnectionState.connecting);
-        await _client!.connect();
-      } catch (e, stackTrace) {
-        debugPrint('MQTT Connect Exception: $e');
-        debugPrint('$stackTrace');
-      }
+    if (_client == null || isConnected || _client!.connectionStatus!.state == MqttConnectionState.connecting) {
+      return;
+    }
+    try {
+      _connectionController.add(MqttConnectionState.connecting);
+      await _client!.connect();
+    } catch (e, stackTrace) {
+      debugPrint('MQTT Connect Exception: $e');
+      debugPrint('$stackTrace');
+      rethrow;
     }
   }
+
 
   Future<void> disConnect() async {
     assert(_client != null);

@@ -47,6 +47,9 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
 
   List<String> pairedDevices = ['Device A', 'Device B', 'Device C'];
 
+  bool _isConnecting = false;
+  int reconnectAttempts = 0;
+
 
   CustomerScreenControllerViewModel(this.context, this.repository, this.mqttProvider) {
     fromWhere = 'init';
@@ -113,13 +116,25 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     });
   }
 
-  void _handleMqttReconnection(){
-    if(NetworkUtils.isOnline){
-      Future.delayed(const Duration(seconds: 5), () {
-        mqttService.connect();
+  void _handleMqttReconnection() {
+    if (_isConnecting || mqttService.isConnected) return;
+
+    if (NetworkUtils.isOnline) {
+      _isConnecting = true;
+      final delay = Duration(seconds: 2 * (1 << reconnectAttempts).clamp(1, 32));
+      Future.delayed(delay, () async {
+        try {
+          await mqttService.connect();
+          reconnectAttempts = 0;
+        } catch (_) {
+          reconnectAttempts++;
+        } finally {
+          _isConnecting = false;
+        }
       });
     }
   }
+
 
   void _subscribeToDeviceTopic() async {
 

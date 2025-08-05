@@ -243,7 +243,7 @@ class DealerDashboard extends StatelessWidget {
                       backgroundImage: AssetImage("assets/png/user_thumbnail.png"),
                       backgroundColor: Colors.transparent,
                     ),
-                    contentPadding: EdgeInsets.only(left: 10),
+                    contentPadding: const EdgeInsets.only(left: 10),
                     trailing: IntrinsicWidth(
                       child: Row(
                         mainAxisSize: MainAxisSize.min,

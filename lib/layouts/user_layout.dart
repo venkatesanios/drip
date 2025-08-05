@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/views/customer/desktop/customer_desktop.dart';
 import 'package:oro_drip_irrigation/views/customer/mobile/customer_mobile.dart';
+import 'package:oro_drip_irrigation/views/customer/tablet/customer_tablet.dart';
+import 'package:oro_drip_irrigation/views/customer/web/customer_web.dart';
 import 'package:provider/provider.dart';
 import '../view_models/base_header_view_model.dart';
 import '../views/admin/desktop/admin_desktop.dart';
 import '../views/admin/mobile/admin_mobile.dart';
 import '../views/admin/tablet/admin_tablet.dart';
 import '../views/admin/web/admin_web.dart';
-import '../views/customer/mobile/customer_mobile.dart';
 import '../views/dealer/desktop/dealer_desktop.dart';
 import '../views/dealer/mobile/dealer_mobile.dart';
 import '../views/dealer/tablet/dealer_tablet.dart';
@@ -25,11 +27,11 @@ class AdminLayout extends BaseLayout {
   }
 
   @override
-  Widget buildDesktop(BuildContext context) => const AdminDesktop();
+  Widget buildMobile(BuildContext context) => const AdminMobile();
   @override
   Widget buildTablet(BuildContext context) => const AdminTablet();
   @override
-  Widget buildMobile(BuildContext context) => const AdminMobile();
+  Widget buildDesktop(BuildContext context) => const AdminDesktop();
   @override
   Widget buildWeb(BuildContext context) => const AdminWeb();
 
@@ -47,11 +49,11 @@ class DealerLayout extends BaseLayout {
   }
 
   @override
-  Widget buildDesktop(BuildContext context) => const DealerDesktop();
-  @override
   Widget buildMobile(BuildContext context) => const DealerMobile();
   @override
   Widget buildTablet(BuildContext context) => const DealerTablet();
+  @override
+  Widget buildDesktop(BuildContext context) => const DealerDesktop();
   @override
   Widget buildWeb(BuildContext context) => const DealerWeb();
 
@@ -62,24 +64,11 @@ class CustomerLayout extends BaseLayout {
 
   @override
   Widget buildMobile(BuildContext context) => const CustomerMobile();
-
   @override
-  Widget buildDesktop(BuildContext context) {
-    // TODO: implement buildDesktop
-    throw UnimplementedError();
-  }
-
-
+  Widget buildTablet(BuildContext context) => const CustomerTablet();
   @override
-  Widget buildTablet(BuildContext context) {
-    // TODO: implement buildTablet
-    throw UnimplementedError();
-  }
-
+  Widget buildDesktop(BuildContext context) => const CustomerDesktop();
   @override
-  Widget buildWeb(BuildContext context) {
-    // TODO: implement buildWeb
-    throw UnimplementedError();
-  }
+  Widget buildWeb(BuildContext context) => const CustomerWeb();
 
 }
