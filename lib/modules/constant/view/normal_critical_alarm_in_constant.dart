@@ -145,6 +145,7 @@ class _NormalCriticalInConstantState extends State<NormalCriticalInConstant> {
       ],
     );
   }
+
   Widget getIrrigationLine(){
     return Column(
       mainAxisSize: MainAxisSize.min,

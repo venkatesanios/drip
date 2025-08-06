@@ -55,6 +55,7 @@ class _DeviceListState extends State<DeviceList> {
     setState(() {
       userRole = role!;
     });
+    print("userRole :: ${userRole}");
   }
 
   @override
@@ -203,9 +204,9 @@ class _DeviceListState extends State<DeviceList> {
                                       }
                                     },
                                   ),
-                                  if(userRole == 'admin')
+                                  if(["admin", "1"].contains(userRole))
                                     editDeviceIdWidget(masterOrNode: 2, device: device),
-                                  if(userRole == 'dealer')
+                                  if(["dealer","2"].contains(userRole))
                                     IconButton(
                                         onPressed: (){
                                           showDialog(
@@ -386,9 +387,9 @@ class _DeviceListState extends State<DeviceList> {
           spacing: 20,
           children: [
             SelectableText('${configPvd.masterData['deviceId']}', style: themeData.textTheme.bodySmall,),
-            if(userRole == 'admin')
+            if(["admin", "1"].contains(userRole))
               editDeviceIdWidget(masterOrNode: 1),
-            if(userRole == 'dealer')
+            if(["dealer", "2"].contains(userRole))
               IconButton(
                 onPressed: (){
                   showDialog(

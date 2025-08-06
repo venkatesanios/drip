@@ -609,7 +609,7 @@ class ConfigMakerProvider extends ChangeNotifier{
           /* validate while digital object connection */
           int pressureSwitch = AppConstants.pressureSwitchObjectId;
           if(selectedConnectionObject.objectId == pressureSwitch){
-            selectedModelDefaultConnectionList = selectedModelDefaultConnectionList.where((connectionNo) => [4].contains(connectionNo)).toList();
+            selectedModelDefaultConnectionList = selectedModelDefaultConnectionList.where((connectionNo) => [5].contains(connectionNo)).toList();
           }
         }
       }

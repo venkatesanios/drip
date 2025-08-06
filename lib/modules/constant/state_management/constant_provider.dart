@@ -158,7 +158,7 @@ class ConstantProvider extends ChangeNotifier{
 
       for (var object in configObjectDataFromHttp) {
         print("objectId : ${object['objectId']} == ${object['name']}");
-        if(object["controllerId"] != null){
+        if([AppConstants.irrigationLineObjectId, AppConstants.fertilizerSiteObjectId, AppConstants.filterSiteObjectId].contains(object['objectId']) || object["controllerId"] != null){
           if(object['objectId'] == AppConstants.pumpObjectId){
             listOfPumpObject.add(object);
           }else if(object['objectId'] == AppConstants.filterSiteObjectId){
