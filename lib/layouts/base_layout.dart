@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../utils/enums.dart';
 import '../utils/helpers/screen_helper.dart';
 
-abstract class BaseLayout extends StatelessWidget {
-  const BaseLayout({super.key});
+abstract class BaseScreenLayout extends StatelessWidget {
+  const BaseScreenLayout({super.key});
 
   Widget buildMobile(BuildContext context);
   Widget buildTablet(BuildContext context);
@@ -13,7 +13,7 @@ abstract class BaseLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    final type = ScreenHelper.getDeviceType(width);
+    final type = ScreenHelper.getScreenType(width);
 
     switch (type) {
       case ScreenType.mobile:

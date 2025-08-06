@@ -203,7 +203,7 @@ class DealerDashboard extends StatelessWidget {
                   viewModel.myCustomerList.length>15?IconButton(
                       tooltip: 'Search Customer by Name or Mobile number',
                       icon: const Icon(Icons.search),
-                      color: Theme.of(context).primaryColor, onPressed:()=>viewModel.searchCustomer()):
+                      color: Theme.of(context).primaryColor, onPressed:()=> viewModel.searchCustomer()):
                   const SizedBox(),
                   IconButton(
                       tooltip: 'Create Customer account',
@@ -253,8 +253,8 @@ class DealerDashboard extends StatelessWidget {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(builder: (BuildContext context) => UserChatScreen(
-                                        userId: viewModel.myCustomerList[index].userId,
-                                        userName: viewModel.myCustomerList[index].userName,
+                                        userId: viewModel.filteredCustomerList[index].userId,
+                                        userName: viewModel.filteredCustomerList[index].userName,
                                         phoneNumber: '+${customer.countryCode} ${customer.mobileNumber}')
                                     )
                                 );
@@ -316,8 +316,8 @@ class DealerDashboard extends StatelessWidget {
                                 isScrollControlled: true,
                                 shape: const RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5))),
                                 builder: (BuildContext context) {
-                                  return CustomerDeviceList(userId: userId, customerName: viewModel.myCustomerList[index]
-                                      .userName, customerId: viewModel.myCustomerList[index]
+                                  return CustomerDeviceList(userId: userId, customerName: viewModel.filteredCustomerList[index]
+                                      .userName, customerId: viewModel.filteredCustomerList[index]
                                       .userId, userRole: 'Customer', productStockList: viewModel.productStockList,
                                       onCustomerProductChanged: viewModel.onCustomerProductChanged);
                                 },
@@ -333,11 +333,11 @@ class DealerDashboard extends StatelessWidget {
                     onTap:() {
                       Navigator.push(context,
                         MaterialPageRoute(
-                            builder: (context) => CustomerScreenController(userId: viewModel.myCustomerList[index].userId,
-                              customerName: viewModel.myCustomerList[index].userName,
-                              mobileNo: viewModel.myCustomerList[index].mobileNumber, fromLogin: false,
-                              emailId: viewModel.myCustomerList[index].emailId,
-                              customerId: viewModel.myCustomerList[index].userId,)),
+                            builder: (context) => CustomerScreenController(userId: viewModel.filteredCustomerList[index].userId,
+                              customerName: viewModel.filteredCustomerList[index].userName,
+                              mobileNo: viewModel.filteredCustomerList[index].mobileNumber, fromLogin: false,
+                              emailId: viewModel.filteredCustomerList[index].emailId,
+                              customerId: viewModel.filteredCustomerList[index].userId,)),
                       );
                     },
                   );

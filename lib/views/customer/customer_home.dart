@@ -290,6 +290,7 @@ class CustomerHome extends StatelessWidget {
       filterSite: filterSite,
       fertilizerSite: fertilizerSite,
       valves: irrLine.valveObjects,
+      mainValves: irrLine.mainValveObjects,
       lights:irrLine.lightObjects,
       gates:irrLine.gateObjects,
       prsSwitch: irrLine.prsSwitch,
@@ -352,6 +353,7 @@ class PumpStationWithLine extends StatelessWidget {
   final List<FilterSiteModel> filterSite;
   final List<FertilizerSiteModel> fertilizerSite;
   final List<ValveModel> valves;
+  final List<ValveModel> mainValves;
   final List<LightModel> lights;
   final List<GateModel> gates;
   final List<SensorModel> prsSwitch;
@@ -367,6 +369,7 @@ class PumpStationWithLine extends StatelessWidget {
     required this.filterSite,
     required this.fertilizerSite,
     required this.valves,
+    required this.mainValves,
     required this.lights,
     required this.gates,
     required this.prsSwitch,
@@ -385,17 +388,30 @@ class PumpStationWithLine extends StatelessWidget {
 
     if(kIsWeb)
     {
-      final valveWidgets = valves.asMap().entries.map((entry) {
-        final index = entry.key;
-        final valve = entry.value;
-        final isLastValve = index == valves.length - 1;
-        return ValveWidget(
-          valve: valve,
-          customerId: customerId,
-          controllerId: controllerId,
-          isLastValve: isLastValve && pressureOut.isEmpty,
-        );
-      }).toList();
+
+      final allValveWidgets = [
+        ...mainValves.asMap().entries.map((entry) {
+          final valve = entry.value;
+          return ValveWidget(
+            valve: valve,
+            customerId: customerId,
+            controllerId: controllerId,
+            isLastValve: false,
+          );
+        }),
+
+        ...valves.asMap().entries.map((entry) {
+          final index = entry.key;
+          final valve = entry.value;
+          final isLastValve = index == valves.length - 1;
+          return ValveWidget(
+            valve: valve,
+            customerId: customerId,
+            controllerId: controllerId,
+            isLastValve: isLastValve && pressureOut.isEmpty,
+          );
+        }),
+      ];
 
       final gateWidgets = gates.asMap().entries.map((entry) {
         return GateWidget(objGate: entry.value);
@@ -420,7 +436,7 @@ class PumpStationWithLine extends StatelessWidget {
         ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch_wj.png', fertilizerSite.isNotEmpty),
         ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', fertilizerSite.isNotEmpty),
         ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter_wj.png', fertilizerSite.isNotEmpty),
-        ...valveWidgets,
+        ...allValveWidgets,
         ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor_wjl.png', fertilizerSite.isEmpty),
         ...lightWidgets,
         ...gateWidgets,

@@ -1081,6 +1081,91 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                       ),
                     ),
                     SizedBox(
+                      height: ((line.mainValveObjects.length + line.valveObjects.length) * 40) + 3,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 3, right: 3, bottom: 3),
+                        child: DataTable2(
+                          columnSpacing: 12,
+                          horizontalMargin: 12,
+                          minWidth: 150,
+                          dataRowHeight: 40.0,
+                          headingRowHeight: 0,
+                          dataRowColor: WidgetStateProperty.all(Colors.white),
+                          columns: const [
+                            DataColumn2(label: Center(child: Text('')), fixedWidth: 30),
+                            DataColumn2(label: Text('Name'), size: ColumnSize.M),
+                            DataColumn2(
+                              label: Center(child: Text('Valve Status')),
+                              fixedWidth: 50,
+                            ),
+                          ],
+                          rows: [
+                            // 🟢 First: Main Valves
+                            ...List<DataRow>.generate(line.mainValveObjects.length, (index) {
+                              final mainValve = line.mainValveObjects[index];
+                              return DataRow(cells: [
+                                DataCell(Center(
+                                  child: Image.asset(
+                                    'assets/png/main_valve_gray.png', // use a different icon for main valve
+                                    width: 25,
+                                    height: 25,
+                                  ),
+                                )),
+                                DataCell(Text(mainValve.name)),
+                                DataCell(Transform.scale(
+                                  scale: 0.7,
+                                  child: Tooltip(
+                                    message: mainValve.isOn ? 'Close' : 'Open',
+                                    child: Switch(
+                                      hoverColor: Colors.pink.shade100,
+                                      activeColor: Colors.teal,
+                                      value: mainValve.isOn,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          mainValve.isOn = value;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                )),
+                              ]);
+                            }),
+
+                            // 🔵 Then: Normal Valves
+                            ...List<DataRow>.generate(line.valveObjects.length, (index) {
+                              final valve = line.valveObjects[index];
+                              return DataRow(cells: [
+                                DataCell(Center(
+                                  child: Image.asset(
+                                    'assets/png/valve_gray.png',
+                                    width: 25,
+                                    height: 25,
+                                  ),
+                                )),
+                                DataCell(Text(valve.name)),
+                                DataCell(Transform.scale(
+                                  scale: 0.7,
+                                  child: Tooltip(
+                                    message: valve.isOn ? 'Close' : 'Open',
+                                    child: Switch(
+                                      hoverColor: Colors.pink.shade100,
+                                      activeColor: Colors.teal,
+                                      value: valve.isOn,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          valve.isOn = value;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                )),
+                              ]);
+                            }),
+                          ],
+                        ),
+                      ),
+                    ),
+                    /*SizedBox(
                       height: (line.valveObjects.length*40)+3,
                       child: Padding(
                         padding: const EdgeInsets.only(left:3, right:3, bottom: 3),
@@ -1104,8 +1189,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                             return DataRow(cells: [
                               DataCell(Center(child: Image.asset('assets/png/valve_gray.png', width: 25, height: 25))),
                               DataCell(Text(valve.name)),
-                              DataCell(
-                                Transform.scale(
+                              DataCell(Transform.scale(
                                   scale: 0.7,
                                   child: Tooltip(
                                     message: valve.isOn ? 'Close' : 'Open',
@@ -1120,13 +1204,12 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                                       },
                                     ),
                                   ),
-                                ),
-                              ),
+                                )),
                             ]);
                           }),
                         ),
                       ),
-                    ),
+                    ),*/
                   ],
                 ),
               ),

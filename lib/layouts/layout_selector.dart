@@ -3,19 +3,19 @@ import 'package:oro_drip_irrigation/layouts/user_layout.dart';
 import '../utils/enums.dart';
 import 'base_layout.dart';
 
-class LayoutSelector extends StatelessWidget {
-  const LayoutSelector({super.key, required this.userRole});
+class ScreenLayoutSelector extends StatelessWidget {
+  const ScreenLayoutSelector({super.key, required this.userRole});
   final UserRole userRole;
 
-  BaseLayout getLayoutForRole() {
+  BaseScreenLayout getScreenLayout() {
     switch (userRole) {
       case UserRole.admin:
-        return const AdminLayout();
+        return const AdminScreenLayout();
       case UserRole.dealer:
-        return const DealerLayout();
+        return const DealerScreenLayout();
       case UserRole.customer:
       case UserRole.subUser:
-        return const CustomerLayout();
+        return const CustomerScreenLayout();
       case UserRole.superAdmin:
         throw UnimplementedError('Super Admin layout');
     }
@@ -23,6 +23,31 @@ class LayoutSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return getLayoutForRole();
+    return getScreenLayout();
+  }
+}
+
+class DashboardLayoutSelector extends StatelessWidget {
+  final UserRole userRole;
+  const DashboardLayoutSelector({super.key, required this.userRole});
+
+  BaseScreenLayout getDashboardLayout() {
+    switch (userRole) {
+      case UserRole.admin:
+        return const AdminDashboardLayout();
+      case UserRole.dealer:
+        return const DealerDashboardLayout();
+      case UserRole.customer:
+        return const CustomerDashboardLayout();
+      case UserRole.superAdmin:
+        throw UnimplementedError('Super Admin layout not implemented');
+      case UserRole.subUser:
+        throw UnimplementedError('Sub user layout not implemented');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return getDashboardLayout();
   }
 }

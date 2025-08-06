@@ -2,7 +2,6 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:oro_drip_irrigation/utils/Theme/oro_theme.dart';
-import 'package:oro_drip_irrigation/views/admin_dealer/sales_bar_chart.dart';
 import 'package:provider/provider.dart';
 import '../../Widgets/analytics_overview.dart';
 import '../../Widgets/empty_customer.dart';
@@ -13,23 +12,21 @@ import '../../models/user_model.dart';
 import '../../providers/user_provider.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
-import '../../utils/constants.dart';
 import '../../utils/enums.dart';
 import '../../utils/snack_bar.dart';
 import '../../view_models/admin_dealer/admin_dealer_dashboard_view_model.dart';
 import '../create_account.dart';
 import 'dealer_device_list.dart';
-import 'dealer_screen_controller.dart';
 
 enum MySegment {all, year}
 
 class AdminDashboard extends StatelessWidget {
-  const AdminDashboard({super.key});
+  const AdminDashboard({super.key, required this.isWideLayout});
+  final bool isWideLayout;
 
   @override
   Widget build(BuildContext context) {
     final viewedCustomer = Provider.of<UserProvider>(context).viewedCustomer;
-    final isLargeScreen = MediaQuery.of(context).size.width > 1130;
 
     return ChangeNotifierProvider(
       create: (_) => UserDashboardViewModel(Repository(HttpService()), viewedCustomer!.id, 1)
@@ -44,7 +41,7 @@ class AdminDashboard extends StatelessWidget {
           return Scaffold(
             body: Padding(
               padding: const EdgeInsets.all(3.0),
-              child: isLargeScreen ? Row(
+              child: isWideLayout ? Row(
                 children: [
                   Expanded(
                     child: Column(
@@ -87,8 +84,7 @@ class AdminDashboard extends StatelessWidget {
   }
 
 
-  Widget buildDealerDataTable(BuildContext context,
-      UserDashboardViewModel viewModel, int userId) {
+  Widget buildDealerDataTable(BuildContext context, UserDashboardViewModel viewModel, int userId) {
     return Card(
       color: Colors.white,
       child: Column(
@@ -186,7 +182,7 @@ class AdminDashboard extends StatelessWidget {
                           final userProvider = context.read<UserProvider>();
                           userProvider.setViewedCustomer(user);
 
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const DealerLayout()));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const DealerScreenLayout()));
                         },
                         /*onPressed: () => Navigator.push(
                           context,

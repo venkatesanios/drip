@@ -10,7 +10,7 @@ import '../utils/Theme/smart_comm_theme.dart';
 import '../utils/Theme/oro_theme.dart';
 import '../utils/routes.dart';
 import '../utils/shared_preferences_helper.dart';
-import '../views/login_screen.dart';
+import '../views/common/login/login_screen.dart';
 import '../views/screen_controller.dart';
 import '../views/splash_screen.dart';
 

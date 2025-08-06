@@ -32,7 +32,7 @@ class AdminWeb extends StatelessWidget {
       body: IndexedStack(
         index: viewModel.selectedIndex,
         children: const [
-          AdminDashboard(),
+          AdminDashboard(isWideLayout: true),
           ProductInventory(),
           StockEntry(),
         ],

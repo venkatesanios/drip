@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../views/screen_controller.dart';
-import '../views/login_screen.dart';
+import '../views/common/login/login_screen.dart';
 import '../views/splash_screen.dart';
 
 class Routes {

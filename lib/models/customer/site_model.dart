@@ -307,6 +307,7 @@ class IrrigationLineModel {
   FilterSiteModel? centralFilterSite;
   FertilizerSiteModel? centralFertilizerSite;
   final List<ValveModel> valveObjects;
+  final List<ValveModel> mainValveObjects;
   final List<LightModel> lightObjects;
   final List<GateModel> gateObjects;
   final List<SensorModel> prsSwitch;
@@ -323,6 +324,7 @@ class IrrigationLineModel {
     required this.centralFiltration,
     required this.centralFertilization,
     required this.valveObjects,
+    required this.mainValveObjects,
     required this.lightObjects,
     required this.gateObjects,
     required this.prsSwitch,
@@ -366,7 +368,11 @@ class IrrigationLineModel {
         .map((obj) => ValveModel.fromConfigObject(obj, waterSources))
         .toList();
 
-
+    final mainValveSNoSet = ((json['mainValve'] as List?) ?? []).map((e) => e).toSet();
+    final mainValves = configObjects
+        .where((obj) => mainValveSNoSet.contains(obj.sNo))
+        .map((obj) => ValveModel.fromConfigObject(obj, waterSources))
+        .toList();
 
     final Map<double, List<MoistureSensorModel>> valveToMoistureSensors = {};
 
@@ -439,6 +445,7 @@ class IrrigationLineModel {
       inletSources: matchedInletSources,
       outletSources: matchedOutLetSources,
       valveObjects: valves,
+      mainValveObjects: mainValves,
       lightObjects: lights,
       gateObjects: gates,
       prsSwitch: pressureSwitch,
