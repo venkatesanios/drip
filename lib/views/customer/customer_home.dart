@@ -481,6 +481,7 @@ class PumpStationWithLine extends StatelessWidget {
       int itemsPerRow = myDouble.toInt();
 
       final valveWidgetEntries = valves.asMap().entries.toList();
+      final mainValveWidgetEntries = mainValves.asMap().entries.toList();
 
       final baseSensors = [
         ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch_wj.png', false),
@@ -523,6 +524,16 @@ class PumpStationWithLine extends StatelessWidget {
         );
       }).toList();
 
+      final mainValveWidgets = mainValveWidgetEntries.map((entry) {
+        final valve = entry.value;
+        return ValveWidget(
+          valve: valve,
+          customerId: customerId,
+          controllerId: controllerId,
+          isLastValve: false,
+        );
+      }).toList();
+
       final pressureOutWidgets = _buildSensorItems(
         pressureOut,
         'Pressure Sensor',
@@ -538,6 +549,7 @@ class PumpStationWithLine extends StatelessWidget {
 
       final allItems = [
         ...allItemsWithoutValves,
+        ...mainValveWidgets,
         ...valveWidgets,
         ...pressureOutWidgets,
       ];

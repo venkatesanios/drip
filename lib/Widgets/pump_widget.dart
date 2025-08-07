@@ -416,6 +416,7 @@ class PumpWidget extends StatelessWidget {
               }
 
               final payLoadFinal = jsonEncode({"6200": {"6201": payload}});
+              print(payLoadFinal);
               MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
               sentUserOperationToServer('${pump.name} Start Manually', payLoadFinal);
               GlobalSnackBar.show(context, 'Pump start comment sent successfully', 200);
@@ -430,7 +431,6 @@ class PumpWidget extends StatelessWidget {
             onPressed: () {
               String payload = '${pump.sNo},0,1';
               if (modelId == 56 || modelId == 57 || modelId == 58 || modelId == 59) {
-                //for nova model
                 payload = payload.replaceAll(RegExp(r'[.]'), ',');
               }
 

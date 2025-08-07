@@ -3,8 +3,8 @@ import 'package:oro_drip_irrigation/layouts/user_layout.dart';
 import '../utils/enums.dart';
 import 'base_layout.dart';
 
-class ScreenLayoutSelector extends StatelessWidget {
-  const ScreenLayoutSelector({super.key, required this.userRole});
+class UserLayoutSelector extends StatelessWidget {
+  const UserLayoutSelector({super.key, required this.userRole});
   final UserRole userRole;
 
   BaseScreenLayout getScreenLayout() {
@@ -28,8 +28,8 @@ class ScreenLayoutSelector extends StatelessWidget {
 }
 
 class DashboardLayoutSelector extends StatelessWidget {
-  final UserRole userRole;
   const DashboardLayoutSelector({super.key, required this.userRole});
+  final UserRole userRole;
 
   BaseScreenLayout getDashboardLayout() {
     switch (userRole) {

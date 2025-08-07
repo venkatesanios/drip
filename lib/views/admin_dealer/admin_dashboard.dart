@@ -18,7 +18,6 @@ import '../../view_models/admin_dealer/admin_dealer_dashboard_view_model.dart';
 import '../create_account.dart';
 import 'dealer_device_list.dart';
 
-enum MySegment {all, year}
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key, required this.isWideLayout});
