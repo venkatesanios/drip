@@ -43,7 +43,6 @@ class ScreenController extends StatelessWidget {
     userProvider.setLoggedInUser(user);
     userProvider.setViewedCustomer(user);
 
-
     return true;
   }
 
@@ -77,7 +76,7 @@ class ScreenController extends StatelessWidget {
         }
 
         final user = context.watch<UserProvider>().loggedInUser;
-        return ScreenLayoutSelector(userRole: user.role);
+        return UserLayoutSelector(userRole: user.role);
 
       },
     );

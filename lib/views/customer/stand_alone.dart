@@ -1100,7 +1100,6 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                             ),
                           ],
                           rows: [
-                            // 🟢 First: Main Valves
                             ...List<DataRow>.generate(line.mainValveObjects.length, (index) {
                               final mainValve = line.mainValveObjects[index];
                               return DataRow(cells: [
@@ -1131,7 +1130,6 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                               ]);
                             }),
 
-                            // 🔵 Then: Normal Valves
                             ...List<DataRow>.generate(line.valveObjects.length, (index) {
                               final valve = line.valveObjects[index];
                               return DataRow(cells: [
