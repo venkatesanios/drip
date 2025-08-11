@@ -5,6 +5,9 @@ import 'package:oro_drip_irrigation/views/customer/desktop/customer_desktop.dart
 import 'package:oro_drip_irrigation/views/customer/mobile/customer_mobile.dart';
 import 'package:oro_drip_irrigation/views/customer/tablet/customer_tablet.dart';
 import 'package:oro_drip_irrigation/views/customer/web/customer_web.dart';
+import '../providers/user_provider.dart';
+import '../repository/repository.dart';
+import '../services/http_service.dart';
 import '../views/common/user_dashboard/mobile/admin_mobile_dashboard.dart';
 import '../views/common/user_dashboard/mobile/customer_mobile_dashboard.dart';
 import '../views/common/user_dashboard/mobile/dealer_mobile_dashboard.dart';
@@ -34,8 +37,10 @@ class AdminScreenLayout extends BaseScreenLayout {
 
   @override
   Widget build(BuildContext context) {
+    final viewedCustomer = context.read<UserProvider>().viewedCustomer!;
     return ChangeNotifierProvider<BaseHeaderViewModel>(
-      create: (_) => BaseHeaderViewModel(menuTitles: ['Dashboard', 'Products', 'Stock']),
+      create: (_) => BaseHeaderViewModel(menuTitles: ['Dashboard', 'Products', 'Stock'],
+          repository: Repository(HttpService()))..fetchCategoryModelList(viewedCustomer.id, viewedCustomer.role),
       child: super.build(context),
     );
   }
@@ -56,7 +61,8 @@ class DealerScreenLayout extends BaseScreenLayout {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<BaseHeaderViewModel>(
-      create: (_) => BaseHeaderViewModel(menuTitles: ['Dashboard', 'Products']),
+      create: (_) => BaseHeaderViewModel(menuTitles: ['Dashboard', 'Products'],
+          repository: Repository(HttpService())),
       child: super.build(context),
     );
   }

@@ -36,7 +36,7 @@ class AdminTablet extends StatelessWidget {
         children: const [
           DashboardLayoutSelector(userRole: UserRole.admin),
           ProductInventory(),
-          StockEntry(),
+          StockEntry(screenType: 'Tablet'),
         ],
       ),
     );

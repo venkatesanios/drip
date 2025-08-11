@@ -5,7 +5,6 @@ import '../../Models/admin_dealer/inventory_model.dart';
 import '../../models/admin_dealer/new_stock_model.dart';
 import '../../models/admin_dealer/stock_model.dart';
 import '../../repository/repository.dart';
-import '../../utils/constants.dart';
 import '../../utils/enums.dart';
 import '../../utils/snack_bar.dart';
 
@@ -23,12 +22,6 @@ class InventoryViewModel extends ChangeNotifier {
   int totalProduct = 0;
   int batchSize = 30;
   int currentSet = 1;
-
-  TextEditingController txtFldSearch = TextEditingController();
-
-  bool filterActive = false;
-  bool searched = false;
-  bool showSearchButton = false;
 
   late List<DropdownMenuEntry<ProductModel>> selectedModel;
   List<ProductModel> activeModelList = <ProductModel>[];
@@ -151,7 +144,7 @@ class InventoryViewModel extends ChangeNotifier {
 
   Future<void> displayEditProductDialog(BuildContext context, int catId, String catName, String mdlName, int mdlId, String imeiNo, int warranty, int productId, int userId) async
   {
-    int indexOfInitialSelection = activeModelList.indexWhere((model) => model.modelName == mdlName);
+    int indexOfInitialSelection = activeModelList.indexWhere((model) => model.modelId == mdlId);
     final formKey = GlobalKey<FormState>();
     final TextEditingController textFieldModelList = TextEditingController();
     final TextEditingController ctrlIMI = TextEditingController();
@@ -265,15 +258,12 @@ class InventoryViewModel extends ChangeNotifier {
                       if (response.statusCode == 200) {
                         final Map<String, dynamic> jsonData = jsonDecode(response.body);
                         if (jsonData["code"] == 200) {
-                          if(searched){
-                            //fetchFilterData(catId, null, null);
-                          }else{
-                            for (var item in productInventoryList) {
-                              if (item.productId == productId) {
-                                item.deviceId = ctrlIMI.text.trim();
-                                item.warrantyMonths = int.parse(ctrlWrM.text);
-                                break;
-                              }
+
+                          for (var item in productInventoryList) {
+                            if (item.productId == productId) {
+                              item.deviceId = ctrlIMI.text.trim();
+                              item.warrantyMonths = int.parse(ctrlWrM.text);
+                              break;
                             }
                           }
 
@@ -292,32 +282,8 @@ class InventoryViewModel extends ChangeNotifier {
                       debugPrint('Error fetching models: $error');
                       debugPrint(stackTrace.toString());
                     } finally {
-                      //isLoading = false;
                       notifyListeners();
                     }
-
-                    /*final body = {"productId": productId, "modelId": mdlId, "deviceId": ctrlIMI.text.trim(), "warrantyMonths": ctrlWrM.text, 'modifyUser': widget.userId};
-                    final response = await HttpService().putRequest("updateProduct", body);
-                    if (response.statusCode == 200)
-                    {
-                      if(jsonDecode(response.body)["code"]==200)
-                      {
-                        if(searched){
-                          fetchFilterData(catId, null, null);
-                        }else{
-                          loadData(currentSet);
-                          _showSnackBar(jsonDecode(response.body)["message"]);
-                        }
-                      }else{
-                        _showSnackBar(jsonDecode(response.body)["message"]);
-                      }
-
-                      if(mounted){
-                        Navigator.pop(context);
-                      }
-                    }else {
-                      throw Exception('Failed to load data');
-                    }*/
                   }
                 },
               ),
@@ -542,7 +508,6 @@ class InventoryViewModel extends ChangeNotifier {
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
         if (responseBody["code"] == 200) {
-          searched = true;
           if(userType==3){
             //filterProductInventoryListCus = (jsonDecode(response.body)["data"] as List).map((data) => CustomerProductModel.fromJson(data)).toList();
           }else{
@@ -555,7 +520,6 @@ class InventoryViewModel extends ChangeNotifier {
     } catch (error) {
       debugPrint("Error: $error");
     } finally {
-      searched = true;
       notifyListeners();
     }
 
@@ -567,11 +531,7 @@ class InventoryViewModel extends ChangeNotifier {
   }
 
   void clearSearch() {
-    txtFldSearch.clear();
-    filterActive = false;
-    searched = false;
     filterProductInventoryList.clear();
-    showSearchButton = false;
     notifyListeners();
   }
 

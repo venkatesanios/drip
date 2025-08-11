@@ -46,7 +46,7 @@ class MyUser extends StatelessWidget {
               ),
             ),
             SizedBox(
-              height: isWideScreen ? customerList.length * 50 : customerList.length * 78,
+              height: isWideScreen ? (customerList.length * 40)+35 : customerList.length * 78,
               child: isWideScreen ? DataTable2(
                 columnSpacing: 12,
                 horizontalMargin: 12,

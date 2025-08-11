@@ -9,6 +9,7 @@ import '../../../layouts/layout_selector.dart';
 import '../../../view_models/base_header_view_model.dart';
 import '../../admin_dealer/product_inventory.dart';
 import '../../admin_dealer/stock_entry.dart';
+import '../../common/product_search_bar.dart';
 
 class AdminWeb extends StatelessWidget {
   const AdminWeb({super.key});
@@ -22,7 +23,17 @@ class AdminWeb extends StatelessWidget {
           padding: EdgeInsets.only(left: 15),
           child: AppLogo(),
         ),
-        title: MainMenu(viewModel: viewModel),
+        title: Row(
+          children: [
+            MainMenu(viewModel: viewModel),
+            if(viewModel.selectedIndex==1)...[
+              const Spacer(),
+              SizedBox(width : 420, child: ProductSearchBar(
+                  viewModel: viewModel, barHeight: 40, barRadius: 20)),
+              const Spacer(),
+            ]
+          ],
+        ),
         actions: const <Widget>[
           UserAccountMenu(screenType: 'Web'),
         ],
@@ -35,7 +46,7 @@ class AdminWeb extends StatelessWidget {
         children: const [
           DashboardLayoutSelector(userRole: UserRole.admin),
           ProductInventory(),
-          StockEntry(),
+          StockEntry(screenType: 'Web'),
         ],
       ),
     );

@@ -375,7 +375,7 @@ class _AdminScreenControllerState extends State<AdminScreenController> {
       case 1:
         return const ProductInventory();
       case 2:
-        return const StockEntry();
+        return const StockEntry(screenType: 'Web');
       default:
         return const SizedBox();
     }

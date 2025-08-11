@@ -60,4 +60,13 @@ class Formatters {
     return timeago.format(dateTime);
   }
 
+  static TextInputFormatter upperCaseFormatter() {
+    return TextInputFormatter.withFunction((oldValue, newValue) {
+      return TextEditingValue(
+        text: newValue.text.toUpperCase(),
+        selection: newValue.selection,
+      );
+    });
+  }
+
 }
