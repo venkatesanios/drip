@@ -664,9 +664,21 @@ class FilterSiteModel {
 
   factory FilterSiteModel.fromJson(Map<String, dynamic> json, List<ConfigObject> configObjects) {
 
-    final filterSNoSet = ((json['filters'] as List?) ?? [])
+    /*final filterSNoSet = ((json['filters'] as List?) ?? [])
         .map((e) => e.toStringAsFixed(3))
-        .toSet();
+        .toSet();*/
+
+    final filterSNoSet = ((json['filters'] as List?) ?? [])
+        .map((e) {
+      if (e is Map) {
+        // Object case: extract sNo
+        return (e['sNo'] as num).toStringAsFixed(3);
+      } else if (e is num) {
+        // Number case: directly format
+        return e.toStringAsFixed(3);
+      }
+      return null;
+    }).where((e) => e != null).toSet();
 
     final filters = configObjects
         .where((obj) => filterSNoSet.contains(obj.sNo.toStringAsFixed(3)))
@@ -706,7 +718,6 @@ class FilterSiteModel {
     );
   }
 
-
   Map<String, dynamic> toJson() {
     return {
       'sNo': sNo,
@@ -717,7 +728,29 @@ class FilterSiteModel {
       'pressureOut': pressureOut,
     };
   }
+
+  List<double> parseFilters(dynamic json) {
+    final rawFilters = json['filters'];
+
+    if (rawFilters is List) {
+      return rawFilters.map((item) {
+        if (item is Map<String, dynamic>) {
+          // Case: object with sNo key
+          return (item['sNo'] as num).toDouble();
+        } else if (item is num) {
+          // Case: plain number
+          return item.toDouble();
+        } else {
+          throw FormatException('Unexpected filter format: $item');
+        }
+      }).toList();
+    } else {
+      throw FormatException('filters is not a list');
+    }
+  }
+
 }
+
 
 class PressureSensor {
   final double sNo;
