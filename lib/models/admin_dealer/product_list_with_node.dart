@@ -39,8 +39,11 @@ class Master {
   final String categoryName;
   final int modelId;
   final String modelName;
+  final String modelDescription;
   final String inputObjectId;
   final String outputObjectId;
+
+
 
   Master({
     required this.controllerId,
@@ -53,6 +56,7 @@ class Master {
     required this.categoryName,
     required this.modelId,
     required this.modelName,
+    required this.modelDescription,
     required this.inputObjectId,
     required this.outputObjectId,
   });
@@ -70,6 +74,7 @@ class Master {
       categoryName: json['categoryName'],
       modelId: json['modelId'],
       modelName: json['modelName'],
+      modelDescription: json['modelDescription'],
       inputObjectId: json['inputObjectId'],
       outputObjectId: json['outputObjectId'],
     );
@@ -87,6 +92,7 @@ class Master {
       "categoryName": categoryName,
       "modelId": modelId,
       "modelName": modelName,
+      "modelDescription": modelDescription,
       "inputObjectId": inputObjectId,
       "outputObjectId": outputObjectId,
     };

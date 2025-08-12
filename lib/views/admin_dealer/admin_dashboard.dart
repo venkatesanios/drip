@@ -180,7 +180,6 @@ class AdminDashboard extends StatelessWidget {
                           );
                           final userProvider = context.read<UserProvider>();
                           userProvider.setViewedCustomer(user);
-
                           Navigator.push(context, MaterialPageRoute(builder: (context) => const DealerScreenLayout()));
                         },
                         /*onPressed: () => Navigator.push(

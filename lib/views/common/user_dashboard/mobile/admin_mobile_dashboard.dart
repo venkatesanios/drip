@@ -45,5 +45,4 @@ class AdminMobileDashboard extends StatelessWidget {
       ),
     );
   }
-
 }

@@ -30,7 +30,7 @@ class MyUser extends StatelessWidget {
     return Card(
       color: Colors.white,
       surfaceTintColor: Colors.white,
-      elevation: isWideScreen?5:0,
+      elevation: isWideScreen? 5:0,
       child: Padding(
         padding: const EdgeInsets.all(3.0),
         child: Column(
@@ -156,7 +156,26 @@ class MyUser extends StatelessWidget {
                       icon: const Icon(Icons.playlist_add),
                       onPressed: () => openDealerDeviceListBottomSheet(context, customer, viewModel, userId),
                     ),
-                    onTap: (){},
+                    onTap: (){
+                      final user = UserModel(
+                        token: 'token',
+                        id: customer.userId ?? 0,
+                        name: customer.userName ?? '',
+                        role: UserRole.dealer,
+                        countryCode: customer.countryCode ?? '',
+                        mobileNo: customer.mobileNumber ?? '',
+                        email: customer.emailId ?? '',
+                      );
+
+                      context.read<UserProvider>().setViewedCustomer(user);
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const DealerScreenLayout(),
+                        ),
+                      );
+                    },
                   );
                 },
               ),

@@ -39,8 +39,9 @@ class AdminScreenLayout extends BaseScreenLayout {
   Widget build(BuildContext context) {
     final viewedCustomer = context.read<UserProvider>().viewedCustomer!;
     return ChangeNotifierProvider<BaseHeaderViewModel>(
-      create: (_) => BaseHeaderViewModel(menuTitles: ['Dashboard', 'Products', 'Stock'],
-          repository: Repository(HttpService()))..fetchCategoryModelList(viewedCustomer.id, viewedCustomer.role),
+      create: (_) => BaseHeaderViewModel(menuTitles: ['Dashboard', 'Inventory', 'Stock'],
+          repository: Repository(HttpService()))..fetchCategoryModelList(
+          viewedCustomer.id, viewedCustomer.role),
       child: super.build(context),
     );
   }
@@ -60,9 +61,11 @@ class DealerScreenLayout extends BaseScreenLayout {
 
   @override
   Widget build(BuildContext context) {
+    final viewedCustomer = context.read<UserProvider>().viewedCustomer!;
     return ChangeNotifierProvider<BaseHeaderViewModel>(
-      create: (_) => BaseHeaderViewModel(menuTitles: ['Dashboard', 'Products'],
-          repository: Repository(HttpService())),
+      create: (_) => BaseHeaderViewModel(menuTitles: ['Dashboard', 'Inventory'],
+          repository: Repository(HttpService()))..fetchCategoryModelList(
+          viewedCustomer.id, viewedCustomer.role),
       child: super.build(context),
     );
   }

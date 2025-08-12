@@ -523,6 +523,7 @@ class MasterListForSite extends StatelessWidget {
                                   "categoryId": masterData.categoryId,
                                   "categoryName": masterData.categoryName,
                                   "modelId": masterData.modelId,
+                                  "modelDescription": masterData.modelDescription,
                                   "modelName": masterData.modelName,
                                   "groupId": site.userGroupId,
                                   "groupName": site.groupName,

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../Widgets/app_logo.dart';
-import '../../../Widgets/main_menu.dart';
 import '../../../Widgets/user_account_menu.dart';
 import '../../../flavors.dart';
 import '../../../view_models/base_header_view_model.dart';
 import '../../admin_dealer/dealer_dashboard.dart';
 import '../../admin_dealer/product_inventory.dart';
+import '../../common/user_dashboard/widgets/main_menu.dart';
 
 class DealerWeb extends StatelessWidget {
   const DealerWeb({super.key});
