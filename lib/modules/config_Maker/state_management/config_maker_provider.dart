@@ -17,7 +17,7 @@ import '../view/connection.dart';
 
 class ConfigMakerProvider extends ChangeNotifier{
   double ratio = 1.0;
-  ConfigMakerTabs selectedTab = ConfigMakerTabs.siteConfigure;
+  ConfigMakerTabs selectedTab = ConfigMakerTabs.deviceList;
   Map<String, dynamic> configMakerDataFromHttp = {};
   Map<String, dynamic> defaultDataFromHttp = {};
   Map<int, String> configurationTab = {
@@ -270,11 +270,11 @@ class ConfigMakerProvider extends ChangeNotifier{
 
       /* hardcoded for pushing master to deviceList*/
       if(![1, 2, 4].contains(masterDataFromSiteConfigure['modelId'])){
-        if([...AppConstants.pumpWithValveModelList, ...AppConstants.pumpModelList].contains(masterDataFromSiteConfigure['modelId'])){
-          selectedTab = ConfigMakerTabs.productLimit;
-        }else{
-          selectedTab = ConfigMakerTabs.deviceList;
-        }
+        // if([...AppConstants.pumpWithValveModelList, ...AppConstants.pumpModelList].contains(masterDataFromSiteConfigure['modelId'])){
+        //   selectedTab = ConfigMakerTabs.productLimit;
+        // }else{
+        //   selectedTab = ConfigMakerTabs.deviceList;
+        // }
 
         defaultData['deviceList'].add(
             {

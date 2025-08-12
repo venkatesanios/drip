@@ -139,10 +139,10 @@ class _ConfigWebViewState extends State<ConfigWebView> {
             IconButton(
                 alignment: Alignment.center,
                 style: ButtonStyle(
-                    backgroundColor: WidgetStateProperty.all(configPvd.selectedTab == ConfigMakerTabs.siteConfigure ? Colors.grey.shade500 : Theme.of(context).primaryColor)
+                    backgroundColor: WidgetStateProperty.all(configPvd.selectedTab == (AppConstants.pumpWithValveModelList.contains(configPvd.masterData["modelId"]) ?  ConfigMakerTabs.productLimit : ConfigMakerTabs.siteConfigure) ? Colors.grey.shade500 : Theme.of(context).primaryColor)
                 ),
                 onPressed: (){
-                  if(configPvd.selectedTab != ConfigMakerTabs.siteConfigure){
+                  if(configPvd.selectedTab != (AppConstants.pumpWithValveModelList.contains(configPvd.masterData["modelId"]) ?  ConfigMakerTabs.productLimit : ConfigMakerTabs.siteConfigure)){
                     setState(() {
                       if(configPvd.selectedTab == ConfigMakerTabs.deviceList){
                         configPvd.selectedTab = ConfigMakerTabs.productLimit;

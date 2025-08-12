@@ -508,6 +508,7 @@ class MasterListForSite extends StatelessWidget {
                       width: 125,
                       child: MaterialButton(
                         onPressed: () {
+                          print("masterData.modelDescription : ${site.master[mstIndex].modelDescription}");
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) {
@@ -523,6 +524,7 @@ class MasterListForSite extends StatelessWidget {
                                   "categoryId": masterData.categoryId,
                                   "categoryName": masterData.categoryName,
                                   "modelId": masterData.modelId,
+                                  "modelDescription": masterData.modelDescription,
                                   "modelName": masterData.modelName,
                                   "groupId": site.userGroupId,
                                   "groupName": site.groupName,

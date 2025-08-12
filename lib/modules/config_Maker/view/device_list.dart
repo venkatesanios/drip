@@ -77,11 +77,26 @@ class _DeviceListState extends State<DeviceList> {
           width: screenWidth > 500 ? 950 : screenWidth,
           child: Column(
             children: [
+              if([...AppConstants.pumpWithValveModelList, ...AppConstants.pumpModelList].contains(configPvd.masterData['modelId']))
+                Column(
+                  spacing: 15,
+                  children: [
+                    Image.asset(
+                      'assets/Images/Png/${F.name.contains('oro') ? 'Oro' : 'SmartComm'}/category_${configPvd.masterData['categoryId']}.png',
+                      width: 200,
+                      height: 200,
+                    ),
+                    Text('${configPvd.masterData["modelDescription"]}'),
+                    const SizedBox(height: 20,),
+                  ],
+                ),
               masterBox(
                   listOfDevices: widget.listOfDevices
               ),
               const SizedBox(height: 20,),
-              Expanded(
+
+              if(![...AppConstants.pumpWithValveModelList, ...AppConstants.pumpModelList].contains(configPvd.masterData['modelId']))
+                Expanded(
                 child: DataTable2(
                     minWidth: 1000,
                     headingRowColor: WidgetStatePropertyAll(themeData.colorScheme.onBackground),
