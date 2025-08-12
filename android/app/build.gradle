@@ -106,8 +106,8 @@ android {
         targetSdk = flutter.targetSdkVersion
 //        versionCode = flutterVersionCode.toInteger()
 //        versionName = flutterVersionName
-        versionCode = 9
-        versionName = "1.0.1"
+        versionCode = 11
+        versionName = "1.0.3"
     }
 
     buildTypes {

@@ -71,8 +71,12 @@ class CustomerScreenController extends StatelessWidget {
             return const Scaffold(body: Center(child: Text('Site loading please waite....')));
           }
 
+
           final screenWidth = MediaQuery.sizeOf(context).width;
           final screenHeight = MediaQuery.sizeOf(context).height;
+
+
+          print("vm.mySiteList.data:${vm.mySiteList.data}");
 
           final currentSite = vm.mySiteList.data[vm.sIndex];
           final currentMaster = currentSite.master[vm.mIndex];
