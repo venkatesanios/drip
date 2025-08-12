@@ -22,7 +22,7 @@ class FiltrationModel {
     DeviceObjectModel deviceObjectModel = DeviceObjectModel.fromJson(data);
     List<Filter> listOfFilter = [];
     for(var filter in data["filters"]){
-      if(filter.runtimeType is double){
+      if(filter is double){
         listOfFilter.add(Filter.fromJson({"sNo" : filter, "filterMode" : 1}));
       }else{
         listOfFilter.add(Filter.fromJson(filter));
@@ -67,6 +67,7 @@ class Filter{
   });
 
   factory Filter.fromJson(data){
+    print("data : $data");
     return Filter(
         sNo: data['sNo'],
         filterMode: data['filterMode'] ?? 1

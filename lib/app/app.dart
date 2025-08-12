@@ -62,9 +62,9 @@ class _MyAppState extends State<MyApp> {
           theme: isOro ? OroTheme.lightTheme : SmartCommTheme.lightTheme,
           darkTheme: isOro ? OroTheme.darkTheme : SmartCommTheme.darkTheme,
           themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          // home: ConfigBasePage(masterData: {"userId":3,"customerId":13,"controllerId":56,"productId":55,"deviceId":"9C956EC7C17F","deviceName":"ORO PUMP","categoryId":1,"categoryName":"ORO GEM","modelId":48,"modelName":"NAm1000GO2V","groupId":11,"groupName":"ORO THOTTAM","connectingObjectId":["5","13","19","23","24"],"productStock":[{"productId":42,"categoryName":"ORO SMART+","modelName":"Smart+ (L16R)","modelId":28,"deviceId":"123456789123","dateOfManufacturing":"2025-06-09","warrantyMonths":12},{"productId":38,"categoryName":"ORO RTU","modelName":"RTU (L4L)","modelId":34,"deviceId":"E8EB1B048E2C","dateOfManufacturing":"2025-06-03","warrantyMonths":12}]}),
-          home: navigateToInitialScreen(snapshot.data ?? Routes.login),
-          onGenerateRoute: Routes.generateRoute,
+          home: ConfigBasePage(masterData: {"userId":4,"customerId":27,"controllerId":135,"productId":134,"deviceId":"2CCF676A936E","deviceName":"NAm2000ROOL","categoryId":1,"categoryName":"ORO GEM","modelId":4,"modelDescription":"Gem+ (RL)","modelName":"NAm2000ROOL","groupId":32,"groupName":"MANI PRAKASH","connectingObjectId":["1","2","3","4","-"],"productStock":[{"productId":48,"categoryName":"ORO PUMP","modelName":"Pump (L3R)","modelId":5,"deviceId":"TEST12345679","dateOfManufacturing":"2025-06-17","warrantyMonths":12}]}),
+          // home: navigateToInitialScreen(snapshot.data ?? Routes.login),
+          // onGenerateRoute: Routes.generateRoute,
         );
       },
     );

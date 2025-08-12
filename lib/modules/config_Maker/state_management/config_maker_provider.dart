@@ -28,7 +28,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     4 : 'Moisture Configuration',
     5 : 'Line Configuration',
   };
-  int selectedConfigurationTab = 2;
+  int selectedConfigurationTab = 0;
   int rangeStart = -1;
   int rangeEnd = -1;
   bool rangeMode = false;
