@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/utils/enums.dart';
 import 'package:provider/provider.dart';
 import '../../../Widgets/app_logo.dart';
-import '../../../Widgets/main_menu.dart';
 import '../../../Widgets/user_account_menu.dart';
 import '../../../flavors.dart';
 import '../../../layouts/layout_selector.dart';
@@ -10,6 +9,7 @@ import '../../../view_models/base_header_view_model.dart';
 import '../../admin_dealer/product_inventory.dart';
 import '../../admin_dealer/stock_entry.dart';
 import '../../common/product_search_bar.dart';
+import '../../common/user_dashboard/widgets/main_menu.dart';
 
 class AdminWeb extends StatelessWidget {
   const AdminWeb({super.key});

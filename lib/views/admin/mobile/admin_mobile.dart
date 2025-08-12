@@ -9,6 +9,7 @@ import '../../../view_models/base_header_view_model.dart';
 import '../../admin_dealer/product_inventory.dart';
 import '../../admin_dealer/stock_entry.dart';
 import '../../common/product_search_bar.dart';
+import '../../common/user_dashboard/widgets/main_menu_segment.dart';
 
 class AdminMobile extends StatelessWidget {
   const AdminMobile({super.key});
@@ -29,70 +30,14 @@ class AdminMobile extends StatelessWidget {
         elevation: 10,
         leadingWidth: F.appFlavor!.name.contains('oro') ? 75:110,
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(viewModel.selectedIndex==1 ? 100 : 50),
+          preferredSize: Size.fromHeight(viewModel.selectedIndex==1 ? 103 : 50),
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.only(bottom: 8),
+                padding:  EdgeInsets.only(bottom: viewModel.selectedIndex==1 ? 0:8),
                 child: SizedBox(
-                  width: MediaQuery.of(context).size.width-35,
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 500), // Limit max size
-                    child: SegmentedButton<MainMenuSegment>(
-                      style: ButtonStyle(
-                        foregroundColor: WidgetStateProperty.resolveWith<Color>((states) {
-                          if (states.contains(WidgetState.selected)) {
-                            return Colors.white;
-                          } else {
-                            return Colors.white60;
-                          }
-                        }),
-                        backgroundColor: WidgetStateProperty.resolveWith<Color>((states) {
-                          if (states.contains(WidgetState.selected)) {
-                            return Theme.of(context).primaryColorLight;
-                          } else {
-                            return Colors.white10;
-                          }
-                        }),
-                        iconColor: WidgetStateProperty.resolveWith<Color>((states) {
-                          if (states.contains(WidgetState.selected)) {
-                            return Colors.white;
-                          } else {
-                            return Colors.white70;
-                          }
-                        }),
-                        textStyle: WidgetStateProperty.all(
-                          const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-                        ),
-                        visualDensity: VisualDensity.standard,
-                        minimumSize: WidgetStateProperty.all(const Size(0, 45)),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                      segments: const [
-                        ButtonSegment(
-                          value: MainMenuSegment.dashboard,
-                          label: Text('Dashboard'),
-                          icon: Icon(Icons.dashboard_outlined),
-                        ),
-                        ButtonSegment(
-                          value: MainMenuSegment.product,
-                          label: Text('Product'),
-                          icon: Icon(Icons.inventory_2_outlined),
-                        ),
-                        ButtonSegment(
-                          value: MainMenuSegment.stock,
-                          label: Text('Stock'),
-                          icon: Icon(Icons.warehouse_outlined),
-                        ),
-                      ],
-                      selected: {context.watch<BaseHeaderViewModel>().mainMenuSegmentView},
-                      onSelectionChanged: (Set<MainMenuSegment> newSelection) {
-                        if (newSelection.isNotEmpty) {
-                          context.read<BaseHeaderViewModel>().updateMainMenuSegmentView(newSelection.first);
-                        }
-                      },
-                    ),
-                  ),
+                  width: MediaQuery.of(context).size.width - 35,
+                  child: MainMenuSegmentWidget(viewModel: viewModel),
                 ),
               ),
               if(viewModel.selectedIndex==1)...[

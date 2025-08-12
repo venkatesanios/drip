@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../view_models/base_header_view_model.dart';
+
+import '../../../../view_models/base_header_view_model.dart';
 
 class MainMenu extends StatelessWidget {
   final Axis direction;
@@ -33,22 +34,17 @@ class MainMenu extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: isSelected
-                        ? Theme.of(context).primaryColorLight
-                        : isHovered
-                        ? Colors.white24
-                        : Colors.transparent,
+                    color: isSelected ? Theme.of(context).primaryColorLight :
+                    isHovered ? Colors.white24 : Colors.transparent,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6),
                   child: Row(
                     children: [
                       Icon(
-                        index == 0
-                            ? Icons.dashboard_outlined
-                            : index == 1
-                            ? Icons.inventory_2_outlined
-                            : Icons.warehouse_outlined,
+                        index == 0 ? Icons.dashboard_outlined :
+                        index == 1 ? Icons.inventory_2_outlined :
+                        Icons.warehouse_outlined,
                         size: 18,
                         color: isSelected ? Colors.white : Colors.white54,
                       ),

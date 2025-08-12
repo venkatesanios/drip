@@ -208,7 +208,7 @@ class NextSchedule extends StatelessWidget {
               Text('${values[7]} - ${getSequenceName(int.parse(values[0]), values[1]) ?? '--'}'),
               const SizedBox(height: 3),
               Text('${convert24HourTo12Hour(values[6])} - ${values[3]}'),
-              SizedBox(height: 2),
+              const SizedBox(height: 2),
             ],
           ),
         )
