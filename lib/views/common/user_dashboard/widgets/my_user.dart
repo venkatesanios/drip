@@ -10,6 +10,8 @@ import '../../../../utils/enums.dart';
 import '../../../../view_models/admin_dealer/admin_dealer_dashboard_view_model.dart';
 import '../../../admin_dealer/dealer_device_list.dart';
 import '../../../create_account.dart';
+import '../../../customer/mobile/customer_mobile.dart';
+import '../../../mobile/mobile_screen_controller.dart';
 
 class MyUser extends StatelessWidget {
   const MyUser({super.key,
@@ -215,9 +217,11 @@ class MyUser extends StatelessWidget {
 
     context.read<UserProvider>().pushViewedCustomer(user);
 
+
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const DealerScreenLayout()),
+      MaterialPageRoute(builder: (context) => title.contains('Customer') ? const CustomerMobile() :
+      const DealerScreenLayout()),
     ).then((_) {
       context.read<UserProvider>().popViewedCustomer();
     });

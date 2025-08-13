@@ -21,7 +21,8 @@ class AnalyticsOverview extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return SizedBox(
-      height: kIsWeb? screenWidth > 800 ? 360 : 425 : MediaQuery.of(context).size.height,
+      height: kIsWeb ? screenWidth > 800 ? 360 : 425 :
+      viewModel.userType==1? 550 : MediaQuery.of(context).size.height,
       child: Card(
         color: Colors.white,
         elevation: isWideScreen? 5:0,
