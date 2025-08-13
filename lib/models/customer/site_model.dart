@@ -98,8 +98,6 @@ class MasterControllerModel {
 
   factory MasterControllerModel.fromJson(Map<String, dynamic> json) {
 
-    print('MasterControllerModel');
-
     final config = json['config'] ?? json;
 
     final configObjectsRaw = (config['configObject'] as List?) ?? [];
@@ -189,7 +187,6 @@ class MasterControllerModel {
       line.linkReferences(matchedFilterSite, matchedFertilizerSite);
     }
 
-    print('MasterControllerModel end');
 
     return MasterControllerModel(
       controllerId: json['controllerId'] ?? 0,
@@ -259,8 +256,6 @@ class WaterSourceModel {
   });
 
   factory WaterSourceModel.fromJson(Map<String, dynamic> json, List<ConfigObject> configObjects) {
-
-    print('WaterSourceModel');
 
     final inletPumps = ((json['inletPump'] as List?) ?? []).map((e) => e).toSet();
     final iPumps = configObjects.where((obj) => inletPumps.contains(obj.sNo))
@@ -368,14 +363,18 @@ class IrrigationLineModel {
         .map((obj) => LightModel.fromConfigObject(obj))
         .toList();
 
-    final valveSNoSet = ((json['valve'] as List?) ?? []).map((e) {
-      if (e is num) {
-        return double.parse(e.toStringAsFixed(3));
-      }
-      return e;
-    }).toSet();
+    /*if([56, 57, 58, 59].contains(master.modelId)){
 
-    //final valveSNoSet = ((json['valve'] as List?) ?? []).map((e) => e).toSet();
+    }*/
+
+
+    final valveSNoSet = ((json['valve'] as List?) ?? []).map((e) => e).toSet();
+
+    /*final valveSNoSet = ((json['valve'] as List?) ?? []).map((e) {
+      if (e is num) { return e.toStringAsFixed(3); }
+      return e.toString();
+    }).toSet();*/
+
 
     final valves = configObjects
         .where((obj) => valveSNoSet.contains(obj.sNo))
@@ -572,8 +571,6 @@ class ConfigObject {
   });
 
   factory ConfigObject.fromJson(Map<String, dynamic> json) {
-
-    print('ConfigObject start');
 
     List<double> parsedAssignObject = [];
 
@@ -1368,7 +1365,6 @@ class LiveMessage {
 
   factory LiveMessage.fromJson(Map<String, dynamic> json) {
 
-    print('LiveMessage');
     return LiveMessage(
       cC: json['cC'],
       /* cM: json['cM'] is Map<String, dynamic> ? Map<String, dynamic>.from(json['cM'])
@@ -1447,8 +1443,6 @@ class NodeListModel{
   });
 
   factory NodeListModel.fromJson(Map<String, dynamic> json, List<ConfigObject> configObjects) {
-
-    print('NodeListModel');
 
     List<ConfigObject> filteredConfigObjects =
     configObjects.where((config) => config.controllerId == json['controllerId']).toList();
@@ -1546,14 +1540,11 @@ class ProgramList {
   // Factory method to create an instance from JSON
   factory ProgramList.fromJson(Map<String, dynamic> json) {
 
-    print('ProgramList');
 
     List<dynamic> jsonList = json['condition'];
     List<ConditionModel> conditions = jsonList
         .map((item) => ConditionModel.fromJson(item))
         .toList();
-
-    print('ProgramList end');
 
     return ProgramList(
       serialNumber: json['serialNumber'],

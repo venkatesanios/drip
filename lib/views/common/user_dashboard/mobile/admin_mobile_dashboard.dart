@@ -34,7 +34,7 @@ class AdminMobileDashboard extends StatelessWidget {
                 child: Column(
                   children: [
                     AnalyticsOverview(viewModel: viewModel, userId: viewedCustomer!.id, isWideScreen: false),
-                    MyUser(viewModel:viewModel, userId: viewedCustomer.id, isWideScreen: false, role: viewedCustomer.role),
+                    MyUser(viewModel:viewModel, userId: viewedCustomer.id, isWideScreen: false, title: 'My Dealers'),
                     ProductList(viewModel: viewModel, userId: viewedCustomer.id, isWide: false),
                   ],
                 ),

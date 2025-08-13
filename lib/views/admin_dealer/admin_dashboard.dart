@@ -179,7 +179,8 @@ class AdminDashboard extends StatelessWidget {
                             email: viewModel.myCustomerList[index].emailId ?? '',
                           );
                           final userProvider = context.read<UserProvider>();
-                          userProvider.setViewedCustomer(user);
+                          //userProvider.setViewedCustomer(user);
+                          context.read<UserProvider>().pushViewedCustomer(user);
                           Navigator.push(context, MaterialPageRoute(builder: (context) => const DealerScreenLayout()));
                         },
                         /*onPressed: () => Navigator.push(
