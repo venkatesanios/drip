@@ -397,6 +397,7 @@ class PumpStationWithLine extends StatelessWidget {
             customerId: customerId,
             controllerId: controllerId,
             isLastValve: false,
+            modelId: modelId,
           );
         }),
 
@@ -409,6 +410,7 @@ class PumpStationWithLine extends StatelessWidget {
             customerId: customerId,
             controllerId: controllerId,
             isLastValve: isLastValve && pressureOut.isEmpty,
+            modelId: modelId,
           );
         }),
       ];
@@ -521,6 +523,7 @@ class PumpStationWithLine extends StatelessWidget {
           controllerId: controllerId,
           isLastValve: isLastValve? isLastValve && pressureOut.isEmpty:
           isLastValveInRow && pressureOut.isEmpty,
+          modelId: modelId,
         );
       }).toList();
 
@@ -531,6 +534,7 @@ class PumpStationWithLine extends StatelessWidget {
           customerId: customerId,
           controllerId: controllerId,
           isLastValve: false,
+          modelId: modelId,
         );
       }).toList();
 
@@ -1413,15 +1417,16 @@ class _SensorPopoverContentState extends State<SensorPopoverContent> {
 
 class ValveWidget extends StatelessWidget {
   final ValveModel valve;
-  final int customerId, controllerId;
+  final int customerId, controllerId, modelId;
   final bool isLastValve;
   const ValveWidget({super.key, required this.valve, required this.customerId,
-    required this.controllerId, required this.isLastValve});
+    required this.controllerId, required this.isLastValve, required this.modelId});
 
   @override
   Widget build(BuildContext context) {
     return Selector<MqttPayloadProvider, String?>(
-      selector: (_, provider) => provider.getValveOnOffStatus(valve.sNo.toString()),
+      selector: (_, provider) => provider.getValveOnOffStatus([56, 57, 58, 59].contains(modelId) ?
+      double.parse(valve.sNo.toString()).toStringAsFixed(3): valve.sNo.toString()),
       builder: (_, status, __) {
 
         final statusParts = status?.split(',') ?? [];

@@ -4,44 +4,58 @@ import '../utils/enums.dart';
 
 class UserProvider extends ChangeNotifier {
   UserModel _loggedInUser = UserModel.empty();
-  UserModel? _viewedCustomer;
+
+  /// Stack of viewed customers (so we can go back step by step)
+  final List<UserModel> _viewedCustomerStack = [];
 
   UserModel get loggedInUser => _loggedInUser;
-  UserModel? get viewedCustomer => _viewedCustomer;
+  UserModel? get viewedCustomer => _viewedCustomerStack.isNotEmpty ? _viewedCustomerStack.last : null;
+
   UserRole get role => _loggedInUser.role;
 
-  /// Set the logged in user (Admin, Dealer, etc.)
+  /// Set the logged-in user (Admin, Dealer, etc.)
   void setLoggedInUser(UserModel user) {
     _loggedInUser = user;
+    _viewedCustomerStack.clear();
     notifyListeners();
   }
 
-  /// Set a customer currently being viewed
-  void setViewedCustomer(UserModel customer) {
-    _viewedCustomer = customer;
+  /// Push a customer to the stack
+  void pushViewedCustomer(UserModel customer) {
+    _viewedCustomerStack.add(customer);
     notifyListeners();
   }
 
-  /// Clear the viewed customer
-  void clearViewedCustomer() {
-    _viewedCustomer = null;
+  /// Pop the last viewed customer (when going back)
+  void popViewedCustomer() {
+    if (_viewedCustomerStack.isNotEmpty) {
+      _viewedCustomerStack.removeLast();
+      notifyListeners();
+    }
+  }
+
+  /// Clear all viewed customers
+  void clearViewedCustomers() {
+    _viewedCustomerStack.clear();
     notifyListeners();
   }
 
-  /// Update the user info if they are logged in or viewed
+  /// Update a specific user in the stack or logged in user
   void updateUser(UserModel updatedUser) {
     if (_loggedInUser.id == updatedUser.id) {
       _loggedInUser = updatedUser;
-      if (_viewedCustomer?.id == updatedUser.id) {
-        _viewedCustomer = updatedUser;
-      }
-    } else if (_viewedCustomer?.id == updatedUser.id) {
-      _viewedCustomer = updatedUser;
     }
+
+    for (int i = 0; i < _viewedCustomerStack.length; i++) {
+      if (_viewedCustomerStack[i].id == updatedUser.id) {
+        _viewedCustomerStack[i] = updatedUser;
+      }
+    }
+
     notifyListeners();
   }
 
-  /// Change role dynamically
+  /// Change logged-in user role
   void changeRole(UserRole newRole) {
     if (_loggedInUser.role != newRole) {
       _loggedInUser = _loggedInUser.copyWith(role: newRole);
@@ -49,10 +63,10 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  /// Reset provider to default state
+  /// Reset to default
   void resetUser() {
     _loggedInUser = UserModel.empty();
-    _viewedCustomer = null;
+    _viewedCustomerStack.clear();
     notifyListeners();
   }
 }

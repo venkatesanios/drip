@@ -42,7 +42,7 @@ class ScreenController extends StatelessWidget {
 
     final userProvider = context.read<UserProvider>();
     userProvider.setLoggedInUser(user);
-    userProvider.setViewedCustomer(user);
+    context.read<UserProvider>().pushViewedCustomer(user);
 
     return true;
   }

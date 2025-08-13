@@ -16,13 +16,13 @@ class MyUser extends StatelessWidget {
     required this.viewModel,
     required this.userId,
     required this.isWideScreen,
-    required this.role,
+    required this.title,
   });
 
   final UserDashboardViewModel viewModel;
   final int userId;
   final bool isWideScreen;
-  final UserRole role;
+  final String title;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class MyUser extends StatelessWidget {
           children: [
             ListTile(
               tileColor: Colors.white,
-              title: Text(getUserListTitle(role), style: const TextStyle(fontSize: 20)),
+              title: Text(title, style: const TextStyle(fontSize: 20)),
               trailing: IconButton(
                 tooltip: 'Create Dealer account',
                 icon: const Icon(Icons.person_add_outlined),
@@ -47,7 +47,9 @@ class MyUser extends StatelessWidget {
               ),
             ),
             SizedBox(
-              height: isWideScreen ? (customerList.length * 40)+35 : customerList.length * 78,
+              height: isWideScreen ? (customerList.length * 40)+35 :
+              title.contains('Customer') ? MediaQuery.sizeOf(context).height - 231 :
+              customerList.length * 78,
               child: isWideScreen ? DataTable2(
                 columnSpacing: 12,
                 horizontalMargin: 12,
@@ -100,61 +102,11 @@ class MyUser extends StatelessWidget {
                               ),
                             ),
                             IconButton(
-                              tooltip: role == UserRole.admin
-                                  ? 'View dealer dashboard'
+                              tooltip: title.contains('Dealer') ? 'View dealer dashboard'
                                   : 'View customer dashboard',
                               icon: const Icon(Icons.dashboard_outlined),
-                              onPressed: () {
-                                final user = UserModel(
-                                  token: context.read<UserProvider>().loggedInUser.token, // use real token
-                                  id: customer.userId ?? 0,
-                                  name: customer.userName ?? '',
-                                  role: role == UserRole.admin
-                                      ? UserRole.dealer // Admin viewing a dealer
-                                      : UserRole.customer, // Dealer viewing a customer
-                                  countryCode: customer.countryCode ?? '',
-                                  mobileNo: customer.mobileNumber ?? '',
-                                  email: customer.emailId ?? '',
-                                );
-
-                                context.read<UserProvider>().setViewedCustomer(user);
-
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const DealerScreenLayout(),
-                                  ),
-                                ).then((_) {
-                                  // Reset to logged-in user when returning
-                                  //context.read<UserProvider>().clearViewedCustomer();
-                                });
-                              },
+                              onPressed: () => _openUserDashboard(context, customer),
                             ),
-                            /*IconButton(
-                              tooltip: role == UserRole.admin ? 'View dealer dashboard':
-                              'View customer dashboard',
-                              icon: const Icon(Icons.dashboard_outlined),
-                              onPressed: () {
-                                final user = UserModel(
-                                  token: 'token',
-                                  id: customer.userId ?? 0,
-                                  name: customer.userName ?? '',
-                                  role: UserRole.dealer,
-                                  countryCode: customer.countryCode ?? '',
-                                  mobileNo: customer.mobileNumber ?? '',
-                                  email: customer.emailId ?? '',
-                                );
-
-                                context.read<UserProvider>().setViewedCustomer(user);
-
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const DealerScreenLayout(),
-                                  ),
-                                );
-                              },
-                            ),*/
                           ],
                         )),
                       ],
@@ -164,7 +116,8 @@ class MyUser extends StatelessWidget {
               ) :
               ListView.builder(
                 itemCount: customerList.length,
-                physics: const NeverScrollableScrollPhysics(),
+                physics: title.contains('Customer') ? null :
+                const NeverScrollableScrollPhysics(),
                 shrinkWrap: true, // important!
                 padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                 itemBuilder: (context, index) {
@@ -189,30 +142,7 @@ class MyUser extends StatelessWidget {
                       icon: const Icon(Icons.playlist_add),
                       onPressed: () => openDealerDeviceListBottomSheet(context, customer, viewModel, userId),
                     ),
-                    onTap: () {
-                      final user = UserModel(
-                        token: context.read<UserProvider>().loggedInUser.token,
-                        id: customer.userId ?? 0,
-                        name: customer.userName ?? '',
-                        role: role == UserRole.admin
-                            ? UserRole.dealer
-                            : UserRole.customer,
-                        countryCode: customer.countryCode ?? '',
-                        mobileNo: customer.mobileNumber ?? '',
-                        email: customer.emailId ?? '',
-                      );
-
-                      context.read<UserProvider>().setViewedCustomer(user);
-
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const DealerScreenLayout(),
-                        ),
-                      ).then((_) {
-                        context.read<UserProvider>().clearViewedCustomer();
-                      });
-                    },
+                    onTap: () => _openUserDashboard(context, customer),
                   );
                 },
               ),
@@ -265,21 +195,32 @@ class MyUser extends StatelessWidget {
         userId: userId,
         customerName: customer.userName,
         customerId: customer.userId,
-        userRole: role == UserRole.admin ? 'Dealer': 'Customer',
+        userRole: title.contains('Dealer') ? 'Dealer': 'Customer',
         productStockList: viewModel.productStockList,
         onDeviceListAdded: viewModel.removeStockList,
       ),
     );
   }
 
-  String getUserListTitle(UserRole role) {
-    switch (role) {
-      case UserRole.admin:
-        return 'My Dealers';
-      case UserRole.dealer:
-        return 'My Customers';
-      default:
-        return 'My Customers';
-    }
+  void _openUserDashboard(BuildContext context, CustomerListModel customer) {
+    final user = UserModel(
+      token: context.read<UserProvider>().loggedInUser.token,
+      id: customer.userId ?? 0,
+      name: customer.userName ?? '',
+      role: title.contains('Dealer') ? UserRole.dealer : UserRole.customer,
+      countryCode: customer.countryCode ?? '',
+      mobileNo: customer.mobileNumber ?? '',
+      email: customer.emailId ?? '',
+    );
+
+    context.read<UserProvider>().pushViewedCustomer(user);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const DealerScreenLayout()),
+    ).then((_) {
+      context.read<UserProvider>().popViewedCustomer();
+    });
   }
+
 }

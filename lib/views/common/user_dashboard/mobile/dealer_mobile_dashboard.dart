@@ -9,12 +9,18 @@ import '../../../../utils/enums.dart';
 import '../../../../view_models/admin_dealer/admin_dealer_dashboard_view_model.dart';
 import '../widgets/my_user.dart';
 
-class DealerMobileDashboard extends StatelessWidget {
+class DealerMobileDashboard extends StatefulWidget {
   const DealerMobileDashboard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<DealerMobileDashboard> createState() => _DealerMobileDashboardState();
+}
 
+class _DealerMobileDashboardState extends State<DealerMobileDashboard> {
+  int _currentIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
     final viewedCustomer = Provider.of<UserProvider>(context).viewedCustomer;
 
     return ChangeNotifierProvider(
@@ -25,21 +31,25 @@ class DealerMobileDashboard extends StatelessWidget {
         ..getCategoryList(),
       child: Consumer<UserDashboardViewModel>(
         builder: (context, viewModel, _) {
-          //handleAccountCreated(viewModel, context);
+          final pages = [
+            AnalyticsOverview(viewModel: viewModel, userId: viewedCustomer!.id, isWideScreen: false),
+            MyUser(viewModel: viewModel, userId: viewedCustomer.id, isWideScreen: false, title: 'My Customer'),
+          ];
 
           return Scaffold(
-            body: Padding(
-              padding: const EdgeInsets.all(3.0),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: Column(
-                  children: [
-                    AnalyticsOverview(viewModel: viewModel, userId: viewedCustomer!.id, isWideScreen: false),
-                    MyUser(viewModel:viewModel, userId: viewedCustomer.id, isWideScreen: false, role: viewedCustomer.role),
-                    //ProductList(viewModel: viewModel, userId: viewedCustomer.id, isWide: false),
-                  ],
-                ),
-              ),
+            body: pages[_currentIndex],
+            bottomNavigationBar: BottomNavigationBar(
+              backgroundColor: Theme.of(context).primaryColor,
+              selectedItemColor: Colors.white,
+              unselectedItemColor: Colors.white70,
+              currentIndex: _currentIndex,
+              onTap: (index) {
+                setState(() => _currentIndex = index);
+              },
+              items: const [
+                BottomNavigationBarItem(icon: Icon(Icons.analytics), label: 'Analytics'),
+                BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Customers'),
+              ],
             ),
           );
         },

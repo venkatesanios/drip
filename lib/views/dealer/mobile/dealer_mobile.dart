@@ -5,6 +5,7 @@ import '../../../Widgets/app_logo.dart';
 import '../../../Widgets/user_account_menu.dart';
 import '../../../flavors.dart';
 import '../../../layouts/layout_selector.dart';
+import '../../../providers/user_provider.dart';
 import '../../../utils/enums.dart';
 import '../../../view_models/base_header_view_model.dart';
 import '../../admin_dealer/dealer_dashboard.dart';
@@ -23,7 +24,10 @@ class DealerMobile extends StatelessWidget {
         automaticallyImplyLeading: true,
         leading: Navigator.of(context).canPop() ? IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () =>Navigator.pop(context),
+          onPressed: () {
+            final viewedCustomer = context.read<UserProvider>().viewedCustomer;
+            Navigator.pop(context, viewedCustomer);
+          },
         ):
         const Padding(
           padding: EdgeInsets.only(left: 15),

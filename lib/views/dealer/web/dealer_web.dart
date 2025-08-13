@@ -6,6 +6,7 @@ import '../../../flavors.dart';
 import '../../../view_models/base_header_view_model.dart';
 import '../../admin_dealer/dealer_dashboard.dart';
 import '../../admin_dealer/product_inventory.dart';
+import '../../common/product_search_bar.dart';
 import '../../common/user_dashboard/widgets/main_menu.dart';
 
 class DealerWeb extends StatelessWidget {
@@ -20,12 +21,22 @@ class DealerWeb extends StatelessWidget {
         leading: Navigator.of(context).canPop() ? IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>Navigator.pop(context),
-        ):
+        ) :
         const Padding(
           padding: EdgeInsets.only(left: 15),
           child: AppLogo(),
         ),
-        title: MainMenu(viewModel: viewModel),
+        title: Row(
+          children: [
+            MainMenu(viewModel: viewModel),
+            if(viewModel.selectedIndex==1)...[
+              const Spacer(),
+              SizedBox(width : 420, child: ProductSearchBar(
+                  viewModel: viewModel, barHeight: 40, barRadius: 20)),
+              const Spacer(),
+            ]
+          ],
+        ),
         actions: const <Widget>[
           UserAccountMenu(screenType: 'Web'),
         ],
