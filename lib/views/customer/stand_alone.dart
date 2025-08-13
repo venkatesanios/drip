@@ -245,8 +245,9 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                   ),
                 ],
               ),
-            ):
+            ) :
             Scaffold(
+              resizeToAvoidBottomInset: true,
               appBar: AppBar(
                 title: const Text('Manual'),
                 actions: [
@@ -254,7 +255,7 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                     padding: const EdgeInsets.symmetric(horizontal: 5.0),
                     child: Row(
                       children: [
-                        const Text('Select by :', style: TextStyle(color: Colors.white),),
+                        const Text('Select by :', style: TextStyle(color: Colors.white)),
                         const SizedBox(width: 8),
                         SizedBox(
                           width: 175,
@@ -286,199 +287,162 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                 ],
                 bottom: PreferredSize(
                   preferredSize: const Size.fromHeight(50),
-                  child: viewModel.ddCurrentPosition==0 ?
-                  Expanded(child: Row(
-                    children: [
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: SegmentedButton<SegmentWithFlow>(
-                          style: ButtonStyle(
-                            backgroundColor: WidgetStateProperty.resolveWith<Color?>(
-                                  (Set<WidgetState> states) {
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: SegmentedButton<SegmentWithFlow>(
+                            style: ButtonStyle(
+                              backgroundColor:
+                              WidgetStateProperty.resolveWith<Color?>((states) {
                                 if (states.contains(MaterialState.selected)) {
-                                  return Theme.of(context).primaryColorLight; // Background when selected
+                                  return Theme.of(context).primaryColorLight;
                                 }
-                                return Colors.white; // Default background
-                              },
-                            ),
-                            foregroundColor: MaterialStateProperty.resolveWith<Color?>(
-                                  (Set<MaterialState> states) {
+                                return Colors.white;
+                              }),
+                              foregroundColor:
+                              MaterialStateProperty.resolveWith<Color?>((states) {
                                 if (states.contains(MaterialState.selected)) {
-                                  return Colors.white; // Text/Icon color when selected
+                                  return Colors.white;
                                 }
-                                return Colors.black; // Text/Icon color by default
-                              },
+                                return Colors.black;
+                              }),
+                              overlayColor: WidgetStateProperty.all(
+                                Theme.of(context).primaryColorLight.withOpacity(0.1),
+                              ),
+                              surfaceTintColor: WidgetStateProperty.all(Colors.white),
+                              side: WidgetStateProperty.all(
+                                BorderSide(color: Colors.grey.shade300),
+                              ),
                             ),
-                            overlayColor: WidgetStateProperty.all(Theme.of(context).primaryColorLight.withOpacity(0.1)), // Ripple effect
-                            surfaceTintColor: WidgetStateProperty.all(Colors.white), // Background surface tint
-                            side: WidgetStateProperty.all(BorderSide(color: Colors.grey.shade300)), // Border
-                          ),
-                          segments: const <ButtonSegment<SegmentWithFlow>>[
-                            ButtonSegment<SegmentWithFlow>(
-                                value: SegmentWithFlow.manual,
-                                label: Text('Timeless'),
-                                icon: Icon(Icons.pan_tool_alt_outlined)),
-                            ButtonSegment<SegmentWithFlow>(
-                                value: SegmentWithFlow.duration,
-                                label: Text('Duration'),
-                                icon: Icon(Icons.timer_outlined)),
-                          ],
-                          selected: <SegmentWithFlow>{viewModel.segmentWithFlow},
-                          onSelectionChanged: (Set<SegmentWithFlow> newSelection) {
-                            viewModel.segmentWithFlow = newSelection.first;
-                            viewModel.segmentSelectionCallbackFunction(viewModel.segmentWithFlow.index, viewModel.durationValue, viewModel.selectedIrLine);
-                          },
-                        ),
-                      ),
-                      viewModel.segmentWithFlow.index == 1 ?
-                      const SizedBox(width: 10):
-                      const SizedBox(),
-                      viewModel.segmentWithFlow.index == 1 ? SizedBox(
-                        width: 100,
-                        child: TextButton(
-                          onPressed: () => viewModel.showDurationInputDialog(context),
-                          style: ButtonStyle(
-                            padding: WidgetStateProperty.all(
-                              const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                            ),
-                            backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
-                            shape: WidgetStateProperty.all<OutlinedBorder>(
-                              RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
-                            ),
-                          ),
-                          child: Text(viewModel.durationValue, style: const TextStyle(color: Colors.black, fontSize: 17)),
-                        ),
-                      ):
-                      const SizedBox(),
-                      const SizedBox(width: 16),
-                    ],
-                  )):
-                  Expanded(child: Row(
-                    children: [
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: SegmentedButton<SegmentWithFlow>(
-                          style: ButtonStyle(
-                            backgroundColor: WidgetStateProperty.resolveWith<Color?>(
-                                  (Set<WidgetState> states) {
-                                if (states.contains(MaterialState.selected)) {
-                                  return Theme.of(context).primaryColorLight; // Background when selected
-                                }
-                                return Colors.white; // Default background
-                              },
-                            ),
-                            foregroundColor: MaterialStateProperty.resolveWith<Color?>(
-                                  (Set<MaterialState> states) {
-                                if (states.contains(MaterialState.selected)) {
-                                  return Colors.white; // Text/Icon color when selected
-                                }
-                                return Colors.black; // Text/Icon color by default
-                              },
-                            ),
-                            overlayColor: MaterialStateProperty.all(Theme.of(context).primaryColorLight.withOpacity(0.1)), // Ripple effect
-                            surfaceTintColor: MaterialStateProperty.all(Colors.white), // Background surface tint
-                            side: MaterialStateProperty.all(BorderSide(color: Colors.grey.shade300)), // Border
-                          ),
-                          segments: const <ButtonSegment<SegmentWithFlow>>[
-                            ButtonSegment<SegmentWithFlow>(
-                                value: SegmentWithFlow.manual,
-                                label: Text('Timeless'),
-                                icon: Icon(Icons.pan_tool_alt_outlined)),
-                            ButtonSegment<SegmentWithFlow>(
-                                value: SegmentWithFlow.duration,
-                                label: Text('Duration'),
-                                icon: Icon(Icons.timer_outlined)),
-                            ButtonSegment<SegmentWithFlow>(
-                                value: SegmentWithFlow.flow,
-                                label: Text('Liters'),
-                                icon: Icon(Icons.water_drop_outlined)),
-                          ],
-                          selected: <SegmentWithFlow>{viewModel.segmentWithFlow},
-                          onSelectionChanged: (Set<SegmentWithFlow> newSelection) {
-                            viewModel.segmentWithFlow = newSelection.first;
-                            viewModel.segmentSelectionCallbackFunction(viewModel.segmentWithFlow.index, viewModel.durationValue, viewModel.selectedIrLine);
-                          },
-                        ),
-                      ),
-                      viewModel.segmentWithFlow.index == 1  || viewModel.segmentWithFlow.index == 2?
-                      const SizedBox(width: 8):
-                      const SizedBox(),
-                      viewModel.segmentWithFlow.index == 1 ? SizedBox(
-                        width: 85,
-                        child: TextButton(
-                          onPressed: () => viewModel.showDurationInputDialog(context),
-                          style: ButtonStyle(
-                            padding: WidgetStateProperty.all(
-                              const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                            ),
-                            backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
-                            shape: WidgetStateProperty.all<OutlinedBorder>(
-                              RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
-                            ),
-                          ),
-                          child: Text(viewModel.durationValue, style: const TextStyle(color: Colors.black, fontSize: 17)),
-                        ),
-                      ):
-                      const SizedBox(),
-                      viewModel.segmentWithFlow.index == 2 ? Container(
-                        width: 90,
-                        height: 40,
-                        color: Colors.white,
-                        child: TextField(
-                          maxLength: 7,
-                          controller: viewModel.flowLiter,
-                          onChanged: (value) => viewModel.segmentSelectionCallbackFunction(
-                            viewModel.segmentWithFlow.index,
-                            value,
-                            viewModel.selectedIrLine,
-                          ),
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          style: const TextStyle(color: Colors.black), // Input text color
-                          inputFormatters: <TextInputFormatter>[
-                            FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                          ],
-                          decoration: const InputDecoration(
-                            hintText: 'Liters',
-                            counterText: '',
-                            border: OutlineInputBorder(),
+                            segments: viewModel.ddCurrentPosition == 0
+                                ? const <ButtonSegment<SegmentWithFlow>>[
+                              ButtonSegment<SegmentWithFlow>(
+                                  value: SegmentWithFlow.manual,
+                                  label: Text('Timeless'),
+                                  icon: Icon(Icons.pan_tool_alt_outlined)),
+                              ButtonSegment<SegmentWithFlow>(
+                                  value: SegmentWithFlow.duration,
+                                  label: Text('Duration'),
+                                  icon: Icon(Icons.timer_outlined)),
+                            ]
+                                : const <ButtonSegment<SegmentWithFlow>>[
+                              ButtonSegment<SegmentWithFlow>(
+                                  value: SegmentWithFlow.manual,
+                                  label: Text('Timeless'),
+                                  icon: Icon(Icons.pan_tool_alt_outlined)),
+                              ButtonSegment<SegmentWithFlow>(
+                                  value: SegmentWithFlow.duration,
+                                  label: Text('Duration'),
+                                  icon: Icon(Icons.timer_outlined)),
+                              ButtonSegment<SegmentWithFlow>(
+                                  value: SegmentWithFlow.flow,
+                                  label: Text('Liters'),
+                                  icon: Icon(Icons.water_drop_outlined)),
+                            ],
+                            selected: <SegmentWithFlow>{viewModel.segmentWithFlow},
+                            onSelectionChanged: (Set<SegmentWithFlow> newSelection) {
+                              viewModel.segmentWithFlow = newSelection.first;
+                              viewModel.segmentSelectionCallbackFunction(
+                                viewModel.segmentWithFlow.index,
+                                viewModel.durationValue,
+                                viewModel.selectedIrLine,
+                              );
+                            },
                           ),
                         ),
-                      ):
-                      const SizedBox(),
-                      const SizedBox(width: 8),
-                    ],
-                  )),
+                        const SizedBox(width: 8),
+                        if (viewModel.segmentWithFlow.index == 1)
+                          SizedBox(
+                            width: 100,
+                            child: TextButton(
+                              onPressed: () =>
+                                  viewModel.showDurationInputDialog(context),
+                              style: ButtonStyle(
+                                padding: WidgetStateProperty.all(
+                                  const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                                ),
+                                backgroundColor:
+                                WidgetStateProperty.all<Color>(Colors.white),
+                                shape: WidgetStateProperty.all<OutlinedBorder>(
+                                  RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(2)),
+                                ),
+                              ),
+                              child: Text(
+                                viewModel.durationValue,
+                                style: const TextStyle(color: Colors.black, fontSize: 17),
+                              ),
+                            ),
+                          ),
+                        if (viewModel.segmentWithFlow.index == 2)
+                          Container(
+                            width: 90,
+                            height: 40,
+                            color: Colors.white,
+                            child: TextField(
+                              maxLength: 7,
+                              controller: viewModel.flowLiter,
+                              onChanged: (value) =>
+                                  viewModel.segmentSelectionCallbackFunction(
+                                    viewModel.segmentWithFlow.index,
+                                    value,
+                                    viewModel.selectedIrLine,
+                                  ),
+                              keyboardType:
+                              const TextInputType.numberWithOptions(decimal: true),
+                              style: const TextStyle(color: Colors.black),
+                              inputFormatters: <TextInputFormatter>[
+                                FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                              ],
+                              decoration: const InputDecoration(
+                                hintText: 'Liters',
+                                counterText: '',
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-              body: Container(
-                color: Theme.of(context).scaffoldBackgroundColor,
+              body: SafeArea(
                 child: Column(
                   children: [
                     Expanded(
                       child: SingleChildScrollView(
-                        child: displayLineOrSequence(widget.masterData, viewModel, viewModel.ddCurrentPosition),
+                        child: displayLineOrSequence(
+                          widget.masterData,
+                          viewModel,
+                          viewModel.ddCurrentPosition,
+                        ),
                       ),
                     ),
-                    ListTile(
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const SizedBox(width: 10),
-                          MaterialButton(
-                            color: Colors.redAccent,
-                            textColor: Colors.white,
-                            onPressed:() => viewModel.stopAllManualOperation(context),
-                            child: const Text('Stop Manually'),
-                          ),
-                          const SizedBox(width: 16),
-                          MaterialButton(
-                            color: Colors.green,
-                            textColor: Colors.white,
-                            onPressed:() => viewModel.startManualOperation(context),
-                            child: const Text('Start Manually'),
-                          ),
-                          const SizedBox(width: 15),
-                        ],
+                    SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            MaterialButton(
+                              color: Colors.redAccent,
+                              textColor: Colors.white,
+                              onPressed: () =>
+                                  viewModel.stopAllManualOperation(context),
+                              child: const Text('Stop Manually'),
+                            ),
+                            const SizedBox(width: 8),
+                            MaterialButton(
+                              color: Colors.green,
+                              textColor: Colors.white,
+                              onPressed: () =>
+                                  viewModel.startManualOperation(context),
+                              child: const Text('Start Manually'),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
