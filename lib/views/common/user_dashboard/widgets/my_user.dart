@@ -214,10 +214,7 @@ class MyUser extends StatelessWidget {
       mobileNo: customer.mobileNumber ?? '',
       email: customer.emailId ?? '',
     );
-
     context.read<UserProvider>().pushViewedCustomer(user);
-
-
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => title.contains('Customer') ? const CustomerMobile() :

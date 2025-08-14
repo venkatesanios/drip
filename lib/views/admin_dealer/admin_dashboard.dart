@@ -52,7 +52,8 @@ class AdminDashboard extends StatelessWidget {
                   ),
                   buildProductListCard(context, viewModel, 300),
                 ],
-              ): SingleChildScrollView(
+              ):
+              SingleChildScrollView(
                 scrollDirection: Axis.vertical,
                 child: Column(
                   children: [
@@ -81,7 +82,6 @@ class AdminDashboard extends StatelessWidget {
       });
     }
   }
-
 
   Widget buildDealerDataTable(BuildContext context, UserDashboardViewModel viewModel, int userId) {
     return Card(
@@ -178,23 +178,9 @@ class AdminDashboard extends StatelessWidget {
                             mobileNo: viewModel.myCustomerList[index].mobileNumber ?? '',
                             email: viewModel.myCustomerList[index].emailId ?? '',
                           );
-                          final userProvider = context.read<UserProvider>();
-                          //userProvider.setViewedCustomer(user);
                           context.read<UserProvider>().pushViewedCustomer(user);
                           Navigator.push(context, MaterialPageRoute(builder: (context) => const DealerScreenLayout()));
                         },
-                        /*onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DealerScreenController(
-                              userId: viewModel.myCustomerList[index].userId,
-                              userName: viewModel.myCustomerList[index].userName,
-                              mobileNo: viewModel.myCustomerList[index].mobileNumber,
-                              fromLogin: false,
-                              emailId: viewModel.myCustomerList[index].emailId,
-                            ),
-                          ),
-                        ),*/
                       ),
                     ],
                   )),

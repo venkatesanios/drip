@@ -17,7 +17,7 @@ class MySalesChartState extends State<MySalesBarChart> {
   void didUpdateWidget(MySalesBarChart oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.graph != widget.graph) {
-      selectedSeriesIndex = null; // Reset to show all series
+      selectedSeriesIndex = null;
     }
   }
 
@@ -40,8 +40,8 @@ class MySalesChartState extends State<MySalesBarChart> {
     });
 
     return SfCartesianChart(
-      primaryYAxis: NumericAxis(),
-      primaryXAxis: CategoryAxis(),
+      primaryYAxis: const NumericAxis(),
+      primaryXAxis: const CategoryAxis(),
       enableAxisAnimation: true,
       legend: const Legend(
         isVisible: true,
