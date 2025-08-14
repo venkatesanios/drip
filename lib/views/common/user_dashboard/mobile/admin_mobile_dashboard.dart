@@ -1,47 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/utils/enums.dart';
 import 'package:provider/provider.dart';
-import '../../../../Widgets/analytics_overview.dart';
-import '../../../../providers/user_provider.dart';
-import '../../../../repository/repository.dart';
-import '../../../../services/http_service.dart';
-import '../../../../utils/enums.dart';
-import '../../../../view_models/admin_dealer/admin_dealer_dashboard_view_model.dart';
-import '../widgets/my_user.dart';
-import '../widgets/product_list.dart';
+import '../../../../view_models/bottom_nav_view_model.dart';
+import '../widgets/analytics_view.dart';
+import '../widgets/customer_view.dart';
+import '../widgets/product_view.dart';
 
 class AdminMobileDashboard extends StatelessWidget {
   const AdminMobileDashboard({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final viewedCustomer = Provider.of<UserProvider>(context).viewedCustomer;
+    final navModel = context.watch<BottomNavViewModel>();
 
-    return ChangeNotifierProvider(
-      create: (_) => UserDashboardViewModel(Repository(HttpService()), viewedCustomer!.id, 1)
-        ..getMySalesData(viewedCustomer.id, MySegment.all)
-        ..getMyStock()
-        ..getMyCustomers()
-        ..getCategoryList(),
-      child: Consumer<UserDashboardViewModel>(
-        builder: (context, viewModel, _) {
-          //handleAccountCreated(viewModel, context);
+    const pages = [AnalyticsView(), CustomerView(role: UserRole.admin), ProductView()];
 
-          return Scaffold(
-            body: Padding(
-              padding: const EdgeInsets.all(3.0),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: Column(
-                  children: [
-                    AnalyticsOverview(viewModel: viewModel, userId: viewedCustomer!.id, isWideScreen: false),
-                    MyUser(viewModel:viewModel, userId: viewedCustomer.id, isWideScreen: false, title: 'My Dealers'),
-                    ProductList(viewModel: viewModel, userId: viewedCustomer.id, isWide: false),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
+    return Scaffold(
+      body: IndexedStack(
+        index: navModel.index,
+        children: pages,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: navModel.index,
+        onTap: navModel.setIndex,
+        backgroundColor: Theme.of(context).primaryColor,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white70,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bar_chart),
+            label: 'Analytics',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people),
+            label: 'Customers',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.storefront),
+            label: 'Product',
+          ),
+        ],
       ),
     );
   }

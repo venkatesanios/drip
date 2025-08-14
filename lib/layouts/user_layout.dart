@@ -8,6 +8,7 @@ import 'package:oro_drip_irrigation/views/customer/web/customer_web.dart';
 import '../providers/user_provider.dart';
 import '../repository/repository.dart';
 import '../services/http_service.dart';
+import '../views/common/user_dashboard/dashboard_service_provider.dart';
 import '../views/common/user_dashboard/mobile/admin_mobile_dashboard.dart';
 import '../views/common/user_dashboard/mobile/customer_mobile_dashboard.dart';
 import '../views/common/user_dashboard/mobile/dealer_mobile_dashboard.dart';
@@ -108,6 +109,16 @@ class LoginScreenLayout extends BaseScreenLayout {
 
 class AdminDashboardLayout extends BaseScreenLayout {
   const AdminDashboardLayout({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final viewedCustomer = context.read<UserProvider>().viewedCustomer!;
+    return DashboardServiceProvider(
+      userId: viewedCustomer.id,
+      userType: 1,
+      child: super.build(context),
+    );
+  }
 
   @override
   Widget buildMobile(BuildContext context) => const AdminMobileDashboard();
