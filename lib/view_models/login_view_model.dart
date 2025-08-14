@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../models/user_model.dart';
 import '../repository/repository.dart';
 import '../utils/enums.dart';
@@ -12,6 +13,7 @@ class LoginViewModel extends ChangeNotifier {
   String errorMessage = "";
 
   String countryCode = '91';
+  late String verssion ;
   late TextEditingController mobileNoController;
   late TextEditingController passwordController;
   bool isObscure = true;
@@ -26,13 +28,26 @@ class LoginViewModel extends ChangeNotifier {
   void initState() {
     mobileNoController = TextEditingController();
     passwordController = TextEditingController();
+    verssion = getCurrentVersion() as String;
   }
 
   void onIsObscureChanged() {
     isObscure = !isObscure;
     notifyListeners();
   }
+  Future<String?> getCurrentVersion() async {
+    print('call:current verssion');
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      print('packageInfo.version:->${packageInfo.version}');
 
+      return packageInfo.version;
+
+    } catch (e) {
+      print('Error fetching release version: $e');
+      return null;
+    }
+  }
   Future<void> login() async {
     isLoading = true;
     errorMessage = "";
@@ -74,6 +89,7 @@ class LoginViewModel extends ChangeNotifier {
           countryCode: cleanedCountryCode,
           mobileNumber: mobileNumber,
           email: userData['email'],
+          appVersion: verssion,
         );
         onLoginSuccess(data['message']);
       } else {

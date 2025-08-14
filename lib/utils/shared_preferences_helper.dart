@@ -9,6 +9,7 @@ class PreferenceHelper {
   static const String _countryCodeKey = 'country_code';
   static const String _mobileNumberKey = 'mobile_number';
   static const String _emailKey = 'email';
+  static const String _appversionKey = 'appversion';
 
   //customer
   static const String _customerIdKey = 'customer_id';
@@ -21,6 +22,7 @@ class PreferenceHelper {
     required String countryCode,
     required String mobileNumber,
     required String email,
+    required String appVersion,
   }) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString(_authTokenKey, token);
@@ -30,6 +32,7 @@ class PreferenceHelper {
     await prefs.setString(_countryCodeKey, countryCode);
     await prefs.setString(_mobileNumberKey, mobileNumber);
     await prefs.setString(_emailKey, email);
+    await prefs.setString(_appversionKey, appVersion);
   }
 
   static Future<String?> getToken() async {
@@ -44,6 +47,10 @@ class PreferenceHelper {
 
 
   static Future<String?> getUserRole() async { // admin,
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_roleKey);
+  }
+  static Future<String?> getAppVersion() async { // admin,
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString(_roleKey);
   }

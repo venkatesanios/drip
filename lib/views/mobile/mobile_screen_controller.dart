@@ -10,6 +10,7 @@ import 'package:oro_drip_irrigation/Widgets/network_connection_banner.dart';
 import 'package:oro_drip_irrigation/modules/ScheduleView/view/schedule_view_screen.dart';
 import 'package:oro_drip_irrigation/modules/UserChat/view/user_chat.dart';
 import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
 import '../../Models/customer/site_model.dart';
@@ -54,6 +55,7 @@ class MobileScreenController extends StatefulWidget {
 class _MobileScreenControllerState extends State<MobileScreenController> with WidgetsBindingObserver {
 
   late CustomerScreenControllerViewModel viewModel;
+  late String? version;
 
   @override
   void initState() {
@@ -62,7 +64,9 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
     Future.delayed(Duration.zero, () {
       viewModel = Provider.of<CustomerScreenControllerViewModel>(context, listen: false);
       viewModel.getAllMySites(context, widget.userId);
+      loadVersion();
     });
+
   }
 
   @override
@@ -87,6 +91,10 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
 
   void callbackFunction(message){
   }
+  void loadVersion() async {
+    version = await getCurrentVersion();
+    print('Loaded version: $version');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -102,8 +110,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
     }
 
     final currentMaster = vm.mySiteList.data[vm.sIndex].master[vm.mIndex];
-
-    return Scaffold(
+     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: F.appFlavor!.name.contains('oro') ?
@@ -326,8 +333,9 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(color: Colors.white, fontSize: 14)),
                           const SizedBox(height: 20),
-                          const Text("Version 1.0.0",
+                           Text("version:${version.toString()}",
                               style: TextStyle(color: Colors.white54)),
+
                         ],
                       ),
                     ),
@@ -1227,6 +1235,20 @@ class BadgeButton extends StatelessWidget {
           ),
       ],
     );
+  }
+}
+
+
+Future<String?> getCurrentVersion() async {
+  print('call:current verssion');
+  try {
+    final packageInfo = await PackageInfo.fromPlatform();
+    print('packageInfo.version:->${packageInfo.version}');
+     return packageInfo.version;
+
+  } catch (e) {
+    print('Error fetching release version: $e');
+    return null;
   }
 }
 
