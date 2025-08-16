@@ -1270,7 +1270,6 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
   };
 
   Future<void> sendFunction() async {
-    print("seee ==> ${generatePayloadMessageForChangedPayload()}");
     // mqttPayloadProvider.preferencePayload = {};
     breakLoop = false;
     Map<String, dynamic> userData = {
@@ -1392,7 +1391,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
           'calibrationSetting': preferenceProvider.calibrationSetting?.map((item) => item.toJson()).toList(),
           'commonPumps': preferenceProvider.commonPumpSettings?.map((item) => item.toJson()).toList(),
           'hardware': payloadForSlave,
-          'changedPayload': '',
+          'changedPayload': generatePayloadMessageForChangedPayload(),
           'controllerReadStatus': preferenceProvider.generalData!.controllerReadStatus,
         });
       });
@@ -1401,8 +1400,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
         final message = jsonDecode(createUserPreference.body);
         await showSnackBar(message: message['message']);
       });
-
-
+      
     } catch (error, stackTrace) {
       showSnackBar(message: "Failed to update due to: $error");
       print("Error in preference sending: $error");
@@ -1414,40 +1412,51 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
     ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message:  message));
   }
 
-  String generatePayloadMessageForChangedPayload(){
-    Map<String, List<String>> changedPayloadObject= {};
+  Map<String,dynamic> generatePayloadMessageForChangedPayload(){
+    Map<String, dynamic> payload = {
+      "commonPumpSettings" : {},
+      "individualPumpSetting": {}
+    };
     if(preferenceProvider.commonPumpSettings != null){
       for(var controller in preferenceProvider.commonPumpSettings!){
-        print("controller.deviceId => ${controller.deviceId}");
-        print("controller.settingList => ${controller.settingList}");
         for(var settingCategory in controller.settingList){
-          print("settingCategory => ${settingCategory.name}");
           for(var setting in settingCategory.setting){
-            print("${setting.isChanged}  == ${setting.title}");
             if(setting.isChanged){
-              var keyString = '${controller.deviceName} | ${controller.deviceId} | ${settingCategory.name}';
-              if(!changedPayloadObject.containsKey(keyString)){
-                changedPayloadObject[keyString] = [];
-              }else{
-                String payload = '${setting.title} (${setting.value})';
-                changedPayloadObject[keyString]!.add(payload);
+              if(!payload["commonPumpSettings"].containsKey(controller.deviceId)){
+                payload["commonPumpSettings"][controller.deviceId] = {};
               }
+              if(!payload["commonPumpSettings"][controller.deviceId].containsKey(settingCategory.name)){
+                payload["commonPumpSettings"][controller.deviceId][settingCategory.name] = {};
+              }
+              payload["commonPumpSettings"][controller.deviceId][settingCategory.name][setting.title] = setting.value.toString();
             }
           }
         }
       }
     }
-    String singlePayload = '';
-    for(var key in changedPayloadObject.keys){
-      singlePayload += '$key --> ';
-      singlePayload += changedPayloadObject[key]!.join(', ');
+    if(preferenceProvider.individualPumpSetting != null){
+      for(var pump in preferenceProvider.individualPumpSetting!){
+        for(var settingCategory in pump.settingList){
+          for(var setting in settingCategory.setting){
+            if(setting.isChanged){
+              if(!payload["individualPumpSetting"].containsKey(pump.name)){
+                payload["individualPumpSetting"][pump.name] = {};
+              }
+              if(!payload["individualPumpSetting"][pump.name].containsKey(settingCategory.name)){
+                payload["individualPumpSetting"][pump.name][settingCategory.name] = {};
+              }
+              payload["individualPumpSetting"][pump.name][settingCategory.name][setting.title] = setting.value.toString();
+            }
+          }
+        }
+      }
     }
-    return singlePayload;
+    print("payload ======= > ${jsonEncode(payload)}");
+    return payload;
   }
 
   String onDelayTimer() {
     List<String> result = [];
-
     preferenceProvider.individualPumpSetting!.forEach((element) {
       String combinedResult = '${element.toGem()},${element.oDt()}';
       // String combinedResult = element.oDt();
@@ -1618,7 +1627,6 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
           }
         }
       }
-
       result.addAll(temp);
     }
 

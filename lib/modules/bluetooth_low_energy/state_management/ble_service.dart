@@ -658,10 +658,9 @@ class BleProvider extends ChangeNotifier {
       if(connectResponse == 200){
         fileMode = FileMode.connected;
         notifyListeners();
-        // List<SftpName> listOfFile = await sftpService.listFilesInPath("/home/ubuntu/FTP/RTU");
-        List<SftpName> listOfFile = await sftpService.listFilesInPath(nodeDataFromServer['pathSetting']['downloadDirectory']);
+        var directoryName = nodeDataFromHw['MID'] == '40' ? 'loraDownloadDirectory' : 'downloadDirectory';
+        List<SftpName> listOfFile = await sftpService.listFilesInPath(nodeDataFromServer['pathSetting'][directoryName]);
         for(var file in listOfFile){
-          print(file);
           if(loraModel.contains(nodeDataFromHw['MID'])){
             Map<String, String> checkFileName = {
               "40" : "lora",

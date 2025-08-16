@@ -63,7 +63,7 @@ class SentAndReceivedViewModel extends ChangeNotifier {
         if (jsonData["code"] == 200) {
           final message = jsonData?['data']?['message'];
           if (message != null) {
-            print(jsonData['data']['message']);
+            print(jsonData['data']);
             displayJsonData(context, jsonData['data']['message'] ?? 'Empty message', aTitle, pyTitle);
           }else{
             showDialog(
