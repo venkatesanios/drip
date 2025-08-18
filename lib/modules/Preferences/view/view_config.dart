@@ -21,9 +21,7 @@ class ViewConfig extends StatefulWidget {
 }
 
 class _ViewConfigState extends State<ViewConfig> {
-  List<String> viewPayloads = [
-    "pumpconfig", "tankconfig", "ctconfig", "calibration", "voltageconfig",
-  ];
+  late List<String> viewPayloads;
   String selectedPayload = "pumpconfig";
   bool _hasTimedOut = false;
   Timer? _timeoutTimer;
@@ -92,6 +90,12 @@ class _ViewConfigState extends State<ViewConfig> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    viewPayloads = [
+      "pumpconfig",
+      if(AppConstants.pumpPlusModelList.contains(widget.modelId))
+        "tankconfig",
+      "ctconfig", "calibration", "voltageconfig",
+    ];
     requestViewConfig(0);
   }
 
@@ -188,9 +192,9 @@ class _ViewConfigState extends State<ViewConfig> {
   }
 
   String _getNumberOfTankConfig(MqttPayloadProvider mqttProvider) {
-    final noOfPumps = jsonDecode(mqttProvider.viewSettingsList[0])[0]['pumpconfig'];
+    final noOfPumps = widget.isLora ? mqttProvider.viewSetting['cM'][0]["pumpconfig"] : '${jsonDecode(mqttProvider.viewSettingsList[0])[0]['pumpconfig']}';
     List<String> tankConfig = [];
-    for(int i = 0; i < noOfPumps; i++) {
+    for(int i = 0; i < int.parse(noOfPumps.toString().split(',')[0]); i++) {
       tankConfig.add('${jsonDecode(mqttProvider.viewSettingsList[i+1])[5]['tankconfig']}');
     }
 
@@ -418,8 +422,9 @@ class _ViewConfigState extends State<ViewConfig> {
                 final values = widget.isLora
                     ? provider.viewSetting['cM'].first['ctconfig'].split(',')
                     : '${jsonDecode(provider.viewSettingsList[0])[1]['ctconfig']}'.split(',');
-                print("settings.length :: ${setting.setting.length}");
+             /*   print("settings.length :: ${setting.setting.length}");
                 print("settings.values :: ${values.length}");
+                print("settings.values :: ${values}");*/
                 return _buildSettingCard(setting, values);
               } else if ([204].contains(setting.type) && _hasPayload('voltageconfig', provider, deviceId)) {
                 final values = widget.isLora
@@ -489,7 +494,7 @@ class _ViewConfigState extends State<ViewConfig> {
             shadowColor: Theme.of(context).primaryColorLight.withAlpha(100),
             child: Column(
               children: List.generate(
-                setting.setting.length, (i) => _buildListTile(setting.setting[i].title, values[i]),
+                [208, 209 , 210].contains(setting.type) ? setting.setting.length : values.length, (i) => _buildListTile(setting.setting[i].title, values[i]),
               ),
             ),
           ),
@@ -745,7 +750,7 @@ class _ViewConfigState extends State<ViewConfig> {
             child: Column(
               children: [
                 ...List.generate(
-                  setting.setting.length, (i) => _buildListTile(setting.setting[i].title, values[i + offset]),
+                  values.length, (i) => _buildListTile(setting.setting[i].title, values[i + offset]),
                 ),
               ],
             ),

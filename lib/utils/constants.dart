@@ -590,7 +590,8 @@ class AppConstants {
   static List<int> ecoGemModelList = [56, 57, 58, 59];
   static List<int> gemModelList = [1, 2, 4, ];
   static List<int> weatherModelList = [13, 14];
-  static List<int> pumpModelList = [5, 6, 7, 8, 9, 10];
+  static List<int> pumpModelList = [5, 6, 7, ...pumpPlusModelList];
+  static List<int> pumpPlusModelList = [8, 9, 10];
   static List<int> senseModelList = [41, 42, 43, 44, 45];
   static List<int> ecoNodeList = [36];
   static List<int> extendLoraList = [46];
