@@ -72,6 +72,7 @@ class DealerDefinitionInConfigState extends State<DealerDefinitionInConfig> {
       if (getUserDetails.statusCode == 200) {
         setState(() {
           var jsonData = jsonDecode(getUserDetails.body);
+          print("jsonData:$jsonData");
           data = DataModelDDConfig.fromJson(jsonData);
           indicatorViewHide();
         });
@@ -318,14 +319,14 @@ class DealerDefinitionInConfigState extends State<DealerDefinitionInConfig> {
       DealerDefinition? definition, int iconcode, String iconfontfamily)
   {
 
-    int? rtcindex = data.dealerDefinition["1"]?.indexWhere((element) => element.dealerDefinitionId == 62);
-    int? rtcmaxindex = data.dealerDefinition["1"]?.indexWhere((element) => element.dealerDefinitionId == 63);
-    int? stopmethod = data.dealerDefinition["1"]?.indexWhere((element) => element.dealerDefinitionId == 64);
+    int? rtcindex = data.dealerDefinition["1"]?.indexWhere((element) => element.dealerDefinitionId == 33);
+    int? rtcmaxindex = data.dealerDefinition["1"]?.indexWhere((element) => element.dealerDefinitionId == 34);
+    int? stopmethod = data.dealerDefinition["1"]?.indexWhere((element) => element.dealerDefinitionId == 35);
 
-    if (definition?.dealerDefinitionId == 62 ||
-        definition?.dealerDefinitionId == 63 ||
-        definition?.dealerDefinitionId == 64) {
-      if (definition?.dealerDefinitionId == 62){
+    if (definition?.dealerDefinitionId == 33 ||
+        definition?.dealerDefinitionId == 34 ||
+        definition?.dealerDefinitionId == 35) {
+      if (definition?.dealerDefinitionId == 33){
         return Column(
           children: [
             ListTile(
@@ -353,7 +354,7 @@ class DealerDefinitionInConfigState extends State<DealerDefinitionInConfig> {
           ],
         );
       }
-      else if (definition?.dealerDefinitionId == 63){
+      else if (definition?.dealerDefinitionId == 34){
         return Column(
           children: [
             ListTile(
