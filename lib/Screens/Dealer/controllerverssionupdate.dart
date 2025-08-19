@@ -1,6 +1,7 @@
 
 import 'dart:convert';
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:oro_drip_irrigation/utils/environment.dart';
@@ -204,7 +205,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
           padding: const EdgeInsets.all(20.0),
           child: GridView.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
+              crossAxisCount: kIsWeb? 3:1,
               crossAxisSpacing: 5,
               mainAxisSpacing: 40,
             ),

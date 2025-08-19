@@ -179,28 +179,41 @@ class MyUser extends StatelessWidget {
     );
   }
 
-  void openDealerDeviceListBottomSheet(
-      BuildContext context,
-      CustomerListModel customer,
-      UserDashboardViewModel viewModel,
-      int userId,
-      ) {
-    showModalBottomSheet(
-      context: context,
-      elevation: 10,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5)),
-      ),
-      builder: (context) => DealerDeviceList(
-        userId: userId,
-        customerName: customer.name,
-        customerId: customer.id,
-        userRole: title.contains('Dealer') ? 'Dealer': 'Customer',
-        productStockList: viewModel.productStockList,
-        onDeviceListAdded: viewModel.removeStockList,
-      ),
-    );
+  void openDealerDeviceListBottomSheet(BuildContext context, CustomerListModel customer,
+      UserDashboardViewModel viewModel, int userId) {
+
+    print('sdsdsdsd');
+
+    if(isWideScreen){
+      showModalBottomSheet(
+        context: context,
+        elevation: 10,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5)),
+        ),
+        builder: (context) => DealerDeviceList(
+          userId: userId,
+          customerName: customer.name,
+          customerId: customer.id,
+          userRole: title.contains('Dealer') ? 'Dealer': 'Customer',
+          productStockList: viewModel.productStockList,
+          onDeviceListAdded: viewModel.removeStockList,
+        ),
+      );
+    }else{
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => DealerDeviceList(
+          userId: userId,
+          customerName: customer.name,
+          customerId: customer.id,
+          userRole: title.contains('Dealer') ? 'Dealer': 'Customer',
+          productStockList: viewModel.productStockList,
+          onDeviceListAdded: viewModel.removeStockList,
+        )),
+      );
+    }
   }
 
   void _openUserDashboard(BuildContext context, CustomerListModel customer) {

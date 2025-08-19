@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
+import '../../Screens/Dealer/controllerverssionupdate.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/constants.dart';
@@ -33,7 +34,21 @@ class _GeneralSettingState extends State<GeneralSetting> {
       child: Consumer<GeneralSettingViewModel>(
         builder: (context, viewModel, _) {
           return Scaffold(
-            appBar: !kIsWeb ? AppBar(title: const Text('General')): null,
+            appBar: !kIsWeb ? AppBar(
+              title: const Text('General'),
+              actions: [
+                IconButton(onPressed: (){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ResetVerssion(
+                          userId: widget.customerId, controllerId: widget.controllerId,
+                          deviceID: viewModel.deviceId),
+                    ),
+                  );
+                }, icon: Icon(Icons.update)),
+              ],
+            ): null,
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             body: viewModel.isLoading?
             buildLoadingIndicator(true, MediaQuery.sizeOf(context).width):

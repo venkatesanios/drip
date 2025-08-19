@@ -13,7 +13,7 @@ class AdminMobileDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     final navModel = context.watch<BottomNavViewModel>();
 
-    final pages = [const AnalyticsView(), CustomerView(role: UserRole.admin, isNarrow: true, onCustomerProductChanged: (String action) {  },), const ProductView()];
+    final pages = [const AnalyticsView(), CustomerView(role: UserRole.admin, isNarrow: true, onCustomerProductChanged: (String action) {  }), const ProductView()];
 
     return Scaffold(
       body: IndexedStack(
