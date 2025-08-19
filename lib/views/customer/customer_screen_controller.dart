@@ -349,7 +349,7 @@ class CustomerScreenController extends StatelessWidget {
                                   title: const Text('Controller info'),
                                   onTap: () {
                                      Navigator.pop(context);
-                                    showPasswordDialog(context,'Oro@321',customerId,currentMaster.controllerId,currentMaster.deviceId);
+                                    showPasswordDialog(context,'Oro@321',customerId,currentMaster.controllerId,currentMaster.deviceId,1);
                                      // Navigator.push(
                                     //   context,
                                     //   MaterialPageRoute(
@@ -365,13 +365,7 @@ class CustomerScreenController extends StatelessWidget {
                                   title: const Text('Factory Reset'),
                                   onTap: () {
                                     Navigator.pop(context);
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ResetAccumalationScreen(userId: userId,
-                                          controllerId: currentMaster.controllerId, deviceID: currentMaster.deviceId),
-                                      ),
-                                    );
+                                    showPasswordDialog(context,'Oro@321',customerId,currentMaster.controllerId,currentMaster.deviceId,2);
                                   },
                                 ),
                                 const Divider(height: 0),
@@ -853,7 +847,7 @@ class CustomerScreenController extends StatelessWidget {
     );
   }
 
-  void showPasswordDialog(BuildContext context, correctPassword,userId,controllerID,imeiNumber) {
+  void showPasswordDialog(BuildContext context, correctPassword,userId,controllerID,imeiNumber,type) {
     final TextEditingController passwordController = TextEditingController();
     print('userId:$userId,controllerID:$controllerID,imeiNumber:$imeiNumber');
     showDialog(
@@ -881,11 +875,24 @@ class CustomerScreenController extends StatelessWidget {
                 final enteredPassword = passwordController.text;
 
                 if (enteredPassword == correctPassword) {
-                  Navigator.of(context).pop();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) =>  ResetVerssion(userId: userId, controllerId: controllerID, deviceID: imeiNumber,)),
-                  );
+                  if(type == 1){
+                         Navigator.of(context).pop();
+                          Navigator.push(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => ResetVerssion(userId: userId, controllerId: controllerID, deviceID: imeiNumber,)),
+                                             );
+                          }
+                  else if(type == 2)
+                    {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ResetAccumalationScreen(userId: userId,
+                              controllerId: controllerID, deviceID: imeiNumber),
+                        ),
+                      );
+                    }
+
                 } else {
                   Navigator.of(context).pop(); // Close the dialog
                   showErrorDialog(context);
@@ -1026,13 +1033,13 @@ class CustomerScreenController extends StatelessWidget {
           masterController: currentMaster,
         );
       case 5:
-        return SiteConfig(
-            userId: userId,
-            customerId: customerId,
-            customerName: customerName,
-            masterData: allMaster,
-            groupId: groupId,
-            groupName: groupName
+        return _PasswordProtectedSiteConfig(
+          userId: userId,
+          customerId: customerId,
+          customerName: customerName,
+          allMaster: allMaster,
+          groupId: groupId,
+          groupName: groupName,
         );
       case 6:
         return TicketHomePage(userId: userId, controllerId: currentMaster.controllerId);
@@ -1048,6 +1055,9 @@ class CustomerScreenController extends StatelessWidget {
   }
 
 }
+
+
+
 
 class BadgeButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -1261,3 +1271,110 @@ class AlarmListItems extends StatelessWidget {
   }
 
 }
+
+class _PasswordProtectedSiteConfig extends StatefulWidget {
+  final int userId;
+  final int customerId;
+  final String customerName;
+  final List<MasterControllerModel> allMaster;
+  final int groupId;
+  final String groupName;
+
+  const _PasswordProtectedSiteConfig({
+    Key? key,
+    required this.userId,
+    required this.customerId,
+    required this.customerName,
+    required this.allMaster,
+    required this.groupId,
+    required this.groupName,
+  }) : super(key: key);
+
+  @override
+  State<_PasswordProtectedSiteConfig> createState() =>
+      _PasswordProtectedSiteConfigState();
+}
+
+class _PasswordProtectedSiteConfigState
+    extends State<_PasswordProtectedSiteConfig> {
+  bool _authorized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // show password dialog after first build
+    WidgetsBinding.instance.addPostFrameCallback((_) => _askPassword());
+  }
+
+  Future<void> _askPassword() async {
+    final controller = TextEditingController();
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: const Text('Enter Password'),
+          content: TextField(
+            controller: controller,
+            obscureText: true,
+            decoration: const InputDecoration(
+              labelText: 'Password',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (controller.text.trim() == "Oro@321") {
+                  Navigator.pop(ctx, true);
+                } else {
+                  Navigator.pop(ctx, false);
+                }
+              },
+              child: const Text('Submit'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result == true) {
+      setState(() => _authorized = true);
+    } else {
+      // Wrong password → show error
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text("Error"),
+          content: const Text("Incorrect Password!"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("OK"),
+            )
+          ],
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_authorized) {
+      return SiteConfig(
+        userId: widget.userId,
+        customerId: widget.customerId,
+        customerName: widget.customerName,
+        masterData: widget.allMaster,
+        groupId: widget.groupId,
+        groupName: widget.groupName,
+      );
+    }
+    return const SizedBox.shrink(); // empty until password is validated
+  }
+}
+
