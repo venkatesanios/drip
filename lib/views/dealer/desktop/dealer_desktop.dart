@@ -4,9 +4,11 @@ import 'package:provider/provider.dart';
 import '../../../Widgets/app_logo.dart';
 import '../../../Widgets/user_account_menu.dart';
 import '../../../flavors.dart';
+import '../../../layouts/layout_selector.dart';
+import '../../../utils/enums.dart';
 import '../../../view_models/base_header_view_model.dart';
-import '../../admin_dealer/dealer_dashboard.dart';
 import '../../admin_dealer/product_inventory.dart';
+import '../../common/product_search_bar.dart';
 import '../../common/user_dashboard/widgets/main_menu.dart';
 
 class DealerDesktop extends StatelessWidget {
@@ -18,28 +20,37 @@ class DealerDesktop extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        leading: Navigator.of(context).canPop()
-            ? const BackButton()
-            : const Padding(
+        leading: Navigator.of(context).canPop() ? IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () =>Navigator.pop(context),
+        ) :
+        const Padding(
           padding: EdgeInsets.only(left: 15),
           child: AppLogo(),
         ),
-       /* leading: const Padding(
-          padding: EdgeInsets.only(left: 15),
-          child: AppLogo(),
-        ),*/
-        title: MainMenu(viewModel: viewModel),
+        title: Row(
+          children: [
+            MainMenu(viewModel: viewModel),
+            if(viewModel.selectedIndex==1)...[
+              const Spacer(),
+              SizedBox(width : 420, child: ProductSearchBar(
+                  viewModel: viewModel, barHeight: 40, barRadius: 20)),
+              const Spacer(),
+            ]
+          ],
+        ),
         actions: const <Widget>[
-          UserAccountMenu(screenType: 'Desktop'),
+          UserAccountMenu(screenType: 'Web'),
         ],
         centerTitle: false,
         elevation: 10,
-        leadingWidth: F.appFlavor!.name.contains('oro') ? 75:110,
+        leadingWidth: Navigator.of(context).canPop() ? 50 :
+        F.appFlavor!.name.contains('oro') ? 75:110,
       ),
       body: IndexedStack(
         index: viewModel.selectedIndex,
         children: const [
-          DealerDashboard(fromLogin: false),
+          DashboardLayoutSelector(userRole: UserRole.dealer),
           ProductInventory(),
         ],
       ),

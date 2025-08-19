@@ -11,7 +11,6 @@ import '../../../../view_models/admin_dealer/admin_dealer_dashboard_view_model.d
 import '../../../admin_dealer/dealer_device_list.dart';
 import '../../../create_account.dart';
 import '../../../customer/mobile/customer_mobile.dart';
-import '../../../mobile/mobile_screen_controller.dart';
 
 class MyUser extends StatelessWidget {
   const MyUser({super.key,
@@ -88,7 +87,7 @@ class MyUser extends StatelessWidget {
                               radius: 14,
                             ),
                             const SizedBox(width: 12),
-                            Text(customer.userName),
+                            Text(customer.name),
                           ],
                         )),
                         DataCell(Text('+ ${customer.countryCode} ${customer.mobileNumber}')),
@@ -132,7 +131,7 @@ class MyUser extends StatelessWidget {
                       radius: 20,
                     ),
                     title: Text(
-                      customer.userName,
+                      customer.name,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text(
@@ -195,8 +194,8 @@ class MyUser extends StatelessWidget {
       ),
       builder: (context) => DealerDeviceList(
         userId: userId,
-        customerName: customer.userName,
-        customerId: customer.userId,
+        customerName: customer.name,
+        customerId: customer.id,
         userRole: title.contains('Dealer') ? 'Dealer': 'Customer',
         productStockList: viewModel.productStockList,
         onDeviceListAdded: viewModel.removeStockList,
@@ -207,8 +206,8 @@ class MyUser extends StatelessWidget {
   void _openUserDashboard(BuildContext context, CustomerListModel customer) {
     final user = UserModel(
       token: context.read<UserProvider>().loggedInUser.token,
-      id: customer.userId ?? 0,
-      name: customer.userName ?? '',
+      id: customer.id ?? 0,
+      name: customer.name ?? '',
       role: title.contains('Dealer') ? UserRole.dealer : UserRole.customer,
       countryCode: customer.countryCode ?? '',
       mobileNo: customer.mobileNumber ?? '',

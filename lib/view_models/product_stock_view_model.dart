@@ -32,6 +32,14 @@ class ProductStockViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> removeStockList(Map<String, dynamic> json) async {
+    if (json['status'] != 'success') return;
+    for (var p in json['products']) {
+      productStockList.removeWhere((item) => item.productId == p['productId']);
+    }
+    notifyListeners();
+  }
+
   void setStockLoading(bool loadingState) {
     isLoadingStock = loadingState;
     notifyListeners();

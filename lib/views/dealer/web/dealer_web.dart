@@ -3,8 +3,9 @@ import 'package:provider/provider.dart';
 import '../../../Widgets/app_logo.dart';
 import '../../../Widgets/user_account_menu.dart';
 import '../../../flavors.dart';
+import '../../../layouts/layout_selector.dart';
+import '../../../utils/enums.dart';
 import '../../../view_models/base_header_view_model.dart';
-import '../../admin_dealer/dealer_dashboard.dart';
 import '../../admin_dealer/product_inventory.dart';
 import '../../common/product_search_bar.dart';
 import '../../common/user_dashboard/widgets/main_menu.dart';
@@ -48,7 +49,7 @@ class DealerWeb extends StatelessWidget {
       body: IndexedStack(
         index: viewModel.selectedIndex,
         children: const [
-          DealerDashboard(fromLogin: false),
+          DashboardLayoutSelector(userRole: UserRole.dealer),
           ProductInventory(),
         ],
       ),

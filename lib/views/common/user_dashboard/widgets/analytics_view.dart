@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../Widgets/sales_chip.dart';
 import '../../../../utils/enums.dart';
 import '../../../../view_models/analytics_view_model.dart';
-import '../../../admin_dealer/sales_bar_chart.dart';
+import 'sales_bar_chart.dart';
 
 
 class AnalyticsView extends StatelessWidget {

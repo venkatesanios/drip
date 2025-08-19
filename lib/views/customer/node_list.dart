@@ -3,8 +3,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Models/customer/site_model.dart';
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/node_connection_page.dart';
+import 'package:oro_drip_irrigation/services/http_service.dart';
 import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
+import '../../repository/repository.dart';
 import '../../utils/snack_bar.dart';
 import '../../view_models/customer/node_list_view_model.dart';
 import 'hourly_log/node_hourly_logs.dart';
@@ -22,7 +24,7 @@ class NodeList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => NodeListViewModel(context, nodes),
+      create: (_) => NodeListViewModel(context, Repository(HttpService()), nodes),
       child: kIsWeb ? nodeListBody(context) : buildScaffold(context),
     );
   }
@@ -122,7 +124,8 @@ class NodeList extends StatelessWidget {
                                 ),
                                 IconButton(
                                   onPressed: () {
-                                    vm.showEditProductDialog(context, vm.nodeList[index].deviceName, vm.nodeList[index].controllerId, index);
+                                    vm.showEditProductDialog(context, vm.nodeList[index].deviceName, vm.nodeList[index].controllerId, index,
+                                        customerId, userId, masterData.controllerId);
                                   },
                                   icon: Icon(Icons.edit_outlined, color: Theme.of(context).primaryColorDark,),
                                 ),

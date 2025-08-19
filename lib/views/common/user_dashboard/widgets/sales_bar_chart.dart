@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import '../../models/sales_data_model.dart';
+import '../../../../models/sales_data_model.dart';
 
 class MySalesBarChart extends StatefulWidget {
   const MySalesBarChart({super.key, required this.graph});

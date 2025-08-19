@@ -1,20 +1,11 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/views/mobile/mobile_screen_controller.dart';
 import 'package:provider/provider.dart';
-import '../StateManagement/mqtt_payload_provider.dart';
 import '../layouts/layout_selector.dart';
 import '../models/user_model.dart';
 import '../providers/user_provider.dart';
-import '../repository/repository.dart';
-import '../services/http_service.dart';
 import '../utils/enums.dart';
 import '../utils/shared_preferences_helper.dart';
-import '../view_models/customer/customer_screen_controller_view_model.dart';
-import 'admin_dealer/admin_screen_controller.dart';
-import 'admin_dealer/dealer_screen_controller.dart';
 import 'common/login/login_screen.dart';
-import 'customer/customer_screen_controller.dart';
 
 class ScreenController extends StatelessWidget {
   const ScreenController({super.key});
@@ -85,81 +76,4 @@ class ScreenController extends StatelessWidget {
       },
     );
   }
-
-
-  /*@override
-  Widget build(BuildContext context) {
-
-    return ChangeNotifierProvider(
-      create: (_) => ScreenControllerViewModel(),
-      child: Consumer<ScreenControllerViewModel>(
-        builder: (context, viewModel, _) {
-          if (viewModel.userId == null) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
-
-          // Web vs Mobile check
-          if (!kIsWeb && viewModel.userRole != 'admin' && viewModel.userRole != 'dealer') {
-            return ChangeNotifierProvider(
-              create: (_) => CustomerScreenControllerViewModel(
-                context,
-                Repository(HttpService()),
-                Provider.of<MqttPayloadProvider>(context, listen: false),
-              )..getAllMySites(context, viewModel.userId!),
-              child: MobileScreenController(
-                customerId: viewModel.userId!,
-                customerName: viewModel.userName!,
-                mobileNo: viewModel.mobileNo!,
-                emailId: viewModel.emailId!,
-                userId: viewModel.userId!,
-                fromLogin: true,
-              ),
-            );
-          }
-
-          return Scaffold(
-            body: controllerScreen(
-              viewModel.userRole!,
-              viewModel.userId!,
-              viewModel.userName!,
-              viewModel.mobileNo!,
-              viewModel.emailId!,
-            ),
-          );
-        },
-      ),
-    );
-  }*/
-
-  Widget controllerScreen(String userRole, int userId, String userName, String mobileNo, String emailId) {
-    switch (userRole) {
-      case 'admin':
-        return AdminScreenController(
-          userId: userId,
-          userName: userName,
-          mobileNo: mobileNo,
-          emailId: emailId,
-        );
-      case 'dealer':
-        return DealerScreenController(
-          userId: userId,
-          userName: userName,
-          mobileNo: mobileNo,
-          emailId: emailId,
-          fromLogin: true,
-        );
-      default:
-        return CustomerScreenController(
-          userId: userId,
-          customerName: userName,
-          mobileNo: mobileNo,
-          emailId: emailId,
-          customerId: userId,
-          fromLogin: true,
-        );
-    }
-  }
 }
-

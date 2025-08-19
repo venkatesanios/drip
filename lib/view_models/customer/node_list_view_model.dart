@@ -9,19 +9,21 @@ import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../services/mqtt_service.dart';
 import '../../utils/constants.dart';
+import '../../utils/snack_bar.dart';
 
 class NodeListViewModel extends ChangeNotifier {
 
+  final Repository repository;
+
   late MqttPayloadProvider payloadProvider;
 
-  final mqttService = MqttService();
   final List<NodeListModel> nodeList;
 
   List<dynamic> _previousLiveMessage = [];
   List<dynamic> _previousRelayStatus = [];
 
 
-  NodeListViewModel(BuildContext context, this.nodeList) {
+  NodeListViewModel(BuildContext context, this.repository, this.nodeList) {
     payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
   }
 
@@ -119,7 +121,8 @@ class NodeListViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> showEditProductDialog(BuildContext context, String nodeName, int nodeId, int index) async {
+  Future<void> showEditProductDialog(BuildContext context, String nodeName, int nodeId,
+      int index, int customerId, int userId, int controllerId) async {
     final TextEditingController nodeNameController = TextEditingController(text: nodeName);
     final formKey = GlobalKey<FormState>();
 
@@ -153,18 +156,25 @@ class NodeListViewModel extends ChangeNotifier {
               child: const Text('Save'),
               onPressed: () async {
                 if (formKey.currentState!.validate()) {
-                  //Map<String, Object> body = {"userId": customerId, "controllerId": controllerId, "nodeControllerId": nodeId, "deviceName": nodeNameController.text, "createUser": userId};
-                  /* final response = await HttpService().putRequest("updateUserNodeDetails", body);
-                  if (response.statusCode == 200) {
-                    setState(() {
-                      widget.nodeList[index].deviceName = nodeNameController.text;
-                    });
-                    GlobalSnackBar.show(context, 'Node name updated successfully', 200);
-                    Navigator.of(context).pop();
-                  } else {
-                    Navigator.of(context).pop();
-                    throw Exception('Failed to load data');
-                  }*/
+                  Map<String, Object> body = {"userId": customerId, "controllerId": controllerId,
+                    "nodeControllerId": nodeId, "deviceName": nodeNameController.text, "modifyUser": userId};
+
+                  try {
+                    var response = await repository.updateUserNodeDetails(body);
+                    if (response.statusCode == 200) {
+                      final jsonData = jsonDecode(response.body);
+                      print('response:${response.body}');
+                      if (jsonData["code"] == 200) {
+                        nodeList[index].deviceName = nodeNameController.text;
+                        notifyListeners();
+                        GlobalSnackBar.show(context, 'Node name updated successfully', 200);
+                        Navigator.of(context).pop();
+                      }
+                    }
+                  } catch (error) {
+                    debugPrint('Error fetching category list: $error');
+                  }
+
                 }
               },
             ),

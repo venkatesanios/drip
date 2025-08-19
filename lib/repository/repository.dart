@@ -126,6 +126,11 @@ class Repository{
     return await apiService.putRequest('/category/update', body);
   }
 
+  Future<http.Response> updateUserNodeDetails(body) async {
+    return await apiService.putRequest('/user/deviceList/updateNodeDetails', body);
+  }
+
+
   Future<http.Response> inActiveCategoryById(body) async {
     return await apiService.putRequest('/category/inactive', body);
   }

@@ -5,7 +5,7 @@ import 'package:oro_drip_irrigation/Widgets/sales_chip.dart';
 
 import '../utils/constants.dart';
 import '../view_models/admin_dealer/admin_dealer_dashboard_view_model.dart';
-import '../views/admin_dealer/sales_bar_chart.dart';
+import '../views/common/user_dashboard/widgets/sales_bar_chart.dart';
 
 import '../../utils/enums.dart';
 

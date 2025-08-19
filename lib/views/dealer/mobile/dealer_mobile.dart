@@ -8,7 +8,6 @@ import '../../../layouts/layout_selector.dart';
 import '../../../providers/user_provider.dart';
 import '../../../utils/enums.dart';
 import '../../../view_models/base_header_view_model.dart';
-import '../../admin_dealer/dealer_dashboard.dart';
 import '../../admin_dealer/product_inventory.dart';
 import '../../common/product_search_bar.dart';
 import '../../common/user_dashboard/widgets/main_menu_segment.dart';
@@ -51,7 +50,6 @@ class DealerMobile extends StatelessWidget {
         index: viewModel.selectedIndex,
         children: const [
           DashboardLayoutSelector(userRole: UserRole.dealer),
-          //DealerDashboard(fromLogin: false),
           ProductInventory(),
         ],
       ),

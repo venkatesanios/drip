@@ -1,8 +1,8 @@
 class CustomerListModel
 {
   CustomerListModel({
-    this.userId = 0,
-    this.userName = '',
+    this.id = 0,
+    this.name = '',
     this.countryCode = '',
     this.mobileNumber = '',
     this.emailId = '',
@@ -10,12 +10,12 @@ class CustomerListModel
     this.criticalAlarmCount = 0,
   });
 
-  int userId,serviceRequestCount,criticalAlarmCount;
-  String userName, countryCode, mobileNumber, emailId;
+  int id,serviceRequestCount,criticalAlarmCount;
+  String name, countryCode, mobileNumber, emailId;
 
   factory CustomerListModel.fromJson(Map<String, dynamic> json) => CustomerListModel(
-    userId: json['userId'],
-    userName: json['userName'],
+    id: json['userId'],
+    name: json['userName'],
     countryCode: json['countryCode'],
     mobileNumber: json['mobileNumber'],
     emailId: json['emailId'],
@@ -24,8 +24,8 @@ class CustomerListModel
   );
 
   Map<String, dynamic> toJson() => {
-    'userId': userId,
-    'userName': userName,
+    'userId': id,
+    'userName': name,
     'countryCode': countryCode,
     'mobileNumber': mobileNumber,
     'emailId': emailId,

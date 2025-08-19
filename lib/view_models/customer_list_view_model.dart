@@ -15,7 +15,7 @@ class CustomerListViewModel extends ChangeNotifier {
   bool accountCreated = false;
   String responseMsg = '';
 
-  bool searched = false;
+  bool searching = false;
   final TextEditingController txtFldSearch = TextEditingController();
 
   CustomerListViewModel(this.repository, this.userId);
@@ -51,8 +51,8 @@ class CustomerListViewModel extends ChangeNotifier {
     if (json['status'] != 'success') return;
 
     final newCustomer = CustomerListModel(
-      userId: json['userId'],
-      userName: json['userName'],
+      id: json['userId'],
+      name: json['userName'],
       countryCode: json['countryCode'],
       mobileNumber: json['mobileNumber'],
       emailId: json['emailId'],
@@ -60,7 +60,7 @@ class CustomerListViewModel extends ChangeNotifier {
       criticalAlarmCount: json['criticalAlarmCount'],
     );
 
-    if (!myCustomerList.any((c) => c.userId == newCustomer.userId)) {
+    if (!myCustomerList.any((c) => c.id == newCustomer.id)) {
       myCustomerList.add(newCustomer);
       refreshFilter();
       accountCreated = true;
@@ -70,29 +70,30 @@ class CustomerListViewModel extends ChangeNotifier {
   }
 
   void filterCustomer(String query) {
+    searching = true;
     filteredCustomerList = myCustomerList.where((customer) {
       final q = query.toLowerCase();
-      return customer.userName.toLowerCase().contains(q) || customer.mobileNumber.toLowerCase().contains(q);
+      return customer.name.toLowerCase().contains(q) || customer.mobileNumber.toLowerCase().contains(q);
     }).toList();
     notifyListeners();
   }
 
   void searchCustomer() {
-    searched = true;
+    searching = true;
     filterCustomer(txtFldSearch.text);
   }
 
   void clearSearch() {
-    searched = false;
+    searching = false;
     txtFldSearch.clear();
     refreshFilter();
     notifyListeners();
   }
 
   void refreshFilter() {
-    filteredCustomerList = searched ? myCustomerList.where((customer) {
+    filteredCustomerList = searching ? myCustomerList.where((customer) {
       final q = txtFldSearch.text.toLowerCase();
-      return customer.userName.toLowerCase().contains(q) || customer.mobileNumber.toLowerCase().contains(q);
+      return customer.name.toLowerCase().contains(q) || customer.mobileNumber.toLowerCase().contains(q);
     }).toList() : List.from(myCustomerList);
   }
 

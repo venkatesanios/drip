@@ -142,9 +142,9 @@ class _ControlNodeState extends State<ControlNode> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             const Text('Voltage', style: TextStyle(fontWeight: FontWeight.bold),),
-            currentBox(color: const Color(0xffFF8688), title: 'RY : ${bleService.nodeDataFromHw['R-VOLT']}V'),
-            currentBox(color: const Color(0xffFFED68), title: 'YB : ${bleService.nodeDataFromHw['Y-VOLT']}V'),
-            currentBox(color: const Color(0xff6FAEFF), title: 'BR : ${bleService.nodeDataFromHw['B-VOLT']}V'),
+            currentBox(color: const Color(0xffFF8688), title: 'RN : ${bleService.nodeDataFromHw['R-VOLT']}V'),
+            currentBox(color: const Color(0xffFFED68), title: 'YN : ${bleService.nodeDataFromHw['Y-VOLT']}V'),
+            currentBox(color: const Color(0xff6FAEFF), title: 'BN : ${bleService.nodeDataFromHw['B-VOLT']}V'),
           ]
       ),
     );
