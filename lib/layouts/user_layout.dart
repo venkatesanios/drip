@@ -134,6 +134,16 @@ class DealerDashboardLayout extends BaseScreenLayout {
   const DealerDashboardLayout({super.key});
 
   @override
+  Widget build(BuildContext context) {
+    final viewedCustomer = context.read<UserProvider>().viewedCustomer!;
+    return DashboardServiceProvider(
+      userId: viewedCustomer.id,
+      userType: 2,
+      child: super.build(context),
+    );
+  }
+
+  @override
   Widget buildMobile(BuildContext context) => const DealerMobileDashboard();
   @override
   Widget buildTablet(BuildContext context) => const DealerTabletDashboard();

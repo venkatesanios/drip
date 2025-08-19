@@ -232,9 +232,8 @@ class CreateAccount extends StatelessWidget {
                   ),
                 ),
               ),
-
               SizedBox(
-                height: 48,
+                height: 56,
                 child: Column(
                   children: [
                     ListTile(

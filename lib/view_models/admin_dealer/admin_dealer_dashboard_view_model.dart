@@ -181,8 +181,8 @@ class UserDashboardViewModel extends ChangeNotifier {
     if (json['status'] != 'success') return;
 
     final newCustomer = CustomerListModel(
-      userId: json['userId'],
-      userName: json['userName'],
+      id: json['userId'],
+      name: json['userName'],
       countryCode: json['countryCode'],
       mobileNumber: json['mobileNumber'],
       emailId: json['emailId'],
@@ -190,7 +190,7 @@ class UserDashboardViewModel extends ChangeNotifier {
       criticalAlarmCount: json['criticalAlarmCount'],
     );
 
-    if (!myCustomerList.any((c) => c.userId == newCustomer.userId)) {
+    if (!myCustomerList.any((c) => c.id == newCustomer.id)) {
       myCustomerList.add(newCustomer);
       _refreshFilter();
       accountCreated = true;
@@ -204,7 +204,7 @@ class UserDashboardViewModel extends ChangeNotifier {
   void filterCustomer(String query) {
     filteredCustomerList = myCustomerList.where((customer) {
       final q = query.toLowerCase();
-      return customer.userName.toLowerCase().contains(q) || customer.mobileNumber.toLowerCase().contains(q);
+      return customer.name.toLowerCase().contains(q) || customer.mobileNumber.toLowerCase().contains(q);
     }).toList();
 
     notifyListeners();
@@ -226,7 +226,7 @@ class UserDashboardViewModel extends ChangeNotifier {
     filteredCustomerList = searched
         ? myCustomerList.where((customer) {
       final q = txtFldSearch.text.toLowerCase();
-      return customer.userName.toLowerCase().contains(q) || customer.mobileNumber.toLowerCase().contains(q);
+      return customer.name.toLowerCase().contains(q) || customer.mobileNumber.toLowerCase().contains(q);
     }).toList()
         : List.from(myCustomerList);
   }

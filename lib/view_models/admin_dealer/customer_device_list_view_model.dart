@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../../Models/admin_dealer/stock_model.dart';
 import '../../models/admin_dealer/product_list_with_node.dart';
-import '../../models/admin_dealer/stock_model.dart';
 import '../../models/device_list_model.dart';
 import '../../repository/repository.dart';
 import '../../utils/snack_bar.dart';

@@ -46,7 +46,8 @@ class ProductSearchBar extends StatelessWidget {
                   suffixIcon: (viewModel.txtFldSearch.text.isNotEmpty ||
                       context.watch<SearchProvider>().isSearchProduct)
                       ? IconButton(
-                    icon: const Icon(Icons.clear, color: Colors.redAccent),
+                    tooltip: 'Clear search',
+                    icon: const Icon(Icons.clear, color: Colors.white),
                     onPressed: () {
                       viewModel.clearSearch();
                       context.read<SearchProvider>().clearSearchFilters();

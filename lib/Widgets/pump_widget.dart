@@ -254,7 +254,7 @@ class PumpWidget extends StatelessWidget {
         const SizedBox(height: 5),
         _buildPhaseInfo(),
         const SizedBox(height: 7),
-        _buildVoltageCurrentInfo('Voltage', voltages, ['RY', 'YB', 'BR']),
+        _buildVoltageCurrentInfo('Voltage', voltages, ['RN', 'YN', 'BN']),
         const SizedBox(height: 7),
         _buildVoltageCurrentInfo('Current', columns, ['RC', 'YC', 'BC']),
         const SizedBox(height: 7),
