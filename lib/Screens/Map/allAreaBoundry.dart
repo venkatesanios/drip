@@ -60,7 +60,7 @@ class _MapScreenAllAreaState extends State<MapScreenAllArea> {
     try {
       final repository = Repository(HttpService());
       final response = await repository.getgeographyArea({
-        "userId": widget.userId,
+        "userId": widget.customerId,
         "controllerId": widget.controllerId,
       });
 

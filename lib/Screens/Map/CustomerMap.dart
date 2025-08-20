@@ -103,7 +103,7 @@ class _MapScreenallState extends State<MapScreenall> {
     try {
       final Repository repository = Repository(HttpService());
       var getUserDetails = await repository.getgeography({
-        "userId": widget.userId,
+        "userId": widget.customerId,
         "controllerId": widget.controllerId,
       });
 

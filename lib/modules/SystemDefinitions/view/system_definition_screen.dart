@@ -52,7 +52,7 @@ class _SystemDefinitionState extends State<SystemDefinition> {
     overAllPvd = Provider.of<OverAllUse>(context, listen: false);
     if(mounted){
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        systemDefinitionProvider.getUserPlanningSystemDefinition(widget.userId, widget.controllerId);
+        systemDefinitionProvider.getUserPlanningSystemDefinition(widget.customerId, widget.controllerId);
       });
     }
   }
@@ -64,7 +64,7 @@ class _SystemDefinitionState extends State<SystemDefinition> {
     overAllPvd = Provider.of<OverAllUse>(context, listen: true);
     final screenSize = MediaQuery.of(context).size.width;
     return systemDefinitionProvider.irrigationLineSystemData != null ? RefreshIndicator(
-      onRefresh: () => systemDefinitionProvider.getUserPlanningSystemDefinition(widget.userId, widget.controllerId),
+      onRefresh: () => systemDefinitionProvider.getUserPlanningSystemDefinition(widget.customerId, widget.controllerId),
       child: Scaffold(
         appBar: screenSize <= 600
             ? AppBar(
@@ -529,7 +529,7 @@ class _SystemDefinitionState extends State<SystemDefinition> {
             };
 
             Map<String, dynamic> userData = {
-              "userId": widget.userId,
+              "userId": widget.customerId,
               "controllerId": widget.controllerId,
               "createUser": widget.userId ,
               "systemDefinition" : {

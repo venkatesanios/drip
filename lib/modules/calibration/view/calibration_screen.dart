@@ -39,7 +39,7 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
     List<SensorCategoryModel> calibrationData = [];
     try {
       var body = {
-        "userId": userData['userId'],
+        "userId": userData['customerId'],
         "controllerId": userData['controllerId'],
       };
       var response = await CalibrationRepository().getUserCalibration(body);
@@ -318,7 +318,7 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
 
   void sendToHttp(List<SensorCategoryModel> sensorCategoryModel)async{
     var body = {
-      "userId" : widget.userData['userId'],
+      "userId" : widget.userData['customerId'],
       "controllerId" : widget.userData['controllerId'],
       'calibration' : sensorCategoryModel.map((sensorCategory) => sensorCategory.toJson()).toList(),
       "createUser" : widget.userData['userId']

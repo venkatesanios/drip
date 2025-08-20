@@ -13,6 +13,7 @@ import '../../utils/snack_bar.dart';
 
 class PumpConditionScreen extends StatefulWidget {
   final dynamic userId;
+  final dynamic customerId;
   final dynamic controllerId;
   final String imeiNo;
   final bool? isProgram;
@@ -22,7 +23,7 @@ class PumpConditionScreen extends StatefulWidget {
     required this.userId,
     required this.controllerId,
     required this.imeiNo,
-    this.isProgram,
+    this.isProgram, this.customerId,
   }) : super(key: key);
 
   @override
@@ -45,7 +46,7 @@ class _PumpConditionScreenState extends State<PumpConditionScreen> {
     try {
       final repository = Repository(HttpService());
       var getUserDetails = await repository.getUserPlanningPumpCondition({
-        "userId": widget.userId,
+        "userId": widget.customerId,
         "controllerId": widget.controllerId,
       });
 
@@ -203,7 +204,7 @@ class _PumpConditionScreenState extends State<PumpConditionScreen> {
     print("payLoadFinal,$payLoadFinal");
     // Main request body
     Map<String, dynamic> body = {
-      "userId": widget.userId,
+      "userId": widget.customerId,
       "controllerId": widget.controllerId,
       "pumpCondition": pumpConditionServerData,
       "hardware": payLoadFinal,

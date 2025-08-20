@@ -14,13 +14,14 @@ import '../../utils/snack_bar.dart';
 class GroupListScreen extends StatefulWidget {
   final int userId;
   final int controllerId;
+  final int customerId;
   final String deviceId;
 
   const GroupListScreen({
     super.key,
     required this.userId,
     required this.controllerId,
-    required this.deviceId,
+    required this.deviceId, required this.customerId,
   });
 
   @override
@@ -57,7 +58,7 @@ class _GroupListScreenState extends State<GroupListScreen> {
     var overAllPvd = Provider.of<OverAllUse>(context, listen: false);
 
     Map<String, Object> body = {
-      "userId": widget.userId,
+      "userId": widget.customerId,
       "controllerId": widget.controllerId,
     };
     final Repository repository = Repository(HttpService());

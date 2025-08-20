@@ -343,7 +343,7 @@ class _GlobalAlarmInConstantState extends State<GlobalAlarmInConstant> {
 
   void sendToHttp()async{
     var body = {
-      "userId" : widget.userData['userId'],
+      "userId" : widget.userData['customerId'],
       "controllerId" : widget.userData['controllerId'],
       "general": widget.constPvd.general.map((setting) => setting.toJson()).toList(),
       "waterSource": [],

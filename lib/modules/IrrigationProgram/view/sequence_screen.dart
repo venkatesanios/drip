@@ -602,6 +602,7 @@ class _SequenceScreenState extends State<SequenceScreen> {
                 MaterialPageRoute(
                   builder: (context) => GroupListScreen(
                     userId: widget.userId,
+                    customerId: widget.userId,
                     controllerId: widget.controllerId,
                     deviceId: widget.deviceId,
                   ),
@@ -714,6 +715,7 @@ class _SequenceScreenState extends State<SequenceScreen> {
           MaterialPageRoute(
             builder: (context) => GroupListScreen(
               userId: widget.userId,
+              customerId: widget.userId,
               controllerId: widget.controllerId,
               deviceId: widget.deviceId,
             ),

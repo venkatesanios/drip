@@ -50,7 +50,7 @@ class _GlobalLimitScreenState extends State<GlobalLimitScreen> {
   Future<int> getGlobalLimitData(Map<String, dynamic>userData)async{
     try{
       var body = {
-        "userId": userData['userId'],
+        "userId": userData['customerId'],
         "controllerId": userData['controllerId'],
       };
       var response = await GlobalLimitRepository().getUserGlobalLimit(body);

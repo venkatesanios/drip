@@ -54,7 +54,7 @@ class _FertilizerSetScreenState extends State<FertilizerSetScreen> {
   Future<int> getFertilizerSetData(Map<String, dynamic>userData)async{
     try{
       var body = {
-        "userId": userData['userId'],
+        "userId": userData['customerId'],
         "controllerId": userData['controllerId'],
       };
       var response = await FertilizerSetRepository().getUserFertilizerSet(body);
@@ -311,7 +311,7 @@ class _FertilizerSetScreenState extends State<FertilizerSetScreen> {
 
   void sendToHttp()async{
     var body = {
-      "userId" : widget.userData['userId'],
+      "userId" : widget.userData['customerId'],
       "controllerId" : widget.userData['controllerId'],
       'fertilizerSet' : listOfFertilizerSet.map((set) => set.toJson()).toList(),
       "createUser" : widget.userData['userId']

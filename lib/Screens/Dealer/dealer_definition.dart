@@ -65,7 +65,7 @@ class DealerDefinitionInConfigState extends State<DealerDefinitionInConfig> {
     try{
       final Repository repository = Repository(HttpService());
       var getUserDetails = await repository.getdealerDefinition({
-        "userId":  widget.userId,
+        "userId":  widget.customerId,
         "controllerId": widget.controllerId
       });
        // final jsonData = jsonDecode(getUserDetails.body);

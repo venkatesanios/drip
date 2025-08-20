@@ -156,7 +156,8 @@ class ControllerSettings extends StatelessWidget {
         );
       case 'Constant':
         return ConstantBasePage(userData: {
-          "userId": customerId,
+          "userId": userId,
+          "customerId": customerId,
           "controllerId": masterController.controllerId,
           "deviceId": masterController.deviceId,
           "modelId": masterController.modelId,
@@ -185,12 +186,14 @@ class ControllerSettings extends StatelessWidget {
       case 'Fertilizer Set':
         return FertilizerSetScreen(userData: {
           'userId': userId,
+          'customerId': customerId,
           'controllerId': masterController.controllerId,
           'deviceId': masterController.deviceId,
         });
       case 'Valve Group':
         return GroupListScreen(
           userId: userId,
+          customerId: customerId,
           controllerId: masterController.controllerId,
           deviceId: masterController.deviceId,
         );
@@ -204,6 +207,7 @@ class ControllerSettings extends StatelessWidget {
       case 'Global Limit':
         return GlobalLimitScreen(userData: {
           'userId': userId,
+          'customerId': customerId,
           'controllerId': masterController.controllerId,
           'deviceId': masterController.deviceId,
         });
@@ -224,6 +228,7 @@ class ControllerSettings extends StatelessWidget {
       case 'Calibration':
         return CalibrationScreen(userData: {
           'userId': userId,
+          'customerId': customerId,
           'controllerId': masterController.controllerId,
           'deviceId': masterController.deviceId,
         });
@@ -251,6 +256,7 @@ class ControllerSettings extends StatelessWidget {
       case 'Pump Condition':
         return PumpConditionScreen(
           userId: userId,
+          customerId: customerId,
            controllerId: masterController.controllerId,
           imeiNo: masterController.deviceId,
         );

@@ -35,7 +35,7 @@ class _NamesState extends State<Names> {
     try {
       final Repository repository = Repository(HttpService());
       var getUserDetails = await repository.getUserConfigMaker({
-        "userId": widget.userID,
+        "userId": widget.customerID,
         "controllerId": widget.controllerId,
       });
 

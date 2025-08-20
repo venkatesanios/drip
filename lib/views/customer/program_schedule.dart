@@ -112,7 +112,7 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
       case 70:
         return FertilizerSetScreen(userData: {'userId' : widget.customerID, 'controllerId' : widget.controllerID, 'deviceId' : widget.imeiNumber});
       case 71:
-        return GroupListScreen(userId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber,);
+        return GroupListScreen(userId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber, customerId: widget.customerID,);
       case 72:
         return SystemDefinition(userId: widget.userId, controllerId: widget.controllerID, deviceId: widget.imeiNumber, customerId: widget.customerID,);
       case 73:

@@ -153,7 +153,7 @@ class PreferenceProvider extends ChangeNotifier {
     try {
       final userData = {
         'userId': userId,
-        "password": password
+        "passkey": password
       };
       final response = await repository.checkPassword(userData);
       final result = jsonDecode(response.body);
