@@ -452,7 +452,9 @@ class Repository{
   Future<http.Response> updateresetAccumulation(body) async {
     return await apiService.putRequest('/user/resetAccumulation/update', body);
   }
-
+  Future<http.Response> checkpassword(body) async {
+    return await apiService.postRequest('/user/verifyPasskey', body);
+  }
   Future<http.Response> getgeography(body) async {
      return await apiService.postRequest('/user/geography/get', body);
   }

@@ -847,6 +847,7 @@ class CustomerScreenController extends StatelessWidget {
     );
   }
 
+
   void showPasswordDialog(BuildContext context, correctPassword,userId,controllerID,imeiNumber,type) {
     final TextEditingController passwordController = TextEditingController();
     print('userId:$userId,controllerID:$controllerID,imeiNumber:$imeiNumber');
@@ -871,32 +872,51 @@ class CustomerScreenController extends StatelessWidget {
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
-                final enteredPassword = passwordController.text;
+              onPressed: () async{
+                final userPsw = passwordController.text;
 
-                if (enteredPassword == correctPassword) {
-                  if(type == 1){
-                         Navigator.of(context).pop();
+                   try{
+                    final Repository repository = Repository(HttpService());
+                    var getUserDetails = await repository.checkpassword({
+                      "passkey": userPsw
+                    });
+
+                    if (getUserDetails.statusCode == 200) {
+                      var jsonData = jsonDecode(getUserDetails.body);
+                      print("jsonData$jsonData");
+                      if (jsonData['code'] == 200) {
+                        print("getUserDetails.body: ${getUserDetails.body}");
+                         if (type == 1) {
+                          Navigator.of(context).pop();
                           Navigator.push(
-                                          context,
-                                          MaterialPageRoute(builder: (context) => ResetVerssion(userId: userId, controllerId: controllerID, deviceID: imeiNumber,)),
-                                             );
-                          }
-                  else if(type == 2)
-                    {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ResetAccumalationScreen(userId: userId,
-                              controllerId: controllerID, deviceID: imeiNumber),
-                        ),
-                      );
+                            context,
+                            MaterialPageRoute(builder: (context) =>
+                                ResetVerssion(userId: userId,
+                                  controllerId: controllerID,
+                                  deviceID: imeiNumber,)),
+                          );
+                        }
+                        else if (type == 2) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ResetAccumalationScreen(userId: userId,
+                                      controllerId: controllerID,
+                                      deviceID: imeiNumber),
+                            ),
+                          );
+                        }
+                      } else {
+                        Navigator.of(context).pop(); // Close the dialog
+                        showErrorDialog(context);
+                      }
                     }
-
-                } else {
-                  Navigator.of(context).pop(); // Close the dialog
-                  showErrorDialog(context);
-                }
+                  }
+                  catch (e, stackTrace) {
+                    print(' Error overAll getData => ${e.toString()}');
+                    print(' trace overAll getData  => ${stackTrace}');
+                  }
               },
               child: const Text('Submit'),
             ),
@@ -1055,8 +1075,6 @@ class CustomerScreenController extends StatelessWidget {
   }
 
 }
-
-
 
 
 class BadgeButton extends StatelessWidget {
@@ -1328,11 +1346,30 @@ class _PasswordProtectedSiteConfigState
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
-                if (controller.text.trim() == "Oro@321") {
-                  Navigator.pop(ctx, true);
-                } else {
-                  Navigator.pop(ctx, false);
+              onPressed: () async {
+                final userPsw = controller.text;
+
+                try {
+                  final Repository repository = Repository(HttpService());
+                  var getUserDetails = await repository.checkpassword({
+                    "passkey": userPsw,
+                  });
+
+                  if (getUserDetails.statusCode == 200) {
+                    var jsonData = jsonDecode(getUserDetails.body);
+                    print("jsonData $jsonData");
+
+                    if (jsonData['code'] == 200) {
+                      print("getUserDetails.body: ${getUserDetails.body}");
+                      if (ctx.mounted) Navigator.pop(ctx, true); // ✅ close dialog safely
+                    } else {
+                      if (ctx.mounted) Navigator.pop(ctx, false); // wrong password
+                    }
+                  }
+                } catch (e, stackTrace) {
+                  print('Error getData => ${e.toString()}');
+                  print('Trace getData => $stackTrace');
+                  if (ctx.mounted) Navigator.pop(ctx, false);
                 }
               },
               child: const Text('Submit'),
