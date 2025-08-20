@@ -22,24 +22,27 @@ class DealerWebDashboard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(child: Column(
-              children: [
-                SizedBox(
-                    width: MediaQuery.sizeOf(context).width,
-                    height: 400,
-                    child: const Card(
-                        elevation:1,
-                        color:Colors.white,
-                        child: AnalyticsView()
-                    )
-                ),
-                SizedBox(
-                    width: MediaQuery.sizeOf(context).width,
-                    height: (viewModel.productStockList.length * 35) + 92,
-                    child: const StockView(role:  UserRole.dealer, isWide: true)
-                ),
-              ],
-            )),
+
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(children: [
+                  SizedBox(
+                      width: MediaQuery.sizeOf(context).width,
+                      height: 400,
+                      child: const Card(
+                          elevation:1,
+                          color:Colors.white,
+                          child: AnalyticsView()
+                      )
+                  ),
+                  SizedBox(
+                      width: MediaQuery.sizeOf(context).width,
+                      height: (viewModel.productStockList.length * 35) + 92,
+                      child: const StockView(role:  UserRole.dealer, isWide: true)
+                  ),
+                ]),
+              ),
+            ),
             SizedBox(
                 width: 350,
                 height: MediaQuery.sizeOf(context).height,

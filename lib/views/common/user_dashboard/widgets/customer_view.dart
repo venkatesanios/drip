@@ -35,6 +35,7 @@ class CustomerView extends StatelessWidget {
           ),
           Expanded(
             child: ListView.builder(
+              padding: const EdgeInsets.only(bottom: 80),
               itemCount: viewModel.filteredCustomerList.length,
               itemBuilder: (context, index) {
                 final customer = viewModel.filteredCustomerList[index];
