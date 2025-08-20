@@ -38,13 +38,15 @@ class DealerDefinitionInConfigState extends State<DealerDefinitionInConfig> {
     // return wideLayout(data, context);
     if (!kIsWeb) {
       return Material(
-        child: Scaffold(
-          appBar: AppBar(title: Text('Dealer Definition'),),
-          body: MyContainerWithTabs(
-            data: data,
-            userID: widget.userId,
-            customerID: widget.customerId,
-            controllerId: widget.controllerId,
+        child: SafeArea(
+          child: Scaffold(
+            appBar: AppBar(title: Text('Dealer Definition'),),
+            body: MyContainerWithTabs(
+              data: data,
+              userID: widget.userId,
+              customerID: widget.customerId,
+              controllerId: widget.controllerId,
+            ),
           ),
         ),
       );

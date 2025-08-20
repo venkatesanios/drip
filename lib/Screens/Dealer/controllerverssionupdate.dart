@@ -196,284 +196,286 @@ class _ResetVerssionState extends State<ResetVerssion> {
 
      final screenWidth = MediaQuery.of(context).size.width;
 
-        return Scaffold(
-      backgroundColor: Colors.teal.shade100,
-      appBar: AppBar(
-        title: const Text('Controller Info'),
-      ),
-      body: RefreshIndicator(
-        onRefresh: fetchData,
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: kIsWeb? 3:1,
-              crossAxisSpacing: 5,
-              mainAxisSpacing: 40,
-            ),
-            padding: const EdgeInsets.all(5),
-            itemCount: mergedList.length,
-            itemBuilder: (context, index) {
-              return Card(
-                elevation: 6,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    const SizedBox(height: 10),
-                    Text(
-                      mergedList[index]['categoryName']!,
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 10),
-                    //Settings icons
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const SizedBox(
-                          width: 10,
-                        ),
-
-                        Tooltip(
-                          message: "Controller Log",
-                          child: IconButton(
-                            style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                    Colors.teal.shade100)),
-                            onPressed: () {
-                              setState(() {
-                                selectindex = index;
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ControllerLog(
-                                        deviceID: '${mergedList[index]['deviceId'
-                                        ]!}', communicationType: 'MQTT',),
-                                  ),
-                                );
-                              });
-                            },
-                            icon: const Icon(Icons.arrow_circle_right_outlined),
+        return SafeArea(
+          child: Scaffold(
+                backgroundColor: Colors.teal.shade100,
+                appBar: AppBar(
+          title: const Text('Controller Info'),
+                ),
+                body: RefreshIndicator(
+          onRefresh: fetchData,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: kIsWeb? 3:1,
+                crossAxisSpacing: 5,
+                mainAxisSpacing: 40,
+              ),
+              padding: const EdgeInsets.all(5),
+              itemCount: mergedList.length,
+              itemBuilder: (context, index) {
+                return Card(
+                  elevation: 6,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      const SizedBox(height: 10),
+                      Text(
+                        mergedList[index]['categoryName']!,
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 10),
+                      //Settings icons
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const SizedBox(
+                            width: 10,
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Tooltip(
-                            message: "Config Hardware",
+          
+                          Tooltip(
+                            message: "Controller Log",
                             child: IconButton(
                               style: ButtonStyle(
                                   backgroundColor: MaterialStateProperty.all(
                                       Colors.teal.shade100)),
+                              onPressed: () {
+                                setState(() {
+                                  selectindex = index;
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ControllerLog(
+                                          deviceID: '${mergedList[index]['deviceId'
+                                          ]!}', communicationType: 'MQTT',),
+                                    ),
+                                  );
+                                });
+                              },
+                              icon: const Icon(Icons.arrow_circle_right_outlined),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Tooltip(
+                              message: "Config Hardware",
+                              child: IconButton(
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all(
+                                        Colors.teal.shade100)),
+                                  onPressed: () {
+                                    setState(() {
+                                      selectindex = index;
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ConfigureMqtt(
+                                              deviceID: '${mergedList[index]['deviceId'
+                                              ]!}'),
+                                        ),
+                                      );
+                                    });
+                                  },
+                                icon: const Icon(Icons.settings_outlined),
+                              ),
+                            ),
+                          ) ,
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Tooltip(
+                              message: "LoRa Frequency Set ",
+                              child: IconButton(
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all(
+                                        Colors.teal.shade100)),
                                 onPressed: () {
                                   setState(() {
                                     selectindex = index;
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ConfigureMqtt(
-                                            deviceID: '${mergedList[index]['deviceId'
-                                            ]!}'),
-                                      ),
-                                    );
+                                    _showFrequencyDialog(context, index, true);
+          
                                   });
                                 },
-                              icon: const Icon(Icons.settings_outlined),
+                                icon: const Icon(Icons.settings_applications),
+                              ),
                             ),
                           ),
-                        ) ,
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Tooltip(
-                            message: "LoRa Frequency Set ",
-                            child: IconButton(
-                              style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(
-                                      Colors.teal.shade100)),
-                              onPressed: () {
-                                setState(() {
-                                  selectindex = index;
-                                  _showFrequencyDialog(context, index, true);
-
-                                });
-                              },
-                              icon: const Icon(Icons.settings_applications),
+          
+                          userRole == 'admin' ?  Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Tooltip(
+                              message: "LoRa Update ",
+                              child: IconButton(
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all(
+                                        Colors.teal.shade100)),
+                                onPressed: () {
+                                  setState(() {
+                                    selectindex = index;
+          
+                                    //Call Siva Ble update Lora class
+          
+                                  });
+                                },
+                                icon: const Icon(Icons.upgrade),
+                              ),
                             ),
-                          ),
+                          ): Container(),
+          
+          
+          
+                        ],
+                      ),
+                      Container(
+                        height: 1,
+                        color: Colors.black,
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      SelectableText(mergedList[index]['deviceId']!,
+                        style:
+                        const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+          
+                      const SizedBox(height: 10),
+                      Text(
+                        'SiteName:${mergedList[index]['groupName'] ?? ''}',
+                        style:
+                        const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+          
+                      const SizedBox(height: 10),
+                      Text(
+                        'Model:${mergedList[index]['modelName'] ?? ''}',
+                        style:
+                        const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Controller version:${mergedList[index]['currentVersion'] ?? ''}',
+                        style:
+                        const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Server version:${mergedList[index]['latestVersion']!}',
+                        style:
+                        const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 10),
+                      imeicheck != mergedList[index]['deviceId']!
+                          ? mergedList[index]['status'] != 'Status'
+                          ? Container(
+                        width: 200,
+                        child: Icon(
+                          iconData,
+                          color: iconcolor,
+                          size: 40.0,
                         ),
-
-                        userRole == 'admin' ?  Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Tooltip(
-                            message: "LoRa Update ",
-                            child: IconButton(
-                              style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(
-                                      Colors.teal.shade100)),
+                      )
+                          : Container()
+                          : Container(),
+                      imeicheck != mergedList[index]['deviceId']!
+                          ? Text(
+                        '${mergedList[index]['status']}',
+                        style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.bold),
+                      )
+                          : const Text('Status'),
+          
+                      mergedList[index]['status'] != 'Status'
+                          ?  Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            IconButton(
+          
                               onPressed: () {
                                 setState(() {
-                                  selectindex = index;
-
+                                  statusCheck(index);
+          
                                   //Call Siva Ble update Lora class
-
+          
                                 });
                               },
-                              icon: const Icon(Icons.upgrade),
+                              icon: const Icon(Icons.refresh),
                             ),
-                          ),
-                        ): Container(),
-
-
-
-                      ],
-                    ),
-                    Container(
-                      height: 1,
-                      color: Colors.black,
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    SelectableText(mergedList[index]['deviceId']!,
-                      style:
-                      const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
-
-                    const SizedBox(height: 10),
-                    Text(
-                      'SiteName:${mergedList[index]['groupName'] ?? ''}',
-                      style:
-                      const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),
-
-                    const SizedBox(height: 10),
-                    Text(
-                      'Model:${mergedList[index]['modelName'] ?? ''}',
-                      style:
-                      const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Controller version:${mergedList[index]['currentVersion'] ?? ''}',
-                      style:
-                      const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Server version:${mergedList[index]['latestVersion']!}',
-                      style:
-                      const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 10),
-                    imeicheck != mergedList[index]['deviceId']!
-                        ? mergedList[index]['status'] != 'Status'
-                        ? Container(
-                      width: 200,
-                      child: Icon(
-                        iconData,
-                        color: iconcolor,
-                        size: 40.0,
-                      ),
-                    )
-                        : Container()
-                        : Container(),
-                    imeicheck != mergedList[index]['deviceId']!
-                        ? Text(
-                      '${mergedList[index]['status']}',
-                      style: const TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.bold),
-                    )
-                        : const Text('Status'),
-
-                    mergedList[index]['status'] != 'Status'
-                        ?  Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: [
-                          IconButton(
-
-                            onPressed: () {
-                              setState(() {
-                                statusCheck(index);
-
-                                //Call Siva Ble update Lora class
-
-                              });
-                            },
-                            icon: const Icon(Icons.refresh),
-                          ),
-                          Expanded(
-                            child: LinearProgressIndicator(
-                              value: progressValue,
-                              minHeight: 8,
-                              backgroundColor: Colors.grey[300],
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                            Expanded(
+                              child: LinearProgressIndicator(
+                                value: progressValue,
+                                minHeight: 8,
+                                backgroundColor: Colors.grey[300],
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                              ),
                             ),
-                          ),
-                          SizedBox(width: 12),
-                          // Text('${(0.6 * 100).toStringAsFixed(0)}%'),
-                          Text('${ mqttPayloadProvider.proogressstatus}'),
-                        ],
+                            SizedBox(width: 12),
+                            // Text('${(0.6 * 100).toStringAsFixed(0)}%'),
+                            Text('${ mqttPayloadProvider.proogressstatus}'),
+                          ],
+                        ),
+                      ) : Container(),
+          
+                      // Center(child: Text('${mqttPayloadProvider.messageFromHw ?? 'Status'} ',style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),)),
+                      Container(
+                        height: 1,
+                        color: Colors.grey,
                       ),
-                    ) : Container(),
-
-                    // Center(child: Text('${mqttPayloadProvider.messageFromHw ?? 'Status'} ',style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),)),
-                    Container(
-                      height: 1,
-                      color: Colors.grey,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(0.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          FilledButton(
-                            style: ButtonStyle(
-                                backgroundColor: checkupdatediable == 0
-                                    ? MaterialStateProperty.all(Colors.red)
-                                    : MaterialStateProperty.all(Colors.grey)),
-                            onPressed: () {
-                              selectindex = index;
-                              checkupdatediable == 0
-                                  ? resetItem(index)
-                                  : _showSnackBar("Please wait ....");
-                            },
-                            child: const Text('Restart'),
-                          ),
-                          const SizedBox(width: 10),
-                          FilledButton(
-                            style: ButtonStyle(
-                                backgroundColor: checkupdatediable == 0
-                                    ? MaterialStateProperty.all(Colors.green)
-                                    : MaterialStateProperty.all(Colors.grey)),
-                            onPressed: () {
-                              selectindex = index;
-                              checkupdatediable == 0
-                                  ? updateItem(index)
-                                  : _showSnackBar("Please wait ....");
-                            },
-                            child: checkupdatediable == 0
-                                ? mergedList[index]['currentVersion'] !=
-                                mergedList[index]['latestVersion']
-                                ? const BlinkingText(
-                              text: 'Update!', // Provide text here
-                              style: TextStyle(color: Colors.white),
-                              blinkDuration:
-                              Duration(milliseconds: 500),
-                            )
-                                : const Text("Update")
-                                : const Text("Update"),
-                          ),
-                        ],
+                      Padding(
+                        padding: const EdgeInsets.all(0.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            FilledButton(
+                              style: ButtonStyle(
+                                  backgroundColor: checkupdatediable == 0
+                                      ? MaterialStateProperty.all(Colors.red)
+                                      : MaterialStateProperty.all(Colors.grey)),
+                              onPressed: () {
+                                selectindex = index;
+                                checkupdatediable == 0
+                                    ? resetItem(index)
+                                    : _showSnackBar("Please wait ....");
+                              },
+                              child: const Text('Restart'),
+                            ),
+                            const SizedBox(width: 10),
+                            FilledButton(
+                              style: ButtonStyle(
+                                  backgroundColor: checkupdatediable == 0
+                                      ? MaterialStateProperty.all(Colors.green)
+                                      : MaterialStateProperty.all(Colors.grey)),
+                              onPressed: () {
+                                selectindex = index;
+                                checkupdatediable == 0
+                                    ? updateItem(index)
+                                    : _showSnackBar("Please wait ....");
+                              },
+                              child: checkupdatediable == 0
+                                  ? mergedList[index]['currentVersion'] !=
+                                  mergedList[index]['latestVersion']
+                                  ? const BlinkingText(
+                                text: 'Update!', // Provide text here
+                                style: TextStyle(color: Colors.white),
+                                blinkDuration:
+                                Duration(milliseconds: 500),
+                              )
+                                  : const Text("Update")
+                                  : const Text("Update"),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    // SizedBox(height: 10),
-                  ],
-                ),
-              );
-            },
+                      // SizedBox(height: 10),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
-        ),
-      ),
-    );
+                ),
+              ),
+        );
   }
 
   void _showSnackBar(String message) {

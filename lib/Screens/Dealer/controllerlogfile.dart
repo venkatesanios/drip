@@ -102,64 +102,66 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
   Widget build(BuildContext context) {
     mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: true);
     status();
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).primaryColor,
-        title: const Text('Controller Log'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Refresh Logs',
-            onPressed: () => getlog(currentLogType.value),
-          ),
-          IconButton(
-            icon: const Icon(Icons.clear_all),
-            tooltip: 'Clear All Logs',
-            onPressed: () => _clearLog(),
-          ),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: Colors.white,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
-          onTap: (index) {
-            setState(() {
-              currentLogType = LogType.values[index];
-            });
-          },
-          tabs: const [
-            Tab(text: 'Schedule'),
-            Tab(text: 'UART'),
-            Tab(text: 'UART-0'),
-            Tab(text: 'UART-4'),
-            Tab(text: 'Mqtt'),
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).primaryColor,
+          title: const Text('Controller Log'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              tooltip: 'Refresh Logs',
+              onPressed: () => getlog(currentLogType.value),
+            ),
+            IconButton(
+              icon: const Icon(Icons.clear_all),
+              tooltip: 'Clear All Logs',
+              onPressed: () => _clearLog(),
+            ),
           ],
-        ),
-      ),
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-
-                    _buildScrollableText(mqttPayloadProvider.sheduleLog),
-                    _buildScrollableText(mqttPayloadProvider.uardLog),
-                    _buildScrollableText(mqttPayloadProvider.uard0Log),
-                    _buildScrollableText(mqttPayloadProvider.uard4Log),
-                    _buildScrollableText(""),
-                  ],
-                ),
-              ),
-              _buildActionButtons(),
+          bottom: TabBar(
+            controller: _tabController,
+            indicatorColor: Colors.white,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            onTap: (index) {
+              setState(() {
+                currentLogType = LogType.values[index];
+              });
+            },
+            tabs: const [
+              Tab(text: 'Schedule'),
+              Tab(text: 'UART'),
+              Tab(text: 'UART-0'),
+              Tab(text: 'UART-4'),
+              Tab(text: 'Mqtt'),
             ],
           ),
-          if (isLoading)
-            const Center(child: CircularProgressIndicator()),
-        ],
+        ),
+        body: Stack(
+          children: [
+            Column(
+              children: [
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+      
+                      _buildScrollableText(mqttPayloadProvider.sheduleLog),
+                      _buildScrollableText(mqttPayloadProvider.uardLog),
+                      _buildScrollableText(mqttPayloadProvider.uard0Log),
+                      _buildScrollableText(mqttPayloadProvider.uard4Log),
+                      _buildScrollableText(""),
+                    ],
+                  ),
+                ),
+                _buildActionButtons(),
+              ],
+            ),
+            if (isLoading)
+              const Center(child: CircularProgressIndicator()),
+          ],
+        ),
       ),
     );
   }
