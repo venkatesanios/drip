@@ -16,7 +16,6 @@ class ProductCategoryViewModel extends ChangeNotifier {
       var response = await repository.fetchCategory();
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
-        print('Category:${response.body}');
         if (jsonData["code"] == 200) {
           final cntList = jsonData["data"] as List;
           categoryList.clear();

@@ -18,7 +18,6 @@ class ProductStockViewModel extends ChangeNotifier {
     try {
       final response = await repository.fetchMyStocks(body);
       if (response.statusCode == 200) {
-        print(response.body);
         final data = jsonDecode(response.body);
         if (data["code"] == 200) {
           final list = data["data"] as List<dynamic>;

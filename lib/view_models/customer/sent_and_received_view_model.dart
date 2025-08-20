@@ -29,6 +29,7 @@ class SentAndReceivedViewModel extends ChangeNotifier {
     }
     try {
       Map<String, Object> body = {"userId": customerId, "controllerId": controllerId, "fromDate":date, "toDate":date};
+      print(body);
       final response = await repository.fetchSentAndReceivedData(body);
       if (response.statusCode == 200) {
         sentAndReceivedList.clear();

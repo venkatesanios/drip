@@ -219,7 +219,6 @@ class CurrentProgram extends StatelessWidget {
 
   Widget buildActionButton(BuildContext context, List<String> values) {
     final programName = getProgramNameById(int.parse(values[0]));
-    print('programName:$programName');
     if (programName == 'StandAlone - Manual') {
       return MaterialButton(
         color: Colors.redAccent,

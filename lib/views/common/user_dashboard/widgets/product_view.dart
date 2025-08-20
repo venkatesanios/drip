@@ -5,7 +5,8 @@ import '../../../../flavors.dart';
 import '../../../../view_models/product_category_view_model.dart';
 
 class ProductView extends StatelessWidget {
-  const ProductView({super.key});
+  const ProductView({super.key, required this.isWideScreen});
+  final bool isWideScreen;
 
   @override
   Widget build(BuildContext context) {

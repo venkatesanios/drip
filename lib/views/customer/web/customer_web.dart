@@ -15,6 +15,7 @@ class CustomerWeb extends StatelessWidget {
   Widget build(BuildContext context) {
     final loggedInUser = Provider.of<UserProvider>(context).loggedInUser;
     final viewedCustomer = Provider.of<UserProvider>(context).viewedCustomer;
+    print('viewedCustomer!.name:${viewedCustomer!.name}');
     return ChangeNotifierProvider(
       create: (_) => CustomerScreenControllerViewModel(context, Repository(HttpService()),
         Provider.of<MqttPayloadProvider>(context, listen: false),
