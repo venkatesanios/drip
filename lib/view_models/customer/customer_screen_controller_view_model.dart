@@ -293,8 +293,13 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
       device: mySiteList.data[sIdx].master[mIdx].deviceId,
     );
 
-    if (mySiteList.data[sIdx].master[mIdx].categoryId == 1) {
+    if ([1, 2, 3, 4, 56, 57, 58, 59].contains(mySiteList.data[sIdx].master[mIdx].modelId)) {
       updateMasterLine(sIdx, mIdx, lIdx);
+      final live = mySiteList.data[sIndex].master[mIndex].live;
+      mqttProvider.updateReceivedPayload(
+        live != null ? jsonEncode(live) : _defaultPayload(),
+        true,
+      );
     }
 
     _subscribeToDeviceTopic();

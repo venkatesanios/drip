@@ -68,8 +68,8 @@ class ProductSearchBar extends StatelessWidget {
                     } else {
                       context.read<SearchProvider>().isSearchingProduct(true);
                       context.read<SearchProvider>().updateSearch(value);
-                      context.read<SearchProvider>().updateCategoryId(0);
-                      context.read<SearchProvider>().updateModelId(0);
+                      //context.read<SearchProvider>().updateCategoryId(0);
+                      //context.read<SearchProvider>().updateModelId(0);
                     }
                   });
                 },

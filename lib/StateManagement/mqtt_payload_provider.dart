@@ -578,6 +578,7 @@ class MqttPayloadProvider with ChangeNotifier {
 
   }
 
+
    void updateLastSyncDateFromPumpControllerPayload(String payload) async{
 
      if (_receivedPayload != payload) {
