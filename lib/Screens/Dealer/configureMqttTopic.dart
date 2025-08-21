@@ -4,13 +4,16 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../flavors.dart';
+import '../../repository/repository.dart';
+import '../../services/http_service.dart';
 import '../../services/mqtt_service.dart';
 import '../../utils/constants.dart';
 
 class ConfigureMqtt extends StatefulWidget {
-  final String deviceID;
+  final deviceID,userId,controllerId;
 
-  const ConfigureMqtt({Key? key, required this.deviceID}) : super(key: key);
+
+  const ConfigureMqtt({Key? key, required this.deviceID, required this.userId, required this.controllerId}) : super(key: key);
 
   @override
   _ConfigureMqttState createState() => _ConfigureMqttState();
@@ -35,6 +38,7 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
   final List<String> dealers = ['ORO', 'LK'];
   final List<String> versions = ['Version 1.0', 'Version 1.1'];
   TextEditingController _macController = TextEditingController();
+  final Repository repository = Repository(HttpService());
   @override
   void initState() {
     super.initState();
@@ -123,7 +127,7 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
     }
   }
 
-  void sendSelectedProject() {
+  Future<void> sendSelectedProject() async {
     if (selectedIndex == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please select a project")),
@@ -159,6 +163,15 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
       );
       print('payload $payload  \n $topic${_macController.text}');
     }
+    var data = {
+      "userId": widget.userId,
+      "controllerId": widget.controllerId,
+      "data": { "6100": [{"6101": formatted},]},
+      "messageStatus": "View Settings",
+      "createUser": widget.userId,
+      "hardware": { "6100": [{"6101": formatted},]},
+    };
+    await repository.sendManualOperationToServer(data);
   }
 
   List<String> getMqttTopic(String selectedPlatform,String selectedVersion,String selecteddealer) {
@@ -195,7 +208,7 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
    }
 
 
-   void viewsettings() {
+   Future<void> viewsettings() async {
     List checkTopic =   getMqttTopic(selectedPlatform!, selectedVersion!, selectedDealer!);
     String topic = checkTopic[0];
     String oldnewcheck = checkTopic[1];
@@ -224,10 +237,18 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
         const SnackBar(content: Text("view settings sent")),
       );
     }
-
+    var data = {
+      "userId": widget.userId,
+      "controllerId": widget.controllerId,
+      "data": { "5700": [{"5701": "22"},]},
+      "messageStatus": "View Settings",
+      "createUser": widget.userId,
+      "hardware": { "5700": [{"5701": "22"},]},
+    };
+    await repository.sendManualOperationToServer(data);
   }
 
-  void updateCode() {
+  Future<void> updateCode() async {
    List checkTopic =   getMqttTopic(selectedPlatform!, selectedVersion!, selectedDealer!);
     String topic = checkTopic[0];
    String oldnewcheck = checkTopic[1];
@@ -239,6 +260,15 @@ if(oldnewcheck == '1') {
     jsonEncode(payload),
     "$topic${_macController.text}",
   );
+  var data = {
+    "userId": widget.userId,
+    "controllerId": widget.controllerId,
+    "data": { "5700": [{"5701": "27"},]},
+    "messageStatus": "updateCode",
+    "createUser": widget.userId,
+    "hardware": { "5700": [{"5701": "27"},]},
+  };
+   await repository.sendManualOperationToServer(data);
   ScaffoldMessenger.of(context).showSnackBar(
     const SnackBar(content: Text("update settings sent")),
   );

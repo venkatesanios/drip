@@ -273,7 +273,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
                                         MaterialPageRoute(
                                           builder: (context) => ConfigureMqtt(
                                               deviceID: '${mergedList[index]['deviceId'
-                                              ]!}'),
+                                              ]!}', userId: widget.userId, controllerId: widget.controllerId,),
                                         ),
                                       );
                                     });
