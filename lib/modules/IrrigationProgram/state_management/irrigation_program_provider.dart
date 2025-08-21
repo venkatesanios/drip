@@ -2904,7 +2904,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         + int.parse(runDays != '' ? runDays : "1") + int.parse(skipDays != '' ? skipDays : "0")
         ? firstDate
         : DateTime.parse(endDate);
-
+    List totalAgitators = [];
    /* print('head unit pause :: ${sampleIrrigationLine!.where((headUnit) {
       var sampleLineValveList = headUnit.valve!.map((valve) => valve.sNo).toList();
       dynamic valveList = irrigationLine!.sequence.map((seq) {
@@ -2916,7 +2916,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       return usedValveInSequence.isEmpty;
     }).map((e) => e.irrigationLine).toList().map((e) => e.sNo).toList().join("_")}');*/
 
-    print('Head unit to pause :: ${
+  /*  print('Head unit to pause :: ${
         sampleIrrigationLine!.where((headUnit) {
           sampleIrrigationLine!.map((element) => element.irrigationLine.sNo).toList();
           selectedObjects!.map((element) => element.sNo).toList();
@@ -2929,7 +2929,21 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
           List<double?> selectedHeadUnitList = selectedObjects!.where((e) => e.objectId == 2 && e.siteMode == null).map((e) => e.sNo).toList();
           List<double?> filteredList = matchingLocations.where((e) => !selectedHeadUnitList.contains(e)).toList();
           return filteredList.contains(headUnit.irrigationLine.sNo);
-        }).map((e) => e.irrigationLine.sNo).join("_")}');
+        }).map((e) => e.irrigationLine.sNo).join("_")}');*/
+
+    final List? selectedAgitators = _irrigationLine?.sequence
+        .expand((e) => e['valve'].map((valve) => valve['sNo']))
+        .toList();
+
+    print("selectedAgitators :: $selectedAgitators");
+    if(agitators != null && agitators!.isNotEmpty) {
+      totalAgitators = agitators!.map((e) => e.sNo).toList();
+    }
+
+    print("not selected agitators :: ${totalAgitators
+        .where((agitator) => !(selectedAgitators ?? []).contains(agitator))
+        .toList().join(',')}");
+
     return {
       "2500" : {
         "2501" : "${hwPayloadForWF(serialNumber, programType)};",
@@ -3083,7 +3097,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
                 List valveSerialNumbers = e['valve'].map((valve) => valve['sNo']).toList();
                 return valveSerialNumbers.join('_');
               }).toList().join("+")}',/*HeadUnit*/
-              "HeadUnitToPause": '${programType == "Irrigation Program"
+              "HeadUnitToPause": programType == "Irrigation Program"
                   ? selectedObjects!.any((element) => element.objectId == 5)
                   ? sampleIrrigationLine!.where((headUnit) {
                 sampleIrrigationLine!.map((element) => element.irrigationLine.sNo).toList();
@@ -3108,10 +3122,9 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
                 List<double?> usedValveInSequence = sampleLineValveList.where((valSno) => valveList.contains(valSno)).toList();
                 return usedValveInSequence.isEmpty;
               }).map((e) => e.irrigationLine).toList().map((e) => e.sNo).toList().join("_")
-                  : _irrigationLine?.sequence.map((e) {
-                List valveSerialNumbers = e['valve'].map((valve) => valve['sNo']).toList();
-                return valveSerialNumbers.join('_');
-              }).toList().join("+")}',/*HeadUnitToPause*/
+                  : totalAgitators
+                  .where((agitator) => !(selectedAgitators ?? []).contains(agitator))
+                  .toList().join(','),/*HeadUnitToPause*/
               "Name": programName,/*Name*/
             }.entries.map((e) => e.value).join(",")
         };"
@@ -3122,8 +3135,6 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   List<int> getPayloadForEcoGemPumpAndFilter({required objectId}) {
     final configObject = configObjects.where((pump) => pump['objectId'] == objectId).map((e) => e['sNo']).toList();
     final selectedObject = selectedObjects!.where((pump) => pump.objectId == objectId).map((e) => e.sNo).toList();
-    print("selectedObject :: $selectedObject");
-    print('configObject :: $configObject');
     var payload = [0,0];
     for(var obj in selectedObject){
       int indexOfObject = configObject.indexOf(obj);
