@@ -42,7 +42,7 @@ class _StandAloneSettingsState extends State<StandAloneSettings> {
     // Initialize provider data in initState
     final provider = Provider.of<PreferenceProvider>(context, listen: false);
     provider.getStandAloneSettings(
-      userId: widget.userId,
+      userId: widget.customerId,
       controllerId: widget.masterData.controllerId,
       selectedIndex: widget.selectedIndex,
     );

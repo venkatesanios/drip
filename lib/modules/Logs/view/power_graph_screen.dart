@@ -195,6 +195,9 @@ class _PowerGraphScreenState extends State<PowerGraphScreen> {
     ));
     return Scaffold(
       // backgroundColor: const Color(0xffF9FEFF),
+      appBar: MediaQuery.of(context).size.width <= 600 ? AppBar(
+        title: const Text('Power graph'),
+      ) : PreferredSize(preferredSize: const Size(0, 0), child: Container()),
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(

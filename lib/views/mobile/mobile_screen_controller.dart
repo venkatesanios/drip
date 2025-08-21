@@ -789,6 +789,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                         return IrrigationAndPumpLog(
                           userData: {
                             'userId': loggedInUser.id,
+                            'customerId': loggedInUser.id,
                             'controllerId': currentMaster.controllerId,
                           },
                           masterData: currentMaster,
