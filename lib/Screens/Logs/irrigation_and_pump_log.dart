@@ -77,7 +77,7 @@ class _IrrigationAndPumpLogState extends State<IrrigationAndPumpLog> with Ticker
                           StandaloneLog(userData: widget.userData,),
                           if(pumpList.isNotEmpty)
                             PumpList(
-                              pumpList: pumpList, userId: widget.userData['userId'],
+                              pumpList: pumpList, userId: widget.userData['customerId'],
                               masterData: widget.masterData,
                             )
                           else

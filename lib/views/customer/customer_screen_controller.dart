@@ -1045,7 +1045,7 @@ class CustomerScreenController extends StatelessWidget {
       case 2:
         return SentAndReceived(customerId: customerId, controllerId: currentMaster.controllerId);
       case 3:
-        return IrrigationAndPumpLog(userData: {'userId' : userId, 'controllerId' : currentMaster.controllerId}, masterData: currentMaster);
+        return IrrigationAndPumpLog(userData: {'userId' : userId, 'controllerId' : currentMaster.controllerId, 'customerId': customerId}, masterData: currentMaster);
       case 4:
         return ControllerSettings(
             userId: userId,

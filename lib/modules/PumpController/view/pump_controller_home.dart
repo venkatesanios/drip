@@ -221,7 +221,7 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
           ),
         ],
         PumpLogsHome(
-            userId: widget.userId,
+            userId: widget.customerId,
             controllerId: widget.masterData.controllerId,
           masterData: widget.masterData,
         ),

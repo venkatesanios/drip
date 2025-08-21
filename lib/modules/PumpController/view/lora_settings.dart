@@ -43,7 +43,7 @@ class _GeneralScreenState extends State<GeneralScreen> {
     setState(() => _isLoading = true);
     try {
       final Map<String, dynamic> userdata = {
-        'userId': widget.userId,
+        'userId': widget.customerId,
         'controllerId': widget.controllerId,
       };
       final result = await loraSettingsRepository.getLoraSettings(userdata);
@@ -96,7 +96,7 @@ class _GeneralScreenState extends State<GeneralScreen> {
       if (response.statusCode == 200 && data['code'] == 200) {
         _showSnackBar('Settings updated successfully', isSuccess: true);
         Map<String, dynamic> body = {
-          "userId": widget.userId,
+          "userId": widget.customerId,
           "controllerId": widget.controllerId,
           "hardware": payload,
           "messageStatus": "${payload.contains('frequency') ? 'LoRa Frequency' : 'LoRa Key'} updated successfully",
