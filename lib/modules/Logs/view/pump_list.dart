@@ -28,6 +28,7 @@ class _PumpListState extends State<PumpList> {
           final pumpItem = widget.pumpList[index];
             return Container(
               margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+              width: MediaQuery.of(context).size.width >= 600 ?  MediaQuery.of(context).size.width/2 : MediaQuery.of(context).size.width,
               decoration: BoxDecoration(
                 color: Colors.white,
                 boxShadow: AppProperties.customBoxShadowLiteTheme,

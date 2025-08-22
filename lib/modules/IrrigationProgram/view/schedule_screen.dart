@@ -1178,7 +1178,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       ),
                       inputFormatters: [
                         FilteringTextInputFormatter.deny(RegExp('[^0-9]')),
-                        LengthLimitingTextInputFormatter(2),
+                        LengthLimitingTextInputFormatter(1),
                       ],
                       onChanged: (newValue){
                         irrigationProgramProvider.updateRtcProperty(newValue, index, 'noOfCycles', rtcType);
@@ -1453,7 +1453,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               keyboardType: TextInputType.number,
                               inputFormatters: [
                                 FilteringTextInputFormatter.deny(RegExp('[^0-9]')),
-                                LengthLimitingTextInputFormatter(2),
+                                LengthLimitingTextInputFormatter(1),
                               ],
                               onChanged: (newTime) => irrigationProgramProvider.updateRtcProperty(newTime, index, 'noOfCycles', rtcType),
                             ),

@@ -83,7 +83,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
     final isEcoGem = [3].contains(widget.modelId);
     return irrigationProgramProvider.sampleIrrigationLine != null ? LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        final irrigationLine = irrigationProgramProvider.sampleIrrigationLine;
+        final irrigationLine = irrigationProgramProvider.sampleIrrigationLine!;
         final primaryColorDark = Theme.of(context).primaryColor.withOpacity(0.35);
         final centralFertilizerSite = irrigationProgramProvider.fertilizerSite!.where((site) {
           for (var i = 0; i < irrigationProgramProvider.selectedObjects!.length; i++) {
@@ -129,15 +129,16 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 buildSectionTitle(title: "General", context: context),
-                buildSection(
-                  title: "Main Valves",
-                  dataList: irrigationLine!.map((e) => e.mainValve ?? []).expand((list) => list).toList(),
-                  lightColor: yellowLight,
-                  darkColor: yellowDark,
-                  image: Image.asset(
-                    'assets/Images/m_valve.png',
+                if((irrigationProgramProvider.irrigationLine?.sequence.expand((e) => e['valve'].map((valve) => valve['sNo'])).toList() ?? []).contains(irrigationProgramProvider.mainValves?.map((e) => e.sNo).toList() ?? []))
+                  buildSection(
+                    title: "Main Valves",
+                    dataList: irrigationLine!.map((e) => e.mainValve ?? []).expand((list) => list).toList(),
+                    lightColor: yellowLight,
+                    darkColor: yellowDark,
+                    image: Image.asset(
+                      'assets/Images/m_valve.png',
+                    ),
                   ),
-                ),
                if(irrigationLine.map((e) => e.irrigationPump ?? []).expand((list) => list).toList().length > 1)
                   buildListTile(
                       padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.width > 1200 ? 8 : 0),
