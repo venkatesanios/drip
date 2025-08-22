@@ -1397,6 +1397,7 @@ class NodeListModel{
   String categoryName;
   int modelId;
   String modelName;
+  String modelDescription;
   int serialNumber;
   int referenceNumber;
   int interfaceTypeId;
@@ -1423,6 +1424,7 @@ class NodeListModel{
     required this.categoryName,
     required this.modelId,
     required this.modelName,
+    required this.modelDescription,
     required this.serialNumber,
     required this.referenceNumber,
     required this.interfaceTypeId,
@@ -1456,6 +1458,7 @@ class NodeListModel{
       categoryName: json['categoryName'],
       modelId: json['modelId'],
       modelName: json['modelName'],
+      modelDescription: json['modelDescription'],
       serialNumber: json['serialNumber'],
       referenceNumber: json['referenceNumber'],
       interfaceTypeId: json['interfaceTypeId'] ?? 0,
@@ -1478,6 +1481,7 @@ class NodeListModel{
       'categoryName': categoryName,
       'modelId': modelId,
       'modelName': modelName,
+      'modelDescription': modelDescription,
       'serialNumber': serialNumber,
       'referenceNumber': referenceNumber,
       'InterfaceType': interfaceTypeId,

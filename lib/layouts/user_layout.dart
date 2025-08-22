@@ -89,7 +89,7 @@ class CustomerScreenLayout extends BaseScreenLayout {
   @override
   Widget buildTablet(BuildContext context) => const CustomerTablet();
   @override
-  Widget buildDesktop(BuildContext context) => const CustomerDesktop();
+  Widget buildDesktop(BuildContext context) => const CustomerWeb();
   @override
   Widget buildWeb(BuildContext context) => const CustomerWeb();
 }

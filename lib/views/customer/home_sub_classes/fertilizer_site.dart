@@ -324,11 +324,11 @@ class AgitatorWidget extends StatelessWidget {
           children: [
             SizedBox(
                 width: 53,
-                height: 34,
+                height: fertilizerSite.agitator[0].status==1?99:34,
                 child : AppConstants.getAsset('agitator', fertilizerSite.agitator[0].status,''),
             ),
             if(kIsWeb)...[
-              const SizedBox(height: 90),
+              SizedBox(height: fertilizerSite.agitator[0].status==1? 25:90),
               Container(width: 53, height: 1,color: Colors.grey.shade300),
               const SizedBox(height: 3.5),
               Container(width: 53, height: 1,color: Colors.grey.shade300),

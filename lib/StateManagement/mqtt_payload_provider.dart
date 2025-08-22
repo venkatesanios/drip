@@ -578,7 +578,6 @@ class MqttPayloadProvider with ChangeNotifier {
 
   }
 
-
    void updateLastSyncDateFromPumpControllerPayload(String payload) async{
 
      if (_receivedPayload != payload) {
@@ -587,7 +586,6 @@ class MqttPayloadProvider with ChangeNotifier {
        try {
          Map<String, dynamic> data = _receivedPayload.isNotEmpty ? jsonDecode(
              _receivedPayload) : {};
-         print('_pcReceivedPayload------>:$_receivedPayload');
 
          liveDateAndTime = '${data['cD']} ${data['cT']}';
          activeDeviceId = data['cC'];
@@ -628,7 +626,36 @@ class MqttPayloadProvider with ChangeNotifier {
           powerSupply = data['cM']['PowerSupply'];
 
           updateNodeLiveMessage(data['cM']['2401'].split(";"));
-          updateOutputStatusPayload(data['cM']['2402'].split(";"));
+
+          if(dataFromHttp){
+            List<String> rows = data['cM']['2402'].split(";");
+
+            List<String> updated = rows.map((row) {
+              List<String> parts = row.split(",");
+              if (parts.length == 3) {
+                String sNo = parts[0];
+                String onOff = parts[1];
+                String other = parts[2];
+
+                if (onOff != "0") {
+                  onOff = "0";
+                }
+
+                if (other != "0") {
+                  other = "0";
+                }
+
+                return "$sNo,$onOff,$other";
+              }
+              return row;
+            }).toList();
+
+            String output = updated.join(";");
+            updateOutputStatusPayload(output.split(";"));
+
+          }else{
+            updateOutputStatusPayload(data['cM']['2402'].split(";"));
+          }
 
           updateAllPumpPayloads(data['cM']['2402'].split(";"), data['cM']['2404'].split(";"));
           updateFilterSitePayloads(data['cM']['2402'].split(";"), data['cM']['2406'].split(";"));
@@ -741,14 +768,12 @@ class MqttPayloadProvider with ChangeNotifier {
       }
     }
 
-
     if(irrigationPump.isEmpty){
       loading = true;
     }else{
       loading = false;
     }
     tryingToGetPayload = 0;
-
 
     updateSourcePump();
     updateIrrigationPump();

@@ -21,6 +21,8 @@ class ProductView extends StatelessWidget {
       );
     }
 
+    final screenWidth = MediaQuery.sizeOf(context).width;
+
     return Card(
       color: Colors.white,
       child: Padding(
@@ -28,8 +30,8 @@ class ProductView extends StatelessWidget {
         child: isWideScreen ? GridView.builder(
           shrinkWrap: true,
           padding: const EdgeInsets.all(8),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 5,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: screenWidth > 1300 ? 5 : screenWidth > 1100 ? 4:3,
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
             childAspectRatio: 4 / 2.7,

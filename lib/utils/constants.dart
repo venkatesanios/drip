@@ -234,6 +234,7 @@ class AppConstants {
         fit: BoxFit.fill,
       );
     }
+
     return Image.asset(
       '$pngPath$imagePathFinal',
       width: double.infinity,
