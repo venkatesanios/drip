@@ -36,35 +36,40 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
     super.initState();
     print(widget.nodeData);
     bleService = Provider.of<BleProvider>(context, listen: false);
-    nodeBluetoothResponse = getData();
-  }
-
-  Future<int> getData()async{
-    try{
-      await Future.delayed(const Duration(seconds: 1));
-      var body = {
-        "userId": widget.masterData['customerId'],
-        "controllerId": widget.masterData['controllerId'],
-        "categoryId": widget.nodeData['categoryId'],
-        "modelId": widget.nodeData['modelId'],
-        "nodeControllerId": widget.nodeData['controllerId'],
-        "deviceId": widget.nodeData['deviceId'],
-      };
-      var nodeBluetoothResponse = await BleRepository().getNodeBluetoothSetting(body);
-      Map<String, dynamic> nodeJsonData = jsonDecode(nodeBluetoothResponse.body);
-      bleService.editNodeDataFromServer(nodeJsonData['data']['default'], widget.nodeData);
-      if(nodeJsonData['code'] == 200){
-        if (mounted) {
-          _checkRequirements();
-        }
-      }
-      return nodeJsonData['code'];
-    }catch(e,stacktrace){
-      print('Error on getting constant data :: $e');
-      print('Stacktrace on getting constant data :: $stacktrace');
-      rethrow;
+    // nodeBluetoothResponse = getData();
+    if (mounted) {
+      _checkRequirements();
     }
   }
+
+  // Future<int> getData()async{
+  //   try{
+  //     await Future.delayed(const Duration(seconds: 1));
+  //     var body = {
+  //       "userId": widget.masterData['customerId'],
+  //       "controllerId": widget.masterData['controllerId'],
+  //       "categoryId": widget.nodeData['categoryId'],
+  //       "modelId": widget.nodeData['modelId'],
+  //       "nodeControllerId": widget.nodeData['controllerId'],
+  //       "deviceId": widget.nodeData['deviceId'],
+  //       "hardwareModelId" : bleService.nodeDataFromHw['MID']
+  //     };
+  //     print("body : $body");
+  //     var nodeBluetoothResponse = await BleRepository().getNodeBluetoothSetting(body);
+  //     Map<String, dynamic> nodeJsonData = jsonDecode(nodeBluetoothResponse.body);
+  //     bleService.editNodeDataFromServer(nodeJsonData['data']['default'], widget.nodeData);
+  //     if(nodeJsonData['code'] == 200){
+  //       if (mounted) {
+  //         _checkRequirements();
+  //       }
+  //     }
+  //     return nodeJsonData['code'];
+  //   }catch(e,stacktrace){
+  //     print('Error on getting constant data :: $e');
+  //     print('Stacktrace on getting constant data :: $stacktrace');
+  //     rethrow;
+  //   }
+  // }
 
   Future<void> _checkRequirements() async {
     bool isBluetoothOn = await _isBluetoothEnabled();
@@ -89,7 +94,7 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
       return adapterState == BluetoothAdapterState.on;
     } catch (e, backtrace) {
       // Snackbar.show(
-      //   context,
+      //   context,1
       //   prettyException("Bluetooth check error:", e),
       //   success: false,
       // );
@@ -168,23 +173,26 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
           ),
         ),
         body: Center(
-          child: FutureBuilder<int>(
-              future: nodeBluetoothResponse,
-              builder: (context, snapshot){
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator()); // Loading state
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}'); // Error state
-                } else if (snapshot.hasData) {
-                  return Center(
-                    child: _buildContent(),
-                  );
-                } else {
-                  return const Text('No data'); // Shouldn't reach here normally
-                }
-              }
-          ),
+          child: _buildContent(),
         ),
+        // body: Center(
+        //   child: FutureBuilder<int>(
+        //       future: nodeBluetoothResponse,
+        //       builder: (context, snapshot){
+        //         if (snapshot.connectionState == ConnectionState.waiting) {
+        //           return const Center(child: CircularProgressIndicator()); // Loading state
+        //         } else if (snapshot.hasError) {
+        //           return Text('Error: ${snapshot.error}'); // Error state
+        //         } else if (snapshot.hasData) {
+        //           return Center(
+        //             child: _buildContent(),
+        //           );
+        //         } else {
+        //           return const Text('No data'); // Shouldn't reach here normally
+        //         }
+        //       }
+        //   ),
+        // ),
       ),
     );
   }
@@ -210,7 +218,7 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
       case BleNodeState.disConnected:
         return _deviceNotConnected();
       case BleNodeState.dashboard:
-        return NodeDashboard(nodeData: widget.nodeData);
+        return NodeDashboard(nodeData: widget.nodeData, masterData: widget.masterData,);
       default:
         return const Text('Unknown State');
     }

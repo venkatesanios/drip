@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:oro_drip_irrigation/Widgets/custom_buttons.dart';
@@ -10,11 +12,13 @@ import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/trace_scre
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_grid/responsive_grid.dart';
+import '../repository/ble_repository.dart';
 import '../state_management/ble_service.dart';
 
 class NodeDashboard extends StatefulWidget {
   final Map<String, dynamic> nodeData;
-  const NodeDashboard({super.key, required this.nodeData});
+  final Map<String, dynamic> masterData;
+  const NodeDashboard({super.key, required this.nodeData, required this.masterData});
 
   @override
   State<NodeDashboard> createState() => _NodeDashboardState();
@@ -23,97 +27,141 @@ class NodeDashboard extends StatefulWidget {
 class _NodeDashboardState extends State<NodeDashboard> {
   late BleProvider bleService;
   late int fileNameResponse;
+  late Future<int> nodeBluetoothResponse;
 
   @override
   void initState() {
     super.initState();
     bleService = Provider.of<BleProvider>(context, listen: false);
+    nodeBluetoothResponse = getData();
+  }
+
+  Future<int> getData()async{
+    try{
+      await Future.delayed(const Duration(seconds: 1));
+      var body = {
+        "userId": widget.masterData['customerId'],
+        "controllerId": widget.masterData['controllerId'],
+        "categoryId": widget.nodeData['categoryId'],
+        "modelId": widget.nodeData['modelId'],
+        "nodeControllerId": widget.nodeData['controllerId'],
+        "deviceId": widget.nodeData['deviceId'],
+        "hardwareModelId" : bleService.nodeDataFromHw['MID']
+      };
+      print("body : $body");
+      var nodeBluetoothResponse = await BleRepository().getNodeBluetoothSetting(body);
+      Map<String, dynamic> nodeJsonData = jsonDecode(nodeBluetoothResponse.body);
+      bleService.editNodeDataFromServer(nodeJsonData['data']['default'], widget.nodeData);
+      return nodeJsonData['code'];
+    }catch(e,stacktrace){
+      print('Error on getting constant data :: $e');
+      print('Stacktrace on getting constant data :: $stacktrace');
+      rethrow;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     bleService = Provider.of<BleProvider>(context, listen: true);
-    if(bleService.nodeDataFromHw['BOOT'] == '31'){
-      return const NodeInBootMode();
-    }
-    return RefreshIndicator(
-      onRefresh: bleService.onRefresh,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const SizedBox(height: 20,),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ResponsiveGridList(
-                  minSpacing: 20,
-                  desiredItemWidth: 120,
-                  children: [
-                    gridItemWidget(
-                        imagePath: 'assets/Images/Svg/SmartComm/bootMode.svg',
-                        title: 'Update Firmware',
-                      onTap: (){
-                        userAcknowledgementForUpdatingFirmware();
-                      }
-                    ),
-                    if(!bleService.loraModel.contains(bleService.nodeDataFromHw['MID']) && (!AppConstants.pumpWithValveModelList.contains(bleService.nodeData['modelId']) && !AppConstants.ecoGemModelList.contains(bleService.nodeData['modelId'])))
-                    ...[
-                      if(bleService.nodeDataFromHw.containsKey('RLY'))
-                        gridItemWidget(
-                          imagePath: 'assets/Images/Svg/SmartComm/control.svg',
-                          title: 'Control',
-                          onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context){
-                              return const ControlNode();
-                            }));
-                          },
+    return Material(
+      child: Center(
+        child: FutureBuilder<int>(
+            future: nodeBluetoothResponse,
+            builder: (context, snapshot){
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator()); // Loading state
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}'); // Error state
+              } else if (snapshot.hasData) {
+                if(bleService.nodeDataFromHw['BOOT'] == '31'){
+                  return const NodeInBootMode();
+                }
+                return RefreshIndicator(
+                  onRefresh: bleService.onRefresh,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 20,),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ResponsiveGridList(
+                              minSpacing: 20,
+                              desiredItemWidth: 120,
+                              children: [
+                                gridItemWidget(
+                                    imagePath: 'assets/Images/Svg/SmartComm/bootMode.svg',
+                                    title: 'Update Firmware',
+                                    onTap: (){
+                                      userAcknowledgementForUpdatingFirmware();
+                                    }
+                                ),
+                                if(!bleService.loraModel.contains(bleService.nodeDataFromHw['MID']) && (!AppConstants.pumpWithValveModelList.contains(bleService.nodeData['modelId']) && !AppConstants.ecoGemModelList.contains(bleService.nodeData['modelId'])))
+                                  ...[
+                                    if(bleService.nodeDataFromHw.containsKey('RLY'))
+                                      gridItemWidget(
+                                        imagePath: 'assets/Images/Svg/SmartComm/control.svg',
+                                        title: 'Control',
+                                        onTap: () {
+                                          Navigator.push(context, MaterialPageRoute(builder: (context){
+                                            return const ControlNode();
+                                          }));
+                                        },
+                                      ),
+                                    gridItemWidget(
+                                        imagePath: 'assets/Images/Svg/SmartComm/interface_setting.svg',
+                                        title: 'Interface Setting',
+                                        onTap: () {
+                                          Navigator.push(context, MaterialPageRoute(builder: (context){
+                                            return const InterfaceSetting();
+                                          }));
+                                        }
+                                    ),
+                                    gridItemWidget(
+                                      imagePath: 'assets/Images/Svg/SmartComm/trace_file.svg',
+                                      title: 'Trace',
+                                      onTap: () {
+                                        Navigator.push(context, MaterialPageRoute(builder: (context){
+                                          return TraceScreen(nodeData: widget.nodeData,);
+                                        }));
+                                      },
+                                    ),
+                                    gridItemWidget(
+                                      imagePath: 'assets/Images/Svg/SmartComm/calibration.svg',
+                                      title: 'Calibration',
+                                      onTap: () {
+                                        Navigator.push(context, MaterialPageRoute(builder: (context){
+                                          return Calibration(nodeData: widget.nodeData,);
+                                        }));
+                                      },
+                                    ),
+                                  ],
+                                if(bleService.developerOption >= 10)
+                                  gridItemWidget(
+                                    imagePath: 'assets/Images/Svg/SmartComm/sent_and_receive.svg',
+                                    title: 'Sent And Receive',
+                                    onTap: () {
+                                      Navigator.push(context, MaterialPageRoute(builder: (context){
+                                        return const BleSentAndReceive();
+                                      }));
+                                    },
+                                  ),
+                              ]
+                          ),
                         ),
-                      gridItemWidget(
-                          imagePath: 'assets/Images/Svg/SmartComm/interface_setting.svg',
-                          title: 'Interface Setting',
-                          onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context){
-                              return const InterfaceSetting();
-                            }));
-                          }
                       ),
-                      gridItemWidget(
-                        imagePath: 'assets/Images/Svg/SmartComm/trace_file.svg',
-                        title: 'Trace',
-                        onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context){
-                            return TraceScreen(nodeData: widget.nodeData,);
-                          }));
-                        },
-                      ),
-                      gridItemWidget(
-                        imagePath: 'assets/Images/Svg/SmartComm/calibration.svg',
-                        title: 'Calibration',
-                        onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context){
-                            return Calibration(nodeData: widget.nodeData,);
-                          }));
-                        },
-                      ),
+                      // NodeInBootMode()
                     ],
-                    if(bleService.developerOption >= 10)
-                      gridItemWidget(
-                        imagePath: 'assets/Images/Svg/SmartComm/sent_and_receive.svg',
-                        title: 'Sent And Receive',
-                        onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context){
-                            return const BleSentAndReceive();
-                          }));
-                        },
-                      ),
-                  ]
-              ),
-            ),
-          ),
-          // NodeInBootMode()
-        ],
+                  ),
+                );
+              } else {
+                return const Text('No data'); // Shouldn't reach here normally
+              }
+            }
+        ),
       ),
     );
+
   }
 
   void userAcknowledgementForUpdatingFirmware(){

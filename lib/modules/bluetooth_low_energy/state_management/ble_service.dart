@@ -658,22 +658,13 @@ class BleProvider extends ChangeNotifier {
       if(connectResponse == 200){
         fileMode = FileMode.connected;
         notifyListeners();
-        var directoryName = nodeDataFromHw['MID'] == '40' ? 'loraDownloadDirectory' : 'downloadDirectory';
-        List<SftpName> listOfFile = await sftpService.listFilesInPath(nodeDataFromServer['pathSetting'][directoryName]);
+        print("nodeDataFromServer['pathSetting'] :: ${nodeDataFromServer['pathSetting']}");
+        String pathToFindOutFile = nodeDataFromServer['pathSetting']['downloadDirectory'];
+        print("pathToFindOutFile : $pathToFindOutFile");
+        List<SftpName> listOfFile = await sftpService.listFilesInPath(pathToFindOutFile);
         for(var file in listOfFile){
-          if(loraModel.contains(nodeDataFromHw['MID'])){
-            Map<String, String> checkFileName = {
-              "40" : "lora",
-              "41" : "lora1",
-              "42" : "lora2",
-            };
-            if(checkFileName.containsKey(nodeDataFromHw['MID']) && file.filename.contains(checkFileName[nodeDataFromHw['MID']]!)){
-              nodeFirmwareFileName = file.filename;
-            }
-          }else{
-            if(file.filename.contains('version')){
-              nodeFirmwareFileName = file.filename;
-            }
+          if(file.filename.contains('version')){
+            nodeFirmwareFileName = file.filename;
           }
 
         }
@@ -687,7 +678,7 @@ class BleProvider extends ChangeNotifier {
         fileMode = FileMode.downloadingFile;
         notifyListeners();
         await Future.delayed(const Duration(seconds: 2));
-        int downloadResponse = await sftpService.downloadFile(remoteFilePath: '${nodeDataFromServer['pathSetting']['downloadDirectory']}$nodeFirmwareFileName');
+        int downloadResponse = await sftpService.downloadFile(remoteFilePath: '$pathToFindOutFile/$nodeFirmwareFileName');
         if(downloadResponse == 200){
           fileMode = FileMode.downloadFileSuccess;
         }else{

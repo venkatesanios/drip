@@ -109,6 +109,7 @@ class SftpService {
   }) async {
     try {
       // Open the remote file for reading
+      print("remoteFilePath : ${remoteFilePath}");
       final remoteFile = await _sftpClient!.open(remoteFilePath);
       final stream = remoteFile.read(); // Stream<Uint8List>
 

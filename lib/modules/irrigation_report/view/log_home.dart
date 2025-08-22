@@ -262,7 +262,7 @@ class _LogHomeState extends State<LogHome> {
       String? endMonth = selectedDateRange?.end.month.toString();
       String? endday = selectedDateRange?.end.day.toString();
       var body = {
-        "userId": widget.userData['userId'],
+        "userId": widget.userData['customerId'],
         "controllerId": widget.userData['controllerId'],
         "logType" : "Irrigation",
         "fromDate" : formattedDate1,
