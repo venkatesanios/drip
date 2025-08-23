@@ -276,7 +276,8 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                                       : ["RPF ${double.parse(snapshot.data!.powerFactor.split(',')[0]).toStringAsFixed(0)}",
                                     "YPF ${double.parse(snapshot.data!.powerFactor.split(',')[1]).toStringAsFixed(0)}",
                                     "BPF ${double.parse(snapshot.data!.powerFactor.split(',')[2]).toStringAsFixed(0)}"][index] : null,
-                                  value2: !AppConstants.pumpWithValveModelList.contains(widget.masterData.modelId) ? snapshot.data!.power != null
+                                  value2: !AppConstants.pumpWithValveModelList.contains(widget.masterData.modelId)
+                                      ? snapshot.data!.power != null
                                       ? ["RP ${double.parse(snapshot.data!.power.split(',')[0]).toStringAsFixed(0)}",
                                     "YP ${double.parse(snapshot.data!.power.split(',')[1]).toStringAsFixed(0)}",
                                     "BP ${double.parse(snapshot.data!.power.split(',')[2]).toStringAsFixed(0)}"][index]
