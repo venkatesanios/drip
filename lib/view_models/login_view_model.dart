@@ -87,7 +87,7 @@ class LoginViewModel extends ChangeNotifier {
           role: userData['userType'],
           countryCode: cleanedCountryCode,
           mobileNumber: mobileNumber,
-          email: userData['email'],
+          email: userData['email'], appVersion: '',
          );
         onLoginSuccess(data['message']);
       } else {
