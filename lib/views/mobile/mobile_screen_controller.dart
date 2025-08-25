@@ -28,11 +28,10 @@ import '../../services/communication_service.dart';
 import '../../utils/constants.dart';
 import '../../utils/formatters.dart';
 import '../../utils/my_function.dart';
-import '../../utils/network_utils.dart';
 import '../../utils/routes.dart';
 import '../../utils/shared_preferences_helper.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
-import '../account_settings.dart';
+import '../common/user_profile/user_profile.dart';
 import '../customer/app_info.dart';
 import '../customer/controller_settings.dart';
 import '../customer/customer_home.dart';
@@ -91,6 +90,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
       return null;
     }
   }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -373,7 +373,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const AccountSettings(hideAppbar: false),
+                    builder: (context) => const UserProfile(),
                   ),
                 );
               },

@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/utils/enums.dart';
 import 'package:provider/provider.dart';
 
 import '../../../Widgets/app_logo.dart';
 import '../../../Widgets/user_account_menu.dart';
 import '../../../flavors.dart';
 import '../../../layouts/layout_selector.dart';
+import '../../../utils/enums.dart';
 import '../../../view_models/base_header_view_model.dart';
 import '../../admin_dealer/product_inventory.dart';
 import '../../admin_dealer/stock_entry.dart';
 import '../../common/user_dashboard/widgets/main_menu.dart';
 
-class AdminDesktop extends StatelessWidget {
-  const AdminDesktop({super.key});
+class AdminMiddleLayout extends StatelessWidget {
+  const AdminMiddleLayout({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,7 @@ class AdminDesktop extends StatelessWidget {
         ),
         title: MainMenu(viewModel: viewModel),
         actions: const <Widget>[
-          UserAccountMenu(screenType: 'Desktop'),
+          UserAccountMenu(screenType: 'Middle'),
         ],
         centerTitle: false,
         elevation: 10,
@@ -36,10 +36,9 @@ class AdminDesktop extends StatelessWidget {
         children: const [
           DashboardLayoutSelector(userRole: UserRole.admin),
           ProductInventory(),
-          StockEntry(screenType: 'Desktop'),
+          StockEntry(screenType: 'Middle'),
         ],
       ),
     );
   }
-
 }

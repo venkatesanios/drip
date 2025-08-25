@@ -4,12 +4,12 @@ import 'package:flutter/services.dart';
 import 'package:oro_drip_irrigation/utils/Theme/oro_theme.dart';
 import 'package:provider/provider.dart';
 
-import '../repository/repository.dart';
-import '../services/http_service.dart';
-import '../utils/constants.dart';
-import '../utils/enums.dart';
-import '../utils/formatters.dart';
-import '../view_models/create_account_view_model.dart';
+import '../../../repository/repository.dart';
+import '../../../services/http_service.dart';
+import '../../../utils/constants.dart';
+import '../../../utils/enums.dart';
+import '../../../utils/formatters.dart';
+import '../../../view_models/create_account_view_model.dart';
 
 class CreateAccount extends StatelessWidget {
   const CreateAccount({super.key, required this.userId, required this.role, required this.customerId, required this.onAccountCreated});

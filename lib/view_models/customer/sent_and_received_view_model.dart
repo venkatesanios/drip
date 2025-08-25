@@ -29,7 +29,6 @@ class SentAndReceivedViewModel extends ChangeNotifier {
     }
     try {
       Map<String, Object> body = {"userId": customerId, "controllerId": controllerId, "fromDate":date, "toDate":date};
-      print(body);
       final response = await repository.fetchSentAndReceivedData(body);
       if (response.statusCode == 200) {
         sentAndReceivedList.clear();
@@ -59,12 +58,10 @@ class SentAndReceivedViewModel extends ChangeNotifier {
     try {
       final response = await repository.fetchSentAndReceivedHardwarePayload(body);
       if (response.statusCode == 200) {
-        print(response.body);
         final jsonData = jsonDecode(response.body);
         if (jsonData["code"] == 200) {
           final message = jsonData?['data']?['message'];
           if (message != null) {
-            print(jsonData['data']);
             displayJsonData(context, jsonData['data']['message'] ?? 'Empty message', aTitle, pyTitle);
           }else{
             showDialog(
@@ -106,9 +103,17 @@ class SentAndReceivedViewModel extends ChangeNotifier {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(pyTitle, style: const TextStyle(color: Colors.teal),),
+                  Text(pyTitle, style: const TextStyle(color: Colors.teal)),
                   const Divider(),
-                  Text(jsonEncode(jsonData), style: const TextStyle(color: Colors.black54),),
+                  SelectableText(
+                    jsonEncode(jsonData),
+                    style: const TextStyle(color: Colors.black54),
+                    showCursor: true,
+                    toolbarOptions: const ToolbarOptions(
+                      copy: true,
+                      selectAll: true,
+                    ),
+                  )
                 ],
               ),
             ),

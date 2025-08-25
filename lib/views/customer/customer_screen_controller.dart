@@ -24,7 +24,6 @@ import '../../modules/PumpController/view/pump_controller_home.dart';
 import '../../modules/UserChat/view/user_chat.dart';
 import '../../providers/user_provider.dart';
 import '../../repository/repository.dart';
-import '../../services/bluetooth_service.dart';
 import '../../services/communication_service.dart';
 import '../../services/http_service.dart';
 import '../../utils/constants.dart';
@@ -34,7 +33,7 @@ import '../../utils/routes.dart';
 import '../../utils/shared_preferences_helper.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../../view_models/nav_rail_view_model.dart';
-import '../account_settings.dart';
+import '../common/user_profile/user_profile.dart';
 import 'controller_settings.dart';
 import 'customer_home.dart';
 import 'customer_product.dart';
@@ -437,10 +436,19 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
                                   child: const Text('Manage Your Account'),
                                   onPressed: () async {
                                     Navigator.pop(context);
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const AccountSettings(hideAppbar: false),
+                                    showModalBottomSheet(
+                                      context: context,
+                                      isScrollControlled: true,
+                                      builder: (context) => FractionallySizedBox(
+                                        heightFactor: 0.84,
+                                        widthFactor: 0.75,
+                                        child: Container(
+                                          decoration: const BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+                                          ),
+                                          child: const UserProfile(),
+                                        ),
                                       ),
                                     );
                                   },

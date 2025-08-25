@@ -1,4 +1,4 @@
-enum ScreenType { mobile, tablet, desktop, web }
+enum ScreenType { narrow, middle, wide }
 
 enum UserRole { superAdmin, admin, dealer, customer, subUser }
 

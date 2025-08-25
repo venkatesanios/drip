@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../flavors.dart';
 import '../providers/user_provider.dart';
 import '../view_models/base_header_view_model.dart';
-import '../views/account_settings.dart';
+import '../views/common/user_profile/user_profile.dart';
 
 class UserAccountMenu extends StatelessWidget {
   const UserAccountMenu({super.key, required this.screenType});
@@ -14,13 +14,18 @@ class UserAccountMenu extends StatelessWidget {
       case 'profile':
         showModalBottomSheet(
           context: context,
-          elevation: 10,
           isScrollControlled: true,
-          shape: const RoundedRectangleBorder(borderRadius:
-          BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5))),
-          builder: (BuildContext context) {
-            return const AccountSettings(hideAppbar: false);
-          },
+          builder: (context) => FractionallySizedBox(
+            heightFactor: 0.84,
+            widthFactor: 0.75,
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+              ),
+              child: const UserProfile(),
+            ),
+          ),
         );
         break;
       case 'logout':
@@ -38,7 +43,7 @@ class UserAccountMenu extends StatelessWidget {
       context: context,
       position: RelativeRect.fromLTRB(offset.dx, offset.dy, offset.dx, 0),
       items: [
-        if(screenType == "Tablet" || screenType == "Mobile")...[
+        if(screenType == "Middle" || screenType == "Narrow")...[
           PopupMenuItem<String>(
             enabled: false,
             child: Text(
@@ -93,7 +98,7 @@ class UserAccountMenu extends StatelessWidget {
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
             onTapDown: (details) => _showUserMenu(context, details, customer!.name),
-            child: screenType == "Tablet" || screenType == "Mobile" ? Row(
+            child: screenType == "Middle" || screenType == "Mobile" ? Row(
               children: [
                 Container(
                   width: 36,

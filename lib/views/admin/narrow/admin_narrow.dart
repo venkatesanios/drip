@@ -11,8 +11,8 @@ import '../../admin_dealer/stock_entry.dart';
 import '../../common/product_search_bar.dart';
 import '../../common/user_dashboard/widgets/main_menu_segment.dart';
 
-class AdminMobile extends StatelessWidget {
-  const AdminMobile({super.key});
+class AdminNarrowLayout extends StatelessWidget {
+  const AdminNarrowLayout({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class AdminMobile extends StatelessWidget {
           child: AppLogo(),
         ),
         actions: const <Widget>[
-          UserAccountMenu(screenType: 'Mobile'),
+          UserAccountMenu(screenType: 'Narrow'),
         ],
         centerTitle: false,
         elevation: 10,
@@ -52,7 +52,7 @@ class AdminMobile extends StatelessWidget {
         children: const [
           DashboardLayoutSelector(userRole: UserRole.admin),
           ProductInventory(),
-          StockEntry(screenType: 'Mobile'),
+          StockEntry(screenType: 'Narrow'),
         ],
       ),
     );

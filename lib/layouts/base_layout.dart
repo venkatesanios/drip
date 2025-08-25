@@ -5,10 +5,9 @@ import '../utils/helpers/screen_helper.dart';
 abstract class BaseScreenLayout extends StatelessWidget {
   const BaseScreenLayout({super.key});
 
-  Widget buildMobile(BuildContext context);
-  Widget buildTablet(BuildContext context);
-  Widget buildDesktop(BuildContext context);
-  Widget buildWeb(BuildContext context);
+  Widget buildNarrow(BuildContext context);
+  Widget buildMiddle(BuildContext context);
+  Widget buildWide(BuildContext context);
 
   @override
   Widget build(BuildContext context) {
@@ -16,14 +15,12 @@ abstract class BaseScreenLayout extends StatelessWidget {
     final type = ScreenHelper.getScreenType(width);
 
     switch (type) {
-      case ScreenType.mobile:
-        return buildMobile(context);
-      case ScreenType.tablet:
-        return buildTablet(context);
-      case ScreenType.desktop:
-        return buildDesktop(context);
-      case ScreenType.web:
-        return buildWeb(context);
+      case ScreenType.narrow:
+        return buildNarrow(context);
+      case ScreenType.middle:
+        return buildMiddle(context);
+      case ScreenType.wide:
+        return buildWide(context);
     }
   }
 }

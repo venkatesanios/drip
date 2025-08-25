@@ -1,8 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:badges/badges.dart';
+import 'package:flutter/material.dart' hide Badge;
 import 'package:oro_drip_irrigation/views/common/user_dashboard/widgets/user_device_list.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../Screens/Dealer/sevicerequestdealer.dart';
+import '../../../../Screens/Dealer/ServicerequestHistory.dart';
 import '../../../../layouts/user_layout.dart';
 import '../../../../models/admin_dealer/customer_list_model.dart';
 import '../../../../models/user_model.dart';
@@ -12,7 +14,7 @@ import '../../../../utils/enums.dart';
 import '../../../../view_models/customer_list_view_model.dart';
 import '../../../../view_models/product_stock_view_model.dart';
 import '../../../admin_dealer/customer_device_list.dart';
-import '../../../create_account.dart';
+import '../../user_profile/create_account.dart';
 
 class CustomerView extends StatelessWidget {
   const CustomerView({super.key, required this.role, required this.isNarrow, required this.onCustomerProductChanged});
@@ -168,22 +170,34 @@ class CustomerView extends StatelessWidget {
           icon: const Icon(Icons.playlist_add_circle),
           onPressed: () => _showDeviceList(context, customer, stockVM),
         ),
-        IconButton(
-          tooltip: 'Service Request',
-          icon: const Icon(Icons.build_circle),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => ServiceRequestsTable(
-                  userId: customer.id,
-                 ),
-              ),
-            );
+        Badge(
+          showBadge: (customer.criticalAlarmCount + customer.serviceRequestCount) > 0,
+          position: BadgePosition.topEnd(top: 0, end: 0),
+          badgeStyle: const BadgeStyle(
+            badgeColor: Colors.red
+          ),
+          badgeContent: Text(
+            '${customer.criticalAlarmCount + customer.serviceRequestCount}',
+            style: const TextStyle(color: Colors.white, fontSize: 10),
+          ),
+          child: IconButton(
+            tooltip: 'Service Request',
+            icon: const Icon(Icons.build_circle),
+            onPressed: () {
 
-            // TODO: implement service request
-          },
-        ),
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                elevation: 10,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(5)),
+                ),
+                builder: (_) => ServiceRequestsTable(userId: customer.id),
+              );
+
+            },
+          ),
+        )
       ],
     );
   }

@@ -28,7 +28,7 @@ class _StockEntryState extends State<StockEntry> {
       child: Consumer<StockEntryViewModel>(
         builder: (context, viewModel, _) {
 
-          if(widget.screenType=="Mobile") {
+          if(widget.screenType=="Narrow") {
 
             return LayoutBuilder(
               builder: (context, constraints) {
@@ -543,7 +543,7 @@ class _StockEntryState extends State<StockEntry> {
                         children: [
                           if(viewModel.addedProductList.isNotEmpty) ...[
                             Padding(
-                              padding: widget.screenType=='Mobile' ? const EdgeInsets.only(left: 3, top: 10) :
+                              padding: widget.screenType=='Narrow' ? const EdgeInsets.only(left: 3, top: 10) :
                               const EdgeInsets.only(left: 50, top: 10),
                               child: Row(
                                 children: [
@@ -598,7 +598,7 @@ class _StockEntryState extends State<StockEntry> {
                               ),
                             ),
                             Padding(
-                              padding: widget.screenType=='Mobile' ?
+                              padding: widget.screenType=='Narrow' ?
                               const EdgeInsets.only(left: 3, right: 3, top: 8, bottom: 8) :
                               const EdgeInsets.only(left: 50, right: 50, top: 8, bottom: 8),
                               child: Container(
@@ -647,14 +647,14 @@ class _StockEntryState extends State<StockEntry> {
                           ],
 
                           Padding(
-                            padding: widget.screenType=='Mobile' ?
+                            padding: widget.screenType=='Narrow' ?
                             const EdgeInsets.only(left: 5, top: 10):
                             const EdgeInsets.only(left: 50, top: 10),
                             child: const Text('ALL MY STOCKS', style: TextStyle(fontSize: 15, color: Colors.black87)),
                           ),
 
                           Padding(
-                            padding: widget.screenType=='Mobile' ?
+                            padding: widget.screenType=='Narrow' ?
                             const EdgeInsets.only(left: 8, right: 8, top: 8, bottom: 8):
                             const EdgeInsets.only(left: 50, right: 50, top: 8, bottom: 8),
                             child: Container(
