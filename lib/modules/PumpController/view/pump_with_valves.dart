@@ -118,7 +118,7 @@ class PumpWithValves extends StatelessWidget {
                                   '${Environment.mqttPublishTopic}/${provider.mySiteList.data[provider.sIndex].master[provider.mIndex].deviceId}'
                               );
                               Map<String, dynamic> body = {
-                                "userId": userId,
+                                "userId": customerId,
                                 "controllerId": masterData.controllerId,
                                 "hardware": payload,
                                 "messageStatus": "Change to successfully for ${valves[i].name}",

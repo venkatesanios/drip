@@ -5,13 +5,16 @@ import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
+import '../../../Models/customer/site_model.dart';
+import '../../../utils/constants.dart';
 import '../../Preferences/widgets/custom_segmented_control.dart';
 import '../../PumpController/state_management/pump_controller_provider.dart';
 import '../widgets/custom_calendar_mobile.dart';
 
 class PumpVoltageLogScreen extends StatefulWidget {
   final int userId, controllerId, nodeControllerId;
-  const PumpVoltageLogScreen({super.key, required this.userId, required this.controllerId, this.nodeControllerId = 0});
+  final MasterControllerModel masterData;
+  const PumpVoltageLogScreen({super.key, required this.userId, required this.controllerId, this.nodeControllerId = 0, required this.masterData});
 
   @override
   State<PumpVoltageLogScreen> createState() => _PumpVoltageLogScreenState();
@@ -75,7 +78,7 @@ class _PumpVoltageLogScreenState extends State<PumpVoltageLogScreen> {
     pumpControllerProvider = Provider.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: MediaQuery.of(context).size.width <= 600 ? AppBar(
+      appBar: [...AppConstants.ecoGemModelList, ...AppConstants.gemModelList].contains(widget.masterData.modelId) ? AppBar(
         title: const Text('Voltage log'),
       ) : PreferredSize(preferredSize: const Size(0, 0), child: Container()),
       body: SafeArea(

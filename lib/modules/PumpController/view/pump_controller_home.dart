@@ -321,7 +321,7 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
             selectedIndex: _selectedIndex,
           );
         } else {
-          selectedWidget =  PowerGraphScreen(userId: widget.userId, controllerId: widget.masterData.controllerId);
+          selectedWidget =  PowerGraphScreen(userId: widget.userId, controllerId: widget.masterData.controllerId, masterData: widget.masterData);
         }
       case 2:
         if(isPumpWithValveModel) {
@@ -332,17 +332,17 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
             selectedIndex: _selectedIndex,
           );
         } else {
-          selectedWidget =  PumpVoltageLogScreen(userId: widget.userId, controllerId: widget.masterData.controllerId);
+          selectedWidget =  PumpVoltageLogScreen(userId: widget.userId, controllerId: widget.masterData.controllerId, masterData: widget.masterData);
         }
       case 3:
         if(isPumpWithValveModel) {
-          selectedWidget =  PowerGraphScreen(userId: widget.userId, controllerId: widget.masterData.controllerId);
+          selectedWidget =  PowerGraphScreen(userId: widget.userId, controllerId: widget.masterData.controllerId, masterData: widget.masterData);
         } else {
-          selectedWidget = PumpVoltageLogScreen(userId: widget.userId, controllerId: widget.masterData.controllerId);
+          selectedWidget = PumpVoltageLogScreen(userId: widget.userId, controllerId: widget.masterData.controllerId, masterData: widget.masterData);
         }
       case 4:
         if(isPumpWithValveModel) {
-          selectedWidget = PumpVoltageLogScreen(userId: widget.userId, controllerId: widget.masterData.controllerId);
+          selectedWidget = PumpVoltageLogScreen(userId: widget.userId, controllerId: widget.masterData.controllerId, masterData: widget.masterData);
         } else {
           selectedWidget =  PreferenceMainScreen(
             userId: widget.userId,

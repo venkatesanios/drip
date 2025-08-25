@@ -49,8 +49,8 @@ class _PumpLogsHomeState extends State<PumpLogsHome> with TickerProviderStateMix
                               controllerId: widget.controllerId,
                               masterData: widget.masterData,
                             ),
-                            PowerGraphScreen(userId: widget.userId, controllerId: widget.controllerId),
-                            PumpVoltageLogScreen(userId: widget.userId, controllerId: widget.controllerId),
+                            PowerGraphScreen(userId: widget.userId, controllerId: widget.controllerId, masterData: widget.masterData,),
+                            PumpVoltageLogScreen(userId: widget.userId, controllerId: widget.controllerId, masterData: widget.masterData,),
                           ]
                       )
                   )

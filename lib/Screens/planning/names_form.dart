@@ -296,7 +296,7 @@ class _NamesState extends State<Names> {
     final Repository repository = Repository(HttpService());
     print(namesModelData['configObject']);
     Map<String, dynamic> body = {
-      "userId": widget.userID,
+      "userId": widget.customerID,
       "controllerId": widget.controllerId,
       "configObject": namesModelData['configObject'],
       "waterSource": namesModelData['waterSource'],
@@ -307,7 +307,10 @@ class _NamesState extends State<Names> {
       "moistureSensor": namesModelData['moistureSensor'],
       "createUser": widget.userID,
     };
-       var getUserDetails = await repository.updateUserNames(body);
+     print('body:-$body');
+
+     var getUserDetails = await repository.updateUserNames(body);
+       print('getUserDetails.body-:${getUserDetails.body}');
       final jsonDataResponsePut = json.decode(getUserDetails.body);
       GlobalSnackBar.show(context, jsonDataResponsePut['message'], jsonDataResponsePut['code']);
 

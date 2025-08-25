@@ -163,7 +163,7 @@ class NodeList extends StatelessWidget {
                                         ),
                                         Padding(
                                           padding: const EdgeInsets.only(left: 17),
-                                          child: Text('${vm.nodeList[index].modelDescription} - v:${vm.nodeList[index].version}',
+                                          child: Text('${vm.nodeList[index].modelName} - v:${vm.nodeList[index].version}',
                                               style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 10, color: Colors.black)),
                                           /*child: RichText(
                                             text: TextSpan(

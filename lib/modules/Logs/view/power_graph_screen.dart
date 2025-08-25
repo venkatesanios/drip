@@ -9,6 +9,8 @@ import 'package:provider/provider.dart';
 import 'package:excel/excel.dart';
 
 import '../../../Constants/constants.dart';
+import '../../../Models/customer/site_model.dart';
+import '../../../utils/constants.dart';
 import '../../Preferences/widgets/custom_segmented_control.dart';
 import '../../PumpController/state_management/pump_controller_provider.dart';
 import '../../SystemDefinitions/widgets/custom_snack_bar.dart';
@@ -20,7 +22,8 @@ class PowerGraphScreen extends StatefulWidget {
   final int userId;
   final int controllerId;
   final int nodeControllerId;
-  const PowerGraphScreen({super.key, required this.userId, required this.controllerId, this.nodeControllerId = 0});
+  final MasterControllerModel masterData;
+  const PowerGraphScreen({super.key, required this.userId, required this.controllerId, this.nodeControllerId = 0, required this.masterData});
 
   @override
   State<PowerGraphScreen> createState() => _PowerGraphScreenState();
@@ -195,7 +198,7 @@ class _PowerGraphScreenState extends State<PowerGraphScreen> {
     ));
     return Scaffold(
       // backgroundColor: const Color(0xffF9FEFF),
-      appBar: MediaQuery.of(context).size.width <= 600 ? AppBar(
+      appBar: [...AppConstants.ecoGemModelList, ...AppConstants.gemModelList].contains(widget.masterData.modelId) ? AppBar(
         title: const Text('Power graph'),
       ) : PreferredSize(preferredSize: const Size(0, 0), child: Container()),
       backgroundColor: Colors.white,

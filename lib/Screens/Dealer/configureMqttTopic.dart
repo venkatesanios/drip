@@ -10,10 +10,14 @@ import '../../services/mqtt_service.dart';
 import '../../utils/constants.dart';
 
 class ConfigureMqtt extends StatefulWidget {
-  final deviceID,userId,controllerId;
+  final deviceID, userId, controllerId;
 
-
-  const ConfigureMqtt({Key? key, required this.deviceID, required this.userId, required this.controllerId}) : super(key: key);
+  const ConfigureMqtt(
+      {Key? key,
+        required this.deviceID,
+        required this.userId,
+        required this.controllerId})
+      : super(key: key);
 
   @override
   _ConfigureMqttState createState() => _ConfigureMqttState();
@@ -33,7 +37,6 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
   String? selectedVersion;
   String? selectedDealer;
 
-
   final List<String> platforms = ['AWS', 'Azure'];
   final List<String> dealers = ['ORO', 'LK'];
   final List<String> versions = ['Version 1.0', 'Version 1.1'];
@@ -42,7 +45,8 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
   @override
   void initState() {
     super.initState();
-    mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
+    mqttPayloadProvider =
+        Provider.of<MqttPayloadProvider>(context, listen: false);
     fetchData();
     _macController.text = widget.deviceID;
     macAddress = widget.deviceID;
@@ -53,7 +57,8 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
     final url = Uri.parse('http://13.235.254.21:9000/getConfigs');
 
     try {
-      final response = await http.get(url, headers: {'Content-Type': 'application/json'});
+      final response =
+      await http.get(url, headers: {'Content-Type': 'application/json'});
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -69,7 +74,7 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
           isLoading = false;
         });
       }
-    } catch (e,stacktrace) {
+    } catch (e, stacktrace) {
       setState(() {
         print(e);
         print(stacktrace);
@@ -80,7 +85,6 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
   }
 
   String formatConfig(Map<String, dynamic> config) {
-
     if (selectedVersion == 'Version 1.0') {
       return '${config['MQTT_IP'] ?? '-'},'
           '${config['MQTT_USER_NAME'] ?? '-'},'
@@ -98,8 +102,7 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
           '${config['MQTT_FRONTEND_TOPIC'] ?? '-'},'
           '${config['MQTT_HARDWARE_TOPIC'] ?? '-'},'
           '${config['MQTT_SERVER_TOPIC'] ?? '-'}';
-    }
-    else {
+    } else {
       return '${config['MQTT_IP'] ?? '-'},'
           '${config['MQTT_USER_NAME'] ?? '-'},'
           '${config['MQTT_PASSWORD'] ?? '-'},'
@@ -137,23 +140,23 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
     final selectedConfig = configs[selectedIndex!];
     final formatted = formatConfig(selectedConfig);
 
-
-    List checkTopic = getMqttTopic(
-        selectedPlatform!, selectedVersion!, selectedDealer!);
+    List checkTopic =
+    getMqttTopic(selectedPlatform!, selectedVersion!, selectedDealer!);
     print('checkTopic---->$checkTopic,$macAddress');
     String topic = checkTopic[0];
     String oldnewcheck = checkTopic[1];
     if (oldnewcheck == '1') {
       final payload = {
-        "6100": [{"6101": formatted},]
+        "6100": [
+          {"6101": formatted},
+        ]
       };
       MqttService().topicToPublishAndItsMessage(
         jsonEncode(payload),
         "$topic${_macController.text}",
       );
       print('payload $payload  \n $topic${_macController.text}');
-    }
-    else {
+    } else {
       final payload = {
         "6100": {"6101": formatted}
       };
@@ -166,55 +169,58 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
     var data = {
       "userId": widget.userId,
       "controllerId": widget.controllerId,
-      "data": { "6100": [{"6101": formatted},]},
+      "data": {
+        "6100": [
+          {"6101": formatted},
+        ]
+      },
       "messageStatus": "View Settings",
       "createUser": widget.userId,
-      "hardware": { "6100": [{"6101": formatted},]},
+      "hardware": {
+        "6100": [
+          {"6101": formatted},
+        ]
+      },
     };
     await repository.sendManualOperationToServer(data);
   }
 
-  List<String> getMqttTopic(String selectedPlatform,String selectedVersion,String selecteddealer) {
-    if(selecteddealer == 'ORO')
-      {
-        if(selectedPlatform == 'AWS')
-          {
-            print('return ORO AWS');
-            if(selectedVersion == 'Version 1.0')
-                return ['AppToFirmware/','1'];
-            else
-                return ['OroAppToFirmware/','0'];
-          }
-
-      }
-    else
-    {
-      if(selectedPlatform == 'AWS')
-      {  print('return LK AWS');
-        if(selectedVersion == 'Version 1.0')
-          return ['AppsToFirmware/','1'];
-
-      }else
-      {
-        print('return LK azure');
-        if(selectedVersion == 'Version 1.0')
-          return ['AppsToFirmware/','1'];
+  List<String> getMqttTopic(
+      String selectedPlatform, String selectedVersion, String selecteddealer) {
+    if (selecteddealer == 'ORO') {
+      if (selectedPlatform == 'AWS') {
+        print('return ORO AWS');
+        if (selectedVersion == 'Version 1.0')
+          return ['AppToFirmware/', '1'];
         else
-          return ['AppToFirmware/','0'];
+          return ['OroAppToFirmware/', '0'];
+      }
+    } else {
+      if (selectedPlatform == 'AWS') {
+        print('return LK AWS');
+        if (selectedVersion == 'Version 1.0') return ['AppsToFirmware/', '1'];
+      } else {
+        print('return LK azure');
+        if (selectedVersion == 'Version 1.0')
+          return ['AppsToFirmware/', '1'];
+        else
+          return ['AppToFirmware/', '0'];
       }
     }
     print('return else');
-    return  ['AppToFirmware/','0'];
-   }
+    return ['AppToFirmware/', '0'];
+  }
 
-
-   Future<void> viewsettings() async {
-    List checkTopic =   getMqttTopic(selectedPlatform!, selectedVersion!, selectedDealer!);
+  Future<void> viewsettings() async {
+    List checkTopic =
+    getMqttTopic(selectedPlatform!, selectedVersion!, selectedDealer!);
     String topic = checkTopic[0];
     String oldnewcheck = checkTopic[1];
-    if(oldnewcheck == '1') {
+    if (oldnewcheck == '1') {
       final payload = {
-        "5700": [{"5701": "22"},]
+        "5700": [
+          {"5701": "22"},
+        ]
       };
       MqttService().topicToPublishAndItsMessage(
         jsonEncode(payload),
@@ -223,9 +229,7 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("view settings sent")),
       );
-    }
-    else
-    {
+    } else {
       final payload = {
         "5700": {"5701": "22"}
       };
@@ -240,59 +244,77 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
     var data = {
       "userId": widget.userId,
       "controllerId": widget.controllerId,
-      "data": { "5700": [{"5701": "22"},]},
+      "data": {
+        "5700": [
+          {"5701": "22"},
+        ]
+      },
       "messageStatus": "View Settings",
       "createUser": widget.userId,
-      "hardware": { "5700": [{"5701": "22"},]},
+      "hardware": {
+        "5700": [
+          {"5701": "22"},
+        ]
+      },
     };
     await repository.sendManualOperationToServer(data);
   }
 
   Future<void> updateCode() async {
-   List checkTopic =   getMqttTopic(selectedPlatform!, selectedVersion!, selectedDealer!);
+    List checkTopic =
+    getMqttTopic(selectedPlatform!, selectedVersion!, selectedDealer!);
     String topic = checkTopic[0];
-   String oldnewcheck = checkTopic[1];
-if(oldnewcheck == '1') {
-  final payload = {
-    "5700": [{"5701": "27"},]
-  };
-  MqttService().topicToPublishAndItsMessage(
-    jsonEncode(payload),
-    "$topic${_macController.text}",
-  );
-  var data = {
-    "userId": widget.userId,
-    "controllerId": widget.controllerId,
-    "data": { "5700": [{"5701": "27"},]},
-    "messageStatus": "updateCode",
-    "createUser": widget.userId,
-    "hardware": { "5700": [{"5701": "27"},]},
-  };
-   await repository.sendManualOperationToServer(data);
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text("update settings sent")),
-  );
-  print('payload $payload  \n $topic${_macController.text}');
-}
-else
-  {
-    final payload = {
-      "5700": {"5701": "28"}
-    };
-    MqttService().topicToPublishAndItsMessage(
-      jsonEncode(payload),
-      "$topic${_macController.text}",
-    );
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("update settings sent")),
-    );
-    print('payload $payload  \n $topic${_macController.text}');
-  }
-
+    String oldnewcheck = checkTopic[1];
+    if (oldnewcheck == '1') {
+      final payload = {
+        "5700": [
+          {"5701": "27"},
+        ]
+      };
+      MqttService().topicToPublishAndItsMessage(
+        jsonEncode(payload),
+        "$topic${_macController.text}",
+      );
+      var data = {
+        "userId": widget.userId,
+        "controllerId": widget.controllerId,
+        "data": {
+          "5700": [
+            {"5701": "27"},
+          ]
+        },
+        "messageStatus": "updateCode",
+        "createUser": widget.userId,
+        "hardware": {
+          "5700": [
+            {"5701": "27"},
+          ]
+        },
+      };
+      await repository.sendManualOperationToServer(data);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("update settings sent")),
+      );
+      print('payload $payload  \n $topic${_macController.text}');
+    } else {
+      final payload = {
+        "5700": {"5701": "28"}
+      };
+      MqttService().topicToPublishAndItsMessage(
+        jsonEncode(payload),
+        "$topic${_macController.text}",
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("update settings sent")),
+      );
+      print('payload $payload  \n $topic${_macController.text}');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    mqttPayloadProvider =
+        Provider.of<MqttPayloadProvider>(context, listen: true);
     return Scaffold(
       appBar: AppBar(
         title: Text('Configure Hardware'),
@@ -312,7 +334,6 @@ else
                 decoration: const InputDecoration(
                   labelText: 'MAC Address',
                   border: OutlineInputBorder(),
-
                 ),
                 controller: _macController,
                 onChanged: (value) {
@@ -355,16 +376,17 @@ else
                 }).toList(),
                 onChanged: (value) {
                   setState(() {
-                    value == 'AWS' ? F.appFlavor = Flavor.oroProduction : F.appFlavor = Flavor.smartComm;
+                    value == 'AWS'
+                        ? F.appFlavor = Flavor.oroProduction
+                        : F.appFlavor = Flavor.smartComm;
                     print('flaVOR ${F.appFlavor}');
                     print('flaVOR ${F.appFlavor}');
                     print('${AppConstants.mqttUrl}');
-                     selectedPlatform = value;
+                    selectedPlatform = value;
                   });
                 },
               ),
               const SizedBox(height: 16),
-
 
               // Version Dropdown
               DropdownButtonFormField<String>(
@@ -396,13 +418,16 @@ else
                   final config = configs[index];
                   return DropdownMenuItem<int>(
                     value: index,
-                    child: Text('${config['PROJECT_NAME']} - ${config['SERVER_NAME']}'),
+                    child: Text(
+                        '${config['PROJECT_NAME']} - ${config['SERVER_NAME']}'),
                   );
                 }),
                 onChanged: (index) {
                   setState(() {
                     selectedIndex = index;
-                    formattedConfig = index != null ? formatConfig(configs[index]) : null;
+                    formattedConfig = index != null
+                        ? formatConfig(configs[index])
+                        : null;
                   });
                 },
               ),
@@ -458,8 +483,11 @@ else
                   ),
                 ],
               ),
-
-             ],
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(mqttPayloadProvider.receivedPayload),
+              ),
+            ],
           ),
         ),
       ),
