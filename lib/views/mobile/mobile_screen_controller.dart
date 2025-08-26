@@ -90,7 +90,6 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
       return null;
     }
   }
-
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -348,7 +347,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(color: Colors.white, fontSize: 14)),
                           const SizedBox(height: 20),
-                           Text("Version:$version",
+                          Text("Version:$version",
                               style: TextStyle(color: Colors.white54)),
                         ],
                       ),
@@ -412,8 +411,8 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
               onTap: () {
                 Navigator.push(
                     context,
-                  MaterialPageRoute(builder: (BuildContext context) => UserChatScreen(userId: viewedCustomer.id,
-                      userName: viewedCustomer.name, phoneNumber: viewedCustomer.mobileNo))
+                    MaterialPageRoute(builder: (BuildContext context) => UserChatScreen(userId: viewedCustomer.id,
+                        userName: viewedCustomer.name, phoneNumber: viewedCustomer.mobileNo))
                 );
               },
             ),
@@ -788,8 +787,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                       case 2:
                         return IrrigationAndPumpLog(
                           userData: {
-                            'userId': viewedCustomer.id,
-                            'customerId': viewedCustomer.id,
+                            'userId': loggedInUser.id,
                             'controllerId': currentMaster.controllerId,
                           },
                           masterData: currentMaster,

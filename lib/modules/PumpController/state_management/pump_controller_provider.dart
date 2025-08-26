@@ -38,7 +38,7 @@ class PumpControllerProvider extends ChangeNotifier {
       "toDate": DateFormat("yyyy-MM-dd").format(selectedDate),
     };
 
-    // print("data from getUserPumpLog :: $data");
+    print("data from getUserPumpLog :: $data");
     try {
       final getPumpController = await repository.getUserPumpLog(data, nodeControllerId != 0);
       // final getPumpController = await HttpService().postRequest(widget.nodeControllerId == 0 ? "getUserPumpLog" : "getUserNodePumpLog", data);

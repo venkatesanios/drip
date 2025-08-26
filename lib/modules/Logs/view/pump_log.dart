@@ -45,7 +45,7 @@ class _PumpLogScreenState extends State<PumpLogScreen> {
       backgroundColor: Colors.white,
       appBar: [...AppConstants.ecoGemModelList, ...AppConstants.gemModelList].contains(widget.masterData.modelId) ? AppBar(
         title: const Text('Pump log'),
-      ) : PreferredSize(preferredSize: Size(0, 0), child: Container()),
+      ) : PreferredSize(preferredSize: const Size(0, 0), child: Container()),
       body: SafeArea(
         child: Column(
           children: [

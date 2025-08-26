@@ -282,17 +282,17 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
     final provider = context.read<PumpControllerProvider>();
     switch(_selectedIndex) {
       case 0:
-        await provider.getUserPumpLog(widget.userId, widget.masterData.controllerId, 0);
+        await provider.getUserPumpLog(widget.customerId, widget.masterData.controllerId, 0);
       case 1:
         if(!isPumpWithValveModel) {
-          await provider.getUserPumpLog(widget.userId, widget.masterData.controllerId, 0);
+          await provider.getUserPumpLog(widget.customerId, widget.masterData.controllerId, 0);
         }
       case 2:
         if(isPumpWithValveModel) {
-          await provider.getPumpControllerData(userId: widget.userId, controllerId: widget.masterData.controllerId, nodeControllerId: 0);
+          await provider.getPumpControllerData(userId: widget.customerId, controllerId: widget.masterData.controllerId, nodeControllerId: 0);
         }
       case 3:
-        await provider.getUserVoltageLog(userId: widget.userId, controllerId: widget.masterData.controllerId, nodeControllerId: 0);
+        await provider.getUserVoltageLog(userId: widget.customerId, controllerId: widget.masterData.controllerId, nodeControllerId: 0);
       default:
         (){};
     }
@@ -308,7 +308,7 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
     switch(_selectedIndex) {
       case 0:
         selectedWidget = PumpLogScreen(
-          userId: widget.userId,
+          userId: widget.customerId,
           controllerId: widget.masterData.controllerId,
           masterData: widget.masterData,
         );
@@ -321,7 +321,7 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
             selectedIndex: _selectedIndex,
           );
         } else {
-          selectedWidget =  PowerGraphScreen(userId: widget.userId, controllerId: widget.masterData.controllerId, masterData: widget.masterData);
+          selectedWidget =  PowerGraphScreen(userId: widget.customerId, controllerId: widget.masterData.controllerId, masterData: widget.masterData);
         }
       case 2:
         if(isPumpWithValveModel) {
@@ -332,7 +332,7 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
             selectedIndex: _selectedIndex,
           );
         } else {
-          selectedWidget =  PumpVoltageLogScreen(userId: widget.userId, controllerId: widget.masterData.controllerId, masterData: widget.masterData);
+          selectedWidget =  PumpVoltageLogScreen(userId: widget.customerId, controllerId: widget.masterData.controllerId, masterData: widget.masterData);
         }
       case 3:
         if(isPumpWithValveModel) {

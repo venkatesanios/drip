@@ -408,7 +408,7 @@ class _AdditionalDataScreenState extends State<AdditionalDataScreen> {
         final createUserProgram = await repository.createUserProgram(userData);
         final response = jsonDecode(createUserProgram.body);
         if(createUserProgram.statusCode == 200) {
-          await mainProvider.programLibraryData(widget.userId, widget.controllerId);
+          await mainProvider.programLibraryData(widget.customerId, widget.controllerId);
           ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: response['message']));
           Navigator.of(context).pop();
         }

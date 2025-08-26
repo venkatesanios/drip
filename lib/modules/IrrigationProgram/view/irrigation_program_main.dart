@@ -153,7 +153,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
                 centerTitle: true,
                 leading: IconButton(
                   onPressed: () {
-                    mainProvider.programLibraryData(widget.userId, widget.controllerId);
+                    mainProvider.programLibraryData(widget.customerId, widget.controllerId);
                     Navigator.pop(context);
                   },
                   icon: const Icon(Icons.arrow_back, color: Colors.white,),
@@ -583,9 +583,9 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
       case 2:
         return isIrrigationProgram
             ? conditionsLibraryIsNotEmpty
-            ? ConditionsScreen(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, deviceId: widget.deviceId, customerId: widget.customerId,)
+            ? ConditionsScreen(userId: widget.userId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, deviceId: widget.deviceId, customerId: widget.customerId,)
             : SelectionScreen(modelId: widget.modelId,)
-            : WaterAndFertilizerScreen(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram, modelId: widget.modelId,);
+            : WaterAndFertilizerScreen(userId: widget.userId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram, modelId: widget.modelId,);
       case 3:
         return isIrrigationProgram
             ? conditionsLibraryIsNotEmpty
@@ -598,7 +598,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
             ? WaterAndFertilizerScreen(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, isIrrigationProgram: isIrrigationProgram, modelId: widget.modelId,)
             : AlarmScreen(modelId: widget.modelId,)
             : AdditionalDataScreen(
-            userId: widget.customerId, controllerId: widget.controllerId, deviceId: widget.deviceId,
+            userId: widget.userId, controllerId: widget.controllerId, deviceId: widget.deviceId,
             serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer,
             programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,
             isIrrigationProgram: isIrrigationProgram, customerId: widget.customerId, groupId: widget.groupId, categoryId: widget.categoryId, modelId: widget.modelId, deviceName: widget.deviceName, categoryName: widget.categoryName,);
@@ -607,7 +607,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
             ? conditionsLibraryIsNotEmpty
             ? AlarmScreen(modelId: widget.modelId,)
             : AdditionalDataScreen(
-          userId: widget.customerId, controllerId: widget.controllerId, deviceId: widget.deviceId,
+          userId: widget.userId, controllerId: widget.controllerId, deviceId: widget.deviceId,
           serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer,
           programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,
           isIrrigationProgram: isIrrigationProgram, customerId: widget.customerId, groupId: widget.groupId, categoryId: widget.categoryId,modelId: widget.modelId, deviceName: widget.deviceName, categoryName: widget.categoryName)
@@ -615,7 +615,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
       case 6:
         return conditionsLibraryIsNotEmpty
             ? AdditionalDataScreen(
-          userId: widget.customerId, controllerId: widget.controllerId, deviceId: widget.deviceId,
+          userId: widget.userId, controllerId: widget.controllerId, deviceId: widget.deviceId,
           serialNumber: widget.serialNumber, toDashboard: widget.toDashboard, fromDealer: widget.fromDealer,
           programType: widget.programType, conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,
           isIrrigationProgram: isIrrigationProgram, customerId: widget.customerId, groupId: widget.groupId, categoryId: widget.categoryId,modelId: widget.modelId, deviceName: widget.deviceName, categoryName: widget.categoryName)

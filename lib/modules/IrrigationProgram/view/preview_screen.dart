@@ -437,6 +437,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
                   SlidingSendButton(
                     onSend: (){
                       // print(irrigationProvider.dataToMqtt(widget.serialNumber == 0 ? irrigationProvider.serialNumberCreation : widget.serialNumber, widget.programType));
+                      irrigationProvider.programLibraryData(widget.customerId, widget.controllerId);
                       sendFunction();
                     },
                   ),

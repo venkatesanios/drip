@@ -122,7 +122,7 @@ class MotorDataHourly {
 
     return MotorDataHourly(
       date: json['date'],
-      numberOfPumps: json['numberOfPumps'],
+      numberOfPumps: json['numberOfPumps'] > 3 ? 3 : json['numberOfPumps'],
       twoPhasePowerOnTime: json['twoPhasePowerOnTime'],
       twoPhaseLastPowerOnTime: json['twoPhaseLastPowerOnTime'],
       threePhasePowerOnTime: json['threePhasePowerOnTime'],

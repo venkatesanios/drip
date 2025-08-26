@@ -354,6 +354,7 @@ class _PowerGraphScreenState extends State<PowerGraphScreen> {
       child: pumpControllerProvider.motorDataList.isNotEmpty ? ListView.builder(
           itemCount: selectedCondition ? pumpControllerProvider.motorDataList.length : 1,
           itemBuilder: (BuildContext context, int index) {
+            // print("number of pumps :: ${pumpControllerProvider.motorDataList[index].numberOfPumps}");
             if(pumpControllerProvider.motorDataList[index].numberOfPumps != 0) {
               return Column(
                 children: [

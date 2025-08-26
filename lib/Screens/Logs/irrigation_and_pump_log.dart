@@ -33,7 +33,8 @@ class _IrrigationAndPumpLogState extends State<IrrigationAndPumpLog> with Ticker
   }
 
   Future<void> getUserNodePumpList() async{
-    final result = await repository.getUserNodePumpList(widget.userData);
+    final userData = {'userId' : widget.userData['customerId'], 'controllerId' :  widget.userData['controllerId']};
+    final result = await repository.getUserNodePumpList(userData);
     setState(() {
       if(result.statusCode == 200 && jsonDecode(result.body)['data'] != null) {
         pumpList = jsonDecode(result.body)['data'];
