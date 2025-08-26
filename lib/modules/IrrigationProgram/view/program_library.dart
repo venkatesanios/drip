@@ -762,7 +762,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
 
   void createCopyOfProgram({required int oldSerialNumber, required int serialNumber, required String programName, required String defaultProgramName, required String programType}) {
     irrigationProgramMainProvider
-        .userProgramCopy( widget.userId,  widget.controllerId, oldSerialNumber, serialNumber, programName, defaultProgramName, programType)
+        .userProgramCopy( widget.userId,  widget.controllerId, oldSerialNumber, serialNumber, programName, defaultProgramName, programType, widget.customerId)
         .then((String message) {
       ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: message));
     }).then((value) => irrigationProgramMainProvider.programLibraryData( widget.customerId,  widget.controllerId)
@@ -852,7 +852,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
          widget.controllerId,
         program.programId,
         widget.deviceId,
-        program.serialNumber, program.defaultProgramName, program.programName, active, controllerReadStatus)
+        program.serialNumber, program.defaultProgramName, program.programName, active, controllerReadStatus, widget.customerId)
         .then((String message) {
       ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: message));
     }).then((value) => irrigationProgramMainProvider.programLibraryData( widget.customerId,  widget.controllerId)
@@ -988,7 +988,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
         program.programName,
         program.priority,
         program.defaultProgramName,
-        controllerReadStatus, hardwareData)
+        controllerReadStatus, hardwareData, widget.customerId)
         .then((value) => ScaffoldMessenger.of(context)
         .showSnackBar(CustomSnackBar(message: value)));
   }

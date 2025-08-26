@@ -2516,7 +2516,6 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         "controllerId": controllerId,
       };
 
-      print("userData in the programLibraryData :: $userData");
       var getUserProgramName = await repository.getProgramLibraryData(userData);
       // var getUserProgramName = await httpService.postRequest('getUserProgramLibrary', userData);
       _programLibrary = null;
@@ -2542,10 +2541,10 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   }
 
   //TODO: PROGRAM RESET
-  Future<String> userProgramReset(int userId, int controllerId, int programId, deviceId, serialNumber, String defaultProgramName, String programName, String active, String controllerReadStatus) async {
+  Future<String> userProgramReset(int userId, int controllerId, int programId, deviceId, serialNumber, String defaultProgramName, String programName, String active, String controllerReadStatus, int customerId) async {
     try {
       var userData = {
-        "userId": userId,
+        "userId": customerId,
         "controllerId": controllerId,
         "createUser": userId,
         "programId": programId,
@@ -2682,10 +2681,10 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
 
   //TODO: UPDATE PROGRAM DETAILS
   Future<String> updateUserProgramDetails(
-      int userId, int controllerId, int serialNumber, int programId, String programName, String priority, defaultProgramName, String controllerReadStatus, hardwareData) async {
+      int userId, int controllerId, int serialNumber, int programId, String programName, String priority, defaultProgramName, String controllerReadStatus, hardwareData, customerId) async {
     try {
       Map<String, dynamic> userData = {
-        "userId": userId,
+        "userId": customerId,
         "controllerId": controllerId,
         "serialNumber": serialNumber,
         "createUser": userId,
@@ -2715,10 +2714,10 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   }
 
   //TODO: CREATE COPY OF PROGRAM
-  Future<String> userProgramCopy(int userId, int controllerId, int oldSerialNumber, int serialNumber, String programName, String defaultProgramName, String programType) async {
+  Future<String> userProgramCopy(int userId, int controllerId, int oldSerialNumber, int serialNumber, String programName, String defaultProgramName, String programType, int customerId) async {
     try {
       var userData = {
-        "userId": userId,
+        "userId": customerId,
         "controllerId": controllerId,
         "createUser": userId,
         "serialNumber": serialNumber,
