@@ -312,7 +312,7 @@ class _DeviceListState extends State<DeviceList> {
         "productId": productId,
         "modelId": modelId,
         "deviceId": replaceDeviceId,
-        "modifyUser": configPvd.masterData['userId'],
+        "modifyUser": configPvd.masterData['customerId'],
       };
       print("body : $body");
       var response = await ConfigMakerRepository().updateProduct(body);

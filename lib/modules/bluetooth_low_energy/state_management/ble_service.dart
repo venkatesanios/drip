@@ -666,7 +666,6 @@ class BleProvider extends ChangeNotifier {
           if(file.filename.contains('version')){
             nodeFirmwareFileName = file.filename;
           }
-
         }
         if(nodeFirmwareFileName.isNotEmpty){
           fileMode = FileMode.fileNameGetSuccess;

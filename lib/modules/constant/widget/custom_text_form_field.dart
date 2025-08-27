@@ -55,7 +55,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
           border: Border.all(color: Theme.of(context).primaryColor.withOpacity(0.2))
         ),
         child: TextFormField(
-          inputFormatters: widget.dataType.contains('int') ? AppProperties.regexForNumbers : AppProperties.regexForDecimal,
+          // inputFormatters: widget.dataType.contains('int') ? AppProperties.regexForNumbers : AppProperties.regexForDecimal,
           focusNode: myFocus,
           initialValue: widget.value,
           onChanged: widget.onChanged,
