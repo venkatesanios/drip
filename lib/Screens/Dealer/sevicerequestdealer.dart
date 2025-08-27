@@ -266,6 +266,7 @@ class _ServiceRequestsTableState extends State<ServiceRequestsTable> {
     // getUserServiceRequest => userId, controllerId
     // createUserServiceRequest => userId, controllerId, requestTypeId, requestDate, requestTime, responsibleUser, estimatedDate, siteLocation, createUser
     // updateUserServiceRequest => userId, controllerId, requestId, requestTypeId, responsibleUser, estimatedDate, status, closedDate, modifyUser
+    print("status--->$status");
     Map<String, dynamic> body = {
       "userId": userid,
       "controllerId": controllerId,
@@ -278,16 +279,22 @@ class _ServiceRequestsTableState extends State<ServiceRequestsTable> {
       status == 'Closed' ? '${dateFormat.format(DateTime.now())}' : null,
       "modifyUser": userid
     };
-
+    print("body call--->${body}");
     final Repository repository = Repository(HttpService());
     var response = await repository.updateUserServiceRequest(body);
     final jsonData = json.decode(response.body);
+    print("response--->${response.body}");
+
+    // print("jsonData--->$jsonData");
+    print("response.statusCode--->${response.statusCode}");
       if (response.statusCode == 200) {
       setState(() {
         GlobalSnackBar.show(context, jsonData['message'], response.statusCode);
         fetchData();
       });
-    } else {GlobalSnackBar.show(context, jsonData['message'], response.statusCode);}
+    } else {
+        GlobalSnackBar.show(context, jsonData['message'], response.statusCode);
+      }
 
 
   }
