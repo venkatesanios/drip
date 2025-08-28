@@ -106,36 +106,33 @@ class _NodeDashboardState extends State<NodeDashboard> {
                                     }));
                                   },
                                 ),
-                                if(!bleService.loraModel.contains(bleService.nodeDataFromHw['MID']) && (!AppConstants.pumpWithValveModelList.contains(bleService.nodeData['modelId']) && !AppConstants.ecoGemModelList.contains(bleService.nodeData['modelId'])))
-                                  ...[
-                                    gridItemWidget(
-                                        imagePath: 'assets/Images/Svg/SmartComm/interface_setting.svg',
-                                        title: 'Interface Setting',
-                                        onTap: () {
-                                          Navigator.push(context, MaterialPageRoute(builder: (context){
-                                            return const InterfaceSetting();
-                                          }));
-                                        }
-                                    ),
-                                    gridItemWidget(
-                                      imagePath: 'assets/Images/Svg/SmartComm/trace_file.svg',
-                                      title: 'Trace',
-                                      onTap: () {
-                                        Navigator.push(context, MaterialPageRoute(builder: (context){
-                                          return TraceScreen(nodeData: widget.nodeData,);
-                                        }));
-                                      },
-                                    ),
-                                    gridItemWidget(
-                                      imagePath: 'assets/Images/Svg/SmartComm/calibration.svg',
-                                      title: 'Calibration',
-                                      onTap: () {
-                                        Navigator.push(context, MaterialPageRoute(builder: (context){
-                                          return Calibration(nodeData: widget.nodeData,);
-                                        }));
-                                      },
-                                    ),
-                                  ],
+                                gridItemWidget(
+                                    imagePath: 'assets/Images/Svg/SmartComm/interface_setting.svg',
+                                    title: 'Interface Setting',
+                                    onTap: () {
+                                      Navigator.push(context, MaterialPageRoute(builder: (context){
+                                        return const InterfaceSetting();
+                                      }));
+                                    }
+                                ),
+                                gridItemWidget(
+                                  imagePath: 'assets/Images/Svg/SmartComm/trace_file.svg',
+                                  title: 'Trace',
+                                  onTap: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context){
+                                      return TraceScreen(nodeData: widget.nodeData,);
+                                    }));
+                                  },
+                                ),
+                                gridItemWidget(
+                                  imagePath: 'assets/Images/Svg/SmartComm/calibration.svg',
+                                  title: 'Calibration',
+                                  onTap: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context){
+                                      return Calibration(nodeData: widget.nodeData,);
+                                    }));
+                                  },
+                                ),
                                 if(bleService.developerOption >= 10)
                                   gridItemWidget(
                                     imagePath: 'assets/Images/Svg/SmartComm/sent_and_receive.svg',

@@ -147,6 +147,7 @@ class BleProvider extends ChangeNotifier {
   }
 
   void autoScanAndFoundDevice({required String macAddressToConnect}) async{
+    print("macAddressToConnect : ${macAddressToConnect}");
     bleNodeState = BleNodeState.scanning;
     forceStop = false;
     notifyListeners();
