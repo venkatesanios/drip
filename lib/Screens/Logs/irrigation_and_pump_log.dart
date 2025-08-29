@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/utils/constants.dart';
 
 import '../../Models/customer/site_model.dart';
 import '../../modules/Logs/repository/log_repos.dart';
@@ -34,6 +35,7 @@ class _IrrigationAndPumpLogState extends State<IrrigationAndPumpLog> with Ticker
 
   Future<void> getUserNodePumpList() async{
     final userData = {'userId' : widget.userData['customerId'], 'controllerId' :  widget.userData['controllerId']};
+    print("userData in the getUserNodePumpList :: ${widget.userData}");
     final result = await repository.getUserNodePumpList(userData);
     setState(() {
       if(result.statusCode == 200 && jsonDecode(result.body)['data'] != null) {
@@ -64,7 +66,7 @@ class _IrrigationAndPumpLogState extends State<IrrigationAndPumpLog> with Ticker
                     tabs: [
                       const Tab(text: "Irrigation Log",),
                       const Tab(text: "Standalone Log",),
-                      if(pumpList.isNotEmpty)
+                      if(!AppConstants.ecoGemModelList.contains(widget.masterData.modelId) ? pumpList.isNotEmpty : true)
                         const Tab(text: "Pump Log",)
                       else
                         Container()
@@ -76,9 +78,10 @@ class _IrrigationAndPumpLogState extends State<IrrigationAndPumpLog> with Ticker
                         children: [
                           ListOfLogConfig(userData: widget.userData,),
                           StandaloneLog(userData: widget.userData,),
-                          if(pumpList.isNotEmpty)
+                          if(!AppConstants.ecoGemModelList.contains(widget.masterData.modelId) ? pumpList.isNotEmpty : true)
                             PumpList(
-                              pumpList: pumpList, userId: widget.userData['customerId'],
+                              pumpList: pumpList,
+                              userId: widget.userData['customerId'],
                               masterData: widget.masterData,
                             )
                           else

@@ -5,6 +5,7 @@ import 'package:oro_drip_irrigation/modules/Logs/view/pump_log.dart';
 import 'package:oro_drip_irrigation/modules/Logs/view/voltage_log.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 import '../../../Models/customer/site_model.dart';
+import '../../../utils/constants.dart';
 import 'power_graph_screen.dart';
 
 class PumpList extends StatefulWidget {
@@ -26,11 +27,14 @@ class _PumpListState extends State<PumpList> {
           ? MediaQuery.of(context).size.width / 3
           : MediaQuery.of(context).size.width,
       minSpacing: 10,
-      children: List.generate(widget.pumpList.length, (index) {
-        final pumpItem = widget.pumpList[index];
+      children: List.generate(AppConstants.ecoGemModelList.contains(widget.masterData.modelId) ? 1: widget.pumpList.length, (index) {
+        Map<String, dynamic> pumpItem = {};
+        if(widget.pumpList.isNotEmpty) {
+          pumpItem = widget.pumpList[index];
+        }
 
         return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+          margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width >= 600 ? 8 : 0, vertical: 5),
           decoration: BoxDecoration(
             color: Colors.white,
             boxShadow: AppProperties.customBoxShadowLiteTheme,
@@ -57,8 +61,8 @@ class _PumpListState extends State<PumpList> {
                   ),
                 ),
               ),
-              title: Text('${pumpItem['deviceName']}'),
-              subtitle: Text('${pumpItem['deviceId']}'),
+              title: Text('${AppConstants.ecoGemModelList.contains(widget.masterData.modelId) ? widget.masterData.deviceName: pumpItem['deviceName']}'),
+              subtitle: Text('${AppConstants.ecoGemModelList.contains(widget.masterData.modelId) ? widget.masterData.deviceId : pumpItem['deviceId']}'),
             ),
             subtitle: IntrinsicWidth(
               child: Row(
@@ -79,36 +83,63 @@ class _PumpListState extends State<PumpList> {
                         Icons.electric_bolt
                       ][i],
                       onPressed: [
-                            () => showModalBottomSheet(
+                            () => MediaQuery.of(context).size.width >= 600 ? showModalBottomSheet(
                           context: context,
                           isScrollControlled: true,
                           builder: (context) => PumpLogScreen(
                             userId: widget.userId,
                             controllerId: widget.masterData.controllerId,
-                            nodeControllerId: pumpItem['controllerId'],
+                            nodeControllerId: AppConstants.ecoGemModelList.contains(widget.masterData.modelId) ? 0 : pumpItem['controllerId'],
                             masterData: widget.masterData,
                           ),
-                        ),
-                            () => showModalBottomSheet(
+                        ) : Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => PumpLogScreen(
+                                      userId: widget.userId,
+                                      controllerId: widget.masterData.controllerId,
+                                      nodeControllerId: AppConstants.ecoGemModelList.contains(widget.masterData.modelId) ? 0 : pumpItem['controllerId'],
+                                      masterData: widget.masterData,
+                                    ))
+                            ),
+                            () => MediaQuery.of(context).size.width >= 600 ? showModalBottomSheet(
                           context: context,
                           isScrollControlled: true,
                           builder: (context) => PowerGraphScreen(
                             userId: widget.userId,
                             controllerId: widget.masterData.controllerId,
-                            nodeControllerId: pumpItem['controllerId'],
+                            nodeControllerId: AppConstants.ecoGemModelList.contains(widget.masterData.modelId) ? 0 : pumpItem['controllerId'],
                             masterData: widget.masterData,
                           ),
-                        ),
-                            () => showModalBottomSheet(
+                        ) : Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => PowerGraphScreen(
+                                      userId: widget.userId,
+                                      controllerId: widget.masterData.controllerId,
+                                      nodeControllerId: AppConstants.ecoGemModelList.contains(widget.masterData.modelId) ? 0 : pumpItem['controllerId'],
+                                      masterData: widget.masterData,
+                                    ))
+                            ),
+                            () => MediaQuery.of(context).size.width >= 600 ? showModalBottomSheet(
                           context: context,
                           isScrollControlled: true,
                           builder: (context) => PumpVoltageLogScreen(
                             userId: widget.userId,
                             controllerId: widget.masterData.controllerId,
-                            nodeControllerId: pumpItem['controllerId'],
+                            nodeControllerId: AppConstants.ecoGemModelList.contains(widget.masterData.modelId) ? 0 : pumpItem['controllerId'],
                             masterData: widget.masterData,
                           ),
-                        ),
+                        ) : Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => PumpVoltageLogScreen(
+                                      userId: widget.userId,
+                                      controllerId: widget.masterData.controllerId,
+                                      nodeControllerId: AppConstants.ecoGemModelList.contains(widget.masterData.modelId) ? 0 : pumpItem['controllerId'],
+                                      masterData: widget.masterData,
+                                    ))
+                            ),
                       ][i],
                     ),
                 ],

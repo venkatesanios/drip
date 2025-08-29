@@ -2,7 +2,6 @@ import 'package:badges/badges.dart';
 import 'package:flutter/material.dart' hide Badge;
 import 'package:oro_drip_irrigation/views/common/user_dashboard/widgets/user_device_list.dart';
 import 'package:provider/provider.dart';
-
 import '../../../../Screens/Dealer/sevicerequestdealer.dart';
 import '../../../../layouts/user_layout.dart';
 import '../../../../models/admin_dealer/customer_list_model.dart';

@@ -530,6 +530,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           FloatingActionButton(
+            heroTag: null,
             onPressed: null,
             backgroundColor: Theme.of(context).primaryColorLight,
             child: PopupMenuButton<String>(
@@ -647,6 +648,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
           ),
           const SizedBox(height: 10),
           FloatingActionButton(
+            heroTag: null,
             backgroundColor: commMode == 1? Theme.of(context).primaryColorLight:
             (commMode == 2 && vm.blueService.isConnected) ?
             Theme.of(context).primaryColorLight : Colors.redAccent,
@@ -672,6 +674,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
           ),
         ],
       ) : null,
+      floatingActionButtonAnimator: null,
       body: ![...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(currentMaster.modelId) ?
       vm.isChanged ? PumpControllerHome(
         userId: loggedInUser.id,
@@ -789,6 +792,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                           userData: {
                             'userId': loggedInUser.id,
                             'controllerId': currentMaster.controllerId,
+                            'customerId': viewedCustomer.id
                           },
                           masterData: currentMaster,
                         );

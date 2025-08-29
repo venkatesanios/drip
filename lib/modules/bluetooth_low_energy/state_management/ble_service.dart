@@ -128,11 +128,12 @@ class BleProvider extends ChangeNotifier {
   void editNodeDataFromServer(data, nodeData){
     nodeDataFromServer = data;
     nodeData = nodeData;
-    if(AppConstants.ecoGemModelList.contains(nodeData['modelId'])){
-      nodeDataFromServer['pathSetting']['downloadDirectory'] = "/home/ubuntu/FTP/download/EC25/";
-    }else if(AppConstants.pumpWithValveModelList.contains(nodeData['modelId'])){
-      nodeDataFromServer['pathSetting']['downloadDirectory'] = "/home/ubuntu/FTP/download/PUMP_VALVE/";
-    }
+    // if(AppConstants.ecoGemModelList.contains(nodeData['modelId'])){
+    //   nodeDataFromServer['pathSetting']['downloadDirectory'] = "/home/ubuntu/FTP/download/EC25/";
+    // }else if(AppConstants.pumpWithValveModelList.contains(nodeData['modelId'])){
+    //   nodeDataFromServer['pathSetting']['downloadDirectory'] = "/home/ubuntu/FTP/download/PUMP_VALVE/";
+    // }
+    print("nodeDataFromServer : $nodeDataFromServer");
     notifyListeners();
   }
 
@@ -147,6 +148,7 @@ class BleProvider extends ChangeNotifier {
   }
 
   void autoScanAndFoundDevice({required String macAddressToConnect}) async{
+    print("macAddressToConnect : ${macAddressToConnect}");
     bleNodeState = BleNodeState.scanning;
     forceStop = false;
     notifyListeners();
@@ -323,7 +325,7 @@ class BleProvider extends ChangeNotifier {
   }
 
   void gettingStatusAfterConnect() async {
-    nodeDataFromHw = {};
+    // nodeDataFromHw = {};
     for (var i = 0; i < 200; i++) {
       if(bleConnectionState == BluetoothConnectionState.disconnected){
         break;
@@ -666,7 +668,6 @@ class BleProvider extends ChangeNotifier {
           if(file.filename.contains('version')){
             nodeFirmwareFileName = file.filename;
           }
-
         }
         if(nodeFirmwareFileName.isNotEmpty){
           fileMode = FileMode.fileNameGetSuccess;

@@ -120,7 +120,7 @@ class PumpControllerProvider extends ChangeNotifier {
       final getPumpController = await repository.getUserPumpHourlyLog(data, nodeControllerId != 0);
       final response = jsonDecode(getPumpController.body);
       if (getPumpController.statusCode == 200) {
-        // print(response);
+        print("response in the getPumpControllerData :: $response");
         // print(data);
         Future.delayed(const Duration(microseconds: 1000));
         chartData.clear();
@@ -166,6 +166,7 @@ class PumpControllerProvider extends ChangeNotifier {
       "toDate": DateFormat("yyyy-MM-dd").format(selectedDate),
     };
 
+    print("getUserVoltageLog :: $data");
     try {
       final getPumpController = await repository.getUserVoltageLog(data, nodeControllerId != 0);
       final response = jsonDecode(getPumpController.body);
