@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/Screens/Dealer/configureMqttTopic.dart';
 
 import 'bLE_update.dart';
 import 'controllerlogfile.dart';
@@ -9,12 +10,15 @@ import 'controllerlogfile.dart';
 class BLEMobileScreen extends StatelessWidget {
   final String deviceID;
   final String communicationType;
+  final  userId, controllerId;
 
   const BLEMobileScreen({
     Key? key,
     required this.deviceID,
     required this.communicationType,
-  }) : super(key: key);
+    required this.userId,
+    required this.controllerId,
+   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +75,28 @@ class BLEMobileScreen extends StatelessWidget {
                     child: const Text("View Log"),
                   ),
                 ],
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ConfigureMqtt(deviceID: deviceID, userId: userId, controllerId: controllerId,communicationType:communicationType),
+                        ),
+                      );
+                    },
+                    child: const Text("Update HW Settings"),
+                  ),
+
+
+                 ],
               ),
             ],
           ),

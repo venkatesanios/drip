@@ -948,9 +948,8 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) => BLEMobileScreen(deviceID: currentMaster.deviceId,
-                                                communicationType: 'Bluetooth'),
-                                          ),
-                                        );
+                                                communicationType: 'Bluetooth',userId: customerId,controllerId: currentMaster.controllerId),
+                                        ));
                                       },
                                       icon: const Icon(CupertinoIcons.exclamationmark_octagon),
                                     ),
