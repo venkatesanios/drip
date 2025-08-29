@@ -1,12 +1,9 @@
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:oro_drip_irrigation/Constants/notifications_service.dart';
-import 'package:oro_drip_irrigation/modules/config_Maker/view/config_base_page.dart';
-import '../Screens/Dealer/bLE_update.dart';
-import '../Screens/Dealer/ble_controllerlog_ftp.dart';
 import '../flavors.dart';
-import '../modules/constant/view/constant_base_page.dart';
 import '../utils/Theme/smart_comm_theme.dart';
 import '../utils/Theme/oro_theme.dart';
 import '../utils/routes.dart';
@@ -14,6 +11,7 @@ import '../utils/shared_preferences_helper.dart';
 import '../views/common/login/login_screen.dart';
 import '../views/screen_controller.dart';
 import '../views/splash_screen.dart';
+
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});

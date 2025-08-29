@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart' hide BluetoothDevice;
 import 'package:oro_drip_irrigation/Screens/Dealer/sevicecustomer.dart';
 import 'package:oro_drip_irrigation/Screens/Logs/irrigation_and_pump_log.dart';
 import 'package:oro_drip_irrigation/Widgets/network_connection_banner.dart';
@@ -179,7 +178,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
               child: Row(
                 children: [
                   if(currentMaster.nodeList.isNotEmpty
-                      && [48, 49].contains(currentMaster.modelId))
+                      && AppConstants.pumpWithValveModelList.contains(currentMaster.modelId))
                     InkWell(
                         onTap: (){
                           showModalBottomSheet(
