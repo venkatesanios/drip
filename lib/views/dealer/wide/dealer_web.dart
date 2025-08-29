@@ -55,5 +55,4 @@ class DealerWeb extends StatelessWidget {
       ),
     );
   }
-
 }

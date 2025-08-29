@@ -187,11 +187,42 @@ class GeneralSettingViewModel extends ChangeNotifier {
 
   Future<void> updateCustomerList(Map<String, dynamic> json) async {
     if (json['status'] != 'success') return;
-
     print(json);
   }
 
+  Future<List<dynamic>?> getSubUserSharedDeviceList(Map<String, dynamic> body) async {
+    try {
+      var response = await repository.getSubUserSharedDeviceList(body);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data["code"] == 200) {
+          var list = data['data'] as List;
+          return list;
+        }
+      }
+    } catch (error) {
+      debugPrint('Error fetching device list: $error');
+    }
+    return null;
+  }
 
+  Future<String> updatedSubUserPermission(Map<String, dynamic> body, int subUsrId) async {
+    print(body);
+
+    try {
+      var response = await repository.updatedSubUserPermission(body);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print(response.body);
+        if (data["code"] == 200) {
+          return jsonEncode(data['data']);
+        }
+      }
+    } catch (error) {
+      debugPrint('Error fetching device list: $error');
+    }
+    return "";
+  }
 
   void setLoading(bool value) {
     isLoading = value;

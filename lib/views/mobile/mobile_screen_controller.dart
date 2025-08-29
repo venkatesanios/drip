@@ -668,8 +668,8 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                 ),
               ],
             ) :
-            Icon((commMode == 2 && vm.blueService.isConnected)?Icons.bluetooth:Icons.bluetooth_disabled,
-                color: Colors.white),
+            Icon((commMode == 2 && vm.blueService.isConnected)?
+            Icons.bluetooth:Icons.bluetooth_disabled, color: Colors.white),
           ),
         ],
       ) : null,

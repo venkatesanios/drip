@@ -5,10 +5,10 @@ import '../../../Widgets/app_logo.dart';
 import '../../../Widgets/user_account_menu.dart';
 import '../../../flavors.dart';
 import '../../../layouts/layout_selector.dart';
+import '../../../layouts/user_layout.dart';
 import '../../../utils/enums.dart';
 import '../../../view_models/base_header_view_model.dart';
 import '../../admin_dealer/product_inventory.dart';
-import '../../admin_dealer/stock_entry.dart';
 import '../../common/user_dashboard/widgets/main_menu.dart';
 
 class AdminMiddleLayout extends StatelessWidget {
@@ -36,7 +36,7 @@ class AdminMiddleLayout extends StatelessWidget {
         children: const [
           DashboardLayoutSelector(userRole: UserRole.admin),
           ProductInventory(),
-          StockEntry(screenType: 'Middle'),
+          StockEntryLayout(),
         ],
       ),
     );

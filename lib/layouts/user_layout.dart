@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/views/admin/narrow/new_stock_narrow.dart';
+import 'package:oro_drip_irrigation/views/admin/wide/new_stock_wide.dart';
 import 'package:provider/provider.dart';
 
 import 'package:oro_drip_irrigation/views/customer/mobile/customer_mobile.dart';
@@ -7,7 +9,9 @@ import 'package:oro_drip_irrigation/views/customer/web/customer_web.dart';
 import '../providers/user_provider.dart';
 import '../repository/repository.dart';
 import '../services/http_service.dart';
+import '../view_models/admin_dealer/stock_entry_view_model.dart';
 import '../views/admin/middle/admin_middle.dart';
+import '../views/admin/middle/new_stock_middle.dart';
 import '../views/admin/narrow/admin_narrow.dart';
 import '../views/admin/wide/admin_wide.dart';
 import '../views/common/login/middle/login_tablet.dart';
@@ -146,4 +150,26 @@ class CustomerDashboardLayout extends BaseScreenLayout {
   Widget buildMiddle(BuildContext context) => const CustomerTabletDashboard();
   @override
   Widget buildWide(BuildContext context) => const CustomerWebDashboard();
+}
+
+
+class StockEntryLayout extends BaseScreenLayout {
+  const StockEntryLayout({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final viewedCustomer = context.read<UserProvider>().viewedCustomer!;
+    return ChangeNotifierProvider(
+      create: (_) => StockEntryViewModel(Repository(HttpService()))
+        ..getMyStock(viewedCustomer.id, 1),
+      child: super.build(context),
+    );
+  }
+
+  @override
+  Widget buildMiddle(BuildContext context) => const NewStockMiddle();
+  @override
+  Widget buildNarrow(BuildContext context) => const NewStockNarrow();
+  @override
+  Widget buildWide(BuildContext context) => const NewStockWide();
 }

@@ -12,21 +12,36 @@ class UserAccountMenu extends StatelessWidget {
   Future<void> _onMenuSelected(BuildContext context, String? value) async {
     switch (value) {
       case 'profile':
-        showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          builder: (context) => FractionallySizedBox(
-            heightFactor: 0.84,
-            widthFactor: 0.75,
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-              ),
-              child: const UserProfile(),
+        if(screenType == "Narrow"){
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.white,
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+            builder: (_) => const SizedBox(
+              height: 600,
+              child: UserProfile(),
             ),
-          ),
-        );
+          );
+        }else{
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            builder: (context) => FractionallySizedBox(
+              heightFactor: 0.84,
+              widthFactor: 0.75,
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+                ),
+                child: const UserProfile(),
+              ),
+            ),
+          );
+        }
+
         break;
       case 'logout':
         final viewModel = Provider.of<BaseHeaderViewModel>(context, listen: false);
@@ -46,15 +61,17 @@ class UserAccountMenu extends StatelessWidget {
         if(screenType == "Middle" || screenType == "Narrow")...[
           PopupMenuItem<String>(
             enabled: false,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             child: Text(
               userName,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 15,
-                color: Colors.black87,
+                color: Colors.black45,
               ),
             ),
           ),
+          const PopupMenuDivider(height: 0),
         ],
         const PopupMenuItem<String>(
           value: 'profile',
@@ -98,7 +115,7 @@ class UserAccountMenu extends StatelessWidget {
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
             onTapDown: (details) => _showUserMenu(context, details, customer!.name),
-            child: screenType == "Middle" || screenType == "Mobile" ? Row(
+            child: screenType == "Middle" || screenType == "Narrow" ? Row(
               children: [
                 Container(
                   width: 36,

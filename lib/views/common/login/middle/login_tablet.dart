@@ -7,6 +7,7 @@ import '../widgets/continue_button.dart';
 import '../widgets/login_header.dart';
 import '../widgets/password_input_field.dart';
 import '../widgets/phone_input_field.dart';
+import '../widgets/wide_layout.dart';
 
 class LoginTablet extends StatelessWidget {
   const LoginTablet({super.key});
@@ -15,10 +16,12 @@ class LoginTablet extends StatelessWidget {
   Widget build(BuildContext context) {
     final viewModel = Provider.of<LoginViewModel>(context);
     final isOro = F.appFlavor!.name.contains('oro');
+    var screenWith = MediaQuery.sizeOf(context).width;
 
     return Scaffold(
       body: SafeArea(
-        child: Container(
+        child: screenWith > 900 ? WideLayout(isOro: isOro, viewModel: viewModel) :
+        Container(
           width: double.infinity,
           height: double.infinity,
           color: Theme.of(context).primaryColor,

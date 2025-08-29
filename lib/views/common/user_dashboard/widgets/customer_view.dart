@@ -71,13 +71,13 @@ class CustomerView extends StatelessWidget {
     return AppBar(
       elevation: 0,
       automaticallyImplyLeading: false,
-      backgroundColor: !isNarrow ? Colors.white : null,
+      backgroundColor: Colors.white,
       title: SizedBox(
-        height: 40,
+        height: 45,
         child: TextField(
           controller: vm.txtFldSearch,
-          style: TextStyle(
-            color: isNarrow ? Colors.white : Colors.black,
+          style: const TextStyle(
+            color: Colors.black,
             fontSize: 14,
           ),
           decoration: InputDecoration(
@@ -86,22 +86,19 @@ class CustomerView extends StatelessWidget {
               vertical: 8,
             ),
             hintText: 'Search customers...',
-            hintStyle: TextStyle(
-              color: isNarrow ? Colors.white30 : Colors.black38,
+            hintStyle: const TextStyle(
+              color: Colors.black38,
             ),
-            prefixIcon: Icon(Icons.search,
-                size: 20, // 👈 shrink icon size
-                color: isNarrow ? Colors.white60 : Colors.black54),
-            suffixIcon: vm.searching
-                ? IconButton(
-              icon: Icon(Icons.clear,
-                  size: 20,
-                  color: isNarrow ? Colors.white : Colors.black),
+            prefixIcon: const Icon(Icons.search, size: 20,
+                color: Colors.black54),
+            suffixIcon: vm.searching ? IconButton(
+              icon: const Icon(Icons.clear, size: 20,
+                  color: Colors.black),
               onPressed: vm.clearSearch,
             )
                 : null,
             filled: true,
-            fillColor: isNarrow ? Colors.white24 : Colors.black12,
+            fillColor: Colors.black12,
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(20),
               borderSide: const BorderSide(color: Colors.white24),

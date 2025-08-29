@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../providers/user_provider.dart';
 import '../../../repository/repository.dart';
 import '../../../services/http_service.dart';
+import '../../../utils/snack_bar.dart';
 import '../../../view_models/account_setting_view_model.dart';
 
 class UserProfile extends StatelessWidget {
@@ -16,9 +17,14 @@ class UserProfile extends StatelessWidget {
     final viewedCustomer = context.read<UserProvider>().viewedCustomer!;
 
     return ChangeNotifierProvider(
-      create: (_) => UserSettingViewModel(Repository(HttpService()),
-          viewedCustomer.name, viewedCustomer.countryCode, viewedCustomer.mobileNo,
-          viewedCustomer.email, viewedCustomer.role.name)..getLanguage(),
+      create: (_) => UserSettingViewModel(
+        Repository(HttpService()),
+        viewedCustomer.name,
+        viewedCustomer.countryCode,
+        viewedCustomer.mobileNo,
+        viewedCustomer.email,
+        viewedCustomer.role.name,
+      )..getLanguage(),
       child: Consumer<UserSettingViewModel>(
         builder: (context, viewModel, _) {
           return Scaffold(
@@ -27,13 +33,20 @@ class UserProfile extends StatelessWidget {
               children: [
                 const ListTile(
                   tileColor: Colors.white,
-                  title: Text("Profile Settings", style: TextStyle(fontSize: 20, color: Colors.black),),
-                  subtitle: Text('Real-time Information and activity of your property.'),
+                  title: Text(
+                    "Profile Settings",
+                    style: TextStyle(fontSize: 18, color: Colors.black45),
+                  ),
+                  subtitle: Text(
+                    'Real-time Information and activity of your property.',
+                    style: TextStyle(color: Colors.black26),
+                  ),
                 ),
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
+                        const SizedBox(height: 8),
                         SizedBox(
                           height: 220,
                           child: Form(
@@ -42,16 +55,19 @@ class UserProfile extends StatelessWidget {
                               padding: const EdgeInsets.only(left: 16, right: 16),
                               child: Column(
                                 children: [
+                                  /// Full Name
                                   Padding(
                                     padding: const EdgeInsets.only(top: 10),
                                     child: TextFormField(
                                       controller: viewModel.controllerUsrName,
                                       decoration: const InputDecoration(
-                                          labelText: 'Full Name',
-                                          border: OutlineInputBorder(),
-                                          prefixIcon: Icon(Icons.account_circle),
-                                          filled: true,
-                                          fillColor: Colors.white70
+                                        labelText: 'Full Name',
+                                        prefixIcon: Icon(Icons.account_circle, color: Colors.black38),
+                                        filled: true,
+                                        fillColor: Colors.white70,
+                                        enabledBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(color: Colors.grey, width: 0.5),
+                                        ),
                                       ),
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
@@ -61,16 +77,15 @@ class UserProfile extends StatelessWidget {
                                       },
                                     ),
                                   ),
+
+                                  /// Mobile Number
                                   Padding(
                                     padding: const EdgeInsets.only(top: 10),
                                     child: IntlPhoneField(
-                                      focusNode:  FocusNode(),
+                                      focusNode: FocusNode(),
                                       decoration: InputDecoration(
                                         labelText: null,
-                                        border: const OutlineInputBorder(
-                                          borderSide: BorderSide(),
-                                        ),
-                                        prefixIcon: const Icon(Icons.phone),
+                                        prefixIcon: const Icon(Icons.phone, color: Colors.black38),
                                         suffixIcon: IconButton(
                                           icon: const Icon(Icons.clear, color: Colors.red),
                                           onPressed: () => viewModel.controllerMblNo.clear(),
@@ -79,6 +94,9 @@ class UserProfile extends StatelessWidget {
                                         fillColor: Colors.white70,
                                         contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
                                         counterText: '',
+                                        enabledBorder: const UnderlineInputBorder(
+                                          borderSide: BorderSide(color: Colors.grey, width: 0.5),
+                                        ),
                                       ),
                                       languageCode: "en",
                                       initialCountryCode: 'IN',
@@ -86,20 +104,25 @@ class UserProfile extends StatelessWidget {
                                       onChanged: (phone) {
                                         print(phone.completeNumber);
                                       },
-                                      onCountryChanged: (country) => viewModel.countryCode = country.dialCode,
+                                      onCountryChanged: (country) =>
+                                      viewModel.countryCode = country.dialCode,
                                     ),
                                   ),
+
+                                  /// Email
                                   Padding(
                                     padding: const EdgeInsets.only(top: 10),
                                     child: TextFormField(
                                       controller: viewModel.controllerEmail,
                                       keyboardType: TextInputType.emailAddress,
                                       decoration: const InputDecoration(
-                                          labelText: 'Email Address',
-                                          border: OutlineInputBorder(),
-                                          prefixIcon: Icon(Icons.email),
-                                          filled: true,
-                                          fillColor: Colors.white70
+                                        labelText: 'Email Address',
+                                        prefixIcon: Icon(Icons.email, color: Colors.black38),
+                                        filled: true,
+                                        fillColor: Colors.white70,
+                                        enabledBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(color: Colors.grey, width: 0.5),
+                                        ),
                                       ),
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
@@ -114,82 +137,105 @@ class UserProfile extends StatelessWidget {
                             ),
                           ),
                         ),
+
                         const ListTile(
-                          title: Text("Security", style: TextStyle(fontSize: 20, color: Colors.black)),
-                          subtitle: Text('Modify your current password'),
+                          tileColor: Colors.transparent,
+                          title: Text(
+                            "Security",
+                            style: TextStyle(fontSize: 18, color: Colors.black45),
+                          ),
+                          subtitle: Text(
+                            'Modify your current password',
+                            style: TextStyle(color: Colors.black26),
+                          ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(left:16, top: 10, right: 16),
+                          padding: const EdgeInsets.only(left: 16, right: 16),
                           child: TextFormField(
                             controller: viewModel.controllerNewPwd,
                             obscureText: viewModel.isObscureNpw,
                             decoration: InputDecoration(
-                                labelText: 'New Password',
-                                border: const OutlineInputBorder(),
-                                prefixIcon: const Icon(Icons.password),
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    viewModel.isObscureNpw ? Icons.visibility : Icons.visibility_off,
-                                    color: Colors.black87,
-                                  ),
-                                  onPressed: () => viewModel.onIsObscureChangedToNpw(),
+                              labelText: 'New Password',
+                              prefixIcon: const Icon(Icons.password, color: Colors.black38),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  viewModel.isObscureNpw ? Icons.visibility : Icons.visibility_off,
+                                  color: Colors.black87,
                                 ),
-                                filled: true,
-                                fillColor: Colors.white70
+                                onPressed: () => viewModel.onIsObscureChangedToNpw(),
+                              ),
+                              filled: true,
+                              fillColor: Colors.white70,
+                              enabledBorder: const UnderlineInputBorder(
+                                borderSide: BorderSide(color: Colors.grey, width: 0.5),
+                              ),
                             ),
                             autofillHints: const [AutofillHints.newPassword],
                             keyboardType: TextInputType.visiblePassword,
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your password';
+                              if (value != null && value.isNotEmpty) {
+                                if (value.length < 6) {
+                                  return 'Password must be at least 6 characters';
+                                }
                               }
                               return null;
                             },
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(left:16, top: 10, right: 16),
+                          padding: const EdgeInsets.only(left: 16, top: 10, right: 16),
                           child: TextFormField(
                             controller: viewModel.controllerConfirmPwd,
                             obscureText: viewModel.isObscureCpw,
                             decoration: InputDecoration(
-                                labelText: 'Confirm Password',
-                                border: const OutlineInputBorder(),
-                                prefixIcon: const Icon(Icons.password),
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    viewModel.isObscureCpw ? Icons.visibility : Icons.visibility_off,
-                                    color: Colors.black87,
-                                  ),
-                                  onPressed: () => viewModel.onIsObscureChangedToCpw(),
+                              labelText: 'Confirm Password',
+                              prefixIcon: const Icon(Icons.password, color: Colors.black38),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  viewModel.isObscureCpw ? Icons.visibility : Icons.visibility_off,
+                                  color: Colors.black87,
                                 ),
-                                filled: true,
-                                fillColor: Colors.white70
+                                onPressed: () => viewModel.onIsObscureChangedToCpw(),
+                              ),
+                              filled: true,
+                              fillColor: Colors.white70,
+                              enabledBorder: const UnderlineInputBorder(
+                                borderSide: BorderSide(color: Colors.grey, width: 0.5),
+                              ),
                             ),
                             autofillHints: const [AutofillHints.newPassword],
                             keyboardType: TextInputType.visiblePassword,
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your password';
+                              if (viewModel.controllerNewPwd.text.isNotEmpty ||
+                                  (value != null && value.isNotEmpty)) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please confirm your password';
+                                } else if (value.length < 6) {
+                                  return 'Password must be at least 6 characters';
+                                } else if (value != viewModel.controllerNewPwd.text) {
+                                  return 'Passwords do not match';
+                                }
                               }
                               return null;
                             },
                           ),
                         ),
+                        const SizedBox(height: 8),
+                        viewModel.errorMsg.isNotEmpty ? Text(viewModel.errorMsg, style: const TextStyle(color: Colors.red)) :
+                        const SizedBox(),
                       ],
                     ),
                   ),
                 ),
-                Container(
-                  color: Colors.white,
+                SizedBox(
                   width: MediaQuery.sizeOf(context).width,
-                  height: 45,
+                  height: 50,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Spacer(),
                       MaterialButton(
-                        minWidth:100,
+                        minWidth: 100,
                         height: 40,
                         color: Colors.red,
                         textColor: Colors.white,
@@ -198,12 +244,12 @@ class UserProfile extends StatelessWidget {
                       ),
                       const SizedBox(width: 16),
                       MaterialButton(
-                        minWidth:175,
+                        minWidth: 175,
                         height: 40,
                         color: Theme.of(context).primaryColorLight,
                         textColor: Colors.white,
                         child: const Text('SAVE CHANGES'),
-                        onPressed: ()=> viewModel.updateUserProfile(context, viewedCustomer.id, loggedInUser.id),
+                        onPressed: () => viewModel.updateUserProfile(context, viewedCustomer.id, loggedInUser.id),
                       ),
                       const SizedBox(width: 16),
                     ],

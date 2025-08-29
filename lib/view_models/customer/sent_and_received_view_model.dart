@@ -33,6 +33,7 @@ class SentAndReceivedViewModel extends ChangeNotifier {
       if (response.statusCode == 200) {
         sentAndReceivedList.clear();
         final jsonData = jsonDecode(response.body);
+        print(response.body);
         if (jsonData["code"] == 200) {
           sentAndReceivedList = [
             ...jsonData['data'].map((programJson) => SentAndReceivedModel.fromJson(programJson)).toList(),
@@ -46,9 +47,14 @@ class SentAndReceivedViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> getUserSoftwareOrHardwarePayload(context,customerId, controllerId,
-      int sentAndReceivedId, String aTitle, String pyTitle) async
-  {
+  Future<void> getUserSoftwareOrHardwarePayload(
+      BuildContext context,
+      int customerId,
+      int controllerId,
+      int sentAndReceivedId,
+      String aTitle,
+      String pyTitle) async {
+
     var body = {
       "userId": customerId,
       "controllerId": controllerId,
@@ -59,39 +65,52 @@ class SentAndReceivedViewModel extends ChangeNotifier {
       final response = await repository.fetchSentAndReceivedHardwarePayload(body);
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
+        print(response.body);
+
         if (jsonData["code"] == 200) {
-          final message = jsonData?['data']?['message'];
-          if (message != null) {
-            displayJsonData(context, jsonData['data']['message'] ?? 'Empty message', aTitle, pyTitle);
-          }else{
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: Text(aTitle),
-                  content: const Text("No data available."),
-                  actions: <Widget>[
-                    TextButton(
-                      child: const Text("Close"),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ],
-                );
-              },
-            );
+
+          final Map<String, dynamic> dataMap = Map<String, dynamic>.from(jsonData['data'] ?? {});
+
+          if (dataMap.isNotEmpty) {
+            final message = dataMap['message'] ?? "Empty message";
+            final changedPayload = (dataMap['changedPayload'] != null)
+                ? Map<String, dynamic>.from(dataMap['changedPayload'])
+                : <String, dynamic>{};
+
+            displayJsonData(context, message, aTitle, pyTitle, changedPayload);
+          } else {
+            _showNoDataDialog(context, aTitle);
           }
+
+         /* final List<dynamic> dataList = jsonData['data'] ?? [];
+
+          if (dataList.isNotEmpty) {
+            final Map<String, dynamic> item = Map<String, dynamic>.from(dataList.first);
+
+            final message = item['message'] ?? "Empty message";
+            final changedPayload = (item['changedPayload'] != null)
+                ? Map<String, dynamic>.from(item['changedPayload'])
+                : <String, dynamic>{};
+
+            displayJsonData(context, message, aTitle, pyTitle, changedPayload);
+          } else {
+            _showNoDataDialog(context, aTitle);
+          }*/
         }
       }
     } catch (error) {
-      debugPrint('Error fetching country list: $error');
+      debugPrint('Error fetching payload: $error');
     } finally {
       setLoading(false);
     }
   }
 
-  void displayJsonData(BuildContext context, Map<String, dynamic> jsonData, String aTitle, String pyTitle,) {
+  void displayJsonData(
+      BuildContext context,
+      Map<String, dynamic> jsonData,
+      String aTitle,
+      String pyTitle,
+      Map<String, dynamic> changedPayload) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -106,14 +125,20 @@ class SentAndReceivedViewModel extends ChangeNotifier {
                   Text(pyTitle, style: const TextStyle(color: Colors.teal)),
                   const Divider(),
                   SelectableText(
-                    jsonEncode(jsonData),
+                    const JsonEncoder.withIndent('  ').convert(jsonData.toString()),
                     style: const TextStyle(color: Colors.black54),
-                    showCursor: true,
-                    toolbarOptions: const ToolbarOptions(
-                      copy: true,
-                      selectAll: true,
+                  ),
+                  if (changedPayload.isNotEmpty) ...[
+                    const Divider(),
+                    const Text("Changed in", style: TextStyle(color: Colors.teal)),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        const JsonEncoder.withIndent('  ').convert(changedPayload),
+                        style: const TextStyle(color: Colors.black54),
+                      ),
                     ),
-                  )
+                  ]
                 ],
               ),
             ),
@@ -128,6 +153,27 @@ class SentAndReceivedViewModel extends ChangeNotifier {
       },
     );
   }
+
+  void _showNoDataDialog(BuildContext context, String aTitle) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(aTitle),
+          content: const Text("No data available."),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   String convertTo12hrs(String timeString) {
     DateTime dateTime = DateFormat("HH:mm:ss").parse(timeString);

@@ -363,18 +363,7 @@ class IrrigationLineModel {
         .map((obj) => LightModel.fromConfigObject(obj))
         .toList();
 
-    /*if([56, 57, 58, 59].contains(master.modelId)){
-
-    }*/
-
-
     final valveSNoSet = ((json['valve'] as List?) ?? []).map((e) => e).toSet();
-
-    /*final valveSNoSet = ((json['valve'] as List?) ?? []).map((e) {
-      if (e is num) { return e.toStringAsFixed(3); }
-      return e.toString();
-    }).toSet();*/
-
 
     final valves = configObjects
         .where((obj) => valveSNoSet.contains(obj.sNo))

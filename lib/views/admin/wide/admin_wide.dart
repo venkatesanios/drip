@@ -5,9 +5,10 @@ import '../../../Widgets/app_logo.dart';
 import '../../../Widgets/user_account_menu.dart';
 import '../../../flavors.dart';
 import '../../../layouts/layout_selector.dart';
+import '../../../layouts/user_layout.dart';
 import '../../../view_models/base_header_view_model.dart';
+import '../../../view_models/product_stock_view_model.dart';
 import '../../admin_dealer/product_inventory.dart';
-import '../../admin_dealer/stock_entry.dart';
 import '../../common/product_search_bar.dart';
 import '../../common/user_dashboard/widgets/main_menu.dart';
 
@@ -17,6 +18,7 @@ class AdminWideLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<BaseHeaderViewModel>();
+
     return Scaffold(
       appBar: AppBar(
         leading: const Padding(
@@ -46,7 +48,7 @@ class AdminWideLayout extends StatelessWidget {
         children: const [
           DashboardLayoutSelector(userRole: UserRole.admin),
           ProductInventory(),
-          StockEntry(screenType: 'Web'),
+          StockEntryLayout(),
         ],
       ),
     );
