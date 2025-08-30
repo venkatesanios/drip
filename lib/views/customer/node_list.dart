@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Models/customer/site_model.dart';
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/node_connection_page.dart';
 import 'package:oro_drip_irrigation/services/http_service.dart';
+import 'package:oro_drip_irrigation/views/customer/widgets/relay_status_avatar.dart';
 import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../repository/repository.dart';
@@ -298,34 +299,15 @@ class NodeList extends StatelessWidget {
                                               crossAxisCount: 5,
                                               crossAxisSpacing: 5.0,
                                               mainAxisSpacing: 5.0,
-                                              childAspectRatio: 1.45,
+                                              childAspectRatio: 1.47,
                                             ),
                                             itemBuilder: (BuildContext context, int indexGv) {
                                               return Column(
                                                 children: [
-                                                  CircleAvatar(
-                                                    radius: 13,
-                                                    backgroundColor: vm.nodeList[index].rlyStatus[indexGv]
-                                                        .status ==
-                                                        0
-                                                        ? Colors.grey
-                                                        : vm.nodeList[index].rlyStatus[indexGv].status ==
-                                                        1
-                                                        ? Colors.green
-                                                        : vm.nodeList[index].rlyStatus[indexGv]
-                                                        .status ==
-                                                        2
-                                                        ? Colors.orange
-                                                        : vm.nodeList[index].rlyStatus[indexGv]
-                                                        .status ==
-                                                        3
-                                                        ? Colors.redAccent
-                                                        : Colors.black12, // Avatar background color
-                                                    child: Text(
-                                                      (vm.nodeList[index].rlyStatus[indexGv].rlyNo)
-                                                          .toString(),
-                                                      style: const TextStyle(color: Colors.white, fontSize: 12),
-                                                    ),
+                                                  RelayStatusAvatar(
+                                                    status: vm.nodeList[index].rlyStatus[indexGv].status,
+                                                    rlyNo: vm.nodeList[index].rlyStatus[indexGv].rlyNo,
+                                                    objType: vm.nodeList[index].rlyStatus[indexGv].objType,
                                                   ),
                                                   Text(
                                                     (vm.nodeList[index].rlyStatus[indexGv].swName!.isNotEmpty
@@ -340,7 +322,6 @@ class NodeList extends StatelessWidget {
                                             },
                                           ),
                                         ),
-
                                       ],
                                     ),
                                   ],

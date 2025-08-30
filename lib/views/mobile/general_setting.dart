@@ -9,6 +9,7 @@ import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/constants.dart';
 import '../../utils/enums.dart';
+import '../../utils/snack_bar.dart';
 import '../../view_models/customer/general_setting_view_model.dart';
 import '../common/user_profile/create_account.dart';
 
@@ -615,7 +616,7 @@ class _GeneralSettingState extends State<GeneralSetting> {
                           trailing: IconButton(
                             tooltip: 'User Permission',
                             onPressed: () => _showAlertDialog(
-                                context, user['userName'], user['userId']),
+                                context, viewModel, user['userName'], user['userId']),
                             icon: const Icon(Icons.menu),
                           ),
                         ),
@@ -632,21 +633,20 @@ class _GeneralSettingState extends State<GeneralSetting> {
     );
   }
 
-  Future<void> _showAlertDialog(BuildContext context, String cName, int suId) async {
+  Future<void> _showAlertDialog(BuildContext pntContext, GeneralSettingViewModel vm, String cName, int suId) async {
 
     List<UserGroup> userGroups = [];
-
-    final response = await HttpService().postRequest("getUserSharedDeviceList",
-        {"userId": widget.customerId, "sharedUserId": suId});
-    if (response.statusCode == 200) {
-      var data = jsonDecode(response.body);
-      //print(response.body);
-      if (data["code"] == 200) {
-        var list = data['data'] as List;
-        setState(() {
-          userGroups = list.map((i) => UserGroup.fromJson(i)).toList();
-        });
-      }
+    Map<String, Object> body = {
+      "userId": widget.customerId,
+      "sharedUserId": suId,
+    };
+    final deviceList = await vm.getSubUserSharedDeviceList(body);
+    if (deviceList != null) {
+      setState(() {
+        userGroups = deviceList.map((i) => UserGroup.fromJson(i)).toList();
+      });
+    } else {
+      print("No devices found.");
     }
 
     showDialog(
@@ -675,14 +675,23 @@ class _GeneralSettingState extends State<GeneralSetting> {
             ),
             TextButton(
               child: const Text('Submit'),
-              onPressed: () {
+              onPressed: () async {
                 List<MasterItem> masterList = [];
                 for(int gix=0; gix<userGroups.length; gix++){
                   for(int mix=0; mix<userGroups[gix].master.length; mix++){
-                    masterList.add(MasterItem(id: userGroups[gix].master[mix].controllerId, action: userGroups[gix].master[mix].isSharedDevice, userPermission: userGroups[gix].master[mix].userPermission));
+                    masterList.add(MasterItem(id: userGroups[gix].master[mix].controllerId,
+                        action: userGroups[gix].master[mix].isSharedDevice,
+                        userPermission: userGroups[gix].master[mix].userPermission));
                   }
                 }
-                //sendUpdatedPermission(masterList.map((item) => item.toMap()).toList(), suId);
+
+                Map<String, Object> body = {
+                  "userId": widget.customerId,
+                  "sharedUser": suId,
+                  "masterList": masterList.map((item) => item.toMap()).toList(),
+                  "createUser": widget.userId,
+                };
+                vm.updatedSubUserPermission(body, suId, pntContext);
               },
             ),
           ],
@@ -915,6 +924,7 @@ class MasterItem {
       'userPermission': userPermission.map((perm) => perm.toMap()).toList(),
     };
   }
+
 
   factory MasterItem.fromJson(Map<String, dynamic> json) {
     return MasterItem(

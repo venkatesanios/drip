@@ -129,6 +129,7 @@ class Tile extends StatelessWidget {
                               name: 'N/A',
                               swName: 'N/A',
                               rlyNo: -1,
+                              objType: '',
                             ),
                           );
 

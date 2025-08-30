@@ -438,6 +438,16 @@ class Repository{
   Future<http.Response> getUserDashboard(body) async {
     return await apiService.postRequest('/user/deviceList/getFirmwareDetails', body);
   }
+
+
+  Future<http.Response> getSubUserSharedDeviceList(body) async {
+    return await apiService.postRequest('/user/sharedUser/getDevice', body);
+  }
+
+  Future<http.Response> updatedSubUserPermission(body) async {
+    return await apiService.postRequest('/user/sharedUser/create', body);
+  }
+
   Future<http.Response> getweather(body) async {
     return await apiService.postRequest('/user/live/weather/get', body);
   }

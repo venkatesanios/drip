@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/admin_dealer/language_list.dart';
 import '../models/user_model.dart';
@@ -80,63 +81,84 @@ class UserSettingViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> updateUserProfile(BuildContext context, int customerId, userId) async {
-    if (controllerNewPwd.text.isNotEmpty || controllerConfirmPwd.text.isNotEmpty) {
-      if (controllerNewPwd.text != controllerConfirmPwd.text) {
+  Future<Map<String, dynamic>?> updateUserProfile(
+      BuildContext context, int customerId, int userId) async {
+    errorMsg = '';
+    String newPw = controllerNewPwd.text;
+    String cnPw = controllerConfirmPwd.text;
+
+    if (newPw.isNotEmpty) {
+      if (cnPw.isEmpty) {
+        errorMsg = 'Please confirm your password';
+        notifyListeners();
+        return null;
+      } else if (newPw.length < 6 || cnPw.length < 6) {
+        errorMsg = 'Password must be at least 6 characters';
+        notifyListeners();
+        return null;
+      } else if (newPw != cnPw) {
         errorMsg = 'Passwords do not match';
         notifyListeners();
-        return;
+        return null;
       }
     }
 
     if (formKey.currentState!.validate()) {
-      String cleanedCode = countryCode.replaceAll('+', '');
+      final result = await showDialog<Map<String, dynamic>?>(
+        context: context,
+        builder: (ctx) {
+          return AlertDialog(
+            title: const Text("Confirm Update"),
+            content: const Text("Are you sure you want to update your profile?"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(null),
+                child: const Text("Cancel"),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  String cleanedCode = countryCode.replaceAll('+', '');
+                  final body = {
+                    "userId": customerId,
+                    "userName": controllerUsrName.text,
+                    "countryCode": cleanedCode,
+                    "mobileNumber": controllerMblNo.text,
+                    "emailAddress": controllerEmail.text,
+                    "modifyUser": userId,
+                  };
 
-      final body = {
-        "userId": customerId,
-        "userName": controllerUsrName.text,
-        "countryCode": cleanedCode,
-        "mobileNumber": controllerMblNo.text,
-        "emailAddress": controllerEmail.text,
-        "modifyUser": userId,
-      };
+                  if (controllerNewPwd.text.isNotEmpty) {
+                    body["password"] = controllerNewPwd.text;
+                  }
 
-      if (controllerNewPwd.text.isNotEmpty) {
-        body["password"] = controllerNewPwd.text;
-      }
+                  setLoading(true);
+                  try {
+                    var response = await repository.updateUserDetails(body);
 
-      setLoading(true);
-      try {
-        var response = await repository.updateUserDetails(body);
-        if (response.statusCode == 200) {
-          final jsonData = jsonDecode(response.body);
-          print(response.body);
+                    if (response.statusCode == 200) {
+                      final jsonData = jsonDecode(response.body);
+                      Navigator.of(ctx).pop(jsonData);
+                    } else {
+                      Navigator.of(ctx).pop({"error": "Server error"});
+                    }
+                  } catch (error) {
+                    errorMsg = 'Error updating profile: $error';
+                    Navigator.of(ctx).pop({"error": errorMsg});
+                  } finally {
+                    setLoading(false);
+                  }
+                },
+                child: const Text("Confirm"),
+              ),
+            ],
+          );
+        },
+      );
 
-          if (jsonData["code"] == 200) {
-            GlobalSnackBar.show(context, jsonData["message"], jsonData["code"]);
-
-            final userProvider = context.read<UserProvider>();
-            final updatedUser = UserModel(
-              id: customerId,
-              name: controllerUsrName.text,
-              mobileNo: controllerMblNo.text,
-              countryCode: cleanedCode,
-              email: controllerEmail.text,
-              token: userProvider.loggedInUser.token,
-              role: userProvider.loggedInUser.id == customerId
-                  ? userProvider.loggedInUser.role
-                  : userProvider.viewedCustomer?.role ?? UserRole.customer,
-            );
-
-            userProvider.updateUser(updatedUser);
-          }
-        }
-      } catch (error) {
-        errorMsg = 'Error updating profile: $error';
-      } finally {
-        setLoading(false);
-      }
+      return result; // will be either jsonData or {"error": ...}
     }
+
+    return null;
   }
 
 
