@@ -149,6 +149,7 @@ class CustomerHome extends StatelessWidget {
             customerId: customerId,
             controllerId: controllerId,
             currentLineSNo: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine[viewModel.lIndex].sNo,
+            modelId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].modelId,
           ),
           if (scheduledProgram.isNotEmpty)
             NextSchedule(scheduledPrograms: scheduledProgram),
@@ -191,6 +192,7 @@ class CustomerHome extends StatelessWidget {
             customerId: customerId,
             controllerId: controllerId,
             currentLineSNo: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine[viewModel.lIndex].sNo,
+            modelId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].modelId,
           ),
           NextSchedule(scheduledPrograms: scheduledProgram),
           ...irrigationLine.map((line) => Padding(

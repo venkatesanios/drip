@@ -6,6 +6,7 @@ import '../../Models/customer/site_model.dart';
 import '../../Models/customer/stand_alone_model.dart';
 import '../../repository/repository.dart';
 import '../../services/communication_service.dart';
+import '../../utils/constants.dart';
 
 
 enum SegmentWithFlow {manual, duration, flow}
@@ -69,35 +70,38 @@ class StandAloneViewModel extends ChangeNotifier {
           List<dynamic> programsJson = jsonData['data'];
           programList = [...programsJson.map((programJson) => ProgramModel.fromJson(programJson))];
 
-          ProgramModel defaultProgram = ProgramModel(
-            programId: 0,
-            serialNumber: 0,
-            programName: 'Default',
-            defaultProgramName: '',
-            programType: '',
-            priority: '',
-            startDate: '',
-            startTime: '',
-            sequenceCount: 0,
-            scheduleType: '',
-            firstSequence: '',
-            duration: '',
-            programCategory: '',
-          );
+          if(![...AppConstants.ecoGemModelList].contains(masterData.modelId)){
+            ProgramModel defaultProgram = ProgramModel(
+              programId: 0,
+              serialNumber: 0,
+              programName: 'Default',
+              defaultProgramName: '',
+              programType: '',
+              priority: '',
+              startDate: '',
+              startTime: '',
+              sequenceCount: 0,
+              scheduleType: '',
+              firstSequence: '',
+              duration: '',
+              programCategory: '',
+            );
 
-          bool programWithNameExists = false;
-          for (ProgramModel program in programList) {
-            if (program.programName == 'Default') {
-              programWithNameExists = true;
-              break;
+            bool programWithNameExists = false;
+            for (ProgramModel program in programList) {
+              if (program.programName == 'Default') {
+                programWithNameExists = true;
+                break;
+              }
+            }
+
+            if (!programWithNameExists) {
+              programList.insert(0, defaultProgram);
+            } else {
+              debugPrint('Program with name \'Default\' already exists in widget.programList.');
             }
           }
 
-          if (!programWithNameExists) {
-            programList.insert(0, defaultProgram);
-          } else {
-            debugPrint('Program with name \'Default\' already exists in widget.programList.');
-          }
           getExitManualOperation();
         }
       }

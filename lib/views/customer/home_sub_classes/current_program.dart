@@ -8,16 +8,18 @@ import 'package:provider/provider.dart';
 import '../../../Models/customer/site_model.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../services/communication_service.dart';
+import '../../../utils/constants.dart';
 import '../../../utils/enums.dart';
 import '../../../utils/formatters.dart';
 import '../../../utils/snack_bar.dart';
 import '../../../view_models/customer/current_program_view_model.dart';
 
 class CurrentProgram extends StatelessWidget {
-  const CurrentProgram({super.key, required this.scheduledPrograms, required this.deviceId, required this.customerId, required this.controllerId, required this.currentLineSNo});
+  const CurrentProgram({super.key, required this.scheduledPrograms, required this.deviceId,
+    required this.customerId, required this.controllerId, required this.currentLineSNo, required this.modelId});
   final List<ProgramList> scheduledPrograms;
   final String deviceId;
-  final int customerId, controllerId;
+  final int customerId, controllerId, modelId;
   final double currentLineSNo;
 
   @override
@@ -73,47 +75,46 @@ class CurrentProgram extends StatelessWidget {
                     dataRowHeight: 45.0,
                     headingRowHeight: 40.0,
                     headingRowColor: WidgetStateProperty.all<Color>(Colors.green.shade50),
-                    columns: const [
-                      DataColumn2(
+                    columns: [
+                      const DataColumn2(
                         label: Text('Name', style: TextStyle(fontSize: 13)),
                         size: ColumnSize.M,
                       ),
-                      DataColumn2(
+                      const DataColumn2(
                         label: Text('Zone', style: TextStyle(fontSize: 13)),
                         fixedWidth: 75,
                       ),
-                      DataColumn2(
+                      const DataColumn2(
                         label: Text('Zone Name', style: TextStyle(fontSize: 13)),
                         size: ColumnSize.S,
                       ),
-                      DataColumn2(
+                      const DataColumn2(
                         label: Center(child: Text('RTC', style: TextStyle(fontSize: 13))),
                         fixedWidth: 75,
                       ),
-                      DataColumn2(
+                      const DataColumn2(
                         label: Center(child: Text('Cyclic', style: TextStyle(fontSize: 13))),
                         fixedWidth: 75,
                       ),
-                      DataColumn2(
+                      const DataColumn2(
                         label: Center(child: Text('Started at', style: TextStyle(fontSize: 13))),
                         size: ColumnSize.S,
                       ),
-                      DataColumn2(
+                      const DataColumn2(
                         label: Center(child: Text('Set (Dur/Flw)', style: TextStyle(fontSize: 13))),
                         fixedWidth: 100,
                       ),
-                      DataColumn2(
+                      const DataColumn2(
                         label: Center(child: Text('Avg/Flw Rate', style: TextStyle(fontSize: 13))),
                         fixedWidth: 100,
                       ),
-                      DataColumn2(
+                      const DataColumn2(
                         label: Center(child: Text('Remaining', style: TextStyle(fontSize: 13))),
                         size: ColumnSize.S,
                       ),
-                      DataColumn2(
-                        label: Center(child: Text('')),
-                        fixedWidth: 90,
-                      ),
+                      if(![...AppConstants.ecoGemModelList].contains(modelId))...const [
+                        const DataColumn2(label: Center(child: Text('')), fixedWidth: 90),
+                      ]
                     ],
                     rows: List<DataRow>.generate(schedule.length, (index) {
                       List<String> values = schedule[index].split(",");
@@ -150,9 +151,10 @@ class CurrentProgram extends StatelessWidget {
                               : values[4],
                           style: const TextStyle(fontSize: 20),
                         ))),
-                        DataCell(Center(
-                          child: buildActionButton(context, values),
-                        )),
+                        if(![...AppConstants.ecoGemModelList].contains(modelId))...[
+                          DataCell(Center(child: buildActionButton(context, values))),
+                        ]
+
                       ]);
                     }),
                   ),
@@ -304,7 +306,7 @@ class CurrentProgram extends StatelessWidget {
               height: 35,
               child: Row(
                 children: [
-                  Padding(
+                  const Padding(
                     padding: EdgeInsets.only(left: 3),
                     child: SizedBox(
                       width: 105,
@@ -468,8 +470,10 @@ class CurrentProgram extends StatelessWidget {
                               ],
                             ),
                             const Spacer(),
-                            buildActionButton(context, values),
-                            const Spacer(),
+                            if(![...AppConstants.ecoGemModelList].contains(modelId))...[
+                              buildActionButton(context, values),
+                              const Spacer(),
+                            ],
                           ],
                         ),
                       ),

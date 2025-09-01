@@ -8,6 +8,7 @@ import '../../Models/customer/site_model.dart';
 import '../../Models/customer/stand_alone_model.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
+import '../../utils/constants.dart';
 
 class StandAlone extends StatefulWidget {
   const StandAlone({super.key, required this.customerId, required this.siteId, required this.controllerId, required this.userId, required this.deviceId, required this.callbackFunction, required this.masterData});
@@ -34,7 +35,8 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-        create: (_) => StandAloneViewModel(Repository(HttpService()), widget.masterData, widget.userId, widget.customerId, widget.controllerId, widget.deviceId)
+        create: (_) => StandAloneViewModel(Repository(HttpService()),
+            widget.masterData, widget.userId, widget.customerId, widget.controllerId, widget.deviceId)
           ..getProgramList(),
         child: Consumer<StandAloneViewModel>(
           builder: (context, viewModel, _) {
@@ -46,7 +48,8 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                 children: [
                   SizedBox(
                     width: 400,
-                    height: viewModel.ddCurrentPosition!=0 && viewModel.segmentWithFlow.index!=0 ? 133: viewModel.programList.length > 1? 90:60,
+                    height: ([...AppConstants.ecoGemModelList].contains(widget.masterData.modelId)) ? 50 :
+                    viewModel.ddCurrentPosition!=0 && viewModel.segmentWithFlow.index!=0 ? 133: viewModel.programList.length > 1? 90:60,
                     child: Padding(
                       padding: const EdgeInsets.only(left: 10),
                       child: Column(
@@ -89,128 +92,131 @@ class _StandAloneState extends State<StandAlone> with SingleTickerProviderStateM
                             ],
                           ) :
                           const SizedBox(height: 8),
-                          viewModel.ddCurrentPosition==0 ?Row(
-                            children: [
-                              SizedBox(
-                                width: 275,
-                                child: SegmentedButton<SegmentWithFlow>(
-                                  segments: const <ButtonSegment<SegmentWithFlow>>[
-                                    ButtonSegment<SegmentWithFlow>(
-                                        value: SegmentWithFlow.manual,
-                                        label: Text('Timeless'),
-                                        icon: Icon(Icons.pan_tool_alt_outlined)),
-                                    ButtonSegment<SegmentWithFlow>(
-                                        value: SegmentWithFlow.duration,
-                                        label: Text('Duration'),
-                                        icon: Icon(Icons.timer_outlined)),
-                                  ],
-                                  selected: <SegmentWithFlow>{viewModel.segmentWithFlow},
-                                  onSelectionChanged: (Set<SegmentWithFlow> newSelection) {
-                                    viewModel.segmentWithFlow = newSelection.first;
-                                    viewModel.segmentSelectionCallbackFunction(viewModel.segmentWithFlow.index, viewModel.durationValue, viewModel.selectedIrLine);
-                                  },
-                                ),
-                              ),
-                              const SizedBox(width: 5,),
-                              viewModel.segmentWithFlow.index == 1 ? SizedBox(
-                                width: 85,
-                                child: TextButton(
-                                  onPressed: () => viewModel.showDurationInputDialog(context),
-                                  style: ButtonStyle(
-                                    padding: WidgetStateProperty.all(
-                                      const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                                    ),
-                                    backgroundColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withOpacity(0.3)),
-                                    shape: WidgetStateProperty.all<OutlinedBorder>(
-                                      RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
-                                    ),
-                                  ),
-                                  child: Text(viewModel.durationValue, style: const TextStyle(color: Colors.black, fontSize: 17)),
-                                ),
-                              ) :
-                              Container(),
-                              viewModel.segmentWithFlow.index == 2 ? SizedBox(
-                                width: 85,
-                                child: TextField(
-                                  maxLength: 7,
-                                  controller: viewModel.flowLiter,
-                                  onChanged: (value) => viewModel.segmentSelectionCallbackFunction(viewModel.segmentWithFlow.index, value, viewModel.selectedIrLine),
-                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                  inputFormatters: <TextInputFormatter>[
-                                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                                  ],
-                                  decoration: const InputDecoration(
-                                    labelText: 'Liters',
-                                    counterText: '',
+
+                          if(![...AppConstants.ecoGemModelList].contains(widget.masterData.modelId))...[
+                            viewModel.ddCurrentPosition==0 ?Row(
+                              children: [
+                                SizedBox(
+                                  width: 275,
+                                  child: SegmentedButton<SegmentWithFlow>(
+                                    segments: const <ButtonSegment<SegmentWithFlow>>[
+                                      ButtonSegment<SegmentWithFlow>(
+                                          value: SegmentWithFlow.manual,
+                                          label: Text('Timeless'),
+                                          icon: Icon(Icons.pan_tool_alt_outlined)),
+                                      ButtonSegment<SegmentWithFlow>(
+                                          value: SegmentWithFlow.duration,
+                                          label: Text('Duration'),
+                                          icon: Icon(Icons.timer_outlined)),
+                                    ],
+                                    selected: <SegmentWithFlow>{viewModel.segmentWithFlow},
+                                    onSelectionChanged: (Set<SegmentWithFlow> newSelection) {
+                                      viewModel.segmentWithFlow = newSelection.first;
+                                      viewModel.segmentSelectionCallbackFunction(viewModel.segmentWithFlow.index, viewModel.durationValue, viewModel.selectedIrLine);
+                                    },
                                   ),
                                 ),
-                              ):
-                              Container(),
-                            ],
-                          ):
-                          Column(
-                            children: [
-                              SizedBox(
-                                width: 350,
-                                child: SegmentedButton<SegmentWithFlow>(
-                                  segments: const <ButtonSegment<SegmentWithFlow>>[
-                                    ButtonSegment<SegmentWithFlow>(
-                                        value: SegmentWithFlow.manual,
-                                        label: Text('Timeless'),
-                                        icon: Icon(Icons.pan_tool_alt_outlined)),
-                                    ButtonSegment<SegmentWithFlow>(
-                                        value: SegmentWithFlow.duration,
-                                        label: Text('Duration'),
-                                        icon: Icon(Icons.timer_outlined)),
-                                    ButtonSegment<SegmentWithFlow>(
-                                        value: SegmentWithFlow.flow,
-                                        label: Text('Flow-Liters'),
-                                        icon: Icon(Icons.water_drop_outlined)),
-                                  ],
-                                  selected: <SegmentWithFlow>{viewModel.segmentWithFlow},
-                                  onSelectionChanged: (Set<SegmentWithFlow> newSelection) {
-                                    viewModel.segmentWithFlow = newSelection.first;
-                                    viewModel.segmentSelectionCallbackFunction(viewModel.segmentWithFlow.index, viewModel.durationValue, viewModel.selectedIrLine);
-                                  },
-                                ),
-                              ),
-                              const SizedBox(height: 5),
-                              viewModel.segmentWithFlow.index == 1 ? SizedBox(
-                                width: 85,
-                                child: TextButton(
-                                  onPressed: () => viewModel.showDurationInputDialog(context),
-                                  style: ButtonStyle(
-                                    padding: WidgetStateProperty.all(
-                                      const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                                const SizedBox(width: 5,),
+                                viewModel.segmentWithFlow.index == 1 ? SizedBox(
+                                  width: 85,
+                                  child: TextButton(
+                                    onPressed: () => viewModel.showDurationInputDialog(context),
+                                    style: ButtonStyle(
+                                      padding: WidgetStateProperty.all(
+                                        const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                                      ),
+                                      backgroundColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withOpacity(0.3)),
+                                      shape: WidgetStateProperty.all<OutlinedBorder>(
+                                        RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                                      ),
                                     ),
-                                    backgroundColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withOpacity(0.3)),
-                                    shape: WidgetStateProperty.all<OutlinedBorder>(
-                                      RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                                    child: Text(viewModel.durationValue, style: const TextStyle(color: Colors.black, fontSize: 17)),
+                                  ),
+                                ) :
+                                Container(),
+                                viewModel.segmentWithFlow.index == 2 ? SizedBox(
+                                  width: 85,
+                                  child: TextField(
+                                    maxLength: 7,
+                                    controller: viewModel.flowLiter,
+                                    onChanged: (value) => viewModel.segmentSelectionCallbackFunction(viewModel.segmentWithFlow.index, value, viewModel.selectedIrLine),
+                                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                    inputFormatters: <TextInputFormatter>[
+                                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                                    ],
+                                    decoration: const InputDecoration(
+                                      labelText: 'Liters',
+                                      counterText: '',
                                     ),
                                   ),
-                                  child: Text(viewModel.durationValue, style: const TextStyle(color: Colors.black, fontSize: 17)),
-                                ),
-                              ) :
-                              Container(),
-                              viewModel.segmentWithFlow.index == 2 ? SizedBox(
-                                width: 85,
-                                child: TextField(
-                                  maxLength: 7,
-                                  controller: viewModel.flowLiter,
-                                  onChanged: (value) => viewModel.segmentSelectionCallbackFunction(viewModel.segmentWithFlow.index, value, viewModel.selectedIrLine),
-                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                  inputFormatters: <TextInputFormatter>[
-                                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                                  ],
-                                  decoration: const InputDecoration(
-                                    labelText: 'Liters',
-                                    counterText: '',
+                                ):
+                                Container(),
+                              ],
+                            ):
+                            Column(
+                              children: [
+                                SizedBox(
+                                  width: 350,
+                                  child: SegmentedButton<SegmentWithFlow>(
+                                    segments: const <ButtonSegment<SegmentWithFlow>>[
+                                      ButtonSegment<SegmentWithFlow>(
+                                          value: SegmentWithFlow.manual,
+                                          label: Text('Timeless'),
+                                          icon: Icon(Icons.pan_tool_alt_outlined)),
+                                      ButtonSegment<SegmentWithFlow>(
+                                          value: SegmentWithFlow.duration,
+                                          label: Text('Duration'),
+                                          icon: Icon(Icons.timer_outlined)),
+                                      ButtonSegment<SegmentWithFlow>(
+                                          value: SegmentWithFlow.flow,
+                                          label: Text('Flow-Liters'),
+                                          icon: Icon(Icons.water_drop_outlined)),
+                                    ],
+                                    selected: <SegmentWithFlow>{viewModel.segmentWithFlow},
+                                    onSelectionChanged: (Set<SegmentWithFlow> newSelection) {
+                                      viewModel.segmentWithFlow = newSelection.first;
+                                      viewModel.segmentSelectionCallbackFunction(viewModel.segmentWithFlow.index, viewModel.durationValue, viewModel.selectedIrLine);
+                                    },
                                   ),
                                 ),
-                              ):
-                              Container(),
-                            ],
-                          )
+                                const SizedBox(height: 5),
+                                viewModel.segmentWithFlow.index == 1 ? SizedBox(
+                                  width: 85,
+                                  child: TextButton(
+                                    onPressed: () => viewModel.showDurationInputDialog(context),
+                                    style: ButtonStyle(
+                                      padding: WidgetStateProperty.all(
+                                        const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                                      ),
+                                      backgroundColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withOpacity(0.3)),
+                                      shape: WidgetStateProperty.all<OutlinedBorder>(
+                                        RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                                      ),
+                                    ),
+                                    child: Text(viewModel.durationValue, style: const TextStyle(color: Colors.black, fontSize: 17)),
+                                  ),
+                                ) :
+                                Container(),
+                                viewModel.segmentWithFlow.index == 2 ? SizedBox(
+                                  width: 85,
+                                  child: TextField(
+                                    maxLength: 7,
+                                    controller: viewModel.flowLiter,
+                                    onChanged: (value) => viewModel.segmentSelectionCallbackFunction(viewModel.segmentWithFlow.index, value, viewModel.selectedIrLine),
+                                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                    inputFormatters: <TextInputFormatter>[
+                                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                                    ],
+                                    decoration: const InputDecoration(
+                                      labelText: 'Liters',
+                                      counterText: '',
+                                    ),
+                                  ),
+                                ):
+                                Container(),
+                              ],
+                            )
+                          ],
                         ],
                       ),
                     ),

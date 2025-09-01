@@ -50,6 +50,9 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
       },
     );
     tabController = TabController(length: tabList.length, vsync: this);
+    tabController.addListener(() {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
@@ -74,7 +77,12 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
                 onPressed: () => Navigator.of(context).pop(),
               ),
               actions: [
-                _buildActionPopup(context),
+                AnimatedBuilder(
+                  animation: tabController,
+                  builder: (context, _) {
+                    return _buildActionPopup(context);
+                  },
+                ),
                 const SizedBox(width: 20),
               ],
               bottom: TabBar(
@@ -107,6 +115,7 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
   }
 
   Widget _buildActionPopup(BuildContext context) {
+    print(tabController.index);
     return PopupMenuButton(
       tooltip: tabController.index == 0
           ? 'Add new product to ${widget.customerName}'
