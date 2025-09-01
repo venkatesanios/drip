@@ -34,7 +34,7 @@ class DealerMobile extends StatelessWidget {
         ),
         title: MainMenuSegmentWidget(viewModel: viewModel),
         actions: const <Widget>[
-          UserAccountMenu(screenType: 'Mobile'),
+          UserAccountMenu(screenType: 'Narrow'),
         ],
         centerTitle: true,
         elevation: 10,

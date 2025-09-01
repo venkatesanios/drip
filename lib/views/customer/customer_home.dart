@@ -209,7 +209,7 @@ class CustomerHome extends StatelessWidget {
                   Container(
                     width: MediaQuery.sizeOf(context).width,
                     height: 45,
-                    color: Theme.of(context).primaryColor.withOpacity(0.03),
+                    color: Colors.white70,
                     child: Row(
                       children: [
                         const SizedBox(width: 16),

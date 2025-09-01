@@ -31,7 +31,7 @@ class CustomerView extends StatelessWidget {
       body: Column(
         children: [
           ListTile(
-            dense: true, // reduces overall height
+            dense: true,
             visualDensity: const VisualDensity(vertical: -2),
             title: const Text('My Customers',
               style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54, fontSize: 15),
@@ -70,13 +70,13 @@ class CustomerView extends StatelessWidget {
     return AppBar(
       elevation: 0,
       automaticallyImplyLeading: false,
-      backgroundColor: !isNarrow ? Colors.white : null,
+      backgroundColor: Colors.white,
       title: SizedBox(
         height: 40,
         child: TextField(
           controller: vm.txtFldSearch,
-          style: TextStyle(
-            color: isNarrow ? Colors.white : Colors.black,
+          style: const TextStyle(
+            color: Colors.black,
             fontSize: 14,
           ),
           decoration: InputDecoration(
@@ -85,22 +85,22 @@ class CustomerView extends StatelessWidget {
               vertical: 8,
             ),
             hintText: 'Search customers...',
-            hintStyle: TextStyle(
-              color: isNarrow ? Colors.white30 : Colors.black38,
+            hintStyle: const TextStyle(
+              color: Colors.black38,
             ),
-            prefixIcon: Icon(Icons.search,
+            prefixIcon: const Icon(Icons.search,
                 size: 20, // 👈 shrink icon size
-                color: isNarrow ? Colors.white60 : Colors.black54),
+                color:Colors.black54),
             suffixIcon: vm.searching
                 ? IconButton(
-              icon: Icon(Icons.clear,
+              icon: const Icon(Icons.clear,
                   size: 20,
-                  color: isNarrow ? Colors.white : Colors.black),
+                  color: Colors.black),
               onPressed: vm.clearSearch,
             )
                 : null,
             filled: true,
-            fillColor: isNarrow ? Colors.white24 : Colors.black12,
+            fillColor:Colors.black12,
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(20),
               borderSide: const BorderSide(color: Colors.white24),
@@ -205,16 +205,6 @@ class CustomerView extends StatelessWidget {
                     builder: (_) => ServiceRequestsTable(userId: customer.id),
                   ),
                 );
-
-                /*showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  elevation: 10,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(5)),
-                  ),
-                  builder: (_) => ServiceRequestsTable(userId: customer.id),
-                );*/
               },
             ),
           ),

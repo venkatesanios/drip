@@ -4,11 +4,13 @@ import '../../modules/PumpController/model/pump_controller_data_model.dart';
 class SiteModel {
   final List<Group> data;
 
-  SiteModel({required this.data});
+  SiteModel({
+    required this.data,
+  });
 
-  factory SiteModel.fromJson(Map<String, dynamic> json) {
+  factory SiteModel.fromJson(Map<String, dynamic> json, String userType) {
     return SiteModel(
-      data: List<Group>.from(json['data'].map((x) => Group.fromJson(x))),
+      data: List<Group>.from(json['data'].map((x) => Group.fromJson(x, userType))),
     );
   }
 
@@ -26,11 +28,12 @@ class Group {
 
   Group({required this.groupId, required this.groupName, required this.master});
 
-  factory Group.fromJson(Map<String, dynamic> json) {
+  factory Group.fromJson(Map<String, dynamic> json, String userType) {
 
+    print(userType);
     return Group(
-      groupId: json['userGroupId'],
-      groupName: json['groupName'],
+      groupId: userType == 'customer'? json['userGroupId']:json['userId'],
+      groupName: userType == 'customer'? json['groupName']:json['userName'],
       master: List<MasterControllerModel>.from(json['master'].map((x) => MasterControllerModel.fromJson(x))),
     );
   }

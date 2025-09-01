@@ -11,8 +11,7 @@ import '../utils/enums.dart';
 
 class MqttPayloadProvider with ChangeNotifier {
    final MQTTConnectionState _appConnectionState = MQTTConnectionState.disconnected;
-  SiteModel? _dashboardLiveInstance;
-  SiteModel? get dashboardLiveInstance => _dashboardLiveInstance;
+
   dynamic spa = '';
   String dashBoardPayload = '', schedulePayload = '';
   WeatherModel weatherModelinstance = WeatherModel();
@@ -781,13 +780,6 @@ class MqttPayloadProvider with ChangeNotifier {
     updateCentralFertigationSite();
     updateCentralFiltrationSite();
     updateLocalFiltrationSite();
-  }
-
-
-  Future<void> updateDashboardPayload(Map<String, dynamic> payload) async{
-    _dashboardLiveInstance = SiteModel.fromJson(payload);
-
-    notifyListeners();
   }
 
   Timer? _timerForPumpController;

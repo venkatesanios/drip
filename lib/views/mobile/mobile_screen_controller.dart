@@ -104,8 +104,6 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
     }
   }
 
-
-
   void callbackFunction(message){
   }
 
@@ -118,14 +116,17 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
     final commMode = Provider.of<CustomerProvider>(context).controllerCommMode;
 
     if (vm.isLoading) {
-      return const Scaffold(
-          body: Center(child: Text('Site loading please wait....')));
+      return Scaffold(
+          backgroundColor: Colors.white,
+          body: Center(child: Image.asset(F.appFlavor!.name.contains('oro')?
+          'assets/oro_store.png':'assets/smartcomm_playstore.png',width: 175, height: 175)),
+      );
     }
 
     final currentMaster = vm.mySiteList.data[vm.sIndex].master[vm.mIndex];
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
         title: F.appFlavor!.name.contains('oro') ?
         Image.asset(
@@ -326,9 +327,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
         child: Column(
           children: [
             DrawerHeader(
-              decoration: BoxDecoration(color: Theme
-                  .of(context)
-                  .primaryColor),
+              decoration: BoxDecoration(color: Theme.of(context).primaryColor),
               child: Padding(
                 padding: const EdgeInsets.only(top: 10),
                 child: Row(
@@ -522,8 +521,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
           BottomNavigationBarItem(icon: Icon(Icons.report_gmailerrorred), label: "Log"),
           BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), label: "Settings"),
         ],
-      )
-          : null,
+      ) : null,
       floatingActionButton: [...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(currentMaster.modelId) ?
       Column(
         mainAxisSize: MainAxisSize.min,
@@ -695,120 +693,110 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
       ) :
       RefreshIndicator(
         onRefresh: () => _handleRefresh(vm),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(8), topRight: Radius.circular(8)),
-          ),
-          child: Column(
-            children: [
-              if ([...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(currentMaster.modelId)) ...[
+        child: Column(
+          children: [
+            if ([...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(currentMaster.modelId)) ...[
 
-                const NetworkConnectionBanner(),
+              const NetworkConnectionBanner(),
 
-                if (commMode == 2) ...[
-                  Container(
-                    width: double.infinity,
-                    color: Colors.black38,
-                    child: const Padding(
-                      padding: EdgeInsets.only(top: 3, bottom: 4),
-                      child: Text(
-                        'Bluetooth mode enabled. Please ensure Bluetooth is connected.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 13, color: Colors.white70),
+              if (commMode == 2) ...[
+                Container(
+                  width: double.infinity,
+                  color: Colors.black38,
+                  child: const Padding(
+                    padding: EdgeInsets.only(top: 3, bottom: 4),
+                    child: Text(
+                      'Bluetooth mode enabled. Please ensure Bluetooth is connected.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 13, color: Colors.white70),
+                    ),
+                  ),
+                ),
+              ],
+
+              if (vm.isNotCommunicate)
+                Container(
+                  height: 25,
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade200,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(5),
+                      topRight: Radius.circular(5),
+                    ),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'NO COMMUNICATION TO CONTROLLER',
+                      style: TextStyle(
+                        color: Colors.black87,
+                        fontSize: 13.0,
                       ),
                     ),
                   ),
-                ],
-
-                if (vm.isNotCommunicate)
-                  Container(
-                    height: 25,
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade200,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(5),
-                        topRight: Radius.circular(5),
+                )
+              else if (vm.powerSupply == 0)
+                Container(
+                  height: 25,
+                  color: Colors.red.shade300,
+                  child: const Center(
+                    child: Text(
+                      'NO POWER SUPPLY TO CONTROLLER',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 13.0,
                       ),
                     ),
-                    child: const Center(
-                      child: Text(
-                        'NO COMMUNICATION TO CONTROLLER',
-                        style: TextStyle(
-                          color: Colors.black87,
-                          fontSize: 13.0,
-                        ),
-                      ),
-                    ),
-                  )
-                else if (vm.powerSupply == 0)
-                  Container(
-                    height: 25,
-                    color: Colors.red.shade300,
-                    child: const Center(
-                      child: Text(
-                        'NO POWER SUPPLY TO CONTROLLER',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 13.0,
-                        ),
-                      ),
-                    ),
-                  )
-                else
-                  const SizedBox(),
-              ],
-              Expanded(
-                child: Builder(
-                  builder: (context) {
-
-                    switch (vm.selectedIndex) {
-                      case 0:
-                        return CustomerHome(
-                          customerId: loggedInUser.id,
-                          controllerId: currentMaster.controllerId,
-                          deviceId: currentMaster.deviceId,
-                          modelId: currentMaster.modelId,
-                        );
-
-                      case 1:
-                        return ScheduledProgram(
-                          userId: loggedInUser.id,
-                          scheduledPrograms: currentMaster.programList,
-                          controllerId: currentMaster.controllerId,
-                          deviceId: currentMaster.deviceId,
-                          customerId: viewedCustomer.id,
-                          currentLineSNo: currentMaster.irrigationLine[vm.lIndex].sNo,
-                          groupId: vm.mySiteList.data[vm.sIndex].groupId,
-                          categoryId: currentMaster.categoryId,
-                          modelId: currentMaster.modelId,
-                          deviceName: currentMaster.deviceName,
-                          categoryName: currentMaster.categoryName,
-                        );
-
-                      case 2:
-                        return IrrigationAndPumpLog(
-                          userData: {
-                            'userId': loggedInUser.id,
-                            'controllerId': currentMaster.controllerId,
-                            'customerId': viewedCustomer.id
-                          },
-                          masterData: currentMaster,
-                        );
-
-                      default:
-                        return ControllerSettings(
-                          customerId: viewedCustomer.id,
-                          userId: loggedInUser.id,
-                          masterController: currentMaster,
-                        );
-                    }
-                  },
-                ),
-              ),
+                  ),
+                )
+              else
+                const SizedBox(),
             ],
-          ),
+            Expanded(
+              child: Builder(
+                builder: (context) {
+
+                  switch (vm.selectedIndex) {
+                    case 0:
+                      return CustomerHome(
+                        customerId: loggedInUser.id,
+                        controllerId: currentMaster.controllerId,
+                        deviceId: currentMaster.deviceId,
+                        modelId: currentMaster.modelId,
+                      );
+                    case 1:
+                      return ScheduledProgram(
+                        userId: loggedInUser.id,
+                        scheduledPrograms: currentMaster.programList,
+                        controllerId: currentMaster.controllerId,
+                        deviceId: currentMaster.deviceId,
+                        customerId: viewedCustomer.id,
+                        currentLineSNo: currentMaster.irrigationLine[vm.lIndex].sNo,
+                        groupId: vm.mySiteList.data[vm.sIndex].groupId,
+                        categoryId: currentMaster.categoryId,
+                        modelId: currentMaster.modelId,
+                        deviceName: currentMaster.deviceName,
+                        categoryName: currentMaster.categoryName,
+                      );
+                    case 2:
+                      return IrrigationAndPumpLog(
+                        userData: {
+                          'userId': loggedInUser.id,
+                          'controllerId': currentMaster.controllerId,
+                          'customerId': viewedCustomer.id
+                        },
+                        masterData: currentMaster,
+                      );
+                    default:
+                      return ControllerSettings(
+                        customerId: viewedCustomer.id,
+                        userId: loggedInUser.id,
+                        masterController: currentMaster,
+                      );
+                  }
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

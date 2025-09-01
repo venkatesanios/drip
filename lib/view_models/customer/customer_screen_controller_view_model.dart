@@ -205,7 +205,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
         print(response.body);
         final jsonData = jsonDecode(response.body);
         if (jsonData["code"] == 200) {
-          mySiteList = SiteModel.fromJson(jsonData);
+          mySiteList = SiteModel.fromJson(jsonData, 'customer');
           updateSite(sIndex, mIndex, lIndex);
 
           mqttProvider.saveUnits(Unit.toJsonList(mySiteList.data[sIndex].master[mIndex].units));
@@ -224,7 +224,35 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
 
           wifiStrength = live?.cM['WifiStrength'] ?? 0;
         }
+        else{
+          final response = await repository.fetchSharedUserSite({"userId": customerId});
+          if (response.statusCode == 200) {
+            print(response.body);
+            final jsonData = jsonDecode(response.body);
+            if (jsonData["code"] == 200) {
+              mySiteList = SiteModel.fromJson(jsonData, 'subUser');
+              updateSite(sIndex, mIndex, lIndex);
+
+              mqttProvider.saveUnits(Unit.toJsonList(mySiteList.data[sIndex].master[mIndex].units));
+
+              final customerProvider = Provider.of<CustomerProvider>(context, listen: false);
+              customerProvider.updateCustomerInfo(customerId: customerId);
+              customerProvider.updateControllerCommunicationMode(
+                cmmMode: mySiteList.data[sIndex].master[mIndex].communicationMode!,
+              );
+
+              final live = mySiteList.data[sIndex].master[mIndex].live;
+              mqttProvider.updateReceivedPayload(
+                live != null ? jsonEncode(live) : _defaultPayload(),
+                true,
+              );
+
+              wifiStrength = live?.cM['WifiStrength'] ?? 0;
+            }
+          }
+        }
       }
+
     } catch (error) {
       errorMsg = 'Error fetching site list: $error';
       debugPrint(errorMsg);

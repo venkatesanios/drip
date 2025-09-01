@@ -23,7 +23,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   @override
   void initState() {
@@ -62,7 +61,6 @@ class _MyAppState extends State<MyApp> {
           theme: isOro ? OroTheme.lightTheme : SmartCommTheme.lightTheme,
           darkTheme: isOro ? OroTheme.darkTheme : SmartCommTheme.darkTheme,
           themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          // home: ConfigBasePage(masterData: {"userId":4,"customerId":27,"controllerId":135,"productId":134,"deviceId":"2CCF676A936E","deviceName":"NAm2000ROOL","categoryId":1,"categoryName":"ORO GEM","modelId":4,"modelDescription":"Gem+ (RL)","modelName":"NAm2000ROOL","groupId":32,"groupName":"MANI PRAKASH","connectingObjectId":["1","2","3","4","-"],"productStock":[{"productId":48,"categoryName":"ORO PUMP","modelName":"Pump (L3R)","modelId":5,"deviceId":"TEST12345679","dateOfManufacturing":"2025-06-17","warrantyMonths":12}]}),
           home: navigateToInitialScreen(snapshot.data ?? Routes.login),
           onGenerateRoute: Routes.generateRoute,
         );
@@ -77,7 +75,6 @@ Widget navigateToInitialScreen(String route) {
     case Routes.login:
        return const LoginScreen();
     case Routes.dashboard:
-       // return  FirmwareBLEPage();
        return const ScreenController();
     default:
       return const SplashScreen();

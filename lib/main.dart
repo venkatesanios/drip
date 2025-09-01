@@ -43,8 +43,6 @@ FutureOr<void> main() async {
   tz.initializeTimeZones();
   await NetworkUtils.initialize();
 
-  // F.appFlavor = Flavor.oroProduction;
-
   if(!kIsWeb){
     try {
       // Initialize Firebase
@@ -63,7 +61,7 @@ FutureOr<void> main() async {
       // Initialize local notifications
       const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('@mipmap/ic_launcher');
-      final InitializationSettings initializationSettings = InitializationSettings(
+      const InitializationSettings initializationSettings = InitializationSettings(
         android: initializationSettingsAndroid,
       );
       await flutterLocalNotificationsPlugin.initialize(initializationSettings);
@@ -74,10 +72,6 @@ FutureOr<void> main() async {
       debugPrint('Initialization error: $e');
     }
   }
-
-  /*final mqttService = MqttService();
-
-  final myMqtt = MqttPayloadProvider();*/
 
   runApp(
     MultiProvider(
@@ -100,13 +94,12 @@ FutureOr<void> main() async {
           update: (BuildContext context, MqttPayloadProvider mqttProvider,
               CustomerProvider customer, CommunicationService? previous) {
             return CommunicationService(
-              mqttService: MqttService(), // Singleton access — always same instance
-              blueService: BluService(),  // You should make this a singleton too if needed
+              mqttService: MqttService(),
+              blueService: BluService(),
               customerProvider: customer,
             );
           },
         ),
-
       ],
       child: const MyApp(),
     ),

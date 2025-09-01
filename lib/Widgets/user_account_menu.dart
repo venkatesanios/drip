@@ -98,7 +98,7 @@ class UserAccountMenu extends StatelessWidget {
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
             onTapDown: (details) => _showUserMenu(context, details, customer!.name),
-            child: screenType == "Middle" || screenType == "Mobile" ? Row(
+            child: screenType == "Middle" || screenType == "Narrow" ? Row(
               children: [
                 Container(
                   width: 36,

@@ -22,7 +22,7 @@ class CustomerMobile extends StatelessWidget {
         Provider.of<MqttPayloadProvider>(context, listen: false),
       )..getAllMySites(context, viewedCustomer.id),
       child: MobileScreenController(
-        userId: viewedCustomer!.id,
+        userId: viewedCustomer.id,
         fromLogin: loggedInUser.role == UserRole.customer ? true : false,
       ),
     );

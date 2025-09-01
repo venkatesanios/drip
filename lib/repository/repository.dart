@@ -191,6 +191,10 @@ class Repository{
      return await apiService.postRequest('/user/dashboard', body);
   }
 
+  Future<http.Response> fetchSharedUserSite(body) async {
+    return await apiService.postRequest('/sharedUser/userDevice/get', body);
+  }
+
   Future<http.Response> fetchSiteAiAdvisoryData(body) async {
     return await apiService.postRequest('/user/deviceList/aiAdvisory/get', body);
   }
