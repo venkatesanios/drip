@@ -420,6 +420,10 @@ class Repository{
     return await apiService.postRequest('/user/serviceRequest/getForDealer', body);
   }
 
+  Future<http.Response> getUserCriticalAlarmForDealer(body) async {
+    return await apiService.postRequest('/user/deviceList/criticalAlarmForDealer', body);
+  }
+
   Future<http.Response> getUserAllServiceRequestForDealer(body) async {
     return await apiService.postRequest('/user/serviceRequest/getAllForDealer', body);
   }

@@ -291,7 +291,8 @@ class _NodeInBootModeState extends State<NodeInBootMode> {
                   onPressed: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context){
                       return const BleSentAndReceive();
-                    }));                  },
+                    }));
+                    },
                   label: const Text('Sent And Receive'),
                   style: FilledButton.styleFrom(
                     backgroundColor: Theme.of(context).primaryColorLight,

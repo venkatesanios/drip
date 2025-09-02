@@ -9,13 +9,13 @@ import '../../StateManagement/overall_use.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/snack_bar.dart';
+import '../../views/customer/customer_screen_controller.dart';
 
 class ServiceRequestsTable extends StatefulWidget {
   const ServiceRequestsTable({
     super.key,
     required this.userId,
   });
-
   final int userId;
 
   @override
@@ -23,38 +23,262 @@ class ServiceRequestsTable extends StatefulWidget {
 }
 
 class _ServiceRequestsTableState extends State<ServiceRequestsTable> {
+  // Example JSON string
   ServiceDealerModel _serviceDealerModel = ServiceDealerModel();
   DateFormat dateFormat = DateFormat("yyyy-MM-dd");
 
   @override
   void initState() {
+    // TODO: implement initState
     super.initState();
     fetchData();
+    fetchAlarm();
   }
 
   Future<void> fetchData() async {
-    try {
-      final repository = Repository(HttpService());
-      var response = await repository.getUserServiceRequestForDealer({
+    try{
+      final Repository repository = Repository(HttpService());
+      var getUserDetails = await repository.getUserServiceRequestForDealer({
         "userId": widget.userId,
       });
-
-      if (response.statusCode == 200) {
+      if (getUserDetails.statusCode == 200) {
         setState(() {
-          var jsonData = jsonDecode(response.body);
+          var jsonData = jsonDecode(getUserDetails.body);
           _serviceDealerModel = ServiceDealerModel.fromJson(jsonData);
         });
       } else {
-        GlobalSnackBar.show(context, "Failed to load data", response.statusCode);
+        //_showSnackBar(response.body);
       }
-    } catch (e, stackTrace) {
-      debugPrint('Error fetching data: $e');
-      debugPrint('StackTrace: $stackTrace');
+    }
+    catch (e, stackTrace) {
+      print(' Error overAll getData => ${e.toString()}');
+      print(' trace overAll getData  => ${stackTrace}');
+    }
+
+
+  }
+
+  Future<void> fetchAlarm() async{
+    try{
+      final Repository repository = Repository(HttpService());
+      var getUserDetails = await repository.getUserCriticalAlarmForDealer({
+        "userId": widget.userId,
+      });
+      print("userId :: ${widget.userId}");
+      print("getUserCriticalAlarmForDealer ==>  ${getUserDetails.body}");
+      // final jsonData = jsonDecode(getUserDetails.body);
+      /*if (getUserDetails.statusCode == 200) {
+        setState(() {
+          var jsonData = jsonDecode(getUserDetails.body);
+          _serviceDealerModel = ServiceDealerModel.fromJson(jsonData);
+        });
+      } else {
+        //_showSnackBar(response.body);
+      }*/
+    }
+    catch (e, stackTrace) {
+      print(' Error overAll getData => ${e.toString()}');
+      print(' trace overAll getData  => ${stackTrace}');
     }
   }
 
+
+  @override
+  Widget build(BuildContext context) {
+
+    // return AlarmListItems(alarm : alarmPayload, deviceID:deviceID, customerId: customerId, controllerId: controllerId, irrigationLine: [],);
+    if (_serviceDealerModel.data == null) {
+      return Scaffold(
+        backgroundColor: Colors.grey.shade100,
+        appBar:  AppBar(title: const Text('Service Request List')),
+        body: const Center(
+          child: Text(
+            'Currently No Request available ',
+            style: TextStyle(fontWeight: FontWeight.normal, color: Colors.black),
+          ),
+        ),
+      );
+    } else if (_serviceDealerModel.data!.length <= 0) {
+      return Scaffold(
+        appBar:  AppBar(title: const Text('Service Request List')),
+        body: const Center(
+          child: Text(
+            'Currently No Request available on Customer Account',
+            style: TextStyle(fontWeight: FontWeight.normal, color: Colors.black),
+          ),
+        ),
+      );
+    } else {
+
+      return Scaffold(
+        backgroundColor: Colors.grey.shade100,
+        appBar:  AppBar(title: const Text('Service Request List')),
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: DataTable2(
+            minWidth: 1200,
+            showBottomBorder: true,
+            headingRowColor: WidgetStateProperty.resolveWith<Color>(
+                  (Set<WidgetState> states) {
+                return Theme.of(context).primaryColorDark; // default color
+              },
+            ),
+            headingRowHeight: 29,
+            dataRowHeight: 45,
+            columns: const [
+              DataColumn2(
+                fixedWidth: 50,
+                label: Text(
+                  'SNo',
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ),
+              // DataColumn2(
+              //   fixedWidth: 120,
+              //   label: Text(
+              //     'Customer Name',softWrap: true,
+              //     style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,),
+              //   ),
+              // ),
+              DataColumn2(
+                fixedWidth: 150,
+                label: Text(
+                  'Site Name',softWrap: true,
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ),
+              DataColumn2(
+                size: ColumnSize.L,
+                label: Text(
+                  'Issue', softWrap: true,
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ),
+              DataColumn2(
+                size: ColumnSize.L,
+                label: Text(
+                  'Description',
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ),
+              DataColumn2(
+                fixedWidth: 140,
+                label: Text(
+                  'Request Date',
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ),
+              DataColumn2(
+                fixedWidth: 160,
+                label: Text(
+                  'Estimated Date',softWrap: true,
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ),
+              DataColumn2(
+                fixedWidth: 165,
+                label: Text(
+                  'Status',softWrap: true,
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ),
+              DataColumn2(
+                fixedWidth: 150,
+                label: Text(
+                  'Update',
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+            rows: List<DataRow>.generate(
+              _serviceDealerModel.data!.length,
+                  (index) {
+                return DataRow(
+                  color: _serviceDealerModel.data![index].status == 'Closed'
+                      ? WidgetStateProperty.all(Colors.green.shade100)
+                      : _serviceDealerModel.data![index].priority == 'High'
+                      ? WidgetStateProperty.all(Colors.red.shade100)
+                      : _serviceDealerModel.data![index].priority == 'Medium'
+                      ? WidgetStateProperty.all(Colors.yellow.shade100)
+                      : WidgetStateProperty.all(Colors.white),
+                  cells: [
+                    DataCell(Text(_serviceDealerModel.data![index].requestId.toString())),
+                    // DataCell(Text(_serviceDealerModel.data![index].groupName ?? '')),
+                    DataCell(Text(_serviceDealerModel.data![index].groupName ?? '')),
+                    DataCell(Text(_serviceDealerModel.data![index].requestType ?? '')),
+                    DataCell(Text(_serviceDealerModel.data![index].requestDescription ?? '')),
+                    DataCell(Text(DateFormat('yyyy-MM-dd').format(_serviceDealerModel.data![index].requestDate!).toString())),
+                    DataCell(
+                      InkWell(
+                        child: Row(
+                          children: [
+                            Text(DateFormat('yyyy-MM-dd').format(_serviceDealerModel.data![index].estimatedDate!).toString()),
+                            Icon(Icons.date_range),
+                          ],
+                        ),
+                        onTap: () async {
+                          DateTime? pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: _serviceDealerModel.data![index].estimatedDate ?? DateTime.now(),
+                            firstDate: DateTime(DateTime.now().year),
+                            lastDate: DateTime(2026),
+                          );
+                          if (pickedDate != null) {
+                            setState(() {
+                              _serviceDealerModel.data![index].estimatedDate = pickedDate;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                    DataCell(
+                      DropdownButton<String>(
+                        value: _serviceDealerModel.data![index].status,
+                        items: <String>['Waiting', 'In-Progress', 'Closed'].map((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                        onChanged: (newValue) {
+                          setState(() {
+                            _serviceDealerModel.data![index].status = newValue;
+                          });
+                        },
+                      ),
+                    ),
+                    DataCell(
+                      ElevatedButton(
+                        onPressed: () {
+                          updateData(
+                            widget.userId,
+                            _serviceDealerModel.data![index].controllerId!,
+                            _serviceDealerModel.data![index].requestTypeId!,
+                            _serviceDealerModel.data![index].responsibleUser!,
+                            dateFormat.format(_serviceDealerModel.data![index].estimatedDate!).toString(),
+                            _serviceDealerModel.data![index].status!,
+                            _serviceDealerModel.data![index].requestId!,
+                          );
+                          fetchData();
+                        },
+                        child: const Text('Update',  style: TextStyle(
+                          color: Colors.white,
+                        ),),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+
   Future<void> updateData(
-      int userId,
+      int userid,
       int controllerId,
       int requestTypeId,
       int responsibleUser,
@@ -62,189 +286,48 @@ class _ServiceRequestsTableState extends State<ServiceRequestsTable> {
       String status,
       int requestId,
       ) async {
-    final body = {
-      "userId": userId,
+    // getUserServiceRequest => userId, controllerId
+    // createUserServiceRequest => userId, controllerId, requestTypeId, requestDate, requestTime, responsibleUser, estimatedDate, siteLocation, createUser
+    // updateUserServiceRequest => userId, controllerId, requestId, requestTypeId, responsibleUser, estimatedDate, status, closedDate, modifyUser
+    print("status--->$status");
+    Map<String, dynamic> body = {
+      "userId": userid,
       "controllerId": controllerId,
       "requestTypeId": requestTypeId,
       "requestId": requestId,
       "responsibleUser": responsibleUser,
       "estimatedDate": estimatedDate,
       "status": status,
-      "closedDate": status == 'Closed'
-          ? dateFormat.format(DateTime.now())
-          : null,
-      "modifyUser": userId,
+      "closedDate":
+      status == 'Closed' ? '${dateFormat.format(DateTime.now())}' : null,
+      "modifyUser": userid
     };
-
-    final repository = Repository(HttpService());
+    print("body call--->${body}");
+    final Repository repository = Repository(HttpService());
     var response = await repository.updateUserServiceRequest(body);
     final jsonData = json.decode(response.body);
+    print("response--->${response.body}");
 
+    // print("jsonData--->$jsonData");
+    print("response.statusCode--->${response.statusCode}");
     if (response.statusCode == 200) {
-      GlobalSnackBar.show(context, jsonData['message'], response.statusCode);
-      fetchData();
+      setState(() {
+        GlobalSnackBar.show(context, jsonData['message'], response.statusCode);
+        fetchData();
+      });
     } else {
       GlobalSnackBar.show(context, jsonData['message'], response.statusCode);
     }
   }
+}
+
+class CriticalAlarmList extends StatelessWidget {
+  const CriticalAlarmList({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final data = _serviceDealerModel.data ?? [];
-
-    return Scaffold(
-      backgroundColor: Colors.grey.shade100,
-      appBar: AppBar(title: const Text('Service Request List')),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: data.isEmpty ? const Center(
-          child: Text(
-            'Currently No Request available',
-            style: TextStyle(color: Colors.black),
-          ),
-        ):
-        DataTable2(
-          minWidth: 1200,
-          showBottomBorder: true,
-          headingRowColor: WidgetStateProperty.all(
-            Theme.of(context).primaryColorDark,
-          ),
-          headingRowHeight: 29,
-          dataRowHeight: 45,
-          columns: const [
-            DataColumn2(
-              fixedWidth: 50,
-              label: Text('SNo',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
-            ),
-            DataColumn2(
-              fixedWidth: 150,
-              label: Text('Site Name',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
-            ),
-            DataColumn2(
-              size: ColumnSize.L,
-              label: Text('Issue',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
-            ),
-            DataColumn2(
-              size: ColumnSize.L,
-              label: Text('Description',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
-            ),
-            DataColumn2(
-              fixedWidth: 140,
-              label: Text('Request Date',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
-            ),
-            DataColumn2(
-              fixedWidth: 160,
-              label: Text('Estimated Date',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
-            ),
-            DataColumn2(
-              fixedWidth: 165,
-              label: Text('Status',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
-            ),
-            DataColumn2(
-              fixedWidth: 150,
-              label: Text('Update',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
-            ),
-          ],
-          rows: List<DataRow>.generate(
-            data.length,
-                (index) {
-              final item = data[index];
-              return DataRow(
-                color: WidgetStateProperty.all(
-                  item.status == 'Closed'
-                      ? Colors.green.shade100
-                      : item.priority == 'High'
-                      ? Colors.red.shade100
-                      : item.priority == 'Medium'
-                      ? Colors.yellow.shade100
-                      : Colors.white,
-                ),
-                cells: [
-                  DataCell(Text(item.requestId.toString())),
-                  DataCell(Text(item.groupName ?? '')),
-                  DataCell(Text(item.requestType ?? '')),
-                  DataCell(Text(item.requestDescription ?? '')),
-                  DataCell(Text(item.requestDate != null
-                      ? dateFormat.format(item.requestDate!)
-                      : '-')),
-                  DataCell(
-                    InkWell(
-                      child: Row(
-                        children: [
-                          Text(item.estimatedDate != null
-                              ? dateFormat.format(item.estimatedDate!)
-                              : '-'),
-                          const Icon(Icons.date_range),
-                        ],
-                      ),
-                      onTap: () async {
-                        DateTime? pickedDate = await showDatePicker(
-                          context: context,
-                          initialDate: item.estimatedDate ?? DateTime.now(),
-                          firstDate: DateTime(DateTime.now().year),
-                          lastDate: DateTime(2026),
-                        );
-                        if (pickedDate != null) {
-                          setState(() => item.estimatedDate = pickedDate);
-                        }
-                      },
-                    ),
-                  ),
-                  DataCell(
-                    DropdownButton<String>(
-                      value: item.status,
-                      items: ['Waiting', 'In-Progress', 'Closed']
-                          .map((value) => DropdownMenuItem(
-                        value: value,
-                        child: Text(value),
-                      ))
-                          .toList(),
-                      onChanged: (newValue) =>
-                          setState(() => item.status = newValue),
-                    ),
-                  ),
-                  DataCell(
-                    ElevatedButton(
-                      onPressed: () {
-                        updateData(
-                          widget.userId,
-                          item.controllerId!,
-                          item.requestTypeId!,
-                          item.responsibleUser!,
-                          dateFormat.format(item.estimatedDate!),
-                          item.status!,
-                          item.requestId!,
-                        );
-                      },
-                      child: const Text(
-                        'Update',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-        ),
-      ),
-    );
+    return const Placeholder();
   }
 }
+
 
