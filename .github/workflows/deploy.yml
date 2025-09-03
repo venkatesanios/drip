@@ -87,6 +87,6 @@ jobs:
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_JSON }}
-          packageName: com.example.oro_drip_irrigation
+          packageName: com.niagaraautomations.oroDripirrigation
           releaseFiles: artifacts/app-oroProduction-release.aab
           track: internal
