@@ -13,13 +13,13 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build_and_release:
-    runs-on: macos-latest
-    environment: production  # Replace with your environment name
+    runs-on: ubuntu-latest  # Switched to ubuntu-latest
+    environment: ORO IntelliIrrigate Deployment
     steps:
       - name: 📂 Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Ensure full history to include all files
+          fetch-depth: 0
       - name: 🚀 Cache pub deps
         uses: actions/cache@v3
         with:
@@ -39,13 +39,20 @@ jobs:
         run: flutter pub get
       - name: 🔑 Decode keystore
         run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/release-key.jks
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | tr -d '\n' | base64 -d > android/app/release-key.jks
+      - name: 🔍 Verify keystore
+        run: |
+          file android/app/release-key.jks
+          keytool -list -keystore android/app/release-key.jks -storepass ${{ secrets.KEYSTORE_PASSWORD }}
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
       - name: 🔐 Create key.properties
         run: |
           echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
           echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
           echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
           echo "storeFile=release-key.jks" >> android/key.properties
+          echo "storeType=JKS" >> android/key.properties
       - name: 🏗️ Build APKs
         run: flutter build apk --release --split-per-abi --flavor oroProduction
       - name: 📦 Prepare artifacts
