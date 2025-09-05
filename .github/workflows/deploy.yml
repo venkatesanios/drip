@@ -115,8 +115,11 @@ jobs:
       - name: 📥 Get dependencies
         run: flutter pub get
 
+      - name: 🏗️ Build App Icon
+        run: Copy-Item -Path "web\oro\index.html" -Destination "web\index.html" -Force
+
       - name: 🏗️ Build Web
-        run: flutter build web --release
+        run: flutter build web --target=lib\main_oroProduction.dart --web-renderer canvaskit
 
       - name: 🚀 Copy files to EC2 via SCP
         uses: appleboy/scp-action@v0.1.7
