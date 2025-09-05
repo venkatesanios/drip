@@ -33,8 +33,8 @@ class CustomerView extends StatelessWidget {
           ListTile(
             dense: true,
             visualDensity: const VisualDensity(vertical: -2),
-            title: const Text('My Customers',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54, fontSize: 15),
+            title: Text(role.name == 'admin' ? 'My Dealers':'My Customers',
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black54, fontSize: 15),
             ),
             trailing: Text(
               '${viewModel.myCustomerList.length}',

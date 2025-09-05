@@ -1,23 +1,22 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
-
 import 'package:provider/provider.dart';
-import '../../repository/repository.dart';
-import '../../services/http_service.dart';
-import '../../view_models/customer/condition_library_view_model.dart';
-import 'controller_settings/widgets/component_selection_menu.dart';
-import 'controller_settings/widgets/condition_labels_column.dart';
-import 'controller_settings/widgets/condition_tile.dart';
-import 'controller_settings/widgets/condition_type_selector.dart';
-import 'controller_settings/widgets/delay_time_selection_menu.dart';
-import 'controller_settings/widgets/parameter_selection_menu.dart';
-import 'controller_settings/widgets/reason_selection_menu.dart';
-import 'controller_settings/widgets/threshold_selector_widget.dart';
-import 'controller_settings/widgets/value_selector_widget.dart';
 
-class ConditionLibrary extends StatelessWidget {
-  const ConditionLibrary({
+import '../../../../repository/repository.dart';
+import '../../../../services/http_service.dart';
+import '../../../../view_models/customer/condition_library_view_model.dart';
+import '../widgets/component_selection_menu.dart';
+import '../widgets/condition_labels_column.dart';
+import '../widgets/condition_tile.dart';
+import '../widgets/condition_type_selector.dart';
+import '../widgets/delay_time_selection_menu.dart';
+import '../widgets/parameter_selection_menu.dart';
+import '../widgets/reason_selection_menu.dart';
+import '../widgets/threshold_selector_widget.dart';
+import '../widgets/value_selector_widget.dart';
+
+class ConditionLibraryNarrow extends StatelessWidget {
+  const ConditionLibraryNarrow({
     super.key,
     required this.customerId,
     required this.controllerId,
@@ -37,15 +36,16 @@ class ConditionLibrary extends StatelessWidget {
         ..getConditionLibraryData(customerId, controllerId),
       child: Consumer<ConditionLibraryViewModel>(
         builder: (context, vm, _) {
-
           if (vm.isLoading) {
             return Scaffold(
+              appBar: AppBar(title: const Text('Condition Library')),
               body: _buildLoadingIndicator(context),
             );
           }
 
           final hasConditions = vm.clData.cnLibrary.condition.isNotEmpty;
           return Scaffold(
+            appBar: AppBar(title: const Text('Condition Library')),
             body: Padding(
               padding: const EdgeInsets.all(8.0),
               child: hasConditions ? Consumer<ConditionLibraryViewModel>(
@@ -62,15 +62,13 @@ class ConditionLibrary extends StatelessWidget {
   }
 
   Widget _buildLoadingIndicator(BuildContext context) {
-    return Center(
-      child: Container(
-        height: 50,
-        padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.sizeOf(context).width / 2 - 100,
-        ),
-        child: const LoadingIndicator(
-          indicatorType: Indicator.ballPulse,
-        ),
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.of(context).size.width / 2 - 25,
+      ),
+      child: const LoadingIndicator(
+        indicatorType: Indicator.ballPulse,
+        strokeWidth: 100,
       ),
     );
   }
@@ -80,11 +78,11 @@ class ConditionLibrary extends StatelessWidget {
   Widget _buildGridView(BuildContext context, ConditionLibraryViewModel vm) {
     return GridView.builder(
       itemCount: vm.clData.cnLibrary.condition.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: _getCrossAxisCount(context),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount:1,
         crossAxisSpacing: 3.0,
         mainAxisSpacing: 3.0,
-        childAspectRatio: _getChildAspectRatio(context),
+        childAspectRatio: 1.15,
       ),
       itemBuilder: (BuildContext context, int index) {
         return _buildConditionCard(context, vm, index);
@@ -92,25 +90,6 @@ class ConditionLibrary extends StatelessWidget {
     );
   }
 
-  int _getCrossAxisCount(BuildContext context) {
-    if (kIsWeb) {
-      return MediaQuery.of(context).size.width > 1350 ? 3 : 2;
-    } else {
-      return 1;
-    }
-  }
-
-  double _getChildAspectRatio(BuildContext context) {
-    if (kIsWeb) {
-      if (MediaQuery.of(context).size.width > 1350) {
-        return MediaQuery.of(context).size.width / 1200;
-      } else {
-        return MediaQuery.of(context).size.width / 750;
-      }
-    } else {
-      return 1.15;
-    }
-  }
 
   Widget _buildConditionCard(BuildContext context, ConditionLibraryViewModel vm, int index) {
     return Card(

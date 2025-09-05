@@ -146,22 +146,33 @@ class ConditionLibraryViewModel extends ChangeNotifier {
     }
     List<String> available = List.from(connectingCondition);
     if(clData.cnLibrary.condition[index].component!='--'){
-      List<String> resultList = clData.cnLibrary.condition[index].component.split(RegExp(r'\s*-\s*'));
+      List<String> resultList = clData.cnLibrary.condition[index].component.split(RegExp(r'\s*&\s*'));
       connectedTo[index] = resultList;
     }
     available.removeWhere((source) => connectedTo[index].contains(source));
     return available;
   }
 
-  void combinedTO(int index, String source) {
+  void combinedTO(int index, String source, int sNo) {
     if (connectedTo[index].contains(source)) {
       connectedTo[index].remove(source);
     } else {
       connectedTo[index].add(source);
-      List<String> cc = connectedTo[index];
-      String result = cc.join(" - ");
-      clData.cnLibrary.condition[index].component = result;
     }
+
+    List<String> cc = connectedTo[index];
+    String resultNames = cc.join(" & ");
+
+    List<int> serials = [];
+    for (var name in cc) {
+      final cond = clData.cnLibrary.condition.firstWhere((c) => c.name == name);
+      serials.add(cond.sNo);
+    }
+    String resultSerials = serials.join("_");
+
+    clData.cnLibrary.condition[index].component = resultNames;
+    clData.cnLibrary.condition[index].componentSNo = resultSerials;
+
     notifyListeners();
   }
 
@@ -242,6 +253,11 @@ class ConditionLibraryViewModel extends ChangeNotifier {
         final match = RegExp(r'[\d.]+').firstMatch(input);
         String? numberOnly = match?.group(0);
 
+        List<String> serialNo = [];
+        if (condition.type == 'Combined') {
+          serialNo = condition.componentSNo.split('_');
+        }
+
         payloadList.add({
           'sNo': condition.sNo ?? 0,
           'name': condition.name,
@@ -250,16 +266,22 @@ class ConditionLibraryViewModel extends ChangeNotifier {
           'StartTime': '00:01:00',
           'StopTime': '23:59:00',
           'notify': 1,
-          'category': condition.type == 'Program' ? 1 : condition.type == 'Sensor' && condition.parameter=='Level'? 9:
-          condition.type == 'Sensor' && condition.parameter=='Moisture'? 8:5,
-          'object': condition.componentSNo,
-          'operator': condition.threshold == 'Higher than'? 4 : condition.threshold == 'Lower than'? 5 : 6,
-          'setValue': numberOnly,
+
+          'category': getConditionCategory(condition),
+
+          'object': condition.type == 'Combined'? serialNo[0]: condition.componentSNo,
+
+          'operator': condition.type == 'Sensor' ? getOperatorOfSensor(condition) :
+          condition.type == 'Program' ? getOperatorOfProgram(condition) : getOperatorOfCombined(condition),
+
+          'setValue': condition.type == 'Combined'? serialNo[1] : numberOnly ?? 0,
+
           'Bypass': 0,
         });
       }
 
       String payloadString = payloadList.map((e) => e.values.join(',')).join(';');
+      print(payloadString);
 
       String payLoadFinal = jsonEncode({
         "1000": {"1001": payloadString}
@@ -276,6 +298,57 @@ class ConditionLibraryViewModel extends ChangeNotifier {
     } finally {
       setLoading(false);
     }
+  }
+
+  int getConditionCategory(Condition condition) {
+    if (condition.type == 'Program') {
+      return 1;
+    }
+    else if (condition.type == 'Sensor' && condition.parameter=='Level') {
+      return 9;
+    }else if (condition.type == 'Sensor' && condition.parameter=='Moisture') {
+      return 8;
+    }
+    else if (condition.type == 'Combined') {
+      if(condition.threshold == 'Anyone is' && condition.value == 'True'){
+        return 6;
+      }else if(condition.threshold == 'Both are' && condition.value == 'True'){
+        return 6;
+      }
+      return 7;
+    }
+    return 5;
+
+  }
+
+  int getOperatorOfSensor(Condition condition) {
+    if (condition.threshold == 'Above') {
+      return 4;
+    }else if (condition.threshold == 'Blow') {
+      return 5;
+    }
+    return 6;
+  }
+
+  int getOperatorOfProgram(Condition condition) {
+    if (condition.threshold == 'is Starting') {
+      return 8;
+    }else if (condition.threshold == 'is Ending') {
+      return 9;
+    }
+    else if (condition.threshold == 'is Running' && condition.value=='True') {
+      return 10;
+    }else if (condition.threshold == 'is Running' && condition.value=='False') {
+      return 11;
+    }
+    return 0;
+  }
+
+  int getOperatorOfCombined(Condition condition) {
+    if(condition.threshold == 'Anyone is'){
+      return 2;
+    }
+    return 1;
   }
 
   void removeCondition(int index) {

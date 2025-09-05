@@ -1,32 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:oro_drip_irrigation/views/customer/mobile/customer_mobile.dart';
-import 'package:oro_drip_irrigation/views/customer/tablet/customer_tablet.dart';
-import 'package:oro_drip_irrigation/views/customer/web/customer_web.dart';
+import 'package:oro_drip_irrigation/views/customer/customer_narrow_layout.dart';
+import 'package:oro_drip_irrigation/views/customer/customer_middle_layout.dart';
+import 'package:oro_drip_irrigation/views/customer/customer_wide_layout.dart';
 import '../providers/user_provider.dart';
 import '../repository/repository.dart';
 import '../services/http_service.dart';
-import '../views/admin/middle/admin_middle.dart';
-import '../views/admin/narrow/admin_narrow.dart';
-import '../views/admin/wide/admin_wide.dart';
+import '../views/admin/admin_middle_layout.dart';
+import '../views/admin/admin_narrow_layout.dart';
+import '../views/admin/admin_wide_layout.dart';
 import '../views/common/login/middle/login_tablet.dart';
 import '../views/common/login/narrow/login_mobile.dart';
 import '../views/common/login/wide/login_web.dart';
-import '../views/common/user_dashboard/dashboard_service_provider.dart';
-import '../views/common/user_dashboard/mobile/admin_mobile_dashboard.dart';
-import '../views/common/user_dashboard/mobile/customer_mobile_dashboard.dart';
-import '../views/common/user_dashboard/mobile/dealer_mobile_dashboard.dart';
+import '../views/common/user_dashboard/customer_dashboard_service.dart';
+import '../views/common/user_dashboard/management_dashboard_service.dart';
 import '../view_models/base_header_view_model.dart';
-import '../views/common/user_dashboard/tablet/admin_tablet_dashboard.dart';
-import '../views/common/user_dashboard/tablet/customer_tablet_dashboard.dart';
-import '../views/common/user_dashboard/tablet/dealer_tablet_dashboard.dart';
+import '../views/common/user_dashboard/middle/admin_tablet_dashboard.dart';
+import '../views/common/user_dashboard/middle/customer_tablet_dashboard.dart';
+import '../views/common/user_dashboard/middle/dealer_tablet_dashboard.dart';
+import '../views/common/user_dashboard/narrow/admin_mobile_dashboard.dart';
+import '../views/common/user_dashboard/narrow/customer_home_narrow.dart';
+import '../views/common/user_dashboard/narrow/dealer_mobile_dashboard.dart';
 import '../views/common/user_dashboard/web/admin_web_dashboard.dart';
 import '../views/common/user_dashboard/web/customer_web_dashboard.dart';
 import '../views/common/user_dashboard/web/dealer_web_dashboard.dart';
-import '../views/dealer/middle/dealer_tablet.dart';
-import '../views/dealer/narrow/dealer_mobile.dart';
-import '../views/dealer/wide/dealer_web.dart';
+import '../views/dealer/dealer_middle_layout.dart';
+import '../views/dealer/dealer_narrow_layout.dart';
+import '../views/dealer/dealer_wide_layout.dart';
 import 'base_layout.dart';
 
 class AdminScreenLayout extends BaseScreenLayout {
@@ -66,22 +67,31 @@ class DealerScreenLayout extends BaseScreenLayout {
   }
 
   @override
-  Widget buildNarrow(BuildContext context) => const DealerMobile();
+  Widget buildNarrow(BuildContext context) => const DealerNarrowLayout();
   @override
-  Widget buildMiddle(BuildContext context) => const DealerTablet();
+  Widget buildMiddle(BuildContext context) => const DealerMiddleLayout();
   @override
-  Widget buildWide(BuildContext context) => const DealerWeb();
+  Widget buildWide(BuildContext context) => const DealerWideLayout();
 }
 
 class CustomerScreenLayout extends BaseScreenLayout {
   const CustomerScreenLayout({super.key});
 
   @override
-  Widget buildNarrow(BuildContext context) => const CustomerMobile();
+  Widget build(BuildContext context) {
+    final viewedCustomer = context.read<UserProvider>().viewedCustomer!;
+    return CustomerDashboardService(
+      customerId: viewedCustomer.id,
+      child: super.build(context),
+    );
+  }
+
   @override
-  Widget buildMiddle(BuildContext context) => const CustomerTablet();
+  Widget buildNarrow(BuildContext context) => const CustomerNarrowLayout();
   @override
-  Widget buildWide(BuildContext context) => const CustomerWeb();
+  Widget buildMiddle(BuildContext context) => const CustomerMiddleLayout();
+  @override
+  Widget buildWide(BuildContext context) => const CustomerWideLayout();
 }
 
 class LoginScreenLayout extends BaseScreenLayout {
@@ -101,7 +111,7 @@ class AdminDashboardLayout extends BaseScreenLayout {
   @override
   Widget build(BuildContext context) {
     final viewedCustomer = context.read<UserProvider>().viewedCustomer!;
-    return DashboardServiceProvider(
+    return ManagementDashboardService(
       userId: viewedCustomer.id,
       userType: 1,
       child: super.build(context),
@@ -122,7 +132,7 @@ class DealerDashboardLayout extends BaseScreenLayout {
   @override
   Widget build(BuildContext context) {
     final viewedCustomer = context.read<UserProvider>().viewedCustomer!;
-    return DashboardServiceProvider(
+    return ManagementDashboardService(
       userId: viewedCustomer.id,
       userType: 2,
       child: super.build(context),
@@ -137,11 +147,12 @@ class DealerDashboardLayout extends BaseScreenLayout {
   Widget buildWide(BuildContext context) => const DealerWebDashboard();
 }
 
+
 class CustomerDashboardLayout extends BaseScreenLayout {
   const CustomerDashboardLayout({super.key});
 
   @override
-  Widget buildNarrow(BuildContext context) => const CustomerMobileDashboard();
+  Widget buildNarrow(BuildContext context) => const CustomerDashboardNarrow();
   @override
   Widget buildMiddle(BuildContext context) => const CustomerTabletDashboard();
   @override

@@ -73,6 +73,11 @@ class AppConstants {
   static const String agitatorNotON = "dp_agitator_right_y.png";
   static const String agitatorNotOFF = "dp_agitator_right_r.png";
 
+  static const String mblValveOFF = "m_valve_grey.png";
+  static const String mblValveON = "m_valve_green.png";
+  static const String mblValveNotON = "m_valve_orange.png";
+  static const String mblValveNotOFF = "m_valve_red.png";
+
   static const String mainValveOFF = "main_valve_gray.png";
   static const String mainValveON = "main_valve_green.png";
   static const String mainValveNotON = "main_valve_orange.png";
@@ -210,6 +215,10 @@ class AppConstants {
       case 'valve':
         imagePathFinal = _getValveImagePath(keyTwo);
         break;
+      case 'valveToMobile':
+        imagePathFinal = _getMobileValveImagePath(keyTwo);
+        break;
+
       case 'valve_lj':
         imagePathFinal = _getValveLjImagePath(keyTwo);
         break;
@@ -402,6 +411,22 @@ class AppConstants {
         return '';
     }
   }
+
+  static String _getMobileValveImagePath(int status) {
+    switch (status) {
+      case 0:
+        return mblValveOFF;
+      case 1:
+        return mblValveON;
+      case 2:
+        return mblValveNotON;
+      case 3:
+        return mblValveNotOFF;
+      default:
+        return '';
+    }
+  }
+
 
   static String _getValveLjImagePath(int status) {
     switch (status) {

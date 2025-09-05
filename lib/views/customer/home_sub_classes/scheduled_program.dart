@@ -38,6 +38,7 @@ class ScheduledProgram extends StatelessWidget {
 
     final spLive = Provider.of<MqttPayloadProvider>(context).scheduledProgramPayload;
     final conditionPayload = Provider.of<MqttPayloadProvider>(context).conditionPayload;
+
     if (spLive.isNotEmpty) {
       _updateProgramsFromMqtt(spLive, scheduledPrograms, conditionPayload);
     }
@@ -857,18 +858,20 @@ class ScheduledProgram extends StatelessWidget {
             List<String> parts = payload.split(",");
             if (parts.length > 2) {
               int? conditionSerialNo = int.tryParse(parts[0].trim());
+              print(conditionSerialNo);
               int? conditionStatus = int.tryParse(parts[2].trim());
               String? actualValue = parts[4].trim();
 
-              try {
-                final condition = scheduledPrograms[index]
-                    .conditions
-                    .firstWhere((c) => c.sNo == conditionSerialNo);
+              final matches = scheduledPrograms[index]
+                  .conditions
+                  .where((c) => c.sNo == conditionSerialNo);
+
+              for (var condition in matches) {
                 condition.conditionStatus = conditionStatus!;
                 condition.actualValue = actualValue;
-              } catch (e) {
-                //print(e);
-                // Not found — optionally handle or ignore
+                print("Updated condition: sNo=${condition.sNo}, "
+                    "status=${condition.conditionStatus}, "
+                    "value=${condition.actualValue}");
               }
             }
           }
