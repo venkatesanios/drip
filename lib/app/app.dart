@@ -131,7 +131,7 @@ class _MyAppState extends State<MyApp> {
           themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
           home: Builder(
             builder: (context) {
-              if (!_hasCheckedVersion) {
+              if (!_hasCheckedVersion && kReleaseMode) {
                 _hasCheckedVersion = true;
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   checkVersion(context);
