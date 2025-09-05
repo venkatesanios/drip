@@ -1,4 +1,4 @@
-name: 🛠 Android CI / Build & Release APK
+name: 🛠 Android CI / Build & Release AAB
 on:
   push:
     branches: [ main ]
@@ -62,30 +62,33 @@ jobs:
       - name: 🔢 Update version code and name
         if: startsWith(github.ref, 'refs/tags/v')
         run: |
-          # Extract version name from tag (e.g., v1.2.3 -> 1.2.3)
           VERSION_NAME=$(echo "${{ github.ref_name }}" | sed 's/^v//')
-          # Set version code to 12 for tagged releases, otherwise use commit count
           if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" =~ ^refs/tags/v ]]; then
             VERSION_CODE=12
           else
             VERSION_CODE=$(git rev-list --count HEAD)
           fi
-          # Update build.gradle
           sed -i "s/versionCode .*/versionCode $VERSION_CODE/" android/app/build.gradle
           sed -i "s/versionName .*/versionName \"$VERSION_NAME\"/" android/app/build.gradle
       - name: 🏗️ Build APK
         run: flutter build apk --release --flavor oroProduction
+      - name: 🏗️ Build AAB
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: flutter build appbundle --release --flavor oroProduction
       - name: 📦 Prepare artifacts
         run: |
           mkdir -p artifacts
           cp build/app/outputs/apk/oroProduction/release/app-oroProduction-release.apk artifacts/
+          if [[ "${{ github.ref }}" =~ ^refs/tags/v ]]; then
+            cp build/app/outputs/bundle/oroProductionRelease/app-oroProduction-release.aab artifacts/
+          fi
       - name: 🏷️ Create or update Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: ncipollo/release-action@v1.16.0
         with:
           tag: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
-          artifacts: artifacts/*.apk
+          artifacts: artifacts/*.apk,artifacts/*.aab
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: 📤 Upload to Play Store (Internal)
         if: startsWith(github.ref, 'refs/tags/v')
@@ -93,7 +96,7 @@ jobs:
         with:
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_JSON }}
           packageName: com.niagaraautomations.oroDripirrigation
-          releaseFiles: artifacts/app-oroProduction-release.apk
+          releaseFiles: artifacts/app-oroProduction-release.aab
           track: internal
           inAppUpdatePriority: 3
           status: completed
