@@ -152,7 +152,7 @@ jobs:
       - name: 🍏 Setup Xcode
         run: sudo xcode-select -s /Applications/Xcode_16.4.app
 
-      - name: 🔐 Setup Code Signing
+      - name: 🔐 Setup Code Signing (robust decode + validation + PEM→P12)
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
@@ -160,57 +160,113 @@ jobs:
         run: |
           set -euo pipefail
           echo "Starting code signing setup..."
-
-          # Portable base64 decode (try --decode, -D, then -d)
-          decode_base64() {
+          
+          # Helper: portable base64 decode after stripping CRLF
+          decode_base64_to_file() {
             local input="$1"
             local out="$2"
-            if echo "$input" | base64 --decode > "$out" 2>/dev/null; then
+            # Remove CR/LF that often get introduced when copying secrets
+            local cleaned
+            cleaned=$(printf "%s" "$input" | tr -d '\r\n')
+            # Try common base64 decoders in order
+            if printf "%s" "$cleaned" | base64 --decode > "$out" 2>/dev/null; then
               return 0
             fi
-            if echo "$input" | base64 -D > "$out" 2>/dev/null; then
+            if printf "%s" "$cleaned" | base64 -D > "$out" 2>/dev/null; then
               return 0
             fi
-            if echo "$input" | base64 -d > "$out" 2>/dev/null; then
+            if printf "%s" "$cleaned" | base64 -d > "$out" 2>/dev/null; then
               return 0
             fi
             return 1
           }
-
-          echo "Decoding certificate..."
-          if ! decode_base64 "$APPLE_CERTIFICATE" certificate.p12; then
-            echo "Failed to decode APPLE_CERTIFICATE; ensure the secret is a base64 string" >&2
+          
+          echo "Decoding certificate secret to certificate.raw..."
+          if ! decode_base64_to_file "$APPLE_CERTIFICATE" certificate.raw; then
+            echo "Failed to decode APPLE_CERTIFICATE; ensure the secret is raw base64 of a .p12 or PEM file." >&2
             exit 1
           fi
-
+          
+          # Detect whether we already have a PKCS#12 file or PEM text
+          echo "Inspecting decoded certificate..."
+          file certificate.raw || true
+          head -n 5 certificate.raw | sed -n '1,5p' || true
+          
+          # If certificate.raw looks like PEM (contains BEGIN), convert to .pem and try to export to p12
+          if grep -q "-----BEGIN" certificate.raw 2>/dev/null || grep -q "BEGIN CERTIFICATE" certificate.raw 2>/dev/null; then
+            echo "Detected PEM content in decoded certificate. Attempting to extract cert and private key and export a .p12..."
+            # Extract certificate(s)
+            awk 'BEGIN{in=0} /-----BEGIN CERTIFICATE-----/{in=1} in{print} /-----END CERTIFICATE-----/{print; in=0}' certificate.raw > certs.pem || true
+            # Extract private key (RSA or EC or PRIVATE KEY)
+            awk 'BEGIN{in=0} /-----BEGIN .*PRIVATE KEY-----/{in=1} printit=1} printit{print} /-----END .*PRIVATE KEY-----/{print; printit=0; in=0}' certificate.raw > key.pem || true
+          
+            # If key.pem is empty, try alternate extraction
+            if [ ! -s key.pem ]; then
+              echo "No private key block found in PEM. The secret must include the private key when providing PEM. Aborting." >&2
+              echo "You may have uploaded only the certificate (public) without the private key. For codesigning you need the private key as well or a .p12 that bundles them." >&2
+              exit 1
+            fi
+          
+            # Create PKCS#12
+            if openssl pkcs12 -export -out certificate.p12 -inkey key.pem -in certs.pem -passout pass:"$APPLE_CERTIFICATE_PASSWORD"; then
+              echo "Successfully converted PEM to certificate.p12"
+            else
+              echo "openssl failed to export PKCS#12 from PEM. Aborting." >&2
+              exit 1
+            fi
+          else
+            # Assume certificate.raw is the binary p12; move to certificate.p12
+            mv certificate.raw certificate.p12
+          fi
+          
+          echo "Validating certificate.p12 with openssl..."
+          if openssl pkcs12 -info -in certificate.p12 -nokeys -passin pass:"$APPLE_CERTIFICATE_PASSWORD" > /dev/null 2>&1; then
+            echo "certificate.p12 appears valid."
+          else
+            echo "openssl reports certificate.p12 is invalid or the password is incorrect." >&2
+            echo "Diagnostics:" >&2
+            echo " - file output:" >&2
+            file certificate.p12 >&2 || true
+            echo " - hexdump (first 128 bytes):" >&2
+            hexdump -C certificate.p12 | head -n 16 >&2 || true
+            echo "If you intended to provide a .p12, ensure the secret contains the binary .p12 base64-encoded (no extra text), and that APPLE_CERTIFICATE_PASSWORD is correct." >&2
+            exit 1
+          fi
+          
           # Create and configure a dedicated temporary keychain for the job
           KEYCHAIN_PASSWORD="github_actions"
-          KEYCHAIN_NAME="build.keychain"
-          KEYCHAIN_PATH="$HOME/Library/Keychains/$KEYCHAIN_NAME-db"
-
-          echo "Creating keychain..."
+          KEYCHAIN_NAME="build.keychain-db"
+          KEYCHAIN_PATH="$HOME/Library/Keychains/$KEYCHAIN_NAME"
+          
+          echo "Creating keychain: $KEYCHAIN_PATH"
+          # Create keychain (filename should end with -db in modern macOS)
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
           # Make the new keychain the default so codesign/xcodebuild will use it
-          security default-keychain -s "$KEYCHAIN_NAME"
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
-          # Increase timeout to avoid unlock issues during long builds
-          security set-keychain-settings -t 3600 -u "$KEYCHAIN_NAME"
-
-          echo "Importing certificate into keychain..."
+          security list-keychains -s "$KEYCHAIN_PATH" $(security list-keychains | sed -e 's/^[[:space:]]*//g' | tr -d '"')
+          security default-keychain -s "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -t 3600 -u "$KEYCHAIN_PATH"
+          
+          echo "Importing certificate.p12 into keychain..."
+          # Import and allow codesign & security to access the private key
           security import certificate.p12 -k "$KEYCHAIN_PATH" -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
-
+          
           echo "Adjusting key partition list to allow codesign/xcode to access the key..."
-          # This step may fail on older macOS versions; continue on failure but warn
-          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH" || echo "Warning: set-key-partition-list failed (non-fatal)"
-
+          # set-key-partition-list may fail on some macOS versions; warn but continue
+          if ! security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"; then
+            echo "Warning: set-key-partition-list failed (may be non-fatal on this macOS version). If xcode/build fails with 'codesign' permissions, revisit this." >&2
+          fi
+          
           echo "Installing provisioning profile..."
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          if ! decode_base64 "$APPLE_PROVISIONING_PROFILE" ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision; then
-            echo "Failed to decode APPLE_PROVISIONING_PROFILE; ensure the secret is a base64 string" >&2
+          if ! decode_base64_to_file "$APPLE_PROVISIONING_PROFILE" ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision; then
+            echo "Failed to decode APPLE_PROVISIONING_PROFILE; ensure the secret is base64 of the .mobileprovision file." >&2
             exit 1
           fi
-
+          
           echo "Code signing setup complete."
+          echo "List installed provisioning profiles:"
+          ls -l ~/Library/MobileDevice/Provisioning\ Profiles || true
 
       - name: 🏗️ Build IPA
         run: flutter build ipa --release --flavor oroProduction -t lib/main_oroProduction.dart
