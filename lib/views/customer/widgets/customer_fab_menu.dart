@@ -178,6 +178,7 @@ class CustomerFabMenu extends StatelessWidget {
               modelId: currentMaster.modelId,
               deviceName: currentMaster.deviceName,
               categoryName: currentMaster.categoryName,
+              callbackFunction: callbackFunction,
             ),
           ),
         );

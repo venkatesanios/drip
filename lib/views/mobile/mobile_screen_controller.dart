@@ -584,6 +584,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                                   modelId: currentMaster.modelId,
                                   deviceName: currentMaster.deviceName,
                                   categoryName: currentMaster.categoryName,
+                                  callbackFunction: callbackFunction,
                                 );
                               }
                           )

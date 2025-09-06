@@ -30,6 +30,7 @@ class ProgramLibraryScreenNew extends StatefulWidget {
   final int modelId;
   final String deviceName;
   final String categoryName;
+  final void Function(String msg) callbackFunction;
 
   const ProgramLibraryScreenNew({
     super.key,
@@ -42,6 +43,7 @@ class ProgramLibraryScreenNew extends StatefulWidget {
     required this.modelId,
     required this.deviceName,
     required this.categoryName,
+    required this.callbackFunction,
   });
 
   @override
@@ -93,6 +95,12 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
         title: const Text('Program Library',),
         centerTitle: false,
         automaticallyImplyLeading: true,
+        leading: BackButton(
+          onPressed: () {
+            widget.callbackFunction('Program created');
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: irrigationProgramMainProvider.programLibrary != null ?
       RefreshIndicator(
