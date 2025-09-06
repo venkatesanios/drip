@@ -52,8 +52,15 @@ class CustomerScreenController extends StatefulWidget {
 
 class _CustomerScreenControllerState extends State<CustomerScreenController> {
   late String role;
-  void callbackFunction(message)
+
+  void callbackFunction(String status)
   {
+    if(status=='Program created'){
+      CustomerScreenControllerViewModel viewModel =
+      Provider.of<CustomerScreenControllerViewModel>(context, listen: false);
+      viewModel.getAllMySites(context, widget.customerId);
+    }
+
     /*Navigator.pop(context);
     Future.delayed(const Duration(milliseconds: 500), () {
       _showSnackBar(message);
@@ -725,6 +732,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
                                         modelId: currentMaster.modelId,
                                         deviceName: currentMaster.deviceName,
                                         categoryName: currentMaster.categoryName,
+                                        callbackFunction: callbackFunction,
                                       ),
                                     ),
                                   );

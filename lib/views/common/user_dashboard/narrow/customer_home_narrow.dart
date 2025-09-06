@@ -16,10 +16,10 @@ import '../../../customer/home_sub_classes/current_program.dart';
 import '../../../customer/home_sub_classes/fertilizer_site.dart';
 import '../../../customer/home_sub_classes/filter_site.dart';
 import '../../../customer/home_sub_classes/next_schedule.dart';
+import '../../../customer/widgets/sensor_widget_mobile.dart';
 
 class CustomerDashboardNarrow extends StatelessWidget {
   const CustomerDashboardNarrow({super.key});
-
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +38,90 @@ class CustomerDashboardNarrow extends StatelessWidget {
     final linesToDisplay = (viewModel.myCurrentIrrLine == "All irrigation line" || viewModel.myCurrentIrrLine.isEmpty)
         ? irrigationLines.where((line) => line.name != viewModel.myCurrentIrrLine).toList()
         : irrigationLines.where((line) => line.name == viewModel.myCurrentIrrLine).toList();
+
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Pump station, irrigation lines, etc...
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.schedule),
+
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            builder: (context) => Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    CurrentProgram(
+                      scheduledPrograms: scheduledProgram,
+                      deviceId: deviceId,
+                      customerId: viewedCustomer!.id,
+                      controllerId: controllerId,
+                      currentLineSNo: irrigationLines[viewModel.lIndex].sNo,
+                      modelId: modelId,
+                    ),
+                    const SizedBox(height: 12),
+                    NextSchedule(scheduledPrograms: scheduledProgram),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+
+    return Scaffold(
+      body: Stack(
+        children: [
+          // your main body scroll
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                // irrigation lines, pump station...
+              ],
+            ),
+          ),
+          DraggableScrollableSheet(
+            initialChildSize: 0.2,
+            minChildSize: 0.2,
+            maxChildSize: 0.6,
+            builder: (context, controller) {
+              return Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                child: ListView(
+                  controller: controller,
+                  children: [
+                    CurrentProgram(
+                      scheduledPrograms: scheduledProgram,
+                      deviceId: deviceId,
+                      customerId: viewedCustomer!.id,
+                      controllerId: controllerId,
+                      currentLineSNo: irrigationLines[viewModel.lIndex].sNo,
+                      modelId: modelId,
+                    ),
+                    NextSchedule(scheduledPrograms: scheduledProgram),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -133,147 +217,13 @@ class CustomerDashboardNarrow extends StatelessWidget {
                             ],
                           ),
                         ),
-                        buildIrrigationLineNew(context, line, viewedCustomer.id, controllerId, modelId, deviceId)
+                        buildIrrigationLine(context, line, viewedCustomer.id, controllerId, modelId, deviceId)
                       ],
                     ),
                   ),
                 ],
               ),
-
-              /*child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(
-                    color: Theme.of(context).primaryColor.withOpacity(0.2),
-                    width: 0.5,
-                  ),
-                  borderRadius: const BorderRadius.all(Radius.circular(5)),
-                ),
-                child: Column(
-                  children: [
-                    Container(
-                      width: MediaQuery.sizeOf(context).width,
-                      height: 45,
-                      color: Colors.white70,
-                      child: Row(
-                        children: [
-                          const SizedBox(width: 16),
-                          Text(
-                            line.name,
-                            textAlign: TextAlign.left,
-                            style: const TextStyle(color: Colors.black54, fontSize: 17, fontWeight: FontWeight.bold),
-                          ),
-                          const Spacer(),
-                          MaterialButton(
-                            color: line.linePauseFlag == 0
-                                ? Theme.of(context).primaryColorLight
-                                : Colors.orange.shade400,
-                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                            onPressed: () async {
-                              String payLoadFinal = jsonEncode({
-                                "4900": {
-                                  "4901": "${line.sNo}, ${line.linePauseFlag == 0 ? 1 : 0}",
-                                }
-                              });
-
-                              final result = await context.read<CommunicationService>().sendCommand(
-                                payload: payLoadFinal,
-                                serverMsg: line.linePauseFlag == 0
-                                    ? 'Paused the ${line.name}'
-                                    : 'Resumed the ${line.name}',
-                              );
-
-                              if (result['http'] == true) debugPrint("Payload sent to Server");
-                              if (result['mqtt'] == true) debugPrint("Payload sent to MQTT Box");
-                              if (result['bluetooth'] == true) debugPrint("Payload sent via Bluetooth");
-                            },
-                            child: Text(
-                              line.linePauseFlag == 0 ? 'PAUSE THE LINE' : 'RESUME THE LINE',
-                              style: const TextStyle(
-                                color:Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 5)
-                        ],
-                      ),
-                    ),
-                    buildIrrigationLine(context, line, viewedCustomer.id, controllerId, modelId, deviceId),
-                  ],
-                ),
-              ),*/
             )),
-
-            /*...linesToDisplay.map((line) => Padding(
-              padding: const EdgeInsets.only(left: 8, top: 8, right: 8),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(
-                    color: Theme.of(context).primaryColor.withOpacity(0.2),
-                    width: 0.5,
-                  ),
-                  borderRadius: const BorderRadius.all(Radius.circular(5)),
-                ),
-                child: Column(
-                  children: [
-                    Container(
-                      width: MediaQuery.sizeOf(context).width,
-                      height: 45,
-                      color: Colors.white70,
-                      child: Row(
-                        children: [
-                          const SizedBox(width: 16),
-                          Text(
-                            line.name,
-                            textAlign: TextAlign.left,
-                            style: const TextStyle(color: Colors.black54, fontSize: 17, fontWeight: FontWeight.bold),
-                          ),
-                          const Spacer(),
-                          MaterialButton(
-                            color: line.linePauseFlag == 0
-                                ? Theme.of(context).primaryColorLight
-                                : Colors.orange.shade400,
-                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                            onPressed: () async {
-                              String payLoadFinal = jsonEncode({
-                                "4900": {
-                                  "4901": "${line.sNo}, ${line.linePauseFlag == 0 ? 1 : 0}",
-                                }
-                              });
-
-                              final result = await context.read<CommunicationService>().sendCommand(
-                                payload: payLoadFinal,
-                                serverMsg: line.linePauseFlag == 0
-                                    ? 'Paused the ${line.name}'
-                                    : 'Resumed the ${line.name}',
-                              );
-
-                              if (result['http'] == true) debugPrint("Payload sent to Server");
-                              if (result['mqtt'] == true) debugPrint("Payload sent to MQTT Box");
-                              if (result['bluetooth'] == true) debugPrint("Payload sent via Bluetooth");
-                            },
-                            child: Text(
-                              line.linePauseFlag == 0 ? 'PAUSE THE LINE' : 'RESUME THE LINE',
-                              style: const TextStyle(
-                                color:Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 5)
-                        ],
-                      ),
-                    ),
-                    buildIrrigationLine(context, line, viewedCustomer.id, controllerId, modelId, deviceId),
-                  ],
-                ),
-              ),
-            )),*/
-
             const SizedBox(height: 8),
           ],
         ),
@@ -325,8 +275,7 @@ class CustomerDashboardNarrow extends StatelessWidget {
 
   }
 
-  Widget buildIrrigationLineNew(BuildContext context, IrrigationLineModel irrLine, int customerId, int controllerId, int modelId, String deviceId){
-
+  Widget buildIrrigationLine(BuildContext context, IrrigationLineModel irrLine, int customerId, int controllerId, int modelId, String deviceId){
     return IrrigationLine(
       valves: irrLine.valveObjects,
       mainValves: irrLine.mainValveObjects,
@@ -340,47 +289,6 @@ class CustomerDashboardNarrow extends StatelessWidget {
       deviceId: deviceId,
       modelId: modelId,
     );
-
-  }
-
-  Widget buildIrrigationLine(BuildContext context, IrrigationLineModel irrLine, int customerId, int controllerId, int modelId, String deviceId){
-
-    final inletWaterSources = {
-      for (var source in irrLine.inletSources) source.sNo: source
-    }.values.toList();
-
-    final outletWaterSources = {
-      for (var source in irrLine.outletSources) source.sNo: source
-    }.values.toList();
-
-    final filterSite = {
-      if (irrLine.centralFilterSite != null) irrLine.centralFilterSite!.sNo : irrLine.centralFilterSite!
-    }.values.toList();
-
-    final fertilizerSite = {
-      if (irrLine.centralFertilizerSite != null) irrLine.centralFertilizerSite!.sNo : irrLine.centralFertilizerSite!
-    }.values.toList();
-
-    return PumpStationWithLine(
-      inletWaterSources: inletWaterSources,
-      outletWaterSources: outletWaterSources,
-      filterSite: filterSite,
-      fertilizerSite: fertilizerSite,
-      valves: irrLine.valveObjects,
-      mainValves: irrLine.mainValveObjects,
-      lights:irrLine.lightObjects,
-      gates:irrLine.gateObjects,
-      prsSwitch: irrLine.prsSwitch,
-      pressureIn: irrLine.pressureIn,
-      pressureOut: irrLine.pressureOut,
-      waterMeter: irrLine.waterMeter,
-      customerId: customerId,
-      controllerId: controllerId,
-      containerWidth: MediaQuery.sizeOf(context).width,
-      deviceId: deviceId,
-      modelId: modelId,
-    );
-
   }
 }
 

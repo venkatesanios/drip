@@ -58,10 +58,11 @@ class SentAndReceivedViewModel extends ChangeNotifier {
       final response = await repository.fetchSentAndReceivedHardwarePayload(body);
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
+        print(response.body);
         if (jsonData["code"] == 200) {
           final message = jsonData?['data']?['message'];
           if (message != null) {
-            displayJsonData(context, jsonData['data']['message'] ?? 'Empty message', aTitle, pyTitle);
+            displayJsonData(context, jsonData['data'] ?? 'Empty message', aTitle, pyTitle);
           }else{
             showDialog(
               context: context,
@@ -105,14 +106,30 @@ class SentAndReceivedViewModel extends ChangeNotifier {
                   Text(pyTitle, style: const TextStyle(color: Colors.teal)),
                   const Divider(),
                   SelectableText(
-                    jsonEncode(jsonData),
+                    jsonEncode(jsonData['message']),
                     style: const TextStyle(color: Colors.black54),
                     showCursor: true,
                     toolbarOptions: const ToolbarOptions(
                       copy: true,
                       selectAll: true,
                     ),
-                  )
+                  ),
+
+                  if(jsonData['changedPayload']!=null)...[
+                    const SizedBox(height: 8),
+                    const Text('Modified Settings', style: TextStyle(color: Colors.teal)),
+                    const Divider(),
+                    SelectableText(
+                      jsonEncode(jsonData['changedPayload']),
+                      style: const TextStyle(color: Colors.black54),
+                      showCursor: true,
+                      toolbarOptions: const ToolbarOptions(
+                        copy: true,
+                        selectAll: true,
+                      ),
+                    ),
+                  ],
+
                 ],
               ),
             ),
