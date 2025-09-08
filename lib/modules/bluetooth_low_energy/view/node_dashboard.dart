@@ -9,6 +9,7 @@ import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/control_no
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/interface_setting.dart';
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/node_in_boot_mode.dart';
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/trace_screen.dart';
+import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/view_node.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_grid/responsive_grid.dart';
@@ -38,6 +39,10 @@ class _NodeDashboardState extends State<NodeDashboard> {
 
   Future<int> getData()async{
     try{
+      if(bleService.nodeDataFromHw.isEmpty){
+        // second time updation nodeDataFromHw is empty...
+        return 200;
+      }
       await Future.delayed(const Duration(seconds: 1));
       var body = {
         "userId": widget.masterData['customerId'],
@@ -96,46 +101,43 @@ class _NodeDashboardState extends State<NodeDashboard> {
                                       userAcknowledgementForUpdatingFirmware();
                                     }
                                 ),
-                                if(!bleService.loraModel.contains(bleService.nodeDataFromHw['MID']) && (!AppConstants.pumpWithValveModelList.contains(bleService.nodeData['modelId']) && !AppConstants.ecoGemModelList.contains(bleService.nodeData['modelId'])))
-                                  ...[
-                                    if(bleService.nodeDataFromHw.containsKey('RLY'))
-                                      gridItemWidget(
-                                        imagePath: 'assets/Images/Svg/SmartComm/control.svg',
-                                        title: 'Control',
-                                        onTap: () {
-                                          Navigator.push(context, MaterialPageRoute(builder: (context){
-                                            return const ControlNode();
-                                          }));
-                                        },
-                                      ),
-                                    gridItemWidget(
-                                        imagePath: 'assets/Images/Svg/SmartComm/interface_setting.svg',
-                                        title: 'Interface Setting',
-                                        onTap: () {
-                                          Navigator.push(context, MaterialPageRoute(builder: (context){
-                                            return const InterfaceSetting();
-                                          }));
-                                        }
-                                    ),
-                                    gridItemWidget(
-                                      imagePath: 'assets/Images/Svg/SmartComm/trace_file.svg',
-                                      title: 'Trace',
-                                      onTap: () {
-                                        Navigator.push(context, MaterialPageRoute(builder: (context){
-                                          return TraceScreen(nodeData: widget.nodeData,);
-                                        }));
-                                      },
-                                    ),
-                                    gridItemWidget(
-                                      imagePath: 'assets/Images/Svg/SmartComm/calibration.svg',
-                                      title: 'Calibration',
-                                      onTap: () {
-                                        Navigator.push(context, MaterialPageRoute(builder: (context){
-                                          return Calibration(nodeData: widget.nodeData,);
-                                        }));
-                                      },
-                                    ),
-                                  ],
+                                  gridItemWidget(
+                                  imagePath: 'assets/Images/Svg/SmartComm/control.svg',
+                                  title: 'View & Control',
+                                  onTap: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context){
+                                      return const ControlNode();
+                                    }));
+                                  },
+                                ),
+                                gridItemWidget(
+                                    imagePath: 'assets/Images/Svg/SmartComm/interface_setting.svg',
+                                    title: 'Interface Setting',
+                                    onTap: () {
+                                      Navigator.push(context, MaterialPageRoute(builder: (context){
+                                        return const InterfaceSetting();
+                                      }));
+                                    }
+                                ),
+                                gridItemWidget(
+                                  imagePath: 'assets/Images/Svg/SmartComm/trace_file.svg',
+                                  title: 'Trace',
+                                  onTap: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context){
+                                      return TraceScreen(nodeData: widget.nodeData,);
+                                    }));
+                                  },
+                                ),
+                                if(!bleService.nodeDataFromServer['hardwareLoraModel'].contains(bleService.nodeDataFromHw['MID']) && (!AppConstants.pumpWithValveModelList.contains(bleService.nodeData['modelId']) && !AppConstants.ecoGemModelList.contains(bleService.nodeData['modelId'])))
+                                  gridItemWidget(
+                                  imagePath: 'assets/Images/Svg/SmartComm/calibration.svg',
+                                  title: 'Calibration',
+                                  onTap: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context){
+                                      return Calibration(nodeData: widget.nodeData,);
+                                    }));
+                                  },
+                                ),
                                 if(bleService.developerOption >= 10)
                                   gridItemWidget(
                                     imagePath: 'assets/Images/Svg/SmartComm/sent_and_receive.svg',

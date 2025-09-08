@@ -2,8 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import '../Constants/data_convertion.dart';
-import '../Models/Weather_model.dart';
-import '../Models/customer/site_model.dart';
+import '../models/Weather_model.dart';
 import '../Screens/Map/googlemap_model.dart';
 import '../services/bluetooth_service.dart';
 import '../utils/enums.dart';
@@ -11,8 +10,7 @@ import '../utils/enums.dart';
 
 class MqttPayloadProvider with ChangeNotifier {
    final MQTTConnectionState _appConnectionState = MQTTConnectionState.disconnected;
-  SiteModel? _dashboardLiveInstance;
-  SiteModel? get dashboardLiveInstance => _dashboardLiveInstance;
+
   dynamic spa = '';
   String dashBoardPayload = '', schedulePayload = '';
   WeatherModel weatherModelinstance = WeatherModel();
@@ -612,7 +610,7 @@ class MqttPayloadProvider with ChangeNotifier {
 
       try {
         Map<String, dynamic> data = _receivedPayload.isNotEmpty? jsonDecode(_receivedPayload) : {};
-        print('_receivedPayload------>:$_receivedPayload');
+        // print('_receivedPayload------>:$_receivedPayload');
 
         if(data['mC']=='2400'){
           liveDateAndTime = '${data['cD']} ${data['cT']}';
@@ -748,13 +746,13 @@ class MqttPayloadProvider with ChangeNotifier {
              final rawFrequency = int.parse(parts[2]);
              final frequency = (rawFrequency / 10).toStringAsFixed(1);
 
-             Loara1verssion = "Verssion:${parts[1]},Frequency:$frequency,SF:${parts[3]}";
+             Loara1verssion = "${parts[1]},$frequency,${parts[3]}";
            }
          else
            {
              final rawFrequency = int.parse(parts[2]);
              final frequency = (rawFrequency / 10).toStringAsFixed(1);
-             Loara2verssion = "Verssion:${parts[1]},Frequency:$frequency,SF:${parts[3]}";
+             Loara2verssion = "${parts[1]},$frequency,${parts[3]}";
            }
 
         }
@@ -781,13 +779,6 @@ class MqttPayloadProvider with ChangeNotifier {
     updateCentralFertigationSite();
     updateCentralFiltrationSite();
     updateLocalFiltrationSite();
-  }
-
-
-  Future<void> updateDashboardPayload(Map<String, dynamic> payload) async{
-    _dashboardLiveInstance = SiteModel.fromJson(payload);
-
-    notifyListeners();
   }
 
   Timer? _timerForPumpController;

@@ -1,10 +1,5 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/repository/repository.dart';
-import 'package:oro_drip_irrigation/services/http_service.dart';
-import 'package:oro_drip_irrigation/services/mqtt_service.dart';
-import 'package:oro_drip_irrigation/utils/environment.dart';
 import '../../../Constants/constants.dart';
 import '../model/pump_controller_data_model.dart';
 import '../widget/custom_countdown_timer.dart';

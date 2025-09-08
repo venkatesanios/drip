@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
-import '../Models/entry_form/product_category_model.dart';
+import '../models/entry_form/product_category_model.dart';
 import '../repository/repository.dart';
 
 class ProductCategoryViewModel extends ChangeNotifier {

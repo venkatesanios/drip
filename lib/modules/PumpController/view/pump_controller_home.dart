@@ -4,18 +4,16 @@ import 'package:oro_drip_irrigation/modules/Preferences/view/preference_main_scr
 import 'package:oro_drip_irrigation/modules/PumpController/view/pump_dashboard_screen.dart';
 import 'package:oro_drip_irrigation/modules/PumpController/widget/custom_outline_button.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
-import 'package:oro_drip_irrigation/view_models/customer/customer_screen_controller_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import '../../../Models/customer/site_model.dart';
+import '../../../models/customer/site_model.dart';
 import '../../../views/customer/controller_settings.dart';
 import '../../Logs/view/power_graph_screen.dart';
 import '../../Logs/view/pump_log.dart';
 import '../../Logs/view/pump_logs_home.dart';
 import '../../Logs/view/voltage_log.dart';
 import '../../Preferences/view/standalone_settings.dart';
-import '../model/pump_controller_data_model.dart';
 import '../state_management/pump_controller_provider.dart';
 
 class PumpControllerHome extends StatefulWidget {
@@ -88,9 +86,9 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
             const BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), activeIcon: Icon(Icons.settings), label: 'Settings'),
           ],
           currentIndex: _selectedIndex,
-          backgroundColor: Colors.white,
-          unselectedItemColor: Colors.grey,
-          selectedItemColor: Theme.of(context).primaryColorLight,
+          backgroundColor: Theme.of(context).primaryColorDark,
+          unselectedItemColor: Colors.white54,
+          selectedItemColor: Colors.white,
           type: BottomNavigationBarType.fixed,
           elevation: 8.0,
           onTap: _onItemTapped,
@@ -282,17 +280,17 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
     final provider = context.read<PumpControllerProvider>();
     switch(_selectedIndex) {
       case 0:
-        await provider.getUserPumpLog(widget.userId, widget.masterData.controllerId, 0);
+        await provider.getUserPumpLog(widget.customerId, widget.masterData.controllerId, 0);
       case 1:
         if(!isPumpWithValveModel) {
-          await provider.getUserPumpLog(widget.userId, widget.masterData.controllerId, 0);
+          await provider.getUserPumpLog(widget.customerId, widget.masterData.controllerId, 0);
         }
       case 2:
         if(isPumpWithValveModel) {
-          await provider.getPumpControllerData(userId: widget.userId, controllerId: widget.masterData.controllerId, nodeControllerId: 0);
+          await provider.getPumpControllerData(userId: widget.customerId, controllerId: widget.masterData.controllerId, nodeControllerId: 0);
         }
       case 3:
-        await provider.getUserVoltageLog(userId: widget.userId, controllerId: widget.masterData.controllerId, nodeControllerId: 0);
+        await provider.getUserVoltageLog(userId: widget.customerId, controllerId: widget.masterData.controllerId, nodeControllerId: 0);
       default:
         (){};
     }
@@ -308,7 +306,7 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
     switch(_selectedIndex) {
       case 0:
         selectedWidget = PumpLogScreen(
-          userId: widget.userId,
+          userId: widget.customerId,
           controllerId: widget.masterData.controllerId,
           masterData: widget.masterData,
         );
@@ -321,7 +319,7 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
             selectedIndex: _selectedIndex,
           );
         } else {
-          selectedWidget =  PowerGraphScreen(userId: widget.userId, controllerId: widget.masterData.controllerId, masterData: widget.masterData);
+          selectedWidget =  PowerGraphScreen(userId: widget.customerId, controllerId: widget.masterData.controllerId, masterData: widget.masterData);
         }
       case 2:
         if(isPumpWithValveModel) {
@@ -332,7 +330,7 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
             selectedIndex: _selectedIndex,
           );
         } else {
-          selectedWidget =  PumpVoltageLogScreen(userId: widget.userId, controllerId: widget.masterData.controllerId, masterData: widget.masterData);
+          selectedWidget =  PumpVoltageLogScreen(userId: widget.customerId, controllerId: widget.masterData.controllerId, masterData: widget.masterData);
         }
       case 3:
         if(isPumpWithValveModel) {

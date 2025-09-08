@@ -4,11 +4,13 @@ import '../../modules/PumpController/model/pump_controller_data_model.dart';
 class SiteModel {
   final List<Group> data;
 
-  SiteModel({required this.data});
+  SiteModel({
+    required this.data,
+  });
 
-  factory SiteModel.fromJson(Map<String, dynamic> json) {
+  factory SiteModel.fromJson(Map<String, dynamic> json, String userType) {
     return SiteModel(
-      data: List<Group>.from(json['data'].map((x) => Group.fromJson(x))),
+      data: List<Group>.from(json['data'].map((x) => Group.fromJson(x, userType))),
     );
   }
 
@@ -26,11 +28,12 @@ class Group {
 
   Group({required this.groupId, required this.groupName, required this.master});
 
-  factory Group.fromJson(Map<String, dynamic> json) {
+  factory Group.fromJson(Map<String, dynamic> json, String userType) {
 
+    print(userType);
     return Group(
-      groupId: json['userGroupId'],
-      groupName: json['groupName'],
+      groupId: userType == 'customer'? json['userGroupId']:json['userId'],
+      groupName: userType == 'customer'? json['groupName']:json['userName'],
       master: List<MasterControllerModel>.from(json['master'].map((x) => MasterControllerModel.fromJson(x))),
     );
   }
@@ -482,6 +485,7 @@ class RelayStatus {
   final String? name;
   String? swName;
   final int? rlyNo;
+  final String? objType;
   int status;
 
   RelayStatus({
@@ -489,6 +493,7 @@ class RelayStatus {
     required this.name,
     required this.swName,
     required this.rlyNo,
+    required this.objType,
     this.status=0,
   });
 
@@ -498,6 +503,7 @@ class RelayStatus {
       name: json['name'],
       swName: json['name'] ?? json['objectName'],
       rlyNo: json['connectionNo'],
+      objType: json['objectType'],
     );
   }
 
@@ -536,6 +542,7 @@ class ConfigObject {
   final double sNo;
   final String name;
   final String objectName;
+  final String objectType;
   final int connectionNo;
   final int? controllerId;
   final double? location;
@@ -555,6 +562,7 @@ class ConfigObject {
     required this.sNo,
     required this.name,
     required this.objectName,
+    required this.objectType,
     required this.connectionNo,
     this.controllerId,
     required this.location,
@@ -585,6 +593,7 @@ class ConfigObject {
       sNo: (json['sNo'] as num).toDouble(),
       name: json['name'],
       objectName: json['objectName'],
+      objectType: json['type'],
       controllerId: json['controllerId'],
       connectionNo: json['connectionNo'] ?? 0,
       location: (json['location'] is! double ? 0.0 : json['location']) ?? 0.0,
@@ -598,6 +607,7 @@ class ConfigObject {
       'sNo': sNo,
       'name': name,
       'objectName': objectName,
+      'objectType': objectType,
       'controllerId': controllerId,
       'connectionNo': connectionNo,
       'location': location,

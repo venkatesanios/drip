@@ -23,9 +23,7 @@ class SentAndReceived extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => SentAndReceivedViewModel(Repository(HttpService()))
-        ..getSentAndReceivedData(
-          customerId,
-          controllerId,
+        ..getSentAndReceivedData(customerId, controllerId,
           DateFormat('yyyy-MM-dd').format(DateTime.now()),
         ),
       child: Consumer<SentAndReceivedViewModel>(

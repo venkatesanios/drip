@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import '../../Models/customer/constant_model.dart';
+import '../../models/customer/constant_model.dart';
 import '../../repository/repository.dart';
 import '../../utils/snack_bar.dart';
 

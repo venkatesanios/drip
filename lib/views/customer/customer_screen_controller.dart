@@ -10,7 +10,7 @@ import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
 import 'package:oro_drip_irrigation/views/customer/site_config.dart';
 import 'package:oro_drip_irrigation/views/customer/stand_alone.dart';
 import 'package:popover/popover.dart';
-import '../../Models/customer/site_model.dart';
+import '../../models/customer/site_model.dart';
 import 'package:provider/provider.dart';
 import '../../Screens/Dealer/controllerverssionupdate.dart';
 import '../../Screens/Map/CustomerMap.dart';
@@ -52,8 +52,15 @@ class CustomerScreenController extends StatefulWidget {
 
 class _CustomerScreenControllerState extends State<CustomerScreenController> {
   late String role;
-  void callbackFunction(message)
+
+  void callbackFunction(String status)
   {
+    if(status=='Program created'){
+      CustomerScreenControllerViewModel viewModel =
+      Provider.of<CustomerScreenControllerViewModel>(context, listen: false);
+      viewModel.getAllMySites(context, widget.customerId);
+    }
+
     /*Navigator.pop(context);
     Future.delayed(const Duration(milliseconds: 500), () {
       _showSnackBar(message);
@@ -725,6 +732,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
                                         modelId: currentMaster.modelId,
                                         deviceName: currentMaster.deviceName,
                                         categoryName: currentMaster.categoryName,
+                                        callbackFunction: callbackFunction,
                                       ),
                                     ),
                                   );
@@ -1055,7 +1063,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
     switch (index) {
       case 0:
         return [...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(currentMaster.modelId) ?
-        CustomerHome(customerId: widget.userId, controllerId: currentMaster.controllerId,
+        CustomerHome(customerId: widget.customerId, controllerId: currentMaster.controllerId,
             deviceId: currentMaster.deviceId, modelId: currentMaster.modelId):
         isChanged ? PumpControllerHome(
           userId: widget.userId,
@@ -1253,12 +1261,13 @@ class NovaInfoButton extends StatelessWidget {
 }
 
 class AlarmListItems extends StatelessWidget {
-  const AlarmListItems({super.key, required this.alarm, required this.deviceID, required this.customerId, required this.controllerId, required this.irrigationLine});
+  const AlarmListItems({super.key, required this.alarm, required this.deviceID, required this.customerId, required this.controllerId, required this.irrigationLine, this.show = true});
   final List<String> alarm;
   final List<IrrigationLineModel> irrigationLine;
 
   final String deviceID;
   final int customerId, controllerId;
+  final bool show;
 
   @override
   Widget build(BuildContext context) {
@@ -1269,27 +1278,28 @@ class AlarmListItems extends StatelessWidget {
       dataRowHeight: 45.0,
       headingRowHeight: 35.0,
       headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withOpacity(0.1)),
-      columns: const [
-        DataColumn2(
+      columns: [
+        const DataColumn2(
           label: Text('', style: TextStyle(fontSize: 13)),
           fixedWidth: 25,
         ),
-        DataColumn2(
+        const DataColumn2(
             label: Text('Message', style: TextStyle(fontSize: 13),),
             size: ColumnSize.L
         ),
-        DataColumn2(
+        const DataColumn2(
             label: Text('Location', style: TextStyle(fontSize: 13),),
             size: ColumnSize.M
         ),
-        DataColumn2(
+        const DataColumn2(
             label: Text('Time', style: TextStyle(fontSize: 13)),
             size: ColumnSize.S
         ),
-        DataColumn2(
-          label: Center(child: Text('', style: TextStyle(fontSize: 13),)),
-          fixedWidth: 80,
-        ),
+        if(show)
+          const DataColumn2(
+            label: Center(child: Text('', style: TextStyle(fontSize: 13),)),
+            fixedWidth: 80,
+          ),
       ],
       rows: List<DataRow>.generate(alarm.length, (index) {
         List<String> values = alarm[index].split(',');
@@ -1300,34 +1310,35 @@ class AlarmListItems extends StatelessWidget {
                 (line) => line.sNo.toString() == values[1],
           ).name)),
           DataCell(Text(Formatters().formatRelativeTime('${values[5]} ${values[6]}'))),
-          DataCell(Center(child: MaterialButton(
-            color: Colors.redAccent,
-            textColor: Colors.white,
-            onPressed: () async {
-              String finalPayload =  values[0];
-              String payLoadFinal = jsonEncode({
-                "4100": {"4101": finalPayload}
-              });
+          if(show)
+            DataCell(Center(child: MaterialButton(
+              color: Colors.redAccent,
+              textColor: Colors.white,
+              onPressed: () async {
+                String finalPayload =  values[0];
+                String payLoadFinal = jsonEncode({
+                  "4100": {"4101": finalPayload}
+                });
 
-              final result = await context.read<CommunicationService>().sendCommand(
-                  serverMsg: 'Rested the ${MyFunction().getAlarmMessage(int.parse(values[2]))} alarm',
-                  payload: payLoadFinal);
+                final result = await context.read<CommunicationService>().sendCommand(
+                    serverMsg: 'Rested the ${MyFunction().getAlarmMessage(int.parse(values[2]))} alarm',
+                    payload: payLoadFinal);
 
-              if (result['http'] == true) {
-                debugPrint("Payload sent to Server");
-              }
-              if (result['mqtt'] == true) {
-                debugPrint("Payload sent to MQTT Box");
-              }
-              if (result['bluetooth'] == true) {
-                debugPrint("Payload sent via Bluetooth");
-              }
+                if (result['http'] == true) {
+                  debugPrint("Payload sent to Server");
+                }
+                if (result['mqtt'] == true) {
+                  debugPrint("Payload sent to MQTT Box");
+                }
+                if (result['bluetooth'] == true) {
+                  debugPrint("Payload sent via Bluetooth");
+                }
 
-              Navigator.pop(context);
+                Navigator.pop(context);
 
-            },
-            child: const Text('Reset'),
-          ))),
+              },
+              child: const Text('Reset'),
+            ))),
         ]);
       }),
     ):

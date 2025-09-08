@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
-import '../../../Models/customer/site_model.dart';
+import '../../../models/customer/site_model.dart';
 import '../../../utils/constants.dart';
 import '../../Preferences/widgets/custom_segmented_control.dart';
 import '../../PumpController/state_management/pump_controller_provider.dart';

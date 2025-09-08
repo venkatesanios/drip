@@ -638,7 +638,8 @@ class _ScrollableTextWithSearchState extends State<ScrollableTextWithSearch> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context)
+  {
     // Get the list of match positions
     final List<int> matches = _searchQuery.isEmpty
         ? []

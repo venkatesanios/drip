@@ -2,9 +2,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import '../models/user_model.dart';
 import '../repository/repository.dart';
-import '../utils/enums.dart';
 import '../utils/shared_preferences_helper.dart';
 
 class LoginViewModel extends ChangeNotifier {

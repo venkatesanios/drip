@@ -57,7 +57,7 @@ class _ViewConfigState extends State<ViewConfig> {
       final payload = jsonEncode({"sentSms": "viewconfig,${index + 1}"});
       final payload2 = jsonEncode({"0": payload});
       final viewConfig = {
-        "5900": {"5901": "${pump.serialNumber}+${pump.referenceNumber}+${pump.deviceId}+${pump.interfaceTypeId}+$payload2+${pump.categoryId}"}
+        "5900": {"5901": "${pump.serialNumber}+${pump.referenceNumber}+${pump.deviceId}+${pump.interfaceTypeId}+$payload2+${4}"}
       };
       mqttService.topicToPublishAndItsMessage(jsonEncode(viewConfig), "${Environment.mqttPublishTopic}/${preferenceProvider.generalData!.deviceId}");
     } else {

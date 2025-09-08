@@ -2384,8 +2384,15 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         if (configObjects.isNotEmpty) {
           _selectedObjects!.removeWhere((element) => !configObjects.any((element2) {
             double configSNo = double.tryParse(element2['sNo'].toString()) ?? 0.0;
+            if(element.objectId == 5) {
+              final irrigationPumpSnoList = sampleIrrigationLine!.map((e) => e.irrigationPump ?? []).expand((list) => list).toList().map((ele) => ele.sNo).toList();
+              irrigationPumpSnoList.contains(element.sNo);
+              // sampleIrrigationLine!.map((e) => e.irrigationPump
+            }
             print("Comparing element.sNo: ${element.sNo} with configSNo: $configSNo");
-            return configSNo == element.sNo;
+            return element.objectId == 5
+                ? sampleIrrigationLine!.map((e) => e.irrigationPump ?? []).expand((list) => list).toList().map((ele) => ele.sNo).toList().contains(element.sNo)
+                : configSNo == element.sNo;
           }));
         } else {
           print("Warning: configObjects is empty, skipping filter");
@@ -2541,10 +2548,10 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   }
 
   //TODO: PROGRAM RESET
-  Future<String> userProgramReset(int userId, int controllerId, int programId, deviceId, serialNumber, String defaultProgramName, String programName, String active, String controllerReadStatus) async {
+  Future<String> userProgramReset(int userId, int controllerId, int programId, deviceId, serialNumber, String defaultProgramName, String programName, String active, String controllerReadStatus, int customerId) async {
     try {
       var userData = {
-        "userId": userId,
+        "userId": customerId,
         "controllerId": controllerId,
         "createUser": userId,
         "programId": programId,
@@ -2681,10 +2688,10 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
 
   //TODO: UPDATE PROGRAM DETAILS
   Future<String> updateUserProgramDetails(
-      int userId, int controllerId, int serialNumber, int programId, String programName, String priority, defaultProgramName, String controllerReadStatus, hardwareData) async {
+      int userId, int controllerId, int serialNumber, int programId, String programName, String priority, defaultProgramName, String controllerReadStatus, hardwareData, customerId) async {
     try {
       Map<String, dynamic> userData = {
-        "userId": userId,
+        "userId": customerId,
         "controllerId": controllerId,
         "serialNumber": serialNumber,
         "createUser": userId,
@@ -2714,10 +2721,10 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   }
 
   //TODO: CREATE COPY OF PROGRAM
-  Future<String> userProgramCopy(int userId, int controllerId, int oldSerialNumber, int serialNumber, String programName, String defaultProgramName, String programType) async {
+  Future<String> userProgramCopy(int userId, int controllerId, int oldSerialNumber, int serialNumber, String programName, String defaultProgramName, String programType, int customerId) async {
     try {
       var userData = {
-        "userId": userId,
+        "userId": customerId,
         "controllerId": controllerId,
         "createUser": userId,
         "serialNumber": serialNumber,

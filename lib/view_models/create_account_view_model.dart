@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import '../models/country_list_model.dart';
 import '../models/state_list_model.dart';
 import '../repository/repository.dart';
-import '../utils/constants.dart';
 import '../utils/enums.dart';
 
 class CreateAccountViewModel extends ChangeNotifier {
@@ -93,7 +92,7 @@ class CreateAccountViewModel extends ChangeNotifier {
           'countryCode': dialCode.replaceAll('+', ''),
           'mobileNumber': mobileNoController.text,
           'userType': cusType,
-          'createUser': userId,
+          'createUser': role == UserRole.subUser ? customerId : userId,
           'address': address ?? '',
           'pinCode': '',
           'city': city ?? '',

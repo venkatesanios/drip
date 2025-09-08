@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../Models/watersource_model.dart';
+import '../../models/watersource_model.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../StateManagement/overall_use.dart';
 import '../../repository/repository.dart';

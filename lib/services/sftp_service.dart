@@ -106,7 +106,8 @@ class SftpService {
   Future<int> downloadFile({
     required String remoteFilePath,
     String localFileName = 'bootFile.txt',
-  }) async {
+  }) async
+  {
     try {
       // Open the remote file for reading
       print("remoteFilePath : ${remoteFilePath}");
@@ -175,6 +176,73 @@ class SftpService {
       return 404;
     }
   }
+
+  Future<int> downloadFileWithProgress({
+    required String remoteFilePath,
+    required String localFileName,
+    required void Function(int downloaded, int total, double percent) onProgress,
+  }) async {
+    try {
+      final remoteFile = await _sftpClient!.open(remoteFilePath);
+      final attrs = await remoteFile.stat();
+      final totalSize = attrs.size ?? 0;
+
+      final appDocDir = await getApplicationDocumentsDirectory();
+      final localFile = File('${appDocDir.path}/$localFileName').openWrite();
+
+      int downloaded = 0;
+
+      await for (final chunk in remoteFile.read()) {
+        downloaded += chunk.length;
+        localFile.add(chunk);
+
+        // send downloaded size + total + percent
+        onProgress(downloaded, totalSize, (downloaded / totalSize) * 100);
+      }
+
+      await localFile.close();
+      return 200;
+    } catch (e) {
+      print('Download error: $e');
+      return 404;
+    }
+  }
+
+
+  Future<int> uploadFileWithProgress({
+    required String localFileName,
+    required String remoteFilePath,
+    required void Function(double progress) onProgress,
+  }) async {
+    try {
+      Directory appDocDir = await getApplicationDocumentsDirectory();
+      final file = File('${appDocDir.path}/$localFileName.txt');
+
+      if (!await file.exists()) throw Exception("File not found");
+
+      final totalSize = await file.length();
+      int uploaded = 0;
+
+      final remoteFile = await _sftpClient!.open(
+        remoteFilePath,
+        mode: SftpFileOpenMode.create | SftpFileOpenMode.write | SftpFileOpenMode.truncate,
+      );
+
+      final stream = file.openRead(16 * 1024);
+      await for (final chunk in stream) {
+        uploaded += chunk.length;
+        await remoteFile.write(Stream.value(Uint8List.fromList(chunk)));
+        onProgress((uploaded / totalSize) * 100);
+      }
+
+      await remoteFile.close();
+      return 200;
+    } catch (e) {
+      print('Upload error: $e');
+      return 404;
+    }
+  }
+
 
 
   Future<void> disconnect() async {

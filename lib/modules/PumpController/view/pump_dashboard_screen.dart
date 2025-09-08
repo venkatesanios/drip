@@ -10,9 +10,8 @@ import 'package:oro_drip_irrigation/repository/repository.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:oro_drip_irrigation/utils/environment.dart';
-import 'package:syncfusion_flutter_gauges/gauges.dart';
 
-import '../../../Models/customer/site_model.dart';
+import '../../../models/customer/site_model.dart';
 import '../../../Screens/dashboard/wave_view.dart';
 import '../../../Widgets/sized_image.dart';
 import '../../../flavors.dart';
@@ -22,7 +21,6 @@ import '../widget/custom_bouncing_button.dart';
 import '../widget/custom_connection_error.dart';
 import '../widget/custom_countdown_timer.dart';
 import '../widget/custom_gauge.dart';
-import '../widget/custom_light.dart';
 
 class PumpDashboardScreen extends StatefulWidget {
   final int userId, customerId;
@@ -158,7 +156,29 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
               return ListView(
                 children: [
                   const SizedBox(height: 10,),
-                  ConnectionErrorToast(dataFetchingStatus: snapshot.data!.dataFetchingStatus),
+                  if(([30, 31].contains(snapshot.data!.pumps[0].reasonCode)))
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 15),
+                      decoration: BoxDecoration(
+                          color: snapshot.data!.pumps[0].reasonCode == 30 ? Colors.red : Colors.green,
+                          borderRadius: BorderRadius.circular(5)
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 5,),
+                      child: FadeTransition(
+                        opacity: snapshot.data!.pumps[0].reasonCode == 30
+                            ? _animation2
+                            : const AlwaysStoppedAnimation(1.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.electric_bolt, color: Colors.white,),
+                            Text(snapshot.data!.pumps[0].reasonCode == 30 ? "Power off" : "Power on", style: const TextStyle(color: Colors.white),)
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    ConnectionErrorToast(dataFetchingStatus: snapshot.data!.dataFetchingStatus),
                   Container(
                     width: MediaQuery.of(context).size.width <= 500 ? MediaQuery.of(context).size.width : 400,
                     margin: const EdgeInsets.symmetric(horizontal: 10),
@@ -197,25 +217,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                                 spacing: 5,
                                 children: [
                                   SelectableText(widget.masterData.deviceId, style: themeData.textTheme.titleSmall!.copyWith(fontWeight: FontWeight.normal, fontSize: 12),),
-                                  ([30, 31].contains(snapshot.data!.pumps[0].reasonCode)) ?
-                                  Container(
-                                    decoration: BoxDecoration(
-                                        color: snapshot.data!.pumps[0].reasonCode == 30 ? Colors.red : Colors.green,
-                                        borderRadius: BorderRadius.circular(5)
-                                    ),
-                                    padding: const EdgeInsets.symmetric(horizontal: 5,),
-                                    child: FadeTransition(
-                                      opacity: snapshot.data!.pumps[0].reasonCode == 30
-                                          ? _animation2
-                                          : const AlwaysStoppedAnimation(1.0),
-                                      child: Row(
-                                        children: [
-                                          const Icon(Icons.electric_bolt, color: Colors.white,),
-                                          Text(snapshot.data!.pumps[0].reasonCode == 30 ? "Power off" : "Power on", style: const TextStyle(color: Colors.white),)
-                                        ],
-                                      ),
-                                    ),
-                                  ) : Row(
+                                  Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     spacing: 5,
                                     children: [
@@ -269,21 +271,24 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                                     "YN ${double.parse(snapshot.data!.voltage.split(',')[1]).toStringAsFixed(0)}",
                                     "BN ${double.parse(snapshot.data!.voltage.split(',')[2]).toStringAsFixed(0)}"][index]
                                       : null,
-                                  value: !AppConstants.pumpWithValveModelList.contains(widget.masterData.modelId) ? snapshot.data!.powerFactor == null
+                                  value: (!AppConstants.pumpWithValveModelList.contains(widget.masterData.modelId) && snapshot.data!.powerFactor != null)
+                                      ? ["RPF ${double.parse(snapshot.data!.powerFactor.split(',')[0]).toStringAsFixed(0)}",
+                                    "YPF ${double.parse(snapshot.data!.powerFactor.split(',')[1]).toStringAsFixed(0)}",
+                                    "BPF ${double.parse(snapshot.data!.powerFactor.split(',')[2]).toStringAsFixed(0)}"][index]
+                                      : (!AppConstants.pumpWithValveModelList.contains(widget.masterData.modelId)) && F.name.contains('oro')
                                       ? ["RN ${double.parse(snapshot.data!.voltage.split(',')[0]).toStringAsFixed(0)}",
                                     "YN ${double.parse(snapshot.data!.voltage.split(',')[1]).toStringAsFixed(0)}",
                                     "BN ${double.parse(snapshot.data!.voltage.split(',')[2]).toStringAsFixed(0)}"][index]
-                                      : ["RPF ${double.parse(snapshot.data!.powerFactor.split(',')[0]).toStringAsFixed(0)}",
-                                    "YPF ${double.parse(snapshot.data!.powerFactor.split(',')[1]).toStringAsFixed(0)}",
-                                    "BPF ${double.parse(snapshot.data!.powerFactor.split(',')[2]).toStringAsFixed(0)}"][index] : null,
+                                      : null,
                                   value2: !AppConstants.pumpWithValveModelList.contains(widget.masterData.modelId)
-                                      ? snapshot.data!.power != null
+                                      ? (snapshot.data!.power != null)
                                       ? ["RP ${double.parse(snapshot.data!.power.split(',')[0]).toStringAsFixed(0)}",
                                     "YP ${double.parse(snapshot.data!.power.split(',')[1]).toStringAsFixed(0)}",
                                     "BP ${double.parse(snapshot.data!.power.split(',')[2]).toStringAsFixed(0)}"][index]
                                       : ["RY ${calculatePhToPh(double.parse(snapshot.data!.voltage.split(',')[0]), double.parse(snapshot.data!.voltage.split(',')[1]))}",
                                     "YB ${calculatePhToPh(double.parse(snapshot.data!.voltage.split(',')[1]), double.parse(snapshot.data!.voltage.split(',')[2]))}",
-                                    "BR ${calculatePhToPh(double.parse(snapshot.data!.voltage.split(',')[2]), double.parse(snapshot.data!.voltage.split(',')[0]))}"][index] : null,
+                                    "BR ${calculatePhToPh(double.parse(snapshot.data!.voltage.split(',')[2]), double.parse(snapshot.data!.voltage.split(',')[0]))}"][index]
+                                      : null,
                                   // value: snapshot.data!.voltage.split(',')[index],
                                   color1: [
                                     Colors.redAccent.shade100,

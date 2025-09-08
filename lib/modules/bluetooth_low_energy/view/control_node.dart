@@ -46,9 +46,10 @@ class _ControlNodeState extends State<ControlNode> {
                 versionRow(),
               if(bleService.nodeDataFromHw.containsKey('R-VOLT'))
                 voltageWidget(),
-              relayWidget(),
+              if(bleService.nodeDataFromHw.containsKey('RLY'))
+                relayWidget(),
               viewDetailsWidget(),
-              if(bleService.nodeDataFromServer['analogInput'] != '-')
+              if(bleService.nodeDataFromServer['analogInput'] != '-' && bleService.nodeDataFromHw.keys.any((key) => key.contains('AD')))
                 analogDetailsWidget()
 
             ],
@@ -87,9 +88,10 @@ class _ControlNodeState extends State<ControlNode> {
     return Row(
       spacing: 20,
       children: [
-        Expanded(child: versionWidget(color: const Color(0xffEB7C17), title: 'Controller Version $controller')),
+        if(!bleService.nodeDataFromServer['hardwareLoraModel'].contains(bleService.nodeDataFromHw['MID']))
+          Expanded(child: versionWidget(color: const Color(0xffEB7C17), title: 'Controller Version $controller')),
         Expanded(child: versionWidget(color: const Color(0xff005C8E), title: 'Boot Version $boot')),
-        Expanded(child: versionWidget(color: const Color(0xffE0070A), title: '${bleService.nodeDataFromServer['interface']} Version $interFaceVersion')),
+        Expanded(child: versionWidget(color: const Color(0xffE0070A), title: '${bleService.nodeDataFromServer['interface'] ?? (bleService.nodeDataFromServer['hardwareLoraModel'].contains(bleService.nodeDataFromHw['MID']) ? 'LoRa' : '')} Version $interFaceVersion')),
       ],
     );
   }
@@ -326,12 +328,18 @@ class _ControlNodeState extends State<ControlNode> {
             physics: const NeverScrollableScrollPhysics(),
           ),
           children: [
-            commonParameterWidget(title: 'Frequency', value: bleService.nodeDataFromHw['FRQ']),
-            commonParameterWidget(title: 'Spread Factor', value: bleService.nodeDataFromHw['SF']),
-            commonParameterWidget(title: 'Battery', value: bleService.nodeDataFromHw['BAT']),
-            commonParameterWidget(title: 'Solar', value: bleService.nodeDataFromHw['SOL']),
-            commonParameterWidget(title: 'Mfr Date', value: bleService.nodeDataFromHw['MFD']),
-            commonParameterWidget(title: 'Repeater', value: bleService.nodeDataFromHw['REP'] == '1' ? 'ON' : 'OFF'),
+            if(bleService.nodeDataFromHw.containsKey('FRQ'))
+              commonParameterWidget(title: 'Frequency', value: bleService.nodeDataFromHw['FRQ']),
+            if(bleService.nodeDataFromHw.containsKey('SF'))
+              commonParameterWidget(title: 'Spread Factor', value: bleService.nodeDataFromHw['SF']),
+            if(bleService.nodeDataFromHw.containsKey('BAT'))
+              commonParameterWidget(title: 'Battery', value: bleService.nodeDataFromHw['BAT']),
+            if(bleService.nodeDataFromHw.containsKey('SOL'))
+              commonParameterWidget(title: 'Solar', value: bleService.nodeDataFromHw['SOL']),
+            if(bleService.nodeDataFromHw.containsKey('MFD'))
+              commonParameterWidget(title: 'Mfr Date', value: bleService.nodeDataFromHw['MFD']),
+            if(bleService.nodeDataFromHw.containsKey('REP'))
+              commonParameterWidget(title: 'Repeater', value: bleService.nodeDataFromHw['REP'] == '1' ? 'ON' : 'OFF'),
             commonParameterWidget(title: 'Interface', value: bleService.nodeDataFromServer['interface']),
           ],
         )

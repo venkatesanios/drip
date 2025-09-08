@@ -4,6 +4,8 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:oro_drip_irrigation/Screens/Dealer/pumpTopicChange.dart';
+import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:oro_drip_irrigation/utils/environment.dart';
 import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
@@ -13,6 +15,7 @@ import '../../services/mqtt_service.dart';
 import '../../utils/shared_preferences_helper.dart';
 import 'configureMqttTopic.dart';
 import 'controllerlogfile.dart';
+import 'frequencyLoRaPage.dart';
 
 class ResetVerssion extends StatefulWidget {
   const ResetVerssion(
@@ -267,15 +270,30 @@ class _ResetVerssionState extends State<ResetVerssion> {
                                         Colors.teal.shade100)),
                                   onPressed: () {
                                     setState(() {
+                                      print('mergedList[index]:${mergedList[index]['modelId']}');
                                       selectindex = index;
-                                      Navigator.push(
+                                      if (AppConstants.pumpList.contains(mergedList[index]['modelId'])) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => PumpTopicChangePage(
+                                              deviceID: '${mergedList[index]['deviceId'
+                                              ]!}', userId: widget.userId, controllerId: widget.controllerId, modelId:mergedList[index]['modelId'],communicationType: "MQTT",),
+                                          ),
+                                        );
+                                      }
+                                      else{
+                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => ConfigureMqtt(
                                               deviceID: '${mergedList[index]['deviceId'
-                                              ]!}', userId: widget.userId, controllerId: widget.controllerId,),
+                                              ]!}', userId: widget.userId, controllerId: widget.controllerId, communicationType: "MQTT",),
                                         ),
-                                      );
+                                      ) ;
+
+                                      }
+
                                     });
                                   },
                                 icon: const Icon(Icons.settings_outlined),
@@ -290,13 +308,34 @@ class _ResetVerssionState extends State<ResetVerssion> {
                                 style: ButtonStyle(
                                     backgroundColor: MaterialStateProperty.all(
                                         Colors.teal.shade100)),
+                                // onPressed: () {
+                                //   setState(() {
+                                //     selectindex = index;
+                                //     _showFrequencyDialog(context, index, trudwe);
+                                //
+                                //   });
+                                // },
                                 onPressed: () {
                                   setState(() {
                                     selectindex = index;
-                                    _showFrequencyDialog(context, index, true);
-          
                                   });
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => FrequencyPage(
+                                        userId: widget.userId,
+                                        controllerId:  widget.controllerId,
+                                        deviceId:  widget.deviceID,
+                                        plusTrue: true,
+                                        loraValue: mergedList[index]['loraFrequency'] ?? '',
+                                        loara1Version: mqttPayloadProvider.Loara1verssion,
+                                        loara2Version: mqttPayloadProvider.Loara2verssion,
+                                      ),
+                                    ),
+                                  );
+
                                 },
+
                                 icon: const Icon(Icons.settings_applications),
                               ),
                             ),

@@ -2,7 +2,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/view/config_base_page.dart';
 import 'package:provider/provider.dart';
-import '../../Models/admin_dealer/stock_model.dart';
+import '../../models/admin_dealer/stock_model.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/formatters.dart';
@@ -50,6 +50,9 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
       },
     );
     tabController = TabController(length: tabList.length, vsync: this);
+    tabController.addListener(() {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
@@ -74,7 +77,12 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
                 onPressed: () => Navigator.of(context).pop(),
               ),
               actions: [
-                _buildActionPopup(context),
+                AnimatedBuilder(
+                  animation: tabController,
+                  builder: (context, _) {
+                    return _buildActionPopup(context);
+                  },
+                ),
                 const SizedBox(width: 20),
               ],
               bottom: TabBar(
@@ -107,6 +115,7 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
   }
 
   Widget _buildActionPopup(BuildContext context) {
+    print(tabController.index);
     return PopupMenuButton(
       tooltip: tabController.index == 0
           ? 'Add new product to ${widget.customerName}'

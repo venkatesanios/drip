@@ -437,7 +437,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
                   SlidingSendButton(
                     onSend: (){
                       // print(irrigationProvider.dataToMqtt(widget.serialNumber == 0 ? irrigationProvider.serialNumberCreation : widget.serialNumber, widget.programType));
-                      irrigationProvider.programLibraryData(widget.userId, widget.controllerId);
+                      irrigationProvider.programLibraryData(widget.customerId, widget.controllerId);
                       sendFunction();
                     },
                   ),
@@ -549,7 +549,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
         final createUserProgram = await repository.createUserProgram(userData);
         final response = jsonDecode(createUserProgram.body);
         if(createUserProgram.statusCode == 200) {
-          await irrigationProvider.programLibraryData(widget.userId, widget.controllerId);
+          await irrigationProvider.programLibraryData(widget.customerId, widget.controllerId);
           ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: response['message']));
           Navigator.of(context).pop();
         }

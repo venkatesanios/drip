@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../Models/names_model.dart';
+import '../../models/names_model.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/snack_bar.dart';
@@ -229,7 +229,7 @@ class _NamesState extends State<Names> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('Name Already Exists')),
                             );
-                            _controllers[originalIndex].text = data.name ?? "";
+                            // _controllers[originalIndex].text = data.name ?? "";
                           } else if (val.length > 15) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('Name length Maximum reached')),

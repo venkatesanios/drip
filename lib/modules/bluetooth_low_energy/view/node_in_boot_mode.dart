@@ -4,6 +4,7 @@ import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
 import '../state_management/ble_service.dart';
+import 'ble_sent_and_receive.dart';
 
 class NodeInBootMode extends StatefulWidget {
   const NodeInBootMode({super.key});
@@ -282,6 +283,25 @@ class _NodeInBootModeState extends State<NodeInBootMode> {
                   child: LinearProgressIndicator(
                     minHeight: 6,
                     borderRadius: BorderRadius.all(Radius.circular(10)),
+                  ),
+                ),
+              if(bleService.fileMode == FileMode.bootFail)
+                FilledButton.icon(
+                  icon: const Icon(Icons.send, color: Colors.white,),
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context){
+                      return const BleSentAndReceive();
+                    }));
+                    },
+                  label: const Text('Sent And Receive'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColorLight,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    textStyle: const TextStyle(fontSize: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
             ],

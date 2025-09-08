@@ -1,3 +1,4 @@
+/*
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/constant/view/constant_base_page.dart';
@@ -6,7 +7,6 @@ import '../../Screens/planning/names_form.dart';
 import '../../Screens/planning/valve_group_screen.dart';
 import '../../Screens/planning/virtual_screen.dart';
 import '../../modules/IrrigationProgram/view/program_library.dart';
-import '../../modules/Preferences/view/preference_main_screen.dart';
 import '../../modules/SystemDefinitions/view/system_definition_screen.dart';
 import '../../modules/calibration/view/calibration_screen.dart';
 import '../../modules/fertilizer_set/view/fertilizer_Set_screen.dart';
@@ -103,8 +103,10 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
         return ProgramLibraryScreenNew(customerId: widget.customerID, controllerId: widget.controllerID, deviceId: widget.imeiNumber, userId: widget.userId, groupId: widget.groupId, categoryId: widget.categoryId,modelId: widget.modelId, deviceName: widget.deviceName, categoryName: widget.categoryName,);
       case 66:
         return Names(userID: widget.customerID, customerID: widget.customerID, controllerId: widget.controllerID, menuId: 0, imeiNo: widget.imeiNumber, );
-    /*  case 67:
-        return PreferenceMainScreen(userId: widget.userId, controllerId: widget.controllerID, customerId: widget.customerID, deviceId: widget.imeiNumber, menuId: 0,);*/
+    */
+/*  case 67:
+        return PreferenceMainScreen(userId: widget.userId, controllerId: widget.controllerID, customerId: widget.customerID, deviceId: widget.imeiNumber, menuId: 0,);*//*
+
       case 68:
         return ConstantBasePage(userData: {"userId" : widget.customerID, "controllerId": widget.controllerID, "deviceId":widget.imeiNumber, "modelId":widget.modelId, "deviceName": widget.deviceName,"categoryId":widget.categoryId,"categoryName":widget.categoryName});
     // case 69:
@@ -195,8 +197,10 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
                                     selectedIndex = i;
                                   });
                                 },
-                                /*  selectedTileColor: _tabController.index == i ? const Color(0xff2999A9) : null,
-                                  hoverColor: _tabController.index == i ? const Color(0xff2999A9) : null*/
+                                */
+/*  selectedTileColor: _tabController.index == i ? const Color(0xff2999A9) : null,
+                                  hoverColor: _tabController.index == i ? const Color(0xff2999A9) : null*//*
+
                                 selectedTileColor: selectedIndex == i ? Theme.of(context).primaryColorLight : null,
                                 hoverColor: selectedIndex == i ? Theme.of(context).primaryColorLight : null,
                               ),
@@ -230,3 +234,4 @@ class _ProgramScheduleState extends State<ProgramSchedule> with SingleTickerProv
     );
   }
 }
+*/

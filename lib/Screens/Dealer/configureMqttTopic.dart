@@ -5,17 +5,19 @@ import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../flavors.dart';
 import '../../repository/repository.dart';
+import '../../services/communication_service.dart';
 import '../../services/http_service.dart';
 import '../../services/mqtt_service.dart';
 import '../../utils/constants.dart';
 
 class ConfigureMqtt extends StatefulWidget {
-  final deviceID, userId, controllerId;
+  final deviceID, userId, controllerId,communicationType;
 
   const ConfigureMqtt(
       {Key? key,
         required this.deviceID,
         required this.userId,
+        required this.communicationType,
         required this.controllerId})
       : super(key: key);
 
@@ -139,32 +141,59 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
     }
     final selectedConfig = configs[selectedIndex!];
     final formatted = formatConfig(selectedConfig);
+    if(widget.communicationType == "MQTT") {
+      List checkTopic =
+      getMqttTopic(selectedPlatform!, selectedVersion!, selectedDealer!);
+      print('checkTopic---->$checkTopic,$macAddress');
+      String topic = checkTopic[0];
+      String oldnewcheck = checkTopic[1];
+      if (oldnewcheck == '1') {
+        final payload = {
+          "6100": [
+            {"6101": formatted},
+          ]
+        };
+        MqttService().topicToPublishAndItsMessage(
+          jsonEncode(payload),
+          "$topic${_macController.text}",
+        );
+        print('payload $payload  \n $topic${_macController.text}');
+      } else {
+        final payload = {
+          "6100": {"6101": formatted}
+        };
+        MqttService().topicToPublishAndItsMessage(
+          jsonEncode(payload),
+          "$topic${_macController.text}",
+        );
+        print('payload $payload  \n $topic${_macController.text}');
+      }
+    }
+    else
+    {
+      //bluetooth
+      try {
+        String payLoadFinal = jsonEncode({
+          "6100": {"6101": formatted}
+        });
+        final result = await context.read<CommunicationService>().sendCommand(payload: payLoadFinal,
+            serverMsg: '');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Settings sent Ble")),
+        );
+        if (result['http'] == true) {
+          debugPrint("Payload sent to Server");
+        }
+        if (result['mqtt'] == true) {
+          debugPrint("Payload sent to MQTT Box");
+        }
+        if (result['bluetooth'] == true) {
+          debugPrint("Payload sent via Bluetooth");
+        }
 
-    List checkTopic =
-    getMqttTopic(selectedPlatform!, selectedVersion!, selectedDealer!);
-    print('checkTopic---->$checkTopic,$macAddress');
-    String topic = checkTopic[0];
-    String oldnewcheck = checkTopic[1];
-    if (oldnewcheck == '1') {
-      final payload = {
-        "6100": [
-          {"6101": formatted},
-        ]
-      };
-      MqttService().topicToPublishAndItsMessage(
-        jsonEncode(payload),
-        "$topic${_macController.text}",
-      );
-      print('payload $payload  \n $topic${_macController.text}');
-    } else {
-      final payload = {
-        "6100": {"6101": formatted}
-      };
-      MqttService().topicToPublishAndItsMessage(
-        jsonEncode(payload),
-        "$topic${_macController.text}",
-      );
-      print('payload $payload  \n $topic${_macController.text}');
+      } finally {
+        setState(() => isLoading = false);
+      }
     }
     var data = {
       "userId": widget.userId,
@@ -212,6 +241,8 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
   }
 
   Future<void> viewsettings() async {
+    if(widget.communicationType == "MQTT")
+      {
     List checkTopic =
     getMqttTopic(selectedPlatform!, selectedVersion!, selectedDealer!);
     String topic = checkTopic[0];
@@ -241,6 +272,32 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
         const SnackBar(content: Text("view settings sent")),
       );
     }
+    }
+    else   {
+      //bluetooth
+      try {
+        String payLoadFinal = jsonEncode({
+          "5700": {"5701": "22"}
+        });
+        final result = await context.read<CommunicationService>().sendCommand(payload: payLoadFinal,
+            serverMsg: '');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("view settings sent Ble")),
+        );
+        if (result['http'] == true) {
+          debugPrint("Payload sent to Server");
+        }
+        if (result['mqtt'] == true) {
+          debugPrint("Payload sent to MQTT Box");
+        }
+        if (result['bluetooth'] == true) {
+          debugPrint("Payload sent via Bluetooth");
+        }
+
+      } finally {
+        setState(() => isLoading = false);
+      }
+    }
     var data = {
       "userId": widget.userId,
       "controllerId": widget.controllerId,
@@ -261,54 +318,81 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
   }
 
   Future<void> updateCode() async {
-    List checkTopic =
-    getMqttTopic(selectedPlatform!, selectedVersion!, selectedDealer!);
-    String topic = checkTopic[0];
-    String oldnewcheck = checkTopic[1];
-    if (oldnewcheck == '1') {
-      final payload = {
-        "5700": [
-          {"5701": "27"},
-        ]
-      };
-      MqttService().topicToPublishAndItsMessage(
-        jsonEncode(payload),
-        "$topic${_macController.text}",
-      );
-      var data = {
-        "userId": widget.userId,
-        "controllerId": widget.controllerId,
-        "data": {
+    if(widget.communicationType == "MQTT") {
+      List checkTopic =
+      getMqttTopic(selectedPlatform!, selectedVersion!, selectedDealer!);
+      String topic = checkTopic[0];
+      String oldnewcheck = checkTopic[1];
+      if (oldnewcheck == '1') {
+        final payload = {
           "5700": [
             {"5701": "27"},
           ]
-        },
-        "messageStatus": "updateCode",
-        "createUser": widget.userId,
-        "hardware": {
-          "5700": [
-            {"5701": "27"},
-          ]
-        },
-      };
-      await repository.sendManualOperationToServer(data);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("update settings sent")),
-      );
-      print('payload $payload  \n $topic${_macController.text}');
-    } else {
-      final payload = {
-        "5700": {"5701": "28"}
-      };
-      MqttService().topicToPublishAndItsMessage(
-        jsonEncode(payload),
-        "$topic${_macController.text}",
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("update settings sent")),
-      );
-      print('payload $payload  \n $topic${_macController.text}');
+        };
+        MqttService().topicToPublishAndItsMessage(
+          jsonEncode(payload),
+          "$topic${_macController.text}",
+        );
+        var data = {
+          "userId": widget.userId,
+          "controllerId": widget.controllerId,
+          "data": {
+            "5700": [
+              {"5701": "27"},
+            ]
+          },
+          "messageStatus": "updateCode",
+          "createUser": widget.userId,
+          "hardware": {
+            "5700": [
+              {"5701": "27"},
+            ]
+          },
+        };
+        await repository.sendManualOperationToServer(data);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("update settings sent")),
+        );
+        print('payload $payload  \n $topic${_macController.text}');
+      } else {
+        final payload = {
+          "5700": {"5701": "28"}
+        };
+        MqttService().topicToPublishAndItsMessage(
+          jsonEncode(payload),
+          "$topic${_macController.text}",
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("update settings sent")),
+        );
+        print('payload $payload  \n $topic${_macController.text}');
+      }
+    } else   {
+      //bluetooth
+      try {
+        String payLoadFinal = jsonEncode({
+          "5700": {"5701": "28"}
+        });
+        final result = await context.read<CommunicationService>().sendCommand(payload: payLoadFinal,
+            serverMsg: '');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("update settings sent Ble")),
+        );
+        if (result['http'] == true) {
+          debugPrint("Payload sent to Server");
+        }
+        if (result['mqtt'] == true) {
+          debugPrint("Payload sent to MQTT Box");
+        }
+        if (result['bluetooth'] == true) {
+          debugPrint("Payload sent via Bluetooth");
+        }
+
+      } finally {
+        setState(() => isLoading = false);
+      }
     }
+
   }
 
   @override

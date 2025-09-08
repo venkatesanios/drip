@@ -178,7 +178,7 @@ class SettingList {
     };
   }
 
-  List gemPayload() {
+  List gemPayload(pumpType) {
     List<String> result = [];
 
     if ([202].contains(type)) {
@@ -191,8 +191,8 @@ class SettingList {
       result.add(value3);
       result.add(value4);
     } else if ([205].contains(type)) {
-      var value1 = setting.firstWhere((element) => element.serialNumber == 1).value == true ? 1 : 0;
-      var value2 = setting.firstWhere((element) => element.serialNumber == 2).value == true ? 1 : 0;
+      var value1 = pumpType != 2 ? (setting.firstWhere((element) => element.serialNumber == 1).value == true ? 1 : 0) : 0;
+      var value2 = pumpType != 2 ? (setting.firstWhere((element) => element.serialNumber == 2).value == true ? 1 : 0) : 0;
       result.add("$value1");
       result.add("$value2");
     } else if (type == 207) {
@@ -271,7 +271,7 @@ class IndividualPumpSetting {
     //   }
     // });
     for (var element in settingList) {
-      onDelayTimer.addAll(element.gemPayload());
+      onDelayTimer.addAll(element.gemPayload(pumpType));
     }
     // print(onDelayTimer);
     return onDelayTimer.join(',');

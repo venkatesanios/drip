@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/widget/drop_down_search_field.dart';
@@ -312,7 +311,7 @@ class _DeviceListState extends State<DeviceList> {
         "productId": productId,
         "modelId": modelId,
         "deviceId": replaceDeviceId,
-        "modifyUser": configPvd.masterData['userId'],
+        "modifyUser": configPvd.masterData['customerId'],
       };
       print("body : $body");
       var response = await ConfigMakerRepository().updateProduct(body);
@@ -575,6 +574,16 @@ class _DeviceListState extends State<DeviceList> {
                                           });
                                         });
                                       }
+                                      stateSetter((){
+                                        setState(() {
+                                          configPvd.listOfDeviceModel.sort((a, b) {
+                                            if (a.serialNumber == null && b.serialNumber == null) return 0;
+                                            if (a.serialNumber == null) return 1; // nulls last
+                                            if (b.serialNumber == null) return -1;
+                                            return a.serialNumber!.compareTo(b.serialNumber!);
+                                          });
+                                        });
+                                      });
                                       Navigator.pop(context);
                                     },
                                     title: 'Add',

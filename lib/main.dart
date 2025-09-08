@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/PumpController/state_management/pump_controller_provider.dart';
@@ -9,13 +8,11 @@ import 'package:oro_drip_irrigation/services/bluetooth_service.dart';
 import 'package:oro_drip_irrigation/services/communication_service.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:oro_drip_irrigation/utils/network_utils.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
-import 'package:url_launcher/url_launcher.dart';
 import 'Screens/Constant/ConstantPageProvider/changeNotifier_constantProvider.dart';
 import 'StateManagement/search_provider.dart';
 import 'app/app.dart';
@@ -46,8 +43,7 @@ FutureOr<void> main() async {
   tz.initializeTimeZones();
   await NetworkUtils.initialize();
 
-  F.appFlavor = Flavor.oroProduction;
-
+  // F.appFlavor = Flavor.oroProduction;
 
   if(!kIsWeb){
     try {
@@ -67,7 +63,7 @@ FutureOr<void> main() async {
       // Initialize local notifications
       const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('@mipmap/ic_launcher');
-      final InitializationSettings initializationSettings = InitializationSettings(
+      const InitializationSettings initializationSettings = InitializationSettings(
         android: initializationSettingsAndroid,
       );
       await flutterLocalNotificationsPlugin.initialize(initializationSettings);
@@ -104,8 +100,8 @@ FutureOr<void> main() async {
           update: (BuildContext context, MqttPayloadProvider mqttProvider,
               CustomerProvider customer, CommunicationService? previous) {
             return CommunicationService(
-              mqttService: MqttService(), // Singleton access — always same instance
-              blueService: BluService(),  // You should make this a singleton too if needed
+              mqttService: MqttService(),
+              blueService: BluService(),
               customerProvider: customer,
             );
           },
@@ -116,6 +112,3 @@ FutureOr<void> main() async {
     ),
   );
 }
-
-
-

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
-import '../../../Models/customer/site_model.dart';
+import '../../../models/customer/site_model.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../modules/IrrigationProgram/view/irrigation_program_main.dart';
 import '../../../repository/repository.dart';
@@ -38,6 +38,7 @@ class ScheduledProgram extends StatelessWidget {
 
     final spLive = Provider.of<MqttPayloadProvider>(context).scheduledProgramPayload;
     final conditionPayload = Provider.of<MqttPayloadProvider>(context).conditionPayload;
+
     if (spLive.isNotEmpty) {
       _updateProgramsFromMqtt(spLive, scheduledPrograms, conditionPayload);
     }
@@ -857,18 +858,20 @@ class ScheduledProgram extends StatelessWidget {
             List<String> parts = payload.split(",");
             if (parts.length > 2) {
               int? conditionSerialNo = int.tryParse(parts[0].trim());
+              print(conditionSerialNo);
               int? conditionStatus = int.tryParse(parts[2].trim());
               String? actualValue = parts[4].trim();
 
-              try {
-                final condition = scheduledPrograms[index]
-                    .conditions
-                    .firstWhere((c) => c.sNo == conditionSerialNo);
+              final matches = scheduledPrograms[index]
+                  .conditions
+                  .where((c) => c.sNo == conditionSerialNo);
+
+              for (var condition in matches) {
                 condition.conditionStatus = conditionStatus!;
                 condition.actualValue = actualValue;
-              } catch (e) {
-                //print(e);
-                // Not found — optionally handle or ignore
+                print("Updated condition: sNo=${condition.sNo}, "
+                    "status=${condition.conditionStatus}, "
+                    "value=${condition.actualValue}");
               }
             }
           }

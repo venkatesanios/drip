@@ -7,7 +7,7 @@ import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
 
 import '../../../Constants/constants.dart';
-import '../../../Models/customer/site_model.dart';
+import '../../../models/customer/site_model.dart';
 import '../../../repository/repository.dart';
 import '../../../services/http_service.dart';
 import '../../../view_models/customer/customer_screen_controller_view_model.dart';

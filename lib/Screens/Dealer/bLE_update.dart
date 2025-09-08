@@ -7,12 +7,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../services/bluetooth_service.dart';
-import '../../services/communication_service.dart';
 import '../../services/sftp_service.dart';
 import '../../utils/snack_bar.dart';
 
 import 'dart:typed_data' show Uint8List;
-
 class FirmwareBLEPage extends StatefulWidget {
   const FirmwareBLEPage({super.key});
 
@@ -46,25 +44,22 @@ class _FirmwareBLEPageState extends State<FirmwareBLEPage> {
   void initState() {
     super.initState();
     mqttPayloadProvider =
-        Provider.of<MqttPayloadProvider>(context, listen: true);
+        Provider.of<MqttPayloadProvider>(context, listen: false);
   }
 
   Map<String, dynamic>? getFileInfo(String fileName) {
     final Map<String, Map<String, dynamic>> fileData = {
       'OrogemCode': {
         'code': 1,
-        'path':
-            '/home/ubuntu/oro2024/OroGem/OroGemApp_RaspberryPi_64bit/OroGem',
+        'path': '/home/ubuntu/oro2024/OroGem/OroGemApp_RaspberryPi_64bit/OroGem',
       },
       'AutoStartFile': {
         'code': 2,
-        'path':
-            '/home/ubuntu/oro2024/OroGem/OroGemApp_AutoStart_RaspberryPi_64bit/AutoStartF',
+        'path': '/home/ubuntu/oro2024/OroGem/OroGemApp_AutoStart_RaspberryPi_64bit/AutoStartF',
       },
       'MqttsCaFile': {
         'code': 3,
-        'path':
-            '/home/ubuntu/oro2024/OroGem/OroGemApp_AutoStart_RaspberryPi_64bit', // replace with actual path
+        'path': '/home/ubuntu/oro2024/OroGem/OroGemApp_AutoStart_RaspberryPi_64bit',
       },
       'MqttsClientCrtFile': {
         'code': 4,
@@ -83,19 +78,26 @@ class _FirmwareBLEPageState extends State<FirmwareBLEPage> {
         'path': '/home/ubuntu/oro2024/OroGem/OroGemLogs',
       },
     };
+    return fileData[fileName];
+  }
 
-    return fileData[fileName]; // returns null if not found
+  String formatBytes(int bytes) {
+    if (bytes < 1024) return "$bytes B";
+    if (bytes < 1024 * 1024) return "${(bytes / 1024).toStringAsFixed(1)} KB";
+    return "${(bytes / (1024 * 1024)).toStringAsFixed(2)} MB";
   }
 
   Future<void> _downloadToFile() async {
+    if (selectedFile == null) return;
+
     setState(() {
       isDownloading = true;
       isDownloaded = false;
+      downloadProgress = 0.0;
       status = "Downloading...";
     });
 
-    mqttPayloadProvider =
-        Provider.of<MqttPayloadProvider>(context, listen: false);
+    mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
     List<String> traceData = mqttPayloadProvider.traceLog;
     SftpService sftpService = SftpService();
     int connectResponse = await sftpService.connect();
@@ -104,28 +106,40 @@ class _FirmwareBLEPageState extends State<FirmwareBLEPage> {
       await Future.delayed(const Duration(seconds: 1));
 
       Directory appDocDir = await getApplicationDocumentsDirectory();
-      String appDocPath = appDocDir.path;
-      String filePath = '$appDocPath/$selectedFile.txt';
+      String filePath = '${appDocDir.path}/$selectedFile.txt';
 
-      // Save trace log to file (optional)
+      // Save trace log to file
       final localFile = File(filePath);
       await localFile.writeAsString(traceData.join('\n'));
+
       final info = getFileInfo(selectedFile!);
-      // Download file to the same path
-      print('info![path]:-${info!['path']}\n,selectedFile:$selectedFile');
-      int downResponse = await sftpService.downloadFile(
-          remoteFilePath: info!['path'], localFileName: '$selectedFile.txt');
+      if (info == null) return;
+
+      int downResponse = await sftpService.downloadFileWithProgress(
+        remoteFilePath: info['path'],
+        localFileName: '$selectedFile.txt',
+        onProgress: (downloaded, total, percent) {
+          setState(() {
+            downloadProgress = percent / 100;
+            status =
+            "Downloading ${formatBytes(downloaded)} of ${formatBytes(total)} (${percent.toStringAsFixed(1)}%)";
+          });
+        },
+      );
 
       if (downResponse == 200) {
-        print('Download success');
-        setState(() {
-          GlobalSnackBar.show(context, "Download complete", 200);
-          status = "Download complete";
-          isDownloaded = true;
-        });
+        final downloadedFile = File(filePath);
+        if (await downloadedFile.exists()) {
+          final fileSize = await downloadedFile.length();
+          setState(() {
+            GlobalSnackBar.show(context, "Download complete (${formatBytes(fileSize)})", 200);
+            status = "Download complete (${formatBytes(fileSize)})";
+            isDownloaded = true;
+            downloadProgress = 1.0;
+          });
+        }
       } else {
         GlobalSnackBar.show(context, "Download failed", 201);
-        print('Download failed');
         setState(() {
           status = "Download failed";
         });
@@ -144,65 +158,15 @@ class _FirmwareBLEPageState extends State<FirmwareBLEPage> {
     });
   }
 
-  Future<void> _deleteBootFile() async {
-    try {
-      Directory appDocDir = await getApplicationDocumentsDirectory();
-      String filePath = '${appDocDir.path}/$selectedFile.txt';
-      File file = File(filePath);
-
-      if (await file.exists()) {
-        await file.delete();
-        print('$selectedFile.txt deleted successfully.');
-      } else {
-        print('$selectedFile.txt does not exist.');
-      }
-    } catch (e) {
-      print('Error deleting file: $e');
-    }
-  }
-
-  Future<String?> calculateSHA256Checksum(String filePath) async {
-    try {
-      File file = File(filePath);
-
-      if (await file.exists()) {
-        List<int> fileBytes = await file.readAsBytes();
-        firmwareBytes = Uint8List.fromList(fileBytes);
-
-        Digest sha256Digest = sha256.convert(fileBytes);
-        String hex = sha256Digest.toString();
-        print("SHA-256 Checksum: $hex");
-        return hex;
-      } else {
-        print('$selectedFile.txt not found.');
-        return null;
-      }
-    } catch (e) {
-      print('Error calculating checksum: $e');
-      return null;
-    }
-  }
-
-  void _sendViaBle() {
-    senddata();
-    setState(() {
-      isLoading = true;
-      status = "Sending via BLE...";
-    });
-  }
-
-  Future<void> senddata() async {
+  Future<void> _sendViaBle() async {
+    if (selectedFile == null) return;
     await readBootFileStringWithSize();
-    await Future.delayed(const Duration(seconds: 1));
-
     final BluService blueService = BluService();
     final info = getFileInfo(selectedFile!);
     String payLoadFinal = jsonEncode({
       "6900": {"6901": "${info?['code']},$fileChecksumSize,$fileSize"},
     });
-    print('payLoadFinal --> $payLoadFinal');
     await blueService.write(payLoadFinal);
-
     sendFirmwareFromFile();
   }
 
@@ -210,16 +174,17 @@ class _FirmwareBLEPageState extends State<FirmwareBLEPage> {
     final BluService blueService = BluService();
     const chunkSize = 1024;
 
+    setState(() {
+      isLoading = true;
+      transferProgress = 0.0;
+      status = "Sending firmware...";
+    });
+
     try {
-      // Get file path
       Directory appDocDir = await getApplicationDocumentsDirectory();
       String filePath = '${appDocDir.path}/$selectedFile.txt';
-
-      // Read file bytes
       final Uint8List firmwareBytes = await File(filePath).readAsBytes();
-      print('📦 Loaded ${firmwareBytes.length} bytes from file');
 
-      // Send in chunks
       for (int offset = 0; offset < firmwareBytes.length; offset += chunkSize) {
         final chunk = firmwareBytes.sublist(
           offset,
@@ -227,14 +192,23 @@ class _FirmwareBLEPageState extends State<FirmwareBLEPage> {
               ? firmwareBytes.length
               : offset + chunkSize,
         );
-        print('🔹 Sending chunk of size ${chunk.length}');
         await blueService.writeFW(chunk);
+
+        setState(() {
+          transferProgress = (offset + chunk.length) / firmwareBytes.length;
+          status =
+          "Sending firmware ${((offset + chunk.length) / firmwareBytes.length * 100).toStringAsFixed(1)}%";
+        });
       }
-      setState(() => isLoading = false);
-      print('✅ Firmware sent over Bluetooth');
+
+      setState(() {
+        isLoading = false;
+        transferProgress = 1.0;
+        status = "Transfer complete ✅";
+      });
     } catch (e) {
       setState(() => isLoading = false);
-      print('❌ Error loading or sending firmware: $e');
+      print('Error sending firmware: $e');
     }
   }
 
@@ -245,20 +219,21 @@ class _FirmwareBLEPageState extends State<FirmwareBLEPage> {
       File file = File(filePath);
       if (await file.exists()) {
         List<int> contentsBytes = await file.readAsBytes();
-        int sizeInBytes = contentsBytes.length;
-        int sizeInKB = (sizeInBytes / 1024).ceil();
-        print(
-            'contentStringreadBootFileStringWithSize 1---sizeInBytes->$sizeInBytes sizeInKB:$sizeInKB');
-
-        fileSize = sizeInBytes;
+        fileSize = contentsBytes.length;
         final checksum = await calculateSHA256Checksum(filePath);
-        fileChecksumSize = checksum as String;
-      } else {
-        print('$selectedFile.txt not found.');
+        fileChecksumSize = checksum ?? '';
       }
     } catch (e) {
       print('Error reading file: $e');
     }
+  }
+
+  Future<String?> calculateSHA256Checksum(String filePath) async {
+    File file = File(filePath);
+    if (!await file.exists()) return null;
+    List<int> bytes = await file.readAsBytes();
+    firmwareBytes = Uint8List.fromList(bytes);
+    return sha256.convert(bytes).toString();
   }
 
   void statushw() {
@@ -272,67 +247,86 @@ class _FirmwareBLEPageState extends State<FirmwareBLEPage> {
   Widget build(BuildContext context) {
     statushw();
     return Scaffold(
-      appBar: AppBar(title: Text("EXE Transfer via Bluetooth")),
+      appBar: AppBar(title: const Text("EXE Transfer via Bluetooth")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child:
-            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Text("Status: $status"),
-          SizedBox(height: 20),
-          if (isDownloading) ...[
-            Center(child: CircularProgressIndicator()),
-            SizedBox(height: 20),
-          ] else if (isLoading) ...[
-            Center(child: CircularProgressIndicator()),
-            SizedBox(height: 20),
-            Text('Sending firmware over Bluetooth...'),
-          ],
-          const SizedBox(height: 20),
-          DropdownButtonFormField<String>(
-            value: selectedFile,
-            decoration: InputDecoration(
-              labelText: 'Select File',
-              border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-            ),
-            icon: Icon(Icons.arrow_drop_down),
-            items: files.map((file) {
-              return DropdownMenuItem<String>(
-                value: file,
-                child: Text(file),
-              );
-            }).toList(),
-            onChanged: (value) {
-              setState(() {
-                selectedFile = value;
-              });
-            },
-            validator: (value) => value == null ? 'Please select a file' : null,
-          ),
-          const SizedBox(height: 20),
-          if (selectedFile != null &&
-              selectedFile!.isNotEmpty &&
-              selectedFile != 'Select File') ...[
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text("Status: $status"),
             const SizedBox(height: 20),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
+
+            /// Download GIF + progress
+            if (isDownloading) ...[
+              Center(
+                child: Column(
+                  children: [
+                    Image.asset("assets/gif/download.gif", height: 120),
+                    const SizedBox(height: 10),
+                    Text(
+                      status,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(height: 20),
+            ],
+
+            /// BLE Transfer GIF + progress
+            if (isLoading) ...[
+              Center(
+                child: Column(
+                  children: [
+                    Image.asset("assets/gif/sendfiles.gif", height: 120),
+                    const SizedBox(height: 10),
+                    Text(
+                      status,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
+
+            DropdownButtonFormField<String>(
+              value: selectedFile,
+              decoration: InputDecoration(
+                labelText: 'Select File',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+              ),
+              icon: const Icon(Icons.arrow_drop_down),
+              items: files.map((file) {
+                return DropdownMenuItem<String>(
+                  value: file,
+                  child: Text(file),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedFile = value;
+                });
+              },
+              validator: (value) => value == null ? 'Please select a file' : null,
+            ),
+
+            const SizedBox(height: 20),
+
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(foregroundColor: Colors.white),
               onPressed: isDownloading ? null : _downloadToFile,
               child: const Text("Download"),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
-              ),
+              style: ElevatedButton.styleFrom(foregroundColor: Colors.white),
               onPressed: isLoading ? null : _sendViaBle,
               child: const Text("Send via Bluetooth"),
             ),
           ],
-        ]),
+        ),
       ),
     );
   }

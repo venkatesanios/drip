@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import '../views/customer/scheduled_program/code_info.dart';
 import 'enums.dart';
 import 'environment.dart';
 
@@ -72,6 +73,11 @@ class AppConstants {
   static const String agitatorON = "dp_agitator_right_g.gif";
   static const String agitatorNotON = "dp_agitator_right_y.png";
   static const String agitatorNotOFF = "dp_agitator_right_r.png";
+
+  static const String mblValveOFF = "m_valve_grey.png";
+  static const String mblValveON = "m_valve_green.png";
+  static const String mblValveNotON = "m_valve_orange.png";
+  static const String mblValveNotOFF = "m_valve_red.png";
 
   static const String mainValveOFF = "main_valve_gray.png";
   static const String mainValveON = "main_valve_green.png";
@@ -157,6 +163,23 @@ class AppConstants {
   final Widget txtSoldOut = const Text('SOLD OUT',style: TextStyle(fontSize: 18));
 
 
+  Map<int, CodeInfo> codeInfoMap = {
+    -1: CodeInfo("Paused Couldn't", "Paused Couldn't Start"),
+    1: CodeInfo("Start Manually", "Start Manually"),
+    -2: CodeInfo("Cond Couldn't", "Started By Condition Couldn't Stop"),
+    -3: CodeInfo("Started By Rtc", "Started By Rtc Couldn't Stop"),
+    7: CodeInfo("Stop Manually", "Stop Manually"),
+    13: CodeInfo("Bypass Start", "Bypass Start Condition"),
+    11: CodeInfo("Bypass Cond", "Bypass Condition"),
+    12: CodeInfo("Bypass Stop", "Bypass Stop Condition and Start"),
+    0: CodeInfo("Stop Manually", "Stop Manually"),
+    2: CodeInfo("Pause", "Pause"),
+    3: CodeInfo("Resume", "Resume"),
+    4: CodeInfo("Cont Manually", "Continue Manually"),
+    5: CodeInfo("Bypass Start Rtc", "ByPass And Start By Rtc"),
+  };
+
+
   static String getErrorMessage(UserRole role, Map<UserRole, String> errorMap) {
     return errorMap[role] ?? "Invalid role";
   }
@@ -210,6 +233,10 @@ class AppConstants {
       case 'valve':
         imagePathFinal = _getValveImagePath(keyTwo);
         break;
+      case 'valveToMobile':
+        imagePathFinal = _getMobileValveImagePath(keyTwo);
+        break;
+
       case 'valve_lj':
         imagePathFinal = _getValveLjImagePath(keyTwo);
         break;
@@ -402,6 +429,22 @@ class AppConstants {
         return '';
     }
   }
+
+  static String _getMobileValveImagePath(int status) {
+    switch (status) {
+      case 0:
+        return mblValveOFF;
+      case 1:
+        return mblValveON;
+      case 2:
+        return mblValveNotON;
+      case 3:
+        return mblValveNotOFF;
+      default:
+        return '';
+    }
+  }
+
 
   static String _getValveLjImagePath(int status) {
     switch (status) {
@@ -615,6 +658,7 @@ class AppConstants {
   static List<int> weatherModelList = [13, 14];
   static List<int> pumpModelList = [5, 6, 7, ...pumpPlusModelList];
   static List<int> pumpPlusModelList = [8, 9, 10];
+  static List<int> pumpList = [...pumpWithValveModelList,...pumpModelList,...shine2V,...shine4V,...elite10V,...pumpPlusModelList,];
   static List<int> senseModelList = [41, 42, 43, 44, 45];
   static List<int> ecoNodeList = [36];
   static List<int> extendLoraList = [46];

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:oro_drip_irrigation/views/customer/hourly_log/node_hourly_logs.dart';
-import '../../Models/customer/site_model.dart';
+import '../../models/customer/site_model.dart';
 import '../../repository/repository.dart';
 
 class NodeHourlyLogsVm extends ChangeNotifier {

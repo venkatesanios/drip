@@ -1,9 +1,13 @@
 
 import 'dart:convert';
 
-ServiceDealerModel serviceDealerModelFromJson(String str) => ServiceDealerModel.fromJson(json.decode(str));
+import 'package:intl/intl.dart';
 
-String serviceDealerModelToJson(ServiceDealerModel data) => json.encode(data.toJson());
+ServiceDealerModel serviceDealerModelFromJson(String str) =>
+    ServiceDealerModel.fromJson(json.decode(str));
+
+String serviceDealerModelToJson(ServiceDealerModel data) =>
+    json.encode(data.toJson());
 
 class ServiceDealerModel {
   int? code;
@@ -16,16 +20,23 @@ class ServiceDealerModel {
     this.data,
   });
 
-  factory ServiceDealerModel.fromJson(Map<String, dynamic> json) => ServiceDealerModel(
-    code: json["code"],
-    message: json["message"],
-    data: json["data"] == null ? [] : List<Datum>.from(json["data"]!.map((x) => Datum.fromJson(x))),
-  );
+  factory ServiceDealerModel.fromJson(Map<String, dynamic> json) =>
+      ServiceDealerModel(
+        code: json["code"],
+        message: json["message"],
+        data: json["data"] == null
+            ? []
+            : List<Datum>.from(
+          json["data"].map((x) => Datum.fromJson(x)),
+        ),
+      );
 
   Map<String, dynamic> toJson() => {
     "code": code,
     "message": message,
-    "data": data == null ? [] : List<dynamic>.from(data!.map((x) => x.toJson())),
+    "data": data == null
+        ? []
+        : List<dynamic>.from(data!.map((x) => x.toJson())),
   };
 }
 
@@ -75,12 +86,16 @@ class Datum {
     requestTypeId: json["requestTypeId"],
     requestType: json["requestType"],
     requestDescription: json["requestDescription"],
-    requestDate: json["requestDate"] == null ? null : DateTime.parse(json["requestDate"]),
+    requestDate: json["requestDate"] == null
+        ? null
+        : DateTime.parse(json["requestDate"]),
     requestTime: json["requestTime"],
     priority: json["priority"],
     responsibleUser: json["responsibleUser"],
     responsibleUserName: json["responsibleUserName"],
-    estimatedDate: json["estimatedDate"] == null ? null : DateTime.parse(json["estimatedDate"]),
+    estimatedDate: json["estimatedDate"] == null
+        ? null
+        : DateTime.parse(json["estimatedDate"]),
     status: json["status"],
     closedDate: json["closedDate"],
   );
@@ -94,12 +109,16 @@ class Datum {
     "requestTypeId": requestTypeId,
     "requestType": requestType,
     "requestDescription": requestDescription,
-    "requestDate": "${requestDate!.year.toString().padLeft(4, '0')}-${requestDate!.month.toString().padLeft(2, '0')}-${requestDate!.day.toString().padLeft(2, '0')}",
+    "requestDate": requestDate != null
+        ? DateFormat("yyyy-MM-dd").format(requestDate!)
+        : null,
     "requestTime": requestTime,
     "priority": priority,
     "responsibleUser": responsibleUser,
     "responsibleUserName": responsibleUserName,
-    "estimatedDate": "${estimatedDate!.year.toString().padLeft(4, '0')}-${estimatedDate!.month.toString().padLeft(2, '0')}-${estimatedDate!.day.toString().padLeft(2, '0')}",
+    "estimatedDate": estimatedDate != null
+        ? DateFormat("yyyy-MM-dd").format(estimatedDate!)
+        : null,
     "status": status,
     "closedDate": closedDate,
   };

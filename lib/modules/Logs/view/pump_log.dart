@@ -7,7 +7,7 @@ import 'package:oro_drip_irrigation/modules/PumpController/state_management/pump
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
 
-import '../../../Models/customer/site_model.dart';
+import '../../../models/customer/site_model.dart';
 import '../../Preferences/widgets/custom_segmented_control.dart';
 import '../widgets/custom_calendar_mobile.dart';
 import '../widgets/time_line2.dart';
@@ -45,7 +45,7 @@ class _PumpLogScreenState extends State<PumpLogScreen> {
       backgroundColor: Colors.white,
       appBar: [...AppConstants.ecoGemModelList, ...AppConstants.gemModelList].contains(widget.masterData.modelId) ? AppBar(
         title: const Text('Pump log'),
-      ) : PreferredSize(preferredSize: Size(0, 0), child: Container()),
+      ) : PreferredSize(preferredSize: const Size(0, 0), child: Container()),
       body: SafeArea(
         child: Column(
           children: [

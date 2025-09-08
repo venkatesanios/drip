@@ -1,0 +1,205 @@
+import 'package:flutter/material.dart';
+
+import '../../../Screens/Dealer/sevicecustomer.dart';
+import '../../../flavors.dart';
+import '../../../modules/UserChat/view/user_chat.dart';
+import '../../../utils/routes.dart';
+import '../../../utils/shared_preferences_helper.dart';
+import '../../../view_models/customer/customer_screen_controller_view_model.dart';
+import '../../common/user_profile/user_profile.dart';
+import '../app_info.dart';
+import '../customer_product.dart';
+
+class CustomerDrawer extends StatelessWidget {
+  final dynamic viewedCustomer;
+  final dynamic loggedInUser;
+  final CustomerScreenControllerViewModel vm;
+  const CustomerDrawer({
+    super.key,
+    required this.viewedCustomer,
+    required this.loggedInUser,
+    required this.vm,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      shape: const RoundedRectangleBorder(),
+      surfaceTintColor: Colors.white,
+      child: Column(
+        children: [
+          _buildHeader(context),
+          _buildDrawerItem(
+            context,
+            icon: Icons.account_circle_outlined,
+            text: "Profile",
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const UserProfile()),
+            ),
+          ),
+          _divider(),
+          _buildDrawerItem(
+            context,
+            icon: Icons.info_outline,
+            text: "App Info",
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AppInfo()),
+            ),
+          ),
+          _divider(),
+          _buildDrawerItem(
+            context,
+            icon: Icons.help_outline,
+            text: "Help",
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => UserChatScreen(
+                  userId: viewedCustomer.id,
+                  userName: viewedCustomer.name,
+                  phoneNumber: viewedCustomer.mobileNo,
+                ),
+              ),
+            ),
+          ),
+          _divider(),
+          _buildDrawerItem(
+            context,
+            icon: Icons.feedback_outlined,
+            text: "Send Feedback",
+            onTap: () {},
+          ),
+          _divider(),
+          _buildDrawerItem(
+            context,
+            icon: Icons.support_agent_sharp,
+            text: "Service Request",
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TicketHomePage(
+                  userId: loggedInUser.id,
+                  controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+                ),
+              ),
+            ),
+          ),
+          _divider(),
+          _buildDrawerItem(
+            context,
+            icon: Icons.devices,
+            text: "All my devices",
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CustomerProduct(customerId: loggedInUser.id),
+              ),
+            ),
+          ),
+          _divider(),
+          _buildLogoutButton(context),
+          const Spacer(),
+          _buildFooterLogo(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return DrawerHeader(
+      decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                children: [
+                  Text(
+                    viewedCustomer!.name,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  Text(
+                    viewedCustomer.mobileNo,
+                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                  ),
+                  Text(
+                    viewedCustomer.email,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(
+              width: 75,
+              height: 75,
+              child: CircleAvatar(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDrawerItem(BuildContext context,
+      {required IconData icon, required String text, required VoidCallback onTap}) {
+    return ListTile(
+      leading: Icon(icon, color: Theme.of(context).primaryColor),
+      title: Text(text, style: const TextStyle(fontWeight: FontWeight.bold)),
+      trailing: const Icon(Icons.keyboard_arrow_right_rounded),
+      onTap: onTap,
+    );
+  }
+
+  Widget _divider() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 40, right: 25),
+      child: Divider(height: 0, color: Colors.grey.shade300),
+    );
+  }
+
+  Widget _buildLogoutButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16, top: 16, right: 16),
+      child: TextButton.icon(
+        onPressed: () async {
+          await PreferenceHelper.clearAll();
+          if (!context.mounted) return;
+          Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
+        },
+        icon: const Icon(Icons.logout, color: Colors.red),
+        label: const Text(
+          "Logout",
+          style: TextStyle(color: Colors.red, fontSize: 17),
+        ),
+        style: TextButton.styleFrom(
+          alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFooterLogo() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          F.appFlavor!.name.contains('oro')
+              ? Image.asset('assets/png/company_logo_nia.png', width: 60)
+              : SizedBox(
+            height: 60,
+            child: Image.asset('assets/png/company_logo.png'),
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+}

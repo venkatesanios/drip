@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../Models/admin_dealer/stock_model.dart';
+import '../../models/admin_dealer/stock_model.dart';
 import '../../models/admin_dealer/new_stock_model.dart';
 import '../../models/admin_dealer/simple_category.dart';
 import '../../repository/repository.dart';

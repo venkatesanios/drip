@@ -3,14 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:oro_drip_irrigation/Constants/properties.dart';
-import 'package:oro_drip_irrigation/modules/Preferences/view/valve_settings.dart';
 import 'package:oro_drip_irrigation/modules/Preferences/view/view_config.dart';
 import 'package:oro_drip_irrigation/services/http_service.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
-import 'package:oro_drip_irrigation/view_models/customer/customer_screen_controller_view_model.dart';
 import 'package:provider/provider.dart';
-import '../../../Models/customer/site_model.dart';
+import '../../../models/customer/site_model.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../Widgets/custom_animated_switcher.dart';
 import '../../IrrigationProgram/view/schedule_screen.dart';
@@ -23,7 +21,6 @@ import '../../../utils/environment.dart';
 import '../../IrrigationProgram/view/program_library.dart';
 import '../widgets/custom_segmented_control.dart';
 import '../widgets/progress_dialog.dart';
-import 'moisture_settings.dart';
 
 final otherSettingsIcons = [
   MdiIcons.lightbulbMultipleOutline,
@@ -902,7 +899,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
         ),
         Column(
           children: [
-            for (int index = 0; index < (preferenceProvider.commonPumpSettings!.length > 1 ? preferenceProvider.individualPumpSetting!
+            for (int index = 0; index < (isToGem ? preferenceProvider.individualPumpSetting!
                 .where((e) => e.deviceId == preferenceProvider.commonPumpSettings![pumpIndex].deviceId).length : preferenceProvider.individualPumpSetting!.length); index++)
               SwitchListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 10),
@@ -910,7 +907,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                     width: 40,
                     height: 40,
                   ),
-                  title: Text(preferenceProvider.commonPumpSettings!.length > 1 ? preferenceProvider.individualPumpSetting!
+                  title: Text(isToGem ? preferenceProvider.individualPumpSetting!
                       .where((e) => e.deviceId == preferenceProvider.commonPumpSettings![pumpIndex].deviceId)
                       .elementAt(index)
                       .name : preferenceProvider.individualPumpSetting![index].name),
@@ -1315,9 +1312,13 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
         );
       }
 
+      /*print("isLevelSettingChanged :: $isLevelSettingChanged");
+      print("isAnyOtherChanged :: $isAnyOtherChanged");
+      print('isLevelSettingChanged && !isAnyOtherChanged :: ${isLevelSettingChanged && !isAnyOtherChanged}');*/
       if (preferenceProvider.commonPumpSettings!.isNotEmpty && !(isLevelSettingChanged && !isAnyOtherChanged)) {
-        if(isToGem ? preferenceProvider.generalData!.controllerReadStatus == "1" : true) {
+        if((isToGem ? preferenceProvider.generalData!.controllerReadStatus == "1" : true) && payloadForGem.any((item) => item.trim().isNotEmpty)) {
           for (var i = 0; i < payloadForGem.length; i++) {
+            print("payloadForGem :: $payloadForGem");
             var payloadToDecode = isToGem ? payloadForGem[i].split('+')[4] : payloadForGem[i];
             // print("payloadToDecode :: $payloadToDecode");
             var decodedData = jsonDecode(payloadToDecode);

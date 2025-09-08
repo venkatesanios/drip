@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 
-import '../Models/admin_dealer/stock_model.dart';
+import '../models/admin_dealer/stock_model.dart';
 import '../models/device_list_model.dart';
 import '../repository/repository.dart';
 

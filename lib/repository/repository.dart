@@ -191,6 +191,10 @@ class Repository{
      return await apiService.postRequest('/user/dashboard', body);
   }
 
+  Future<http.Response> fetchSharedUserSite(body) async {
+    return await apiService.postRequest('/sharedUser/userDevice/get', body);
+  }
+
   Future<http.Response> fetchSiteAiAdvisoryData(body) async {
     return await apiService.postRequest('/user/deviceList/aiAdvisory/get', body);
   }
@@ -416,6 +420,10 @@ class Repository{
     return await apiService.postRequest('/user/serviceRequest/getForDealer', body);
   }
 
+  Future<http.Response> getUserCriticalAlarmForDealer(body) async {
+    return await apiService.postRequest('/user/deviceList/criticalAlarmForDealer', body);
+  }
+
   Future<http.Response> getUserAllServiceRequestForDealer(body) async {
     return await apiService.postRequest('/user/serviceRequest/getAllForDealer', body);
   }
@@ -429,7 +437,7 @@ class Repository{
   }
 
   Future<http.Response> updateUserServiceRequest(body) async {
-    return await apiService.postRequest('/user/serviceRequest/update', body);
+    return await apiService.putRequest('/user/serviceRequest/update', body);
   }
 
   Future<http.Response> getUserDeviceFirmwareDetails(body) async {
@@ -438,6 +446,16 @@ class Repository{
   Future<http.Response> getUserDashboard(body) async {
     return await apiService.postRequest('/user/deviceList/getFirmwareDetails', body);
   }
+
+
+  Future<http.Response> getSubUserSharedDeviceList(body) async {
+    return await apiService.postRequest('/user/sharedUser/getDevice', body);
+  }
+
+  Future<http.Response> updatedSubUserPermission(body) async {
+    return await apiService.postRequest('/user/sharedUser/create', body);
+  }
+
   Future<http.Response> getweather(body) async {
     return await apiService.postRequest('/user/live/weather/get', body);
   }

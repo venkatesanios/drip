@@ -15,7 +15,7 @@ class NetworkConnectionBanner extends StatelessWidget {
           return Container(
             color: Colors.red.shade400,
             width: double.infinity,
-            padding: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 5),
+            padding: const EdgeInsets.only(left: 8, right: 8, top: 3, bottom: 3),
             child: const Text(
               'No Internet Connection',
               style: TextStyle(color: Colors.white),

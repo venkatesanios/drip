@@ -199,7 +199,7 @@ class MqttService {
       final payloadMessage = jsonDecode(payload);
       acknowledgementPayload = payloadMessage;
 
-      print("payloadMessage :: ${payloadMessage['mC']}");
+      // print("payloadMessage :: ${payloadMessage['mC']}");
       switch (payloadMessage['mC']) {
         case 'SMS':
           preferenceAck = payloadMessage;

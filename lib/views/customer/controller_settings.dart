@@ -7,7 +7,7 @@ import 'package:oro_drip_irrigation/Screens/planning/PumpCondition.dart';
 import 'package:oro_drip_irrigation/view_models/customer/controller_settings_view_model.dart';
 import 'package:oro_drip_irrigation/views/customer/condition_library.dart';
 import 'package:provider/provider.dart';
-import '../../Models/customer/site_model.dart';
+import '../../models/customer/site_model.dart';
 import '../../Screens/Map/CustomerMap.dart';
 import '../../Screens/Map/allAreaBoundry.dart';
 import '../../Screens/planning/frost_productionScreen.dart';
