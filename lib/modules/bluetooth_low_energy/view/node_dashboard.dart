@@ -128,7 +128,7 @@ class _NodeDashboardState extends State<NodeDashboard> {
                                     }));
                                   },
                                 ),
-                                if(!bleService.nodeDataFromServer['hardwareLoraModel'].contains(bleService.nodeDataFromHw['MID']) && (!AppConstants.pumpWithValveModelList.contains(bleService.nodeData['modelId']) && !AppConstants.ecoGemModelList.contains(bleService.nodeData['modelId'])))
+                                if(bleService.nodeDataFromServer.isNotEmpty && !bleService.nodeDataFromServer['hardwareLoraModel'].contains(bleService.nodeDataFromHw['MID']) && (!AppConstants.pumpWithValveModelList.contains(bleService.nodeData['modelId']) && !AppConstants.ecoGemModelList.contains(bleService.nodeData['modelId'])))
                                   gridItemWidget(
                                   imagePath: 'assets/Images/Svg/SmartComm/calibration.svg',
                                   title: 'Calibration',
