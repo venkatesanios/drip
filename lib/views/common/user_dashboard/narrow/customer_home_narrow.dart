@@ -39,111 +39,15 @@ class CustomerDashboardNarrow extends StatelessWidget {
         ? irrigationLines.where((line) => line.name != viewModel.myCurrentIrrLine).toList()
         : irrigationLines.where((line) => line.name == viewModel.myCurrentIrrLine).toList();
 
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Pump station, irrigation lines, etc...
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.schedule),
 
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            builder: (context) => Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    CurrentProgram(
-                      scheduledPrograms: scheduledProgram,
-                      deviceId: deviceId,
-                      customerId: viewedCustomer!.id,
-                      controllerId: controllerId,
-                      currentLineSNo: irrigationLines[viewModel.lIndex].sNo,
-                      modelId: modelId,
-                    ),
-                    const SizedBox(height: 12),
-                    NextSchedule(scheduledPrograms: scheduledProgram),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-
-    return Scaffold(
-      body: Stack(
-        children: [
-          // your main body scroll
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                // irrigation lines, pump station...
-              ],
-            ),
-          ),
-          DraggableScrollableSheet(
-            initialChildSize: 0.2,
-            minChildSize: 0.2,
-            maxChildSize: 0.6,
-            builder: (context, controller) {
-              return Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                ),
-                child: ListView(
-                  controller: controller,
-                  children: [
-                    CurrentProgram(
-                      scheduledPrograms: scheduledProgram,
-                      deviceId: deviceId,
-                      customerId: viewedCustomer!.id,
-                      controllerId: controllerId,
-                      currentLineSNo: irrigationLines[viewModel.lIndex].sNo,
-                      modelId: modelId,
-                    ),
-                    NextSchedule(scheduledPrograms: scheduledProgram),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
 
     return Scaffold(
       body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
+        physics: const BouncingScrollPhysics(),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            context.watch<MqttPayloadProvider>().onRefresh ? displayLinearProgressIndicator() : const SizedBox(),
-            CurrentProgram(
-              scheduledPrograms: scheduledProgram,
-              deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,
-              customerId: viewedCustomer!.id,
-              controllerId: controllerId,
-              currentLineSNo: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine[viewModel.lIndex].sNo,
-              modelId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].modelId,
-            ),
-            NextSchedule(scheduledPrograms: scheduledProgram),
-
             ...linesToDisplay.map((line) => Padding(
               padding: const EdgeInsets.only(left: 8, top: 8, right: 8),
-
               child: Column(
                 children: [
                   Card(
@@ -158,8 +62,8 @@ class CustomerDashboardNarrow extends StatelessWidget {
                           tileColor: Colors.white,
                         ),
                         Container(
-                          color: Colors.white,
-                          child: buildPumpStation(context, line, viewedCustomer.id, controllerId, modelId, deviceId)
+                            color: Colors.white,
+                            child: buildPumpStation(context, line, viewedCustomer!.id, controllerId, modelId, deviceId)
                         )
                       ],
                     ),
@@ -228,7 +132,39 @@ class CustomerDashboardNarrow extends StatelessWidget {
           ],
         ),
       ),
+
+      floatingActionButton: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Card(
+            color: Colors.white,
+            elevation: 2,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+              decoration:  BoxDecoration(
+                color: Colors.green.shade400,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(10),
+                  topRight: Radius.circular(10),
+                ),
+              ),
+              child: SizedBox(
+                height: 40,
+                child: Column(
+                  children: [
+                    Text('current schedule', style: const TextStyle(color: Colors.white60, fontSize: 12)),
+                    Text("00:00:00", style: const TextStyle(color: Colors.white, fontSize: 16)),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniStartDocked,
+
     );
+
   }
 
   Widget displayLinearProgressIndicator() {

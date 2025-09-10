@@ -78,7 +78,8 @@ android {
 
     defaultConfig {
         applicationId = "com.niagaraautomations.oroDripirrigation"
-        minSdk = flutter.minSdkVersion
+        minSdk = 23
+//        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = 12
         versionName = "1.1.0"

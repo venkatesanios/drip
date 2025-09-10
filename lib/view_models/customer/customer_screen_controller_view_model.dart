@@ -199,6 +199,8 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
 
   Future<void> getAllMySites(BuildContext context, int customerId) async {
     setLoading(true);
+    final response = await repository.fetchAllMySite({"userId": customerId});
+    print("response.body :: ${response.body}");
     try {
       final response = await repository.fetchAllMySite({"userId": customerId});
       if (response.statusCode == 200) {
