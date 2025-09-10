@@ -686,6 +686,8 @@ class MqttPayloadProvider with ChangeNotifier {
           if (!viewSettingsList.contains(jsonEncode(data['cM']))) {
             viewSettingsList.add(jsonEncode(data["cM"]));
           }
+          // print("viewSettingsList :: $viewSettingsList");
+          // print("viewSetting :: $viewSetting");
         }
         if(data['cM'] is! List<dynamic>) {
           if (data['mC'] != null && data['cM'].containsKey('4201')) {
