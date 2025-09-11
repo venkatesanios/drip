@@ -6,8 +6,9 @@ import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 
 class CropAdvisoryForm extends StatefulWidget {
-  const CropAdvisoryForm({super.key, required this.customerId, required this.controllerId});
+  const CropAdvisoryForm({super.key, required this.customerId, required this.controllerId, required this.isNarrow});
   final int customerId, controllerId;
+  final bool isNarrow;
 
   @override
   State<CropAdvisoryForm> createState() => _CropAdvisoryFormPageState();
@@ -60,7 +61,7 @@ class _CropAdvisoryFormPageState extends State<CropAdvisoryForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
+      appBar: widget.isNarrow? AppBar(
         title: const Text("Crop Advisory"),
         actions: [
           Row(
@@ -96,7 +97,8 @@ class _CropAdvisoryFormPageState extends State<CropAdvisoryForm> {
             ],
           ),
         ],
-      ),
+      ):
+      null,
       body: Padding(
         padding: const EdgeInsets.only(left: 16, right: 16),
         child: Form(

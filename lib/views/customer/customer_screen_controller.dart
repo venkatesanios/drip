@@ -35,7 +35,7 @@ import '../../utils/shared_preferences_helper.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../../view_models/nav_rail_view_model.dart';
 import '../common/user_profile/user_profile.dart';
-import 'controller_settings.dart';
+import 'controller_settings/wide/controller_settings_wide.dart';
 import 'customer_home.dart';
 import 'customer_product.dart';
 import 'input_output_connection_details.dart';
@@ -1077,14 +1077,14 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
           },
           masterData: currentMaster,
         ) :
-        ControllerSettings(
+        ControllerSettingWide(
           userId: widget.userId,
           customerId: customerId,
           masterController: currentMaster,
         );
 
       case 4:
-        return isGem ? ControllerSettings(
+        return isGem ? ControllerSettingWide(
           userId: widget.userId,
           customerId: customerId,
           masterController: currentMaster,

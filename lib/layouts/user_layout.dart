@@ -16,19 +16,30 @@ import '../views/common/login/wide/login_web.dart';
 import '../views/common/user_dashboard/customer_dashboard_service.dart';
 import '../views/common/user_dashboard/management_dashboard_service.dart';
 import '../view_models/base_header_view_model.dart';
-import '../views/common/user_dashboard/middle/admin_tablet_dashboard.dart';
-import '../views/common/user_dashboard/middle/customer_tablet_dashboard.dart';
-import '../views/common/user_dashboard/middle/dealer_tablet_dashboard.dart';
-import '../views/common/user_dashboard/narrow/admin_mobile_dashboard.dart';
+import '../views/common/user_dashboard/middle/admin_dashboard_middle.dart';
+import '../views/common/user_dashboard/middle/customer_home_middle.dart';
+import '../views/common/user_dashboard/middle/dealer_dashboard_middle.dart';
+import '../views/common/user_dashboard/narrow/admin_dashboard_narrow.dart';
 import '../views/common/user_dashboard/narrow/customer_home_narrow.dart';
-import '../views/common/user_dashboard/narrow/dealer_mobile_dashboard.dart';
-import '../views/common/user_dashboard/web/admin_web_dashboard.dart';
-import '../views/common/user_dashboard/web/customer_web_dashboard.dart';
-import '../views/common/user_dashboard/web/dealer_web_dashboard.dart';
+import '../views/common/user_dashboard/narrow/dealer_dashboard_narrow.dart';
+import '../views/common/user_dashboard/wide/admin_dashboard_wide.dart';
+import '../views/common/user_dashboard/wide/customer_home_wide.dart';
+import '../views/common/user_dashboard/wide/dealer_dashboard_wide.dart';
 import '../views/dealer/dealer_middle_layout.dart';
 import '../views/dealer/dealer_narrow_layout.dart';
 import '../views/dealer/dealer_wide_layout.dart';
 import 'base_layout.dart';
+
+class LoginScreenLayout extends BaseScreenLayout {
+  const LoginScreenLayout({super.key});
+
+  @override
+  Widget buildNarrow(BuildContext context) => const LoginMobile();
+  @override
+  Widget buildMiddle(BuildContext context) => const LoginTablet();
+  @override
+  Widget buildWide(BuildContext context) => const LoginWeb();
+}
 
 class AdminScreenLayout extends BaseScreenLayout {
   const AdminScreenLayout({super.key});
@@ -50,6 +61,27 @@ class AdminScreenLayout extends BaseScreenLayout {
   Widget buildMiddle(BuildContext context) => const AdminMiddleLayout();
   @override
   Widget buildWide(BuildContext context) => const AdminWideLayout();
+}
+
+class AdminDashboardLayout extends BaseScreenLayout {
+  const AdminDashboardLayout({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final viewedCustomer = context.read<UserProvider>().viewedCustomer!;
+    return ManagementDashboardService(
+      userId: viewedCustomer.id,
+      userType: 1,
+      child: super.build(context),
+    );
+  }
+
+  @override
+  Widget buildNarrow(BuildContext context) => const AdminDashboardNarrow();
+  @override
+  Widget buildMiddle(BuildContext context) => const AdminDashboardMiddle();
+  @override
+  Widget buildWide(BuildContext context) => const AdminDashboardWide();
 }
 
 class DealerScreenLayout extends BaseScreenLayout {
@@ -74,6 +106,27 @@ class DealerScreenLayout extends BaseScreenLayout {
   Widget buildWide(BuildContext context) => const DealerWideLayout();
 }
 
+class DealerDashboardLayout extends BaseScreenLayout {
+  const DealerDashboardLayout({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final viewedCustomer = context.read<UserProvider>().viewedCustomer!;
+    return ManagementDashboardService(
+      userId: viewedCustomer.id,
+      userType: 2,
+      child: super.build(context),
+    );
+  }
+
+  @override
+  Widget buildNarrow(BuildContext context) => const DealerDashboardNarrow();
+  @override
+  Widget buildMiddle(BuildContext context) => const DealerDashboardMiddle();
+  @override
+  Widget buildWide(BuildContext context) => const DealerDashboardWide();
+}
+
 class CustomerScreenLayout extends BaseScreenLayout {
   const CustomerScreenLayout({super.key});
 
@@ -94,67 +147,14 @@ class CustomerScreenLayout extends BaseScreenLayout {
   Widget buildWide(BuildContext context) => const CustomerWideLayout();
 }
 
-class LoginScreenLayout extends BaseScreenLayout {
-  const LoginScreenLayout({super.key});
+
+class CustomerHomeLayout extends BaseScreenLayout {
+  const CustomerHomeLayout({super.key});
 
   @override
-  Widget buildNarrow(BuildContext context) => const LoginMobile();
+  Widget buildNarrow(BuildContext context) => const CustomerHomeNarrow();
   @override
-  Widget buildMiddle(BuildContext context) => const LoginTablet();
+  Widget buildMiddle(BuildContext context) => const CustomerHomeMiddle();
   @override
-  Widget buildWide(BuildContext context) => const LoginWeb();
-}
-
-class AdminDashboardLayout extends BaseScreenLayout {
-  const AdminDashboardLayout({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final viewedCustomer = context.read<UserProvider>().viewedCustomer!;
-    return ManagementDashboardService(
-      userId: viewedCustomer.id,
-      userType: 1,
-      child: super.build(context),
-    );
-  }
-
-  @override
-  Widget buildNarrow(BuildContext context) => const AdminMobileDashboard();
-  @override
-  Widget buildMiddle(BuildContext context) => const AdminTabletDashboard();
-  @override
-  Widget buildWide(BuildContext context) => const AdminWebDashboard();
-}
-
-class DealerDashboardLayout extends BaseScreenLayout {
-  const DealerDashboardLayout({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final viewedCustomer = context.read<UserProvider>().viewedCustomer!;
-    return ManagementDashboardService(
-      userId: viewedCustomer.id,
-      userType: 2,
-      child: super.build(context),
-    );
-  }
-
-  @override
-  Widget buildNarrow(BuildContext context) => const DealerMobileDashboard();
-  @override
-  Widget buildMiddle(BuildContext context) => const DealerTabletDashboard();
-  @override
-  Widget buildWide(BuildContext context) => const DealerWebDashboard();
-}
-
-
-class CustomerDashboardLayout extends BaseScreenLayout {
-  const CustomerDashboardLayout({super.key});
-
-  @override
-  Widget buildNarrow(BuildContext context) => const CustomerDashboardNarrow();
-  @override
-  Widget buildMiddle(BuildContext context) => const CustomerTabletDashboard();
-  @override
-  Widget buildWide(BuildContext context) => const CustomerWebDashboard();
+  Widget buildWide(BuildContext context) => const CustomerHomeWide();
 }

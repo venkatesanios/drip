@@ -7,7 +7,6 @@ import 'package:oro_drip_irrigation/views/customer/widgets/customer_drawer.dart'
 import 'package:oro_drip_irrigation/views/customer/widgets/customer_fab_menu.dart';
 import 'package:provider/provider.dart';
 
-
 import '../../Screens/Logs/irrigation_and_pump_log.dart';
 import '../../flavors.dart';
 import '../../layouts/layout_selector.dart';
@@ -21,7 +20,6 @@ import 'controller_settings/settings_menu_narrow.dart';
 
 class CustomerNarrowLayout extends StatelessWidget {
   const CustomerNarrowLayout({super.key});
-
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +72,6 @@ class CustomerNarrowLayout extends StatelessWidget {
         )
       ];
     }
-
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
@@ -119,7 +116,6 @@ class CustomerNarrowLayout extends StatelessWidget {
         ],
       ) :
       null,
-
     );
   }
 

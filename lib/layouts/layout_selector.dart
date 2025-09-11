@@ -38,7 +38,7 @@ class DashboardLayoutSelector extends StatelessWidget {
       case UserRole.dealer:
         return const DealerDashboardLayout();
       case UserRole.customer:
-        return const CustomerDashboardLayout();
+        return const CustomerHomeLayout();
       case UserRole.superAdmin:
         throw UnimplementedError('Super Admin layout not implemented');
       case UserRole.subUser:

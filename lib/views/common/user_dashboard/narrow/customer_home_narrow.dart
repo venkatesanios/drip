@@ -24,8 +24,8 @@ import '../../../customer/home_sub_classes/filter_site.dart';
 import '../../../customer/home_sub_classes/next_schedule.dart';
 import '../../../customer/widgets/sensor_widget_mobile.dart';
 
-class CustomerDashboardNarrow extends StatelessWidget {
-  const CustomerDashboardNarrow({super.key});
+class CustomerHomeNarrow extends StatelessWidget {
+  const CustomerHomeNarrow({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -137,28 +137,34 @@ class CustomerDashboardNarrow extends StatelessWidget {
         ),
       ),
 
-      floatingActionButton: ChangeNotifierProvider(
-        create: (context) => CurrentProgramViewModel(context,
-            viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine[viewModel.lIndex].sNo),
-        child: Consumer<CurrentProgramViewModel>(
-          builder: (context, vm, _) {
+      floatingActionButton: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ChangeNotifierProvider(
+            create: (context) => CurrentProgramViewModel(context,
+                viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine[viewModel.lIndex].sNo),
+            child: Consumer<CurrentProgramViewModel>(
+              builder: (context, vm, _) {
 
-            final currentSchedule = context.watch<MqttPayloadProvider>().currentSchedule;
+                final currentSchedule = context.watch<MqttPayloadProvider>().currentSchedule;
 
-            if(currentSchedule.isNotEmpty){
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                vm.updateSchedule(currentSchedule);
-              });
-            }
+                if(currentSchedule.isNotEmpty){
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    vm.updateSchedule(currentSchedule);
+                  });
+                }
 
-            if(vm.currentSchedule.isNotEmpty && vm.currentSchedule[0].isNotEmpty){
-              return buildMobileCard(context, vm.currentSchedule, scheduledProgram, modelId);
-            }else{
-              return const SizedBox();
-            }
+                if(vm.currentSchedule.isNotEmpty && vm.currentSchedule[0].isNotEmpty){
+                  return buildMobileCard(context, vm.currentSchedule, scheduledProgram, modelId);
+                }else{
+                  return const SizedBox();
+                }
 
-          },
-        ),
+              },
+            ),
+          ),
+          buildNextScheduleCard(context, scheduledProgram),
+        ],
       ),
 
       floatingActionButtonLocation: FloatingActionButtonLocation.miniStartDocked,
@@ -275,7 +281,6 @@ class CustomerDashboardNarrow extends StatelessWidget {
 
   Widget buildMobileCard(BuildContext context,
       List<String> schedule, List<ProgramList> scheduledPrograms, int modelId) {
-
     return Row(
       children: List.generate(schedule.length, (index) {
 
@@ -289,8 +294,6 @@ class CustomerDashboardNarrow extends StatelessWidget {
           builder: (rowContext) {
             return GestureDetector(
               onTap: () {
-                print("Row $index selected: $programName");
-
                 showPopover(
                   context: rowContext,
                   bodyBuilder: (context) =>  Padding(
@@ -315,8 +318,8 @@ class CustomerDashboardNarrow extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.green.shade400,
                         borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          topRight: Radius.circular(10),
+                          topLeft: Radius.circular(5),
+                          topRight: Radius.circular(5),
                         ),
                       ),
                       child: SizedBox(
@@ -671,7 +674,8 @@ class CustomerDashboardNarrow extends StatelessWidget {
 
   }
 
-  Widget buildIrrigationLine(BuildContext context, IrrigationLineModel irrLine, int customerId, int controllerId, int modelId, String deviceId){
+  Widget buildIrrigationLine(BuildContext context, IrrigationLineModel irrLine,
+      int customerId, int controllerId, int modelId, String deviceId){
     return IrrigationLine(
       valves: irrLine.valveObjects,
       mainValves: irrLine.mainValveObjects,
@@ -684,6 +688,131 @@ class CustomerDashboardNarrow extends StatelessWidget {
       controllerId: controllerId,
       deviceId: deviceId,
       modelId: modelId,
+    );
+  }
+
+  Widget buildNextScheduleCard(BuildContext context, List<ProgramList> scheduledPrograms) {
+
+    var nextSchedule =  context.watch<MqttPayloadProvider>().nextSchedule;
+
+    if(nextSchedule.isNotEmpty && nextSchedule[0].isNotEmpty){
+      return Row(
+        children: List.generate(nextSchedule.length, (index) {
+
+          List<String> values = nextSchedule[index ~/ 2].split(',');
+          final programName = getProgramNameById(int.parse(values[0]), scheduledPrograms);
+          final sqName = getSequenceName(int.parse(values[0]), values[1], scheduledPrograms) ?? '--';
+
+          return Builder(
+            builder: (rowContext) {
+              return GestureDetector(
+                onTap: () {
+                  showPopover(
+                    context: rowContext,
+                    bodyBuilder: (context) =>  Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: buildNextScheduleRow(context, values, programName, sqName),
+                    ),
+                    onPop: () => print('Popover was popped!'),
+                    direction: PopoverDirection.top,
+                    width: 300,
+                    height: 90,
+                    arrowHeight: 15,
+                    arrowWidth: 30,
+                  );
+                },
+                child: Row(
+                  children: [
+                    Card(
+                      color: Colors.white,
+                      elevation: 2,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.shade400,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(5),
+                            topRight: Radius.circular(5),
+                          ),
+                        ),
+                        child: SizedBox(
+                          height: 45,
+                          child: Column(
+                            children: [
+                              const Text('Next Shift',
+                                  style: TextStyle(color: Colors.black45, fontSize: 13)),
+                              const SizedBox(height: 3),
+                              Text(sqName, style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                  ],
+                ),
+              );
+            },
+          );
+
+        }),
+      );
+    }else{
+      return const SizedBox();
+    }
+
+  }
+
+  Widget buildNextScheduleRow(BuildContext context, List<String> values,
+      String programName, String sequenceName) {
+    return Row(
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(left: 10),
+          child: SizedBox(
+            width: 110,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Program Name', style: TextStyle(color: Colors.black45)),
+                SizedBox(height: 2),
+                Text('Start at', style: TextStyle(color: Colors.black45)),
+                SizedBox(height: 2),
+                Text('Set (Dur/Flw)', style: TextStyle(color: Colors.black45)),
+                SizedBox(height: 2),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(
+          width: 10,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(':'),
+              SizedBox(height: 2),
+              Text(':'),
+              SizedBox(height: 2),
+              Text(':'),
+              SizedBox(height: 2),
+            ],
+          ),
+        ),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(programName),
+              const SizedBox(height: 1),
+              Text(convert24HourTo12Hour(values[6])),
+              const SizedBox(height: 3),
+              Text(values[3]),
+              const SizedBox(height: 2),
+            ],
+          ),
+        )
+      ],
     );
   }
 }
@@ -999,7 +1128,6 @@ class PumpStation extends StatelessWidget {
       return widgets;
     }).expand((item) => item).toList().cast<Widget>();
   }
-
 }
 
 class IrrigationLine extends StatelessWidget {

@@ -33,7 +33,7 @@ import '../../utils/shared_preferences_helper.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../common/user_profile/user_profile.dart';
 import '../customer/app_info.dart';
-import '../customer/controller_settings.dart';
+import '../customer/controller_settings/wide/controller_settings_wide.dart';
 import '../customer/customer_home.dart';
 import '../customer/customer_product.dart';
 import '../customer/scheduled_program/scheduled_program_wide.dart';
@@ -787,7 +787,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                         masterData: currentMaster,
                       );
                     default:
-                      return ControllerSettings(
+                      return ControllerSettingWide(
                         customerId: viewedCustomer.id,
                         userId: loggedInUser.id,
                         masterController: currentMaster,

@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../../../models/customer/site_model.dart';
-import '../../../views/customer/controller_settings.dart';
+import '../../../views/customer/controller_settings/wide/controller_settings_wide.dart';
 import '../../Logs/view/power_graph_screen.dart';
 import '../../Logs/view/pump_log.dart';
 import '../../Logs/view/pump_logs_home.dart';
@@ -223,7 +223,7 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
             controllerId: widget.masterData.controllerId,
           masterData: widget.masterData,
         ),
-        ControllerSettings(
+        ControllerSettingWide(
           userId: widget.userId,
           customerId: widget.customerId,
           masterController: widget.masterData,

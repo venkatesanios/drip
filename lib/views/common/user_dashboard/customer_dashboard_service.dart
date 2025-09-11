@@ -42,7 +42,6 @@ class CustomerDashboardService extends StatelessWidget {
 
               settingsVm.getSettingsMenu(customerVm.mySiteList.data[customerVm.sIndex].customerId, controllerId, modelId);
             }
-
             return settingsVm;
           },
         ),
@@ -54,5 +53,4 @@ class CustomerDashboardService extends StatelessWidget {
       child: child,
     );
   }
-
 }
