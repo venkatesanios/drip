@@ -163,23 +163,6 @@ class AppConstants {
   final Widget txtSoldOut = const Text('SOLD OUT',style: TextStyle(fontSize: 18));
 
 
-  Map<int, CodeInfo> codeInfoMap = {
-    -1: CodeInfo("Paused Couldn't", "Paused Couldn't Start"),
-    1: CodeInfo("Start Manually", "Start Manually"),
-    -2: CodeInfo("Cond Couldn't", "Started By Condition Couldn't Stop"),
-    -3: CodeInfo("Started By Rtc", "Started By Rtc Couldn't Stop"),
-    7: CodeInfo("Stop Manually", "Stop Manually"),
-    13: CodeInfo("Bypass Start", "Bypass Start Condition"),
-    11: CodeInfo("Bypass Cond", "Bypass Condition"),
-    12: CodeInfo("Bypass Stop", "Bypass Stop Condition and Start"),
-    0: CodeInfo("Stop Manually", "Stop Manually"),
-    2: CodeInfo("Pause", "Pause"),
-    3: CodeInfo("Resume", "Resume"),
-    4: CodeInfo("Cont Manually", "Continue Manually"),
-    5: CodeInfo("Bypass Start Rtc", "ByPass And Start By Rtc"),
-  };
-
-
   static String getErrorMessage(UserRole role, Map<UserRole, String> errorMap) {
     return errorMap[role] ?? "Invalid role";
   }

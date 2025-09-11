@@ -25,7 +25,7 @@ class CustomerWideLayout extends StatelessWidget {
         mobileNo: viewedCustomer.mobileNo,
         emailId: viewedCustomer.email,
         customerId: viewedCustomer.id,
-        fromLogin: true,
+        fromLogin: (loggedInUser.id == viewedCustomer.id) ? true:false,
       ),
     );
   }

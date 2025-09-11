@@ -30,6 +30,15 @@ class Formatters {
     }
   }
 
+  String changeDateFormat(String dateString) {
+    if(dateString!='-'){
+      DateTime date = DateTime.parse(dateString);
+      return DateFormat('dd-MM-yyyy').format(date);
+    }else{
+      return '-';
+    }
+  }
+
   static TextInputFormatter capitalizeFirstLetter() {
     return TextInputFormatter.withFunction((oldValue, newValue) {
       if (newValue.text.isNotEmpty) {

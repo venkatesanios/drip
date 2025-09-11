@@ -21,7 +21,7 @@ import '../../view_models/customer/customer_screen_controller_view_model.dart';
 import 'home_sub_classes/fertilizer_site.dart';
 import 'home_sub_classes/filter_site.dart';
 import 'home_sub_classes/next_schedule.dart';
-import 'home_sub_classes/scheduled_program.dart';
+import 'scheduled_program/scheduled_program_wide.dart';
 
 class CustomerHome extends StatelessWidget {
   const CustomerHome({super.key, required this.customerId, required this.controllerId,
@@ -33,6 +33,7 @@ class CustomerHome extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final viewModel = context.read<CustomerScreenControllerViewModel>();
+    //final viewModel = Provider.of<CustomerScreenControllerViewModel>(context);
 
     final irrigationLines = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine;
     final scheduledProgram = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].programList;
@@ -155,7 +156,7 @@ class CustomerHome extends StatelessWidget {
             NextSchedule(scheduledPrograms: scheduledProgram),
 
           if (scheduledProgram.isNotEmpty)
-            ScheduledProgram(
+            ScheduledProgramWide(
               userId: customerId,
               scheduledPrograms: scheduledProgram,
               controllerId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].controllerId,
@@ -2132,7 +2133,7 @@ class ValveWidgetMobile extends StatelessWidget {
 
         return hasWaterSource ? SizedBox(
           width: 140,
-          height: 100,
+          height: 60,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -2140,7 +2141,7 @@ class ValveWidgetMobile extends StatelessWidget {
             children: [
               SizedBox(
                 width: 70,
-                height: 100,
+                height: 60,
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
@@ -2150,8 +2151,8 @@ class ValveWidgetMobile extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         SizedBox(
-                          width: 70,
-                          height: 70,
+                          width: 40,
+                          height: 30,
                           child: AppConstants.getAsset('valveToMobile', valve.status, ''),
                         ),
                         Text(
@@ -2320,7 +2321,7 @@ class ValveWidgetMobile extends StatelessWidget {
               ),
               SizedBox(
                 width: 70,
-                height: 100,
+                height: 60,
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
@@ -2330,8 +2331,8 @@ class ValveWidgetMobile extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         SizedBox(
-                          width: 70,
-                          height: 70,
+                          width: 45,
+                          height: 30,
                           child: AppConstants.getAsset('source', 0, 'After Valve'),
                         ),
                         Text(
@@ -2345,7 +2346,7 @@ class ValveWidgetMobile extends StatelessWidget {
                     ),
                     if (valve.waterSources[0].level.isNotEmpty) ...[
                       Positioned(
-                        top: 17.5,
+                        top: 1,
                         left: 2,
                         right: 2,
                         child: Consumer<MqttPayloadProvider>(
@@ -2379,9 +2380,9 @@ class ValveWidgetMobile extends StatelessWidget {
                         ),
                       ),
                       Positioned(
-                        top: 43,
-                        left: 18,
-                        right: 18,
+                        top: 17,
+                        left: 35,
+                        right: 2.5,
                         child: Consumer<MqttPayloadProvider>(
                           builder: (_, provider, __) {
                             final sensorUpdate = provider.getSensorUpdatedValve(valve.waterSources[0].level[0].sNo.toString());
@@ -2395,7 +2396,7 @@ class ValveWidgetMobile extends StatelessWidget {
                               height: 17,
                               decoration: BoxDecoration(
                                 color: Colors.yellow,
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(3),
                                 border: Border.all(color: Colors.grey, width: 0.5),
                               ),
                               child: Center(

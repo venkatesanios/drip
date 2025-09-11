@@ -36,7 +36,7 @@ import '../customer/app_info.dart';
 import '../customer/controller_settings.dart';
 import '../customer/customer_home.dart';
 import '../customer/customer_product.dart';
-import '../customer/home_sub_classes/scheduled_program.dart';
+import '../customer/scheduled_program/scheduled_program_wide.dart';
 import '../customer/input_output_connection_details.dart';
 import '../customer/node_list.dart';
 import '../customer/stand_alone.dart';
@@ -764,7 +764,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                         modelId: currentMaster.modelId,
                       );
                     case 1:
-                      return ScheduledProgram(
+                      return ScheduledProgramWide(
                         userId: loggedInUser.id,
                         scheduledPrograms: currentMaster.programList,
                         controllerId: currentMaster.controllerId,

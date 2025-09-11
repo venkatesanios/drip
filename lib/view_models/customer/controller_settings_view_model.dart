@@ -37,16 +37,19 @@ class ControllerSettingsViewModel extends ChangeNotifier {
     {'title': 'Crop Advisory', 'icon': Icons.agriculture_outlined},
   ];
 
-
   ControllerSettingsViewModel(this.repository);
 
-  Future<void> getSettingsMenu(int customerId, int controllerId, int categoryId) async {
+  Future<void> getSettingsMenu(int customerId, int controllerId, int modelId) async {
+
+    final isGem = [...AppConstants.gemModelList].contains(modelId);
+
     setLoading(true);
     try {
       Map<String, Object> body = {
         "userId": customerId,
         "controllerId": controllerId
       };
+      print(body);
       var response = await repository.getPlanningHiddenMenu(body);
 
       if (response.statusCode == 200) {
@@ -59,31 +62,47 @@ class ControllerSettingsViewModel extends ChangeNotifier {
               .map((e) => e["parameter"]?.toString() ?? '')
               .toSet();
 
-          if(![...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(categoryId)){
+          if(![...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(modelId)){
             final allowedTitles = {
               'General',
               'Preference',
               'Name',
-              // 'Dealer Definition'
-             /* 'Geography',
-              'Geography Area',
-              'Crop Advisory',*/
             };
             filteredSettingList = allSettings.where((setting) {
               final title = setting['title'];
               return allowedTitles.contains(title);
             }).toList();
-          }else{
+          }
+          else if([...AppConstants.ecoGemModelList].contains(modelId)) {
+            final allowedTitles = {
+              'General',
+              'Preference',
+              'Name',
+              'Valve Group',
+              'Dealer Definition',
+            };
             filteredSettingList = allSettings.where((setting) {
-              if (setting['title'] == 'General'
-                  || setting['title'] == 'Dealer Definition'
-                  || setting['title'] == 'Geography'
-                  || setting['title'] == 'Geography Area'
-                  || setting['title'] == 'Pump Condition'
-                  || setting['title'] == 'Controller Log'
-                  || setting['title'] == 'Crop Advisory'
-              ) {
-                return true;
+              final title = setting['title'];
+              return allowedTitles.contains(title);
+            }).toList();
+          }
+          else{
+            filteredSettingList = allSettings.where((setting) {
+              if(isGem){
+                if (setting['title'] == 'General'
+                    || setting['title'] == 'Dealer Definition'
+                    || setting['title'] == 'Geography'
+                    || setting['title'] == 'Geography Area'
+                    || setting['title'] == 'Pump Condition'
+                    || setting['title'] == 'Controller Log'
+                    || setting['title'] == 'Crop Advisory'
+                ) {
+                  return true;
+                }
+              }else{
+                if (setting['title'] == 'General') {
+                  return true;
+                }
               }
               return availableTitles.contains(setting['title']);
             }).toList();

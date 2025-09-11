@@ -214,7 +214,7 @@ class _GeneralSettingsNarrowState extends State<GeneralSettingsNarrow> {
           isThreeLine: true,
           leading: const Icon(Icons.timer_outlined),
           title: const Text('UTC'),
-          subtitle: const Text('Time zone setting'),
+          subtitle: const Text('Time zone'),
           trailing: SizedBox(
             width: 175,
             child: DropdownButton<String>(

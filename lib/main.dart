@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'Screens/Constant/ConstantPageProvider/changeNotifier_constantProvider.dart';
 import 'StateManagement/search_provider.dart';
@@ -68,6 +69,17 @@ FutureOr<void> main() async {
 
       // Set up Firebase background message handler
       FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+      messaging.getToken().then((String? token) async{
+        print("FCM Token: $token");
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('deviceToken', token ?? '' );
+      });
+
+      messaging.getAPNSToken().then((String? token) {
+        print("APN Token: $token");
+      });
+
     } catch (e) {
       debugPrint('Initialization error: $e');
     }
