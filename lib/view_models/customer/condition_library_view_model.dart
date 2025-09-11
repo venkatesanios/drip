@@ -149,7 +149,14 @@ class ConditionLibraryViewModel extends ChangeNotifier {
       List<String> resultList = clData.cnLibrary.condition[index].component.split(RegExp(r'\s*&\s*'));
       connectedTo[index] = resultList;
     }
-    available.removeWhere((source) => connectedTo[index].contains(source));
+
+    available.removeWhere((source) {
+      if (index >= connectedTo.length) {
+        connectedTo.addAll(List.generate(index - connectedTo.length + 1, (_) => <String>[]));
+      }
+      return connectedTo[index].contains(source);
+    });
+
     return available;
   }
 
@@ -353,6 +360,7 @@ class ConditionLibraryViewModel extends ChangeNotifier {
 
   void removeCondition(int index) {
     clData.cnLibrary.condition.removeAt(index);
+    connectedTo.clear();
     notifyListeners();
   }
 

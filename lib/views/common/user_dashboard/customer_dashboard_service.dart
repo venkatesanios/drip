@@ -40,7 +40,7 @@ class CustomerDashboardService extends StatelessWidget {
               final controllerId = customerVm.mySiteList.data[customerVm.sIndex].master[customerVm.mIndex].controllerId;
               final modelId = customerVm.mySiteList.data[customerVm.sIndex].master[customerVm.mIndex].modelId;
 
-              settingsVm.getSettingsMenu(customerId, controllerId, modelId);
+              settingsVm.getSettingsMenu(customerVm.mySiteList.data[customerVm.sIndex].customerId, controllerId, modelId);
             }
 
             return settingsVm;

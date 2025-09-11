@@ -9,6 +9,7 @@ class PreferenceHelper {
   static const String _countryCodeKey = 'country_code';
   static const String _mobileNumberKey = 'mobile_number';
   static const String _emailKey = 'email';
+  static const String _deviceTokenKey = 'deviceToken';
 
   //customer
   static const String _customerIdKey = 'customer_id';
@@ -71,5 +72,10 @@ class PreferenceHelper {
   static Future<void> clearAll() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.clear();
+  }
+
+  static Future<String?> getDeviceToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_deviceTokenKey);
   }
 }

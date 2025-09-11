@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../Models/customer/site_model.dart';
+import '../../../models/customer/site_model.dart';
 import '../../../Screens/Dealer/ble_mobile_screen.dart';
 import '../../../StateManagement/customer_provider.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
@@ -18,7 +18,6 @@ import '../../mobile/mobile_screen_controller.dart';
 import '../input_output_connection_details.dart';
 import '../node_list/node_list_narrow.dart';
 import '../send_and_received/sent_and_received_narrow.dart';
-import '../stand_alone.dart';
 import '../stand_alone/stand_alone_narrow.dart';
 
 class CustomerFabMenu extends StatelessWidget {
@@ -40,12 +39,11 @@ class CustomerFabMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final isGem = [
-      ...AppConstants.gemModelList,
-      ...AppConstants.ecoGemModelList
-    ].contains(currentMaster.modelId);
+    final isGem = [...AppConstants.gemModelList].contains(currentMaster.modelId);
+    final isGemNova = [...AppConstants.ecoGemModelList].contains(currentMaster.modelId);
 
-    if (!isGem) return const SizedBox.shrink();
+    if (!isGem && !isGemNova) return const SizedBox.shrink();
+
 
     final commMode = Provider.of<CustomerProvider>(context).controllerCommMode;
 
@@ -65,12 +63,16 @@ class CustomerFabMenu extends StatelessWidget {
             itemBuilder: (context) => [
               _buildPopupItem(
                   context, 'Node Status', Icons.format_list_numbered, 'Node Status'),
-              _buildPopupItem(
-                  context, 'I/O Connection', Icons.settings_input_component_outlined, 'I/O Connection details'),
+              if(isGem)...[
+                _buildPopupItem(
+                    context, 'I/O Connection', Icons.settings_input_component_outlined, 'I/O Connection details'),
+              ],
               _buildPopupItem(
                   context, 'Program', Icons.list_alt, 'Program'),
-              _buildPopupItem(
-                  context, 'ScheduleView', Icons.view_list_outlined, 'Scheduled program details'),
+              if(isGem)...[
+                _buildPopupItem(
+                    context, 'ScheduleView', Icons.view_list_outlined, 'Scheduled program details'),
+              ],
               _buildPopupItem(
                   context, 'Manual', Icons.touch_app_outlined, 'Manual'),
               _buildPopupItem(
@@ -81,7 +83,6 @@ class CustomerFabMenu extends StatelessWidget {
 
         const SizedBox(height: 10),
 
-        // Connectivity FAB
         FloatingActionButton(
           heroTag: null,
           backgroundColor: commMode == 1 ? Theme.of(context).primaryColorLight :

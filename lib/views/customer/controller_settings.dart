@@ -5,7 +5,7 @@ import 'package:oro_drip_irrigation/Screens/Dealer/controllerlogfile.dart';
 import 'package:oro_drip_irrigation/Screens/Dealer/dealer_definition.dart';
 import 'package:oro_drip_irrigation/Screens/planning/PumpCondition.dart';
 import 'package:oro_drip_irrigation/view_models/customer/controller_settings_view_model.dart';
-import 'package:oro_drip_irrigation/views/customer/condition_library.dart';
+import 'package:oro_drip_irrigation/views/customer/controller_settings/condition_library_wide.dart';
 import 'package:provider/provider.dart';
 import '../../models/customer/site_model.dart';
 import '../../Screens/Map/CustomerMap.dart';
@@ -166,7 +166,7 @@ class ControllerSettings extends StatelessWidget {
           "categoryName": masterController.categoryName,
         });
       case 'Condition Library':
-        return ConditionLibrary(
+        return ConditionLibraryWide(
           customerId: customerId,
           controllerId: masterController.controllerId,
           deviceId: masterController.deviceId,
@@ -263,7 +263,7 @@ class ControllerSettings extends StatelessWidget {
       case 'Controller Log':
         return ControllerLog(deviceID: masterController.deviceId, communicationType: 'MQTT',);
       case 'Crop Advisory':
-        return CropAdvisoryForm(customerId: userId, controllerId: masterController.controllerId);
+        return CropAdvisoryForm(customerId: customerId, controllerId: masterController.controllerId);
       default:
         return const Center(child: Text('Coming Soon'));
     }

@@ -32,6 +32,7 @@ class LoginViewModel extends ChangeNotifier {
     isObscure = !isObscure;
     notifyListeners();
   }
+
   Future<String?> getCurrentVersion() async {
     print('call:current verssion');
     try {
@@ -66,11 +67,14 @@ class LoginViewModel extends ChangeNotifier {
         return;
       }
 
+      final token = await PreferenceHelper.getDeviceToken();
+
       String cleanedCountryCode = countryCode.replaceAll("+", "");
       Map<String, Object> body = {
         'countryCode' : cleanedCountryCode,
         'mobileNumber': mobileNumber,
         'password': password,
+        'deviceToken': token ?? 'null',
         'isMobile' : kIsWeb? false : true,
       };
 
@@ -95,7 +99,8 @@ class LoginViewModel extends ChangeNotifier {
       }
     } catch (error) {
       isLoading = false;
-      errorMessage = "An error occurred: $error";
+      debugPrint('$error');
+      errorMessage = "Unexpected error occurred.";
       notifyListeners();
     }
   }

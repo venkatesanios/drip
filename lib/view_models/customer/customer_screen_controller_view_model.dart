@@ -213,7 +213,6 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
           mqttProvider.saveUnits(Unit.toJsonList(mySiteList.data[sIndex].master[mIndex].units));
 
           final customerProvider = Provider.of<CustomerProvider>(context, listen: false);
-          customerProvider.updateCustomerInfo(customerId: customerId);
           customerProvider.updateControllerCommunicationMode(
             cmmMode: mySiteList.data[sIndex].master[mIndex].communicationMode!,
           );
@@ -236,12 +235,6 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
               updateSite(sIndex, mIndex, lIndex);
 
               mqttProvider.saveUnits(Unit.toJsonList(mySiteList.data[sIndex].master[mIndex].units));
-
-              final customerProvider = Provider.of<CustomerProvider>(context, listen: false);
-              customerProvider.updateCustomerInfo(customerId: customerId);
-              customerProvider.updateControllerCommunicationMode(
-                cmmMode: mySiteList.data[sIndex].master[mIndex].communicationMode!,
-              );
 
               final live = mySiteList.data[sIndex].master[mIndex].live;
               mqttProvider.updateReceivedPayload(
@@ -321,6 +314,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     customerProvider.updateControllerInfo(
       controllerId: mySiteList.data[sIdx].master[mIdx].controllerId,
       device: mySiteList.data[sIdx].master[mIdx].deviceId,
+      customerId: mySiteList.data[sIdx].customerId,
     );
 
     final live = mySiteList.data[sIndex].master[mIndex].live;

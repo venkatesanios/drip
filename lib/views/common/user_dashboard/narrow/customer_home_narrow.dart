@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../models/customer/site_model.dart';
@@ -9,7 +11,11 @@ import '../../../../Widgets/pump_widget.dart';
 import '../../../../providers/user_provider.dart';
 import '../../../../services/communication_service.dart';
 import '../../../../utils/constants.dart';
+import '../../../../utils/enums.dart';
+import '../../../../utils/formatters.dart';
 import '../../../../utils/my_function.dart';
+import '../../../../utils/snack_bar.dart';
+import '../../../../view_models/customer/current_program_view_model.dart';
 import '../../../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../../../customer/customer_home.dart';
 import '../../../customer/home_sub_classes/current_program.dart';
@@ -38,8 +44,6 @@ class CustomerDashboardNarrow extends StatelessWidget {
     final linesToDisplay = (viewModel.myCurrentIrrLine == "All irrigation line" || viewModel.myCurrentIrrLine.isEmpty)
         ? irrigationLines.where((line) => line.name != viewModel.myCurrentIrrLine).toList()
         : irrigationLines.where((line) => line.name == viewModel.myCurrentIrrLine).toList();
-
-
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -133,38 +137,494 @@ class CustomerDashboardNarrow extends StatelessWidget {
         ),
       ),
 
-      floatingActionButton: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Card(
-            color: Colors.white,
-            elevation: 2,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-              decoration:  BoxDecoration(
-                color: Colors.green.shade400,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(10),
-                  topRight: Radius.circular(10),
-                ),
-              ),
-              child: SizedBox(
-                height: 40,
-                child: Column(
-                  children: [
-                    Text('current schedule', style: const TextStyle(color: Colors.white60, fontSize: 12)),
-                    Text("00:00:00", style: const TextStyle(color: Colors.white, fontSize: 16)),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
+      floatingActionButton: ChangeNotifierProvider(
+        create: (context) => CurrentProgramViewModel(context,
+            viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine[viewModel.lIndex].sNo),
+        child: Consumer<CurrentProgramViewModel>(
+          builder: (context, vm, _) {
+
+            final currentSchedule = context.watch<MqttPayloadProvider>().currentSchedule;
+
+            if(currentSchedule.isNotEmpty){
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                vm.updateSchedule(currentSchedule);
+              });
+            }
+
+            if(vm.currentSchedule.isNotEmpty && vm.currentSchedule[0].isNotEmpty){
+              return buildMobileCard(context, vm.currentSchedule, scheduledProgram, modelId);
+            }else{
+              return const SizedBox();
+            }
+
+          },
+        ),
       ),
+
       floatingActionButtonLocation: FloatingActionButtonLocation.miniStartDocked,
 
     );
 
+    return Scaffold(
+      body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            context.watch<MqttPayloadProvider>().onRefresh ? displayLinearProgressIndicator() : const SizedBox(),
+            CurrentProgram(
+              scheduledPrograms: scheduledProgram,
+              deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,
+              customerId: viewedCustomer!.id,
+              controllerId: controllerId,
+              currentLineSNo: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine[viewModel.lIndex].sNo,
+              modelId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].modelId,
+            ),
+            NextSchedule(scheduledPrograms: scheduledProgram),
+
+            ...linesToDisplay.map((line) => Padding(
+              padding: const EdgeInsets.only(left: 8, top: 8, right: 8),
+
+              child: Column(
+                children: [
+                  Card(
+                    color: Colors.white,
+                    elevation: 1,
+                    child: Column(
+                      children: [
+                        const ListTile(
+                          visualDensity: VisualDensity(vertical: -4),
+                          title: Text('Pump Station',
+                              style: TextStyle(color: Colors.black54, fontSize: 17, fontWeight: FontWeight.bold)),
+                          tileColor: Colors.white,
+                        ),
+                        Container(
+                            color: Colors.white,
+                            child: buildPumpStation(context, line, viewedCustomer.id, controllerId, modelId, deviceId)
+                        )
+                      ],
+                    ),
+                  ),
+                  Card(
+                    color: Colors.white,
+                    elevation: 1,
+                    child: Column(
+                      children: [
+                        Container(
+                          width: MediaQuery.sizeOf(context).width,
+                          height: 45,
+                          color: Colors.white70,
+                          child: Row(
+                            children: [
+                              const SizedBox(width: 16),
+                              Text(
+                                line.name,
+                                textAlign: TextAlign.left,
+                                style: const TextStyle(color: Colors.black54, fontSize: 17, fontWeight: FontWeight.bold),
+                              ),
+                              const Spacer(),
+                              MaterialButton(
+                                color: line.linePauseFlag == 0 ? Theme.of(context).primaryColorLight :
+                                Colors.orange.shade400,
+                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                                onPressed: () async {
+                                  String payLoadFinal = jsonEncode({
+                                    "4900": {
+                                      "4901": "${line.sNo}, ${line.linePauseFlag == 0 ? 1 : 0}",
+                                    }
+                                  });
+
+                                  final result = await context.read<CommunicationService>().sendCommand(
+                                    payload: payLoadFinal,
+                                    serverMsg: line.linePauseFlag == 0
+                                        ? 'Paused the ${line.name}'
+                                        : 'Resumed the ${line.name}',
+                                  );
+
+                                  if (result['http'] == true) debugPrint("Payload sent to Server");
+                                  if (result['mqtt'] == true) debugPrint("Payload sent to MQTT Box");
+                                  if (result['bluetooth'] == true) debugPrint("Payload sent via Bluetooth");
+                                },
+                                child: Text(
+                                  line.linePauseFlag == 0 ? 'PAUSE THE LINE' : 'RESUME THE LINE',
+                                  style: const TextStyle(
+                                    color:Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 5)
+                            ],
+                          ),
+                        ),
+                        buildIrrigationLine(context, line, viewedCustomer.id, controllerId, modelId, deviceId)
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            )),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildMobileCard(BuildContext context,
+      List<String> schedule, List<ProgramList> scheduledPrograms, int modelId) {
+
+    return Row(
+      children: List.generate(schedule.length, (index) {
+
+        List<String> values = schedule[index ~/ 2].split(',');
+
+        final programName = getProgramNameById(int.parse(values[0]), scheduledPrograms);
+        final isManual = programName == 'StandAlone - Manual';
+        final timeless = (values[3] == '00:00:00' || values[3] == '0');
+
+        return Builder(
+          builder: (rowContext) {
+            return GestureDetector(
+              onTap: () {
+                print("Row $index selected: $programName");
+
+                showPopover(
+                  context: rowContext,
+                  bodyBuilder: (context) =>  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: buildScheduleRow(context, values, programName, scheduledPrograms, modelId),
+                  ),
+                  onPop: () => print('Popover was popped!'),
+                  direction: PopoverDirection.top,
+                  width: 320,
+                  height: 150,
+                  arrowHeight: 15,
+                  arrowWidth: 30,
+                );
+              },
+              child: Row(
+                children: [
+                  Card(
+                    color: Colors.white,
+                    elevation: 2,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade400,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(10),
+                        ),
+                      ),
+                      child: SizedBox(
+                        height: 45,
+                        child: Column(
+                          children: [
+                            Text(programName,
+                                style: const TextStyle(
+                                    color: Colors.white70, fontSize: 13)),
+                            Text(
+                              isManual && timeless ? 'Timeless' : values[4],
+                              style:
+                              const TextStyle(fontSize: 17, color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 5),
+                ],
+              ),
+            );
+          },
+        );
+      }),
+    );
+  }
+
+  Widget buildScheduleRow(BuildContext context, List<String> values, String programName,
+      List<ProgramList> scheduledPrograms, int modelId) {
+
+    return SizedBox(
+      width: MediaQuery.sizeOf(context).width,
+      height: 143,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 8),
+        child: Column(
+          children: [
+            SizedBox(
+              width: MediaQuery.sizeOf(context).width,
+              height: 20,
+              child: Row(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(left: 3),
+                    child: SizedBox(
+                      width: 90,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Method',
+                            style: TextStyle(
+                              color: Colors.black45,
+                              fontWeight: FontWeight.w200,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(':'),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(getContentByCode(int.parse(values[17])), style: const TextStyle(fontSize: 11, color: Colors.black54),),
+                  )
+                ],
+              ),
+            ),
+            Row(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(left: 3),
+                  child: SizedBox(
+                    width: 90,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Current Zone', style: TextStyle(color: Colors.black45)),
+                        SizedBox(height: 2),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  width: 10,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(':'),
+                      SizedBox(height: 2),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(programName == 'StandAlone - Manual' ? '--' :
+                      getSequenceName(int.parse(values[0]), values[1], scheduledPrograms) ?? '--',),
+                      const SizedBox(height: 3),
+                    ],
+                  ),
+                )
+              ],
+            ),
+            Row(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(left: 3),
+                  child: SizedBox(
+                    width: 90,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Started at', style: TextStyle(color: Colors.black45)),
+                        SizedBox(height: 2),
+                        Text('Current Zone', style: TextStyle(color: Colors.black45)),
+                        SizedBox(height: 2),
+                        Text('Rtc & Cyclic', style: TextStyle(color: Colors.black45)),
+                        SizedBox(height: 2),
+                        Text('Set Value', style: TextStyle(color: Colors.black45)),
+                        SizedBox(height: 2),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  width: 10,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(':'),
+                      SizedBox(height: 2),
+                      Text(':'),
+                      SizedBox(height: 2),
+                      Text(':'),
+                      SizedBox(height: 2),
+                      Text(':'),
+                      SizedBox(height: 2),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(convert24HourTo12Hour(values[11])),
+                          const SizedBox(height: 2),
+                          Text('${values[10]} of ${values[9]}'),
+                          const SizedBox(height: 1),
+                          Text('${Formatters().formatRtcValues(values[6], values[5])} - ${Formatters().formatRtcValues(values[8], values[7])}'),
+                          const SizedBox(height: 3),
+                          Text(programName == 'StandAlone - Manual' && (values[3] == '00:00:00' || values[3] == '0')
+                              ? 'Timeless'
+                              : values[3]),
+                          const SizedBox(height: 2),
+                        ],
+                      ),
+                      SizedBox(
+                        width: 130,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Spacer(),
+                            if(![...AppConstants.ecoGemModelList].contains(modelId))...[
+                              buildActionButton(context, values, programName, programName == 'StandAlone - Manual' ? '--' :
+                              getSequenceName(int.parse(values[0]), values[1], scheduledPrograms) ?? '--',),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String getProgramNameById(int id, List<ProgramList> scheduledPrograms) {
+    try {
+      return scheduledPrograms.firstWhere((program) => program.serialNumber == id).programName;
+    } catch (e) {
+      return "StandAlone - Manual";
+    }
+  }
+
+  ProgramList? getProgramById(int id, List<ProgramList> scheduledPrograms) {
+    try {
+      return scheduledPrograms.firstWhere((program) => program.serialNumber == id);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  String? getSequenceName(int programId, String sequenceId, List<ProgramList> scheduledPrograms) {
+    ProgramList? program = getProgramById(programId, scheduledPrograms);
+    if (program != null) {
+      return getSequenceNameById(program, sequenceId);
+    }
+    return null;
+  }
+
+  String? getSequenceNameById(ProgramList program, String sequenceId) {
+    try {
+      return program.sequence.firstWhere((seq) => seq.sNo == sequenceId).name;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  String convert24HourTo12Hour(String timeString) {
+    if(timeString=='-'){
+      return '-';
+    }
+    final parsedTime = DateFormat('HH:mm:ss').parse(timeString);
+    final formattedTime = DateFormat('hh:mm a').format(parsedTime);
+    return formattedTime;
+  }
+
+  String getContentByCode(int code) {
+    return GemProgramStartStopReasonCode.fromCode(code).content;
+  }
+
+  Widget buildActionButton(BuildContext context,
+      List<String> values, String  programName, String  sequenceName) {
+
+    if (programName == 'StandAlone - Manual') {
+      return MaterialButton(
+        color: Colors.redAccent,
+        textColor: Colors.white,
+        onPressed: values[17]=='1'? () async {
+          String payLoadFinal = jsonEncode({
+            "800": {"801": '0,0,0,0,0'}
+          });
+
+          final result = await context.read<CommunicationService>().sendCommand(
+              serverMsg: '$programName Stopped manually',
+              payload: payLoadFinal);
+
+          if (result['http'] == true) debugPrint("Payload sent to Server");
+          if (result['mqtt'] == true) debugPrint("Payload sent to MQTT Box");
+          if (result['bluetooth'] == true) debugPrint("Payload sent via Bluetooth");
+
+          GlobalSnackBar.show(context, 'Comment sent successfully', 200);
+        }: null,
+        child: const Text('Stop'),
+      );
+    } else if (programName.contains('StandAlone'))  {
+      return MaterialButton(
+        color: Colors.redAccent,
+        textColor: Colors.white,
+        onPressed: () async {
+
+          String payLoadFinal = jsonEncode({
+            "3900": {"3901": '0,${values[3]},${values[0]},'
+                '${values[1]},,,,,,,0'}
+          });
+
+          final result = await context.read<CommunicationService>().sendCommand(
+              serverMsg: '$programName Stopped manually',
+              payload: payLoadFinal);
+
+          if (result['http'] == true) debugPrint("Payload sent to Server");
+          if (result['mqtt'] == true) debugPrint("Payload sent to MQTT Box");
+          if (result['bluetooth'] == true) debugPrint("Payload sent via Bluetooth");
+
+          GlobalSnackBar.show(context, 'Comment sent successfully', 200);
+
+        },
+        child: const Text('Stop'),
+      );
+    }else{
+      return MaterialButton(
+        color: Colors.orangeAccent,
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+        onPressed: values[17]=='1' ? () async {
+          String payload = '${values[18]},0';
+          String payLoadFinal = jsonEncode({
+            "3700": {"3701": payload}
+          });
+
+          final result = await context.read<CommunicationService>().sendCommand(
+              serverMsg: '$programName - $sequenceName skipped manually',
+              payload: payLoadFinal);
+
+          if (result['http'] == true) debugPrint("Payload sent to Server");
+          if (result['mqtt'] == true) debugPrint("Payload sent to MQTT Box");
+          if (result['bluetooth'] == true) debugPrint("Payload sent via Bluetooth");
+
+          GlobalSnackBar.show(context, 'Comment sent successfully', 200);
+        } : null,
+        child: const Text('Skip', style: TextStyle(color: Colors.white, fontSize: 13)),
+      );
+    }
   }
 
   Widget displayLinearProgressIndicator() {
