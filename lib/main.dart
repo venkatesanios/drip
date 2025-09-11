@@ -8,12 +8,14 @@ import 'package:oro_drip_irrigation/services/bluetooth_service.dart';
 import 'package:oro_drip_irrigation/services/communication_service.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:oro_drip_irrigation/utils/network_utils.dart';
+import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import 'Constants/notifi_service.dart';
 import 'Screens/Constant/ConstantPageProvider/changeNotifier_constantProvider.dart';
 import 'StateManagement/search_provider.dart';
 import 'app/app.dart';
@@ -30,6 +32,7 @@ import 'modules/constant/state_management/constant_provider.dart';
 
 // Initialize local notifications plugin
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 // Background message handler for Firebase
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -70,11 +73,25 @@ FutureOr<void> main() async {
       // Set up Firebase background message handler
       FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-      messaging.getToken().then((String? token) async{
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        // print('Message received: ${message.messageId}');
+        if (message.notification != null) {
+          NotificationService().showNotification(
+            title: message.notification!.title,
+            body: message.notification!.body,
+          );
+        }
+      });
+
+      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+        print('Message received onMessageOpenedApp: ${message.messageId}');
+      });
+
+/*      messaging.getToken().then((String? token) async{
         print("FCM Token: $token");
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('deviceToken', token ?? '' );
-      });
+      });*/
 
       messaging.getAPNSToken().then((String? token) {
         print("APN Token: $token");
@@ -84,6 +101,9 @@ FutureOr<void> main() async {
       debugPrint('Initialization error: $e');
     }
   }
+
+
+
 
   runApp(
     MultiProvider(

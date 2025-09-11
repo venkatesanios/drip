@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../repository/repository.dart';
 import '../utils/shared_preferences_helper.dart';
 
@@ -47,9 +49,18 @@ class LoginViewModel extends ChangeNotifier {
     }
   }
   Future<void> login() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    await messaging.getToken().then((String? token) async{
+       final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('deviceToken', token ?? '' );
+     });
+    final token = await PreferenceHelper.getDeviceToken();
+
     isLoading = true;
     errorMessage = "";
     notifyListeners();
+
+
 
     try {
       String mobileNumber = mobileNoController.text.trim();
@@ -65,20 +76,23 @@ class LoginViewModel extends ChangeNotifier {
         errorMessage = "Invalid Mobile number or Password!";
         notifyListeners();
         return;
+      } else if(token == null || token.isEmpty){
+        print("token in the else :: $token");
+        isLoading = false;
+        errorMessage = "Device token not generated";
+        notifyListeners();
+        return;
       }
 
-      final token = await PreferenceHelper.getDeviceToken();
-
-      String cleanedCountryCode = countryCode.replaceAll("+", "");
+       String cleanedCountryCode = countryCode.replaceAll("+", "");
       Map<String, Object> body = {
         'countryCode' : cleanedCountryCode,
         'mobileNumber': mobileNumber,
         'password': password,
-        'deviceToken': token ?? 'null',
+        'deviceToken': token ?? '',
         'isMobile' : kIsWeb? false : true,
       };
-
-      final response = await repository.checkLoginAuth(body);
+       final response = await repository.checkLoginAuth(body);
       final data = jsonDecode(response.body);
       if (response.statusCode == 200 && data['code'] == 200) {
         final userData = data['data']['user'];
