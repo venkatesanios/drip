@@ -91,9 +91,9 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     mqttService.initializeMQTTClient(state: mqttProvider);
     mqttService.connect();
 
-    if (!kIsWeb) {
+   /* if (!kIsWeb) {
       blueService.initializeBluService(state: mqttProvider);
-    }
+    }*/
 
     mqttSubscription = mqttService.mqttConnectionStream.listen((state) {
       switch (state) {
