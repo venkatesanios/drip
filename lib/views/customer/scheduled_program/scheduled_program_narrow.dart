@@ -1,24 +1,23 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:oro_drip_irrigation/utils/constants.dart';
-import 'package:popover/popover.dart';
+import 'package:oro_drip_irrigation/utils/formatters.dart';
+import 'package:oro_drip_irrigation/views/customer/scheduled_program/widgets/ai_recommendation_button.dart';
+import 'package:oro_drip_irrigation/views/customer/scheduled_program/widgets/clickable_submenu.dart';
+import 'package:oro_drip_irrigation/views/customer/scheduled_program/widgets/program_updater.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/customer/site_model.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../modules/IrrigationProgram/view/irrigation_program_main.dart';
-import '../../../repository/repository.dart';
-import '../../../services/ai_service.dart';
+import '../../../services/ai_advisory_service.dart';
 import '../../../services/communication_service.dart';
-import '../../../services/http_service.dart';
-import '../../../services/weather_service.dart';
-import '../../../utils/enums.dart';
+import '../../../utils/helpers/program_code_helper.dart';
 import '../../../utils/my_function.dart';
 import '../../../utils/snack_bar.dart';
+import '../../../view_models/customer/customer_screen_controller_view_model.dart';
 
-class ScheduledProgramNarrow extends StatelessWidget {
+class ScheduledProgramNarrow extends StatefulWidget {
   const ScheduledProgramNarrow({super.key, required this.userId,
     required this.customerId, required this.currentLineSNo, required this.groupId,
     required this.master});
@@ -28,21 +27,40 @@ class ScheduledProgramNarrow extends StatelessWidget {
   final MasterControllerModel master;
 
   static const headerStyle = TextStyle(fontSize: 13);
-  static final ValueNotifier<Map<String, dynamic>?> aiResponseNotifier = ValueNotifier(null);
+
+  @override
+  State<ScheduledProgramNarrow> createState() => _ScheduledProgramNarrowState();
+}
+
+class _ScheduledProgramNarrowState extends State<ScheduledProgramNarrow> {
+
+  late final AiAdvisoryService aiService;
+
+  @override
+  void initState() {
+    super.initState();
+    aiService = AiAdvisoryService();
+  }
 
   @override
   Widget build(BuildContext context) {
 
-    final spLive = Provider.of<MqttPayloadProvider>(context).scheduledProgramPayload;
-    final conditionPayload = Provider.of<MqttPayloadProvider>(context).conditionPayload;
+    // Watch viewModel to rebuild when notifyListeners() is called
+    final viewModel = context.watch<CustomerScreenControllerViewModel>();
+
+    // Get updated master every time from viewModel
+    final master = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex];
+
+    final spLive = context.watch<MqttPayloadProvider>().scheduledProgramPayload;
+    final conditionPayload = context.watch<MqttPayloadProvider>().conditionPayload;
+
     if (spLive.isNotEmpty) {
-      _updateProgramsFromMqtt(spLive, master.programList, conditionPayload);
+      ProgramUpdater.updateProgramsFromMqtt(spLive, master.programList, conditionPayload);
     }
 
-    var filteredScheduleProgram = currentLineSNo == 0 ?
-    master.programList :
+    var filteredScheduleProgram = widget.currentLineSNo == 0 ? master.programList :
     master.programList.where((program) {
-      return program.irrigationLine.contains(currentLineSNo);
+      return program.irrigationLine.contains(widget.currentLineSNo);
     }).toList();
 
     return Padding(
@@ -51,7 +69,7 @@ class ScheduledProgramNarrow extends StatelessWidget {
         itemCount: filteredScheduleProgram.length,
         itemBuilder: (context, index) {
           final program = filteredScheduleProgram[index];
-          final buttonName = getButtonName(int.parse(program.prgOnOff));
+          final buttonName = ProgramCodeHelper.getButtonName(int.parse(program.prgOnOff));
           final isStop = buttonName.contains('Stop');
           final isBypass = buttonName.contains('Bypass');
 
@@ -171,7 +189,7 @@ class ScheduledProgramNarrow extends StatelessWidget {
                                     style: const TextStyle(fontSize: 12, color: Colors.black),
                                     children: [
                                       const TextSpan(text: 'Start Stop: ', style: TextStyle(color: Colors.black54)),
-                                      TextSpan(text: getContentByCode(program.startStopReason)),
+                                      TextSpan(text: MyFunction().getContentByCode(program.startStopReason)),
                                     ],
                                   ),
                                 ),
@@ -181,7 +199,7 @@ class ScheduledProgramNarrow extends StatelessWidget {
                                       style: const TextStyle(fontSize: 12, color: Colors.black),
                                       children: [
                                         const TextSpan(text: 'Pause Resume: ', style: TextStyle(color: Colors.black54)),
-                                        TextSpan(text: getContentByCode(program.pauseResumeReason)),
+                                        TextSpan(text: MyFunction().getContentByCode(program.pauseResumeReason)),
                                       ],
                                     ),
                                   ),
@@ -190,9 +208,9 @@ class ScheduledProgramNarrow extends StatelessWidget {
                             const SizedBox(height: 5,),
                             SizedBox(width: 50, child: Text('${program.sequence.length}')),
                             const SizedBox(height: 5,),
-                            Text('${changeDateFormat(program.startDate)} : ${convert24HourTo12Hour(program.startTime)}'),
+                            Text('${Formatters().changeDateFormat(program.startDate)} : ${MyFunction().convert24HourTo12Hour(program.startTime)}'),
                             const SizedBox(height: 5,),
-                            Text(changeDateFormat(program.endDate)),
+                            Text(Formatters().changeDateFormat(program.endDate)),
                           ],
                         ),
                       ),
@@ -204,7 +222,7 @@ class ScheduledProgramNarrow extends StatelessWidget {
                       children: [
                         const Spacer(),
                         Tooltip(
-                          message: AppConstants().codeInfoMap[int.parse(program.prgOnOff)]?.description ?? "Code not found",
+                          message: ProgramCodeHelper.getDescription(int.parse(program.prgOnOff)),
                           child: MaterialButton(
                             color: int.parse(program.prgOnOff) >= 0
                                 ? isStop
@@ -222,7 +240,7 @@ class ScheduledProgramNarrow extends StatelessWidget {
                                 });
 
                                 final commService = Provider.of<CommunicationService>(context, listen: false);
-                                commService.sendCommand(serverMsg: '${program.programName} ${AppConstants().codeInfoMap[int.parse(program.prgOnOff)]?.description ?? "Code not found"}', payload: payLoadFinal);
+                                commService.sendCommand(serverMsg: '${program.programName} ${ProgramCodeHelper.getDescription(int.parse(program.prgOnOff))}', payload: payLoadFinal);
                                 GlobalSnackBar.show(context, 'Comment sent successfully', 200);
                               } else {
                                 GlobalSnackBar.show(context, 'Permission denied', 400);
@@ -233,8 +251,8 @@ class ScheduledProgramNarrow extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         MaterialButton(
-                          color: getButtonName(int.parse(program.prgPauseResume)) == 'Pause' ? Colors.orange : Colors.yellow,
-                          textColor: getButtonName(int.parse(program.prgPauseResume)) == 'Pause' ? Colors.white : Colors.black,
+                          color: ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume)) == 'Pause' ? Colors.orange : Colors.yellow,
+                          textColor: ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume)) == 'Pause' ? Colors.white : Colors.black,
                           onPressed: () {
                             if (getPermissionStatusBySNo(context, 3)) {
                               String payload = '${program.serialNumber},${program.prgPauseResume}';
@@ -243,170 +261,64 @@ class ScheduledProgramNarrow extends StatelessWidget {
                               });
 
                               final commService = Provider.of<CommunicationService>(context, listen: false);
-                              commService.sendCommand(serverMsg: '${program.programName} ${getDescription(int.parse(program.prgPauseResume))}', payload: payLoadFinal);
+                              commService.sendCommand(serverMsg: '${program.programName} ${ProgramCodeHelper.getDescription(int.parse(program.prgPauseResume))}', payload: payLoadFinal);
                               GlobalSnackBar.show(context, 'Comment sent successfully', 200);
                             } else {
                               GlobalSnackBar.show(context, 'Permission denied', 400);
                             }
                           },
-                          child: Text(getButtonName(int.parse(program.prgPauseResume))),
+                          child: Text(ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume))),
                         ),
                         const SizedBox(width: 5),
-                        getPermissionStatusBySNo(context, 3)? PopupMenuButton<String>(
+
+                        getPermissionStatusBySNo(context, 3) ? PopupMenuButton<String>(
                           icon: const Icon(Icons.more_vert),
-                          onSelected: (String result) {
+                          onSelected: (result) {
                             if (result == 'Edit program') {
-                              bool conditionL = false;
-                              if (filteredScheduleProgram[index].conditions.isNotEmpty) {
-                                conditionL = true;
-                              }
+                              bool hasConditions = program.conditions.isNotEmpty;
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => IrrigationProgram(
-                                    deviceId: master.deviceId,
-                                    userId: userId,
-                                    controllerId: master.controllerId,
-                                    serialNumber: master.programList[index].serialNumber,
+                                    deviceId: widget.master.deviceId,
+                                    userId: widget.userId,
+                                    controllerId: widget.master.controllerId,
+                                    serialNumber: widget.master.programList[index].serialNumber,
                                     programType: filteredScheduleProgram[index].programType,
-                                    conditionsLibraryIsNotEmpty: conditionL,
+                                    conditionsLibraryIsNotEmpty: hasConditions,
                                     fromDealer: false,
                                     toDashboard: true,
-                                    groupId: groupId,
-                                    categoryId: master.categoryId,
-                                    customerId: customerId,
-                                    modelId: master.modelId,
-                                    deviceName: master.deviceName,
-                                    categoryName: master.categoryName,
+                                    groupId: widget.groupId,
+                                    categoryId: widget.master.categoryId,
+                                    customerId: widget.customerId,
+                                    modelId: widget.master.modelId,
+                                    deviceName: widget.master.deviceName,
+                                    categoryName: widget.master.categoryName,
                                   ),
                                 ),
                               );
                             }
                           },
-                          itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                            const PopupMenuItem<String>(
-                              value: 'Edit program',
-                              child: Text('Edit program'),
-                            ),
-                            PopupMenuItem<String>(
-                              value: 'Change to',
-                              child: ClickableSubmenu(
-                                title: 'Change to',
-                                submenuItems: program.sequence,
-                                onItemSelected: (selectedItem, selectedIndex) {
-                                  String payload = '${program.serialNumber},${selectedIndex + 1}';
-                                  String payLoadFinal = jsonEncode({
-                                    "6700": {"6701": payload}
-                                  });
-
-                                  final commService = Provider.of<CommunicationService>(context, listen: false);
-                                  commService.sendCommand(serverMsg: '${program.programName} Changed to $selectedItem', payload: payLoadFinal);
-                                  GlobalSnackBar.show(context, 'Comment sent successfully', 200);
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            ),
+                          itemBuilder: (context) => [
+                            const PopupMenuItem(value: 'Edit program', child: Text('Edit program')),
+                            PopupMenuItem(
+                                value: 'Change to',
+                                child: ClickableSubmenu(
+                                    title: 'Change to',
+                                    submenuItems: program.sequence,
+                                    onItemSelected: (selectedItem, selectedIndex) {
+                                      final payload = '${program.serialNumber},${selectedIndex + 1}';
+                                      final payLoadFinal = jsonEncode({"6700": {"6701": payload}});
+                                      Provider.of<CommunicationService>(context, listen: false).sendCommand(
+                                          serverMsg: '${program.programName} Changed to $selectedItem',
+                                          payload: payLoadFinal);
+                                      Navigator.pop(context);
+                                    })),
                           ],
-                        )
-                            : const Icon(Icons.more_vert, color: Colors.grey),
-                        SizedBox(
-                          width:50,
-                          child: Builder(
-                            builder: (buttonContext) => Tooltip(
-                              message: 'View AI Recommendation',
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  getAdvisory();
-                                  showPopover(
-                                    context: buttonContext,
-                                    bodyBuilder: (context) {
-                                      return ValueListenableBuilder<Map<String, dynamic>?>(
-                                        valueListenable: aiResponseNotifier,
-                                        builder: (context, data, _) {
-                                          if (data == null) {
-                                            return const Padding(
-                                              padding: EdgeInsets.all(12),
-                                              child: Text('🔄 Getting AI advisory...'),
-                                            );
-                                          }
+                        ) :
+                        const Icon(Icons.more_vert, color: Colors.grey),
 
-                                          if (data.containsKey('error')) {
-                                            return Padding(
-                                              padding: const EdgeInsets.all(12),
-                                              child: Text(data['error']),
-                                            );
-                                          }
-
-                                          final percent = data['percentage'];
-                                          final reason = data['reason'];
-
-
-                                          return Padding(
-                                            padding: const EdgeInsets.all(12),
-                                            child: ConstrainedBox(
-                                              constraints: const BoxConstraints(maxWidth: 350),
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Text("✅ Suggested Irrigation Percentage: $percent%",
-                                                      style: const TextStyle(fontSize: 16)),
-                                                  const SizedBox(height: 8),
-                                                  Text(reason, style: const TextStyle(fontSize: 14, color: Colors.black54)),
-                                                  const SizedBox(height: 12),
-                                                  Align(
-                                                    alignment: Alignment.centerRight,
-                                                    child: Row(
-                                                      mainAxisSize: MainAxisSize.min,
-                                                      children: [
-                                                        ElevatedButton(
-                                                          onPressed: () =>Navigator.of(context).pop(),
-                                                          style: ElevatedButton.styleFrom(
-                                                            backgroundColor: Colors.red,
-                                                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                                                          ),
-                                                          child: const Text('Cancel', style: TextStyle(color: Colors.white)),
-                                                        ),
-                                                        const SizedBox(width: 16),
-                                                        ElevatedButton(
-                                                          onPressed: () {
-                                                            print("✔️ Applied $percent%");
-                                                            Navigator.of(context).pop();
-                                                          },
-                                                          style: ElevatedButton.styleFrom(
-                                                            backgroundColor: Theme.of(context).primaryColor,
-                                                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                                                          ),
-                                                          child: const Text('Apply', style: TextStyle(color: Colors.white)),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      );
-                                    },
-                                    onPop: () => print('Popover was popped!'),
-                                    direction: PopoverDirection.bottom,
-                                    arrowHeight: 15,
-                                    arrowWidth: 30,
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  shape: const CircleBorder(),
-                                  padding: const EdgeInsets.all(13),
-                                  backgroundColor: Theme.of(context).primaryColor,
-                                ),
-                                child: const Text('AI-R',
-                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.normal, fontSize: 10),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+                        AiRecommendationButton(aiService: aiService, userId: widget.userId, controllerId: widget.master.controllerId),
                       ],
                     ):
                     const Center(child: Text('The program is not ready', style: TextStyle(color: Colors.red))),
@@ -415,125 +327,10 @@ class ScheduledProgramNarrow extends StatelessWidget {
               ),
             ),
           );
-
         },
       ):
       const Center(child: Text('Program not found')),
     );
-
-  }
-
-  void _updateProgramsFromMqtt(List<String> spLive,
-      List<ProgramList> scheduledPrograms, List<String> conditionPayloadList) {
-
-    for (var sp in spLive) {
-      List<String> values = sp.split(",");
-      if (values.length > 11) {
-
-        int? serialNumber = int.tryParse(values[0]);
-        if (serialNumber == null) continue;
-        int index = scheduledPrograms.indexWhere((program) => program.serialNumber == serialNumber);
-
-        if (index != -1) {
-          scheduledPrograms[index]
-            ..startDate = values[3]
-            ..startTime = values[4]
-            ..endDate = values[5]
-            ..programStatusPercentage = int.tryParse(values[6]) ?? 0
-            ..startStopReason = int.tryParse(values[7]) ?? 0
-            ..pauseResumeReason = int.tryParse(values[8]) ?? 0
-            ..prgOnOff = values[10]
-            ..prgPauseResume = values[11]
-            ..status = 1;
-
-          for (var payload in conditionPayloadList) {
-            List<String> parts = payload.split(",");
-            if (parts.length > 2) {
-              int? conditionSerialNo = int.tryParse(parts[0].trim());
-              int? conditionStatus = int.tryParse(parts[2].trim());
-              String? actualValue = parts[4].trim();
-
-              try {
-                final condition = scheduledPrograms[index]
-                    .conditions
-                    .firstWhere((c) => c.sNo == conditionSerialNo);
-                condition.conditionStatus = conditionStatus!;
-                condition.actualValue = actualValue;
-              } catch (e) {
-                //print(e);
-                // Not found — optionally handle or ignore
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  void updateProgramById(int id, ProgramList updatedProgram) {
-    int index = master.programList.indexWhere((program) => program.serialNumber == id);
-    if (index != -1) {
-      master.programList[index] = updatedProgram;
-    } else {
-      print("Program with ID $id not found");
-    }
-  }
-
-  String changeDateFormat(String dateString) {
-    if(dateString!='-'){
-      DateTime date = DateTime.parse(dateString);
-      return DateFormat('dd-MM-yyyy').format(date);
-    }else{
-      return '-';
-    }
-  }
-
-  String convert24HourTo12Hour(String timeString) {
-    if(timeString=='-'){
-      return '-';
-    }
-    final parsedTime = DateFormat('HH:mm:ss').parse(timeString);
-    final formattedTime = DateFormat('hh:mm a').format(parsedTime);
-    return formattedTime;
-  }
-
-
-  String getButtonName(int code) {
-    const Map<int, String> codeDescriptionMap = {
-      -1: 'Paused Couldn\'t',
-      1: 'Start Manually',
-      -2: 'Cond Couldn\'t',
-      -3: 'Started By Rtc',
-      7: 'Stop Manually',
-      13: 'Bypass Start',
-      11: 'Bypass Cond',
-      12: 'Bypass Stop',
-      0: 'Stop Manually',
-      2: 'Pause',
-      3: 'Resume',
-      4: 'Cont Manually',
-      5: 'Bypass Start Rtc',
-    };
-    return codeDescriptionMap[code] ?? 'Code not found';
-  }
-
-  String getDescription(int code) {
-    const Map<int, String> codeDescriptionMap = {
-      -1: 'Paused Couldn\'t Start',
-      1: 'Start Manually',
-      -2: 'Started By Condition Couldn\'t Stop',
-      -3: 'Started By Rtc Couldn\'t Stop',
-      7: 'Stop Manually',
-      13: 'Bypass Start Condition',
-      11: 'Bypass Condition',
-      12: 'Bypass Stop Condition and Start',
-      0: 'Stop Manually',
-      2: 'Pause',
-      3: 'Resume',
-      4: 'Continue Manually',
-      5: 'ByPass And Start By Rtc',
-    };
-    return codeDescriptionMap[code] ?? 'Code not found';
   }
 
   void showConditionDialog(BuildContext context, String prgName,  List<ConditionModel> conditions) {
@@ -570,163 +367,13 @@ class ScheduledProgramNarrow extends StatelessWidget {
     );
   }
 
-
-  String getContentByCode(int code) {
-    return GemProgramStartStopReasonCode.fromCode(code).content;
-  }
-
-  Future<void> sentToServer(String msg, dynamic payLoad, int userId, int controllerId, int customerId) async {
-    Map<String, Object> body = {"userId": customerId, "controllerId": controllerId, "messageStatus": msg.isNotEmpty ? msg : 'Just sent without changes', "data": payLoad, "hardware": payLoad, "createUser": userId};
-    final response = await Repository(HttpService()).sendManualOperationToServer(body);
-    if (response.statusCode == 200) {
-      print(response.body);
-    } else {
-      throw Exception('Failed to load data');
-    }
-  }
-
-
   bool getPermissionStatusBySNo(BuildContext context, int sNo) {
     MqttPayloadProvider payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
-    Map<String, dynamic>? permission = payloadProvider.userPermission
-        .cast<Map<String, dynamic>>()
-        .firstWhere(
-          (element) => element['sNo'] == sNo,
+    Map<String, dynamic>? permission = payloadProvider.userPermission.cast<Map<String, dynamic>>().firstWhere((element) =>
+    element['sNo'] == sNo,
       orElse: () => {},
     );
     return permission['status'] as bool? ?? true;
   }
 
-  void getAdvisory() async {
-    try {
-      Map<String, Object> body = {
-        "userId": userId,
-        "controllerId": master.controllerId,
-      };
-      final response = await Repository(HttpService()).fetchSiteAiAdvisoryData(body);
-      if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-        if (jsonData["code"] == 200) {
-          final data = jsonData['data'];
-          if (data != null || data.isNotEmpty) {
-
-            final weatherData = await WeatherService().fetchWeather(city: data['location']);
-            aiResponseNotifier.value = null;
-
-            final params = IrrigationParams(
-              cropType: data['cropName'],
-              soilType: data['soilType'],
-              moistureLevel: 'unknown',
-              weather: '${weatherData['rainfall']}',
-              area: data['fieldArea'],
-              growthStage: data['stage'],
-              temperature: '${weatherData['temperature']}',
-              humidity: '${weatherData['humidity']}',
-              windSpeed: '${weatherData['wind_speed']}',
-              windDirection: '${weatherData['wind_direction']}',
-              cloudCover: '${weatherData['cloud_cover']}',
-              pressure: '${weatherData['pressure']}',
-              recentRainfall: '${weatherData['rainfall']}',
-              irrigationMethod: data['irrigationType'],
-            );
-
-            final prompt = params.toPrompt();
-            try {
-              final response = await AIService().sendTextToAI(prompt, "English");
-              final lines = response.trim().split('\n');
-              final percent = extractPercentageOnly(lines[0]);
-              final reason = lines.skip(1).join('\n').trim();
-              if (percent != null) {
-                aiResponseNotifier.value = {
-                  'percentage': percent,
-                  'reason': reason,
-                };
-              }
-              else {
-                aiResponseNotifier.value = {
-                  'error': '⚠️Could not extract irrigation percentage.',
-                };
-              }
-            } catch (e) {
-              aiResponseNotifier.value = {
-                'error': '❌ Error fetching AI advisory.',
-              };
-            }
-
-          } else {
-            print("Data is empty");
-          }
-        }
-      }
-
-    } catch (e) {
-      print('Failed to load weather: $e');
-    }
-
-  }
-
-
-  int? extractPercentageOnly(String text) {
-    final match = RegExp(r'(\d{1,3})\s?%').firstMatch(text);
-    return match != null ? int.parse(match.group(1)!) : null;
-  }
-
-}
-
-class ClickableSubmenu extends StatelessWidget {
-  final String title;
-  final List<Sequence> submenuItems;
-  final Function(String selectedItem, int selectedIndex) onItemSelected;
-
-  const ClickableSubmenu({super.key,
-    required this.title,
-    required this.submenuItems,
-    required this.onItemSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        _showSubmenu(context);
-      },
-      child: Row(
-        children: [
-          Text(title),
-          const Icon(Icons.arrow_right),
-        ],
-      ),
-    );
-  }
-
-  void _showSubmenu(BuildContext context) {
-    final RenderBox button = context.findRenderObject() as RenderBox;
-    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-
-    final RelativeRect position = RelativeRect.fromRect(
-      Rect.fromPoints(
-        button.localToGlobal(Offset(button.size.width, 0), ancestor: overlay),
-        button.localToGlobal(Offset(button.size.width, button.size.height), ancestor: overlay),
-      ),
-      Offset.zero & overlay.size,
-    );
-
-    showMenu<String>(
-      context: context,
-      position: position,
-      items: submenuItems.map((Sequence item) {
-        return PopupMenuItem<String>(
-          value: item.name,
-          child: Text(item.name),
-        );
-      }).toList(),
-    ).then((String? selectedItem) {
-      if (selectedItem != null) {
-        int selectedIndex = submenuItems.indexWhere((item) => item.name == selectedItem);
-        if (selectedIndex != -1) {
-          onItemSelected(selectedItem, selectedIndex);
-        }
-      }
-    });
-  }
 }

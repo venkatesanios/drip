@@ -189,7 +189,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   List<String> deleteSelection = ["Select", "Select all", "Unselect all"];
   String selectedOption = "Unselect all";
 
-  void deleteFunction({indexToShow, serialNumber}) {
+  void deleteFunction({indexToShow, serialNumber, modelId}) {
     Future.delayed(Duration.zero, () {
       irrigationLine!.sequence.removeWhere((element) => element['selected'] == true);
       if(irrigationLine!.sequence.isEmpty) {
@@ -209,7 +209,13 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       }
       selectedOption = deleteSelection[2];
     });
+    if(AppConstants.ecoGemModelList.contains(modelId)) {
+      for(int i = 0; i < _irrigationLine!.sequence.length; i++) {
+        _irrigationLine!.sequence[i]['sNo'] = '${i+1}';
+      }
+    }
     print("invoked");
+    // print("Sequence after deletion :: ${_irrigationLine!.sequence}");
     notifyListeners();
   }
 
@@ -239,8 +245,8 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateAddNext({serialNumber, indexToShow}) {
-    addNextSequence(serialNumber: serialNumber, zoneSno: irrigationLine!.sequence.length+1, indexToInsert: indexToShow);
+  void updateAddNext({serialNumber, indexToShow, required int modelId}) {
+    addNextSequence(serialNumber: serialNumber, zoneSno: irrigationLine!.sequence.length+1, indexToInsert: indexToShow, modelId: modelId);
     assigningCurrentIndex(indexToShow);
     notifyListeners();
   }
@@ -267,7 +273,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addNextSequence({int? serialNumber, zoneSno, indexToInsert}) {
+  void addNextSequence({int? serialNumber, zoneSno, indexToInsert, required int modelId}) {
     dynamic missingNum;
     for(var i = 0; i < _irrigationLine!.sequence.length; i++) {
       if(!_irrigationLine!.sequence.map((e)=> e['sNo']).toList().contains("${serialNumber == 0 ? serialNumberCreation : serialNumber}.${i+1}")) {

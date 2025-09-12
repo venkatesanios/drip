@@ -39,11 +39,18 @@ class _NodeDashboardState extends State<NodeDashboard> {
 
   Future<int> getData()async{
     try{
-      if(bleService.nodeDataFromHw.isEmpty){
-        // second time updation nodeDataFromHw is empty...
-        return 200;
+      // if(bleService.nodeDataFromHw.isEmpty){
+      //   // second time updation nodeDataFromHw is empty...
+      //   return 200;
+      // }
+      for(var i = 0; i < 30;i++){
+        if(bleService.nodeDataFromHw.containsKey('MID')){
+          break;
+        }else{
+          await Future.delayed(const Duration(seconds: 1));
+        }
       }
-      await Future.delayed(const Duration(seconds: 1));
+
       var body = {
         "userId": widget.masterData['customerId'],
         "controllerId": widget.masterData['controllerId'],
@@ -128,7 +135,7 @@ class _NodeDashboardState extends State<NodeDashboard> {
                                     }));
                                   },
                                 ),
-                                if(!bleService.nodeDataFromServer['hardwareLoraModel'].contains(bleService.nodeDataFromHw['MID']) && (!AppConstants.pumpWithValveModelList.contains(bleService.nodeData['modelId']) && !AppConstants.ecoGemModelList.contains(bleService.nodeData['modelId'])))
+                                if(bleService.nodeDataFromServer.isNotEmpty && !bleService.nodeDataFromServer['hardwareLoraModel'].contains(bleService.nodeDataFromHw['MID']) && (!AppConstants.pumpWithValveModelList.contains(bleService.nodeData['modelId']) && !AppConstants.ecoGemModelList.contains(bleService.nodeData['modelId'])))
                                   gridItemWidget(
                                   imagePath: 'assets/Images/Svg/SmartComm/calibration.svg',
                                   title: 'Calibration',

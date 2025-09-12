@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:oro_drip_irrigation/Constants/properties.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/preview_screen.dart';
+import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
 import '../state_management/irrigation_program_provider.dart';
 import '../widgets/custom_animated_switcher.dart';
@@ -127,7 +128,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     final allowStopMethodCondition = irrigationProgramProvider.sampleScheduleModel!.defaultModel.allowStopMethod;
     final defaultOffTime = irrigationProgramProvider.sampleScheduleModel!.defaultModel.rtcOffTime;
     final defaultMaxTime = irrigationProgramProvider.sampleScheduleModel!.defaultModel.rtcMaxTime;
-    final isEcoGem = [3].contains(widget.modelId);
+    final isEcoGem = AppConstants.ecoGemModelList.contains(widget.modelId);
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints){
           return SingleChildScrollView(

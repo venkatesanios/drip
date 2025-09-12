@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/Screens/Dealer/controllerlogfile.dart';
 import 'package:oro_drip_irrigation/Screens/Dealer/sevicecustomer.dart';
 import 'package:oro_drip_irrigation/Screens/Logs/irrigation_and_pump_log.dart';
 import 'package:oro_drip_irrigation/Screens/planning/WeatherScreen.dart';
@@ -34,7 +35,7 @@ import '../../utils/shared_preferences_helper.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../../view_models/nav_rail_view_model.dart';
 import '../common/user_profile/user_profile.dart';
-import 'controller_settings.dart';
+import 'controller_settings/wide/controller_settings_wide.dart';
 import 'customer_home.dart';
 import 'customer_product.dart';
 import 'input_output_connection_details.dart';
@@ -55,10 +56,11 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
 
   void callbackFunction(String status)
   {
+    print('program status:$status');
     if(status=='Program created'){
       CustomerScreenControllerViewModel viewModel =
       Provider.of<CustomerScreenControllerViewModel>(context, listen: false);
-      viewModel.getAllMySites(context, widget.customerId);
+      viewModel.getAllMySites(context, widget.customerId, preserveSelection: true);
     }
 
     /*Navigator.pop(context);
@@ -72,6 +74,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
     MqttPayloadProvider mqttProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
     final loggedInUser = Provider.of<UserProvider>(context, listen: false).loggedInUser;
      role = loggedInUser.name;
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => NavRailViewModel(Repository(HttpService()))),
@@ -96,21 +99,18 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
             appBar: AppBar(
               title:  Row(
                 children: [
-                  widget.fromLogin ?const SizedBox():
-                  const SizedBox(width: 10),
-                  widget.fromLogin ? Image(
-                    image: F.appFlavor!.name.contains('oro')? const AssetImage("assets/png/oro_logo_white.png"):
-                    const AssetImage("assets/png/company_logo.png"),
-                    width: F.appFlavor!.name.contains('oro')? 70:110,
-                    fit: BoxFit.fitWidth,
-                  ):
-                  const SizedBox(),
 
-                  widget.fromLogin ?const SizedBox(width: 20,):
-                  const SizedBox(width: 0),
-
-                  Container(width: 1, height: 20, color: Colors.white54,),
-                  const SizedBox(width: 5,),
+                  if(widget.fromLogin)...[
+                    Image(
+                      image: F.appFlavor!.name.contains('oro')? const AssetImage("assets/png/oro_logo_white.png"):
+                      const AssetImage("assets/png/company_logo.png"),
+                      width: F.appFlavor!.name.contains('oro')? 70:110,
+                      fit: BoxFit.fitWidth,
+                    ),
+                    const SizedBox(width: 20),
+                    Container(width: 1, height: 20, color: Colors.white54),
+                    const SizedBox(width: 5),
+                  ],
 
                   vm.mySiteList.data.length>1? DropdownButton(
                     isExpanded: false,
@@ -355,7 +355,10 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
                                     Navigator.pop(context);
                                     Navigator.push(
                                         context,
-                                        MaterialPageRoute(builder: (BuildContext context) => UserChatScreen(userId: widget.customerId, userName: widget.customerName, phoneNumber: widget.mobileNo))
+                                        MaterialPageRoute(builder: (BuildContext context) => UserChatScreen(
+                                            userId: vm.mySiteList.data[vm.sIndex].customerId,
+                                            userName: vm.mySiteList.data[vm.sIndex].customerName,
+                                            phoneNumber: widget.mobileNo))
                                     );
                                   },
                                 ),
@@ -368,14 +371,15 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
                                        Navigator.push(
                                          context,
                                          MaterialPageRoute(builder: (context) =>
-                                             ResetVerssion(userId: widget.customerId,
+                                             ResetVerssion(userId: vm.mySiteList.data[vm.sIndex].customerId,
                                                controllerId: currentMaster.controllerId,
                                                deviceID: currentMaster.deviceId,)),
                                        );
                                      }
                                      else
                                      {
-                                       showPasswordDialog(context,'Oro@321',widget.customerId,currentMaster.controllerId,currentMaster.deviceId,1);
+                                       showPasswordDialog(context,'Oro@321',vm.mySiteList.data[vm.sIndex].customerId,
+                                           currentMaster.controllerId,currentMaster.deviceId,1);
                                      }
 
                                   },
@@ -389,14 +393,15 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(builder: (context) =>
-                                            ResetAccumalationScreen(userId: widget.customerId,
+                                            ResetAccumalationScreen(userId: vm.mySiteList.data[vm.sIndex].customerId,
                                               controllerId: currentMaster.controllerId,
                                               deviceID: currentMaster.deviceId,)),
                                       );
                                     }
                                     else
                                       {
-                                        showPasswordDialog(context,'Oro@321',widget.customerId,currentMaster.controllerId,currentMaster.deviceId,2);
+                                        showPasswordDialog(context,'Oro@321',vm.mySiteList.data[vm.sIndex].customerId,
+                                            currentMaster.controllerId,currentMaster.deviceId,2);
                                       }
                                   },
                                 ),
@@ -501,7 +506,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
                                   return NodeSettings(
                                     userId: widget.userId,
                                     controllerId: currentMaster.controllerId,
-                                    customerId: widget.customerId,
+                                    customerId: vm.mySiteList.data[vm.sIndex].customerId,
                                     nodeList: currentMaster.nodeList,
                                     deviceId: currentMaster.deviceId,
                                   );
@@ -585,10 +590,22 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
                           else
                             const SizedBox(),
                         ],
+
                         Expanded(
-                          child: mainScreen(navViewModel.selectedIndex,
-                              currentSite.groupId, currentSite.groupName,
-                              currentMaster, currentSite.master, vm.isChanged
+                          child: Builder(
+                            builder: (_) {
+                              return mainScreen(
+                                navViewModel.selectedIndex,
+                                currentSite.groupId,
+                                currentSite.groupName,
+                                currentMaster,
+                                currentSite.master,
+                                vm.isChanged,
+                                role,
+                                vm.mySiteList.data[vm.sIndex].customerId,
+                                  vm.mySiteList.data[vm.sIndex].customerName,
+                              );
+                            },
                           ),
                         ),
                       ],
@@ -628,8 +645,10 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
                               ),
                             ),
                             const SizedBox(height: 15),
-                            AlarmButton(alarmPayload: vm.alarmDL, deviceID: currentMaster.deviceId,
-                                customerId: widget.customerId, controllerId: currentMaster.controllerId,
+                            AlarmButton(
+                                alarmPayload: vm.alarmDL, deviceID: currentMaster.deviceId,
+                                customerId: vm.mySiteList.data[vm.sIndex].customerId,
+                                controllerId: currentMaster.controllerId,
                                 irrigationLine: currentMaster.irrigationLine),
                             const SizedBox(height: 15),
                             CircleAvatar(
@@ -659,7 +678,9 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
                                             borderRadius: BorderRadius.zero,
                                             child: StatefulBuilder(
                                               builder: (BuildContext context, StateSetter stateSetter) {
-                                                return NodeList(customerId: widget.customerId, userId: widget.userId,
+                                                return NodeList(
+                                                    customerId: vm.mySiteList.data[vm.sIndex].customerId,
+                                                    userId: widget.userId,
                                                     nodes: currentMaster.nodeList,
                                                     configObjects: currentMaster.configObjects,
                                                     masterData: currentMaster);
@@ -697,7 +718,8 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
                                   onPressed: () {
                                     Navigator.push(context,
                                       MaterialPageRoute(
-                                        builder: (context) => InputOutputConnectionDetails(masterInx: vm.mIndex, nodes: currentMaster.nodeList),
+                                        builder: (context) => InputOutputConnectionDetails(
+                                            masterInx: vm.mIndex, nodes: currentMaster.nodeList),
                                       ),
                                     );
                                   },
@@ -723,7 +745,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => ProgramLibraryScreenNew(
-                                        customerId: widget.customerId,
+                                        customerId: vm.mySiteList.data[vm.sIndex].customerId,
                                         controllerId: currentMaster.controllerId,
                                         deviceId: currentMaster.deviceId,
                                         userId: widget.userId,
@@ -743,37 +765,40 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
                                 hoverColor: Theme.of(context).primaryColorLight,
                               ),
                             ),
-                            const SizedBox(height: 15),
-                            Container(
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.transparent
-                              ),
-                              width: 45,
-                              height: 45,
-                              child: IconButton(
-                                tooltip: 'Scheduled Program details',
-                                // onPressed: (){},
-                                onPressed:  () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ScheduleViewScreen(
-                                        deviceId: currentMaster.deviceId,
-                                        userId: widget.userId,
-                                        controllerId: currentMaster.controllerId,
-                                        customerId: widget.customerId,
-                                        groupId: vm.mySiteList.data[vm.sIndex].groupId,
+                            if([1, 2, 3, 4].contains(currentMaster.modelId))...[
+                              const SizedBox(height: 15),
+                              Container(
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(5),
+                                    color: Colors.transparent
+                                ),
+                                width: 45,
+                                height: 45,
+                                child: IconButton(
+                                  tooltip: 'Scheduled Program details',
+                                  // onPressed: (){},
+                                  onPressed:  () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ScheduleViewScreen(
+                                          deviceId: currentMaster.deviceId,
+                                          userId: widget.userId,
+                                          controllerId: currentMaster.controllerId,
+                                          customerId: vm.mySiteList.data[vm.sIndex].customerId,
+                                          groupId: vm.mySiteList.data[vm.sIndex].groupId,
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                },
-                                icon: const Icon(Icons.view_list_outlined),
-                                color: Colors.white,
-                                iconSize: 24.0,
-                                hoverColor: Theme.of(context).primaryColorLight,
+                                    );
+                                  },
+                                  icon: const Icon(Icons.view_list_outlined),
+                                  color: Colors.white,
+                                  iconSize: 24.0,
+                                  hoverColor: Theme.of(context).primaryColorLight,
+                                ),
                               ),
-                            ),
+                            ],
+
                             const SizedBox(height: 15),
                             Container(
                               decoration: BoxDecoration(
@@ -802,7 +827,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
                                             builder: (BuildContext context, StateSetter stateSetter) {
                                               return StandAlone(siteId: vm.mySiteList.data[vm.sIndex].groupId,
                                                   controllerId: currentMaster.controllerId,
-                                                  customerId: widget.customerId,
+                                                  customerId:vm.mySiteList.data[vm.sIndex].customerId,
                                                   deviceId: currentMaster.deviceId,
                                                   callbackFunction: callbackFunction, userId: widget.userId, masterData: currentMaster);
                                             },
@@ -819,59 +844,6 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
                                   );
                                 },
                                 icon: const Icon(Icons.touch_app_outlined),
-                                color: Colors.white,
-                                iconSize: 24.0,
-                                hoverColor: Theme.of(context).primaryColorLight,
-                              ),
-                            ),
-                            const SizedBox(height: 15),
-                            Container(
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.transparent
-                              ),
-                              width: 45,
-                              height: 45,
-                              child: IconButton(
-                                tooltip: 'Geography',
-                                onPressed: () {
-                                  Navigator.push(context,
-                                    MaterialPageRoute(
-                                      builder: (context) => MapScreenall(
-                                          userId: widget.userId, customerId: widget.customerId,
-                                          controllerId: currentMaster.controllerId,
-                                          imeiNo: currentMaster.deviceId),
-                                    ),
-                                  );
-                                },
-                                icon: const Icon(Icons.map_outlined),
-                                color: Colors.white,
-                                iconSize: 24.0,
-                                hoverColor: Theme.of(context).primaryColorLight,
-                              ),
-                            ),
-                            const SizedBox(height: 15),
-                            Container(
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.transparent
-                              ),
-                              width: 45,
-                              height: 45,
-                              child: IconButton(
-                                onPressed: () {
-                                  Navigator.push(context,
-                                    MaterialPageRoute(
-                                      builder: (context) => MapScreenAllArea(
-                                          userId: widget.userId, customerId: widget.customerId,
-                                          controllerId: currentMaster.controllerId,
-                                          imeiNo: currentMaster.deviceId),
-                                    ),
-                                  );
-                                },
-
-                                tooltip: 'Area',
-                                icon: const Icon(Icons.map),
                                 color: Colors.white,
                                 iconSize: 24.0,
                                 hoverColor: Theme.of(context).primaryColorLight,
@@ -988,89 +960,94 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
   }
 
   List<NavigationRailDestination> getNavigationDestinations() {
+
+    final viewModel = Provider.of<CustomerScreenControllerViewModel>(context, listen: true);
+
+    if (viewModel.mySiteList.data.isEmpty ||
+        viewModel.sIndex < 0 || viewModel.sIndex >= viewModel.mySiteList.data.length ||
+        viewModel.mIndex < 0 || viewModel.mIndex >= viewModel.mySiteList.data[viewModel.sIndex].master.length) {
+      return [
+        const NavigationRailDestination(
+          icon: Icon(Icons.downloading),
+          label: Text('...'),
+        ),
+      ];// or fallback widget
+    }
+
+    final cMaster = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex];
+
     final destinations = [
       const NavigationRailDestination(
-        padding: EdgeInsets.only(top: 6),
-        icon: Tooltip(
-          message: 'Home',
-          child: Icon(Icons.home_outlined),
-        ),
+        icon: Tooltip(message: 'Home', child: Icon(Icons.home_outlined)),
         selectedIcon: Icon(Icons.home, color: Colors.white),
         label: Text(''),
       ),
       const NavigationRailDestination(
-        icon: Tooltip(
-          message: 'All my devices',
-          child: Icon(Icons.devices_other),
-        ),
+        icon: Tooltip(message: 'All my devices', child: Icon(Icons.devices_other)),
         selectedIcon: Icon(Icons.devices_other, color: Colors.white),
         label: Text(''),
       ),
       const NavigationRailDestination(
-        icon: Tooltip(
-          message: 'Sent & Received',
-          child: Icon(Icons.question_answer_outlined),
-        ),
+        icon: Tooltip(message: 'Sent & Received', child: Icon(Icons.question_answer_outlined)),
         selectedIcon: Icon(Icons.question_answer, color: Colors.white),
         label: Text(''),
       ),
+      if([1, 2, 3, 4].contains(cMaster.modelId))...[
+        const NavigationRailDestination(
+          icon: Tooltip(message: 'Controller Logs', child: Icon(Icons.receipt_outlined)),
+          selectedIcon: Icon(Icons.receipt, color: Colors.white),
+          label: Text(''),
+        )
+      ],
       const NavigationRailDestination(
-        icon: Tooltip(
-          message: 'Controller Logs',
-          child: Icon(Icons.receipt_outlined),
-        ),
-        selectedIcon: Icon(Icons.receipt, color: Colors.white,),
-        label: Text(''),
-      ),
-      const NavigationRailDestination(
-        icon: Tooltip(
-          message: 'Settings',
-          child: Icon(Icons.settings_outlined),
-        ),
+        icon: Tooltip(message: 'Settings', child: Icon(Icons.settings_outlined)),
         selectedIcon: Icon(Icons.settings, color: Colors.white),
         label: Text(''),
       ),
       const NavigationRailDestination(
-        icon: Tooltip(
-          message: 'Configuration',
-          child: Icon(Icons.confirmation_num_outlined),
-        ),
+        icon: Tooltip(message: 'Configuration', child: Icon(Icons.confirmation_num_outlined)),
         selectedIcon: Icon(Icons.confirmation_num, color: Colors.white),
         label: Text(''),
       ),
       const NavigationRailDestination(
-        icon: Tooltip(
-          message: 'Service Request',
-          child: Icon(Icons.support_agent_sharp),
-        ),
+        icon: Tooltip(message: 'Service Request', child: Icon(Icons.support_agent_sharp)),
         selectedIcon: Icon(Icons.support_agent_sharp, color: Colors.white),
         label: Text(''),
       ),
-      const NavigationRailDestination(
-        icon: Tooltip(
-          message: 'Weather',
-          child: Icon(Icons.sunny_snowing),
-        ),
-        selectedIcon: Icon(Icons.wb_sunny_rounded, color: Colors.white),
-        label: Text(''),
-      ),
+      if([1, 2, 3, 4].contains(cMaster.modelId))...[
+        const NavigationRailDestination(
+          icon: Tooltip(message: 'Weather', child: Icon(Icons.sunny_snowing)),
+          selectedIcon: Icon(Icons.wb_sunny_rounded, color: Colors.white),
+          label: Text(''),
+        )
+      ],
+
     ];
+
     return destinations;
   }
 
-  Widget mainScreen(int index, groupId, groupName, MasterControllerModel currentMaster,
-      List<MasterControllerModel> allMaster, bool isChanged) {
+  Widget mainScreen(int index, int groupId, String groupName, MasterControllerModel currentMaster,
+      List<MasterControllerModel> allMaster, bool isChanged, String role, int customerId, String customerName) {
+
+    final isGem = [1, 2, 3, 4].contains(currentMaster.modelId);
+
     switch (index) {
       case 0:
         return [...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(currentMaster.modelId) ?
-        CustomerHome(customerId: widget.customerId, controllerId: currentMaster.controllerId,
-            deviceId: currentMaster.deviceId, modelId: currentMaster.modelId):
+        CustomerHome(
+          customerId: widget.customerId,
+          controllerId: currentMaster.controllerId,
+          deviceId: currentMaster.deviceId,
+          modelId: currentMaster.modelId,
+        ) :
         isChanged ? PumpControllerHome(
           userId: widget.userId,
           customerId: widget.customerId,
           masterData: currentMaster,
-        ):
-        const Scaffold(body: Center(
+        ) :
+        const Scaffold(
+          body: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -1079,53 +1056,98 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
                 CircularProgressIndicator(),
               ],
             ),
-          ));
+          ),
+        );
+
       case 1:
         return CustomerProduct(customerId: widget.customerId);
+
       case 2:
-        return SentAndReceived(customerId: widget.customerId, controllerId: currentMaster.controllerId);
+        return SentAndReceived(
+          customerId: customerId,
+          controllerId: currentMaster.controllerId,
+        );
+
       case 3:
-        return IrrigationAndPumpLog(userData: {'userId' : widget.userId, 'controllerId' : currentMaster.controllerId, 'customerId': widget.customerId}, masterData: currentMaster);
-      case 4:
-        return ControllerSettings(
-            userId: widget.userId,
-            customerId: widget.customerId,
+        return isGem ? IrrigationAndPumpLog(
+          userData: {
+            'userId': widget.userId,
+            'controllerId': currentMaster.controllerId,
+            'customerId': customerId,
+          },
+          masterData: currentMaster,
+        ) :
+        ControllerSettingWide(
+          userId: widget.userId,
+          customerId: customerId,
           masterController: currentMaster,
         );
+
+      case 4:
+        return isGem ? ControllerSettingWide(
+          userId: widget.userId,
+          customerId: customerId,
+          masterController: currentMaster,
+        ) :
+        role == 'Admin' ? SiteConfig(
+          userId: widget.userId,
+          customerId: customerId,
+          customerName: customerName,
+          masterData: allMaster,
+          groupId: groupId,
+          groupName: groupName,
+        ) :
+        _PasswordProtectedSiteConfig(
+          userId: widget.userId,
+          customerId: customerId,
+          customerName: customerName,
+          allMaster: allMaster,
+          groupId: groupId,
+          groupName: groupName,
+        );
+
       case 5:
-         if(role == 'Admin')
-          {
-            return SiteConfig(
-              userId: widget.userId,
-              customerId: widget.customerId,
-              customerName: widget.customerName,
-              masterData: allMaster,
-              groupId: groupId,
-              groupName: groupName,
-            );
-          }
-        else
-          {
-            return _PasswordProtectedSiteConfig(
-              userId: widget.userId,
-              customerId: widget.customerId,
-              customerName: widget.customerName,
-              allMaster: allMaster,
-              groupId: groupId,
-              groupName: groupName,
-            );
-          }
+        return isGem
+            ? (role == 'Admin'
+            ? SiteConfig(
+          userId: widget.userId,
+          customerId: customerId,
+          customerName: customerName,
+          masterData: allMaster,
+          groupId: groupId,
+          groupName: groupName,
+        ) : _PasswordProtectedSiteConfig(
+          userId: widget.userId,
+          customerId: customerId,
+          customerName: customerName,
+          allMaster: allMaster,
+          groupId: groupId,
+          groupName: groupName,
+        ))
+            : TicketHomePage(
+          userId: customerId,
+          controllerId: currentMaster.controllerId,
+        );
 
       case 6:
-        return TicketHomePage(userId: widget.customerId, controllerId: currentMaster.controllerId);
+        return TicketHomePage(
+          userId: widget.customerId,
+          controllerId: currentMaster.controllerId,
+        );
+
       case 7:
-        return WeatherScreen(userId: widget.customerId, controllerId: currentMaster.controllerId, deviceID: currentMaster.deviceId);
-      case 8:
-        return MapScreenall(userId: widget.userId, customerId: widget.customerId, controllerId: currentMaster.controllerId, imeiNo: currentMaster.deviceId);
-      case 9:
-        return MapScreenAllArea(userId: widget.userId, customerId: widget.customerId, controllerId: currentMaster.controllerId, imeiNo: currentMaster.deviceId);
+        return WeatherScreen(
+          userId: widget.customerId,
+          controllerId: currentMaster.controllerId,
+          deviceID: currentMaster.deviceId,
+        );
+
       default:
-        return const SizedBox();
+        return const Scaffold(
+          body: Center(
+            child: Text("Invalid screen index"),
+          ),
+        );
     }
   }
 }
@@ -1261,7 +1283,8 @@ class NovaInfoButton extends StatelessWidget {
 }
 
 class AlarmListItems extends StatelessWidget {
-  const AlarmListItems({super.key, required this.alarm, required this.deviceID, required this.customerId, required this.controllerId, required this.irrigationLine, this.show = true});
+  const AlarmListItems({super.key, required this.alarm, required this.deviceID,
+    required this.customerId, required this.controllerId, required this.irrigationLine, this.show = true});
   final List<String> alarm;
   final List<IrrigationLineModel> irrigationLine;
 
@@ -1344,7 +1367,6 @@ class AlarmListItems extends StatelessWidget {
     ):
     const Center(child: Text('Alarm not found'));
   }
-
 }
 
 class _PasswordProtectedSiteConfig extends StatefulWidget {

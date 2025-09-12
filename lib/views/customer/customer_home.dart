@@ -21,7 +21,7 @@ import '../../view_models/customer/customer_screen_controller_view_model.dart';
 import 'home_sub_classes/fertilizer_site.dart';
 import 'home_sub_classes/filter_site.dart';
 import 'home_sub_classes/next_schedule.dart';
-import 'home_sub_classes/scheduled_program.dart';
+import 'scheduled_program/scheduled_program_wide.dart';
 
 class CustomerHome extends StatelessWidget {
   const CustomerHome({super.key, required this.customerId, required this.controllerId,
@@ -33,6 +33,7 @@ class CustomerHome extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final viewModel = context.read<CustomerScreenControllerViewModel>();
+    //final viewModel = Provider.of<CustomerScreenControllerViewModel>(context);
 
     final irrigationLines = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine;
     final scheduledProgram = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].programList;
@@ -41,8 +42,7 @@ class CustomerHome extends StatelessWidget {
         ? irrigationLines.where((line) => line.name != viewModel.myCurrentIrrLine).toList()
         : irrigationLines.where((line) => line.name == viewModel.myCurrentIrrLine).toList();
 
-    return kIsWeb ? _buildWebLayout(context, linesToDisplay, scheduledProgram, viewModel):
-    _buildMobileLayout(context, linesToDisplay, scheduledProgram);
+    return _buildWebLayout(context, linesToDisplay, scheduledProgram, viewModel);
   }
 
   Widget displayLinearProgressIndicator() {
@@ -60,213 +60,133 @@ class CustomerHome extends StatelessWidget {
   Widget _buildWebLayout(BuildContext context, List<IrrigationLineModel> irrigationLine,
       scheduledProgram, CustomerScreenControllerViewModel viewModel) {
 
+
+
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
+      child: Consumer<CustomerScreenControllerViewModel>(
+        builder: (context, viewModel, _) {
+          final scheduledProgram = viewModel.mySiteList.data[viewModel.sIndex]
+              .master[viewModel.mIndex]
+              .programList;
 
-          context.watch<MqttPayloadProvider>().onRefresh ? displayLinearProgressIndicator() : const SizedBox(),
+          print('scheduledProgram:${scheduledProgram.length}');
 
-          ...irrigationLine.map((line) => Padding(
-            padding: const EdgeInsets.only(left: 8, right: 8, top:8, bottom: 5),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(
-                  color: Colors.grey.shade400,
-                  width: 0.5,
-                ),
-                borderRadius: const BorderRadius.all(Radius.circular(5)),
-              ),
-              child: Column(
-                children: [
-                  SizedBox(
-                    width: MediaQuery.sizeOf(context).width,
-                    height: 40,
-                    child: Card(
-                      color: Colors.white,
-                      elevation: 0.6,
-                      surfaceTintColor: Colors.white,
-                      margin: EdgeInsets.zero,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(5),
-                          topRight: Radius.circular(5),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          const SizedBox(width: 16),
-                          Text(
-                            line.name.toUpperCase(),
-                            textAlign: TextAlign.left,
-                            style: const TextStyle(color: Colors.black54, fontSize: 15, fontWeight: FontWeight.bold),
-                          ),
-                          const Spacer(),
-                          MaterialButton(
-                            color: line.linePauseFlag==0? Colors.amber : Colors.green,
-                            textColor: Colors.black87,
-                            onPressed: () async {
-                              String payLoadFinal = jsonEncode({
-                                "4900": {
-                                  "4901": "${line.sNo}, ${line.linePauseFlag==0?1:0}",
-                                }
-                              });
-                              final result = await context.read<CommunicationService>().sendCommand(payload: payLoadFinal,
-                                  serverMsg: line.linePauseFlag==0 ? 'Paused the ${line.name}' : 'Resumed the ${line.name}');
-                              if (result['http'] == true) {
-                                debugPrint("Payload sent to Server");
-                              }
-                              if (result['mqtt'] == true) {
-                                debugPrint("Payload sent to MQTT Box");
-                              }
-                              if (result['bluetooth'] == true) {
-                                debugPrint("Payload sent via Bluetooth");
-                              }
-                            },
-                            child: Text(
-                              line.linePauseFlag==0?'PAUSE THE LINE':
-                              'RESUME THE LINE',
-                              style: const TextStyle(color: Colors.black54),
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+
+              context.watch<MqttPayloadProvider>().onRefresh ? displayLinearProgressIndicator() : const SizedBox(),
+
+              ...irrigationLine.map((line) => Padding(
+                padding: const EdgeInsets.only(left: 8, right: 8, top:8, bottom: 5),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(
+                      color: Colors.grey.shade400,
+                      width: 0.5,
+                    ),
+                    borderRadius: const BorderRadius.all(Radius.circular(5)),
+                  ),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        width: MediaQuery.sizeOf(context).width,
+                        height: 40,
+                        child: Card(
+                          color: Colors.white,
+                          elevation: 0.6,
+                          surfaceTintColor: Colors.white,
+                          margin: EdgeInsets.zero,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(5),
+                              topRight: Radius.circular(5),
                             ),
                           ),
-                          const SizedBox(width: 10)
-                        ],
+                          child: Row(
+                            children: [
+                              const SizedBox(width: 16),
+                              Text(
+                                line.name.toUpperCase(),
+                                textAlign: TextAlign.left,
+                                style: const TextStyle(color: Colors.black54, fontSize: 15, fontWeight: FontWeight.bold),
+                              ),
+                              const Spacer(),
+                              MaterialButton(
+                                color: line.linePauseFlag==0? Colors.amber : Colors.green,
+                                textColor: Colors.black87,
+                                onPressed: () async {
+                                  String payLoadFinal = jsonEncode({
+                                    "4900": {
+                                      "4901": "${line.sNo}, ${line.linePauseFlag==0?1:0}",
+                                    }
+                                  });
+                                  final result = await context.read<CommunicationService>().sendCommand(payload: payLoadFinal,
+                                      serverMsg: line.linePauseFlag==0 ? 'Paused the ${line.name}' : 'Resumed the ${line.name}');
+                                  if (result['http'] == true) {
+                                    debugPrint("Payload sent to Server");
+                                  }
+                                  if (result['mqtt'] == true) {
+                                    debugPrint("Payload sent to MQTT Box");
+                                  }
+                                  if (result['bluetooth'] == true) {
+                                    debugPrint("Payload sent via Bluetooth");
+                                  }
+                                },
+                                child: Text(
+                                  line.linePauseFlag==0?'PAUSE THE LINE':
+                                  'RESUME THE LINE',
+                                  style: const TextStyle(color: Colors.black54),
+                                ),
+                              ),
+                              const SizedBox(width: 10)
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
+                      buildIrrigationLine(context, line, customerId, controllerId, modelId),
+                    ],
                   ),
-                  buildIrrigationLine(context, line, customerId, controllerId, modelId),
-                ],
+                ),
+              )),
+
+              CurrentProgram(
+                scheduledPrograms: scheduledProgram,
+                deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,
+                customerId: customerId,
+                controllerId: controllerId,
+                currentLineSNo: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine[viewModel.lIndex].sNo,
+                modelId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].modelId,
               ),
-            ),
-          )),
+              if (scheduledProgram.isNotEmpty)
+                NextSchedule(scheduledPrograms: scheduledProgram),
 
-          CurrentProgram(
-            scheduledPrograms: scheduledProgram,
-            deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,
-            customerId: customerId,
-            controllerId: controllerId,
-            currentLineSNo: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine[viewModel.lIndex].sNo,
-            modelId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].modelId,
-          ),
-          if (scheduledProgram.isNotEmpty)
-            NextSchedule(scheduledPrograms: scheduledProgram),
-
-          if (scheduledProgram.isNotEmpty)
-            ScheduledProgram(
-              userId: customerId,
-              scheduledPrograms: scheduledProgram,
-              controllerId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].controllerId,
-              deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,
-              customerId: customerId,
-              currentLineSNo: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine[viewModel.lIndex].sNo,
-              groupId: viewModel.mySiteList.data[viewModel.sIndex].groupId,
-              categoryId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].categoryId,
-              modelId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].modelId,
-              deviceName: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceName,
-              categoryName: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].categoryName,
-            ),
-          const SizedBox(height: 8),
-        ],
+              if (scheduledProgram.isNotEmpty)
+                ScheduledProgramWide(
+                  userId: customerId,
+                  scheduledPrograms: scheduledProgram,
+                  controllerId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].controllerId,
+                  deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,
+                  customerId: customerId,
+                  currentLineSNo: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine[viewModel.lIndex].sNo,
+                  groupId: viewModel.mySiteList.data[viewModel.sIndex].groupId,
+                  categoryId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].categoryId,
+                  modelId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].modelId,
+                  deviceName: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceName,
+                  categoryName: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].categoryName,
+                ),
+              const SizedBox(height: 8),
+            ],
+          );
+        },
       ),
     );
   }
 
-  Widget _buildMobileLayout(
-      BuildContext context, List<IrrigationLineModel> irrigationLine, scheduledProgram) {
 
-    final viewModel = context.read<CustomerScreenControllerViewModel>();
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          context.watch<MqttPayloadProvider>().onRefresh ? displayLinearProgressIndicator() : const SizedBox(),
-          CurrentProgram(
-            scheduledPrograms: scheduledProgram,
-            deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,
-            customerId: customerId,
-            controllerId: controllerId,
-            currentLineSNo: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine[viewModel.lIndex].sNo,
-            modelId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].modelId,
-          ),
-          NextSchedule(scheduledPrograms: scheduledProgram),
-          ...irrigationLine.map((line) => Padding(
-            padding: const EdgeInsets.only(left: 8, top: 8, right: 8),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(
-                  color: Theme.of(context).primaryColor.withOpacity(0.2),
-                  width: 0.5,
-                ),
-                borderRadius: const BorderRadius.all(Radius.circular(5)),
-              ),
-              child: Column(
-                children: [
-                  Container(
-                    width: MediaQuery.sizeOf(context).width,
-                    height: 45,
-                    color: Colors.white70,
-                    child: Row(
-                      children: [
-                        const SizedBox(width: 16),
-                        Text(
-                          line.name,
-                          textAlign: TextAlign.left,
-                          style: const TextStyle(color: Colors.black54, fontSize: 17, fontWeight: FontWeight.bold),
-                        ),
-                        const Spacer(),
-                        MaterialButton(
-                          color: line.linePauseFlag == 0
-                              ? Theme.of(context).primaryColorLight
-                              : Colors.orange.shade400,
-                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                          onPressed: () async {
-                            String payLoadFinal = jsonEncode({
-                              "4900": {
-                                "4901": "${line.sNo}, ${line.linePauseFlag == 0 ? 1 : 0}",
-                              }
-                            });
-
-                            final result = await context.read<CommunicationService>().sendCommand(
-                              payload: payLoadFinal,
-                              serverMsg: line.linePauseFlag == 0
-                                  ? 'Paused the ${line.name}'
-                                  : 'Resumed the ${line.name}',
-                            );
-
-                            if (result['http'] == true) debugPrint("Payload sent to Server");
-                            if (result['mqtt'] == true) debugPrint("Payload sent to MQTT Box");
-                            if (result['bluetooth'] == true) debugPrint("Payload sent via Bluetooth");
-                          },
-                          child: Text(
-                            line.linePauseFlag == 0 ? 'PAUSE THE LINE' : 'RESUME THE LINE',
-                            style: const TextStyle(
-                              color:Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 5)
-                      ],
-                    ),
-                  ),
-                  buildIrrigationLine(context, line, customerId, controllerId, modelId),
-                ],
-              ),
-            ),
-          )),
-          const SizedBox(height: 8),
-        ],
-      ),
-    );
-  }
 
   Widget buildIrrigationLine(BuildContext context, IrrigationLineModel irrLine, int customerId, int controllerId, int modelId){
 
@@ -2132,7 +2052,7 @@ class ValveWidgetMobile extends StatelessWidget {
 
         return hasWaterSource ? SizedBox(
           width: 140,
-          height: 100,
+          height: 60,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -2140,7 +2060,7 @@ class ValveWidgetMobile extends StatelessWidget {
             children: [
               SizedBox(
                 width: 70,
-                height: 100,
+                height: 60,
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
@@ -2150,8 +2070,8 @@ class ValveWidgetMobile extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         SizedBox(
-                          width: 70,
-                          height: 70,
+                          width: 40,
+                          height: 30,
                           child: AppConstants.getAsset('valveToMobile', valve.status, ''),
                         ),
                         Text(
@@ -2320,7 +2240,7 @@ class ValveWidgetMobile extends StatelessWidget {
               ),
               SizedBox(
                 width: 70,
-                height: 100,
+                height: 60,
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
@@ -2330,8 +2250,8 @@ class ValveWidgetMobile extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         SizedBox(
-                          width: 70,
-                          height: 70,
+                          width: 45,
+                          height: 30,
                           child: AppConstants.getAsset('source', 0, 'After Valve'),
                         ),
                         Text(
@@ -2345,7 +2265,7 @@ class ValveWidgetMobile extends StatelessWidget {
                     ),
                     if (valve.waterSources[0].level.isNotEmpty) ...[
                       Positioned(
-                        top: 17.5,
+                        top: 1,
                         left: 2,
                         right: 2,
                         child: Consumer<MqttPayloadProvider>(
@@ -2379,9 +2299,9 @@ class ValveWidgetMobile extends StatelessWidget {
                         ),
                       ),
                       Positioned(
-                        top: 43,
-                        left: 18,
-                        right: 18,
+                        top: 17,
+                        left: 35,
+                        right: 2.5,
                         child: Consumer<MqttPayloadProvider>(
                           builder: (_, provider, __) {
                             final sensorUpdate = provider.getSensorUpdatedValve(valve.waterSources[0].level[0].sNo.toString());
@@ -2395,7 +2315,7 @@ class ValveWidgetMobile extends StatelessWidget {
                               height: 17,
                               decoration: BoxDecoration(
                                 color: Colors.yellow,
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(3),
                                 border: Border.all(color: Colors.grey, width: 0.5),
                               ),
                               child: Center(

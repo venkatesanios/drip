@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class CustomerWebDashboard extends StatelessWidget {
-  const CustomerWebDashboard({super.key});
+class CustomerHomeWide extends StatelessWidget {
+  const CustomerHomeWide({super.key});
 
   @override
   Widget build(BuildContext context) {

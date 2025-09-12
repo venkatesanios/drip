@@ -16,11 +16,11 @@ import 'conditions_screen.dart';
 import 'irrigation_program_main.dart';
 
 class SequenceScreen extends StatefulWidget {
-  final int userId;
+  final int userId, modelId;
   final int controllerId;
   final int serialNumber;
   final String deviceId;
-  const SequenceScreen({super.key, required this.userId, required this.controllerId, required this.serialNumber, required this.deviceId});
+  const SequenceScreen({super.key, required this.userId, required this.controllerId, required this.serialNumber, required this.deviceId, required this.modelId});
 
   @override
   State<SequenceScreen> createState() => _SequenceScreenState();
@@ -403,6 +403,7 @@ class _SequenceScreenState extends State<SequenceScreen> {
             icon: indexToShow == sequence.length-1 ? Icons.add : Icons.skip_next,
             label: indexToShow == sequence.length-1 ? "Add new" : "Add next",
             onPressed: (){
+              print("Valve list :: ${irrigationProgramProvider.irrigationLine!.sequence[indexToShow]['valve']}");
               if(sequence[indexToShow]['valve'].isEmpty){
                 showAdaptiveDialog(
                   context: context,
@@ -421,11 +422,33 @@ class _SequenceScreenState extends State<SequenceScreen> {
                   },
                 );
               } else {
-                irrigationProgramProvider.updateAddNext(serialNumber: widget.serialNumber, indexToShow: indexToShow);
-                irrigationProgramProvider.updateNextButton(indexToShow);
-                double itemSize = 60.0;
-                double targetOffset = indexToShow * itemSize;
-                _scrollController.animateTo(targetOffset, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+                if (!AppConstants.ecoGemModelList.contains(widget.modelId) || irrigationProgramProvider.irrigationLine!.sequence.length < 8) {
+                  // if(irrigationProgramProvider.irrigationLine!.sequence[indexToShow]['valve']);
+                  irrigationProgramProvider.updateAddNext(serialNumber: widget.serialNumber, indexToShow: indexToShow, modelId: widget.modelId,);
+                  irrigationProgramProvider.updateNextButton(indexToShow);
+                  double itemSize = 150;
+                  double targetOffset = indexToShow * itemSize;
+                  _scrollController.animateTo(targetOffset, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut,);
+                } else {
+                  showAdaptiveDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text("Warning!"),
+                        content: const Text(
+                          'Maximum 8 zones can created for a program',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                        actions: [
+                          TextButton(
+                            child: const Text("OK"),
+                            onPressed: () => Navigator.of(context).pop(),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
               }
             }
         ),
@@ -453,7 +476,7 @@ class _SequenceScreenState extends State<SequenceScreen> {
                         child: const Text("OK"),
                         onPressed: () {
                           Future.delayed(Duration.zero, () {
-                            irrigationProgramProvider.deleteFunction(indexToShow: indexToShow, serialNumber: widget.serialNumber);
+                            irrigationProgramProvider.deleteFunction(indexToShow: indexToShow, serialNumber: widget.serialNumber, modelId: widget.modelId);
                             Navigator.of(context).pop();
                             ScaffoldMessenger.of(context).showSnackBar(CustomSnackBar(message: 'The sequence is erased!'));
                           });
@@ -790,16 +813,37 @@ class _SequenceScreenState extends State<SequenceScreen> {
             if (!sequence[indexToShow].containsKey('selectedGroup')) {
               sequence[indexToShow]['selectedGroup'] = [];
             }
-            irrigationProgramProvider.addValvesInSequence(
-                valves: isGroup ? dataList.map((e) => e.toJson()).toList() : [item.toJson()],
-                lineIndex: lineIndex,
-                isMainValve: isMainValve,
-                sequenceIndex: indexToShow,
-                isGroup: isGroup,
-                serialNumber: widget.serialNumber == 0 ? irrigationProgramProvider.serialNumberCreation : widget.serialNumber,
-                sNo: sequence.length+1,
-                groupId: isGroup ? item.id : ''
-            );
+            if(!AppConstants.ecoGemModelList.contains(widget.modelId) || sequence[indexToShow]['valve'].length < 4){
+              irrigationProgramProvider.addValvesInSequence(
+                  valves: isGroup ? dataList.map((e) => e.toJson()).toList() : [item.toJson()],
+                  lineIndex: lineIndex,
+                  isMainValve: isMainValve,
+                  sequenceIndex: indexToShow,
+                  isGroup: isGroup,
+                  serialNumber: widget.serialNumber == 0 ? irrigationProgramProvider.serialNumberCreation : widget.serialNumber,
+                  sNo: sequence.length+1,
+                  groupId: isGroup ? item.id : ''
+              );
+            } else {
+              showAdaptiveDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text("Warning!"),
+                    content: const Text(
+                      'Maximum 4 valves can created for a Zone',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                    actions: [
+                      TextButton(
+                        child: const Text("OK"),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
+                  );
+                },
+              );
+            }
           }
         },
         darkColor: (!isGroup && !isMainValve)

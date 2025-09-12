@@ -1,3 +1,4 @@
+// mqtt_service.dart
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
@@ -42,14 +43,16 @@ class MqttService {
   // Schedule Payload
   List<Map<String, dynamic>>? _schedulePayload;
   List<Map<String, dynamic>>? get schedulePayload => _schedulePayload;
-  final StreamController<List<Map<String, dynamic>>?> _schedulePayloadController = StreamController.broadcast();
+
+  // Use BehaviorSubject so new subscribers immediately receive the latest value
+  final BehaviorSubject<List<Map<String, dynamic>>?> _schedulePayloadController =
+  BehaviorSubject<List<Map<String, dynamic>>?>.seeded(null);
   Stream<List<Map<String, dynamic>>?> get schedulePayloadStream => _schedulePayloadController.stream;
 
   set schedulePayload(List<Map<String, dynamic>>? newPayload) {
-    if (newPayload != null) {
-      _schedulePayload = newPayload;
-      _schedulePayloadController.add(_schedulePayload);
-    }
+    // Accept null to allow clearing the cache and notify listeners
+    _schedulePayload = newPayload;
+    _schedulePayloadController.add(_schedulePayload);
   }
 
   // Pump Dashboard Payload
@@ -132,7 +135,6 @@ class MqttService {
     }
   }
 
-
   Future<void> disConnect() async {
     assert(_client != null);
     if (isConnected) {
@@ -146,7 +148,6 @@ class MqttService {
   }
 
   Future<void> topicToSubscribe(String topic) async {
-
     try {
       int retries = 0;
       while (!isConnected && retries < 10) {
@@ -181,7 +182,6 @@ class MqttService {
     }
   }
 
-
   void topicToUnSubscribe(String topic) {
     if (_client == null) return;
     _subscription?.cancel();
@@ -199,7 +199,6 @@ class MqttService {
       final payloadMessage = jsonDecode(payload);
       acknowledgementPayload = payloadMessage;
 
-      // print("payloadMessage :: ${payloadMessage['mC']}");
       switch (payloadMessage['mC']) {
         case 'SMS':
           preferenceAck = payloadMessage;
@@ -229,7 +228,6 @@ class MqttService {
   }
 
   void onDisconnected() {
-
     debugPrint('MQTT disconnected');
     _connectionController.add(MqttConnectionState.disconnected);
   }
