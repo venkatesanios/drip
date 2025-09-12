@@ -96,7 +96,7 @@ jobs:
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_JSON }}
           packageName: com.niagaraautomations.oroDripirrigation
           releaseFiles: artifacts/app-oroProduction-release.aab
-          track: production
+          track: internal
           inAppUpdatePriority: 3
           status: completed
           changesNotSentForReview: false
