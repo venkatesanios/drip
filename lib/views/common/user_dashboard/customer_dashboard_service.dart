@@ -7,6 +7,7 @@ import '../../../services/http_service.dart';
 import '../../../view_models/bottom_nav_view_model.dart';
 import '../../../view_models/customer/controller_settings_view_model.dart';
 import '../../../view_models/customer/customer_screen_controller_view_model.dart';
+import '../../../view_models/nav_rail_view_model.dart';
 
 class CustomerDashboardService extends StatelessWidget {
   final int customerId;
@@ -42,13 +43,15 @@ class CustomerDashboardService extends StatelessWidget {
 
               settingsVm.getSettingsMenu(customerVm.mySiteList.data[customerVm.sIndex].customerId, controllerId, modelId);
             }
+
             return settingsVm;
           },
         ),
 
-        ChangeNotifierProvider(
-          create: (_) => BottomNavViewModel(),
-        ),
+        ChangeNotifierProvider(create: (_) => BottomNavViewModel()),
+
+        ChangeNotifierProvider(create: (_) => NavRailViewModel(Repository(HttpService()))),
+
       ],
       child: child,
     );

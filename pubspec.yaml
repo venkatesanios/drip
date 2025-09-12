@@ -118,6 +118,7 @@ flutter:
     - assets/localfile/Testing
     - assets/splash/oro_production.png
     - assets/splash/smart_comm.png
+    - assets/splash/transparent.png
 
 
 flutter_launcher_icons:

@@ -15,6 +15,7 @@ import '../../../services/communication_service.dart';
 import '../../../utils/helpers/program_code_helper.dart';
 import '../../../utils/my_function.dart';
 import '../../../utils/snack_bar.dart';
+import '../../../view_models/customer/customer_screen_controller_view_model.dart';
 
 class ScheduledProgramNarrow extends StatefulWidget {
   const ScheduledProgramNarrow({super.key, required this.userId,
@@ -44,15 +45,21 @@ class _ScheduledProgramNarrowState extends State<ScheduledProgramNarrow> {
   @override
   Widget build(BuildContext context) {
 
-    final spLive = Provider.of<MqttPayloadProvider>(context).scheduledProgramPayload;
-    final conditionPayload = Provider.of<MqttPayloadProvider>(context).conditionPayload;
+    // Watch viewModel to rebuild when notifyListeners() is called
+    final viewModel = context.watch<CustomerScreenControllerViewModel>();
+
+    // Get updated master every time from viewModel
+    final master = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex];
+
+    final spLive = context.watch<MqttPayloadProvider>().scheduledProgramPayload;
+    final conditionPayload = context.watch<MqttPayloadProvider>().conditionPayload;
 
     if (spLive.isNotEmpty) {
-      ProgramUpdater.updateProgramsFromMqtt(spLive, widget.master.programList, conditionPayload);
+      ProgramUpdater.updateProgramsFromMqtt(spLive, master.programList, conditionPayload);
     }
 
-    var filteredScheduleProgram = widget.currentLineSNo == 0 ? widget.master.programList :
-    widget.master.programList.where((program) {
+    var filteredScheduleProgram = widget.currentLineSNo == 0 ? master.programList :
+    master.programList.where((program) {
       return program.irrigationLine.contains(widget.currentLineSNo);
     }).toList();
 

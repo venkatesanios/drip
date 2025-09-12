@@ -60,7 +60,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
     if(status=='Program created'){
       CustomerScreenControllerViewModel viewModel =
       Provider.of<CustomerScreenControllerViewModel>(context, listen: false);
-      viewModel.getAllMySites(context, widget.customerId);
+      viewModel.getAllMySites(context, widget.customerId, preserveSelection: true);
     }
 
     /*Navigator.pop(context);

@@ -18,12 +18,26 @@ import '../../view_models/bottom_nav_view_model.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
 import 'controller_settings/settings_menu_narrow.dart';
 
-class CustomerNarrowLayout extends StatelessWidget {
+class CustomerNarrowLayout extends StatefulWidget {
   const CustomerNarrowLayout({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<CustomerNarrowLayout> createState() => _CustomerNarrowLayoutState();
+}
 
+class _CustomerNarrowLayoutState extends State<CustomerNarrowLayout> {
+  void callbackFunction(String status) {
+    if (status == 'Program created') {
+      final viewModel = Provider.of<CustomerScreenControllerViewModel>(context, listen: false);
+      final viewedCustomer = Provider.of<UserProvider>(context, listen: false).viewedCustomer;
+      if (viewedCustomer != null) {
+        viewModel.getAllMySites(context, viewedCustomer.id, preserveSelection: true);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final loggedInUser = context.read<UserProvider>().loggedInUser;
     final viewedCustomer = context.read<UserProvider>().viewedCustomer;
 
@@ -33,25 +47,39 @@ class CustomerNarrowLayout extends StatelessWidget {
     if (vm.isLoading) {
       return Scaffold(
         backgroundColor: Colors.white,
-        body: Center(child: Image.asset(F.appFlavor!.name.contains('oro') ?
-        'assets/oro_store.png':'assets/smartcomm_playstore.png',width: 175, height: 175)),
+        body: Center(
+          child: Image.asset(
+            F.appFlavor!.name.contains('oro')
+                ? 'assets/oro_store.png'
+                : 'assets/smartcomm_playstore.png',
+            width: 175,
+            height: 175,
+          ),
+        ),
       );
     }
 
+    final cM = vm.mySiteList.data[vm.sIndex].master[vm.mIndex];
+    final isGem = [...AppConstants.gemModelList, ...AppConstants.ecoGemModelList]
+        .contains(cM.modelId);
+
     List<Widget> pages = [];
 
-    final cM = vm.mySiteList.data[vm.sIndex].master[vm.mIndex];
-    final isGem = [...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(cM.modelId);
-
-    if(isGem){
+    if (isGem) {
       pages = [
         const DashboardLayoutSelector(userRole: UserRole.customer),
-        ScheduledProgramNarrow(
-          userId: loggedInUser.id,
-          customerId: viewedCustomer!.id,
-          currentLineSNo: cM.irrigationLine[vm.lIndex].sNo,
-          groupId: vm.mySiteList.data[vm.sIndex].groupId,
-          master: cM,
+        Consumer<CustomerScreenControllerViewModel>(
+          builder: (context, viewModel, _) {
+            final master =
+            viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex];
+            return ScheduledProgramNarrow(
+              userId: loggedInUser.id,
+              customerId: viewedCustomer!.id,
+              currentLineSNo: cM.irrigationLine[vm.lIndex].sNo,
+              groupId: vm.mySiteList.data[vm.sIndex].groupId,
+              master: master,
+            );
+          },
         ),
         IrrigationAndPumpLog(
           userData: {
@@ -63,7 +91,7 @@ class CustomerNarrowLayout extends StatelessWidget {
         ),
         const SettingsMenuNarrow()
       ];
-    }else{
+    } else {
       pages = [
         PumpControllerHome(
           userId: loggedInUser.id,
@@ -72,6 +100,7 @@ class CustomerNarrowLayout extends StatelessWidget {
         )
       ];
     }
+
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
@@ -82,14 +111,24 @@ class CustomerNarrowLayout extends StatelessWidget {
           child: appBarBottomBar(context, vm, cM),
         ),
       ),
-      drawer: CustomerDrawer(viewedCustomer: viewedCustomer, loggedInUser: loggedInUser, vm: vm),
-      floatingActionButton: CustomerFabMenu(currentMaster: cM, viewedCustomer: viewedCustomer,
-          loggedInUser: loggedInUser, vm: vm, callbackFunction: callbackFunction),
+      drawer: CustomerDrawer(
+        viewedCustomer: viewedCustomer,
+        loggedInUser: loggedInUser,
+        vm: vm,
+      ),
+      floatingActionButton: CustomerFabMenu(
+        currentMaster: cM,
+        viewedCustomer: viewedCustomer,
+        loggedInUser: loggedInUser,
+        vm: vm,
+        callbackFunction: callbackFunction, // ✅ pass function down
+      ),
       body: IndexedStack(
         index: navModel.index,
         children: pages,
       ),
-      bottomNavigationBar: isGem ? BottomNavigationBar(
+      bottomNavigationBar: isGem
+          ? BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: navModel.index,
         onTap: navModel.setIndex,
@@ -114,12 +153,9 @@ class CustomerNarrowLayout extends StatelessWidget {
             label: 'Settings',
           ),
         ],
-      ) :
-      null,
+      )
+          : null,
     );
-  }
-
-  void callbackFunction(message){
   }
 }
 
