@@ -40,6 +40,10 @@ import '../customer/scheduled_program/scheduled_program_wide.dart';
 import '../customer/input_output_connection_details.dart';
 import '../customer/node_list.dart';
 import '../customer/stand_alone.dart';
+import '../customer/widgets/alarm_button.dart';
+import '../customer/widgets/irrigation_line_selector_widget.dart';
+import '../customer/widgets/master_selector_widget.dart';
+import '../customer/widgets/site_selector_widget.dart';
 
 
 class MobileScreenController extends StatefulWidget {
@@ -157,7 +161,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
             ),
             const SizedBox(width: 8),
             AlarmButton(alarmPayload: vm.alarmDL, deviceID: currentMaster.deviceId,
-                customerId: viewedCustomer!.id, controllerId: currentMaster.controllerId),
+                customerId: viewedCustomer!.id, controllerId: currentMaster.controllerId, irrigationLine: currentMaster.irrigationLine),
             IconButton(
                 onPressed: (){
                   Navigator.push(
@@ -1191,58 +1195,8 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
   }
 }
 
-class BadgeButton extends StatelessWidget {
-  final VoidCallback onPressed;
-  final IconData icon;
-  final int badgeNumber;
 
-  const BadgeButton({
-    super.key,
-    required this.onPressed,
-    required this.icon,
-    required this.badgeNumber,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        IconButton(
-          tooltip: 'Alarm',
-          onPressed: onPressed,
-          icon: Icon(icon, color: Colors.white,),
-          hoverColor: Theme.of(context).primaryColorLight,
-        ),
-        if (badgeNumber > 0)
-          Positioned(
-            right: 0,
-            top: 0,
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Colors.red,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              constraints: const BoxConstraints(
-                minWidth: 16,
-                minHeight: 16,
-              ),
-              child: Text(
-                badgeNumber.toString(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 10,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class AlarmButton extends StatelessWidget {
+/*class AlarmButton extends StatelessWidget {
   const AlarmButton({super.key, required this.alarmPayload, required this.deviceID, required this.customerId, required this.controllerId});
   final List<String> alarmPayload;
   final String deviceID;
@@ -1276,9 +1230,9 @@ class AlarmButton extends StatelessWidget {
       ),
     );
   }
-}
+}*/
 
-class AlarmListItems extends StatelessWidget {
+/*class AlarmListItems extends StatelessWidget {
   const AlarmListItems({super.key, required this.alarm, required this.deviceID, required this.customerId, required this.controllerId});
   final List<String> alarm;
 
@@ -1348,7 +1302,7 @@ class AlarmListItems extends StatelessWidget {
     );
   }
 
-}
+}*/
 
 class PasswordField extends StatefulWidget {
   final TextEditingController controller;
@@ -1471,146 +1425,6 @@ class VerticalDividerWhite extends StatelessWidget {
           decoration: BoxDecoration(color: Colors.white54),
         ),
       ),
-    );
-  }
-}
-
-class SiteSelectorWidget extends StatelessWidget {
-  final CustomerScreenControllerViewModel vm;
-  final BuildContext context;
-
-  const SiteSelectorWidget({
-    super.key,
-    required this.vm,
-    required this.context,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if ((vm.mySiteList.data.length ?? 0) > 1) {
-      return DropdownButton(
-        isExpanded: false,
-        underline: Container(),
-        items: (vm.mySiteList.data ?? []).map((site) {
-          return DropdownMenuItem(
-            value: site.groupName,
-            child: Text(
-              site.groupName,
-              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          );
-        }).toList(),
-        onChanged: (siteName) => vm.siteOnChanged(siteName!),
-        value: vm.myCurrentSite,
-        dropdownColor: Theme.of(context).primaryColorLight,
-        iconEnabledColor: Colors.white,
-        iconDisabledColor: Colors.white,
-        focusColor: Colors.transparent,
-      );
-    } else {
-      return Text(
-        vm.mySiteList.data[vm.sIndex].groupName,
-        style: const TextStyle(fontSize: 15, color: Colors.white54, fontWeight: FontWeight.bold),
-        overflow: TextOverflow.ellipsis,
-      );
-    }
-  }
-}
-
-class MasterSelectorWidget extends StatelessWidget {
-  final CustomerScreenControllerViewModel vm;
-  final int sIndex;
-  final int mIndex;
-
-  const MasterSelectorWidget({
-    super.key,
-    required this.vm,
-    required this.sIndex,
-    required this.mIndex,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final masterList = vm.mySiteList.data[sIndex].master;
-    if (masterList.length <= 1) return const SizedBox();
-    return PopupMenuButton<int>(
-      color: Theme.of(context).primaryColorLight,
-      tooltip: 'master controller',
-      child: MaterialButton(
-        onPressed: null,
-        textColor: Colors.white,
-        child: Row(
-          children: [
-            Text(masterList[mIndex].categoryName),
-            const SizedBox(width: 3),
-            const Icon(Icons.arrow_drop_down, color: Colors.white),
-          ],
-        ),
-      ),
-      itemBuilder: (context) {
-        return List.generate(masterList.length, (index) {
-          final master = masterList[index];
-          return PopupMenuItem<int>(
-            value: index,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  master.categoryName,
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-                Text(
-                  master.modelName,
-                  style: const TextStyle(fontSize: 12, color: Colors.white54),
-                ),
-              ],
-            ),
-          );
-        });
-      },
-      onSelected: (index) {
-        vm.masterOnChanged(index);
-      },
-    );
-  }
-}
-
-class IrrigationLineSelectorWidget extends StatelessWidget {
-  final CustomerScreenControllerViewModel vm;
-
-  const IrrigationLineSelectorWidget({
-    super.key,
-    required this.vm,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final master = vm.mySiteList.data[vm.sIndex].master[vm.mIndex];
-    if (master.categoryId != 1 || master.irrigationLine.length <= 1) {
-      return const SizedBox();
-    }
-    return DropdownButton<int>(
-      underline: Container(),
-      items: List.generate(master.irrigationLine.length, (index) {
-        final line = master.irrigationLine[index];
-        return DropdownMenuItem<int>(
-          value: index,
-          child: Text(
-            line.name,
-            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-        );
-      }),
-      onChanged: (selectedIndex) {
-        if (selectedIndex != null) {
-          vm.lineOnChanged(selectedIndex);
-        }
-      },
-      value: vm.lIndex,
-      dropdownColor: Theme.of(context).primaryColorLight,
-      iconEnabledColor: Colors.white,
-      iconDisabledColor: Colors.white,
-      focusColor: Colors.transparent,
     );
   }
 }

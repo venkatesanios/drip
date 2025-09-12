@@ -10,6 +10,7 @@ import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/program_libra
 import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
 import 'package:oro_drip_irrigation/views/customer/site_config.dart';
 import 'package:oro_drip_irrigation/views/customer/stand_alone.dart';
+import 'package:oro_drip_irrigation/views/customer/widgets/alarm_button.dart';
 import 'package:popover/popover.dart';
 import '../../models/customer/site_model.dart';
 import 'package:provider/provider.dart';
@@ -89,7 +90,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
             return const Scaffold(body: Center(child: Text('Site loading please waite....')));
           }
 
-          final screenWidth = MediaQuery.sizeOf(context).width;
+          final screenWidth = MediaQuery.sizeOf(context).width;//
           final screenHeight = MediaQuery.sizeOf(context).height;
 
           final currentSite = vm.mySiteList.data[vm.sIndex];
@@ -1153,97 +1154,6 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
 }
 
 
-class BadgeButton extends StatelessWidget {
-  final VoidCallback onPressed;
-  final IconData icon;
-  final int badgeNumber;
-
-  const BadgeButton({
-    super.key,
-    required this.onPressed,
-    required this.icon,
-    required this.badgeNumber,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        IconButton(
-          tooltip: 'Alarm',
-          onPressed: onPressed,
-          icon: Icon(icon, color: Colors.white,),
-          hoverColor: Theme.of(context).primaryColorLight,
-        ),
-        if (badgeNumber > 0)
-          Positioned(
-            right: 0,
-            top: 0,
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Colors.red,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              constraints: const BoxConstraints(
-                minWidth: 16,
-                minHeight: 16,
-              ),
-              child: Text(
-                badgeNumber.toString(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 10,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class AlarmButton extends StatelessWidget {
-  const AlarmButton({super.key, required this.alarmPayload,
-    required this.deviceID, required this.customerId,
-    required this.controllerId, required this.irrigationLine});
-
-  final List<String> alarmPayload;
-  final String deviceID;
-  final int customerId, controllerId;
-  final List<IrrigationLineModel> irrigationLine;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 45,
-      height: 45,
-      decoration: const BoxDecoration(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.all(Radius.circular(5)),
-      ),
-      child: BadgeButton(
-        onPressed: (){
-          showPopover(
-            context: context,
-            bodyBuilder: (context) => AlarmListItems(alarm : alarmPayload, deviceID:deviceID, customerId: customerId, controllerId: controllerId, irrigationLine: irrigationLine),
-            onPop: () => print('Popover was popped!'),
-            direction: PopoverDirection.left,
-            width: alarmPayload[0].isNotEmpty?600:150,
-            height: alarmPayload[0].isNotEmpty?(alarmPayload.length*45)+20:50,
-            arrowHeight: 15,
-            arrowWidth: 30,
-          );
-        },
-        icon: Icons.alarm,
-        badgeNumber: (alarmPayload.isNotEmpty && alarmPayload[0].isNotEmpty) ?
-        alarmPayload.length : 0,
-      ),
-    );
-  }
-}
-
 class NovaInfoButton extends StatelessWidget {
   const NovaInfoButton({super.key, required this.deviceID,
     required this.customerId, required this.controllerId});
@@ -1282,92 +1192,7 @@ class NovaInfoButton extends StatelessWidget {
   }
 }
 
-class AlarmListItems extends StatelessWidget {
-  const AlarmListItems({super.key, required this.alarm, required this.deviceID,
-    required this.customerId, required this.controllerId, required this.irrigationLine, this.show = true});
-  final List<String> alarm;
-  final List<IrrigationLineModel> irrigationLine;
 
-  final String deviceID;
-  final int customerId, controllerId;
-  final bool show;
-
-  @override
-  Widget build(BuildContext context) {
-    return alarm[0].isNotEmpty? DataTable2(
-      columnSpacing: 12,
-      horizontalMargin: 12,
-      minWidth: 600,
-      dataRowHeight: 45.0,
-      headingRowHeight: 35.0,
-      headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withOpacity(0.1)),
-      columns: [
-        const DataColumn2(
-          label: Text('', style: TextStyle(fontSize: 13)),
-          fixedWidth: 25,
-        ),
-        const DataColumn2(
-            label: Text('Message', style: TextStyle(fontSize: 13),),
-            size: ColumnSize.L
-        ),
-        const DataColumn2(
-            label: Text('Location', style: TextStyle(fontSize: 13),),
-            size: ColumnSize.M
-        ),
-        const DataColumn2(
-            label: Text('Time', style: TextStyle(fontSize: 13)),
-            size: ColumnSize.S
-        ),
-        if(show)
-          const DataColumn2(
-            label: Center(child: Text('', style: TextStyle(fontSize: 13),)),
-            fixedWidth: 80,
-          ),
-      ],
-      rows: List<DataRow>.generate(alarm.length, (index) {
-        List<String> values = alarm[index].split(',');
-        return DataRow(cells: [
-          DataCell(Icon(Icons.warning_amber, color: values[7]=='1' ? Colors.orangeAccent : Colors.redAccent,)),
-          DataCell(Text(MyFunction().getAlarmMessage(int.parse(values[2])))),
-          DataCell(Text(irrigationLine.firstWhere(
-                (line) => line.sNo.toString() == values[1],
-          ).name)),
-          DataCell(Text(Formatters().formatRelativeTime('${values[5]} ${values[6]}'))),
-          if(show)
-            DataCell(Center(child: MaterialButton(
-              color: Colors.redAccent,
-              textColor: Colors.white,
-              onPressed: () async {
-                String finalPayload =  values[0];
-                String payLoadFinal = jsonEncode({
-                  "4100": {"4101": finalPayload}
-                });
-
-                final result = await context.read<CommunicationService>().sendCommand(
-                    serverMsg: 'Rested the ${MyFunction().getAlarmMessage(int.parse(values[2]))} alarm',
-                    payload: payLoadFinal);
-
-                if (result['http'] == true) {
-                  debugPrint("Payload sent to Server");
-                }
-                if (result['mqtt'] == true) {
-                  debugPrint("Payload sent to MQTT Box");
-                }
-                if (result['bluetooth'] == true) {
-                  debugPrint("Payload sent via Bluetooth");
-                }
-
-                Navigator.pop(context);
-
-              },
-              child: const Text('Reset'),
-            ))),
-        ]);
-      }),
-    ):
-    const Center(child: Text('Alarm not found'));
-  }
-}
 
 class _PasswordProtectedSiteConfig extends StatefulWidget {
   final int userId;
