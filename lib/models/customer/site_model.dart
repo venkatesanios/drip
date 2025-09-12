@@ -22,18 +22,22 @@ class SiteModel {
 }
 
 class Group {
+  final int customerId;
   final int groupId;
-  final String groupName;
+  final String groupName, customerName;
   final List<MasterControllerModel> master;
 
-  Group({required this.groupId, required this.groupName, required this.master});
+
+  Group({required this.customerId, required this.customerName, required this.groupId, required this.groupName, required this.master});
 
   factory Group.fromJson(Map<String, dynamic> json, String userType) {
 
     print(userType);
     return Group(
-      groupId: userType == 'customer'? json['userGroupId']:json['userId'],
-      groupName: userType == 'customer'? json['groupName']:json['userName'],
+      customerId: json['customerId'],
+      customerName:  json['customerName'],
+      groupId: userType == 'customer'? json['userGroupId']:json['customerId'],
+      groupName: userType == 'customer'? json['groupName']:json['customerName'],
       master: List<MasterControllerModel>.from(json['master'].map((x) => MasterControllerModel.fromJson(x))),
     );
   }

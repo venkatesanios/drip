@@ -518,7 +518,7 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
               const SizedBox(height: 20),
 
               if (formattedConfig != null)
-                Container(
+                widget.communicationType == "MQTT" ? Container(
                   padding: const EdgeInsets.all(12.0),
                   decoration: BoxDecoration(
                     color: Colors.grey[100],
@@ -535,7 +535,7 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
                       ),
                     ),
                   ),
-                ),
+                ):Container(),
               const SizedBox(height: 20),
 
               Row(
@@ -567,10 +567,10 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
                   ),
                 ],
               ),
-              Padding(
+             widget.communicationType == "MQTT" ? Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(mqttPayloadProvider.receivedPayload),
-              ),
+              ) : Container(),
             ],
           ),
         ),

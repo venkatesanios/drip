@@ -38,7 +38,7 @@ class SensorWidgetMobile extends StatelessWidget {
             ),
             ListTile(
               minVerticalPadding: 0,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
               visualDensity: const VisualDensity(vertical: -4),
               leading: Image.asset(imagePath, width: 25, height: 25),
               title: Text(
@@ -52,7 +52,7 @@ class SensorWidgetMobile extends StatelessWidget {
               trailing: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.yellow.shade200,
+                  color: Colors.yellow.shade400,
                   borderRadius: BorderRadius.circular(4),
                   border: Border.all(color: Colors.grey, width: 0.5),
                 ),
@@ -65,10 +65,6 @@ class SensorWidgetMobile extends StatelessWidget {
                   ),
                 ),
               ),
-            ),
-            const Padding(
-              padding: EdgeInsets.only(left: 10, right: 8),
-              child: Divider(height: 1, thickness: 1, color: Colors.black12),
             ),
           ],
         );

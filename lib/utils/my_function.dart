@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 import 'package:oro_drip_irrigation/view_models/create_account_view_model.dart';
 import 'package:provider/provider.dart';
 import '../StateManagement/mqtt_payload_provider.dart';
+import 'enums.dart';
 
 class MyFunction {
 
@@ -207,6 +209,19 @@ class MyFunction {
 
     _irrigationCache[params] = time; // Store result
     return time;
+  }
+
+  String getContentByCode(int code) {
+    return GemProgramStartStopReasonCode.fromCode(code).content;
+  }
+
+  String convert24HourTo12Hour(String timeString) {
+    if(timeString=='-'){
+      return '-';
+    }
+    final parsedTime = DateFormat('HH:mm:ss').parse(timeString);
+    final formattedTime = DateFormat('hh:mm a').format(parsedTime);
+    return formattedTime;
   }
 
 }

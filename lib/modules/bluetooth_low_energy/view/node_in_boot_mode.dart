@@ -52,22 +52,32 @@ class _NodeInBootModeState extends State<NodeInBootMode> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              FilledButton.icon(
-                icon: const Icon(Icons.system_update_alt_rounded),
-                onPressed: () {
-                  bleService.getFileName();
-                },
-                label: const Text('Get Latest Firmware'),
-                style: FilledButton.styleFrom(
-                  backgroundColor: Theme.of(context).primaryColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                  textStyle: const TextStyle(fontSize: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              if([
+                FileMode.idle.name,
+                FileMode.errorOnConnected.name,
+                FileMode.disConnected.name,
+                FileMode.fileNameNotGet.name,
+                FileMode.errorOnWhileGetFileName.name,
+                FileMode.tryAgainToGetFileName.name,
+                FileMode.downloadFileFailed.name,
+                FileMode.bootFail.name,
+              ].contains(bleService.fileMode.name))
+                FilledButton.icon(
+                  icon: const Icon(Icons.system_update_alt_rounded),
+                  onPressed: () {
+                    bleService.getFileName();
+                  },
+                  label: const Text('Get Latest Firmware'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    textStyle: const TextStyle(fontSize: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
-              ),
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(

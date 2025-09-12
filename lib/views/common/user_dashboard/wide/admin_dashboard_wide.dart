@@ -5,8 +5,8 @@ import '../widgets/customer_view.dart';
 import '../widgets/product_view.dart';
 
 
-class AdminWebDashboard extends StatelessWidget {
-  const AdminWebDashboard({super.key});
+class AdminDashboardWide extends StatelessWidget {
+  const AdminDashboardWide({super.key});
 
   @override
   Widget build(BuildContext context) {

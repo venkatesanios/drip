@@ -1,0 +1,12 @@
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/splash/smart_comm.png       # smart comm logo
+  android: true
+  ios: true
+
+  android_12:
+    image: assets/splash/transparent.png
+    color: "#FFFFFF"
+
+  ios_content_mode: scaleAspectFit
+  android_gravity: center

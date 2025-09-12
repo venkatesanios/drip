@@ -577,7 +577,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
   Widget _buildTabContent({required int index, required bool isIrrigationProgram, required bool conditionsLibraryIsNotEmpty}) {
     switch (index) {
       case 0:
-        return SequenceScreen(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, deviceId: widget.deviceId,);
+        return SequenceScreen(userId: widget.customerId, controllerId: widget.controllerId, serialNumber: widget.serialNumber, deviceId: widget.deviceId, modelId: widget.modelId,);
       case 1:
         return ScheduleScreen(serialNumber: widget.serialNumber, modelId: widget.modelId,);
       case 2:

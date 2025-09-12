@@ -50,7 +50,6 @@ dependencies:
   shared_preferences: ^2.5.3
   connectivity_plus: ^6.1.4
   webview_flutter: ^4.11.0
-  firebase_messaging: ^15.2.5
   intl_phone_field: ^3.2.0
   flutter_blue_plus: ^1.35.5
   flutter_dotenv: ^5.2.1
@@ -77,6 +76,8 @@ dependencies:
   badges: ^3.1.2
   in_app_update: ^4.2.3
   upgrader: ^11.5.0
+  firebase_core: ^4.1.0
+  firebase_messaging: ^16.0.1
 #  audioplayers: ^6.5.0
 #  record: ^6.0.0
 
@@ -117,6 +118,7 @@ flutter:
     - assets/localfile/Testing
     - assets/splash/oro_production.png
     - assets/splash/smart_comm.png
+    - assets/splash/transparent.png
 
 
 flutter_launcher_icons:

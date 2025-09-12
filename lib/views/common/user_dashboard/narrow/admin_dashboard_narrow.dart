@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/utils/enums.dart';
 import 'package:provider/provider.dart';
-
-import '../../../../utils/enums.dart';
 import '../../../../view_models/bottom_nav_view_model.dart';
 import '../widgets/analytics_view.dart';
 import '../widgets/customer_view.dart';
-import '../widgets/stock_view.dart';
+import '../widgets/product_view.dart';
 
-class DealerMobileDashboard extends StatelessWidget {
-  const DealerMobileDashboard({super.key});
+class AdminDashboardNarrow extends StatelessWidget {
+  const AdminDashboardNarrow({super.key});
 
   @override
   Widget build(BuildContext context) {
     final navModel = context.watch<BottomNavViewModel>();
 
-    final pages = [const AnalyticsView(), CustomerView(role: UserRole.dealer, isNarrow: true, onCustomerProductChanged: (String action) {  },),
-      const StockView(role:  UserRole.dealer, isWide: false)];
+    final pages = [const AnalyticsView(),
+      CustomerView(role: UserRole.admin, isNarrow: true, onCustomerProductChanged: (String action) {}),
+      const ProductView(isWideScreen: false)];
 
     return Scaffold(
       body: IndexedStack(
@@ -38,8 +38,8 @@ class DealerMobileDashboard extends StatelessWidget {
             label: 'Customers',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.inventory_2_outlined),
-            label: 'Stock',
+            icon: Icon(Icons.storefront),
+            label: 'Product',
           ),
         ],
       ),
