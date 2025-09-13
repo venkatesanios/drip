@@ -246,7 +246,6 @@ class ConfigMakerProvider extends ChangeNotifier{
     return list;
   }
 
-
   Future<List<DeviceModel>> fetchData(masterDataFromSiteConfigure)async {
     productStock = masterDataFromSiteConfigure['productStock'];
     await Future.delayed(const Duration(seconds: 0));
@@ -435,7 +434,6 @@ class ConfigMakerProvider extends ChangeNotifier{
       return 400;
     }
   }
-
 
   void updateObjectCount(int objectId, String count){
     print('objectId : $objectId count : $count');
@@ -1001,7 +999,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         "TopTankFloatHigh" : serialNoOrEmpty(pumpModelObject.topTankFloat),
         "TopTankFloatLow" : serialNoOrEmpty(pumpModelObject.bottomTankFloat),
         "SumpTankFloatHigh" : serialNoOrEmpty(pumpModelObject.topSumpFloat),
-        "SumpTankFloatLow" : serialNoOrEmpty(pumpModelObject.bottomTankFloat),
+        "SumpTankFloatLow" : serialNoOrEmpty(pumpModelObject.bottomSumpFloat),
         "IrrigationLine" : line.where((line) => (line.sourcePump.contains(pumpModelObject.commonDetails.sNo) || line.irrigationPump.contains(pumpModelObject.commonDetails.sNo))).map((line) => line.commonDetails.sNo).join('_'),
       };
 
@@ -1308,8 +1306,8 @@ class ConfigMakerProvider extends ChangeNotifier{
     // int pumpCodeUnderGem = 5900;
     var payloadPumpCount = 3;
     for(var p1000 in listOfPump1000){
-      int pumpCount = listOfGeneratedObject.where((object) => (object.controllerId == p1000.controllerId && object.objectId == 5)).length;
-      List<String> findOutHowManySourceAndIrrigationPump = pump.where((pumpModel) => ((pumpModel.commonDetails.controllerId == p1000.controllerId || AppConstants.ecoGemModelList.contains(masterData['modelId'])) && pumpModel.commonDetails.objectId == 5))
+      int pumpCount = listOfGeneratedObject.where((object) => (object.controllerId == p1000.controllerId && object.objectId == AppConstants.pumpObjectId)).length;
+      List<String> findOutHowManySourceAndIrrigationPump = pump.where((pumpModel) => ((pumpModel.commonDetails.controllerId == p1000.controllerId || AppConstants.ecoGemModelList.contains(masterData['modelId'])) && pumpModel.commonDetails.objectId == AppConstants.pumpObjectId))
           .toList()
           .map((pumpModel) => pumpModel.pumpType.toString()).toList();
       int loopingLimit = payloadPumpCount - findOutHowManySourceAndIrrigationPump.length;

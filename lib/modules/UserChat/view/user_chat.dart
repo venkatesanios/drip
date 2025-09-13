@@ -55,7 +55,8 @@ class _UserChatScreenState extends State<UserChatScreen> {
         setState(() {
           final response = jsonDecode(getUserDealerDetails.body);
           if (response['code'] == 200) {
-            isDealer = userRole == 'dealer' || userRole == 'admin';
+            print("userRole ::: ${userRole.runtimeType}");
+            isDealer = userRole == '2' || userRole == '1';
             dealerId = response['data']['userId'];
             dealerName = response['data']['userName'];
             phoneNumber = response['data']['mobileNumber'] ?? "1234567890";
@@ -76,7 +77,7 @@ class _UserChatScreenState extends State<UserChatScreen> {
       "toUserId": isDealer ? widget.userId : dealerId,
     };
 
-    // print(userData);
+    print("userdata in the chat :: $userData");
     try {
       final getUserChat = await repository.getUserChat(userData);
       if (getUserChat.statusCode == 200) {
@@ -138,6 +139,7 @@ class _UserChatScreenState extends State<UserChatScreen> {
       "time": DateFormat("HH:mm:ss").format(time),
       "message": _messageController.text,
     };
+print('userData:$userData');
 
     try {
       final createUserChat = await repository.createUserChat(userData);

@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import '../../StateManagement/mqtt_payload_provider.dart';
+import '../../repository/repository.dart';
+import '../../services/http_service.dart';
+import '../../services/mqtt_service.dart';
+import '../../utils/environment.dart';
 
 class PumpTopicChangePage extends StatefulWidget {
   final deviceID;
@@ -77,9 +81,14 @@ class _PumpTopicChangePageState extends State<PumpTopicChangePage> {
   @override
   void initState() {
     super.initState();
+
+    fetchData();
+  }
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     mqttPayloadProvider =
         Provider.of<MqttPayloadProvider>(context, listen: false);
-    fetchData();
   }
 
   @override
@@ -137,20 +146,32 @@ class _PumpTopicChangePageState extends State<PumpTopicChangePage> {
   void populateFields(Map<String, dynamic>? config) {
     if (config == null) return;
 
-     mqttIpController.text = config['MQTT_IP'] ?? '';
+     mqttIpController.text = formatIp(config['MQTT_IP'] ?? '');
     mqttUserController.text = config['MQTT_USER_NAME'] ?? '';
     mqttPassController.text = config['MQTT_PASSWORD'] ?? '';
     ftpIpController.text = config['FTP_IP'] ?? '';
     ftpUserController.text = config['FTP_USER_NAME'] ?? '';
     ftpPassController.text = config['FTP_PASSWORD'] ?? '';
-    pathController.text = config['PATH'] ?? '';
-    mqttFrontendTopicController.text = config['MQTT_FRONTEND_TOPIC'] ?? '';
-    mqttServerTopicController.text = config['MQTT_SERVER_TOPIC'] ?? '';
-    mqttHardwareTopicController.text = config['MQTT_HARDWARE_TOPIC'] ?? '';
+    pathController.text = '-'; //config['PATH'] ?? '';
+    mqttFrontendTopicController.text = trailRemoveSlash(config['MQTT_FRONTEND_TOPIC'] ?? '');
+    mqttServerTopicController.text = trailRemoveSlash(config['MQTT_SERVER_TOPIC'] ?? '');
+    mqttHardwareTopicController.text = trailRemoveSlash(config['MQTT_HARDWARE_TOPIC'] ?? '');
 
     // Reset validation and sent states
     fieldValid.updateAll((key, value) => true);
     sentStatus.updateAll((key, value) => false);
+  }
+
+  String trailRemoveSlash(String? value) {
+    if (value == null) return '';
+    return value.endsWith('/') ? value.substring(0, value.length - 1) : value;
+  }
+
+  String formatIp(String ip) {
+    print('ip: $ip');
+    return ip.split('.')
+        .map((part) => part.padLeft(3, '0'))
+        .join('.');
   }
 
   void sendField(String fieldName, TextEditingController controller) {
@@ -169,6 +190,66 @@ class _PumpTopicChangePageState extends State<PumpTopicChangePage> {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text("$fieldName Sent")));
   }
+
+  void _showSnackBar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+   Future<void> sendAllFields(Map<String, dynamic>? config,String topic)  async {
+
+     String Sendalldatatopic =
+         "${trailRemoveSlash(config!['MQTT_FRONTEND_TOPIC'])},${trailRemoveSlash(config['MQTT_SERVER_TOPIC'])},${trailRemoveSlash(config['MQTT_HARDWARE_TOPIC'])}";
+
+      String Sendalldataip = "${config!['MQTT_USER_NAME']},${config['MQTT_PASSWORD']},${formatIp(config['MQTT_IP'])}";
+
+      print('Sendalldataip:   $Sendalldataip');
+
+     Map<String, dynamic> payLoadFinalip = {
+       "sentSms":"mqttcred,$Sendalldataip,"};
+
+     Map<String, dynamic> payLoadFinaltopic = {
+       "sentSms":"mqtttopic,$Sendalldatatopic,"};
+
+     Map<String, dynamic> payLoadview = {
+       "sentSms": "topicview"};
+
+     Map<String, dynamic> payLoadReset = {
+       "sentSms": "reset"};
+
+     Map<String, dynamic> body = {
+       "userId": widget.userId,
+       "controllerId": widget.controllerId,
+       "hardware": topic == 'topic' ? payLoadFinaltopic : topic == 'ip' ? payLoadFinalip : topic == 'reset' ? payLoadReset : payLoadview,
+       "messageStatus": "Pump Topic Change",
+       "createUser": widget.userId
+     };
+
+
+    final Repository repository = Repository(HttpService());
+     var response = await repository.sendManualOperationToServer(body);
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      if (data["code"] == 200) {
+        _showSnackBar(data["message"]);
+      } else {
+        _showSnackBar(data["message"]);
+      }
+    }
+    print('topic:------> ${topic == 'topic' ? payLoadFinaltopic : topic == 'ip' ? payLoadFinalip : topic == 'reset' ? payLoadReset : payLoadview}');
+
+     MqttService().topicToPublishAndItsMessage(jsonEncode(topic == 'topic' ? payLoadFinaltopic : topic == 'ip' ? payLoadFinalip : topic == 'reset' ? payLoadReset : payLoadview),'${Environment.mqttPublishTopic}/${widget.deviceID}');
+
+
+    // fetchData();
+  }
+
 
   Widget buildTextFieldWithButton(
       String label, TextEditingController controller) {
@@ -205,7 +286,7 @@ class _PumpTopicChangePageState extends State<PumpTopicChangePage> {
     );
   }
 
-  void sendAllFields() {
+  void sendAllFieldsold(Map<String, dynamic>? config) {
     final fields = {
        "MQTT IP": mqttIpController.text,
       "MQTT Username": mqttUserController.text,
@@ -219,7 +300,8 @@ class _PumpTopicChangePageState extends State<PumpTopicChangePage> {
       "MQTT Hardware Topic": mqttHardwareTopicController.text,
     };
 
-    bool allValid = true;
+
+     bool allValid = true;
     fields.forEach((key, value) {
       if (value.isEmpty) allValid = false;
     });
@@ -283,7 +365,7 @@ class _PumpTopicChangePageState extends State<PumpTopicChangePage> {
                 const SizedBox(height: 12),
 
                 // Fields + Buttons logic
-                if (modelId == 17 || modelId == 101) ...[
+                if (modelId == 7 || modelId == 8 || modelId == 10) ...[
 
                   const SizedBox(height: 10),
                   TextField(  readOnly: true,
@@ -306,34 +388,45 @@ class _PumpTopicChangePageState extends State<PumpTopicChangePage> {
                         labelText: "MQTT Password",
                         border: OutlineInputBorder()),
                   ),
-                  const SizedBox(height: 10),
-                  TextField(  readOnly: true,
-                    controller: ftpIpController,
-                    decoration: const InputDecoration(
-                        labelText: "FTP IP",
-                        border: OutlineInputBorder()),
+                  // const SizedBox(height: 10),
+                  // TextField(  readOnly: true,
+                  //   controller: ftpIpController,
+                  //   decoration: const InputDecoration(
+                  //       labelText: "FTP IP",
+                  //       border: OutlineInputBorder()),
+                  // ),
+                  // const SizedBox(height: 10),
+                  // TextField(  readOnly: true,
+                  //
+                  //   controller: ftpUserController,
+                  //   decoration: const InputDecoration(
+                  //       labelText: "FTP Username",
+                  //       border: OutlineInputBorder()),
+                  // ),
+                  // const SizedBox(height: 10),
+                  // TextField(  readOnly: true,
+                  //   controller: ftpPassController,
+                  //   decoration: const InputDecoration(
+                  //       labelText: "FTP Password",
+                  //       border: OutlineInputBorder()),
+                  // ),
+                  // const SizedBox(height: 10),
+                  // TextField(  readOnly: true,
+                  //   controller: pathController,
+                  //   decoration: const InputDecoration(
+                  //       labelText: "Path",
+                  //       border: OutlineInputBorder()),
+                  // ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white),
+                    onPressed: () => sendAllFields(selectedConfig,'ip'),
+                    child: const Text("Send IP"),
                   ),
-                  const SizedBox(height: 10),
-                  TextField(  readOnly: true,
-
-                    controller: ftpUserController,
-                    decoration: const InputDecoration(
-                        labelText: "FTP Username",
-                        border: OutlineInputBorder()),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(  readOnly: true,
-                    controller: ftpPassController,
-                    decoration: const InputDecoration(
-                        labelText: "FTP Password",
-                        border: OutlineInputBorder()),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(  readOnly: true,
-                    controller: pathController,
-                    decoration: const InputDecoration(
-                        labelText: "Path",
-                        border: OutlineInputBorder()),
+                  const Divider(
+                    color: Colors.grey,
+                    thickness: 1,
                   ),
                   const SizedBox(height: 10),
                   TextField(  readOnly: true,
@@ -360,9 +453,13 @@ class _PumpTopicChangePageState extends State<PumpTopicChangePage> {
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white),
-                    onPressed: sendAllFields,
-                    child: const Text("Send All"),
+                    onPressed: () => sendAllFields(selectedConfig,'topic'),
+                    child: const Text("Send Topic"),
                   ),
+                  const Divider(
+                    color: Colors.grey,
+                    thickness: 1,
+                  )
                 ] else ...[
 
                   buildTextFieldWithButton(
@@ -386,16 +483,29 @@ class _PumpTopicChangePageState extends State<PumpTopicChangePage> {
                 ],
 
                 const SizedBox(height: 20),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white),
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text("View Request Sent")),
-                    );
-                  },
-                  child: const Text("View Settings"),
+                Row(
+                  children: [
+                    Spacer(),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white),
+                      onPressed: () {
+                      sendAllFields(selectedConfig,'view');
+                        },
+                      child: const Text("View Settings"),
+                    ),
+                    Spacer(),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                          foregroundColor: Colors.white),
+                      onPressed: () {
+                        sendAllFields(selectedConfig,'reset');
+                        },
+                      child: const Text("Reset"),
+                    ),
+                    Spacer(),
+                  ],
                 ),
                 const SizedBox(height: 10),
                 Text(mqttPayloadProvider.receivedPayload),
@@ -407,3 +517,4 @@ class _PumpTopicChangePageState extends State<PumpTopicChangePage> {
     );
   }
 }
+

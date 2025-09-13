@@ -14,95 +14,140 @@ import '../state_management/preference_provider.dart';
 class ViewConfig extends StatefulWidget {
   final int userId, modelId;
   final bool isLora;
-  const ViewConfig({super.key, required this.userId,required this.isLora, required this.modelId});
+  const ViewConfig({super.key, required this.userId, required this.isLora, required this.modelId});
 
   @override
   State<ViewConfig> createState() => _ViewConfigState();
 }
 
 class _ViewConfigState extends State<ViewConfig> {
-  late List<String> viewPayloads;
+  late Map<int, String> configs;
   String selectedPayload = "pumpconfig";
   bool _hasTimedOut = false;
   Timer? _timeoutTimer;
   int _remainingTime = 0;
   final MqttService mqttService = MqttService();
 
-  void requestViewConfig(int index) {
+  Map<int, String> generateDynamicConfigs(int pumpConfig) {
+    Map<int, String> indexToName = {
+      1: "pumpconfig",
+      2: "tankconfig",
+      3: "ctconfig",
+      4: "calibration",
+      5: "voltageconfig",
+      6: "currentconfig1",
+      9: "delayconfig1",
+      12: "rtcconfig1",
+      15: "scheduleconfig1",
+    };
+
+    if (pumpConfig == 2) {
+      indexToName.addAll({
+        7: "currentconfig2",
+        10: "delayconfig2",
+        13: "rtcconfig2",
+        16: "scheduleconfig2",
+      });
+    }
+    if (pumpConfig == 3) {
+      indexToName.addAll({
+        8: "currentconfig3",
+        11: "delayconfig3",
+        14: "rtcconfig3",
+        17: "scheduleconfig3",
+      });
+    }
+
+    return indexToName;
+  }
+
+  void requestViewConfig(int index, {String? newSelectedPayload}) {
     final mqttProvider = context.read<MqttPayloadProvider>();
     final preferenceProvider = context.read<PreferenceProvider>();
 
-    // mqttProvider.viewSetting.clear();
+    // Clear previous provider data first and notify listeners so build sees the cleared state
     mqttProvider.viewSettingsList.clear();
     mqttProvider.cCList.clear();
-    int waitingSeconds = 90;
-    _remainingTime = waitingSeconds;
 
-    _timeoutTimer?.cancel();
+    _timeoutTimer?.cancel(); // cancel old timer
+
+    setState(() {
+      if (newSelectedPayload != null) selectedPayload = newSelectedPayload;
+      _hasTimedOut = false;
+      _remainingTime = 90; // reset every time
+    });
+
+    debugPrint('requestViewConfig START - payload:$selectedPayload index:$index');
+
     _timeoutTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        debugPrint('Widget unmounted - cancelling timer');
+        timer.cancel();
+        return;
+      }
+
       if (_remainingTime > 0) {
         setState(() {
           _remainingTime--;
         });
+        debugPrint('Timer tick for $selectedPayload: $_remainingTime');
       } else {
+        debugPrint('Timer timeout for $selectedPayload');
         timer.cancel();
-        setState(() {
-          _hasTimedOut = true;
-        });
+        if (mounted) {
+          setState(() {
+            _hasTimedOut = true;
+          });
+        }
       }
     });
 
+    // MQTT request logic (unchanged)
     if (AppConstants.gemModelList.contains(widget.modelId)) {
       final pump = preferenceProvider.commonPumpSettings![preferenceProvider.selectedTabIndex];
-      final payload = jsonEncode({"sentSms": "viewconfig,${index + 1}"});
+      final payload = jsonEncode({"sentSms": "viewconfig,$index"});
       final payload2 = jsonEncode({"0": payload});
       final viewConfig = {
         "5900": {"5901": "${pump.serialNumber}+${pump.referenceNumber}+${pump.deviceId}+${pump.interfaceTypeId}+$payload2+${4}"}
       };
-      mqttService.topicToPublishAndItsMessage(jsonEncode(viewConfig), "${Environment.mqttPublishTopic}/${preferenceProvider.generalData!.deviceId}");
+      mqttService.topicToPublishAndItsMessage(
+        jsonEncode(viewConfig),
+        "${Environment.mqttPublishTopic}/${preferenceProvider.generalData!.deviceId}",
+      );
     } else {
-      mqttService.topicToPublishAndItsMessage(jsonEncode({"sentSms": "viewconfig"}), "${Environment.mqttPublishTopic}/${preferenceProvider.generalData!.deviceId}");
+      mqttService.topicToPublishAndItsMessage(
+        jsonEncode({"sentSms": "viewconfig"}),
+        "${Environment.mqttPublishTopic}/${preferenceProvider.generalData!.deviceId}",
+      );
     }
-  }
-
-  List<String> generateDynamicConfigs(int pumpConfig) {
-    List<String> dynamicConfigs = [];
-
-    int numberOfPumps = pumpConfig;
-
-    for (int i = 1; i <= numberOfPumps; i++) {
-      dynamicConfigs.add("currentconfig$i");
-      dynamicConfigs.add("delayconfig$i");
-      dynamicConfigs.add("rtcconfig$i");
-      dynamicConfigs.add("scheduleconfig$i");
-    }
-
-    return dynamicConfigs;
   }
 
   void updateViewPayloads(String pumpConfigValue) {
     int numberOfPumps = int.tryParse(pumpConfigValue) ?? 1;
-    viewPayloads.addAll(generateDynamicConfigs(numberOfPumps));
+    configs = generateDynamicConfigs(numberOfPumps);
     setState(() {});
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    viewPayloads = [
-      "pumpconfig",
-      if(AppConstants.pumpPlusModelList.contains(widget.modelId))
-        "tankconfig",
-      "ctconfig", "calibration", "voltageconfig",
-    ];
-    requestViewConfig(0);
+    configs = generateDynamicConfigs(1); // Start with default 1 pump
+    requestViewConfig(1);
   }
 
   @override
-  dispose() {
+  void dispose() {
     _timeoutTimer?.cancel();
     super.dispose();
+  }
+
+  int? getKeyFromValue(Map<int, String> configs, String selectedPayload) {
+    for (var entry in configs.entries) {
+      if (entry.value == selectedPayload) {
+        return entry.key;
+      }
+    }
+    return null;
   }
 
   @override
@@ -111,14 +156,16 @@ class _ViewConfigState extends State<ViewConfig> {
     final mqttProvider = context.watch<MqttPayloadProvider>();
     final deviceId = preferenceProvider.commonPumpSettings![preferenceProvider.selectedTabIndex].deviceId;
 
-    if(widget.isLora) {
-      if (mqttProvider.viewSetting.isNotEmpty && mqttProvider.viewSetting['cC'] != null && mqttProvider.viewSetting['cC'].contains(deviceId)) {
+    // Check for MQTT response and update state
+    if (widget.isLora) {
+      if (_hasPayload(selectedPayload, mqttProvider, deviceId)) {
+        debugPrint('Received LORA response for $deviceId - cancelling timer');
         _timeoutTimer?.cancel();
         _hasTimedOut = false;
       }
     } else {
-      // print('viewSettingsList :: ${mqttProvider.viewSettingsList}');
-      if(mqttProvider.viewSettingsList.isNotEmpty && mqttProvider.cCList.contains(deviceId)) {
+      if (mqttProvider.viewSettingsList.isNotEmpty && mqttProvider.cCList.contains(deviceId)) {
+        debugPrint('Received response (non-LORA) for $deviceId - cancelling timer');
         _timeoutTimer?.cancel();
         _hasTimedOut = false;
       }
@@ -126,30 +173,26 @@ class _ViewConfigState extends State<ViewConfig> {
 
     if (_hasTimedOut) {
       return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              _buildDropdown(),
-              const SizedBox(height: 10),
-              const Text(
-                "Device is not responding. Please try again later.",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-              FilledButton.tonalIcon(
-                onPressed: () {
-                  setState(() {
-                    _timeoutTimer?.cancel();
-                    _hasTimedOut = false;
-                    _remainingTime = 20;
-                  });
-                  requestViewConfig(viewPayloads.indexOf(selectedPayload));
-                },
-                icon: const Icon(Icons.refresh),
-                label: const Text("Retry"),
-              ),
-            ],
-          )
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            _buildDropdown(),
+            const SizedBox(height: 10),
+            const Text(
+              "Device is not responding. Please try again later.",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            FilledButton.tonalIcon(
+              onPressed: () {
+                final key = getKeyFromValue(configs, selectedPayload) ?? 1;
+                requestViewConfig(key);
+              },
+              icon: const Icon(Icons.refresh),
+              label: const Text("Retry"),
+            ),
+          ],
+        ),
       );
     }
 
@@ -160,11 +203,17 @@ class _ViewConfigState extends State<ViewConfig> {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(margin: const EdgeInsets.symmetric(horizontal: 50), child: const LinearProgressIndicator()),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 50),
+            child: const LinearProgressIndicator(),
+          ),
           const SizedBox(height: 10),
           const Text("Fetching configuration... Please wait", style: TextStyle(fontSize: 16)),
-          if (_timeoutTimer != null)
-            Text("Time remaining: ${_remainingTime}s", style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 5),
+          Text(
+            "Time remaining: ${_remainingTime}s",
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          ),
         ],
       );
     }
@@ -175,27 +224,37 @@ class _ViewConfigState extends State<ViewConfig> {
         children: [
           _buildDropdown(),
           if (_hasPayload("pumpconfig", mqttProvider, deviceId))
-            _buildPumpConfig(widget.isLora ? mqttProvider.viewSetting['cM'][0]["pumpconfig"] : '${jsonDecode(mqttProvider.viewSettingsList[0])[0]['pumpconfig']}', preferenceProvider)
+            _buildPumpConfig(
+              widget.isLora
+                  ? mqttProvider.viewSetting['cM'][0]["pumpconfig"]
+                  : '${jsonDecode(mqttProvider.viewSettingsList[0])[0]['pumpconfig']}',
+              preferenceProvider,
+            )
           else if (_hasPayload("tankconfig", mqttProvider, deviceId))
             _buildTankConfig(
-                widget.isLora
-                    ? mqttProvider.viewSetting['cM'][0]["tankconfig"]
-                    : _getNumberOfTankConfig(mqttProvider),
-                preferenceProvider)
-          else if(_hasPayload("ctconfig", mqttProvider, deviceId) || _hasPayload("voltageconfig", mqttProvider, deviceId) || _hasPayload("calibration", mqttProvider, deviceId))
+              widget.isLora
+                  ? mqttProvider.viewSetting['cM'][0]["tankconfig"]
+                  : _getNumberOfTankConfig(mqttProvider),
+              preferenceProvider,
+            )
+          else if (_hasPayload("ctconfig", mqttProvider, deviceId) ||
+                _hasPayload("voltageconfig", mqttProvider, deviceId) ||
+                _hasPayload("calibration", mqttProvider, deviceId))
               Expanded(child: _buildCommonSettingCategory(mqttProvider, deviceId))
             else
-              Expanded(child: _buildIndividualSettingCategory(mqttProvider, deviceId))
+              Expanded(child: _buildIndividualSettingCategory(mqttProvider, deviceId)),
         ],
       ),
     );
   }
 
   String _getNumberOfTankConfig(MqttPayloadProvider mqttProvider) {
-    final noOfPumps = widget.isLora ? mqttProvider.viewSetting['cM'][0]["pumpconfig"] : '${jsonDecode(mqttProvider.viewSettingsList[0])[0]['pumpconfig']}';
+    final noOfPumps = widget.isLora
+        ? mqttProvider.viewSetting['cM'][0]["pumpconfig"]
+        : '${jsonDecode(mqttProvider.viewSettingsList[0])[0]['pumpconfig']}';
     List<String> tankConfig = [];
-    for(int i = 0; i < int.parse(noOfPumps.toString().split(',')[0]); i++) {
-      tankConfig.add('${jsonDecode(mqttProvider.viewSettingsList[i+1])[5]['tankconfig']}');
+    for (int i = 0; i < int.parse(noOfPumps.toString().split(',')[0]); i++) {
+      tankConfig.add('${jsonDecode(mqttProvider.viewSettingsList[i + 1])[5]['tankconfig']}');
     }
 
     return tankConfig.join(',');
@@ -207,27 +266,32 @@ class _ViewConfigState extends State<ViewConfig> {
       child: Container(
         height: 40,
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(25),
-          color: const Color(0xffF5F5F5)
-        ),
+            border: Border.all(color: Colors.grey),
+            borderRadius: BorderRadius.circular(25),
+            color: const Color(0xffF5F5F5)),
         padding: const EdgeInsets.symmetric(horizontal: 15),
         child: DropdownButton<String>(
           menuMaxHeight: 300,
           padding: const EdgeInsets.symmetric(vertical: 0),
           value: selectedPayload,
-            underline: Container(),
+          underline: Container(),
           borderRadius: BorderRadius.circular(5),
-          items: viewPayloads.toSet().toList()
-              .map((value) => DropdownMenuItem(value: value, child: Text(value)))
+          items: configs.entries
+              .map((entry) => DropdownMenuItem<String>(
+            value: entry.value,
+            child: Text(entry.value),
+          ))
               .toList(),
-          onChanged: (value) {
+          onChanged: (String? value) {
+            if (value == null) return;
             setState(() {
-              selectedPayload = value!;
-              if(widget.isLora) {
-                requestViewConfig(viewPayloads.indexOf(value));
-              }
+              selectedPayload = value;
             });
+            final int key = configs.entries.firstWhere((entry) => entry.value == value).key;
+            // call requestViewConfig which will update selectedPayload and start timer in one go
+            if(widget.isLora){
+              requestViewConfig(key, newSelectedPayload: value);
+            }
           },
         ),
       ),
@@ -253,7 +317,8 @@ class _ViewConfigState extends State<ViewConfig> {
           color: Theme.of(context).primaryColorLight,
           width: 0.5,
         ),
-        borderRadius: const BorderRadius.only(bottomRight: Radius.circular(10), bottomLeft: Radius.circular(10), topRight: Radius.circular(10)),
+        borderRadius: const BorderRadius.only(
+            bottomRight: Radius.circular(10), bottomLeft: Radius.circular(10), topRight: Radius.circular(10)),
       ),
       margin: const EdgeInsets.only(left: 0, right: 0, bottom: 15),
       elevation: 4,
@@ -270,10 +335,48 @@ class _ViewConfigState extends State<ViewConfig> {
     );
   }
 
-  bool _hasPayload(String key, MqttPayloadProvider provider, String deviceId) {
-    if(widget.isLora) {
-      return provider.viewSetting.isNotEmpty && provider.viewSetting['cM'].first.containsKey(key) && provider.viewSetting['cC'].contains(deviceId) && selectedPayload.contains(key);
+  bool _hasPayloadOld(String key, MqttPayloadProvider provider, String deviceId) {
+    String mqttKey = key;
+    if (key.startsWith('currentconfig')) mqttKey = 'currentconfig';
+    if (key.startsWith('delayconfig')) mqttKey = 'delayconfig';
+    if (key.startsWith('rtcconfig')) mqttKey = 'rtcconfig';
+    if (key.startsWith('scheduleconfig')) mqttKey = 'scheduleconfig';
+
+
+    if (widget.isLora) {
+      bool result = provider.viewSetting.isNotEmpty &&
+          provider.viewSetting['cM'].isNotEmpty &&
+          provider.viewSetting['cM'].first.containsKey(mqttKey) &&
+          provider.viewSetting['cC'] == deviceId &&
+          selectedPayload.contains(key);
+      return result;
     } else {
+      int payloadIndex = 0; // Use 0 for currentconfig1
+      int configTypeIndex = 0; // Use 0 for currentconfig in viewSettingsList[0]
+      bool result = provider.viewSettingsList.isNotEmpty &&
+          provider.viewSettingsList.length > payloadIndex &&
+          jsonDecode(provider.viewSettingsList[payloadIndex])[configTypeIndex][mqttKey] != null &&
+          selectedPayload == key && provider.cCList.contains(deviceId);
+      return result;
+    }
+  }
+
+  bool _hasPayload(String key, MqttPayloadProvider provider, String deviceId) {
+    if (widget.isLora) {
+      String mqttKey = key;
+      if (key.startsWith('currentconfig')) mqttKey = 'currentconfig';
+      if (key.startsWith('delayconfig')) mqttKey = 'delayconfig';
+      if (key.startsWith('rtcconfig')) mqttKey = 'rtcconfig';
+      if (key.startsWith('scheduleconfig')) mqttKey = 'scheduleconfig';
+      bool result = provider.viewSetting.isNotEmpty &&
+          provider.viewSetting['cM'].isNotEmpty &&
+          provider.viewSetting['cM'].first.containsKey(mqttKey) &&
+          provider.viewSetting['cC'] == deviceId &&
+          selectedPayload.contains(key);
+      return result;
+    } else {
+      print('Key in the else :: $key');
+      print('Key in the else condition :: ${selectedPayload.contains(key)}');
       switch(key) {
         case 'pumpconfig':
           return provider.viewSettingsList.isNotEmpty && jsonDecode(provider.viewSettingsList[0])[0][key] != null && selectedPayload.contains(key) && provider.cCList.contains(deviceId);
@@ -315,9 +418,12 @@ class _ViewConfigState extends State<ViewConfig> {
       "Flow on off",
       "Pressure on off"
     ];
-    final pumpNames = prefProvider.commonPumpSettings!.length > 1 ? prefProvider.individualPumpSetting!.where((e) =>
-    e.deviceId == prefProvider.commonPumpSettings![context.read<PreferenceProvider>().selectedTabIndex].deviceId)
-        .map((e) => e.name).toList() : prefProvider.individualPumpSetting!.map((e) => e.name).toList();
+    final pumpNames = prefProvider.commonPumpSettings!.length > 1
+        ? prefProvider.individualPumpSetting!
+        .where((e) => e.deviceId == prefProvider.commonPumpSettings![context.read<PreferenceProvider>().selectedTabIndex].deviceId)
+        .map((e) => e.name)
+        .toList()
+        : prefProvider.individualPumpSetting!.map((e) => e.name).toList();
 
     return Expanded(
       child: SingleChildScrollView(
@@ -328,7 +434,7 @@ class _ViewConfigState extends State<ViewConfig> {
               spacing: 50,
               runAlignment: WrapAlignment.spaceBetween,
               children: [
-                for(int i = 0; i < pumpNames.length; i++)
+                for (int i = 0; i < pumpNames.length; i++)
                   SizedBox(
                     width: MediaQuery.of(context).size.width <= 500 ? MediaQuery.of(context).size.width : 400,
                     child: Column(
@@ -341,13 +447,11 @@ class _ViewConfigState extends State<ViewConfig> {
                             decoration: BoxDecoration(
                               // gradient: AppProperties.linearGradientLeading,
                                 color: Theme.of(context).primaryColorLight,
-                                borderRadius: const BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(3))
-                            ),
+                                borderRadius: const BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(3))),
                             child: Center(
                               child: Text(
-                                // '${Provider.of<PreferenceProvider>(context).individualPumpSetting![index].name}',
                                 pumpNames[i],
-                                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white,),
+                                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
                               ),
                             ),
                           ),
@@ -358,7 +462,8 @@ class _ViewConfigState extends State<ViewConfig> {
                               color: Theme.of(context).primaryColorLight,
                               width: 0.5,
                             ),
-                            borderRadius: const BorderRadius.only(bottomRight: Radius.circular(10), bottomLeft: Radius.circular(10), topRight: Radius.circular(10)),
+                            borderRadius: const BorderRadius.only(
+                                bottomRight: Radius.circular(10), bottomLeft: Radius.circular(10), topRight: Radius.circular(10)),
                           ),
                           margin: const EdgeInsets.only(left: 0, right: 0, bottom: 15),
                           elevation: 4,
@@ -368,7 +473,7 @@ class _ViewConfigState extends State<ViewConfig> {
                           child: Column(
                             children: [
                               ...groups[i].asMap().entries.map(
-                                    (entry) => _buildListTile(titles[entry.key].toUpperCase(), entry.value,),
+                                    (entry) => _buildListTile(titles[entry.key].toUpperCase(), entry.value),
                               )
                             ],
                           ),
@@ -384,14 +489,13 @@ class _ViewConfigState extends State<ViewConfig> {
     );
   }
 
-  Widget _buildListTile(String title, String value,) {
+  Widget _buildListTile(String title, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Flexible(
-            // flex: 1,
             child: Text(title, style: Theme.of(context).textTheme.bodyLarge),
           ),
           Flexible(
@@ -408,7 +512,8 @@ class _ViewConfigState extends State<ViewConfig> {
   Widget _buildCommonSettingCategory(MqttPayloadProvider provider, deviceId) {
     final prefProvider = context.read<PreferenceProvider>();
     final settings = prefProvider.commonPumpSettings![prefProvider.selectedTabIndex].settingList;
-    final calibrationSettings = prefProvider.calibrationSetting!.isNotEmpty ? prefProvider.calibrationSetting![prefProvider.selectedTabIndex].settingList : null;
+    final calibrationSettings =
+    prefProvider.calibrationSetting!.isNotEmpty ? prefProvider.calibrationSetting![prefProvider.selectedTabIndex].settingList : null;
 
     return SingleChildScrollView(
       child: Column(
@@ -417,14 +522,12 @@ class _ViewConfigState extends State<ViewConfig> {
             alignment: WrapAlignment.start,
             spacing: 50,
             runAlignment: WrapAlignment.spaceBetween,
-            children: !(_hasPayload('calibration', provider, deviceId)) ? settings.map((setting) {
+            children: !(_hasPayload('calibration', provider, deviceId))
+                ? settings.map((setting) {
               if ([206].contains(setting.type) && _hasPayload('ctconfig', provider, deviceId)) {
                 final values = widget.isLora
                     ? provider.viewSetting['cM'].first['ctconfig'].split(',')
                     : '${jsonDecode(provider.viewSettingsList[0])[1]['ctconfig']}'.split(',');
-             /*   print("settings.length :: ${setting.setting.length}");
-                print("settings.values :: ${values.length}");
-                print("settings.values :: ${values}");*/
                 return _buildSettingCard(setting, values);
               } else if ([204].contains(setting.type) && _hasPayload('voltageconfig', provider, deviceId)) {
                 final values = widget.isLora
@@ -433,7 +536,9 @@ class _ViewConfigState extends State<ViewConfig> {
                 return _buildSettingCard(setting, values);
               }
               return Container();
-            }).toList() : calibrationSettings != null ? calibrationSettings.map((setting) {
+            }).toList()
+                : calibrationSettings != null
+                ? calibrationSettings.map((setting) {
               if ([208, 209, 210].contains(setting.type)) {
                 final List<String> values = widget.isLora
                     ? provider.viewSetting['cM'].first['calibration'].split(',')
@@ -448,7 +553,8 @@ class _ViewConfigState extends State<ViewConfig> {
                 );
               }
               return Container();
-            }).toList() : [Container()],
+            }).toList()
+                : [Container()],
           ),
         ],
       ),
@@ -468,13 +574,11 @@ class _ViewConfigState extends State<ViewConfig> {
               decoration: BoxDecoration(
                 // gradient: AppProperties.linearGradientLeading,
                   color: Theme.of(context).primaryColorLight,
-                  borderRadius: const BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(3))
-              ),
+                  borderRadius: const BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(3))),
               child: Center(
                 child: Text(
-                  // '${Provider.of<PreferenceProvider>(context).individualPumpSetting![index].name}',
                   setting.name,
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white,),
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
                 ),
               ),
             ),
@@ -485,7 +589,8 @@ class _ViewConfigState extends State<ViewConfig> {
                 color: Theme.of(context).primaryColorLight,
                 width: 0.5,
               ),
-              borderRadius: const BorderRadius.only(bottomRight: Radius.circular(10), bottomLeft: Radius.circular(10), topRight: Radius.circular(10)),
+              borderRadius: const BorderRadius.only(
+                  bottomRight: Radius.circular(10), bottomLeft: Radius.circular(10), topRight: Radius.circular(10)),
             ),
             margin: const EdgeInsets.only(left: 0, right: 0, bottom: 15),
             elevation: 4,
@@ -494,7 +599,8 @@ class _ViewConfigState extends State<ViewConfig> {
             shadowColor: Theme.of(context).primaryColorLight.withAlpha(100),
             child: Column(
               children: List.generate(
-                [208, 209 , 210].contains(setting.type) ? setting.setting.length : values.length, (i) => _buildListTile(setting.setting[i].title, values[i]),
+                [208, 209, 210].contains(setting.type) ? setting.setting.length : values.length,
+                    (i) => _buildListTile(setting.setting[i].title, values[i]),
               ),
             ),
           ),
@@ -505,9 +611,11 @@ class _ViewConfigState extends State<ViewConfig> {
 
   Widget _buildIndividualSettingCategory(MqttPayloadProvider provider, deviceId) {
     final prefProvider = context.read<PreferenceProvider>();
-    final pumps = prefProvider.commonPumpSettings!.length > 1 ? prefProvider.individualPumpSetting!.where(
-          (e) => e.deviceId == prefProvider.commonPumpSettings![prefProvider.selectedTabIndex].deviceId,
-    ).toList() : prefProvider.individualPumpSetting!;
+    final pumps = prefProvider.commonPumpSettings!.length > 1
+        ? prefProvider.individualPumpSetting!
+        .where((e) => e.deviceId == prefProvider.commonPumpSettings![prefProvider.selectedTabIndex].deviceId)
+        .toList()
+        : prefProvider.individualPumpSetting!;
 
     return SingleChildScrollView(
       child: Column(
@@ -516,11 +624,13 @@ class _ViewConfigState extends State<ViewConfig> {
             alignment: WrapAlignment.start,
             spacing: 50,
             runAlignment: WrapAlignment.spaceBetween,
-            children: pumps.isNotEmpty ? pumps[0].settingList.map((setting) {
+            children: pumps.isNotEmpty
+                ? pumps[0].settingList.map((setting) {
               if ([23, 203].contains(setting.type) && _hasPayload('currentconfig', provider, deviceId)) {
                 return _buildConfigCard(provider, setting, pumps, 'currentconfig');
               }
-              if ([22, 202].contains(setting.type) && (_hasPayload('rtcconfig', provider, deviceId) || _hasPayload('delayconfig', provider, deviceId))) {
+              if ([22, 202].contains(setting.type) &&
+                  (_hasPayload('rtcconfig', provider, deviceId) || _hasPayload('delayconfig', provider, deviceId))) {
                 return _hasPayload('rtcconfig', provider, deviceId)
                     ? _buildRTCConfigCard(provider, setting, pumps)
                     : _buildDelayConfigCard(provider, setting, pumps);
@@ -529,7 +639,8 @@ class _ViewConfigState extends State<ViewConfig> {
                 return _buildConfigCard(provider, setting, pumps, 'scheduleconfig');
               }
               return Container();
-            }).toList() : [],
+            }).toList()
+                : [],
           ),
         ],
       ),
@@ -558,13 +669,11 @@ class _ViewConfigState extends State<ViewConfig> {
               decoration: BoxDecoration(
                 // gradient: AppProperties.linearGradientLeading,
                   color: Theme.of(context).primaryColorLight,
-                  borderRadius: const BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(3))
-              ),
+                  borderRadius: const BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(3))),
               child: Center(
                 child: Text(
-                  // '${Provider.of<PreferenceProvider>(context).individualPumpSetting![index].name}',
                   pumpName,
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white,),
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
                 ),
               ),
             ),
@@ -575,7 +684,8 @@ class _ViewConfigState extends State<ViewConfig> {
                 color: Theme.of(context).primaryColorLight,
                 width: 0.5,
               ),
-              borderRadius: const BorderRadius.only(bottomRight: Radius.circular(10), bottomLeft: Radius.circular(10), topRight: Radius.circular(10)),
+              borderRadius: const BorderRadius.only(
+                  bottomRight: Radius.circular(10), bottomLeft: Radius.circular(10), topRight: Radius.circular(10)),
             ),
             margin: const EdgeInsets.only(left: 0, right: 0, bottom: 15),
             elevation: 4,
@@ -608,13 +718,11 @@ class _ViewConfigState extends State<ViewConfig> {
             decoration: BoxDecoration(
               // gradient: AppProperties.linearGradientLeading,
                 color: Theme.of(context).primaryColorLight,
-                borderRadius: const BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(3))
-            ),
+                borderRadius: const BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(3))),
             child: Center(
               child: Text(
-                // '${Provider.of<PreferenceProvider>(context).individualPumpSetting![index].name}',
                 pumpName,
-                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white,),
+                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
               ),
             ),
           ),
@@ -625,7 +733,8 @@ class _ViewConfigState extends State<ViewConfig> {
               color: Theme.of(context).primaryColorLight,
               width: 0.5,
             ),
-            borderRadius: const BorderRadius.only(bottomRight: Radius.circular(10), bottomLeft: Radius.circular(10), topRight: Radius.circular(10)),
+            borderRadius: const BorderRadius.only(
+                bottomRight: Radius.circular(10), bottomLeft: Radius.circular(10), topRight: Radius.circular(10)),
           ),
           margin: const EdgeInsets.only(left: 0, right: 0, bottom: 15),
           elevation: 4,
@@ -635,7 +744,9 @@ class _ViewConfigState extends State<ViewConfig> {
           child: Column(
             children: [
               ...List.generate(setting.setting.length, (i) {
-                return (i == 11 || i == 12) ? Container() : _buildListTile(setting.setting[i].title, widget.isLora ? delayValues[i + 1] : delayValues[i]);
+                return (i == 11 || i == 12)
+                    ? Container()
+                    : _buildListTile(setting.setting[i].title, widget.isLora ? delayValues[i + 1] : delayValues[i]);
               }),
             ],
           ),
@@ -651,7 +762,7 @@ class _ViewConfigState extends State<ViewConfig> {
   }
 
   int _getConfigTypeIndex(String configType) {
-    switch(configType) {
+    switch (configType) {
       case 'currentconfig':
         return 3;
       case 'rtcconfig':
@@ -666,8 +777,11 @@ class _ViewConfigState extends State<ViewConfig> {
   }
 
   int _getPayloadIndex(String configType) {
-    return selectedPayload.contains('${configType}2') ? 2 :
-    selectedPayload.contains('${configType}3') ? 3 : 1;
+    return selectedPayload.contains('${configType}2')
+        ? 2
+        : selectedPayload.contains('${configType}3')
+        ? 3
+        : 1;
   }
 
   String _getPumpName(List pumps, String configType) {
@@ -709,8 +823,7 @@ class _ViewConfigState extends State<ViewConfig> {
     );
   }
 
-  Widget _buildSettingCardWithTitle(String title, setting, List<String> values,
-      {int offset = 0}) {
+  Widget _buildSettingCardWithTitle(String title, setting, List<String> values, {int offset = 0}) {
     return SizedBox(
       width: MediaQuery.of(context).size.width <= 500 ? MediaQuery.of(context).size.width : 400,
       child: Column(
@@ -723,13 +836,11 @@ class _ViewConfigState extends State<ViewConfig> {
               decoration: BoxDecoration(
                 // gradient: AppProperties.linearGradientLeading,
                   color: Theme.of(context).primaryColorLight,
-                  borderRadius: const BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(3))
-              ),
+                  borderRadius: const BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(3))),
               child: Center(
                 child: Text(
-                  // '${Provider.of<PreferenceProvider>(context).individualPumpSetting![index].name}',
                   title,
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white,),
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
                 ),
               ),
             ),
@@ -740,7 +851,8 @@ class _ViewConfigState extends State<ViewConfig> {
                 color: Theme.of(context).primaryColorLight,
                 width: 0.5,
               ),
-              borderRadius: const BorderRadius.only(bottomRight: Radius.circular(10), bottomLeft: Radius.circular(10), topRight: Radius.circular(10)),
+              borderRadius: const BorderRadius.only(
+                  bottomRight: Radius.circular(10), bottomLeft: Radius.circular(10), topRight: Radius.circular(10)),
             ),
             margin: const EdgeInsets.only(left: 0, right: 0, bottom: 15),
             elevation: 4,
@@ -750,8 +862,21 @@ class _ViewConfigState extends State<ViewConfig> {
             child: Column(
               children: [
                 ...List.generate(
-                  values.length, (i) => _buildListTile(setting.setting[i].title, values[i + offset]),
+                  setting.setting.length,
+                      (i) {
+                    // return Text('${i}');
+                    return _buildListTile(setting.setting[i].title, values[i + offset]);
+                      },
                 ),
+                /*...List.generate(
+                  [208,209,210].contains(setting.type) ? setting.setting.length : values.length,
+                      (i) {
+                    print("setting.setting.length :: ${setting.setting.length}");
+                    print("values.length :: ${values.length}");
+                    return Text('${i}');
+                    // return _buildListTile(setting.setting[i].title, values[i + offset]);
+                      },
+                ),*/
               ],
             ),
           )
@@ -764,5 +889,4 @@ class _ViewConfigState extends State<ViewConfig> {
     final start = index * 2;
     return values.sublist(start, start + 2);
   }
-
 }

@@ -78,6 +78,7 @@ class ControllerSettingsViewModel extends ChangeNotifier {
               'General',
               'Preference',
               'Name',
+              'Constant',
               'Valve Group',
               'Dealer Definition',
             };

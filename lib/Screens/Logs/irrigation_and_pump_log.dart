@@ -101,7 +101,6 @@ class _IrrigationAndPumpLogState extends State<IrrigationAndPumpLog> with Ticker
                           else
                             Container()
 
-
                         ]
                     )
                 )

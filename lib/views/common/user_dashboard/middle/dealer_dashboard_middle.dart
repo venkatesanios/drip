@@ -7,8 +7,8 @@ import '../widgets/analytics_view.dart';
 import '../widgets/customer_view.dart';
 import '../widgets/stock_view.dart';
 
-class DealerWebDashboard extends StatelessWidget {
-  const DealerWebDashboard({super.key});
+class DealerDashboardMiddle extends StatelessWidget {
+  const DealerDashboardMiddle({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -53,4 +53,5 @@ class DealerWebDashboard extends StatelessWidget {
       ),
     );
   }
+
 }

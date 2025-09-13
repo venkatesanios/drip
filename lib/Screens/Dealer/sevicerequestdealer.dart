@@ -8,7 +8,7 @@ import '../../models/servicerequestdealermodel.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/snack_bar.dart';
-import '../../views/customer/customer_screen_controller.dart';
+import '../../views/customer/widgets/alarm_list_items.dart';
 
 class ServiceRequestsTable extends StatefulWidget {
   const ServiceRequestsTable({

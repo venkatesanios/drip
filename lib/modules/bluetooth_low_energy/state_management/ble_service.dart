@@ -148,7 +148,6 @@ class BleProvider extends ChangeNotifier {
   }
 
   void autoScanAndFoundDevice({required String macAddressToConnect}) async{
-    print("macAddressToConnect : ${macAddressToConnect}");
     bleNodeState = BleNodeState.scanning;
     forceStop = false;
     notifyListeners();
@@ -163,6 +162,12 @@ class BleProvider extends ChangeNotifier {
       for(var result in _scanResults){
         var adv = result.advertisementData;
         print("${adv.advName} ----------------- ${result.device.remoteId}");
+        print("adv.connectable ::: ${adv.connectable}");
+        print("adv.manufacturerData ::: ${adv.manufacturerData}");
+        print("adv.appearance ::: ${adv.appearance}");
+        print("result.device.advName ::: ${result.device.advName}");
+        print("result.device.platformName} ::: ${result.device.platformName}");
+        print("result.device.remoteId} ::: ${result.device.remoteId}");
         String upComingMacAddress = result.device.remoteId.toString().split(':').join('');
         if(macAddressToConnect == upComingMacAddress){
           device = result.device;
@@ -197,7 +202,7 @@ class BleProvider extends ChangeNotifier {
     }
     try {
       await FlutterBluePlus.startScan(
-        timeout: const Duration(seconds: 15),
+        timeout: const Duration(seconds: 30),
         withServices: [
           // Guid("180f"), // battery
           // Guid("180a"), // device info

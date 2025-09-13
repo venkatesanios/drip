@@ -67,7 +67,7 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
   /// Function to request schedule data
   Future<void> _requestScheduleData() async {
     MqttService().schedulePayload = null;
-    await _getUserSequencePriority(widget.userId, widget.controllerId);
+    await _getUserSequencePriority(widget.customerId, widget.controllerId);
     var userData = {
       "userId": widget.customerId,
       "controllerId": widget.controllerId,
@@ -272,22 +272,67 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
                       child: Center(
                         child: StreamBuilder<List<Map<String, dynamic>>?>(
                           stream: MqttService().schedulePayloadStream,
+                          initialData: MqttService().schedulePayload,
                           builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
+                            // show loading only if still waiting and there is no cached data
+                            if (snapshot.connectionState == ConnectionState.waiting && (snapshot.data == null)) {
                               return const CircularProgressIndicator();
                             }
-            
+
+                            // If no data at all
                             if (!snapshot.hasData || snapshot.data == null || (snapshot.data is List && snapshot.data!.isEmpty)) {
                               return const Text('No data available');
                             }
-            
+
                             final data = snapshot.data!;
-                            if(data[0].containsKey('message')) {
-                              return Center(child: Text("${data[0]['message']}"),);
+                            // If the first element is a server message (error/info), show it
+                            if (data.isNotEmpty && data[0].containsKey('message')) {
+                              return Center(child: Text("${data[0]['message']}"));
                             }
+
+                            // --- Derive headUnits from incoming MQTT data if not already present ---
+                            // Only run once (guard with headUnits.isEmpty) and only if configObjects is available
+                            if (data.isNotEmpty && headUnits.isEmpty && configObjects.isNotEmpty) {
+                              final headUnitSnoList = data.map((e) => e['HeadUnit'].toString()).toSet();
+                              final derivedHeadUnits = configObjects
+                                  .where((obj) => headUnitSnoList.contains(obj['sNo'].toString()))
+                                  .map((obj) => {'sNo': obj['sNo'], 'name': obj['name']})
+                                  .toList();
+
+                              if (derivedHeadUnits.isNotEmpty) {
+                                WidgetsBinding.instance.addPostFrameCallback((_) {
+                                  if (!mounted) return;
+                                  setState(() {
+                                    headUnits = derivedHeadUnits;
+                                    if (selectedHeadUnits.isEmpty) {
+                                      selectedHeadUnits.add(headUnits[0]);
+                                    }
+                                  });
+                                });
+                              }
+                            }
+
+                            // --- Also derive programs list if empty and defaultData has program list ---
+                            if (data.isNotEmpty && programs.isEmpty && defaultData.isNotEmpty && defaultData['program'] != null) {
+                              final programSnoList = data.map((e) => e['ProgramS_No'].toString()).toSet();
+                              final derivedPrograms = List.from(defaultData['program'])
+                                  .where((program) => programSnoList.contains(program['sNo'].toString()))
+                                  .toList();
+                              if (derivedPrograms.isNotEmpty) {
+                                WidgetsBinding.instance.addPostFrameCallback((_) {
+                                  if (!mounted) return;
+                                  setState(() {
+                                    programs = derivedPrograms;
+                                    // do not auto-select programs — keep current UX (or uncomment to auto-select)
+                                    if (selectedPrograms.isEmpty) selectedPrograms.add(programs[0]);
+                                  });
+                                });
+                              }
+                            }
+
                             return _buildScheduleView(data, constraints);
                           },
-                        ),
+                        )
                       ),
                     )
                   ],
@@ -399,86 +444,97 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
 
   /// Widget for displaying the schedule view
   Widget _buildScheduleView(List<Map<String, dynamic>> data, BoxConstraints constraints) {
-    return Column(
-      children: [
-        const SizedBox(height: 16),
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: constraints.maxWidth >= 700 ? 40 : 10),
-          height: 35,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: headUnits.length,
-            itemBuilder: (BuildContext context, int index) {
-              return Row(
+  return Column(
+    children: [
+      const SizedBox(height: 16),
+      Container(
+        margin: EdgeInsets.symmetric(horizontal: constraints.maxWidth >= 700 ? 40 : 10),
+        height: 35,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: headUnits.length,
+          itemBuilder: (BuildContext context, int index) {
+            return Row(
+              children: [
+                _buildOutlineButton(headUnits[index], selectedHeadUnits, item: headUnits[index]),
+                const SizedBox(width: 10,)
+              ],
+            );
+          },
+        ),
+      ),
+      const SizedBox(height: 8),
+      Container(
+        margin: EdgeInsets.symmetric(horizontal: constraints.maxWidth >= 700 ? 20 : 5),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        height: 55,
+        decoration: BoxDecoration(
+          boxShadow: AppProperties.customBoxShadowLiteTheme,
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey[300]!, width: 2),
+        ),
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: programs.length,
+          itemBuilder: (BuildContext context, int index) {
+            return Row(
+              children: [
+                _buildOutlineButton(programs[index], selectedPrograms),
+                const SizedBox(width: 10,)
+              ],
+            );
+          },
+        ),
+      ),
+      const SizedBox(height: 16),
+      /// Timeline and program list
+      Expanded(
+        child: ListView.builder(
+          itemCount: data.length,
+          itemBuilder: (context, index) {
+            // Treat empty selectedHeadUnits as "match all"
+            final bool headUnitMatches = selectedHeadUnits.isNotEmpty
+                ? selectedHeadUnits.any((element) => element['sNo'].toString() == data[index]['HeadUnit'].toString())
+                : true;
+
+            final bool programMatches = selectedPrograms.isNotEmpty
+                ? selectedPrograms.any((element) => element['sNo'].toString() == data[index]['ProgramS_No'].toString())
+                : true;
+
+            final bool statusMatches = selectedStatusList.isNotEmpty
+                ? selectedStatusList.contains(data[index]['Status'])
+                : true;
+
+            return Container(
+              margin: constraints.maxWidth >= 700 ? const EdgeInsets.symmetric(horizontal: 20) : const EdgeInsets.only(left: 5, right: 10),
+              child: Column(
                 children: [
-                  _buildOutlineButton(headUnits[index], selectedHeadUnits, item: headUnits[index]),
-                  const SizedBox(width: 10,)
+                  if (headUnitMatches && programMatches && statusMatches)
+                    TimeLine(
+                      itemGap: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 0),
+                      indicators: [
+                        _buildTimeLineIndicators(data[index], index, data.length)
+                      ],
+                      children: [
+                        Container(
+                            margin: constraints.maxWidth <= 700 ? const EdgeInsets.only(bottom: 6) : EdgeInsets.zero,
+                            child: _buildScheduleCard(data[index], index, data.length, constraints)
+                        )
+                      ],
+                    ),
+                  if(index == data.length - 1)
+                    const SizedBox(height: 50,)
                 ],
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
-        const SizedBox(height: 8),
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: constraints.maxWidth >= 700 ? 20 : 5),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          height: 55,
-          decoration: BoxDecoration(
-            boxShadow: AppProperties.customBoxShadowLiteTheme,
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey[300]!, width: 2),
-          ),
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: programs.length,
-            itemBuilder: (BuildContext context, int index) {
-              return Row(
-                children: [
-                  _buildOutlineButton(programs[index], selectedPrograms),
-                  const SizedBox(width: 10,)
-                ],
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 16),
-        /// Timeline and program list
-        Expanded(
-          child: ListView.builder(
-            itemCount: data.length,
-            itemBuilder: (context, index) {
-              return Container(
-                margin: constraints.maxWidth >= 700 ? const EdgeInsets.symmetric(horizontal: 20) : const EdgeInsets.only(left: 5, right: 10),
-                child: Column(
-                  children: [
-                    if(selectedHeadUnits.any((element) => element['sNo'].toString() == data[index]['HeadUnit'])
-                        && (selectedPrograms.isNotEmpty ? selectedPrograms.any((element) => element['sNo'] == data[index]['ProgramS_No']) : true)
-                    && (selectedStatusList.isNotEmpty ? selectedStatusList.contains(data[index]['Status']) : true))
-                      TimeLine(
-                        itemGap: 0,
-                        padding: const EdgeInsets.symmetric(vertical: 0),
-                        indicators: [
-                          _buildTimeLineIndicators(data[index], index, data.length)
-                        ],
-                        children: [
-                          Container(
-                              margin: constraints.maxWidth <= 700 ? const EdgeInsets.only(bottom: 6) : EdgeInsets.zero,
-                              child: _buildScheduleCard(data[index], index, data.length, constraints)
-                          )
-                        ],
-                      ),
-                    if(index == data.length - 1)
-                      const SizedBox(height: 50,)
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
 
   /// Widget for displaying the timeline indicators
   Widget _buildTimeLineIndicators(Map<String, dynamic> data, int index, int totalItems) {

@@ -32,16 +32,28 @@ android {
             dimension "flavor-type"
             applicationId "com.niagaraautomations.oroDevelopment"
             resValue "string", "app_name", "ORO-Dev"
+<<<<<<< Updated upstream
+=======
+            minSdkVersion flutter.minSdkVersion
+>>>>>>> Stashed changes
         }
         oroProduction {
             dimension "flavor-type"
             applicationId "com.niagaraautomations.oroDripirrigation"
             resValue "string", "app_name", "ORO"
+<<<<<<< Updated upstream
+=======
+            minSdkVersion flutter.minSdkVersion
+>>>>>>> Stashed changes
         }
         smartComm {
             dimension "flavor-type"
             applicationId "com.niagaraautomations.smartComm"
             resValue "string", "app_name", "SMART COMM"
+<<<<<<< Updated upstream
+=======
+            minSdkVersion flutter.minSdkVersion
+>>>>>>> Stashed changes
         }
     }
 
@@ -79,7 +91,10 @@ android {
     defaultConfig {
         applicationId = "com.niagaraautomations.oroDripirrigation"
         minSdkVersion flutter.minSdkVersion
+<<<<<<< Updated upstream
 //        minSdk = flutter.minSdkVersion
+=======
+>>>>>>> Stashed changes
         targetSdk = flutter.targetSdkVersion
         versionCode = 12
         versionName = "1.1.0"
@@ -97,6 +112,14 @@ flutter {
 }
 
 dependencies {
+<<<<<<< Updated upstream
+    implementation platform('com.google.firebase:firebase-bom:34.2.0')
+    implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-messaging'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+    implementation 'com.google.android.material:material:1.13.0'
+=======
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
     implementation 'com.google.android.play:app-update:2.1.0'
+>>>>>>> Stashed changes
 }
