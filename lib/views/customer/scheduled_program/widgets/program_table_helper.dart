@@ -102,13 +102,15 @@ class ProgramTableHelper {
             if (program.conditions.isNotEmpty && program.conditions.any((c) => c.selected))
               IconButton(
                 tooltip: 'View Condition',
-                onPressed: () => showConditionDialog(context, program.programName, program.conditions.where((c) => c.selected).toList()),
+                onPressed: () => showConditionDialog(context, program.programName,
+                    program.conditions.where((c) => c.selected).toList()),
                 icon: const Icon(Icons.visibility_outlined),
               ),
           ],
         )),
         DataCell(Center(child: Text('${program.sequence.length}'))),
-        DataCell(Center(child: Text('${Formatters().changeDateFormat(program.startDate)} : ${MyFunction().convert24HourTo12Hour(program.startTime)}'))),
+        DataCell(Center(child: Text('${Formatters().changeDateFormat(program.startDate)} :'
+            ' ${MyFunction().convert24HourTo12Hour(program.startTime)}'))),
         DataCell(Center(child: Text(Formatters().changeDateFormat(program.endDate)))),
         DataCell(
           program.status == 1 ? Row(

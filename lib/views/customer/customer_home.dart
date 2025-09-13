@@ -33,7 +33,6 @@ class CustomerHome extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final viewModel = context.read<CustomerScreenControllerViewModel>();
-    //final viewModel = Provider.of<CustomerScreenControllerViewModel>(context);
 
     final irrigationLines = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine;
     final scheduledProgram = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].programList;
@@ -59,7 +58,6 @@ class CustomerHome extends StatelessWidget {
 
   Widget _buildWebLayout(BuildContext context, List<IrrigationLineModel> irrigationLine,
       scheduledProgram, CustomerScreenControllerViewModel viewModel) {
-
 
 
     return SingleChildScrollView(

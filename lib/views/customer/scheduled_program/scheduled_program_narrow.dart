@@ -333,35 +333,61 @@ class _ScheduledProgramNarrowState extends State<ScheduledProgramNarrow> {
     );
   }
 
-  void showConditionDialog(BuildContext context, String prgName,  List<ConditionModel> conditions) {
+  void showConditionDialog(
+      BuildContext context,
+      String prgName,
+      List<ConditionModel> conditions,
+      ) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(conditions.length>1?'Conditions of $prgName':'Condition of $prgName', style: const TextStyle(fontSize: 17)),
-          content: SizedBox(
-            width: 400,
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: conditions.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(conditions[index].title,
-                      style: TextStyle(fontWeight: FontWeight.bold,
-                          color: conditions[index].conditionStatus==1? Colors.green : Colors.black)),
-                  subtitle: Text(conditions[index].value.rule,
-                      style: TextStyle(color: conditions[index].conditionStatus==1? Colors.green.shade700 : Colors.black54)),
-                  trailing: Text('Actual\n${conditions[index].actualValue}'),
-                );
-              },
-            ),
-          ),
-          actions: [
-            TextButton(
-              child: const Text('Close'),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ],
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text(
+                conditions.length > 1
+                    ? 'Conditions of $prgName'
+                    : 'Condition of $prgName',
+                style: const TextStyle(fontSize: 17),
+              ),
+              content: SizedBox(
+                width: 400,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: conditions.length,
+                  itemBuilder: (context, index) {
+                    final cond = conditions[index];
+                    return ListTile(
+                      title: Text(
+                        cond.title,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: cond.conditionStatus == 1
+                              ? Colors.green
+                              : Colors.black,
+                        ),
+                      ),
+                      subtitle: Text(
+                        cond.value.rule,
+                        style: TextStyle(
+                          color: cond.conditionStatus == 1
+                              ? Colors.green.shade700
+                              : Colors.black54,
+                        ),
+                      ),
+                      trailing: Text('Actual\n${cond.value.actualValue}'),
+                    );
+                  },
+                ),
+              ),
+              actions: [
+                TextButton(
+                  child: const Text('Close'),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            );
+          },
         );
       },
     );

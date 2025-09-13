@@ -1555,9 +1555,9 @@ class ProgramList {
     this.status = 0,
   });
 
+
   // Factory method to create an instance from JSON
   factory ProgramList.fromJson(Map<String, dynamic> json) {
-
 
     List<dynamic> jsonList = json['condition'];
     List<ConditionModel> conditions = jsonList
@@ -1630,16 +1630,13 @@ class ConditionModel {
   final bool selected;
 
   int conditionStatus;
-  String actualValue;
 
   ConditionModel({
     required this.sNo,
     required this.title,
     required this.value,
     required this.selected,
-
     this.conditionStatus = 0,
-    this.actualValue = '0',
   });
 
   factory ConditionModel.fromJson(Map<String, dynamic> json) {
@@ -1648,6 +1645,7 @@ class ConditionModel {
       title: json['title'],
       value: ConditionValue.fromJson(json['value']),
       selected: json['selected'] ?? false,
+      conditionStatus: json['conditionStatus'] ?? 0,
     );
   }
 
@@ -1657,6 +1655,7 @@ class ConditionModel {
       'title': title,
       'value': value.toJson(),
       'selected': selected,
+      'conditionStatus': conditionStatus,
     };
   }
 }
@@ -1665,11 +1664,15 @@ class ConditionValue {
   final int sNo;
   final String name;
   final String rule;
+  int conditionStatus;
+  String actualValue;
 
   ConditionValue({
     required this.sNo,
     required this.name,
     required this.rule,
+    this.conditionStatus = 0,
+    this.actualValue = "",
   });
 
   factory ConditionValue.fromJson(Map<String, dynamic> json) {
@@ -1677,6 +1680,8 @@ class ConditionValue {
       sNo: json['sNo'],
       name: json['name'],
       rule: json['rule'],
+      conditionStatus: json['conditionStatus'] ?? 0,
+      actualValue: json['actualValue'] ?? "",
     );
   }
 
@@ -1685,7 +1690,20 @@ class ConditionValue {
       'sNo': sNo,
       'name': name,
       'rule': rule,
+      'conditionStatus': conditionStatus,
+      'actualValue': actualValue,
     };
+  }
+
+  /// ✅ Add this factory to fix the error
+  factory ConditionValue.defaultValue() {
+    return ConditionValue(
+      sNo: 0,
+      name: '',
+      rule: '',
+      conditionStatus: 0,
+      actualValue: '',
+    );
   }
 }
 

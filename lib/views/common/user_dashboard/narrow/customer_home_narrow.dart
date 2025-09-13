@@ -18,10 +18,8 @@ import '../../../../utils/snack_bar.dart';
 import '../../../../view_models/customer/current_program_view_model.dart';
 import '../../../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../../../customer/customer_home.dart';
-import '../../../customer/home_sub_classes/current_program.dart';
 import '../../../customer/home_sub_classes/fertilizer_site.dart';
 import '../../../customer/home_sub_classes/filter_site.dart';
-import '../../../customer/home_sub_classes/next_schedule.dart';
 import '../../../customer/widgets/sensor_widget_mobile.dart';
 
 class CustomerHomeNarrow extends StatelessWidget {
@@ -137,154 +135,66 @@ class CustomerHomeNarrow extends StatelessWidget {
         ),
       ),
 
-      floatingActionButton: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ChangeNotifierProvider(
-            create: (context) => CurrentProgramViewModel(context,
-                viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine[viewModel.lIndex].sNo),
-            child: Consumer<CurrentProgramViewModel>(
-              builder: (context, vm, _) {
+      floatingActionButton: SizedBox(
+        height: 65,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,          // important: don't expand to full width
+            children: [
+              ChangeNotifierProvider(
+                create: (context) => CurrentProgramViewModel(
+                  context,
+                  viewModel.mySiteList.data[viewModel.sIndex]
+                      .master[viewModel.mIndex]
+                      .irrigationLine[viewModel.lIndex]
+                      .sNo,
+                ),
+                child: Consumer<CurrentProgramViewModel>(
+                  builder: (context, vm, _) {
+                    final currentSchedule =
+                        context.watch<MqttPayloadProvider>().currentSchedule;
 
-                final currentSchedule = context.watch<MqttPayloadProvider>().currentSchedule;
+                    if (currentSchedule.isNotEmpty) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        vm.updateSchedule(currentSchedule);
+                      });
+                    }
 
-                if(currentSchedule.isNotEmpty){
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    vm.updateSchedule(currentSchedule);
-                  });
-                }
-
-                if(vm.currentSchedule.isNotEmpty && vm.currentSchedule[0].isNotEmpty){
-                  return buildMobileCard(context, vm.currentSchedule, scheduledProgram, modelId);
-                }else{
-                  return const SizedBox();
-                }
-
-              },
-            ),
+                    if (vm.currentSchedule.isNotEmpty &&
+                        vm.currentSchedule[0].isNotEmpty) {
+                      // Ensure buildCurrentSchedule produces a horizontally growing widget
+                      return buildCurrentSchedule(
+                        context,
+                        vm.currentSchedule,
+                        scheduledProgram,
+                        modelId,
+                      );
+                    } else {
+                      return const SizedBox();
+                    }
+                  },
+                ),
+              ),
+              buildNextScheduleCard(context, scheduledProgram),
+            ],
           ),
-          buildNextScheduleCard(context, scheduledProgram),
-        ],
+        ),
       ),
 
       floatingActionButtonLocation: FloatingActionButtonLocation.miniStartDocked,
 
     );
 
-    return Scaffold(
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            context.watch<MqttPayloadProvider>().onRefresh ? displayLinearProgressIndicator() : const SizedBox(),
-            CurrentProgram(
-              scheduledPrograms: scheduledProgram,
-              deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,
-              customerId: viewedCustomer!.id,
-              controllerId: controllerId,
-              currentLineSNo: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine[viewModel.lIndex].sNo,
-              modelId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].modelId,
-            ),
-            NextSchedule(scheduledPrograms: scheduledProgram),
-
-            ...linesToDisplay.map((line) => Padding(
-              padding: const EdgeInsets.only(left: 8, top: 8, right: 8),
-
-              child: Column(
-                children: [
-                  Card(
-                    color: Colors.white,
-                    elevation: 1,
-                    child: Column(
-                      children: [
-                        const ListTile(
-                          visualDensity: VisualDensity(vertical: -4),
-                          title: Text('Pump Station',
-                              style: TextStyle(color: Colors.black54, fontSize: 17, fontWeight: FontWeight.bold)),
-                          tileColor: Colors.white,
-                        ),
-                        Container(
-                            color: Colors.white,
-                            child: buildPumpStation(context, line, viewedCustomer.id, controllerId, modelId, deviceId)
-                        )
-                      ],
-                    ),
-                  ),
-                  Card(
-                    color: Colors.white,
-                    elevation: 1,
-                    child: Column(
-                      children: [
-                        Container(
-                          width: MediaQuery.sizeOf(context).width,
-                          height: 45,
-                          color: Colors.white70,
-                          child: Row(
-                            children: [
-                              const SizedBox(width: 16),
-                              Text(
-                                line.name,
-                                textAlign: TextAlign.left,
-                                style: const TextStyle(color: Colors.black54, fontSize: 17, fontWeight: FontWeight.bold),
-                              ),
-                              const Spacer(),
-                              MaterialButton(
-                                color: line.linePauseFlag == 0 ? Theme.of(context).primaryColorLight :
-                                Colors.orange.shade400,
-                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                                onPressed: () async {
-                                  String payLoadFinal = jsonEncode({
-                                    "4900": {
-                                      "4901": "${line.sNo}, ${line.linePauseFlag == 0 ? 1 : 0}",
-                                    }
-                                  });
-
-                                  final result = await context.read<CommunicationService>().sendCommand(
-                                    payload: payLoadFinal,
-                                    serverMsg: line.linePauseFlag == 0
-                                        ? 'Paused the ${line.name}'
-                                        : 'Resumed the ${line.name}',
-                                  );
-
-                                  if (result['http'] == true) debugPrint("Payload sent to Server");
-                                  if (result['mqtt'] == true) debugPrint("Payload sent to MQTT Box");
-                                  if (result['bluetooth'] == true) debugPrint("Payload sent via Bluetooth");
-                                },
-                                child: Text(
-                                  line.linePauseFlag == 0 ? 'PAUSE THE LINE' : 'RESUME THE LINE',
-                                  style: const TextStyle(
-                                    color:Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 5)
-                            ],
-                          ),
-                        ),
-                        buildIrrigationLine(context, line, viewedCustomer.id, controllerId, modelId, deviceId)
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            )),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
-    );
   }
 
-  Widget buildMobileCard(BuildContext context,
-      List<String> schedule, List<ProgramList> scheduledPrograms, int modelId) {
+  Widget buildCurrentSchedule(BuildContext context,
+      List<String> currentSchedule, List<ProgramList> scheduledPrograms, int modelId) {
     return Row(
-      children: List.generate(schedule.length, (index) {
-
-        List<String> values = schedule[index ~/ 2].split(',');
+      children: List.generate(currentSchedule.length, (index) {
+        List<String> values = currentSchedule[index].split(',');
 
         final programName = getProgramNameById(int.parse(values[0]), scheduledPrograms);
         final isManual = programName == 'StandAlone - Manual';
@@ -302,45 +212,40 @@ class CustomerHomeNarrow extends StatelessWidget {
                   ),
                   onPop: () => print('Popover was popped!'),
                   direction: PopoverDirection.top,
-                  width: 320,
+                  width: 350,
                   height: 150,
                   arrowHeight: 15,
                   arrowWidth: 30,
                 );
               },
-              child: Row(
-                children: [
-                  Card(
-                    color: Colors.white,
-                    elevation: 2,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade400,
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(5),
-                          topRight: Radius.circular(5),
-                        ),
-                      ),
-                      child: SizedBox(
-                        height: 45,
-                        child: Column(
-                          children: [
-                            Text(programName,
-                                style: const TextStyle(
-                                    color: Colors.white70, fontSize: 13)),
-                            Text(
-                              isManual && timeless ? 'Timeless' : values[4],
-                              style:
-                              const TextStyle(fontSize: 17, color: Colors.white),
-                            ),
-                          ],
-                        ),
-                      ),
+              child: Card(
+                color: Colors.white,
+                elevation: 2,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade400,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(5),
+                      topRight: Radius.circular(5),
                     ),
                   ),
-                  const SizedBox(width: 5),
-                ],
+                  child: SizedBox(
+                    height: 45,
+                    child: Column(
+                      children: [
+                        Text(programName,
+                            style: const TextStyle(
+                                color: Colors.white70, fontSize: 13)),
+                        Text(
+                          isManual && timeless ? 'Timeless' : values[4],
+                          style:
+                          const TextStyle(fontSize: 17, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             );
           },
@@ -721,36 +626,31 @@ class CustomerHomeNarrow extends StatelessWidget {
                     arrowWidth: 30,
                   );
                 },
-                child: Row(
-                  children: [
-                    Card(
-                      color: Colors.white,
-                      elevation: 2,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                        decoration: BoxDecoration(
-                          color: Colors.orange.shade400,
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(5),
-                            topRight: Radius.circular(5),
-                          ),
-                        ),
-                        child: SizedBox(
-                          height: 45,
-                          child: Column(
-                            children: [
-                              const Text('Next Shift',
-                                  style: TextStyle(color: Colors.black45, fontSize: 13)),
-                              const SizedBox(height: 3),
-                              Text(sqName, style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
-
-                            ],
-                          ),
-                        ),
+                child: Card(
+                  color: Colors.white,
+                  elevation: 2,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.shade400,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(5),
+                        topRight: Radius.circular(5),
                       ),
                     ),
-                    const SizedBox(width: 5),
-                  ],
+                    child: SizedBox(
+                      height: 45,
+                      child: Column(
+                        children: [
+                          const Text('Next Shift',
+                              style: TextStyle(color: Colors.black45, fontSize: 13)),
+                          const SizedBox(height: 3),
+                          Text(sqName, style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               );
             },

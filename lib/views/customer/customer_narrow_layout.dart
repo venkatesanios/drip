@@ -7,7 +7,6 @@ import 'package:oro_drip_irrigation/views/customer/widgets/customer_drawer.dart'
 import 'package:oro_drip_irrigation/views/customer/widgets/customer_fab_menu.dart';
 import 'package:provider/provider.dart';
 
-
 import '../../Screens/Logs/irrigation_and_pump_log.dart';
 import '../../flavors.dart';
 import '../../layouts/layout_selector.dart';
@@ -19,54 +18,68 @@ import '../../view_models/bottom_nav_view_model.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
 import 'controller_settings/settings_menu_narrow.dart';
 
-class CustomerNarrowLayout extends StatelessWidget {
+class CustomerNarrowLayout extends StatefulWidget {
   const CustomerNarrowLayout({super.key});
 
+  @override
+  State<CustomerNarrowLayout> createState() => _CustomerNarrowLayoutState();
+}
+
+class _CustomerNarrowLayoutState extends State<CustomerNarrowLayout> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  void callbackFunction(String status) {
+    if (status == 'Program created') {
+      final viewModel = Provider.of<CustomerScreenControllerViewModel>(context, listen: false);
+      final viewedCustomer = Provider.of<UserProvider>(context, listen: false).viewedCustomer;
+      if (viewedCustomer != null) {
+        viewModel.getAllMySites(context, viewedCustomer.id, preserveSelection: true);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-
     final loggedInUser = context.read<UserProvider>().loggedInUser;
     final viewedCustomer = context.read<UserProvider>().viewedCustomer;
 
     final navModel = context.watch<BottomNavViewModel>();
     final vm = context.watch<CustomerScreenControllerViewModel>();
 
-    if (vm.isLoading) {
-      return Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(child: Image.asset(F.appFlavor!.name.contains('oro') ?
-        'assets/oro_store.png':'assets/smartcomm_playstore.png',width: 175, height: 175)),
-      );
-    }
+    final cM = vm.mySiteList.data[vm.sIndex].master[vm.mIndex];
+
+    final isGem = [...AppConstants.gemModelList, ...AppConstants.ecoGemModelList]
+        .contains(cM.modelId);
 
     List<Widget> pages = [];
 
-    final cM = vm.mySiteList.data[vm.sIndex].master[vm.mIndex];
-    final isGem = [...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(cM.modelId);
-
-    if(isGem){
+    if (isGem) {
       pages = [
         const DashboardLayoutSelector(userRole: UserRole.customer),
-        ScheduledProgramNarrow(
-          userId: loggedInUser.id,
-          customerId: viewedCustomer!.id,
-          // currentLineSNo: cM.irrigationLine[vm.lIndex].sNo,
-          currentLineSNo: 1,
-          groupId: vm.mySiteList.data[vm.sIndex].groupId,
-          master: cM,
+        Consumer<CustomerScreenControllerViewModel>(
+          builder: (context, viewModel, _) {
+            final master =
+            viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex];
+            return ScheduledProgramNarrow(
+              userId: loggedInUser.id,
+              customerId: viewedCustomer!.id,
+              currentLineSNo: cM.irrigationLine[vm.lIndex].sNo,
+              groupId: vm.mySiteList.data[vm.sIndex].groupId,
+              master: master,
+            );
+          },
         ),
         IrrigationAndPumpLog(
           userData: {
             'userId': loggedInUser.id,
             'controllerId': cM.controllerId,
-            'customerId': viewedCustomer.id
+            'customerId': vm.mySiteList.data[vm.sIndex].customerId
           },
           masterData: cM,
         ),
         const SettingsMenuNarrow()
       ];
-    }else{
+    } else {
       pages = [
         PumpControllerHome(
           userId: loggedInUser.id,
@@ -77,16 +90,25 @@ class CustomerNarrowLayout extends StatelessWidget {
     }
 
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
         title: appBarLogo(),
-        actions: appBarActions(context, vm, cM, true),
+        actions: [
+          ...appBarActions(context, vm, cM, true),
+          IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () {
+              _scaffoldKey.currentState?.openEndDrawer();
+            },
+          ),
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(50),
           child: appBarDropDownMenu(context, vm, cM),
         ),
       ),
-      drawer: CustomerDrawer(
+      endDrawer: CustomerDrawer(
         viewedCustomer: viewedCustomer,
         loggedInUser: loggedInUser,
         vm: vm,
@@ -96,7 +118,7 @@ class CustomerNarrowLayout extends StatelessWidget {
         viewedCustomer: viewedCustomer,
         loggedInUser: loggedInUser,
         vm: vm,
-        callbackFunction: callbackFunction, // ✅ pass function down
+        callbackFunction: callbackFunction,
       ),
       body: IndexedStack(
         index: navModel.index,
@@ -127,11 +149,12 @@ class CustomerNarrowLayout extends StatelessWidget {
             label: 'Settings',
           ),
         ],
-      ) :
-      null,
+      )
+          : null,
     );
   }
 
-  void callbackFunction(message){
+  void openEndDrawer() {
+    _scaffoldKey.currentState?.openEndDrawer(); // ✅ opens the drawer programmatically
   }
 }

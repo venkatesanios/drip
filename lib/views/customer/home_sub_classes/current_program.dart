@@ -49,6 +49,7 @@ class CurrentProgram extends StatelessWidget {
   }
 
   Widget buildWebTable(BuildContext context, List<String> schedule) {
+    print('schedule:$schedule');
     return Padding(
       padding: const EdgeInsets.only(left: 8, right: 8, top: 20),
       child: Column(

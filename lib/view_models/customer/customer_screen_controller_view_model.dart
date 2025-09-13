@@ -203,6 +203,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
       final response = await repository.fetchAllMySite({"userId": customerId});
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
+        print(response.body);
         if (jsonData["code"] == 200) {
           final newSiteList = SiteModel.fromJson(jsonData, 'customer');
 
@@ -211,7 +212,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
             mySiteList.data[sIndex].master[mIndex] =
             newSiteList.data[sIndex].master[mIndex];
 
-            // 👇 force programList replacement explicitly
+            // force programList replacement explicitly
             mySiteList.data[sIndex].master[mIndex].programList =
                 newSiteList.data[sIndex].master[mIndex].programList;
 
@@ -270,81 +271,9 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
       debugPrint(errorMsg);
     } finally {
       setLoading(false);
-      notifyListeners(); // 🔥 always notify UI
+      notifyListeners();
     }
   }
-
-  /*Future<void> getAllMySites(BuildContext context, int customerId, {bool preserveSelection = false}) async {
-    setLoading(true);
-    try {
-      final response = await repository.fetchAllMySite({"userId": customerId});
-      print("response.body :: ${response.body}");
-
-      if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-        if (jsonData["code"] == 200) {
-          final newSiteList = SiteModel.fromJson(jsonData, 'customer');
-
-          if (preserveSelection && mySiteList.data.isNotEmpty) {
-            //only update the selected controller data
-            mySiteList.data[sIndex].master[mIndex] =
-            newSiteList.data[sIndex].master[mIndex];
-          } else {
-            // normal flow (full reload)
-            mySiteList = newSiteList;
-            updateSite(sIndex, mIndex, lIndex);
-          }
-
-          mqttProvider.saveUnits(Unit.toJsonList(mySiteList.data[sIndex].master[mIndex].units));
-
-          final customerProvider = Provider.of<CustomerProvider>(context, listen: false);
-          customerProvider.updateControllerCommunicationMode(
-            cmmMode: mySiteList.data[sIndex].master[mIndex].communicationMode!,
-          );
-
-          final live = mySiteList.data[sIndex].master[mIndex].live;
-          mqttProvider.updateReceivedPayload(
-            live != null ? jsonEncode(live) : _defaultPayload(),
-            true,
-          );
-
-          wifiStrength = live?.cM['WifiStrength'] ?? 0;
-        } else {
-          // handle sharedUserSite same way
-          final sharedResponse = await repository.fetchSharedUserSite({"userId": customerId});
-          if (sharedResponse.statusCode == 200) {
-            final jsonData = jsonDecode(sharedResponse.body);
-            if (jsonData["code"] == 200) {
-              final newSiteList = SiteModel.fromJson(jsonData, 'subUser');
-
-              if (preserveSelection && mySiteList.data.isNotEmpty) {
-                mySiteList.data[sIndex].master[mIndex] =
-                newSiteList.data[sIndex].master[mIndex];
-              } else {
-                mySiteList = newSiteList;
-                updateSite(sIndex, mIndex, lIndex);
-              }
-
-              mqttProvider.saveUnits(Unit.toJsonList(mySiteList.data[sIndex].master[mIndex].units));
-
-              final live = mySiteList.data[sIndex].master[mIndex].live;
-              mqttProvider.updateReceivedPayload(
-                live != null ? jsonEncode(live) : _defaultPayload(),
-                true,
-              );
-
-              wifiStrength = live?.cM['WifiStrength'] ?? 0;
-            }
-          }
-        }
-      }
-    } catch (error) {
-      errorMsg = 'Error fetching site list: $error';
-      debugPrint(errorMsg);
-    } finally {
-      setLoading(false);
-    }
-  }*/
 
   /*Future<void> getAllMySites(BuildContext context, int customerId) async {
     setLoading(true);
