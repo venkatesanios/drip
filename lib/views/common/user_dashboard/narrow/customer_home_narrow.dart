@@ -50,6 +50,7 @@ class CustomerHomeNarrow extends StatelessWidget {
     return Scaffold(
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.only(bottom: 100),
         child: Column(
           children: [
             if ([...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(modelId)) ...[

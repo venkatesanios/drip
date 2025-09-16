@@ -1,5 +1,4 @@
 import 'package:chat_bubbles/bubbles/bubble_special_one.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_indicator/loading_indicator.dart';

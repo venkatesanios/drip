@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/Screens/Dealer/controllerlogfile.dart';
 import 'package:oro_drip_irrigation/Screens/Dealer/sevicecustomer.dart';
 import 'package:oro_drip_irrigation/Screens/Logs/irrigation_and_pump_log.dart';
 import 'package:oro_drip_irrigation/Screens/planning/WeatherScreen.dart';
@@ -15,8 +14,6 @@ import 'package:popover/popover.dart';
 import '../../models/customer/site_model.dart';
 import 'package:provider/provider.dart';
 import '../../Screens/Dealer/controllerverssionupdate.dart';
-import '../../Screens/Map/CustomerMap.dart';
-import '../../Screens/Map/allAreaBoundry.dart';
 import '../../Screens/planning/FactoryReset.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../flavors.dart';
@@ -26,11 +23,9 @@ import '../../modules/PumpController/view/pump_controller_home.dart';
 import '../../modules/UserChat/view/user_chat.dart';
 import '../../providers/user_provider.dart';
 import '../../repository/repository.dart';
-import '../../services/communication_service.dart';
 import '../../services/http_service.dart';
 import '../../utils/constants.dart';
 import '../../utils/formatters.dart';
-import '../../utils/my_function.dart';
 import '../../utils/routes.dart';
 import '../../utils/shared_preferences_helper.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
@@ -1096,7 +1091,6 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
           userId: widget.userId,
           customerId: customerId,
           customerName: customerName,
-          masterData: allMaster,
           groupId: groupId,
           groupName: groupName,
         ) :
@@ -1116,7 +1110,6 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
           userId: widget.userId,
           customerId: customerId,
           customerName: customerName,
-          masterData: allMaster,
           groupId: groupId,
           groupName: groupName,
         ) : _PasswordProtectedSiteConfig(
@@ -1312,7 +1305,6 @@ class _PasswordProtectedSiteConfigState
         userId: widget.userId,
         customerId: widget.customerId,
         customerName: widget.customerName,
-        masterData: widget.allMaster,
         groupId: widget.groupId,
         groupName: widget.groupName,
       );

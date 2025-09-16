@@ -252,7 +252,6 @@ class _CustomerWideLayoutState extends State<CustomerWideLayout> {
           userId: userId,
           customerId: customerId,
           customerName: customerName,
-          masterData: allMaster,
           groupId: groupId,
           groupName: groupName,
         ) :
@@ -270,7 +269,6 @@ class _CustomerWideLayoutState extends State<CustomerWideLayout> {
           userId: userId,
           customerId: customerId,
           customerName: customerName,
-          masterData: allMaster,
           groupId: groupId,
           groupName: groupName,
         ) : _PasswordProtectedSiteConfig(
@@ -425,7 +423,6 @@ class _PasswordProtectedSiteConfigState
         userId: widget.userId,
         customerId: widget.customerId,
         customerName: widget.customerName,
-        masterData: widget.allMaster,
         groupId: widget.groupId,
         groupName: widget.groupName,
       );

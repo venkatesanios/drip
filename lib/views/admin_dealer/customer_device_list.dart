@@ -2,6 +2,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/view/config_base_page.dart';
 import 'package:provider/provider.dart';
+import '../../models/admin_dealer/product_list_with_node.dart';
 import '../../models/admin_dealer/stock_model.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
@@ -364,7 +365,7 @@ class CustomerDeviceTable extends StatelessWidget {
 }
 
 class CustomerSiteTabView extends StatelessWidget {
-  final dynamic viewModel;
+  final CustomerDeviceListViewModel viewModel;
   final int currentSiteInx;
   final ValueChanged<int> onSiteChange;
   final List<StockModel> productStock;
@@ -488,7 +489,7 @@ class AddMasterPopup extends StatelessWidget {
 }
 
 class MasterListForSite extends StatelessWidget {
-  final dynamic site;
+  final ProductListWithNode site;
   final dynamic viewModel;
   final List<StockModel> productStock;
 
