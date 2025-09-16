@@ -7,7 +7,7 @@ import 'package:oro_drip_irrigation/Screens/Dealer/sevicecustomer.dart';
 import 'package:oro_drip_irrigation/Screens/Logs/irrigation_and_pump_log.dart';
 import 'package:oro_drip_irrigation/Screens/planning/WeatherScreen.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/program_library.dart';
-import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
+import 'package:oro_drip_irrigation/views/customer/send_and_received/sent_and_received.dart';
 import 'package:oro_drip_irrigation/views/customer/site_config.dart';
 import 'package:oro_drip_irrigation/views/customer/stand_alone.dart';
 import 'package:oro_drip_irrigation/views/customer/widgets/alarm_button.dart';
@@ -1068,6 +1068,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
         return SentAndReceived(
           customerId: customerId,
           controllerId: currentMaster.controllerId,
+          isWide: true,
         );
 
       case 3:

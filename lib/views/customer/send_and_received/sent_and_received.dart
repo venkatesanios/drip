@@ -1,4 +1,5 @@
 import 'package:chat_bubbles/bubbles/bubble_special_one.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_indicator/loading_indicator.dart';
@@ -9,14 +10,16 @@ import '../../../repository/repository.dart';
 import '../../../services/http_service.dart';
 import '../../../view_models/customer/sent_and_received_view_model.dart';
 
-class SentAndReceivedNarrow extends StatelessWidget {
-  const SentAndReceivedNarrow({
+class SentAndReceived extends StatelessWidget {
+  const SentAndReceived({
     super.key,
     required this.customerId,
     required this.controllerId,
+    required this.isWide,
   });
 
   final int customerId, controllerId;
+  final bool isWide;
 
   @override
   Widget build(BuildContext context) {
@@ -31,22 +34,34 @@ class SentAndReceivedNarrow extends StatelessWidget {
         builder: (context, viewModel, _) {
           final calendarWidget = _buildCalendar(context, viewModel);
 
-          return Scaffold(
-            appBar: AppBar(title: const Text('Sent & Received')),
-            body: Column(
+          if (isWide) {
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(color: Colors.white, child: calendarWidget),
+                SizedBox(width: 350, height: 400, child: calendarWidget),
+                VerticalDivider(color: Colors.grey.shade300),
                 Expanded(child: _buildBody(context, viewModel)),
               ],
-            ),
-          );
+            );
+          } else {
+            return Scaffold(
+              appBar: AppBar(title: const Text('Sent & Received')),
+              body: Column(
+                children: [
+                  Container(color: Colors.white, child: calendarWidget),
+                  Expanded(child: _buildBody(context, viewModel)),
+                ],
+              ),
+            );
+          }
         },
       ),
     );
   }
 
   Widget _buildCalendar(BuildContext context, SentAndReceivedViewModel viewModel) {
-    const CalendarFormat initialFormat = CalendarFormat.week;
+    final CalendarFormat initialFormat =
+    isWide ? CalendarFormat.month : CalendarFormat.week;
 
     return TableCalendar(
       firstDay: DateTime.utc(2020, 10, 16),
@@ -115,70 +130,7 @@ class SentAndReceivedNarrow extends StatelessWidget {
             isReceived ? CrossAxisAlignment.end : CrossAxisAlignment.start,
             children: [
               GestureDetector(
-                onLongPress: () {
-                  if (!viewModel.hasPayloadViewPermission) {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Enter Password'),
-                          content: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Text(
-                                'This content is protected.\nPlease enter your password to\nview the payload.',
-                                style: TextStyle(fontWeight: FontWeight.normal),
-                              ),
-                              const SizedBox(height: 8),
-                              TextField(
-                                controller: viewModel.passwordController,
-                                obscureText: true,
-                                decoration: const InputDecoration(
-                                  labelText: 'Password',
-                                  border: OutlineInputBorder(),
-                                ),
-                              ),
-                            ],
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              child: const Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                final enteredPassword =
-                                    viewModel.passwordController.text;
-                                if (enteredPassword == 'Oro@321') {
-                                  viewModel.hasPayloadViewPermission = true;
-                                  Navigator.of(context).pop();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text('Access granted. Showing payload...')),
-                                  );
-                                  viewModel.getUserSoftwareOrHardwarePayload(
-                                    context,
-                                    customerId,
-                                    controllerId,
-                                    message.sentAndReceivedId,
-                                    'Hardware payload',
-                                    message.message,
-                                  );
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text('Incorrect password.')),
-                                  );
-                                }
-                              },
-                              child: const Text('Submit'),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  }
-                },
+                onLongPress: () => _handleLongPress(context, viewModel, message),
                 onTap: () {
                   if (viewModel.hasPayloadViewPermission) {
                     viewModel.getUserSoftwareOrHardwarePayload(
@@ -217,5 +169,67 @@ class SentAndReceivedNarrow extends StatelessWidget {
         );
       },
     );
+  }
+
+  void _handleLongPress(BuildContext context, SentAndReceivedViewModel viewModel, message) {
+    if (!viewModel.hasPayloadViewPermission) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Enter Password'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'This content is protected.\nPlease enter your password to\nview the payload.',
+                  style: TextStyle(fontWeight: FontWeight.normal),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: viewModel.passwordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Password',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  final enteredPassword = viewModel.passwordController.text;
+                  if (enteredPassword == 'Oro@321') {
+                    viewModel.hasPayloadViewPermission = true;
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Access granted. Showing payload...')),
+                    );
+                    viewModel.getUserSoftwareOrHardwarePayload(
+                      context,
+                      customerId,
+                      controllerId,
+                      message.sentAndReceivedId,
+                      'Hardware payload',
+                      message.message,
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Incorrect password.')),
+                    );
+                  }
+                },
+                child: const Text('Submit'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 }
