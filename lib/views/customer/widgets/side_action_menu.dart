@@ -6,7 +6,7 @@ import '../../../modules/ScheduleView/view/schedule_view_screen.dart';
 import '../../../providers/user_provider.dart';
 import '../../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../input_output_connection_details.dart';
-import '../node_list.dart';
+import '../node_list/node_list.dart';
 import '../stand_alone.dart';
 import 'alarm_button.dart';
 
@@ -145,7 +145,7 @@ class SideActionMenu extends StatelessWidget {
                       userId: userId,
                       nodes: cM.nodeList,
                       configObjects: cM.configObjects,
-                      masterData: cM,
+                      masterData: cM, isWide: true,
                     ),
                   ),
                 );

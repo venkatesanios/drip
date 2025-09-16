@@ -8,36 +8,27 @@ import 'sales_bar_chart.dart';
 
 
 class AnalyticsView extends StatelessWidget {
-  const AnalyticsView({super.key});
+  const AnalyticsView({super.key, required this.isNarrow});
+  final bool isNarrow;
 
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<AnalyticsViewModel>();
 
-    return Padding(
-      padding: const EdgeInsets.all(3.0),
-      child: Column(
-        children: [
-          buildHeader(context, viewModel),
-          Expanded(
-            child: viewModel.isLoadingSalesData ?
-            const Center(child: SizedBox(width: 40, child: LoadingIndicator(indicatorType: Indicator.ballPulse)))
-                : MySalesBarChart(graph: viewModel.mySalesData.graph),
-          ),
-          const SizedBox(height: 6),
-          if ((viewModel.mySalesData.total ?? []).isNotEmpty)
-            Wrap(
-              spacing: 5,
-              runSpacing: 5,
-              children: List.generate(
-                viewModel.mySalesData.total!.length, (index) => SalesChip(
-                  index: index, item: viewModel.mySalesData.total![index]),
-              ),
-            ),
-          const SizedBox(height: 8),
-        ],
-      ),
-    );
+    if(isNarrow){
+      return Container(
+        color: Colors.white,
+        child: buildContentBody(context, viewModel),
+      );
+    }
+    else{
+      return Card(
+        color: Colors.white,
+        surfaceTintColor: Colors.white,
+        elevation: 1,
+        child: buildContentBody(context, viewModel),
+      );
+    }
   }
 
   Widget buildHeader(BuildContext context, AnalyticsViewModel viewModel) {
@@ -67,6 +58,33 @@ class AnalyticsView extends StatelessWidget {
             viewModel.getMySalesData(selectedSegment);
           }
         },
+      ),
+    );
+  }
+
+  Widget buildContentBody(BuildContext context, AnalyticsViewModel viewModel) {
+    return Padding(
+      padding: const EdgeInsets.all(3.0),
+      child: Column(
+        children: [
+          buildHeader(context, viewModel),
+          Expanded(
+            child: viewModel.isLoadingSalesData ?
+            const Center(child: SizedBox(width: 40, child: LoadingIndicator(indicatorType: Indicator.ballPulse)))
+                : MySalesBarChart(graph: viewModel.mySalesData.graph),
+          ),
+          const SizedBox(height: 6),
+          if ((viewModel.mySalesData.total ?? []).isNotEmpty)
+            Wrap(
+              spacing: 5,
+              runSpacing: 5,
+              children: List.generate(
+                viewModel.mySalesData.total!.length, (index) => SalesChip(
+                  index: index, item: viewModel.mySalesData.total![index]),
+              ),
+            ),
+          const SizedBox(height: 8),
+        ],
       ),
     );
   }

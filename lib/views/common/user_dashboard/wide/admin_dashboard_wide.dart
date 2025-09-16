@@ -22,12 +22,7 @@ class AdminDashboardWide extends StatelessWidget {
                 SizedBox(
                   width: MediaQuery.sizeOf(context).width,
                   height: 400,
-                  child: const Card(
-                      color: Colors.white,
-                      surfaceTintColor: Colors.white,
-                      elevation: 1,
-                      child: AnalyticsView()
-                  ),
+                  child: const AnalyticsView(isNarrow: false),
                 ),
                 const ProductView(isWideScreen: true),
               ]),

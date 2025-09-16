@@ -1,5 +1,6 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../utils/constants.dart';
@@ -15,9 +16,20 @@ class StockView extends StatelessWidget {
   Widget build(BuildContext context) {
     final viewModel = context.watch<ProductStockViewModel>();
 
+    if(viewModel.isLoadingStock){
+
+      return const Center(
+        child: SizedBox(
+          width: 45,
+          height: 45,
+          child: LoadingIndicator(indicatorType: Indicator.ballPulse),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: isWide? buildProductStock(context, viewModel):
+      body: isWide? buildProductStock(context, viewModel) :
       buildForNarrow(viewModel),
     );
   }

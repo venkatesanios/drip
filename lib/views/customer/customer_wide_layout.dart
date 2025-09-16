@@ -163,7 +163,7 @@ class _CustomerWideLayoutState extends State<CustomerWideLayout> {
                           loggedInUser.role,
                           vm.mySiteList.data[vm.sIndex].customerId,
                           vm.mySiteList.data[vm.sIndex].customerName,
-                            viewedCustomer!.id,
+                          viewedCustomer!.id,
                         );
                       },
                     ),

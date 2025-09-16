@@ -28,11 +28,7 @@ class DealerDashboardWide extends StatelessWidget {
                   SizedBox(
                       width: MediaQuery.sizeOf(context).width,
                       height: 400,
-                      child: const Card(
-                          elevation:1,
-                          color:Colors.white,
-                          child: AnalyticsView()
-                      )
+                      child: const AnalyticsView(isNarrow: false)
                   ),
                   SizedBox(
                       width: MediaQuery.sizeOf(context).width,

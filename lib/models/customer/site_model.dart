@@ -32,7 +32,6 @@ class Group {
 
   factory Group.fromJson(Map<String, dynamic> json, String userType) {
 
-    print(userType);
     return Group(
       customerId: json['customerId'],
       customerName:  json['customerName'],
@@ -59,8 +58,6 @@ class MasterControllerModel {
   final int modelId;
   final String modelName;
   final String modelDescription;
-
-
   final String interfaceTypeId;
   final String interface;
   final String relayOutput;
@@ -75,6 +72,8 @@ class MasterControllerModel {
   List<ProgramList> programList;
   late final LiveMessage? live;
   final List<Unit> units;
+
+  List<RelayStatus> ioConnection;
 
   MasterControllerModel({
     required this.controllerId,
@@ -100,6 +99,8 @@ class MasterControllerModel {
     required this.programList,
     required this.live,
     required this.configObjects,
+
+    required this.ioConnection,
 
   });
 
@@ -194,6 +195,9 @@ class MasterControllerModel {
       line.linkReferences(matchedFilterSite, matchedFertilizerSite);
     }
 
+    List<ConfigObject> filteredConfigObjects =
+    configObjects.where((config) => config.controllerId == json['controllerId']).toList();
+    List<RelayStatus> ioConnection = filteredConfigObjects.map((config) => RelayStatus.fromJson(config.toJson())).toList();
 
     return MasterControllerModel(
       controllerId: json['controllerId'] ?? 0,
@@ -204,7 +208,6 @@ class MasterControllerModel {
       modelId: json['modelId'] ?? 0,
       modelName: json['modelName'] ?? '',
       modelDescription: json['modelDescription'] ?? '',
-
       interfaceTypeId: json['interfaceTypeId'] ?? '',
       interface: json['interface'] ?? '',
       relayOutput: json['relayOutput'] ?? '',
@@ -214,20 +217,19 @@ class MasterControllerModel {
 
       communicationMode: json['communicationMode'] ?? 1,
       configObjects: configObjectsR,
-      units: json['units'] != null
-          ? List<Unit>.from(json['units'].map((x) => Unit.fromJson(x)))
+      units: json['units'] != null ? List<Unit>.from(json['units'].map((x) => Unit.fromJson(x)))
           : [],
       live: json['liveMessage'] != null ? LiveMessage.fromJson(json['liveMessage']) : null,
       irrigationLine: irrigationLines,
-      nodeList: json['nodeList'] != null
-          ? (json['nodeList'] as List)
-          .map((item) => NodeListModel.fromJson(item, configObjects))
-          .toList()
+      nodeList: json['nodeList'] != null ? (json['nodeList'] as List)
+          .map((item) => NodeListModel.fromJson(item, configObjects)).toList()
           : [],
       programList: json['program'] != null ? (json['program'] as List)
           .map((prgList) => ProgramList.fromJson(prgList))
           .toList()
           : [],
+
+      ioConnection: ioConnection,
 
     );
   }

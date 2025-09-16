@@ -1,9 +1,8 @@
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
-import '../../Screens/Dealer/controllerverssionupdate.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/enums.dart';
@@ -12,7 +11,8 @@ import '../common/user_profile/create_account.dart';
 
 
 class GeneralSetting extends StatefulWidget {
-  const GeneralSetting({super.key, required this.customerId, required this.controllerId, required this.userId});
+  const GeneralSetting({super.key, required this.customerId,
+    required this.controllerId, required this.userId});
   final int customerId, controllerId, userId;
 
   @override
@@ -32,83 +32,10 @@ class _GeneralSettingState extends State<GeneralSetting> {
       child: Consumer<GeneralSettingViewModel>(
         builder: (context, viewModel, _) {
           return Scaffold(
-            appBar: !kIsWeb ? AppBar(
-              title: const Text('General'),
-              actions: [
-                IconButton(onPressed: (){
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ResetVerssion(
-                          userId: widget.customerId, controllerId: widget.controllerId,
-                          deviceID: viewModel.deviceId),
-                    ),
-                  );
-                }, icon: Icon(Icons.update)),
-              ],
-            ): null,
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             body: viewModel.isLoading?
             buildLoadingIndicator(true, MediaQuery.sizeOf(context).width):
-            kIsWeb ? generalSetting(context, viewModel):
-            ListView(
-              padding: const EdgeInsets.only(left: 12, right: 10),
-              children: [
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.0),
-                  child: Text(
-                    'General Settings',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(5),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 6,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 5, bottom: 5),
-                    child: Column(
-                      children: List.generate(5, (index) => getSettingTile(context, index)),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.0),
-                  child: Text(
-                    'Controller Settings',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(5),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 6,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 5, bottom: 5),
-                    child: Column(
-                      children: List.generate(6, (index) => getSettingTile(context, index + 5)),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            generalSetting(context, viewModel),
           );
         },
       ),
@@ -301,7 +228,6 @@ class _GeneralSettingState extends State<GeneralSetting> {
     }
   }
 
-
   Widget generalSetting(BuildContext context, GeneralSettingViewModel viewModel){
 
     return Padding(
@@ -437,6 +363,33 @@ class _GeneralSettingState extends State<GeneralSetting> {
                       flex: 1,
                       child: Column(
                         children: [
+                          if([56, 57, 58, 59].contains(viewModel.modelId))...[
+                            ListTile(
+                              title: const Text('Sim card number'),
+                              leading: const Icon(Icons.sim_card_outlined),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text('${viewModel.countryCode} - ${viewModel.simNumber}',
+                                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                                  const SizedBox(width: 16),
+                                  IconButton(
+                                    onPressed: () {
+                                      showSimEditControllerDialog(context, 'SIM card Number',
+                                          viewModel.countryCode ?? '91',viewModel.simNumber ?? '0', (cCode, sNumber) {
+                                        viewModel.countryCode = cCode;
+                                        viewModel.simNumber = sNumber;
+                                        viewModel.updateMasterDetails(context, widget.customerId,
+                                            widget.controllerId, widget.userId);
+                                      });
+                                    },
+                                    icon: const Icon(Icons.edit),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Divider(color: Colors.grey.shade300),
+                          ],
                           ListTile(
                             title: const Text('UTC'),
                             leading: const Icon(Icons.timer_outlined),
@@ -515,17 +468,19 @@ class _GeneralSettingState extends State<GeneralSetting> {
                             ),
                           ),
                           Divider(color: Colors.grey.shade200),
-                          const ListTile(
-                            title: Text('Unit'),
-                            leading: Icon(Icons.ac_unit_rounded),
-                            trailing: Text(
-                              'm3',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold),
+                          if([1, 2, 3, 4].contains(viewModel.modelId))...[
+                            const ListTile(
+                              title: Text('Unit'),
+                              leading: Icon(Icons.ac_unit_rounded),
+                              trailing: Text(
+                                'm3',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold),
+                              ),
                             ),
-                          ),
-                          Divider(color: Colors.grey.shade300,),
+                            Divider(color: Colors.grey.shade300),
+                          ],
                         ],
                       ),
                     ),
@@ -720,6 +675,58 @@ class _GeneralSettingState extends State<GeneralSetting> {
             TextButton(
               onPressed: () {
                 onSave(nameController.text.trim());
+                Navigator.of(context).pop();
+              },
+              child: const Text('Save', style: TextStyle(color: Colors.green)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showSimEditControllerDialog(BuildContext context, String currentTitle,
+      String cCode, String simNo, Function(String, String) onSave) {
+
+    final TextEditingController cCodeController = TextEditingController(text: cCode);
+    final TextEditingController mobileNoController = TextEditingController(text: simNo);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Edit $currentTitle'),
+          content: IntlPhoneField(
+            decoration: InputDecoration(
+              hintText: 'Enter SIM number',
+              border: const OutlineInputBorder(),
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.clear, color: Colors.red),
+                onPressed: () => mobileNoController.clear(),
+              ),
+              icon: const Icon(Icons.phone_outlined, color: Colors.black),
+              filled: true,
+              fillColor: Colors.white,
+              contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
+              counterText: '',
+            ),
+            languageCode: "en",
+            initialCountryCode: 'IN',
+            controller: mobileNoController,
+            onChanged: (phone) {},
+            onCountryChanged: (country) {
+              print( country.dialCode);
+              cCodeController.text = country.dialCode;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel', style: TextStyle(color: Colors.red)),
+            ),
+            TextButton(
+              onPressed: () {
+                onSave(cCodeController.text, mobileNoController.text.trim());
                 Navigator.of(context).pop();
               },
               child: const Text('Save', style: TextStyle(color: Colors.green)),

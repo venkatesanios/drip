@@ -25,7 +25,7 @@ class AdminDashboardMiddle extends StatelessWidget {
                     SizedBox(
                       width: MediaQuery.sizeOf(context).width,
                       height: 400,
-                      child: const AnalyticsView(),
+                      child: const AnalyticsView(isNarrow: false),
                     ),
                     const ProductView(isWideScreen: true),
                   ],

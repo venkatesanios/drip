@@ -20,8 +20,11 @@ class GeneralSettingViewModel extends ChangeNotifier {
   List<Map<String, dynamic>> subUsers = [];
 
   String farmName = '', controllerCategory = '', modelName = '', deviceId = '', categoryName = '',
-      controllerLocation='', controllerVersion='', newVersion='';
-  int groupId = 0;
+      controllerLocation = '', controllerVersion='', newVersion='';
+  int groupId = 0, modelId = 0;
+
+  String? countryCode;
+  String? simNumber;
 
   String? selectedTimeZone;
   String currentDate = '';
@@ -78,17 +81,26 @@ class GeneralSettingViewModel extends ChangeNotifier {
       var response = await repository.fetchMasterControllerDetails(body);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        print(response.body);
         if (data["code"] == 200) {
-          farmName  = data["data"][0]['groupName'];
-          controllerCategory = data["data"][0]['deviceName'];
-          deviceId = data["data"][0]['deviceId'];
-          modelName = data["data"][0]['modelName'];
-          categoryName = data["data"][0]['categoryName'];
-          groupId = data["data"][0]['groupId'];
-          controllerVersion = data["data"][0]['hwVersion'];
-          newVersion = data["data"][0]['availableHwVersion'];
-          controllerLocation = data["data"][0]['controllerLocation'] ?? '';
-          updateCurrentDateTime(data["data"][0]['timeZone']);
+
+          final firstItem = (data["data"] as List).isNotEmpty ? data["data"][0] : {};
+
+          farmName  = firstItem['groupName'];
+          controllerCategory = firstItem['deviceName'];
+          deviceId = firstItem['deviceId'];
+          modelName = firstItem['modelName'];
+          modelId = firstItem['modelId'];
+          categoryName = firstItem['categoryName'];
+          groupId = firstItem['groupId'];
+
+          countryCode = firstItem['countryCode'] as String?;
+          simNumber   = firstItem['simNumber'] as String?;
+
+          controllerVersion = firstItem['hwVersion'];
+          newVersion = firstItem['availableHwVersion'];
+          controllerLocation = firstItem['controllerLocation'] ?? '';
+          updateCurrentDateTime(firstItem['timeZone']);
           if(controllerVersion!=newVersion){
             timerFunction();
           }else{
@@ -158,7 +170,7 @@ class GeneralSettingViewModel extends ChangeNotifier {
   Future<void> updateMasterDetails(BuildContext context, int customerId, int controllerId, int modifyUser) async {
     try {
 
-      Map<String, Object> body = {
+      Map<String, Object?> body = {
         "userId": customerId,
         "controllerId": controllerId,
         "deviceName": controllerCategory,
@@ -166,6 +178,8 @@ class GeneralSettingViewModel extends ChangeNotifier {
         "controllerLocation": controllerLocation,
         "groupId": groupId,
         "groupName": farmName,
+        "countryCode": ([56, 57, 58, 59].contains(modelId)) ? countryCode : null,
+        "simNumber":  ([56, 57, 58, 59].contains(modelId)) ? simNumber : null,
         "modifyUser": modifyUser,
       };
 

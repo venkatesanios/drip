@@ -40,7 +40,7 @@ import 'controller_settings/wide/controller_settings_wide.dart';
 import 'customer_home.dart';
 import 'customer_product.dart';
 import 'input_output_connection_details.dart';
-import 'node_list.dart';
+import 'node_list/node_list.dart';
 
 class CustomerScreenController extends StatefulWidget {
   const CustomerScreenController({super.key, required this.userId, required this.customerName, required this.mobileNo, required this.emailId, required this.customerId, required this.fromLogin});
@@ -684,7 +684,8 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
                                                     userId: widget.userId,
                                                     nodes: currentMaster.nodeList,
                                                     configObjects: currentMaster.configObjects,
-                                                    masterData: currentMaster);
+                                                    masterData: currentMaster,
+                                                  isWide: true);
                                               },
                                             ),
                                           ),

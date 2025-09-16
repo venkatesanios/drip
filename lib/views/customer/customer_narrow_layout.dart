@@ -46,6 +46,14 @@ class _CustomerNarrowLayoutState extends State<CustomerNarrowLayout> {
     final navModel = context.watch<BottomNavViewModel>();
     final vm = context.watch<CustomerScreenControllerViewModel>();
 
+    if (vm.isLoading) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(child: Image.asset(F.appFlavor!.name.contains('oro')?
+        'assets/oro_store.png':'assets/smartcomm_playstore.png',width: 175, height: 175)),
+      );
+    }
+
     final cM = vm.mySiteList.data[vm.sIndex].master[vm.mIndex];
 
     final isGem = [...AppConstants.gemModelList, ...AppConstants.ecoGemModelList]

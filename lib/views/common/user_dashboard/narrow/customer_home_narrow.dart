@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../StateManagement/customer_provider.dart';
+import '../../../../Widgets/network_connection_banner.dart';
 import '../../../../models/customer/site_model.dart';
 import '../../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../../Widgets/pump_widget.dart';
@@ -43,11 +45,67 @@ class CustomerHomeNarrow extends StatelessWidget {
         ? irrigationLines.where((line) => line.name != viewModel.myCurrentIrrLine).toList()
         : irrigationLines.where((line) => line.name == viewModel.myCurrentIrrLine).toList();
 
+    final commMode = Provider.of<CustomerProvider>(context).controllerCommMode;
+
     return Scaffold(
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Column(
           children: [
+            if ([...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(modelId)) ...[
+              const NetworkConnectionBanner(),
+              if (commMode == 2) ...[
+                Container(
+                  width: double.infinity,
+                  color: Colors.black38,
+                  child: const Padding(
+                    padding: EdgeInsets.only(top: 3, bottom: 4),
+                    child: Text(
+                      'Bluetooth mode enabled. Please ensure Bluetooth is connected.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 13, color: Colors.white70),
+                    ),
+                  ),
+                ),
+              ],
+
+              if (viewModel.isNotCommunicate)
+                Container(
+                  height: 25,
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade200,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(5),
+                      topRight: Radius.circular(5),
+                    ),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'NO COMMUNICATION TO CONTROLLER',
+                      style: TextStyle(
+                        color: Colors.black87,
+                        fontSize: 13.0,
+                      ),
+                    ),
+                  ),
+                )
+              else if (viewModel.powerSupply == 0)
+                Container(
+                  height: 25,
+                  color: Colors.red.shade300,
+                  child: const Center(
+                    child: Text(
+                      'NO POWER SUPPLY TO CONTROLLER',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 13.0,
+                      ),
+                    ),
+                  ),
+                )
+              else
+                const SizedBox(),
+            ],
             ...linesToDisplay.map((line) => Padding(
               padding: const EdgeInsets.only(left: 8, top: 8, right: 8),
               child: Column(

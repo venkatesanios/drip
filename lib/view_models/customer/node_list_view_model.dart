@@ -37,34 +37,38 @@ class NodeListViewModel extends ChangeNotifier {
     return false;
   }
 
-  void onLivePayloadReceived(List<String> nodeLiveMeg, List<String> inputOutputStatus){
+  void onLivePayloadReceived(List<String> nodeLiveMeg, List<String> inputOutputStatus, bool isNova){
 
-    for (String group in nodeLiveMeg) {
-      List<String> values = group.split(",");
-      int sNo = int.parse(values[0]);
-      for (var node in nodeList) {
-        if (node.serialNumber == sNo) {
-          node.sVolt = double.parse(values[1]);
-          node.batVolt = double.parse(values[2]);
-          node.status = int.parse(values[3]);
-          node.lastFeedbackReceivedTime = values[4];
-          node.version = values.length > 5 ? values[5] : '0.0.0';
-          break;
+    if(isNova){
+
+    }else{
+      for (String group in nodeLiveMeg) {
+        List<String> values = group.split(",");
+        int sNo = int.parse(values[0]);
+        for (var node in nodeList) {
+          if (node.serialNumber == sNo) {
+            node.sVolt = double.parse(values[1]);
+            node.batVolt = double.parse(values[2]);
+            node.status = int.parse(values[3]);
+            node.lastFeedbackReceivedTime = values[4];
+            node.version = values.length > 5 ? values[5] : '0.0.0';
+            break;
+          }
         }
       }
-    }
 
-    for (String group in inputOutputStatus) {
-      List<String> values = group.split(",");
-      if (values.length < 2) continue;
+      for (String group in inputOutputStatus) {
+        List<String> values = group.split(",");
+        if (values.length < 2) continue;
 
-      String relaySNo = values[0];
-      int relayStatus = int.parse(values[1]);
-      for (var node in nodeList) {
-        for (var relay in node.rlyStatus) {
-          if (relay.sNo.toString() == relaySNo) {
-            relay.status = relayStatus;
-            break;
+        String relaySNo = values[0];
+        int relayStatus = int.parse(values[1]);
+        for (var node in nodeList) {
+          for (var relay in node.rlyStatus) {
+            if (relay.sNo.toString() == relaySNo) {
+              relay.status = relayStatus;
+              break;
+            }
           }
         }
       }

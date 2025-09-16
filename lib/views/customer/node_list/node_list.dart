@@ -6,27 +6,29 @@ import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/node_conne
 import 'package:oro_drip_irrigation/services/http_service.dart';
 import 'package:oro_drip_irrigation/views/customer/widgets/relay_status_avatar.dart';
 import 'package:provider/provider.dart';
-import '../../StateManagement/mqtt_payload_provider.dart';
-import '../../repository/repository.dart';
-import '../../utils/snack_bar.dart';
-import '../../view_models/customer/node_list_view_model.dart';
-import 'hourly_log/node_hourly_logs.dart';
-import 'hourly_log/sensor_hourly_logs.dart';
+import '../../../StateManagement/mqtt_payload_provider.dart';
+import '../../../repository/repository.dart';
+import '../../../utils/snack_bar.dart';
+import '../../../view_models/customer/node_list_view_model.dart';
+import '../hourly_log/node_hourly_logs.dart';
+import '../hourly_log/sensor_hourly_logs.dart';
 
 class NodeList extends StatelessWidget {
   const NodeList({super.key, required this.customerId, required this.userId,
-    required this.nodes, required this.configObjects, required this.masterData});
+    required this.nodes, required this.configObjects, required this.masterData,
+    required this.isWide});
   final int userId, customerId;
   final MasterControllerModel masterData;
   final List<NodeListModel> nodes;
   final List<ConfigObject> configObjects;
+  final bool isWide;
 
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => NodeListViewModel(context, Repository(HttpService()), nodes),
-      child: kIsWeb ? nodeListBody(context) : buildScaffold(context),
+      child: isWide ? nodeListBody(context) : buildScaffold(context),
     );
   }
 
@@ -34,13 +36,16 @@ class NodeList extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Node Status'),
-        actions: actionButtons(context, isWeb: false),
+        actions: actionButtons(context, isWide: false),
       ),
       body: nodeListBody(context),
     );
   }
 
   Widget nodeListBody(BuildContext context) {
+
+    final isNova = [56, 57, 58, 59].contains(masterData.modelId);
+
     return Consumer2<NodeListViewModel, MqttPayloadProvider>(
       builder: (context, vm, mqttProvider, _) {
         final nodeLiveMessage = mqttProvider.nodeLiveMessage;
@@ -51,25 +56,102 @@ class NodeList extends StatelessWidget {
             vm.onLivePayloadReceived(
               List.from(nodeLiveMessage),
               List.from(outputOnOffPayload),
+              isNova? true:false,
             );
           }
         });
 
         return Container(
-          padding: kIsWeb ? const EdgeInsets.all(10) : EdgeInsets.zero,
+          padding: isWide ? const EdgeInsets.all(10) : EdgeInsets.zero,
           color: Colors.white,
           height: MediaQuery.of(context).size.height,
-          width: kIsWeb ? 400 : MediaQuery.of(context).size.width,
+          width: isWide ? 400 : MediaQuery.of(context).size.width,
           child: Column(
             children: [
               buildHeader(context),
               const Divider(height: 0, thickness: 0.4),
-              buildStatusHeaderRow(context, vm),
-              SizedBox(
+              buildStatusHeaderRow(context, vm, isNova ? true:false),
+              const Divider(height: 0),
+              Container(
+                color: isNova ? Colors.teal.shade50 : Colors.white,
                 width: 400,
                 height: kIsWeb ?MediaQuery.sizeOf(context).height-190:
                 MediaQuery.sizeOf(context).height-274,
-                child: Column(
+                child: isNova ? Column(
+                  children: [
+                    const SizedBox(height: 5),
+                    const SizedBox(
+                      width: double.infinity,
+                      height: 20,
+                      child: Row(
+                        children: [
+                          SizedBox(width: 10),
+                          CircleAvatar(
+                            radius: 5,
+                            backgroundColor: Colors.green,
+                          ),
+                          SizedBox(width: 5),
+                          Text('ON', style: TextStyle(fontSize: 12)),
+                          SizedBox(width: 20),
+                          CircleAvatar(
+                            radius: 5,
+                            backgroundColor: Colors.black45,
+                          ),
+                          SizedBox(width: 5),
+                          Text('OFF', style: TextStyle(fontSize: 12)),
+                          SizedBox(width: 20),
+                          CircleAvatar(
+                            radius: 5,
+                            backgroundColor: Colors.orange,
+                          ),
+                          SizedBox(width: 5),
+                          Text('ON in OFF', style: TextStyle(fontSize: 12)),
+                          SizedBox(width: 20),
+                          CircleAvatar(
+                            radius: 5,
+                            backgroundColor: Colors.redAccent,
+                          ),
+                          SizedBox(width: 5),
+                          Text('OFF in ON', style: TextStyle(fontSize: 12)),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: double.infinity,
+                      height: vm.calculateGridHeight(masterData.ioConnection.length),
+                      child: GridView.builder(
+                        itemCount: masterData.ioConnection.length,
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 5,
+                          crossAxisSpacing: 5.0,
+                          mainAxisSpacing: 5.0,
+                          childAspectRatio: 1.47,
+                        ),
+                        itemBuilder: (BuildContext context, int indexGv) {
+                          return Column(
+                            children: [
+                              RelayStatusAvatar(
+                                status: masterData.ioConnection[indexGv].status,
+                                rlyNo: masterData.ioConnection[indexGv].rlyNo,
+                                objType: masterData.ioConnection[indexGv].objType,
+                              ),
+                              Text(
+                                (masterData.ioConnection[indexGv].swName!.isNotEmpty
+                                    ? masterData.ioConnection[indexGv].swName
+                                    : masterData.ioConnection[indexGv].name)
+                                    .toString(),
+                                style:
+                                const TextStyle(color: Colors.black, fontSize: 9),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ) :
+                Column(
                   children: [
                     SizedBox(
                       width: double.infinity,
@@ -111,16 +193,16 @@ class NodeList extends StatelessWidget {
                               children: [
                                 vm.nodeList[index].rlyStatus.any((rly) => rly.status == 2 || rly.status == 3)? const Icon(Icons.warning, color: Colors.orangeAccent):
                                 InkWell(
-                                  onTap: (){
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => NodeConnectionPage(
-                                      nodeData: vm.nodeList[index].toJson(),
-                                      masterData: {
-                                        "userId" : userId,
-                                        "customerId" : customerId,
-                                        "controllerId" : masterData.controllerId
-                                      },
-                                    )));
-                                  },
+                                    onTap: (){
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => NodeConnectionPage(
+                                        nodeData: vm.nodeList[index].toJson(),
+                                        masterData: {
+                                          "userId" : userId,
+                                          "customerId" : customerId,
+                                          "controllerId" : masterData.controllerId
+                                        },
+                                      )));
+                                    },
                                     child: const Icon(Icons.bluetooth,)
                                 ),
                                 IconButton(
@@ -166,14 +248,6 @@ class NodeList extends StatelessWidget {
                                           padding: const EdgeInsets.only(left: 17),
                                           child: Text('${vm.nodeList[index].modelName} - v:${vm.nodeList[index].version}',
                                               style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 10, color: Colors.black)),
-                                          /*child: RichText(
-                                            text: TextSpan(
-                                              children: <TextSpan>[
-                                                TextSpan(text: '${vm.nodeList[index].categoryName} - ', style: const TextStyle(fontWeight: FontWeight.normal,fontSize: 10, color: Colors.black)),
-                                                TextSpan(text: '${vm.mapInterfaceType(vm.nodeList[index].interface)} - v:${vm.nodeList[index].version}', style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 10, color: Colors.black),),
-                                              ],
-                                            ),
-                                          ),*/
                                         ),
                                       ],
                                     ),
@@ -436,8 +510,8 @@ class NodeList extends StatelessWidget {
     );
   }
 
-  List<Widget> actionButtons(BuildContext context, {bool isWeb = true}) {
-    final iconColor = isWeb ? Theme.of(context).primaryColorDark : Colors.white;
+  List<Widget> actionButtons(BuildContext context, {bool isWide = true}) {
+    final iconColor = isWide ? Theme.of(context).primaryColorDark : Colors.white;
     return [
       IconButton(
         tooltip: 'Hourly Power Logs for the Node',
@@ -462,11 +536,11 @@ class NodeList extends StatelessWidget {
         },
         icon: Icon(Icons.settings_input_antenna, color: iconColor),
       ),
-      if (!isWeb) const SizedBox(width: 8),
+      if (!isWide) const SizedBox(width: 8),
     ];
   }
 
-  Widget buildStatusHeaderRow(BuildContext context, NodeListViewModel vm) {
+  Widget buildStatusHeaderRow(BuildContext context, NodeListViewModel vm, bool isNova) {
     return SizedBox(
       height: 50,
       child: Row(
@@ -524,7 +598,7 @@ class NodeList extends StatelessWidget {
           SizedBox(
             width: 40,
             child: IconButton(
-              tooltip: 'Set serial for all Nodes',
+              tooltip: isNova ? 'Set serial' : 'Set serial for all Nodes',
               icon: Icon(
                 Icons.format_list_numbered,
                 color: vm.getPermissionStatusBySNo(context, 7)
