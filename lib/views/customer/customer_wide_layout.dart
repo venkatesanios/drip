@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
+import 'package:oro_drip_irrigation/views/customer/send_and_received/sent_and_received.dart';
 import 'package:oro_drip_irrigation/views/customer/site_config.dart';
 import 'package:oro_drip_irrigation/views/customer/widgets/app_bar_action.dart';
 import 'package:oro_drip_irrigation/views/customer/widgets/app_bar_drop_down_menu.dart';
@@ -224,6 +224,7 @@ class _CustomerWideLayoutState extends State<CustomerWideLayout> {
         return SentAndReceived(
           customerId: customerId,
           controllerId: currentMaster.controllerId,
+          isWide: true,
         );
 
       case 3:

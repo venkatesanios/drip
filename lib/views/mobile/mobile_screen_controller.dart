@@ -9,7 +9,6 @@ import 'package:oro_drip_irrigation/Screens/Logs/irrigation_and_pump_log.dart';
 import 'package:oro_drip_irrigation/Widgets/network_connection_banner.dart';
 import 'package:oro_drip_irrigation/modules/ScheduleView/view/schedule_view_screen.dart';
 import 'package:oro_drip_irrigation/modules/UserChat/view/user_chat.dart';
-import 'package:oro_drip_irrigation/views/customer/sent_and_received.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import '../../models/customer/site_model.dart';
@@ -37,6 +36,7 @@ import '../customer/customer_product.dart';
 import '../customer/scheduled_program/scheduled_program_wide.dart';
 import '../customer/input_output_connection_details.dart';
 import '../customer/node_list/node_list.dart';
+import '../customer/send_and_received/sent_and_received.dart';
 import '../customer/stand_alone.dart';
 import '../customer/widgets/alarm_button.dart';
 import '../customer/widgets/irrigation_line_selector_widget.dart';
@@ -211,6 +211,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                                 SentAndReceived(
                                   customerId: loggedInUser.id,
                                   controllerId: currentMaster.controllerId,
+                                  isWide: false,
                                 ),
                           ),
                         );
@@ -566,7 +567,8 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                         MaterialPageRoute(
                           builder: (context) => SentAndReceived(
                               customerId: viewedCustomer.id,
-                              controllerId: currentMaster.controllerId
+                              controllerId: currentMaster.controllerId,
+                            isWide: false,
                           ),
                         ),
                       );

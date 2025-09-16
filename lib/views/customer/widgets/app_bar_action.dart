@@ -20,7 +20,7 @@ import '../../../utils/routes.dart';
 import '../../../utils/shared_preferences_helper.dart';
 import '../../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../../common/user_profile/user_profile.dart';
-import '../sent_and_received.dart';
+import '../send_and_received/sent_and_received.dart';
 import 'alarm_button.dart';
 
 List<Widget> appBarActions(
@@ -366,6 +366,7 @@ Widget _buildNonGemActions(BuildContext context, dynamic master,
                 builder: (context) => SentAndReceived(
                   customerId: loggedInUser.id,
                   controllerId: master.controllerId,
+                  isWide: true,
                 ),
               ),
             );
