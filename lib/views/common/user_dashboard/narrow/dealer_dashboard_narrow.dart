@@ -15,7 +15,7 @@ class DealerDashboardNarrow extends StatelessWidget {
     final navModel = context.watch<BottomNavViewModel>();
 
     final pages = [
-      const AnalyticsView(isNarrow: true),
+      const AnalyticsView(isNarrow: true, userType: 2),
       CustomerView(role: UserRole.dealer, isNarrow: true, onCustomerProductChanged: (String action) {  }),
       const StockView(role:  UserRole.dealer, isWide: false)];
 

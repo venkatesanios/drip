@@ -13,12 +13,13 @@ class AnalyticsViewModel extends ChangeNotifier {
 
   AnalyticsViewModel(this.repository, this.userId);
 
-  Future<void> getMySalesData(MySegment segment) async {
+  Future<void> getMySalesData(MySegment segment, int userType) async {
     segmentView = segment;
     setLoadingSales(true);
 
-    final body = {"userId": userId, "userType": 1,
-      "type": segment == MySegment.all ? 'All' : 'Year', "year": 2024};
+    final body = {"userId": userId, "userType": userType,
+      "type": segment == MySegment.all ? 'All' : 'Year', "year": 2025};
+
     try {
       final response = await repository.fetchAllMySalesReports(body);
       if (response.statusCode == 200) {

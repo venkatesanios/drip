@@ -29,7 +29,6 @@ class CustomerListViewModel extends ChangeNotifier {
       final response = await repository.fetchMyCustomerList(body);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print(response.body);
         if (data["code"] == 200) {
           final list = data["data"];
           if (list is List) {

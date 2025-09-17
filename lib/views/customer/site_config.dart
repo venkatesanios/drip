@@ -90,13 +90,13 @@ class SiteConfig extends StatelessWidget {
                                       }),
                                     );
                                   },
-                                  color: Colors.teal,
+                                  color: Theme.of(context).primaryColorLight,
                                   child: const Row(
                                     children: [
                                       Icon(Icons.confirmation_number_outlined,
                                           color: Colors.white),
                                       SizedBox(width: 5),
-                                      Text('Site Config',
+                                      Text('Site Configuration',
                                           style: TextStyle(color: Colors.white)),
                                     ],
                                   ),

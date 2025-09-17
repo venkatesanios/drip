@@ -13,7 +13,7 @@ class AdminDashboardNarrow extends StatelessWidget {
   Widget build(BuildContext context) {
     final navModel = context.watch<BottomNavViewModel>();
 
-    final pages = [const AnalyticsView(isNarrow: true),
+    final pages = [const AnalyticsView(isNarrow: true, userType: 1),
       CustomerView(role: UserRole.admin, isNarrow: true, onCustomerProductChanged: (String action) {}),
       const ProductView(isWideScreen: false)];
 

@@ -19,7 +19,6 @@ class CustomerProductViewModel extends ChangeNotifier {
     try {
       Map<String, dynamic> body = {"userId": userId, "userType": 3, "set": 1, "limit":100};
       final response = await repository.fetchAllMyInventory(body);
-      print(response.body);
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
         if (jsonData["code"] == 200) {
