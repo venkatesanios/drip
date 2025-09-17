@@ -32,7 +32,7 @@ class DealerDashboardMiddle extends StatelessWidget {
                       child: const Card(
                           elevation:1,
                           color:Colors.white,
-                          child: AnalyticsView(isNarrow: false)
+                          child: AnalyticsView(isNarrow: false, userType: 2)
                       )
                   ),
                   SizedBox(
@@ -53,5 +53,4 @@ class DealerDashboardMiddle extends StatelessWidget {
       ),
     );
   }
-
 }

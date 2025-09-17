@@ -28,7 +28,7 @@ class ManagementDashboardService extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
           create: (_) => AnalyticsViewModel(Repository(HttpService()), userId)
-            ..getMySalesData(MySegment.all),
+            ..getMySalesData(MySegment.all, userType),
         ),
         ChangeNotifierProvider(
           create: (_) => ProductStockViewModel(Repository(HttpService()))

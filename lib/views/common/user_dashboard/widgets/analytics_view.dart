@@ -8,8 +8,10 @@ import 'sales_bar_chart.dart';
 
 
 class AnalyticsView extends StatelessWidget {
-  const AnalyticsView({super.key, required this.isNarrow});
+  const AnalyticsView({super.key, required this.userType, required this.isNarrow});
+  final int userType;
   final bool isNarrow;
+
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +57,7 @@ class AnalyticsView extends StatelessWidget {
         onSelectionChanged: (Set<MySegment> newSelection) {
           if (newSelection.isNotEmpty) {
             final selectedSegment = newSelection.first;
-            viewModel.getMySalesData(selectedSegment);
+            viewModel.getMySalesData(selectedSegment, userType);
           }
         },
       ),

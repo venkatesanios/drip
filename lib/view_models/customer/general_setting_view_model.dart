@@ -81,7 +81,6 @@ class GeneralSettingViewModel extends ChangeNotifier {
       var response = await repository.fetchMasterControllerDetails(body);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print(response.body);
         if (data["code"] == 200) {
 
           final firstItem = (data["data"] as List).isNotEmpty ? data["data"][0] : {};

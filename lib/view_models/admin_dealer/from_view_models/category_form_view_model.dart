@@ -166,7 +166,6 @@ class CategoryFormViewModel extends ChangeNotifier {
 
                           if (response.statusCode == 200) {
                             final jsonData = jsonDecode(response.body);
-                            print(response.body);
                             if (jsonData["code"] == 200) {
                               getCategoryList();
                               GlobalSnackBar.show(context, jsonData["message"], 200);
