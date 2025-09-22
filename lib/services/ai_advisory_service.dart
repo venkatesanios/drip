@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:oro_drip_irrigation/utils/snack_bar.dart';
+
 import '../repository/repository.dart';
 import '../services/http_service.dart';
 import '../services/weather_service.dart';
@@ -33,48 +35,60 @@ class AiAdvisoryService {
 
           if (data != null && data.isNotEmpty) {
             final weatherData = await WeatherService().fetchWeather(city: data['location']);
+
+
             aiResponseNotifier.value = null;
 
-            final params = IrrigationParams(
-              cropType: data['cropName'],
-              soilType: data['soilType'],
-              moistureLevel: 'unknown',
-              weather: '${weatherData['rainfall']}',
-              area: data['fieldArea'],
-              growthStage: data['stage'],
-              temperature: '${weatherData['temperature']}',
-              humidity: '${weatherData['humidity']}',
-              windSpeed: '${weatherData['wind_speed']}',
-              windDirection: '${weatherData['wind_direction']}',
-              cloudCover: '${weatherData['cloud_cover']}',
-              pressure: '${weatherData['pressure']}',
-              recentRainfall: '${weatherData['rainfall']}',
-              irrigationMethod: data['irrigationType'],
-            );
+            if (weatherData['statusCode'] == '404') {
+              print('Error: ${weatherData['message']}');
 
-            final prompt = params.toPrompt();
+              aiResponseNotifier.value = {
+                'percentage': 0,
+                'reason': '${weatherData['message']}',
+              };
 
-            try {
-              final aiResponse = await AIService().sendTextToAI(prompt, "English");
-              final lines = aiResponse.trim().split('\n');
+            } else {
+              final params = IrrigationParams(
+                cropType: data['cropName'],
+                soilType: data['soilType'],
+                moistureLevel: 'unknown',
+                weather: '${weatherData['rainfall']}',
+                area: data['fieldArea'],
+                growthStage: data['stage'],
+                temperature: '${weatherData['temperature']}',
+                humidity: '${weatherData['humidity']}',
+                windSpeed: '${weatherData['wind_speed']}',
+                windDirection: '${weatherData['wind_direction']}',
+                cloudCover: '${weatherData['cloud_cover']}',
+                pressure: '${weatherData['pressure']}',
+                recentRainfall: '${weatherData['rainfall']}',
+                irrigationMethod: data['irrigationType'],
+              );
 
-              final percent = extractPercentageOnly(lines[0]);
-              final reason = lines.skip(1).join('\n').trim();
+              final prompt = params.toPrompt();
 
-              if (percent != null) {
+              try {
+                final aiResponse = await AIService().sendTextToAI(prompt, "English");
+                final lines = aiResponse.trim().split('\n');
+
+                final percent = extractPercentageOnly(lines[0]);
+                final reason = lines.skip(1).join('\n').trim();
+
+                if (percent != null) {
+                  aiResponseNotifier.value = {
+                    'percentage': percent,
+                    'reason': reason,
+                  };
+                } else {
+                  aiResponseNotifier.value = {
+                    'error': '⚠️ Could not extract irrigation percentage.',
+                  };
+                }
+              } catch (e) {
                 aiResponseNotifier.value = {
-                  'percentage': percent,
-                  'reason': reason,
-                };
-              } else {
-                aiResponseNotifier.value = {
-                  'error': '⚠️ Could not extract irrigation percentage.',
+                  'error': '❌ Error fetching AI advisory.',
                 };
               }
-            } catch (e) {
-              aiResponseNotifier.value = {
-                'error': '❌ Error fetching AI advisory.',
-              };
             }
           }
         }
