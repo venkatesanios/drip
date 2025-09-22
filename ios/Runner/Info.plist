@@ -31,17 +31,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.732330939838-aveta5ahr6qp3ru9e0pm3p48rgtjpmto</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLName</key>
-			<string></string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>app-1-732330939838-ios-05020b4b7eb6e429a455ef</string>
+				<string>app-1-749016956909-ios-c8be00814d51f2ee8831e4</string>
 			</array>
 		</dict>
 		<dict>
