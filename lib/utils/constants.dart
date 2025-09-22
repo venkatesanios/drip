@@ -632,6 +632,7 @@ class AppConstants {
   static int lightObjectId = 19;
   static int gateObjectId = 43;
 
+  static List<int> smartPlusEcPhModel = [33];
   static List<int> pumpWithValveModelList = [48, 49, 52, 53, 54, 55];
   static List<int> shine2V = [48, 49];
   static List<int> shine4V = [52, 53];

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:oro_drip_irrigation/Constants/dialog_boxes.dart';
+import 'package:oro_drip_irrigation/utils/constants.dart';
 import '../model/device_model.dart';
 import '../model/device_object_model.dart';
 import '../state_management/config_maker_provider.dart';
@@ -64,6 +65,7 @@ class _ToggleTextFormFieldForConnectionState extends State<ToggleTextFormFieldFo
               bool updateOthers = updateConnectionForFixedInputs(oldCount: oldCount, newCount: validateCount, countLimitFromProductLimit: countLimitFromProductLimit);
               if(updateOthers){
                 print('no ph,ec');
+
                 widget.configPvd.updateObjectConnection(widget.object, validateCount);
               }
             }else if(increasingCount != null && increasingCount <= balancePossibleCountToConfigure){
@@ -79,7 +81,7 @@ class _ToggleTextFormFieldForConnectionState extends State<ToggleTextFormFieldFo
               print('3333333333');
               bool updateOthers = updateConnectionForFixedInputs(oldCount: oldCount, newCount: newCount, countLimitFromProductLimit: countLimitFromProductLimit);
               if(updateOthers){
-                print('no ph,ec');
+                print('oldCount + balancePossibleCountToConfigure == > ${oldCount + balancePossibleCountToConfigure}');
                 widget.configPvd.updateObjectConnection(widget.object, oldCount + balancePossibleCountToConfigure);
               }
             }else{
@@ -104,27 +106,31 @@ class _ToggleTextFormFieldForConnectionState extends State<ToggleTextFormFieldFo
   int getNoFixedConnectionCount(){
     int fixedConnectionCount = 0;
     if(widget.object.type == '3'){
-      int ph = 28;
-      int ec = 27;
-      int category_6_analog = 4;
-      bool model_in_6_analog = widget.selectedDevice.noOfAnalogInput == 8;
-      // int category_5_analog = 2;
-      if(widget.selectedDevice.categoryId == 6  && ![ec, ph].contains(widget.object.objectId)){
-        fixedConnectionCount = model_in_6_analog ? category_6_analog : 0;
+      if(AppConstants.smartPlusEcPhModel.contains(widget.selectedDevice.modelId)){
+        int phSensorConfigureToNodeCount = 0;
+        int ecSensorConfigureToNodeCount = 0;
+        for(var object in widget.configPvd.listOfGeneratedObject){
+          if(object.objectId == AppConstants.phObjectId && object.controllerId == widget.selectedDevice.controllerId){
+            phSensorConfigureToNodeCount += 1;
+          }
+          if(object.objectId == AppConstants.ecObjectId && object.controllerId == widget.selectedDevice.controllerId){
+            ecSensorConfigureToNodeCount += 1;
+          }
+        }
+        fixedConnectionCount = phSensorConfigureToNodeCount + ecSensorConfigureToNodeCount;
       }
-      // else if(widget.selectedDevice.categoryId == 5 && ![ph].contains(widget.object.objectId)){
-      //   fixedConnectionCount = category_5_analog;
-      // }
     }else if(widget.object.type == '4'){
-      int pressureSwitch = 23;
-      int category_6_digital = 1;
-      bool model_in_6_digital = widget.selectedDevice.noOfDigitalInput == 5;
-      // print('it is digital Input..  category_6_digital : $category_6_digital   model_in_6_digital : $model_in_6_digital widget.selectedDevice.noOfDigitalInput : ${widget.selectedDevice.noOfDigitalInput}');
-      if(widget.selectedDevice.categoryId == 6  && ![pressureSwitch].contains(widget.object.objectId)){
-        fixedConnectionCount = model_in_6_digital ? category_6_digital : 0;
-        print('fixedConnectionCount : $fixedConnectionCount');
+      bool pressureSwitchConfigureToNode = false;
+      for(var object in widget.configPvd.listOfGeneratedObject){
+        if(object.objectId == AppConstants.pressureSwitchObjectId && object.controllerId == widget.selectedDevice.controllerId){
+          pressureSwitchConfigureToNode = true;;
+        }
+      }
+      if(!pressureSwitchConfigureToNode){
+        fixedConnectionCount = 1;
       }
     }
+    print('fixedConnectionCount : $fixedConnectionCount');
 
     return fixedConnectionCount;
   }

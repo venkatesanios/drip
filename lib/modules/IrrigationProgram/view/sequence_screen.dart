@@ -422,34 +422,33 @@ class _SequenceScreenState extends State<SequenceScreen> {
                   },
                 );
               } else {
-                if (AppConstants.ecoGemModelList.contains(widget.modelId) || irrigationProgramProvider.irrigationLine!.sequence.length < 8) {
+                if (!AppConstants.ecoGemModelList.contains(widget.modelId) || irrigationProgramProvider.irrigationLine!.sequence.length < 8) {
                   // if(irrigationProgramProvider.irrigationLine!.sequence[indexToShow]['valve']);
                   irrigationProgramProvider.updateAddNext(serialNumber: widget.serialNumber, indexToShow: indexToShow, modelId: widget.modelId,);
                   irrigationProgramProvider.updateNextButton(indexToShow);
                   double itemSize = 150;
                   double targetOffset = indexToShow * itemSize;
                   _scrollController.animateTo(targetOffset, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut,);
+                } else {
+                  showAdaptiveDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text("Warning!"),
+                        content: const Text(
+                          'Maximum 8 zones can created for a program',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                        actions: [
+                          TextButton(
+                            child: const Text("OK"),
+                            onPressed: () => Navigator.of(context).pop(),
+                          ),
+                        ],
+                      );
+                    },
+                  );
                 }
-                // else {
-                //   showAdaptiveDialog(
-                //     context: context,
-                //     builder: (BuildContext context) {
-                //       return AlertDialog(
-                //         title: const Text("Warning!"),
-                //         content: const Text(
-                //           'Maximum 8 zones can created for a program',
-                //           style: TextStyle(color: Colors.red),
-                //         ),
-                //         actions: [
-                //           TextButton(
-                //             child: const Text("OK"),
-                //             onPressed: () => Navigator.of(context).pop(),
-                //           ),
-                //         ],
-                //       );
-                //     },
-                //   );
-                // }
               }
             }
         ),
