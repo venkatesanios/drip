@@ -44,7 +44,7 @@ FutureOr<void> main() async {
   const platform = MethodChannel("ble_raw");
   platform.setMethodCallHandler((call) async {
     if (call.method == "onRawAdv") {
-      print("Raw adv bytes: ${call.arguments}");
+      //print("Raw adv bytes: ${call.arguments}");
       // here you can parse advertisement bytes manually
     }
   });
