@@ -60,7 +60,7 @@ class SiteConfig extends StatelessWidget {
                               subtitle: SelectableText(masterData.deviceId.toString(),
                                   style: const TextStyle(fontSize: 12)),
                               trailing: SizedBox(
-                                width: 125,
+                                width: 170,
                                 child: MaterialButton(
                                   onPressed: () {
                                     Navigator.push(
