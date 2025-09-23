@@ -72,6 +72,7 @@ void selectionDialogBox({
   required void Function()? onPressed,
   required List<DeviceObjectModel> listOfObject,
 }){
+  print("selectionDialogBox listOfObject  ===== ${listOfObject.map((object) => '${object.name}(${object.controllerId})').toList()}");
   showDialog(
       context: context,
       builder: (context){

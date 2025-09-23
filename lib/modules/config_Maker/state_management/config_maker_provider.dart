@@ -621,9 +621,9 @@ class ConfigMakerProvider extends ChangeNotifier{
       for(var notConfiguredObject = 0;notConfiguredObject < howManyObjectSupposedToConnect;notConfiguredObject++){
         inner : for(var object in listOfGeneratedObject){
           if(object.sNo == filteredByNotConfigured[notConfiguredObject].sNo){
-            print('object.sNo : ${object.sNo}');
             object.connectionNo = selectedModelDefaultConnectionList[notConfiguredObject];
             object.controllerId = selectedDevice.controllerId;
+            print('configuring object.sNo : ${object.toJson()}');
             break inner;
           }
         }
