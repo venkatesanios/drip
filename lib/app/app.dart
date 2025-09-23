@@ -67,7 +67,7 @@ class _MyAppState extends State<MyApp> {
           themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
           home: navigateToInitialScreen(snapshot.data ?? Routes.login),
           onGenerateRoute: Routes.generateRoute,
-          // home: FertilizerPumpRuntimeLog(userData: {}),
+          // home: ConfigBasePage(masterData: {"userId":2,"customerId":24,"controllerId":248,"productId":299,"deviceId":"2CCF674C0F8A","deviceName":"Master (R)","categoryId":1,"categoryName":"xMm","modelId":1,"modelDescription":"Master (R)","modelName":"xMm1000ROOO","groupId":26,"groupName":"Athipalayam","connectingObjectId":["1","2","3","4","-"],"productStock":[{"productId":115,"categoryName":"xMp","modelName":"Pump (L2R)","modelId":5,"deviceId":"1122AADD2212","dateOfManufacturing":"2025-06-17","warrantyMonths":12},{"productId":114,"categoryName":"xMm","modelName":"Master (R)","modelId":1,"deviceId":"1122AADD2211","dateOfManufacturing":"2025-06-17","warrantyMonths":12},{"productId":39,"categoryName":"xMp","modelName":"Pump (L2R)","modelId":5,"deviceId":"9C956EC76100","dateOfManufacturing":"2025-06-10","warrantyMonths":12},{"productId":38,"categoryName":"xMp","modelName":"Pump (L2R)","modelId":5,"deviceId":"9C956EC7C000","dateOfManufacturing":"2025-06-10","warrantyMonths":12}]},),
         );
       },
     );
@@ -86,3 +86,6 @@ Widget navigateToInitialScreen(String route) {
       return const SplashScreen();
   }
 }
+
+// Copy-Item -Path "web\smartComm\index.html" -Destination "web\index.html" -Force
+// flutter build web --target=lib\main_oroProduction.dart
