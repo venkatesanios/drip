@@ -10,6 +10,8 @@ import '../../../view_models/customer/customer_screen_controller_view_model.dart
 import '../../common/user_profile/user_profile.dart';
 import '../app_info.dart';
 import '../customer_product.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 
 class CustomerDrawer extends StatelessWidget {
   final dynamic viewedCustomer;
@@ -167,11 +169,35 @@ class CustomerDrawer extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 16, top: 16, right: 16),
       child: TextButton.icon(
-        onPressed: () async {
-          await PreferenceHelper.clearAll();
-          if (!context.mounted) return;
-          Navigator.pushNamedAndRemoveUntil(context, isSkiaWeb ? Routes.loginOtp : Routes.login, (route) => false);
-        },
+          onPressed: () async {
+            await PreferenceHelper.clearAll();
+
+            if (!context.mounted) return;
+
+            if (kIsWeb) {
+              // Only safe to check on web
+              if (isSkiaWeb) {
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  Routes.login,
+                      (route) => false,
+                );
+              } else {
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  Routes.loginOtp,
+                      (route) => false,
+                );
+              }
+            } else {
+              // Mobile / desktop path
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                Routes.loginOtp,
+                    (route) => false,
+              );
+            }
+          },
         icon: const Icon(Icons.logout, color: Colors.red),
         label: const Text(
           "Logout",

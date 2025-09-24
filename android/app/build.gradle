@@ -32,19 +32,16 @@ android {
             dimension "flavor-type"
             applicationId "com.niagaraautomations.oroDevelopment"
             resValue "string", "app_name", "ORO-Dev"
-            minSdkVersion flutter.minSdkVersion
         }
         oroProduction {
             dimension "flavor-type"
             applicationId "com.niagaraautomations.oroDripirrigation"
             resValue "string", "app_name", "ORO"
-            minSdkVersion flutter.minSdkVersion
         }
         smartComm {
             dimension "flavor-type"
             applicationId "com.niagaraautomations.smartComm"
             resValue "string", "app_name", "SMART COMM"
-            minSdkVersion flutter.minSdkVersion
         }
     }
 
@@ -81,8 +78,8 @@ android {
 
     defaultConfig {
         applicationId = "com.niagaraautomations.oroDripirrigation"
-        minSdkVersion flutter.minSdkVersion
-//        minSdk = flutter.minSdkVersion
+        //minSdk = flutter.minSdkVersion
+        minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = 12
         versionName = "1.1.0"
@@ -105,6 +102,5 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
     implementation 'com.google.android.material:material:1.13.0'
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
     implementation 'com.google.android.play:app-update:2.1.0'
 }

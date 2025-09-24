@@ -21,6 +21,7 @@ class WeatherService {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       return {
+        'statusCode': '${response.statusCode}',
         'temperature': data['main']['temp'],
         'humidity': data['main']['humidity'],
         'rainfall': data['rain'] != null ? data['rain']['1h'] ?? 0.0 : 0.0,
@@ -30,7 +31,16 @@ class WeatherService {
         'pressure': data['main']['pressure'],
       };
     } else {
-      throw Exception('Failed to fetch weather data: ${response.statusCode}');
+      //throw Exception('Failed to fetch weather data: ${response.statusCode}');
+
+      final data = jsonDecode(response.body);
+      final code = data['cod'];
+      final message = data['message'];
+
+      return  {
+        'statusCode': code,
+        'message': message,
+      };
     }
   }
 

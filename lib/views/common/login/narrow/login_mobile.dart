@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../../../flavors.dart';
 import '../../../../view_models/login_view_model.dart';
 import '../widgets/continue_button.dart';

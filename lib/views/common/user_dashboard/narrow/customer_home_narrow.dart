@@ -653,7 +653,6 @@ class CustomerHomeNarrow extends StatelessWidget {
                               style: TextStyle(color: Colors.black45, fontSize: 13)),
                           const SizedBox(height: 3),
                           Text(sqName, style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
-
                         ],
                       ),
                     ),
@@ -981,29 +980,9 @@ class PumpStation extends StatelessWidget {
   }
 
   List<Widget> _buildFertilizer(BuildContext context, List<FertilizerSiteModel> fertilizerSite) {
-    return List.generate(fertilizerSite.length, (siteIndex) {
-      final site = fertilizerSite[siteIndex];
+    return fertilizerSite.map((site) {
       final widgets = <Widget>[];
 
-      if (siteIndex != 0) {
-        widgets.add(SizedBox(
-          width: 4.5,
-          height: 120,
-          child: Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 42),
-                child: VerticalDivider(width: 0, color: Colors.grey.shade300,),
-              ),
-              const SizedBox(width: 4.5,),
-              Padding(
-                padding: const EdgeInsets.only(top: 45),
-                child: VerticalDivider(width: 0, color: Colors.grey.shade300,),
-              ),
-            ],
-          ),
-        ));
-      }
       widgets.add(BoosterWidget(fertilizerSite: site));
 
       for (int channelIndex = 0; channelIndex < site.channel.length; channelIndex++) {
@@ -1017,15 +996,22 @@ class PumpStation extends StatelessWidget {
         ));
 
         final isLast = channelIndex == site.channel.length - 1;
-
-        if(isLast && site.agitator.isNotEmpty){
-          widgets.add(AgitatorWidget(
-            fertilizerSite: site,
-          ));
+        if (isLast && site.agitator.isNotEmpty) {
+          widgets.add(AgitatorWidget(fertilizerSite: site));
         }
       }
-      return widgets;
-    }).expand((item) => item).toList().cast<Widget>();
+
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 5),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+              children: widgets
+          ),
+        ),
+      );
+    }).toList();
   }
 }
 

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:otp_pin_field/otp_pin_field.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/shared_preferences_helper.dart';
@@ -109,7 +107,7 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                     onPressed: (){
                       generateOtp(widget.contact);
                     },
-                     child: Text(
+                     child: const Text(
                       'Resend OTP',
                       style: TextStyle(color: Colors.blue),
                     ),
@@ -299,7 +297,11 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
 
       // 🔹 Example: Navigate based on role
       Future.delayed(Duration.zero, () {
-        Navigator.pushReplacementNamed(context, '/dashboard');
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/dashboard',
+              (Route<dynamic> route) => false,
+        );
         return true;
       });
       return true;

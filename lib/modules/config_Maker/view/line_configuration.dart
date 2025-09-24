@@ -97,9 +97,17 @@ class _LineConfigurationState extends State<LineConfiguration> {
                                         }, icon: const Icon(Icons.dataset)
                                     ),
                                     if(widget.configPvd.pump.any((pump) => pump.pumpType == 1))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.sourcePump, parameterType: LineParameter.sourcePump, objectId: AppConstants.pumpObjectId, objectName: 'Source Pump', validateAllLine: false, listOfObject: widget.configPvd.pump.where((pump) => (pump.pumpType == 1)).toList().map((pump) => pump.commonDetails).toList()),
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.irrigationPump, parameterType: LineParameter.irrigationPump, objectId: AppConstants.pumpObjectId, objectName: 'Source Pump', validateAllLine: false,
+                                          listOfObject: widget.configPvd.listOfGeneratedObject.where((pumpObject){
+                                            return widget.configPvd.pump.any((pump) => pump.commonDetails.sNo == pumpObject.sNo && pump.pumpType == 1);
+                                          }).toList()
+                                      ),
                                     if(widget.configPvd.pump.any((pump) => pump.pumpType == 2))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.irrigationPump, parameterType: LineParameter.irrigationPump, objectId: AppConstants.pumpObjectId, objectName: 'Irrigation Pump', validateAllLine: false, listOfObject: widget.configPvd.pump.where((pump) => (pump.pumpType == 2)).toList().map((pump) => pump.commonDetails).toList()),
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.irrigationPump, parameterType: LineParameter.irrigationPump, objectId: AppConstants.pumpObjectId, objectName: 'Irrigation Pump', validateAllLine: false,
+                                          listOfObject: widget.configPvd.listOfGeneratedObject.where((pumpObject){
+                                            return widget.configPvd.pump.any((pump) => pump.commonDetails.sNo == pumpObject.sNo && pump.pumpType == 2);
+                                          }).toList()
+                                      ),
                                     if(availability(AppConstants.valveObjectId))
                                       getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.valve, parameterType: LineParameter.valve, objectId: AppConstants.valveObjectId, objectName: 'Valve', validateAllLine: true),
                                     if(availability(AppConstants.mainValveObjectId))
@@ -483,6 +491,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
     List<DeviceObjectModel>? listOfObject
   }){
     if(listOfObject != null){
+      print("${parameterType.name}  ===== ${listOfObject.map((object) => object.toJson()).toList()}");
       if(listOfObject.isEmpty){
         return Container();
       }
