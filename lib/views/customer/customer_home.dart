@@ -68,8 +68,6 @@ class CustomerHome extends StatelessWidget {
               .master[viewModel.mIndex]
               .programList;
 
-          print('scheduledProgram:${scheduledProgram.length}');
-
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
@@ -268,149 +266,8 @@ class PumpStationWithLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    if(kIsWeb)
-    {
-
-      final allValveWidgets = [
-        ...mainValves.asMap().entries.map((entry) {
-          final valve = entry.value;
-          return MainValveWidget(
-            valve: valve,
-            customerId: customerId,
-            controllerId: controllerId,
-            modelId: modelId,
-          );
-        }),
-
-        ...valves.asMap().entries.map((entry) {
-          final index = entry.key;
-          final valve = entry.value;
-          final isLastValve = index == valves.length - 1;
-          return ValveWidget(
-            valve: valve,
-            customerId: customerId,
-            controllerId: controllerId,
-            isLastValve: isLastValve && pressureOut.isEmpty,
-            modelId: modelId,
-          );
-        }),
-      ];
-
-      final gateWidgets = gates.asMap().entries.map((entry) {
-        return GateWidget(objGate: entry.value);
-      }).toList();
-
-      final lightWidgets = lights.asMap().entries.map((entry) {
-        return LightWidget(objLight: entry.value);
-      }).toList();
-
-      final allItems = [
-        if (inletWaterSources.isNotEmpty)
-          ..._buildWaterSource(context, inletWaterSources, true, true,fertilizerSite.isNotEmpty? true:false),
-
-        if (outletWaterSources.isNotEmpty)
-          ..._buildWaterSource(context, outletWaterSources, inletWaterSources.isNotEmpty? true : false, false,fertilizerSite.isNotEmpty?true:false),
-
-        if (filterSite.isNotEmpty)
-          ..._buildFilter(context, filterSite, fertilizerSite.isNotEmpty),
-
-        if (fertilizerSite.isNotEmpty)
-          ..._buildFertilizer(context, fertilizerSite),
-        ...lightWidgets,
-        ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch_wj.png', fertilizerSite.isNotEmpty),
-        ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', fertilizerSite.isNotEmpty),
-        ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter_wj.png', fertilizerSite.isNotEmpty),
-        ...allValveWidgets,
-        ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor_wjl.png', fertilizerSite.isNotEmpty),
-        ...gateWidgets,
-      ];
-
-      return Padding(
-        padding: const EdgeInsets.only(top: 8),
-        child: Align(
-          alignment: Alignment.topLeft,
-          child: Wrap(
-            alignment: WrapAlignment.start,
-            spacing: 0,
-            runSpacing: 0,
-            children: allItems.asMap().entries.map<Widget>((entry) {
-              final index = entry.key;
-              final item = entry.value;
-              if(fertilizerSite.isNotEmpty){
-                int itemsPerRow = ((MediaQuery.sizeOf(context).width - 140) / 67).floor();
-
-                if (((item is ValveWidget)||(item is MainValveWidget)
-                    ||(item is LightWidget)||(item is SensorWidget))
-                    && index < itemsPerRow) {
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 30),
-                    child: item,
-                  );
-                }
-                else{
-                  return item;
-                }
-              }
-              else{
-                return item;
-              }
-
-            }).toList(),
-          ),
-        ),
-      );
-    }
-    else{
-
-      double myDouble = MediaQuery.sizeOf(context).width / 75;
-      int itemsPerRow = myDouble.toInt();
-
-      final valveWidgetEntries = valves.asMap().entries.toList();
-      final mainValveWidgetEntries = mainValves.asMap().entries.toList();
-
-      final baseSensors = [
-        ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch_wj.png', false),
-        ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', false),
-        ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter_wj.png', false),
-      ];
-
-      final wsAndFilterItems = [
-        if (inletWaterSources.isNotEmpty)
-          ..._buildWaterSource(context, inletWaterSources, true, true, false),
-        if (outletWaterSources.isNotEmpty)
-          ..._buildWaterSource(context, outletWaterSources, inletWaterSources.isNotEmpty, false, false),
-        if (filterSite.isNotEmpty)
-          ..._buildFilter(context, filterSite, false),
-      ];
-
-      final fertilizerItems = fertilizerSite.isNotEmpty
-          ? _buildFertilizer(context, fertilizerSite).cast<Widget>()
-          : <Widget>[];
-
-      final allItemsWithoutValves = [
-        ...baseSensors,
-      ];
-
-      final valveWidgets = valveWidgetEntries.map((entry) {
-        final index = entry.key;
-        final valve = entry.value;
-        final totalOffset = allItemsWithoutValves.length;
-        final globalIndex = totalOffset + index;
-
-        final isLastValveInRow = (globalIndex + 1) % itemsPerRow == 0;
-        final isLastValve = index == valveWidgetEntries.length - 1;
-
-        return ValveWidget(
-          valve: valve,
-          customerId: customerId,
-          controllerId: controllerId,
-          isLastValve: isLastValve? isLastValve && pressureOut.isEmpty:
-          isLastValveInRow && pressureOut.isEmpty,
-          modelId: modelId,
-        );
-      }).toList();
-
-      final mainValveWidgets = mainValveWidgetEntries.map((entry) {
+    final allValveWidgets = [
+      ...mainValves.asMap().entries.map((entry) {
         final valve = entry.value;
         return MainValveWidget(
           valve: valve,
@@ -418,76 +275,85 @@ class PumpStationWithLine extends StatelessWidget {
           controllerId: controllerId,
           modelId: modelId,
         );
-      }).toList();
+      }),
 
-      final pressureOutWidgets = _buildSensorItems(
-        pressureOut,
-        'Pressure Sensor',
-        'assets/png/pressure_sensor_wj.png',
-        false,
-      );
-
-      final lightWidgetEntries = lights.asMap().entries.toList();
-      final lightWidgets = lightWidgetEntries.map((entry) {
-        return LightWidget(objLight: entry.value);
-      }).toList();
-
-
-      final allItems = [
-        ...allItemsWithoutValves,
-        ...mainValveWidgets,
-        ...valveWidgets,
-        ...pressureOutWidgets,
-      ];
-
-      if (fertilizerSite.isEmpty) {
-        return Align(
-          alignment: Alignment.topLeft,
-          child: Wrap(
-            alignment: WrapAlignment.start,
-            spacing: 0,
-            runSpacing: 0,
-            children: [
-              ...wsAndFilterItems,
-              ...lightWidgets,
-              ...allItems,
-            ],
-          ),
+      ...valves.asMap().entries.map((entry) {
+        final index = entry.key;
+        final valve = entry.value;
+        final isLastValve = index == valves.length - 1;
+        return ValveWidget(
+          valve: valve,
+          customerId: customerId,
+          controllerId: controllerId,
+          isLastValve: isLastValve && pressureOut.isEmpty,
+          modelId: modelId,
         );
-      } else {
-        return Column(
-          children: [
-            Align(
-              alignment: Alignment.topLeft,
-              child: Wrap(
-                alignment: WrapAlignment.start,
-                spacing: 0,
-                runSpacing: 0,
-                children: wsAndFilterItems,
-              ),
-            ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: Wrap(
-                alignment: WrapAlignment.start,
-                spacing: 0,
-                runSpacing: 0,
-                children: fertilizerItems,
-              ),
-            ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: Wrap(
-                alignment: WrapAlignment.start,
-                spacing: 0,
-                runSpacing: 0,
-                children: allItems,
-              ),
-            ),
-          ],
-        );
-      }
-    }
+      }),
+    ];
+
+    final gateWidgets = gates.asMap().entries.map((entry) {
+      return GateWidget(objGate: entry.value);
+    }).toList();
+
+    final lightWidgets = lights.asMap().entries.map((entry) {
+      return LightWidget(objLight: entry.value);
+    }).toList();
+
+    final allItems = [
+      if (inletWaterSources.isNotEmpty)
+        ..._buildWaterSource(context, inletWaterSources, true, true,fertilizerSite.isNotEmpty? true:false),
+
+      if (outletWaterSources.isNotEmpty)
+        ..._buildWaterSource(context, outletWaterSources, inletWaterSources.isNotEmpty? true : false, false,fertilizerSite.isNotEmpty?true:false),
+
+      if (filterSite.isNotEmpty)
+        ..._buildFilter(context, filterSite, fertilizerSite.isNotEmpty),
+
+      if (fertilizerSite.isNotEmpty)
+        ..._buildFertilizer(context, fertilizerSite),
+      ...lightWidgets,
+      ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch_wj.png', fertilizerSite.isNotEmpty),
+      ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', fertilizerSite.isNotEmpty),
+      ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter_wj.png', fertilizerSite.isNotEmpty),
+      ...allValveWidgets,
+      ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor_wjl.png', fertilizerSite.isNotEmpty),
+      ...gateWidgets,
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Align(
+        alignment: Alignment.topLeft,
+        child: Wrap(
+          alignment: WrapAlignment.start,
+          spacing: 0,
+          runSpacing: 0,
+          children: allItems.asMap().entries.map<Widget>((entry) {
+            final index = entry.key;
+            final item = entry.value;
+            if(fertilizerSite.isNotEmpty){
+              int itemsPerRow = ((MediaQuery.sizeOf(context).width - 140) / 67).floor();
+
+              if (((item is ValveWidget)||(item is MainValveWidget)
+                  ||(item is LightWidget)||(item is SensorWidget))
+                  && index < itemsPerRow) {
+                return Padding(
+                  padding: const EdgeInsets.only(top: 30),
+                  child: item,
+                );
+              }
+              else{
+                return item;
+              }
+            }
+            else{
+              return item;
+            }
+
+          }).toList(),
+        ),
+      ),
+    );
   }
 
   List<Widget> _buildWaterSource(BuildContext context, List<WaterSourceModel> waterSources,
@@ -647,7 +513,7 @@ class PumpStationWithLine extends StatelessWidget {
         ),
       ...site.filters.map((filter) => Padding(
         padding: EdgeInsets.only(top: isFertAvail? 38.5:8),
-        child: FilterWidget(filter: filter, siteSno: filter.sNo.toString()),
+        child: FilterWidget(filter: filter, siteSno: site.sNo.toString()),
       )),
       if (site.pressureOut != null)
         Padding(
@@ -720,6 +586,7 @@ class PumpStationWithLine extends StatelessWidget {
           ),
         ));
       }
+
       return widgets;
     }).expand((item) => item).toList().cast<Widget>();
   }
@@ -981,7 +848,7 @@ class SensorWidget extends StatelessWidget {
                   controllerId: controllerId,
                 ),
                 direction: PopoverDirection.bottom,
-                width: kIsWeb ? 550 : MediaQuery.sizeOf(context).width - 25,
+                width: 550,
                 height: 310,
                 arrowHeight: 15,
                 arrowWidth: 30,
@@ -1487,7 +1354,7 @@ class ValveWidget extends StatelessWidget {
                                           child: Container(width: 1, height: 110, color: Colors.black12),
                                         ),
                                         SizedBox(
-                                          width : kIsWeb ? 415: MediaQuery.sizeOf(context).width-155,
+                                          width : 415,
                                           height : 132,
                                           child: TableCalendar(
                                             focusedDay: DateTime.now(),
@@ -1534,7 +1401,7 @@ class ValveWidget extends StatelessWidget {
                                 );
                               },
                               direction: PopoverDirection.bottom,
-                              width: kIsWeb ? 550: MediaQuery.sizeOf(context).width-20,
+                              width: 550,
                               height: 310,
                               arrowHeight: 15,
                               arrowWidth: 30,
@@ -1591,7 +1458,7 @@ class ValveWidget extends StatelessWidget {
                     ),
                     if (valve.waterSources[0].level.isNotEmpty) ...[
                       Positioned(
-                        top: 17.5,
+                        top: 20,
                         left: 2,
                         right: 2,
                         child: Consumer<MqttPayloadProvider>(
@@ -1778,7 +1645,7 @@ class ValveWidget extends StatelessWidget {
                                     child: Container(width: 1, height: 110, color: Colors.black12),
                                   ),
                                   SizedBox(
-                                    width : kIsWeb ? 415: MediaQuery.sizeOf(context).width-155,
+                                    width : 415,
                                     height : 132,
                                     child: TableCalendar(
                                       focusedDay: DateTime.now(),
@@ -1825,7 +1692,7 @@ class ValveWidget extends StatelessWidget {
                           );
                         },
                         direction: PopoverDirection.bottom,
-                        width: kIsWeb ? 550: MediaQuery.sizeOf(context).width-20,
+                        width: 550,
                         height: 310,
                         arrowHeight: 15,
                         arrowWidth: 30,
@@ -2069,7 +1936,7 @@ class ValveWidgetMobile extends StatelessWidget {
                       children: [
                         SizedBox(
                           width: 40,
-                          height: 30,
+                          height: 40,
                           child: AppConstants.getAsset('valveToMobile', valve.status, ''),
                         ),
                         Text(
@@ -2164,7 +2031,7 @@ class ValveWidgetMobile extends StatelessWidget {
                                           child: Container(width: 1, height: 110, color: Colors.black12),
                                         ),
                                         SizedBox(
-                                          width : kIsWeb ? 415: MediaQuery.sizeOf(context).width-155,
+                                          width : 415,
                                           height : 132,
                                           child: TableCalendar(
                                             focusedDay: DateTime.now(),
@@ -2211,7 +2078,7 @@ class ValveWidgetMobile extends StatelessWidget {
                                 );
                               },
                               direction: PopoverDirection.bottom,
-                              width: kIsWeb ? 550: MediaQuery.sizeOf(context).width-20,
+                              width: 550,
                               height: 310,
                               arrowHeight: 15,
                               arrowWidth: 30,
@@ -2351,7 +2218,7 @@ class ValveWidgetMobile extends StatelessWidget {
                 children: [
                   SizedBox(
                     width: 40,
-                    height: 30,
+                    height: 40,
                     child: AppConstants.getAsset('valveToMobile', valve.status, ''),
                   ),
                   Text(
@@ -2450,7 +2317,7 @@ class ValveWidgetMobile extends StatelessWidget {
                                     child: Container(width: 1, height: 110, color: Colors.black12),
                                   ),
                                   SizedBox(
-                                    width : kIsWeb ? 415: MediaQuery.sizeOf(context).width-155,
+                                    width : 415,
                                     height : 132,
                                     child: TableCalendar(
                                       focusedDay: DateTime.now(),
@@ -2497,7 +2364,7 @@ class ValveWidgetMobile extends StatelessWidget {
                           );
                         },
                         direction: PopoverDirection.bottom,
-                        width: kIsWeb ? 550: MediaQuery.sizeOf(context).width-20,
+                        width: 550,
                         height: 310,
                         arrowHeight: 15,
                         arrowWidth: 30,
@@ -2606,6 +2473,57 @@ class ValveWidgetMobile extends StatelessWidget {
       });
     }
     return result;
+  }
+}
+
+class MainValveWidgetMobile extends StatelessWidget {
+  final ValveModel valve;
+  final int customerId, controllerId, modelId;
+  const MainValveWidgetMobile({super.key, required this.valve, required this.customerId,
+    required this.controllerId, required this.modelId});
+
+  @override
+  Widget build(BuildContext context) {
+    return Selector<MqttPayloadProvider, String?>(
+      selector: (_, provider) => provider.getValveOnOffStatus([56, 57, 58, 59].contains(modelId) ?
+      double.parse(valve.sNo.toString()).toStringAsFixed(3): valve.sNo.toString()),
+      builder: (_, status, __) {
+
+        final statusParts = status?.split(',') ?? [];
+        if(statusParts.isNotEmpty){
+          valve.status = int.parse(statusParts[1]);
+        }
+
+        return SizedBox(
+          width: 70,
+          height: 60,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: AppConstants.getAsset('mainValveToMobile', valve.status, ''),
+                  ),
+                  Text(
+                    valve.name,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 10, color: Colors.black54),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 

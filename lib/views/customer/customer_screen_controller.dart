@@ -738,7 +738,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
                               height: 45,
                               child: IconButton(
                                 tooltip: 'Program',
-                                onPressed: vm.getPermissionStatusBySNo(context, 10) ? () {
+                                onPressed:  () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -756,7 +756,7 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
                                       ),
                                     ),
                                   );
-                                }:null,
+                                },
                                 icon: const Icon(Icons.list_alt),
                                 color: Colors.white,
                                 iconSize: 24.0,

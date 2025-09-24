@@ -30,6 +30,7 @@ class SettingsMenuNarrow extends StatelessWidget {
       deviceName: master.deviceName,
       master: master,
       categoryName: master.categoryName,
+      isSubUser: master.isSubUser,
     );
 
     final viewModel = context.watch<ControllerSettingsViewModel>();

@@ -6,6 +6,7 @@ class ControllerContext {
   final int controllerId;
   final int categoryId, modelId;
   final String categoryName, imeiNo, deviceName;
+  final bool isSubUser;
   final MasterControllerModel master;
 
   ControllerContext({
@@ -18,5 +19,6 @@ class ControllerContext {
     required this.imeiNo,
     required this.deviceName,
     required this.master,
+    required this.isSubUser,
   });
 }

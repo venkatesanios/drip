@@ -42,6 +42,7 @@ class SettingsScreenFactory {
             customerId: ctx.customerId,
             controllerId: ctx.controllerId,
             userId: ctx.userId,
+            isSubUser: ctx.isSubUser,
           );
         }
 

@@ -241,9 +241,11 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
           // handle sharedUserSite same way
           final sharedResponse = await repository.fetchSharedUserSite({"userId": customerId});
           if (sharedResponse.statusCode == 200) {
+            print(sharedResponse.body);
             final jsonData = jsonDecode(sharedResponse.body);
             if (jsonData["code"] == 200) {
               final newSiteList = SiteModel.fromJson(jsonData, 'subUser');
+              print(newSiteList);
 
               if (preserveSelection && mySiteList.data.isNotEmpty) {
                 mySiteList.data[sIndex].master[mIndex] =
@@ -274,65 +276,6 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
-
-  /*Future<void> getAllMySites(BuildContext context, int customerId) async {
-    setLoading(true);
-    final response = await repository.fetchAllMySite({"userId": customerId});
-    print("response.body :: ${response.body}");
-    try {
-      final response = await repository.fetchAllMySite({"userId": customerId});
-      if (response.statusCode == 200) {
-        print(response.body);
-        final jsonData = jsonDecode(response.body);
-        if (jsonData["code"] == 200) {
-          mySiteList = SiteModel.fromJson(jsonData, 'customer');
-          updateSite(sIndex, mIndex, lIndex);
-
-          mqttProvider.saveUnits(Unit.toJsonList(mySiteList.data[sIndex].master[mIndex].units));
-
-          final customerProvider = Provider.of<CustomerProvider>(context, listen: false);
-          customerProvider.updateControllerCommunicationMode(
-            cmmMode: mySiteList.data[sIndex].master[mIndex].communicationMode!,
-          );
-
-          final live = mySiteList.data[sIndex].master[mIndex].live;
-          mqttProvider.updateReceivedPayload(
-            live != null ? jsonEncode(live) : _defaultPayload(),
-            true,
-          );
-
-          wifiStrength = live?.cM['WifiStrength'] ?? 0;
-        }
-        else{
-          final response = await repository.fetchSharedUserSite({"userId": customerId});
-          if (response.statusCode == 200) {
-            print(response.body);
-            final jsonData = jsonDecode(response.body);
-            if (jsonData["code"] == 200) {
-              mySiteList = SiteModel.fromJson(jsonData, 'subUser');
-              updateSite(sIndex, mIndex, lIndex);
-
-              mqttProvider.saveUnits(Unit.toJsonList(mySiteList.data[sIndex].master[mIndex].units));
-
-              final live = mySiteList.data[sIndex].master[mIndex].live;
-              mqttProvider.updateReceivedPayload(
-                live != null ? jsonEncode(live) : _defaultPayload(),
-                true,
-              );
-
-              wifiStrength = live?.cM['WifiStrength'] ?? 0;
-            }
-          }
-        }
-      }
-
-    } catch (error) {
-      errorMsg = 'Error fetching site list: $error';
-      debugPrint(errorMsg);
-    } finally {
-      setLoading(false);
-    }
-  }*/
 
   String _defaultPayload() => '''
   {
@@ -479,9 +422,6 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     if (result['bluetooth'] == true) debugPrint("Payload sent via Bluetooth");
   }
 
-  bool getPermissionStatusBySNo(BuildContext context, int sNo) {
-    return true;
-  }
 
   void onItemTapped(int index) {
     selectedIndex = index;

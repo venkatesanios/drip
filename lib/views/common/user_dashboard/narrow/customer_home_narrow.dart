@@ -78,13 +78,14 @@ class CustomerHomeNarrow extends StatelessWidget {
                     ),
                     Card(
                       color: Colors.white,
+                      surfaceTintColor: Colors.white,
                       elevation: 1,
                       child: Column(
                         children: [
                           Container(
                             width: MediaQuery.sizeOf(context).width,
                             height: 45,
-                            color: Colors.white70,
+                            color: Colors.white,
                             child: Row(
                               children: [
                                 const SizedBox(width: 16),
@@ -639,7 +640,7 @@ class CustomerHomeNarrow extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                     decoration: BoxDecoration(
-                      color: Colors.orange.shade400,
+                      color: Colors.orange.shade300,
                       borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(5),
                         topRight: Radius.circular(5),
@@ -969,7 +970,7 @@ class PumpStation extends StatelessWidget {
         ),
       ...site.filters.map((filter) => Padding(
         padding: EdgeInsets.only(top: isFertAvail? 38.5:8),
-        child: FilterWidget(filter: filter, siteSno: filter.sNo.toString()),
+        child: FilterWidget(filter: filter, siteSno: site.sNo.toString()),
       )),
       if (site.pressureOut != null)
         Padding(
@@ -1080,7 +1081,7 @@ class IrrigationLine extends StatelessWidget {
 
     final mainValveWidgets = mainValveWidgetEntries.map((entry) {
       final valve = entry.value;
-      return MainValveWidget(
+      return MainValveWidgetMobile(
         valve: valve,
         customerId: customerId,
         controllerId: controllerId,

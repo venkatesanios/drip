@@ -29,6 +29,7 @@ class ControllerSettingWide extends StatelessWidget {
     deviceName: masterController.deviceName,
     master: masterController,
     categoryName: masterController.categoryName,
+    isSubUser: masterController.isSubUser,
   );
 
   @override

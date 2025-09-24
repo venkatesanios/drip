@@ -849,7 +849,7 @@ class _StandAloneNarrowState extends State<StandAloneNarrow> with SingleTickerPr
                           headingRowHeight: 0,
                           dataRowColor: WidgetStateProperty.all(Colors.white),
                           columns: const [
-                            DataColumn2(label: Center(child: Text('')), fixedWidth: 30),
+                            DataColumn2(label: Center(child: Text('')), fixedWidth: 40),
                             DataColumn2(label: Text('Name'), size: ColumnSize.M),
                             DataColumn2(
                               label: Center(child: Text('Valve Status')),
@@ -862,14 +862,14 @@ class _StandAloneNarrowState extends State<StandAloneNarrow> with SingleTickerPr
                               return DataRow(cells: [
                                 DataCell(Center(
                                   child: Image.asset(
-                                    'assets/png/main_valve_gray.png', // use a different icon for main valve
-                                    width: 25,
-                                    height: 25,
+                                    'assets/png/m_main_valve_gray.png', // use a different icon for main valve
+                                    width: 40,
+                                    height: 40,
                                   ),
                                 )),
                                 DataCell(Text(mainValve.name)),
                                 DataCell(Transform.scale(
-                                  scale: 0.7,
+                                  scale: 0.8,
                                   child: Tooltip(
                                     message: mainValve.isOn ? 'Close' : 'Open',
                                     child: Switch(
@@ -892,14 +892,14 @@ class _StandAloneNarrowState extends State<StandAloneNarrow> with SingleTickerPr
                               return DataRow(cells: [
                                 DataCell(Center(
                                   child: Image.asset(
-                                    'assets/png/valve_gray.png',
-                                    width: 25,
-                                    height: 25,
+                                    'assets/png/m_valve_grey.png',
+                                    width: 40,
+                                    height: 40,
                                   ),
                                 )),
                                 DataCell(Text(valve.name)),
                                 DataCell(Transform.scale(
-                                  scale: 0.7,
+                                  scale: 0.8,
                                   child: Tooltip(
                                     message: valve.isOn ? 'Close' : 'Open',
                                     child: Switch(
@@ -920,51 +920,6 @@ class _StandAloneNarrowState extends State<StandAloneNarrow> with SingleTickerPr
                         ),
                       ),
                     ),
-                    /*SizedBox(
-                      height: (line.valveObjects.length*40)+3,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left:3, right:3, bottom: 3),
-                        child: DataTable2(
-                          columnSpacing: 12,
-                          horizontalMargin: 12,
-                          minWidth: 150,
-                          dataRowHeight: 40.0,
-                          headingRowHeight: 0,
-                          dataRowColor: WidgetStateProperty.all(Colors.white),
-                          columns: const [
-                            DataColumn2(label: Center(child: Text('')), fixedWidth: 30),
-                            DataColumn2(label: Text('Name'), size: ColumnSize.M),
-                            DataColumn2(
-                              label: Center(child: Text('Valve Status')),
-                              fixedWidth: 50,
-                            ),
-                          ],
-                          rows: List<DataRow>.generate(line.valveObjects.length, (valveIndex) {
-                            final valve = line.valveObjects[valveIndex];
-                            return DataRow(cells: [
-                              DataCell(Center(child: Image.asset('assets/png/valve_gray.png', width: 25, height: 25))),
-                              DataCell(Text(valve.name)),
-                              DataCell(Transform.scale(
-                                  scale: 0.7,
-                                  child: Tooltip(
-                                    message: valve.isOn ? 'Close' : 'Open',
-                                    child: Switch(
-                                      hoverColor: Colors.pink.shade100,
-                                      activeColor: Colors.teal,
-                                      value: valve.isOn,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          valve.isOn = value;
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                )),
-                            ]);
-                          }),
-                        ),
-                      ),
-                    ),*/
                   ],
                 ),
               ),
@@ -1003,7 +958,7 @@ class _StandAloneNarrowState extends State<StandAloneNarrow> with SingleTickerPr
                             SizedBox(
                               width: 60,
                               child: Transform.scale(
-                                scale: 0.7,
+                                scale: 0.8,
                                 child: Switch(
                                   value: sequence.selected,
                                   hoverColor: Colors.pink.shade100,
@@ -1034,12 +989,12 @@ class _StandAloneNarrowState extends State<StandAloneNarrow> with SingleTickerPr
                         headingRowHeight: 0,
                         dataRowColor: WidgetStateProperty.all(Colors.white),
                         columns: const [
-                          DataColumn2(label: Center(child: Text('')), fixedWidth: 30),
+                          DataColumn2(label: Center(child: Text('')), fixedWidth: 40),
                           DataColumn2(label: Center(child: Text('Name')), size: ColumnSize.M),
                         ],
                         rows: List<DataRow>.generate(sequence.valve.length, (index) {
                           return DataRow(cells: [
-                            DataCell(Center(child: Image.asset('assets/png/valve_gray.png', width: 25, height: 25))),
+                            DataCell(Center(child: Image.asset('assets/png/m_valve_gray.png', width: 40, height: 40))),
                             DataCell(Text(sequence.valve[index].name)),
                           ]);
                         }),

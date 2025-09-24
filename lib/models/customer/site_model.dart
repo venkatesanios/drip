@@ -28,16 +28,17 @@ class Group {
   final List<MasterControllerModel> master;
 
 
-  Group({required this.customerId, required this.customerName, required this.groupId, required this.groupName, required this.master});
+  Group({required this.customerId, required this.customerName, required this.groupId,
+    required this.groupName, required this.master});
 
   factory Group.fromJson(Map<String, dynamic> json, String userType) {
 
     return Group(
       customerId: json['customerId'],
       customerName:  json['customerName'],
-      groupId: userType == 'customer'? json['userGroupId']:json['customerId'],
-      groupName: userType == 'customer'? json['groupName']:json['customerName'],
-      master: List<MasterControllerModel>.from(json['master'].map((x) => MasterControllerModel.fromJson(x))),
+      groupId: userType == 'customer'? json['userGroupId'] : json['customerId'],
+      groupName: userType == 'customer'? json['groupName'] : json['customerName'],
+      master: List<MasterControllerModel>.from(json['master'].map((x) => MasterControllerModel.fromJson(x, userType == 'customer'? false : true))),
     );
   }
 
@@ -72,8 +73,9 @@ class MasterControllerModel {
   List<ProgramList> programList;
   late final LiveMessage? live;
   final List<Unit> units;
-
+  final List<UserPermission> userPermission;
   List<RelayStatus> ioConnection;
+  final bool isSubUser;
 
   MasterControllerModel({
     required this.controllerId,
@@ -91,20 +93,20 @@ class MasterControllerModel {
     required this.latchOutput,
     required this.analogInput,
     required this.digitalInput,
-
     required this.communicationMode,
     required this.units,
+    required this.userPermission,
     required this.irrigationLine,
     required this.nodeList,
     required this.programList,
     required this.live,
     required this.configObjects,
-
     required this.ioConnection,
+    required this.isSubUser,
 
   });
 
-  factory MasterControllerModel.fromJson(Map<String, dynamic> json) {
+  factory MasterControllerModel.fromJson(Map<String, dynamic> json, bool isSubUser) {
 
     final config = json['config'] ?? json;
 
@@ -214,10 +216,14 @@ class MasterControllerModel {
       latchOutput: json['latchOutput'] ?? '',
       analogInput: json['analogInput'] ?? '',
       digitalInput: json['digitalInput'] ?? '',
-
       communicationMode: json['communicationMode'] ?? 1,
       configObjects: configObjectsR,
       units: json['units'] != null ? List<Unit>.from(json['units'].map((x) => Unit.fromJson(x)))
+          : [],
+      userPermission: (json.containsKey('userPermission') && json['userPermission'] is List)
+          ? (json['userPermission'] as List)
+          .map((e) => UserPermission.fromJson(e))
+          .toList()
           : [],
       live: json['liveMessage'] != null ? LiveMessage.fromJson(json['liveMessage']) : null,
       irrigationLine: irrigationLines,
@@ -230,6 +236,7 @@ class MasterControllerModel {
           : [],
 
       ioConnection: ioConnection,
+      isSubUser: isSubUser,
 
     );
   }
@@ -763,7 +770,6 @@ class FilterSiteModel {
   }
 
 }
-
 
 class PressureSensor {
   final double sNo;
@@ -1736,4 +1742,32 @@ class WaterSourceUtils {
     }).whereType<WaterSourceModel>().toList();
   }
 
+}
+
+class UserPermission {
+  final int sNo;
+  final String name;
+  final bool status;
+
+  UserPermission({
+    required this.sNo,
+    required this.name,
+    required this.status,
+  });
+
+  factory UserPermission.fromJson(Map<String, dynamic> json) {
+    return UserPermission(
+      sNo: json['sNo'] as int,
+      name: json['name'] as String,
+      status: json['status'] as bool,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'sNo': sNo,
+      'name': name,
+      'status': status,
+    };
+  }
 }

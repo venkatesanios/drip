@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/models/customer/site_model.dart';
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/node_connection_page.dart';
 import 'package:oro_drip_irrigation/services/http_service.dart';
+import 'package:oro_drip_irrigation/utils/helpers/mc_permission_helper.dart';
 import 'package:oro_drip_irrigation/views/customer/widgets/relay_status_avatar.dart';
 import 'package:provider/provider.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
@@ -60,6 +61,8 @@ class NodeList extends StatelessWidget {
             );
           }
         });
+
+        final hasSetSerial = masterData.getPermissionStatus("Set Serial");
 
         return Container(
           padding: isWide ? const EdgeInsets.all(10) : EdgeInsets.zero,
@@ -315,12 +318,11 @@ class NodeList extends StatelessWidget {
                                                 const SizedBox(width: 5),
                                                 IconButton(
                                                   tooltip: 'Serial set',
-                                                  onPressed: vm.getPermissionStatusBySNo(context, 7) ? () {
+                                                  onPressed: hasSetSerial ? () {
                                                     vm.actionSerialSet(index, masterData.deviceId, customerId, masterData.controllerId, userId);
                                                     GlobalSnackBar.show(context, 'Your comment sent successfully', 200);
                                                   }:null,
-                                                  icon: Icon(Icons.fact_check_outlined, color: vm.getPermissionStatusBySNo(context, 7) ?
-                                                  Theme.of(context).primaryColor:Colors.black26),
+                                                  icon: Icon(Icons.fact_check_outlined, color: Theme.of(context).primaryColor),
                                                 ),
                                               ],
                                             ),
@@ -575,12 +577,11 @@ class NodeList extends StatelessWidget {
                                           const SizedBox(width: 5),
                                           IconButton(
                                             tooltip: 'Serial set',
-                                            onPressed: vm.getPermissionStatusBySNo(context, 7) ? () {
+                                            onPressed: hasSetSerial ? () {
                                               vm.actionSerialSet(index, masterData.deviceId, customerId, masterData.controllerId, userId);
                                               GlobalSnackBar.show(context, 'Your comment sent successfully', 200);
                                             }:null,
-                                            icon: Icon(Icons.fact_check_outlined, color: vm.getPermissionStatusBySNo(context, 7) ?
-                                            Theme.of(context).primaryColor:Colors.black26),
+                                            icon: Icon(Icons.fact_check_outlined, color: Theme.of(context).primaryColor),
                                           ),
                                         ],
                                       ),
@@ -802,6 +803,10 @@ class NodeList extends StatelessWidget {
   }
 
   Widget buildStatusHeaderRow(BuildContext context, NodeListViewModel vm, bool isNova) {
+
+    final hasSetSerial = masterData.getPermissionStatus("Set Serial");
+    final hasTestComm = masterData.getPermissionStatus("Test Communication");
+
     return SizedBox(
       height: 50,
       child: Row(
@@ -862,12 +867,9 @@ class NodeList extends StatelessWidget {
               tooltip: isNova ? 'Set serial' : 'Set serial for all Nodes',
               icon: Icon(
                 Icons.format_list_numbered,
-                color: vm.getPermissionStatusBySNo(context, 7)
-                    ? Theme.of(context).primaryColorDark
-                    : Colors.black26,
+                color: Theme.of(context).primaryColorDark,
               ),
-              onPressed: vm.getPermissionStatusBySNo(context, 7)
-                  ? () => showDialog(
+              onPressed: hasSetSerial ? () => showDialog(
                 context: context,
                 builder: (_) => AlertDialog(
                   title: const Text('Confirmation'),
@@ -891,8 +893,7 @@ class NodeList extends StatelessWidget {
                     ),
                   ],
                 ),
-              )
-                  : null,
+              ) : null,
             ),
           ),
           SizedBox(
@@ -901,16 +902,12 @@ class NodeList extends StatelessWidget {
               tooltip: 'Test Communication',
               icon: Icon(
                 Icons.network_check,
-                color: vm.getPermissionStatusBySNo(context, 8)
-                    ? Theme.of(context).primaryColorDark
-                    : Colors.black26,
+                color: Theme.of(context).primaryColorDark,
               ),
-              onPressed: vm.getPermissionStatusBySNo(context, 8)
-                  ? () {
+              onPressed: hasTestComm ? () {
                 vm.testCommunication(masterData.deviceId, customerId, masterData.controllerId, userId);
                 GlobalSnackBar.show(context, 'Sent your comment successfully', 200);
-              }
-                  : null,
+              } : null,
             ),
           ),
           const SizedBox(width: 8),
