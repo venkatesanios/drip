@@ -203,7 +203,7 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
           {"6101": formatted},
         ]
       },
-      "messageStatus": "View Settings",
+      "messageStatus": "Settings update",
       "createUser": widget.userId,
       "hardware": {
         "6100": [
@@ -546,7 +546,36 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
                       foregroundColor: Colors.white,
                       backgroundColor: Colors.blue,
                     ),
-                    onPressed: sendSelectedProject,
+                    onPressed: () {
+                  showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                  return AlertDialog(
+                  title: const Text("Confirm Settings Update"),
+                  content: const Text("Are you sure you want to update settings?"),
+                  actions: [
+                  TextButton(
+                  onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: const Text("Cancel"),
+                  ),
+                  ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  ),
+                  onPressed: () {
+                  Navigator.of(context).pop(); // Close dialog
+                  sendSelectedProject(); // Call your function
+                  },
+                  child: const Text("Yes"),
+                  ),
+                  ],
+                  );
+                  },
+                  );
+                  },
                     child: const Text('Settings Update'),
                   ),
                   ElevatedButton(
@@ -554,7 +583,36 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
                       foregroundColor: Colors.white,
                       backgroundColor: Colors.green,
                     ),
-                    onPressed: updateCode,
+                    onPressed: ()  {
+                  showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                  return AlertDialog(
+                  title: const Text("Confirm Update"),
+                  content: const Text("Are you sure you want to update HW Code?"),
+                  actions: [
+                  TextButton(
+                  onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: const Text("Cancel"),
+                  ),
+                  ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  ),
+                  onPressed: () {
+                  Navigator.of(context).pop(); // Close dialog
+                  updateCode(); // Call your function
+                  },
+                  child: const Text("Yes, Update"),
+                  ),
+                  ],
+                  );
+                  },
+                  );
+                  },
                     child: const Text('Update HW Code'),
                   ),
                   ElevatedButton(
