@@ -151,7 +151,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
 
   void getUserLogConfig()async{
     if (kDebugMode) {
-      print('getUserLogConfig called...............');
+      // print('getUserLogConfig called...............');
     }
     try{
       var body = {
@@ -171,7 +171,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
       }
 
       if (kDebugMode) {
-        print('getUserLogConfig jsonData => $jsonData');
+        // print('getUserLogConfig jsonData => $jsonData');
       }
       if(jsonData['code'] == 200){
         setState(() {

@@ -720,7 +720,10 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
   }
 
   /// Helper function to get the program name
-  String _getProgramName(int sNo) {
+  String _getProgramName(dynamic sNo) {
+    if(sNo is String) {
+      sNo = int.parse(sNo);
+    }
     for(int i = 0; i < defaultData['program'].length; i++) {
       if(defaultData['program'][i]['sNo'] == sNo) {
         return defaultData['program'][i]['name'];
@@ -937,7 +940,10 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
   }
 
   /// Helper function to get the status information
-  StatusInfo _getStatusInfo(int code) {
+  StatusInfo _getStatusInfo(dynamic code) {
+    if(code is String){
+      code = int.parse(code);
+    }
     final Map<int, StatusInfo> statusMap = {
       0: StatusInfo(Colors.grey, "Pending", Icons.pending, "Unknown", code),
       1: StatusInfo(Colors.orange, "Running", Icons.run_circle, "Running As Per Schedule", code),

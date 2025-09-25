@@ -336,7 +336,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                                                                 await Future.delayed(Duration.zero, () {
                                                                   preferenceProvider.updateValidationCode();
                                                                 });
-                                                                await preferenceProvider.checkPassword(userId: widget.userId, password: passwordController.text);
+                                                                await preferenceProvider.checkPassword(userId: widget.customerId, password: passwordController.text);
                                                                 if(preferenceProvider.passwordValidationCode == 200) {
                                                                   Navigator.of(context).pop();
                                                                   passwordController.text = "";

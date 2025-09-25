@@ -327,6 +327,8 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     required bool isMainValve,
     bool isGroup = false,
     required String groupId,
+    required BuildContext context,
+    required int modelId
   }) {
     List<Map<String, dynamic>> valvesToAdd = [];
 
@@ -338,9 +340,36 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         isMainValve: isMainValve,
       );
 
+      final totalValves = irrigationLine!.sequence.expand((e) => e['valve']).toList().length;
+      final currentValves = irrigationLine!.sequence[sequenceIndex]['valve'].length;
       if (isGroup) {
         if (!valveExists) {
-          valvesToAdd.add(valves[i]);
+          if (AppConstants.ecoGemModelList.contains(modelId)) {
+            if (totalValves < 32 && currentValves < 4) {
+              valvesToAdd.add(valves[i]);
+            } else {
+              showAdaptiveDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text("Warning!"),
+                    content: Text(
+                      currentValves >= 4 ? 'Maximum 4 valves can be created for a Zone' : 'Maximum 32 valves can be created for a Program',
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                    actions: [
+                      TextButton(
+                        child: const Text("OK"),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
+                  );
+                },
+              );
+            }
+          } else {
+            valvesToAdd.add(valves[i]);
+          }
         }
       } else {
         if (valveExists) {
@@ -352,10 +381,39 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         }
 
         if (!valveExists) {
-          if (isMainValve) {
-            irrigationLine!.sequence[sequenceIndex]['mainValve'].add(valves[i]);
+          if (AppConstants.ecoGemModelList.contains(modelId)) {
+            if (totalValves < 32 && currentValves < 4) {
+              if (isMainValve) {
+                irrigationLine!.sequence[sequenceIndex]['mainValve'].add(valves[i]);
+              } else {
+                irrigationLine!.sequence[sequenceIndex]['valve'].add(valves[i]);
+              }
+            } else {
+              showAdaptiveDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text("Warning!"),
+                    content: Text(
+                      currentValves >= 4 ? 'Maximum 4 valves can be created for a Zone' : 'Maximum 32 valves can be created for a Program',
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                    actions: [
+                      TextButton(
+                        child: const Text("OK"),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
+                  );
+                },
+              );
+            }
           } else {
-            irrigationLine!.sequence[sequenceIndex]['valve'].add(valves[i]);
+            if (isMainValve) {
+              irrigationLine!.sequence[sequenceIndex]['mainValve'].add(valves[i]);
+            } else {
+              irrigationLine!.sequence[sequenceIndex]['valve'].add(valves[i]);
+            }
           }
         }
       }
@@ -379,9 +437,6 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       }
     }
 
-   /* print(irrigationLine!.sequence[sequenceIndex]['selectedGroup']);
-    print(irrigationLine!.sequence[sequenceIndex]['valve']);
-    print(irrigationLine!.sequence[sequenceIndex]['mainValve']);*/
     notifyListeners();
   }
 
@@ -2375,7 +2430,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     try {
       final response = await repository.getUserProgramSelection(userData);
       final jsonData = json.decode(response.body);
-      print(jsonData['data']['selection']);
+      print("selected objects :: ${jsonData['data']['selection']['selected']}");
       _additionalData = null;
       _selectedObjects = [];
 
@@ -2529,6 +2584,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         "controllerId": controllerId,
       };
 
+      print("user data in programLibraryData :: $userData");
       var getUserProgramName = await repository.getProgramLibraryData(userData);
       // var getUserProgramName = await httpService.postRequest('getUserProgramLibrary', userData);
       _programLibrary = null;
@@ -2536,7 +2592,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         final responseJson = getUserProgramName.body;
         final convertedJson = jsonDecode(responseJson);
         _programLibrary = ProgramLibrary.fromJson(convertedJson);
-        // print("program library data => ${convertedJson['data']['program'].length}");
+        print("program library data => ${convertedJson['data']}");
         priority = _programDetails?.priority != "" ? _programDetails?.priority ?? "None" : "None";
         conditionsLibraryIsNotEmpty = convertedJson['data']['conditionLibraryCount'] != 0 ? true : false;
         // irrigationProgramType = _programLibrary?.program[serialNumber].programType == "Irrigation Program" ? true : false;
@@ -2953,10 +3009,10 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       totalAgitators = agitators!.map((e) => e.sNo).toList();
     }
 
-    print("not selected agitators :: ${totalAgitators
+    /*print("not selected agitators :: ${totalAgitators
         .where((agitator) => !(selectedAgitators ?? []).contains(agitator))
         .toList().join(',')}");
-
+    */
     return {
       "2500" : {
         "2501" : "${hwPayloadForWF(serialNumber, programType)};",
@@ -3057,12 +3113,14 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
                   .toList().map((e) => e.sNo).join('_')
                   : "",/*LocalFertilizerTankSelection*/
               "CentralFilterSite": centralFilterSite.toList().isNotEmpty
-                  ? sampleIrrigationLine!.map((e) => e.centralFiltration
-                  != null ? [e.centralFiltration!] : [])
+                  ? sampleIrrigationLine!.map((e) => e.centralFiltration != null ? [e.centralFiltration!] : [])
                   .expand((list) => list)
                   .whereType<DeviceObjectModel>()
                   .where((device) => selectedObjects!.any((obj) => obj.sNo == device.sNo))
-                  .toList().map((e) => e.sNo).join('_')
+                  .map((e) => e.sNo)
+                  .toSet() // Convert to Set to remove duplicates
+                  .toList()
+                  .join('_')
                   : "",/*CentralFilterSite*/
               "LocalFilterSite": localFilterSite.toList().isNotEmpty
                   ? sampleIrrigationLine!.map((e) => e.localFiltration

@@ -170,7 +170,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
                       for (int i = 0; i <  labels.length; i++)
                         InkWell(
                           onTap: () {
-                            if(_tabController.index == 0 && mainProvider.irrigationLine!.sequence.every((element) => element['valve'].isEmpty)) {
+                            if(_tabController.index == 0 && mainProvider.irrigationLine!.sequence.any((element) => element['valve'].isEmpty)) {
                               validatorFunction(context, mainProvider);
                             } else {
                               validateSelection(index: i, mainProvider: mainProvider);
@@ -240,7 +240,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
                                   leading: Icon(icons[i], color: Colors.white,),
                                   selected: _tabController.index == i,
                                   onTap: () {
-                                    if(_tabController.index == 0 && mainProvider.irrigationLine!.sequence.every((element) => element['valve'].isEmpty)) {
+                                    if(_tabController.index == 0 && mainProvider.irrigationLine!.sequence.any((element) => element['valve'].isEmpty)) {
                                       validatorFunction(context, mainProvider);
                                     } else {
                                       validateSelection(index: i, mainProvider: mainProvider);
@@ -302,7 +302,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
                         label: "Next",
                         context: context,
                         onPressed: () {
-                          if(_tabController.index == 0 && mainProvider.irrigationLine!.sequence.every((element) => element['valve'].isEmpty)) {
+                          if(_tabController.index == 0 && mainProvider.irrigationLine!.sequence.any((element) => element['valve'].isEmpty)) {
                             validatorFunction(context, mainProvider);
                           } else {
                             validateSelection2();
@@ -514,34 +514,32 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
   }
 
   void validatorFunction(BuildContext context, IrrigationProgramMainProvider mainProvider) {
-    if(mainProvider.irrigationLine!.sequence.every((element) => element['valve'].isEmpty)) {
-      final indexWhereEmpty = mainProvider.irrigationLine!.sequence.indexWhere((element) => element['valve'].isEmpty);
-      showAdaptiveDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            // title: Text('Verify to delete'),
-            content: RichText(
-              text: TextSpan(
-                children: [
-                  const TextSpan(text: 'The sequence is empty at ', style: TextStyle(color: Colors.black)),
-                  TextSpan(text: '${mainProvider.irrigationLine!.sequence[indexWhereEmpty]['name']}',
-                    style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),),
-                ],
-              ),
+    final indexWhereEmpty = mainProvider.irrigationLine!.sequence.indexWhere((element) => element['valve'].isEmpty);
+    showAdaptiveDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Warning!'),
+          content: RichText(
+            text: TextSpan(
+              children: [
+                const TextSpan(text: 'There is no valve configured at ', style: TextStyle(color: Colors.black)),
+                TextSpan(text: '${mainProvider.irrigationLine!.sequence[indexWhereEmpty]['name']}',
+                  style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),),
+              ],
             ),
-            actions: [
-              TextButton(
-                child: const Text("OK"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
+          ),
+          actions: [
+            TextButton(
+              child: const Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
     // if(mainProvider.irrigationLine!.sequence.every((element) => element['valve'].isNotEmpty)) {
     //   _showAdaptiveDialog(context, mainProvider);
     // } else {
