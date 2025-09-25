@@ -9,6 +9,8 @@ import 'package:oro_drip_irrigation/Widgets/sized_image.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:oro_drip_irrigation/utils/environment.dart';
 import 'package:provider/provider.dart';
+import '../../Preferences/view/preference_main_screen.dart';
+import '../../constant/view/constant_base_page.dart';
 import '../model/device_model.dart';
 import '../model/fertigation_model.dart';
 import '../model/filtration_model.dart';
@@ -51,7 +53,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
   PayloadSendState payloadSendState = PayloadSendState.idle;
   MqttService mqttService = MqttService();
   bool isDataSaved = false;
-
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   @override
   void initState() {
     // TODO: implement initState
@@ -118,6 +120,66 @@ class _ConfigWebViewState extends State<ConfigWebView> {
           spacing: 20,
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
+            FilledButton.icon(
+              icon: const Icon(Icons.settings),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context){
+                  return Scaffold(
+                    appBar: AppBar(
+                      title: const Text('Constant'),
+                    ),
+                    body: ConstantBasePage(userData: {
+                      "userId": configPvd.masterData['userId'],
+                      "customerId": configPvd.masterData['customerId'],
+                      "controllerId": configPvd.masterData['controllerId'],
+                      "deviceId": configPvd.masterData['deviceId'],
+                      "modelId": configPvd.masterData['modelId'],
+                      "deviceName": configPvd.masterData['deviceName'],
+                      "categoryId": configPvd.masterData['categoryId'],
+                      "categoryName": configPvd.masterData['categoryName'],
+                    }),
+                  );
+                }));
+              },
+              label: const Text('Go To Constant'),
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(context).primaryColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                textStyle: const TextStyle(fontSize: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            FilledButton.icon(
+              icon: const Icon(Icons.settings),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context){
+                  return Scaffold(
+                    appBar: AppBar(
+                      title: const Text('Preference'),
+                    ),
+                    body: PreferenceMainScreen(
+                      userId: configPvd.masterData['userId'],
+                      customerId: configPvd.masterData['customerId'],
+                      masterData: configPvd.masterData,
+                      selectedIndex: 0,
+                    ),
+                  );
+                }));
+              },
+              label: const Text('Go To Preference'),
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(context).primaryColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                textStyle: const TextStyle(fontSize: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
             IconButton(
                 style: ButtonStyle(
                     backgroundColor: WidgetStateProperty.all(configPvd.selectedTab == ConfigMakerTabs.deviceList ? Colors.grey.shade500 : Theme.of(context).primaryColor)
@@ -205,19 +267,91 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                             });
                           },
                           onTap: (){
-                            simpleDialogBox(
-                                context: context,
-                                title: "Alert",
-                                message: "Do you want to clear config?",
-                                actionButton:[
-                                  CustomMaterialButton(
-                                    onPressed: (){
-                                      configPvd.clearData();
-                                      Navigator.of(context).pop();
-                                    },
-                                  )
-                                ]
+
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return StatefulBuilder(builder: (context, stateSetter) {
+                                  return AlertDialog(
+                                    title: Text('Clear Config'),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          'Password',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                            color: Color(0xff475467),
+                                          ),
+                                        ),
+                                        Form(
+                                          key: formKey,
+                                          child: TextFormField(
+                                            validator: (value) {
+                                              if (value == null || value.isEmpty) {
+                                                return 'Please enter your password';
+                                              } else if (value != 'Lk@321') {
+                                                return 'Invalid password';
+                                              }
+                                              return null;
+                                            },
+                                            obscureText: true,
+                                            decoration: InputDecoration(
+                                              contentPadding: EdgeInsets.symmetric(vertical: 0),
+                                              hintText: 'Password',
+                                              hintStyle: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w500,
+                                                color: Color(0xff475467),
+                                              ),
+                                              prefixIcon: Icon(
+                                                Icons.password,
+                                                color: Theme.of(context).primaryColor,
+                                              ),
+                                              border: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(8),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                          onPressed: (){
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Text('Cancel')
+                                      ),
+                                      CustomMaterialButton(
+                                        onPressed: () {
+                                          if (formKey.currentState!.validate()) {
+                                            configPvd.clearData();
+                                            Navigator.of(context).pop();
+                                          }
+                                        },
+                                        child: Text('Ok', style: TextStyle(color: Colors.white),),
+                                      ),
+                                    ],
+                                  );
+                                });
+                              },
                             );
+                            // simpleDialogBox(
+                            //     context: context,
+                            //     title: "Alert",
+                            //     message: "Do you want to clear config?",
+                            //     actionButton:[
+                            //       CustomMaterialButton(
+                            //         onPressed: (){
+                            //           configPvd.clearData();
+                            //           Navigator.of(context).pop();
+                            //         },
+                            //       )
+                            //     ]
+                            // );
                           },
                           child:  Row(
                             spacing: 10,
@@ -259,8 +393,6 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                         const SizedBox(width: 10,)
                       ],
                     ),
-
-
                   ],
                 ),
               ),
@@ -279,7 +411,26 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                               : configPvd.selectedTab == ConfigMakerTabs.productLimit
                               ? ProductLimit(listOfDevices: widget.listOfDevices,configPvd: configPvd,)
                               : configPvd.selectedTab == ConfigMakerTabs.connection
-                              ? Connection(configPvd: configPvd,) : SiteConfigure(configPvd: configPvd)
+                              ? Connection(configPvd: configPvd,)
+                              : SiteConfigure(configPvd: configPvd)
+                          //     ? SiteConfigure(configPvd: configPvd)
+                          //     : configPvd.selectedTab == ConfigMakerTabs.constant
+                          //     ? ConstantBasePage(userData: {
+                          //         "userId": configPvd.masterData['userId'],
+                          //         "customerId": configPvd.masterData['customerId'],
+                          //         "controllerId": configPvd.masterData['controllerId'],
+                          //         "deviceId": configPvd.masterData['deviceId'],
+                          //         "modelId": configPvd.masterData['modelId'],
+                          //         "deviceName": configPvd.masterData['deviceName'],
+                          //         "categoryId": configPvd.masterData['categoryId'],
+                          //         "categoryName": configPvd.masterData['categoryName'],
+                          //       })
+                          //     : PreferenceMainScreen(
+                          //         userId: configPvd.masterData['userId'],
+                          //         customerId: configPvd.masterData['customerId'],
+                          //         masterData: configPvd.masterData,
+                          //         selectedIndex: 0,
+                          // )
                       ),
                     )
 

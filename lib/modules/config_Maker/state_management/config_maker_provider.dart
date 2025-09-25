@@ -69,7 +69,6 @@ class ConfigMakerProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-
   void clearData(){
     listOfSampleObjectModel = (defaultDataFromHttp['objectType'] as List<dynamic>).map(mapToDeviceObject).toList();
     listOfObjectModelConnection = (defaultDataFromHttp['objectType'] as List<dynamic>).map(mapToDeviceObject).toList();
@@ -398,10 +397,6 @@ class ConfigMakerProvider extends ChangeNotifier{
 
   Future<int> replaceDevice({required dynamic newDevice,required dynamic oldDevice, required int masterOrNode})async {
     try{
-      print("------------");
-      print("oldDevice : $oldDevice");
-      print("newDevice : $newDevice");
-      print("masterData : $masterData");
       var body = {
         "userId" : masterData['userId'],
         "oldControllerId" : oldDevice['controllerId'],
@@ -562,8 +557,6 @@ class ConfigMakerProvider extends ChangeNotifier{
   }
 
   void updateObjectConnection(DeviceObjectModel selectedConnectionObject,int newCount){
-    print('selectedConnectionObject  ${selectedConnectionObject.toJson()}');
-    print('newCount : ${newCount}');
 
     // ------making connection list--------------------------------------------------------
     DeviceModel selectedDevice = listOfDeviceModel.firstWhere((device) => device.controllerId == selectedModelControllerId);
