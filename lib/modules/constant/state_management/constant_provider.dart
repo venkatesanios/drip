@@ -293,6 +293,13 @@ class ConstantProvider extends ChangeNotifier{
       fertilizerSiteControlFlag = generatePopUpItemModel(defaultData: defaultData, keyName: 'fertilizerSiteControlFlag');
       defaultFertilizerSiteSetting = generateDefaultSetting(defaultData: defaultData, keyName: 'fertilizerSite');
       fertilizerSite = generateObjectInConstantModel(listOfObject: listOfFertilizerSiteObject, defaultData: defaultData, constantOldData: constantOldData, keyName: 'fertilizerSite');
+      for(var site in fertilizerSite){
+        for(var setting in site.setting){
+          if(setting.sNo == 4 && setting.value.value == 4){
+            setting.value.value = 1;
+          }
+        }
+      }
       if (kDebugMode) {
         print('fertilizerSite updated..');
       }

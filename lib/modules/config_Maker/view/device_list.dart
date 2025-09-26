@@ -73,7 +73,7 @@ class _DeviceListState extends State<DeviceList> {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: SizedBox(
-          width: screenWidth > 500 ? 950 : screenWidth,
+          width: screenWidth > 500 ? 1000 : screenWidth,
           child: Column(
             children: [
               if([...AppConstants.pumpWithValveModelList, ...AppConstants.pumpModelList].contains(configPvd.masterData['modelId']))
@@ -97,7 +97,7 @@ class _DeviceListState extends State<DeviceList> {
               if(![...AppConstants.pumpWithValveModelList, ...AppConstants.pumpModelList].contains(configPvd.masterData['modelId']))
                 Expanded(
                 child: DataTable2(
-                    minWidth: 1000,
+                    minWidth: 1050,
                     headingRowColor: WidgetStatePropertyAll(themeData.colorScheme.onBackground),
                     dataRowColor: const WidgetStatePropertyAll(Colors.white),
                     fixedLeftColumns: 2,
@@ -107,7 +107,7 @@ class _DeviceListState extends State<DeviceList> {
                         label: Text('SNO', style: themeData.textTheme.headlineLarge,),
                       ),
                       DataColumn2(
-                        fixedWidth: 180,
+                        fixedWidth: 230,
                         label: Text('MODEL NAME', style: themeData.textTheme.headlineLarge,),
                       ),
                       DataColumn2(
