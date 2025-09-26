@@ -33,7 +33,8 @@ class DealerNarrowLayout extends StatelessWidget {
           padding: EdgeInsets.only(left: 15),
           child: AppLogo(),
         ),
-        title: MainMenuSegmentWidget(viewModel: viewModel),
+        title: F.appFlavor!.name.contains('oro') ? MainMenuSegmentWidget(viewModel: viewModel) :
+        null ,
         actions: const <Widget>[
           UserAccountMenu(isNarrow: true),
         ],
@@ -42,10 +43,25 @@ class DealerNarrowLayout extends StatelessWidget {
         leadingWidth: Navigator.of(context).canPop() ? 50 :
         F.appFlavor!.name.contains('oro') ? 75 : 110,
 
-        bottom: viewModel.selectedIndex==1 ? PreferredSize(
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight((!F.appFlavor!.name.contains('oro') && viewModel.selectedIndex==1) ? 106 : 50),
+          child: Column(
+            children: [
+              if(! F.appFlavor!.name.contains('oro'))...[
+                MainMenuSegmentWidget(viewModel: viewModel),
+                const SizedBox(height: 8),
+              ],
+              if(viewModel.selectedIndex==1)...[
+                ProductSearchBar(viewModel: viewModel, barHeight: 44, barRadius: 10),
+              ],
+            ],
+          ),
+        ),
+
+        /*bottom: viewModel.selectedIndex==1 ? PreferredSize(
           preferredSize: const Size.fromHeight(56),
           child: ProductSearchBar(viewModel: viewModel, barHeight: 44, barRadius: 10),
-        ): null,
+        ): null,*/
       ),
       body: IndexedStack(
         index: viewModel.selectedIndex,

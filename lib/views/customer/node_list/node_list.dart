@@ -47,6 +47,7 @@ class NodeList extends StatelessWidget {
 
     final isNova = [56, 57, 58, 59].contains(masterData.modelId);
 
+
     return Consumer2<NodeListViewModel, MqttPayloadProvider>(
       builder: (context, vm, mqttProvider, _) {
         final nodeLiveMessage = mqttProvider.nodeLiveMessage;
@@ -57,7 +58,6 @@ class NodeList extends StatelessWidget {
             vm.onLivePayloadReceived(
               List.from(nodeLiveMessage),
               List.from(outputOnOffPayload),
-              isNova? true : false,
             );
           }
         });
@@ -71,604 +71,50 @@ class NodeList extends StatelessWidget {
           width: isWide ? 400 : MediaQuery.of(context).size.width,
           child: Column(
             children: [
+
               buildHeader(context),
               const Divider(height: 0, thickness: 0.4),
               buildStatusHeaderRow(context, vm, isNova ? true:false),
               const Divider(height: 0),
-              Container(
-                color: Colors.white,
-                width: 400,
-                height: kIsWeb ? MediaQuery.sizeOf(context).height - 175 :
-                MediaQuery.sizeOf(context).height-274,
-                child: isNova ? Column(
-                  children: [
-                    const SizedBox(height: 5),
-                    const SizedBox(
-                      width: double.infinity,
-                      height: 20,
-                      child: Row(
-                        children: [
-                          SizedBox(width: 10),
-                          CircleAvatar(
-                            radius: 5,
-                            backgroundColor: Colors.green,
-                          ),
-                          SizedBox(width: 5),
-                          Text('ON', style: TextStyle(fontSize: 12)),
-                          SizedBox(width: 20),
-                          CircleAvatar(
-                            radius: 5,
-                            backgroundColor: Colors.black45,
-                          ),
-                          SizedBox(width: 5),
-                          Text('OFF', style: TextStyle(fontSize: 12)),
-                          SizedBox(width: 20),
-                          CircleAvatar(
-                            radius: 5,
-                            backgroundColor: Colors.orange,
-                          ),
-                          SizedBox(width: 5),
-                          Text('ON in OFF', style: TextStyle(fontSize: 12)),
-                          SizedBox(width: 20),
-                          CircleAvatar(
-                            radius: 5,
-                            backgroundColor: Colors.redAccent,
-                          ),
-                          SizedBox(width: 5),
-                          Text('OFF in ON', style: TextStyle(fontSize: 12)),
-                        ],
+
+              if (isNova) ...[
+                _buildRelayGrid(masterData.ioConnection, vm),
+              ],
+              if(vm.nodeList.isNotEmpty)...[
+                SizedBox(
+                  width: double.infinity,
+                  height: 35,
+                  child: DataTable2(
+                    columnSpacing: 0,
+                    horizontalMargin: 0,
+                    minWidth: 400,
+                    headingRowHeight: 35.0,
+                    headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColorDark.withOpacity(0.3)),
+                    columns: const [
+                      DataColumn2(
+                          label: Center(child: Text('SR.No', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 13, color: Colors.black),)),
+                          fixedWidth: 60
                       ),
+                      DataColumn2(
+                        label: Text('Status & Category', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 13, color: Colors.black),),
+                        size: ColumnSize.L,
+                      ),
+                      DataColumn2(
+                        label: Center(child: Text('Info', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 13, color: Colors.black),)),
+                        fixedWidth: 90,
+                      ),
+                    ],
+                    rows: List<DataRow>.generate(0,(index) => const DataRow(cells: [],),
                     ),
-                    const SizedBox(height: 8),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 215,
-                      child: GridView.builder(
-                        itemCount: masterData.ioConnection.length,
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 5,
-                          crossAxisSpacing: 5.0,
-                          mainAxisSpacing: 5.0,
-                          childAspectRatio: 1.47,
-                        ),
-                        itemBuilder: (BuildContext context, int indexGv) {
-                          return Column(
-                            children: [
-                              RelayStatusAvatar(
-                                status: masterData.ioConnection[indexGv].status,
-                                rlyNo: masterData.ioConnection[indexGv].rlyNo,
-                                objType: masterData.ioConnection[indexGv].objType,
-                              ),
-                              Text(
-                                (masterData.ioConnection[indexGv].swName!.isNotEmpty
-                                    ? masterData.ioConnection[indexGv].swName
-                                    : masterData.ioConnection[indexGv].name)
-                                    .toString(),
-                                style:
-                                const TextStyle(color: Colors.black, fontSize: 9),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 280,
-                      child: Column(
-                        children: [
-                          SizedBox(
-                            width: double.infinity,
-                            height: 35,
-                            child: DataTable2(
-                              columnSpacing: 0,
-                              horizontalMargin: 0,
-                              minWidth: 400,
-                              headingRowHeight: 35.0,
-                              headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColorDark.withOpacity(0.3)),
-                              columns: const [
-                                DataColumn2(
-                                    label: Center(child: Text('SR.No', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 13, color: Colors.black),)),
-                                    fixedWidth: 60
-                                ),
-                                DataColumn2(
-                                  label: Text('Status & Category', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 13, color: Colors.black),),
-                                  size: ColumnSize.L,
-                                ),
-                                DataColumn2(
-                                  label: Center(child: Text('Info', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 13, color: Colors.black),)),
-                                  fixedWidth: 90,
-                                ),
-                              ],
-                              rows: List<DataRow>.generate(0,(index) => const DataRow(cells: [],),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            flex:1,
-                            child: ListView.builder(
-                              itemCount: vm.nodeList.length,
-                              itemBuilder: (context, index) {
-                                return ExpansionTile(
-                                  tilePadding: const EdgeInsets.symmetric(horizontal: 0),
-                                  childrenPadding: const EdgeInsets.symmetric(horizontal: 0),
-                                  trailing: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      vm.nodeList[index].rlyStatus.any((rly) => rly.status == 2 || rly.status == 3)? const Icon(Icons.warning, color: Colors.orangeAccent):
-                                      InkWell(
-                                          onTap: (){
-                                            Navigator.push(context, MaterialPageRoute(builder: (context) => NodeConnectionPage(
-                                              nodeData: vm.nodeList[index].toJson(),
-                                              masterData: {
-                                                "userId" : userId,
-                                                "customerId" : customerId,
-                                                "controllerId" : masterData.controllerId
-                                              },
-                                            )));
-                                          },
-                                          child: const Icon(Icons.bluetooth,)
-                                      ),
-                                      IconButton(
-                                        onPressed: () {
-                                          vm.showEditProductDialog(context, vm.nodeList[index].deviceName, vm.nodeList[index].controllerId, index,
-                                              customerId, userId, masterData.controllerId);
-                                        },
-                                        icon: Icon(Icons.edit_outlined, color: Theme.of(context).primaryColorDark,),
-                                      ),
-                                    ],
-                                  ),
-                                  backgroundColor: Colors.teal.shade50,
-                                  title: Padding(
-                                    padding: const EdgeInsets.only(left: 8),
-                                    child: Row(
-                                      children: [
-                                        const SizedBox(width: 5),
-                                        SizedBox(width: 45, child: Text('${vm.nodeList[index].serialNumber}-${vm.nodeList[index].referenceNumber}', style: const TextStyle(fontSize: 13),)),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  CircleAvatar(radius: 7, backgroundColor:
-                                                  vm.nodeList[index].status == 1? Colors.green.shade400:
-                                                  vm.nodeList[index].status == 2? Colors.grey:
-                                                  vm.nodeList[index].status == 3? Colors.redAccent:
-                                                  vm.nodeList[index].status == 4? Colors.yellow:
-                                                  Colors.grey,
-                                                  ),
-                                                  const SizedBox(width: 5),
-                                                  Text(vm.nodeList[index].deviceName, style: const TextStyle(fontSize: 14)),
-                                                ],
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsets.only(left: 17),
-                                                child: Text(vm.nodeList[index].deviceId, style: const TextStyle(fontWeight: FontWeight.normal,fontSize: 11, color: Colors.black)),
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsets.only(left: 17),
-                                                child: Text('${vm.nodeList[index].modelName} - v:${vm.nodeList[index].version}',
-                                                    style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 10, color: Colors.black)),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  children: [
-                                    SizedBox(
-                                      width: double.infinity,
-                                      height: vm.calculateDynamicHeight(vm.nodeList[index])+20,
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: <Widget>[
-                                          Container(
-                                            color: Colors.teal.shade100,
-                                            width : MediaQuery.sizeOf(context).width-35,
-                                            height: 25,
-                                            child: Padding(
-                                              padding: const EdgeInsets.only(left: 5, right: 5),
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  const Text('Missed communication', style: TextStyle(color: Colors.black54)),
-                                                  const Spacer(),
-                                                  Text(
-                                                    'Total : ${vm.nodeList[index].communicationCount.split(',').first}',
-                                                    style: const TextStyle(fontSize: 12),
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  Text(
-                                                    'Continuous : ${vm.nodeList[index].communicationCount.split(',').last}',
-                                                    style: const TextStyle(fontSize: 12),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                          ListTile(
-                                            contentPadding: const EdgeInsets.only(left: 8, right: 0, top: 0, bottom: 0),
-                                            tileColor: Theme.of(context).primaryColor,
-                                            textColor: Colors.black,
-                                            title: const Text('Last feedback', style: TextStyle(fontSize: 12)),
-                                            subtitle: Text(
-                                              vm.formatDateTime(vm.nodeList[index].lastFeedbackReceivedTime),
-                                              style: const TextStyle(fontSize: 10),
-                                            ),
-                                            trailing: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                const Icon(Icons.solar_power),
-                                                const SizedBox(width: 5),
-                                                Text(
-                                                  '${vm.nodeList[index].sVolt} - V',
-                                                  style: const TextStyle(fontWeight: FontWeight.normal),
-                                                ),
-                                                const SizedBox(width: 5),
-                                                const Icon(Icons.battery_3_bar_rounded),
-                                                const SizedBox(width: 5),
-                                                Text(
-                                                  '${vm.nodeList[index].batVolt} - V',
-                                                  style: const TextStyle(fontWeight: FontWeight.normal),
-                                                ),
-                                                const SizedBox(width: 5),
-                                                IconButton(
-                                                  tooltip: 'Serial set',
-                                                  onPressed: hasSetSerial ? () {
-                                                    vm.actionSerialSet(index, masterData.deviceId, customerId, masterData.controllerId, userId);
-                                                    GlobalSnackBar.show(context, 'Your comment sent successfully', 200);
-                                                  }:null,
-                                                  icon: Icon(Icons.fact_check_outlined, color: Theme.of(context).primaryColor),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Column(
-                                            children: [
-                                              if (vm.nodeList[index].rlyStatus.isNotEmpty)
-                                                const SizedBox(
-                                                  width: double.infinity,
-                                                  height: 20,
-                                                  child: Row(
-                                                    children: [
-                                                      SizedBox(width: 10),
-                                                      CircleAvatar(
-                                                        radius: 5,
-                                                        backgroundColor: Colors.green,
-                                                      ),
-                                                      SizedBox(width: 5),
-                                                      Text('ON', style: TextStyle(fontSize: 12)),
-                                                      SizedBox(width: 20),
-                                                      CircleAvatar(
-                                                        radius: 5,
-                                                        backgroundColor: Colors.black45,
-                                                      ),
-                                                      SizedBox(width: 5),
-                                                      Text('OFF', style: TextStyle(fontSize: 12)),
-                                                      SizedBox(width: 20),
-                                                      CircleAvatar(
-                                                        radius: 5,
-                                                        backgroundColor: Colors.orange,
-                                                      ),
-                                                      SizedBox(width: 5),
-                                                      Text('ON in OFF', style: TextStyle(fontSize: 12)),
-                                                      SizedBox(width: 20),
-                                                      CircleAvatar(
-                                                        radius: 5,
-                                                        backgroundColor: Colors.redAccent,
-                                                      ),
-                                                      SizedBox(width: 5),
-                                                      Text('OFF in ON', style: TextStyle(fontSize: 12)),
-                                                    ],
-                                                  ),
-                                                ),
-                                              const SizedBox(height: 5),
-                                              SizedBox(
-                                                width: double.infinity,
-                                                height: vm.calculateGridHeight(vm.nodeList[index].rlyStatus.length),
-                                                child: GridView.builder(
-                                                  itemCount: vm.nodeList[index].rlyStatus.length, // Number of items in the grid
-                                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                                    crossAxisCount: 5,
-                                                    crossAxisSpacing: 5.0,
-                                                    mainAxisSpacing: 5.0,
-                                                    childAspectRatio: 1.47,
-                                                  ),
-                                                  itemBuilder: (BuildContext context, int indexGv) {
-                                                    return Column(
-                                                      children: [
-                                                        RelayStatusAvatar(
-                                                          status: vm.nodeList[index].rlyStatus[indexGv].status,
-                                                          rlyNo: vm.nodeList[index].rlyStatus[indexGv].rlyNo,
-                                                          objType: vm.nodeList[index].rlyStatus[indexGv].objType,
-                                                        ),
-                                                        Text(
-                                                          (vm.nodeList[index].rlyStatus[indexGv].swName!.isNotEmpty
-                                                              ? vm.nodeList[index].rlyStatus[indexGv].swName
-                                                              : vm.nodeList[index].rlyStatus[indexGv].name)
-                                                              .toString(),
-                                                          style:
-                                                          const TextStyle(color: Colors.black, fontSize: 9),
-                                                        ),
-                                                      ],
-                                                    );
-                                                  },
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ) :
-                Column(
-                  children: [
-                    SizedBox(
-                      width: double.infinity,
-                      height: 35,
-                      child: DataTable2(
-                        columnSpacing: 0,
-                        horizontalMargin: 0,
-                        minWidth: 400,
-                        headingRowHeight: 35.0,
-                        headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColorDark.withOpacity(0.3)),
-                        columns: const [
-                          DataColumn2(
-                              label: Center(child: Text('SR.No', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 13, color: Colors.black),)),
-                              fixedWidth: 60
-                          ),
-                          DataColumn2(
-                            label: Text('Status & Category', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 13, color: Colors.black),),
-                            size: ColumnSize.L,
-                          ),
-                          DataColumn2(
-                            label: Center(child: Text('Info', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 13, color: Colors.black),)),
-                            fixedWidth: 90,
-                          ),
-                        ],
-                        rows: List<DataRow>.generate(0,(index) => const DataRow(cells: [],),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex:1,
-                      child: ListView.builder(
-                        itemCount: vm.nodeList.length,
-                        itemBuilder: (context, index) {
-                          return ExpansionTile(
-                            tilePadding: const EdgeInsets.symmetric(horizontal: 0),
-                            childrenPadding: const EdgeInsets.symmetric(horizontal: 0),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                vm.nodeList[index].rlyStatus.any((rly) => rly.status == 2 || rly.status == 3)? const Icon(Icons.warning, color: Colors.orangeAccent):
-                                InkWell(
-                                    onTap: (){
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => NodeConnectionPage(
-                                        nodeData: vm.nodeList[index].toJson(),
-                                        masterData: {
-                                          "userId" : userId,
-                                          "customerId" : customerId,
-                                          "controllerId" : masterData.controllerId
-                                        },
-                                      )));
-                                    },
-                                    child: const Icon(Icons.bluetooth,)
-                                ),
-                                IconButton(
-                                  onPressed: () {
-                                    vm.showEditProductDialog(context, vm.nodeList[index].deviceName, vm.nodeList[index].controllerId, index,
-                                        customerId, userId, masterData.controllerId);
-                                  },
-                                  icon: Icon(Icons.edit_outlined, color: Theme.of(context).primaryColorDark,),
-                                ),
-                              ],
-                            ),
-                            backgroundColor: Colors.teal.shade50,
-                            title: Padding(
-                              padding: const EdgeInsets.only(left: 8),
-                              child: Row(
-                                children: [
-                                  const SizedBox(width: 5),
-                                  SizedBox(width: 45, child: Text('${vm.nodeList[index].serialNumber}-${vm.nodeList[index].referenceNumber}', style: const TextStyle(fontSize: 13),)),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            CircleAvatar(radius: 7, backgroundColor:
-                                            vm.nodeList[index].status == 1? Colors.green.shade400:
-                                            vm.nodeList[index].status == 2? Colors.grey:
-                                            vm.nodeList[index].status == 3? Colors.redAccent:
-                                            vm.nodeList[index].status == 4? Colors.yellow:
-                                            Colors.grey,
-                                            ),
-                                            const SizedBox(width: 5),
-                                            Text(vm.nodeList[index].deviceName, style: const TextStyle(fontSize: 14)),
-                                          ],
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.only(left: 17),
-                                          child: Text(vm.nodeList[index].deviceId, style: const TextStyle(fontWeight: FontWeight.normal,fontSize: 11, color: Colors.black)),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.only(left: 17),
-                                          child: Text('${vm.nodeList[index].modelName} - v:${vm.nodeList[index].version}',
-                                              style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 10, color: Colors.black)),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            children: [
-                              SizedBox(
-                                width: double.infinity,
-                                height: vm.calculateDynamicHeight(vm.nodeList[index])+20,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: <Widget>[
-                                    Container(
-                                      color: Colors.teal.shade100,
-                                      width : MediaQuery.sizeOf(context).width-35,
-                                      height: 25,
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(left: 5, right: 5),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            const Text('Missed communication', style: TextStyle(color: Colors.black54)),
-                                            const Spacer(),
-                                            Text(
-                                              'Total : ${vm.nodeList[index].communicationCount.split(',').first}',
-                                              style: const TextStyle(fontSize: 12),
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Text(
-                                              'Continuous : ${vm.nodeList[index].communicationCount.split(',').last}',
-                                              style: const TextStyle(fontSize: 12),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    ListTile(
-                                      contentPadding: const EdgeInsets.only(left: 8, right: 0, top: 0, bottom: 0),
-                                      tileColor: Theme.of(context).primaryColor,
-                                      textColor: Colors.black,
-                                      title: const Text('Last feedback', style: TextStyle(fontSize: 12)),
-                                      subtitle: Text(
-                                        vm.formatDateTime(vm.nodeList[index].lastFeedbackReceivedTime),
-                                        style: const TextStyle(fontSize: 10),
-                                      ),
-                                      trailing: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const Icon(Icons.solar_power),
-                                          const SizedBox(width: 5),
-                                          Text(
-                                            '${vm.nodeList[index].sVolt} - V',
-                                            style: const TextStyle(fontWeight: FontWeight.normal),
-                                          ),
-                                          const SizedBox(width: 5),
-                                          const Icon(Icons.battery_3_bar_rounded),
-                                          const SizedBox(width: 5),
-                                          Text(
-                                            '${vm.nodeList[index].batVolt} - V',
-                                            style: const TextStyle(fontWeight: FontWeight.normal),
-                                          ),
-                                          const SizedBox(width: 5),
-                                          IconButton(
-                                            tooltip: 'Serial set',
-                                            onPressed: hasSetSerial ? () {
-                                              vm.actionSerialSet(index, masterData.deviceId, customerId, masterData.controllerId, userId);
-                                              GlobalSnackBar.show(context, 'Your comment sent successfully', 200);
-                                            }:null,
-                                            icon: Icon(Icons.fact_check_outlined, color: Theme.of(context).primaryColor),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Column(
-                                      children: [
-                                        if (vm.nodeList[index].rlyStatus.isNotEmpty)
-                                          const SizedBox(
-                                            width: double.infinity,
-                                            height: 20,
-                                            child: Row(
-                                              children: [
-                                                SizedBox(width: 10),
-                                                CircleAvatar(
-                                                  radius: 5,
-                                                  backgroundColor: Colors.green,
-                                                ),
-                                                SizedBox(width: 5),
-                                                Text('ON', style: TextStyle(fontSize: 12)),
-                                                SizedBox(width: 20),
-                                                CircleAvatar(
-                                                  radius: 5,
-                                                  backgroundColor: Colors.black45,
-                                                ),
-                                                SizedBox(width: 5),
-                                                Text('OFF', style: TextStyle(fontSize: 12)),
-                                                SizedBox(width: 20),
-                                                CircleAvatar(
-                                                  radius: 5,
-                                                  backgroundColor: Colors.orange,
-                                                ),
-                                                SizedBox(width: 5),
-                                                Text('ON in OFF', style: TextStyle(fontSize: 12)),
-                                                SizedBox(width: 20),
-                                                CircleAvatar(
-                                                  radius: 5,
-                                                  backgroundColor: Colors.redAccent,
-                                                ),
-                                                SizedBox(width: 5),
-                                                Text('OFF in ON', style: TextStyle(fontSize: 12)),
-                                              ],
-                                            ),
-                                          ),
-                                        const SizedBox(height: 5),
-                                        SizedBox(
-                                          width: double.infinity,
-                                          height: vm.calculateGridHeight(vm.nodeList[index].rlyStatus.length),
-                                          child: GridView.builder(
-                                            itemCount: vm.nodeList[index].rlyStatus.length, // Number of items in the grid
-                                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                              crossAxisCount: 5,
-                                              crossAxisSpacing: 5.0,
-                                              mainAxisSpacing: 5.0,
-                                              childAspectRatio: 1.47,
-                                            ),
-                                            itemBuilder: (BuildContext context, int indexGv) {
-                                              return Column(
-                                                children: [
-                                                  RelayStatusAvatar(
-                                                    status: vm.nodeList[index].rlyStatus[indexGv].status,
-                                                    rlyNo: vm.nodeList[index].rlyStatus[indexGv].rlyNo,
-                                                    objType: vm.nodeList[index].rlyStatus[indexGv].objType,
-                                                  ),
-                                                  Text(
-                                                    (vm.nodeList[index].rlyStatus[indexGv].swName!.isNotEmpty
-                                                        ? vm.nodeList[index].rlyStatus[indexGv].swName
-                                                        : vm.nodeList[index].rlyStatus[indexGv].name)
-                                                        .toString(),
-                                                    style:
-                                                    const TextStyle(color: Colors.black, fontSize: 9),
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  ],
+                  ),
+                ),
+              ],
+              Expanded(
+                child: ListView.builder(
+                  itemCount: vm.nodeList.length,
+                  itemBuilder: (context, index) {
+                    return _buildNodeTile(context, vm.nodeList[index], vm, hasSetSerial);
+                  },
                 ),
               ),
             ],
@@ -913,6 +359,221 @@ class NodeList extends StatelessWidget {
           const SizedBox(width: 8),
         ],
       ),
+    );
+  }
+
+  Widget _buildLegendRow() {
+    return const SizedBox(
+      width: double.infinity,
+      height: 20,
+      child: Row(
+        children: [
+          SizedBox(width: 10),
+          CircleAvatar(radius: 5, backgroundColor: Colors.green),
+          SizedBox(width: 5),
+          Text('ON', style: TextStyle(fontSize: 12)),
+          SizedBox(width: 20),
+          CircleAvatar(radius: 5, backgroundColor: Colors.black45),
+          SizedBox(width: 5),
+          Text('OFF', style: TextStyle(fontSize: 12)),
+          SizedBox(width: 20),
+          CircleAvatar(radius: 5, backgroundColor: Colors.orange),
+          SizedBox(width: 5),
+          Text('ON in OFF', style: TextStyle(fontSize: 12)),
+          SizedBox(width: 20),
+          CircleAvatar(radius: 5, backgroundColor: Colors.redAccent),
+          SizedBox(width: 5),
+          Text('OFF in ON', style: TextStyle(fontSize: 12)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRelayGrid(List<RelayStatus> rlyStatus, NodeListViewModel vm) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 8),
+      child: SizedBox(
+        width: double.infinity,
+        height: vm.calculateGridHeight(rlyStatus.length),
+        child: GridView.builder(
+          itemCount: rlyStatus.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 5,
+            crossAxisSpacing: 5.0,
+            mainAxisSpacing: 5.0,
+            childAspectRatio: 1.47,
+          ),
+          itemBuilder: (BuildContext context, int indexGv) {
+            final rly = rlyStatus[indexGv];
+            return Column(
+              children: [
+                RelayStatusAvatar(
+                  status: rly.status,
+                  rlyNo: rly.rlyNo,
+                  objType: rly.objType,
+                ),
+                Text(
+                  (rly.swName?.isNotEmpty ?? false ? rly.swName : rly.name).toString(),
+                  style: const TextStyle(color: Colors.black, fontSize: 9),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNodeTile(BuildContext context, NodeListModel node, NodeListViewModel vm, bool hasSetSerial) {
+    return ExpansionTile(
+      tilePadding: const EdgeInsets.symmetric(horizontal: 0),
+      childrenPadding: const EdgeInsets.symmetric(horizontal: 0),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          node.rlyStatus.any((rly) => rly.status == 2 || rly.status == 3)
+              ? const Icon(Icons.warning, color: Colors.orangeAccent)
+              : InkWell(
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => NodeConnectionPage(
+                nodeData: node.toJson(),
+                masterData: {
+                  "userId": userId,
+                  "customerId": customerId,
+                  "controllerId": masterData.controllerId,
+                },
+              )));
+            },
+            child: const Icon(Icons.bluetooth),
+          ),
+          IconButton(
+            onPressed: () {
+              vm.showEditProductDialog(context, node.deviceName, node.controllerId, 0,
+                  customerId, userId, masterData.controllerId);
+            },
+            icon: Icon(Icons.edit_outlined, color: Theme.of(context).primaryColorDark),
+          ),
+        ],
+      ),
+      backgroundColor: Colors.teal.shade50,
+      title: Padding(
+        padding: const EdgeInsets.only(left: 8),
+        child: Row(
+          children: [
+            const SizedBox(width: 5),
+            SizedBox(
+              width: 45,
+              child: Text('${node.serialNumber}-${node.referenceNumber}', style: const TextStyle(fontSize: 13)),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      statusIndicator(node.status),
+                      const SizedBox(width: 5),
+                      Text(node.deviceName, style: const TextStyle(fontSize: 14)),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 17),
+                    child: Text(node.deviceId, style: const TextStyle(fontSize: 11)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 17),
+                    child: Text('${node.modelName} - v:${node.version}', style: const TextStyle(fontSize: 10)),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      children: [
+        SizedBox(
+          width: double.infinity,
+          height: vm.calculateDynamicHeight(node) + 20,
+          child: Column(
+            children: [
+              Container(
+                color: Colors.teal.shade100,
+                width: MediaQuery.sizeOf(context).width - 35,
+                height: 25,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  child: Row(
+                    children: [
+                      const Text('Missed communication', style: TextStyle(color: Colors.black54)),
+                      const Spacer(),
+                      Text('Total : ${node.communicationCount.split(',').first}', style: const TextStyle(fontSize: 12)),
+                      const SizedBox(width: 8),
+                      Text('Continuous : ${node.communicationCount.split(',').last}', style: const TextStyle(fontSize: 12)),
+                    ],
+                  ),
+                ),
+              ),
+              ListTile(
+                contentPadding: const EdgeInsets.only(left: 8),
+                tileColor: Theme.of(context).primaryColor,
+                title: const Text('Last feedback', style: TextStyle(fontSize: 12)),
+                subtitle: Text(vm.formatDateTime(node.lastFeedbackReceivedTime), style: const TextStyle(fontSize: 10)),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.solar_power),
+                    Text('${node.sVolt} - V'),
+                    const SizedBox(width: 5),
+                    const Icon(Icons.battery_3_bar_rounded),
+                    Text('${node.batVolt} - V'),
+                    IconButton(
+                      tooltip: 'Serial set',
+                      onPressed: hasSetSerial
+                          ? () {
+                        vm.actionSerialSet(0, masterData.deviceId, customerId, masterData.controllerId, userId);
+                        GlobalSnackBar.show(context, 'Your comment sent successfully', 200);
+                      }
+                          : null,
+                      icon: Icon(Icons.fact_check_outlined, color: Theme.of(context).primaryColor),
+                    ),
+                  ],
+                ),
+              ),
+              if (node.rlyStatus.isNotEmpty) ...[
+                _buildLegendRow(),
+                const SizedBox(height: 5),
+                _buildRelayGrid(node.rlyStatus, vm),
+              ]
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget statusIndicator(int status, {double radius = 7}) {
+    Color color;
+    switch (status) {
+      case 1:
+        color = Colors.green.shade400;
+        break;
+      case 2:
+        color = Colors.grey;
+        break;
+      case 3:
+        color = Colors.redAccent;
+        break;
+      case 4:
+        color = Colors.yellow;
+        break;
+      default:
+        color = Colors.grey;
+    }
+
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: color,
     );
   }
 }

@@ -37,22 +37,29 @@ class NodeListViewModel extends ChangeNotifier {
     return false;
   }
 
-  void onLivePayloadReceived(List<String> nodeLiveMeg, List<String> inputOutputStatus, bool isNova){
-
-    if(isNova){
-
-    }else{
+  void onLivePayloadReceived(List<String> nodeLiveMeg, List<String> inputOutputStatus) {
+    try {
       for (String group in nodeLiveMeg) {
         List<String> values = group.split(",");
-        int sNo = int.parse(values[0]);
+        if (values.length < 5) continue;
+
+        int? sNo = int.tryParse(values[0]);
+        double? sVolt = double.tryParse(values[1]);
+        double? batVolt = double.tryParse(values[2]);
+        int? status = int.tryParse(values[3]);
+        String lastFeedback = values[4];
+        String version = values.length > 5 ? values[5] : '0.0.0';
+
+        if (sNo == null || sVolt == null || batVolt == null || status == null) continue;
+
         for (var node in nodeList) {
           if (node.serialNumber == sNo) {
-            node.sVolt = double.parse(values[1]);
-            node.batVolt = double.parse(values[2]);
-            node.status = int.parse(values[3]);
-            node.lastFeedbackReceivedTime = values[4];
-            node.version = values.length > 5 ? values[5] : '0.0.0';
-            break;
+            node.sVolt = sVolt;
+            node.batVolt = batVolt;
+            node.status = status;
+            node.lastFeedbackReceivedTime = lastFeedback;
+            node.version = version;
+            break; // stop once matched
           }
         }
       }
@@ -62,20 +69,23 @@ class NodeListViewModel extends ChangeNotifier {
         if (values.length < 2) continue;
 
         String relaySNo = values[0];
-        int relayStatus = int.parse(values[1]);
+        int? relayStatus = int.tryParse(values[1]);
+        if (relayStatus == null) continue;
+
+        outerLoop:
         for (var node in nodeList) {
           for (var relay in node.rlyStatus) {
             if (relay.sNo.toString() == relaySNo) {
               relay.status = relayStatus;
-              break;
+              break outerLoop;
             }
           }
         }
       }
+    } catch (e, st) {
+      print("Error parsing payload: $e");
+      print(st);
     }
-
-    //payloadProvider.nodeLiveMessage.clear();
-    //payloadProvider.outputStatusPayload.clear();
 
     notifyListeners();
   }
@@ -88,9 +98,7 @@ class NodeListViewModel extends ChangeNotifier {
     if (node.rlyStatus.isNotEmpty) {
       additionalHeight += calculateGridHeight(node.rlyStatus.length);
     }
-    /*if (node.sensor.isNotEmpty) {
-      additionalHeight += calculateGridHeight(node.sensor.length);
-    }*/
+
     return baseHeight + additionalHeight;
   }
 

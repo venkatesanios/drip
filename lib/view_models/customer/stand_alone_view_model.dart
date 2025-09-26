@@ -65,6 +65,7 @@ class StandAloneViewModel extends ChangeNotifier {
       Map<String, Object> body = {"userId": customerId, "controllerId": controllerId};
       final response = await repository.fetchCustomerProgramList(body);
       if (response.statusCode == 200) {
+        print('Customer Program:${response.body}');
         final jsonData = jsonDecode(response.body);
         if (jsonData["code"] == 200) {
           List<dynamic> programsJson = jsonData['data'];
@@ -136,7 +137,14 @@ class StandAloneViewModel extends ChangeNotifier {
             strFlow = data['flow'];
             strDuration = data['duration'];
 
+            bool isNova = [...AppConstants.ecoGemModelList].contains(masterData.modelId);
+
+            if(isNova && serialNumber==0) {
+              serialNumber = programList[0].serialNumber;
+            }
+
             int position = findPositionByName(serialNumber, programList);
+
             if (position != -1) {
               ddCurrentPosition = position;
             }else {
@@ -160,7 +168,6 @@ class StandAloneViewModel extends ChangeNotifier {
             flowLiter.text = strFlow;
 
             await Future.delayed(const Duration(milliseconds: 500));
-            //scheduleSectionCallbackMethod(serialNumber, ddCurrentPosition);
             fetchStandAloneSelection(serialNumber, ddCurrentPosition);
 
           }catch(e){
@@ -177,44 +184,6 @@ class StandAloneViewModel extends ChangeNotifier {
     }
 
   }
-
-  /*Future<void> scheduleSectionCallbackMethod(serialNumber, selection) async
-  {
-    ddCurrentPosition = selection;
-    try {
-      standAloneData = await fetchControllerData(serialNumber);
-      print(standAloneData);
-    } catch (e) {
-      print('Error: $e');
-    }
-  }*/
-
-  /*Future<List<StandAloneModel>>fetchControllerData(sNo) async
-  {
-    Map<String, Object> body = {
-      "userId": customerId,
-      "controllerId": controllerId,
-      "serialNumber": sNo
-    };
-
-    var response = await repository.fetchManualOperation(body);
-    if (response.statusCode == 200) {
-      final jsonResponse = json.decode(response.body);
-      print(response.body);
-      if (jsonResponse['data'] != null) {
-        dynamic data = jsonResponse['data'];
-        if (data is Map<String, dynamic>) {
-          return [StandAloneModel.fromJson(data)];
-        } else {
-          throw Exception('Invalid response format: "data" is not a Map');
-        }
-      } else {
-        throw Exception('Invalid response format: "data" is null');
-      }
-    } else {
-      throw Exception('Failed to load data');
-    }
-  }*/
 
 
   Future<void> fetchStandAloneSelection(int sNo, int cIndex) async {
@@ -249,6 +218,7 @@ class StandAloneViewModel extends ChangeNotifier {
   }
 
   void updatePreviousSelection(StandAloneModel data) {
+
     for (var item in standAloneData!.selection) {
       if (item.sNo is num) {
         final num fullNo = item.sNo as num;

@@ -145,7 +145,8 @@ class CurrentProgram extends StatelessWidget {
                         DataCell(Center(child: Text(convert24HourTo12Hour(values[11])))),
                         DataCell(Center(child: Text(getProgramNameById(int.parse(values[0])) == 'StandAlone - Manual' &&
                             (values[3] == '00:00:00' || values[3] == '0') ? 'Timeless' : values[3]))),
-                        DataCell(Center(child: Text('${values[16]}-L/hr'))),
+                        //DataCell(Center(child: Text('${values[16]}-L/hr'))),
+                        DataCell(Center(child: Text('${values[16]}/hr'))),
                         DataCell(Center(child: Text(
                           getProgramNameById(int.parse(values[0])) == 'StandAlone - Manual' &&
                               (values[3] == '00:00:00' || values[3] == '0')
@@ -153,14 +154,15 @@ class CurrentProgram extends StatelessWidget {
                               : values[4],
                           style: const TextStyle(fontSize: 20),
                         ))),
+
                         if(skipPermission)...[
                           if(![...AppConstants.ecoGemModelList].contains(modelId))...[
                             DataCell(Center(child: buildActionButton(context, values))),
-                          ]else...[
-                            const DataCell(Center(child: Text('...'))),
                           ]
                         ]else...[
-                          const DataCell(Center(child: Text('...'))),
+                          if(![...AppConstants.ecoGemModelList].contains(modelId))...[
+                            const DataCell(Center(child: Text('...'))),
+                          ]
                         ]
                       ]);
                     }),

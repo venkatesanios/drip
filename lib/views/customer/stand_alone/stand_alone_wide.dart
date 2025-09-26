@@ -262,6 +262,8 @@ class _StandAloneWideState extends State<StandAloneWide> with SingleTickerProvid
 
   Widget displayLineOrSequence(MasterControllerModel masterData, StandAloneViewModel vm, int ddPosition){
 
+    bool isNova = [...AppConstants.ecoGemModelList].contains(masterData.modelId);
+
     final sourcePumps = masterData.irrigationLine
         .expand((line) => line.inletSources)
         .expand((ws) => ws.outletPump ?? [])
@@ -294,7 +296,7 @@ class _StandAloneWideState extends State<StandAloneWide> with SingleTickerProvid
 
     return Column(
       children: [
-        if(vm.ddCurrentPosition==0)...[
+        if(!isNova && vm.ddCurrentPosition==0)...[
           if (allSourcePumps.isNotEmpty)...[
             CustomCardTable(
               title: "Source Pump",
@@ -416,7 +418,7 @@ class _StandAloneWideState extends State<StandAloneWide> with SingleTickerProvid
           )
         ],
 
-        ddPosition == 0 ? Column(
+        (!isNova && ddPosition == 0 ) ? Column(
           children: masterData.irrigationLine.map((line) {
             if (line.name == 'All irrigation line') return const SizedBox();
 
@@ -467,7 +469,7 @@ class _StandAloneWideState extends State<StandAloneWide> with SingleTickerProvid
               rows: rows,
             );
           }).toList(),
-        ):
+        ) :
         vm.standAloneData != null ?
         Column(
           children: vm.standAloneData!.sequence.map((sequence) {
