@@ -12,8 +12,9 @@ import '../common/user_profile/create_account.dart';
 
 class GeneralSetting extends StatefulWidget {
   const GeneralSetting({super.key, required this.customerId,
-    required this.controllerId, required this.userId});
+    required this.controllerId, required this.userId, required this.isSubUser});
   final int customerId, controllerId, userId;
+  final bool isSubUser;
 
   @override
   State<GeneralSetting> createState() => _GeneralSettingState();
@@ -512,71 +513,73 @@ class _GeneralSettingState extends State<GeneralSetting> {
                   ),
                 ),
               ),
-              ListTile(
-                leading: const Icon(Icons.supervised_user_circle_outlined),
-                title: const Text(
-                  'My Sub users',
-                  style:
-                  TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-                ),
-                trailing: widget.userId != 0
-                    ? IconButton(
-                    tooltip: 'Add new sub user',
-                    onPressed: () async {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        builder: (context) {
-                          return FractionallySizedBox(
-                            heightFactor: 0.84,
-                            widthFactor: 0.75,
-                            child: Container(
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
+              if(!widget.isSubUser)...[
+                ListTile(
+                  leading: const Icon(Icons.supervised_user_circle_outlined),
+                  title: const Text(
+                    'My Sub users',
+                    style:
+                    TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                  ),
+                  trailing: widget.userId != 0
+                      ? IconButton(
+                      tooltip: 'Add new sub user',
+                      onPressed: () async {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          builder: (context) {
+                            return FractionallySizedBox(
+                              heightFactor: 0.84,
+                              widthFactor: 0.75,
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
+                                ),
+                                child: CreateAccount(userId: widget.userId, role: UserRole.subUser, customerId: widget.customerId, onAccountCreated: viewModel.updateCustomerList),
                               ),
-                              child: CreateAccount(userId: widget.userId, role: UserRole.subUser, customerId: widget.customerId, onAccountCreated: viewModel.updateCustomerList),
+                            );
+                          },
+                        );
+                      },
+                      icon: const Icon(Icons.add))
+                      : null,
+                ),
+                Divider(height:0, color: Colors.grey.shade300),
+                SizedBox(
+                  height: 70,
+                  child: viewModel.subUsers.isNotEmpty ?
+                  ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: viewModel.subUsers.length,
+                    itemBuilder: (context, index) {
+                      final user = viewModel.subUsers[index];
+                      return SizedBox(
+                        width: 250,
+                        child: Card(
+                          surfaceTintColor: Colors.teal,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5.0),
+                          ),
+                          child: ListTile(
+                            title: Text(user['userName']),
+                            subtitle: Text(
+                                '+${user['countryCode']} ${user['mobileNumber']}'),
+                            trailing: IconButton(
+                              tooltip: 'User Permission',
+                              onPressed: () => _showAlertDialog(
+                                  context, viewModel, user['userName'], user['userId']),
+                              icon: const Icon(Icons.menu),
                             ),
-                          );
-                        },
-                      );
-                    },
-                    icon: const Icon(Icons.add))
-                    : null,
-              ),
-              Divider(height:0, color: Colors.grey.shade300),
-              SizedBox(
-                height: 70,
-                child: viewModel.subUsers.isNotEmpty ?
-                ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: viewModel.subUsers.length,
-                  itemBuilder: (context, index) {
-                    final user = viewModel.subUsers[index];
-                    return SizedBox(
-                      width: 250,
-                      child: Card(
-                        surfaceTintColor: Colors.teal,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                        child: ListTile(
-                          title: Text(user['userName']),
-                          subtitle: Text(
-                              '+${user['countryCode']} ${user['mobileNumber']}'),
-                          trailing: IconButton(
-                            tooltip: 'User Permission',
-                            onPressed: () => _showAlertDialog(
-                                context, viewModel, user['userName'], user['userId']),
-                            icon: const Icon(Icons.menu),
                           ),
                         ),
-                      ),
-                    );
-                  },
-                ) :
-                const Center(child: Text('No Sub user available for this controller')),
-              ),
+                      );
+                    },
+                  ) :
+                  const Center(child: Text('No Sub user available for this controller')),
+                ),
+              ],
             ],
           ),
         ),

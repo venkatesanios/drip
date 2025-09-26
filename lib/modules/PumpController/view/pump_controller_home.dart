@@ -345,7 +345,7 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
           selectedWidget =  PreferenceMainScreen(
             userId: widget.userId,
             customerId: widget.customerId,
-            masterData: widget.masterData,
+            masterData: {"deviceId": widget.masterData.deviceId, "modelId": widget.masterData.modelId, "controllerId": widget.masterData.controllerId},
             selectedIndex: _selectedIndex,
           );
         }

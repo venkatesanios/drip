@@ -14,12 +14,13 @@ class ScheduledProgramWide extends StatefulWidget {
     required this.deviceId, required this.customerId,
     required this.currentLineSNo, required this.groupId,
     required this.categoryId, required this.modelId,
-    required this.deviceName, required this.categoryName});
+    required this.deviceName, required this.categoryName, required this.prgOnOffPermission});
 
   final int userId, customerId, controllerId, groupId, categoryId, modelId;
   final String deviceId, deviceName, categoryName;
   final List<ProgramList> scheduledPrograms;
   final double currentLineSNo;
+  final bool prgOnOffPermission;
 
   static const headerStyle = TextStyle(fontSize: 13);
 
@@ -79,18 +80,18 @@ class _ScheduledProgramWideState extends State<ScheduledProgramWide> {
                       dataRowHeight: 45,
                       headingRowHeight: 40,
                       headingRowColor: WidgetStateProperty.all(Colors.yellow.shade50),
-                      columns: ProgramTableHelper.columns(ScheduledProgramWide.headerStyle),
+                      columns: ProgramTableHelper.columns(ScheduledProgramWide.headerStyle, widget.prgOnOffPermission),
                       rows: ProgramTableHelper.rows(
                         programs: filteredScheduleProgram,
                         context: context,
                         aiService: aiService,
                         currentLineSNo: widget.currentLineSNo,
                         showConditionDialog: showConditionDialog,
-                        getPermissionStatusBySNo: (sNo) => getPermissionStatusBySNo(context, sNo),
                         deviceId: widget.deviceId,
                         userId: widget.userId,
                         controllerId: widget.controllerId,
                         customerId: widget.customerId,
+                        prgOnOffPermission: widget.prgOnOffPermission,
                       ),
                     ),
                   ),
@@ -176,17 +177,4 @@ class _ScheduledProgramWideState extends State<ScheduledProgramWide> {
       },
     );
   }
-
-
-  bool getPermissionStatusBySNo(BuildContext context, int sNo) {
-    MqttPayloadProvider payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
-    Map<String, dynamic>? permission = payloadProvider.userPermission
-        .cast<Map<String, dynamic>>()
-        .firstWhere(
-          (element) => element['sNo'] == sNo,
-      orElse: () => {},
-    );
-    return permission['status'] as bool? ?? true;
-  }
-
 }

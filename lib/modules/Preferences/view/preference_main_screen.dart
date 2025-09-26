@@ -169,7 +169,7 @@ final otherCalibrationIcons = [
 
 class PreferenceMainScreen extends StatefulWidget {
   final int userId, customerId, selectedIndex;
-  final MasterControllerModel masterData;
+  final Map<String, dynamic> masterData;
   const PreferenceMainScreen({super.key, required this.userId, required this.customerId, required this.masterData, required this.selectedIndex});
 
   @override
@@ -200,7 +200,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
     // TODO: implement initState
     preferenceProvider = Provider.of<PreferenceProvider>(context, listen: false);
     mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
-    preferenceProvider.getUserPreference(userId: widget.customerId, controllerId: widget.masterData.controllerId, modelId: widget.masterData.modelId).then((_) {
+    preferenceProvider.getUserPreference(userId: widget.customerId, controllerId: widget.masterData['controllerId'], modelId: widget.masterData['modelId']).then((_) {
       commonPumpTabController = TabController(
           length: preferenceProvider.commonPumpSettings?.length ?? 0,
           vsync: this
@@ -220,9 +220,9 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
     });
     preferenceProvider.updateTabIndex(0);
     mqttPayloadProvider.viewSettingsList.clear();
-    isToGem = AppConstants.gemModelList.contains(widget.masterData.modelId);
-    isPumpWithValveModel = AppConstants.pumpWithValveModelList.contains(widget.masterData.modelId);
-    isPumpOnly = AppConstants.pumpModelList.contains(widget.masterData.modelId);
+    isToGem = AppConstants.gemModelList.contains(widget.masterData['modelId']);
+    isPumpWithValveModel = AppConstants.pumpWithValveModelList.contains(widget.masterData['modelId']);
+    isPumpOnly = AppConstants.pumpModelList.contains(widget.masterData['modelId']);
     isValveSetting = [1, 2].contains(widget.selectedIndex);
     super.initState();
   }
@@ -324,7 +324,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                                                           ),
                                                           TextButton(
                                                               onPressed: () async {
-                                                                if (AppConstants.gemModelList.contains(widget.masterData.modelId)) {
+                                                                if (AppConstants.gemModelList.contains(widget.masterData['modelId'])) {
                                                                   final pump = preferenceProvider.commonPumpSettings![preferenceProvider.selectedTabIndex];
                                                                   final payload = jsonEncode({"sentSms": "viewconfig,4"});
                                                                   final payload2 = jsonEncode({"0": payload});
@@ -336,7 +336,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                                                                 await Future.delayed(Duration.zero, () {
                                                                   preferenceProvider.updateValidationCode();
                                                                 });
-                                                                await preferenceProvider.checkPassword(userId: widget.userId, password: passwordController.text);
+                                                                await preferenceProvider.checkPassword(userId: widget.customerId, password: passwordController.text);
                                                                 if(preferenceProvider.passwordValidationCode == 200) {
                                                                   Navigator.of(context).pop();
                                                                   passwordController.text = "";
@@ -393,7 +393,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                                   ViewConfig(
                                     userId: widget.userId,
                                     isLora: preferenceProvider.commonPumpSettings![commonPumpTabController.index].interfaceTypeId == 1,
-                                    modelId: widget.masterData.modelId,
+                                    modelId: widget.masterData['modelId'],
                                   )
                               else if(selectedSetting == 0)
                                 for(var commonSettingIndex = 0; commonSettingIndex < preferenceProvider.commonPumpSettings!.length; commonSettingIndex++)
@@ -660,7 +660,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                     final viewConfig = {"5900": {
                       "5901": "$oroPumpSerialNumber+$referenceNumber+$deviceId+$interfaceType+$payload2+$categoryId",
                       }};
-                    mqttService.topicToPublishAndItsMessage(jsonEncode(viewConfig), "${Environment.mqttPublishTopic}/${widget.masterData}");
+                    mqttService.topicToPublishAndItsMessage(jsonEncode(viewConfig), "${Environment.mqttPublishTopic}/${widget.masterData['deviceId']}");
                   }
                 },
                 tabs: [
@@ -1270,7 +1270,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
     breakLoop = false;
     Map<String, dynamic> userData = {
       "userId": widget.customerId,
-      "controllerId": widget.masterData.controllerId,
+      "controllerId": widget.masterData['controllerId'],
       "createUser": widget.userId
     };
 
@@ -1308,7 +1308,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
             },
             payload: payloadForSlave,
             payloadCode: "400",
-            deviceId: widget.masterData.deviceId
+            deviceId: widget.masterData['deviceId']
         );
       }
 
@@ -1366,7 +1366,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                 payloads: preferenceProvider.passwordValidationCode == 200
                     ? getCalibrationPayload(isToGem: isToGem).split(';')
                     : payloadForGem,
-                deviceId: widget.masterData.deviceId,
+                deviceId: widget.masterData['deviceId'],
                 isToGem: isToGem,
                 mqttService: mqttService,
                 shouldSendFailedPayloads: shouldSendFailedPayloads,

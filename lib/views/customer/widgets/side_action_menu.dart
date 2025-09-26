@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/utils/helpers/mc_permission_helper.dart';
 import 'package:provider/provider.dart';
 
+import '../../../models/customer/site_model.dart';
 import '../../../modules/IrrigationProgram/view/program_library.dart';
 import '../../../modules/ScheduleView/view/schedule_view_screen.dart';
 import '../../../providers/user_provider.dart';
 import '../../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../input_output_connection_details.dart';
 import '../node_list/node_list.dart';
-import '../stand_alone.dart';
+import '../stand_alone/stand_alone_wide.dart';
 import 'alarm_button.dart';
 
 class SideActionMenu extends StatelessWidget {
@@ -27,6 +29,10 @@ class SideActionMenu extends StatelessWidget {
     final viewedCustomer = context.read<UserProvider>().viewedCustomer;
 
     final cM = vm.mySiteList.data[vm.sIndex].master[vm.mIndex];
+
+    final hasPlanning = cM.getPermissionStatus("Planning");
+    final hasStandaloneOnOff = cM.getPermissionStatus("Standalone On/Off");
+    final hasViewLog = cM.getPermissionStatus("View Controller Log");
 
     return Container(
       width: 60,
@@ -54,31 +60,29 @@ class SideActionMenu extends StatelessWidget {
           ),
 
           const SizedBox(height: 15),
-
-          /// Node Status
           _buildNodeStatus(context, viewedCustomer!.id, loggedInUser.id, cM),
 
-          /// IO Details
           if (![56, 57, 58, 59].contains(cM.modelId)) ...[
             const SizedBox(height: 15),
             _buildIoDetails(context, vm, cM),
           ],
 
-          const SizedBox(height: 15),
-
-          /// Program
-          _buildProgramButton(context, vm, loggedInUser.id, cM),
-
-          /// Scheduled Program
-          if ([1, 2, 3, 4].contains(cM.modelId)) ...[
+          if(hasPlanning)...[
             const SizedBox(height: 15),
-            _buildScheduleView(context, vm, loggedInUser.id, cM),
+            _buildProgramButton(context, vm, loggedInUser.id, cM),
           ],
 
-          const SizedBox(height: 15),
+          if(hasViewLog)...[
+            if ([1, 2, 3, 4].contains(cM.modelId)) ...[
+              const SizedBox(height: 15),
+              _buildScheduleView(context, vm, loggedInUser.id, cM),
+            ],
+          ],
 
-          /// Manual
-          _buildManualButton(context, vm, loggedInUser.id, cM),
+          if(hasStandaloneOnOff)...[
+            const SizedBox(height: 15),
+            _buildManualButton(context, vm, loggedInUser.id, cM),
+          ],
         ],
       ),
     );
@@ -118,7 +122,8 @@ class SideActionMenu extends StatelessWidget {
     );
   }
 
-  Widget _buildNodeStatus(BuildContext context, int customerId, int userId, dynamic cM) {
+  Widget _buildNodeStatus(BuildContext context, int customerId,
+      int userId, MasterControllerModel cM) {
     return CircleAvatar(
       radius: 20,
       backgroundColor: Colors.transparent,
@@ -168,7 +173,8 @@ class SideActionMenu extends StatelessWidget {
     );
   }
 
-  Widget _buildIoDetails(BuildContext context, CustomerScreenControllerViewModel vm, dynamic cM) {
+  Widget _buildIoDetails(BuildContext context, CustomerScreenControllerViewModel vm,
+      MasterControllerModel cM) {
     return Container(
       width: 45,
       height: 45,
@@ -193,14 +199,14 @@ class SideActionMenu extends StatelessWidget {
     );
   }
 
-  Widget _buildProgramButton(BuildContext context, CustomerScreenControllerViewModel vm, int userId, dynamic cM) {
-    return Container(
+  Widget _buildProgramButton(BuildContext context, CustomerScreenControllerViewModel vm,
+      int userId, MasterControllerModel cM) {
+    return SizedBox(
       width: 45,
       height: 45,
       child: IconButton(
         tooltip: 'Program',
-        onPressed: vm.getPermissionStatusBySNo(context, 10)
-            ? () {
+        onPressed:() {
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -218,8 +224,7 @@ class SideActionMenu extends StatelessWidget {
               ),
             ),
           );
-        }
-            : null,
+        },
         icon: const Icon(Icons.list_alt),
         color: Colors.white,
         iconSize: 24.0,
@@ -227,7 +232,8 @@ class SideActionMenu extends StatelessWidget {
     );
   }
 
-  Widget _buildScheduleView(BuildContext context, CustomerScreenControllerViewModel vm, int userId, dynamic cM) {
+  Widget _buildScheduleView(BuildContext context, CustomerScreenControllerViewModel vm,
+      int userId, MasterControllerModel cM) {
     return SizedBox(
       width: 45,
       height: 45,
@@ -254,8 +260,10 @@ class SideActionMenu extends StatelessWidget {
     );
   }
 
-  Widget _buildManualButton(BuildContext context, CustomerScreenControllerViewModel vm, int userId, dynamic cM) {
-    return Container(
+  Widget _buildManualButton(BuildContext context, CustomerScreenControllerViewModel vm,
+      int userId, MasterControllerModel cM) {
+
+    return SizedBox(
       width: 45,
       height: 45,
       child: IconButton(
@@ -274,7 +282,7 @@ class SideActionMenu extends StatelessWidget {
                   elevation: 15,
                   color: Colors.transparent,
                   borderRadius: BorderRadius.zero,
-                  child: StandAlone(
+                  child: StandAloneWide(
                     siteId: vm.mySiteList.data[vm.sIndex].groupId,
                     controllerId: cM.controllerId,
                     customerId: vm.mySiteList.data[vm.sIndex].customerId,

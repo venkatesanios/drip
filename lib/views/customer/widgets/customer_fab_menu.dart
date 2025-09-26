@@ -26,6 +26,7 @@ class CustomerFabMenu extends StatelessWidget {
   final dynamic loggedInUser;
   final dynamic vm;
   final void Function(String msg) callbackFunction;
+  final List<bool> myPermissionFlags;
 
   const CustomerFabMenu({
     super.key,
@@ -34,6 +35,7 @@ class CustomerFabMenu extends StatelessWidget {
     required this.loggedInUser,
     required this.vm,
     required this.callbackFunction,
+    required this.myPermissionFlags,
   });
 
   @override
@@ -64,19 +66,24 @@ class CustomerFabMenu extends StatelessWidget {
               _buildPopupItem(
                   context, 'Node Status', Icons.format_list_numbered, 'Node Status'),
               if(isGem)...[
-                _buildPopupItem(
-                    context, 'I/O Connection', Icons.settings_input_component_outlined, 'I/O Connection details'),
+                _buildPopupItem(context, 'I/O Connection', Icons.settings_input_component_outlined, 'I/O Connection details'),
               ],
-              _buildPopupItem(
-                  context, 'Program', Icons.list_alt, 'Program'),
+
+              if(myPermissionFlags[0])...[
+                _buildPopupItem(context, 'Program', Icons.list_alt, 'Program'),
+              ],
+
               if(isGem)...[
-                _buildPopupItem(
-                    context, 'ScheduleView', Icons.view_list_outlined, 'Scheduled program details'),
+                if(myPermissionFlags[2])...[
+                  _buildPopupItem(context, 'ScheduleView', Icons.view_list_outlined, 'Scheduled program details'),
+                ],
               ],
-              _buildPopupItem(
-                  context, 'Manual', Icons.touch_app_outlined, 'Manual'),
-              _buildPopupItem(
-                  context, 'Sent & Received', Icons.question_answer_outlined, 'Sent & Received'),
+
+              if(myPermissionFlags[1])...[
+                _buildPopupItem(context, 'Manual', Icons.touch_app_outlined, 'Manual'),
+              ],
+
+              _buildPopupItem(context, 'Sent & Received', Icons.question_answer_outlined, 'Sent & Received'),
             ],
           ),
         ),

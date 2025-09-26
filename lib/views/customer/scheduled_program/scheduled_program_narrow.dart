@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/utils/formatters.dart';
+import 'package:oro_drip_irrigation/utils/helpers/mc_permission_helper.dart';
 import 'package:oro_drip_irrigation/views/customer/scheduled_program/widgets/ai_recommendation_button.dart';
 import 'package:oro_drip_irrigation/views/customer/scheduled_program/widgets/clickable_submenu.dart';
 import 'package:oro_drip_irrigation/views/customer/scheduled_program/widgets/program_updater.dart';
@@ -44,12 +45,9 @@ class _ScheduledProgramNarrowState extends State<ScheduledProgramNarrow> {
 
   @override
   Widget build(BuildContext context) {
-
-    // Watch viewModel to rebuild when notifyListeners() is called
     final viewModel = context.watch<CustomerScreenControllerViewModel>();
-
-    // Get updated master every time from viewModel
     final master = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex];
+    final hasProgramOnOff = master.getPermissionStatus("Program On/Off Manually");
 
     final spLive = context.watch<MqttPayloadProvider>().scheduledProgramPayload;
     final conditionPayload = context.watch<MqttPayloadProvider>().conditionPayload;
@@ -216,24 +214,24 @@ class _ScheduledProgramNarrowState extends State<ScheduledProgramNarrow> {
                       ),
                     ],
                   ),
-                  SizedBox(
-                    width: MediaQuery.sizeOf(context).width,
-                    child: program.status == 1? Row(
-                      children: [
-                        const Spacer(),
-                        Tooltip(
-                          message: ProgramCodeHelper.getDescription(int.parse(program.prgOnOff)),
-                          child: MaterialButton(
-                            color: int.parse(program.prgOnOff) >= 0
-                                ? isStop
-                                ? Colors.red
-                                : isBypass
-                                ? Colors.orange
-                                : Colors.green
-                                : Colors.grey.shade300,
-                            textColor: Colors.white,
-                            onPressed: () {
-                              if (getPermissionStatusBySNo(context, 3)) {
+                  if(hasProgramOnOff)...[
+                    SizedBox(
+                      width: MediaQuery.sizeOf(context).width,
+                      child: program.status == 1? Row(
+                        children: [
+                          const Spacer(),
+                          Tooltip(
+                            message: ProgramCodeHelper.getDescription(int.parse(program.prgOnOff)),
+                            child: MaterialButton(
+                              color: int.parse(program.prgOnOff) >= 0
+                                  ? isStop
+                                  ? Colors.red
+                                  : isBypass
+                                  ? Colors.orange
+                                  : Colors.green
+                                  : Colors.grey.shade300,
+                              textColor: Colors.white,
+                              onPressed: () {
                                 String payload = '${program.serialNumber},${program.prgOnOff}';
                                 String payLoadFinal = jsonEncode({
                                   "2900": {"2901": payload}
@@ -242,19 +240,15 @@ class _ScheduledProgramNarrowState extends State<ScheduledProgramNarrow> {
                                 final commService = Provider.of<CommunicationService>(context, listen: false);
                                 commService.sendCommand(serverMsg: '${program.programName} ${ProgramCodeHelper.getDescription(int.parse(program.prgOnOff))}', payload: payLoadFinal);
                                 GlobalSnackBar.show(context, 'Comment sent successfully', 200);
-                              } else {
-                                GlobalSnackBar.show(context, 'Permission denied', 400);
-                              }
-                            },
-                            child: Text(buttonName),
+                              },
+                              child: Text(buttonName),
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        MaterialButton(
-                          color: ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume)) == 'Pause' ? Colors.orange : Colors.yellow,
-                          textColor: ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume)) == 'Pause' ? Colors.white : Colors.black,
-                          onPressed: () {
-                            if (getPermissionStatusBySNo(context, 3)) {
+                          const SizedBox(width: 8),
+                          MaterialButton(
+                            color: ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume)) == 'Pause' ? Colors.orange : Colors.yellow,
+                            textColor: ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume)) == 'Pause' ? Colors.white : Colors.black,
+                            onPressed: () {
                               String payload = '${program.serialNumber},${program.prgPauseResume}';
                               String payLoadFinal = jsonEncode({
                                 "2900": {"2901": payload}
@@ -263,66 +257,61 @@ class _ScheduledProgramNarrowState extends State<ScheduledProgramNarrow> {
                               final commService = Provider.of<CommunicationService>(context, listen: false);
                               commService.sendCommand(serverMsg: '${program.programName} ${ProgramCodeHelper.getDescription(int.parse(program.prgPauseResume))}', payload: payLoadFinal);
                               GlobalSnackBar.show(context, 'Comment sent successfully', 200);
-                            } else {
-                              GlobalSnackBar.show(context, 'Permission denied', 400);
-                            }
-                          },
-                          child: Text(ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume))),
-                        ),
-                        const SizedBox(width: 5),
-
-                        getPermissionStatusBySNo(context, 3) ? PopupMenuButton<String>(
-                          icon: const Icon(Icons.more_vert),
-                          onSelected: (result) {
-                            if (result == 'Edit program') {
-                              bool hasConditions = program.conditions.isNotEmpty;
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => IrrigationProgram(
-                                    deviceId: widget.master.deviceId,
-                                    userId: widget.userId,
-                                    controllerId: widget.master.controllerId,
-                                    serialNumber: widget.master.programList[index].serialNumber,
-                                    programType: filteredScheduleProgram[index].programType,
-                                    conditionsLibraryIsNotEmpty: hasConditions,
-                                    fromDealer: false,
-                                    toDashboard: true,
-                                    groupId: widget.groupId,
-                                    categoryId: widget.master.categoryId,
-                                    customerId: widget.customerId,
-                                    modelId: widget.master.modelId,
-                                    deviceName: widget.master.deviceName,
-                                    categoryName: widget.master.categoryName,
+                            },
+                            child: Text(ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume))),
+                          ),
+                          const SizedBox(width: 5),
+                          PopupMenuButton<String>(
+                            icon: const Icon(Icons.more_vert),
+                            onSelected: (result) {
+                              if (result == 'Edit program') {
+                                bool hasConditions = program.conditions.isNotEmpty;
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => IrrigationProgram(
+                                      deviceId: widget.master.deviceId,
+                                      userId: widget.userId,
+                                      controllerId: widget.master.controllerId,
+                                      serialNumber: widget.master.programList[index].serialNumber,
+                                      programType: filteredScheduleProgram[index].programType,
+                                      conditionsLibraryIsNotEmpty: hasConditions,
+                                      fromDealer: false,
+                                      toDashboard: true,
+                                      groupId: widget.groupId,
+                                      categoryId: widget.master.categoryId,
+                                      customerId: widget.customerId,
+                                      modelId: widget.master.modelId,
+                                      deviceName: widget.master.deviceName,
+                                      categoryName: widget.master.categoryName,
+                                    ),
                                   ),
-                                ),
-                              );
-                            }
-                          },
-                          itemBuilder: (context) => [
-                            const PopupMenuItem(value: 'Edit program', child: Text('Edit program')),
-                            PopupMenuItem(
-                                value: 'Change to',
-                                child: ClickableSubmenu(
-                                    title: 'Change to',
-                                    submenuItems: program.sequence,
-                                    onItemSelected: (selectedItem, selectedIndex) {
-                                      final payload = '${program.serialNumber},${selectedIndex + 1}';
-                                      final payLoadFinal = jsonEncode({"6700": {"6701": payload}});
-                                      Provider.of<CommunicationService>(context, listen: false).sendCommand(
-                                          serverMsg: '${program.programName} Changed to $selectedItem',
-                                          payload: payLoadFinal);
-                                      Navigator.pop(context);
-                                    })),
-                          ],
-                        ) :
-                        const Icon(Icons.more_vert, color: Colors.grey),
-
-                        AiRecommendationButton(aiService: aiService, userId: widget.userId, controllerId: widget.master.controllerId),
-                      ],
-                    ):
-                    const Center(child: Text('The program is not ready', style: TextStyle(color: Colors.red))),
-                  ),
+                                );
+                              }
+                            },
+                            itemBuilder: (context) => [
+                              const PopupMenuItem(value: 'Edit program', child: Text('Edit program')),
+                              PopupMenuItem(
+                                  value: 'Change to',
+                                  child: ClickableSubmenu(
+                                      title: 'Change to',
+                                      submenuItems: program.sequence,
+                                      onItemSelected: (selectedItem, selectedIndex) {
+                                        final payload = '${program.serialNumber},${selectedIndex + 1}';
+                                        final payLoadFinal = jsonEncode({"6700": {"6701": payload}});
+                                        Provider.of<CommunicationService>(context, listen: false).sendCommand(
+                                            serverMsg: '${program.programName} Changed to $selectedItem',
+                                            payload: payLoadFinal);
+                                        Navigator.pop(context);
+                                      })),
+                            ],
+                          ),
+                          AiRecommendationButton(aiService: aiService, userId: widget.userId, controllerId: widget.master.controllerId),
+                        ],
+                      ):
+                      const Center(child: Text('The program is not ready', style: TextStyle(color: Colors.red))),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -392,14 +381,4 @@ class _ScheduledProgramNarrowState extends State<ScheduledProgramNarrow> {
       },
     );
   }
-
-  bool getPermissionStatusBySNo(BuildContext context, int sNo) {
-    MqttPayloadProvider payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
-    Map<String, dynamic>? permission = payloadProvider.userPermission.cast<Map<String, dynamic>>().firstWhere((element) =>
-    element['sNo'] == sNo,
-      orElse: () => {},
-    );
-    return permission['status'] as bool? ?? true;
-  }
-
 }

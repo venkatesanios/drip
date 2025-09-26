@@ -422,33 +422,11 @@ class _SequenceScreenState extends State<SequenceScreen> {
                   },
                 );
               } else {
-                if (!AppConstants.ecoGemModelList.contains(widget.modelId) || irrigationProgramProvider.irrigationLine!.sequence.length < 8) {
-                  // if(irrigationProgramProvider.irrigationLine!.sequence[indexToShow]['valve']);
-                  irrigationProgramProvider.updateAddNext(serialNumber: widget.serialNumber, indexToShow: indexToShow, modelId: widget.modelId,);
-                  irrigationProgramProvider.updateNextButton(indexToShow);
-                  double itemSize = 150;
-                  double targetOffset = indexToShow * itemSize;
-                  _scrollController.animateTo(targetOffset, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut,);
-                } else {
-                  showAdaptiveDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: const Text("Warning!"),
-                        content: const Text(
-                          'Maximum 8 zones can created for a program',
-                          style: TextStyle(color: Colors.red),
-                        ),
-                        actions: [
-                          TextButton(
-                            child: const Text("OK"),
-                            onPressed: () => Navigator.of(context).pop(),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                }
+                irrigationProgramProvider.updateAddNext(serialNumber: widget.serialNumber, indexToShow: indexToShow, modelId: widget.modelId,);
+                irrigationProgramProvider.updateNextButton(indexToShow);
+                double itemSize = 150;
+                double targetOffset = indexToShow * itemSize;
+                _scrollController.animateTo(targetOffset, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut,);
               }
             }
         ),
@@ -794,7 +772,9 @@ class _SequenceScreenState extends State<SequenceScreen> {
                                 sequenceIndex: indexToShow,
                                 serialNumber: widget.serialNumber == 0 ? irrigationProgramProvider.serialNumberCreation : widget.serialNumber,
                                 sNo: sequence.length+1,
-                                groupId: item.id
+                                groupId: item.id,
+                                context: context,
+                                modelId: widget.modelId
                             );
                           },
                           child: const Text("Yes", style: TextStyle(color: Colors.green),)
@@ -813,37 +793,18 @@ class _SequenceScreenState extends State<SequenceScreen> {
             if (!sequence[indexToShow].containsKey('selectedGroup')) {
               sequence[indexToShow]['selectedGroup'] = [];
             }
-            if(!AppConstants.ecoGemModelList.contains(widget.modelId) || sequence[indexToShow]['valve'].length < 4){
-              irrigationProgramProvider.addValvesInSequence(
-                  valves: isGroup ? dataList.map((e) => e.toJson()).toList() : [item.toJson()],
-                  lineIndex: lineIndex,
-                  isMainValve: isMainValve,
-                  sequenceIndex: indexToShow,
-                  isGroup: isGroup,
-                  serialNumber: widget.serialNumber == 0 ? irrigationProgramProvider.serialNumberCreation : widget.serialNumber,
-                  sNo: sequence.length+1,
-                  groupId: isGroup ? item.id : ''
-              );
-            } else {
-              showAdaptiveDialog(
+            irrigationProgramProvider.addValvesInSequence(
+                valves: isGroup ? dataList.map((e) => e.toJson()).toList() : [item.toJson()],
+                lineIndex: lineIndex,
+                isMainValve: isMainValve,
+                sequenceIndex: indexToShow,
+                isGroup: isGroup,
+                serialNumber: widget.serialNumber == 0 ? irrigationProgramProvider.serialNumberCreation : widget.serialNumber,
+                sNo: sequence.length+1,
+                groupId: isGroup ? item.id : '',
                 context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text("Warning!"),
-                    content: const Text(
-                      'Maximum 4 valves can created for a Zone',
-                      style: TextStyle(color: Colors.red),
-                    ),
-                    actions: [
-                      TextButton(
-                        child: const Text("OK"),
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
-                    ],
-                  );
-                },
-              );
-            }
+                modelId: widget.modelId
+            );
           }
         },
         darkColor: (!isGroup && !isMainValve)

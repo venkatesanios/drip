@@ -665,7 +665,11 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                   onTap: () {
                     data[index].siteMode = siteMode;
                     data[index].connectedObject = connectedObject;
-                    if ((data[index].objectId == 4 && siteMode == 1) || (data[index].objectId == 4 && siteMode == 2) || (data[index].objectId == 5 && siteMode == 1) || (data[index].objectId == 5 && siteMode == 2)) {
+                    if ((data[index].objectId == 4 && siteMode == 1)
+                        || (data[index].objectId == 4 && siteMode == 2)
+                        || (data[index].objectId == 5 && siteMode == 1)
+                        || (data[index].objectId == 5 && siteMode == 2)
+                    ) {
                       toggleSelection(data[index].objectId, siteMode!, index, data);
                     } else {
                       if (irrigationProgramProvider.selectedObjects!.any((element) => element.sNo == data[index].sNo)) {

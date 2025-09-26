@@ -1,0 +1,502 @@
+import 'package:data_table_2/data_table_2.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:oro_drip_irrigation/view_models/customer/stand_alone_view_model.dart';
+import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/custom_card_table.dart';
+import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/custom_switch_row.dart';
+import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/valve_card_table.dart';
+import 'package:provider/provider.dart';
+import '../../../models/customer/site_model.dart';
+import '../../../models/customer/stand_alone_model.dart';
+import '../../../repository/repository.dart';
+import '../../../services/http_service.dart';
+import '../../../utils/constants.dart';
+
+class StandAloneWide extends StatefulWidget {
+  const StandAloneWide({super.key, required this.customerId, required this.siteId, required this.controllerId, required this.userId, required this.deviceId, required this.callbackFunction, required this.masterData});
+
+  final int customerId, siteId, controllerId, userId;
+  final String deviceId;
+  final void Function(String msg) callbackFunction;
+  final MasterControllerModel masterData;
+
+  @override
+  State<StandAloneWide> createState() => _StandAloneWideState();
+}
+
+class _StandAloneWideState extends State<StandAloneWide> with SingleTickerProviderStateMixin {
+
+  late TabController tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+        create: (_) => StandAloneViewModel(Repository(HttpService()),
+            widget.masterData, widget.userId, widget.customerId, widget.controllerId, widget.deviceId)
+          ..getProgramList(),
+        child: Consumer<StandAloneViewModel>(
+          builder: (context, viewModel, _) {
+            return Container(
+              width: 400,
+              height: MediaQuery.sizeOf(context).height,
+              color: Colors.white,
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: 400,
+                    height: ([...AppConstants.ecoGemModelList].contains(widget.masterData.modelId)) ? 50 :
+                    viewModel.ddCurrentPosition!=0 && viewModel.segmentWithFlow.index!=0 ? 133: viewModel.programList.length > 1? 90:60,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          viewModel.programList.length > 1? Row(
+                            children: [
+                              const Text(
+                                'Select by:',
+                                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(width: 10),
+                              SizedBox(
+                                width: 200,
+                                child: DropdownButtonFormField(
+                                  value: viewModel.programList.isNotEmpty
+                                      ? viewModel.programList[viewModel.ddCurrentPosition]
+                                      : null,
+                                  decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                    enabledBorder: InputBorder.none,
+                                    focusedBorder: InputBorder.none,
+                                    contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+                                  ),
+                                  items: viewModel.programList.map((item) {
+                                    return DropdownMenuItem(
+                                      value: item,
+                                      child: Text(item.programName),
+                                    );
+                                  }).toList(),
+                                  onChanged: (value) {
+                                    viewModel.fetchStandAloneSelection(
+                                      value!.serialNumber,
+                                      viewModel.programList.indexOf(value),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ) :
+                          const SizedBox(height: 8),
+
+                          if(![...AppConstants.ecoGemModelList].contains(widget.masterData.modelId))...[
+                            viewModel.ddCurrentPosition==0 ?Row(
+                              children: [
+                                SizedBox(
+                                  width: 275,
+                                  child: SegmentedButton<SegmentWithFlow>(
+                                    segments: const <ButtonSegment<SegmentWithFlow>>[
+                                      ButtonSegment<SegmentWithFlow>(
+                                          value: SegmentWithFlow.manual,
+                                          label: Text('Timeless'),
+                                          icon: Icon(Icons.pan_tool_alt_outlined)),
+                                      ButtonSegment<SegmentWithFlow>(
+                                          value: SegmentWithFlow.duration,
+                                          label: Text('Duration'),
+                                          icon: Icon(Icons.timer_outlined)),
+                                    ],
+                                    selected: <SegmentWithFlow>{viewModel.segmentWithFlow},
+                                    onSelectionChanged: (Set<SegmentWithFlow> newSelection) {
+                                      viewModel.segmentWithFlow = newSelection.first;
+                                      viewModel.segmentSelectionCallbackFunction(viewModel.segmentWithFlow.index, viewModel.durationValue, viewModel.selectedIrLine);
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(width: 5,),
+                                viewModel.segmentWithFlow.index == 1 ? SizedBox(
+                                  width: 85,
+                                  child: TextButton(
+                                    onPressed: () => viewModel.showDurationInputDialog(context),
+                                    style: ButtonStyle(
+                                      padding: WidgetStateProperty.all(
+                                        const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                                      ),
+                                      backgroundColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withOpacity(0.3)),
+                                      shape: WidgetStateProperty.all<OutlinedBorder>(
+                                        RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                                      ),
+                                    ),
+                                    child: Text(viewModel.durationValue, style: const TextStyle(color: Colors.black, fontSize: 17)),
+                                  ),
+                                ) :
+                                Container(),
+                                viewModel.segmentWithFlow.index == 2 ? SizedBox(
+                                  width: 85,
+                                  child: TextField(
+                                    maxLength: 7,
+                                    controller: viewModel.flowLiter,
+                                    onChanged: (value) => viewModel.segmentSelectionCallbackFunction(viewModel.segmentWithFlow.index, value, viewModel.selectedIrLine),
+                                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                    inputFormatters: <TextInputFormatter>[
+                                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                                    ],
+                                    decoration: const InputDecoration(
+                                      labelText: 'Liters',
+                                      counterText: '',
+                                    ),
+                                  ),
+                                ):
+                                Container(),
+                              ],
+                            ):
+                            Column(
+                              children: [
+                                SizedBox(
+                                  width: 350,
+                                  child: SegmentedButton<SegmentWithFlow>(
+                                    segments: const <ButtonSegment<SegmentWithFlow>>[
+                                      ButtonSegment<SegmentWithFlow>(
+                                          value: SegmentWithFlow.manual,
+                                          label: Text('Timeless'),
+                                          icon: Icon(Icons.pan_tool_alt_outlined)),
+                                      ButtonSegment<SegmentWithFlow>(
+                                          value: SegmentWithFlow.duration,
+                                          label: Text('Duration'),
+                                          icon: Icon(Icons.timer_outlined)),
+                                      ButtonSegment<SegmentWithFlow>(
+                                          value: SegmentWithFlow.flow,
+                                          label: Text('Flow-Liters'),
+                                          icon: Icon(Icons.water_drop_outlined)),
+                                    ],
+                                    selected: <SegmentWithFlow>{viewModel.segmentWithFlow},
+                                    onSelectionChanged: (Set<SegmentWithFlow> newSelection) {
+                                      viewModel.segmentWithFlow = newSelection.first;
+                                      viewModel.segmentSelectionCallbackFunction(viewModel.segmentWithFlow.index, viewModel.durationValue, viewModel.selectedIrLine);
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                viewModel.segmentWithFlow.index == 1 ? SizedBox(
+                                  width: 85,
+                                  child: TextButton(
+                                    onPressed: () => viewModel.showDurationInputDialog(context),
+                                    style: ButtonStyle(
+                                      padding: WidgetStateProperty.all(
+                                        const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                                      ),
+                                      backgroundColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withOpacity(0.3)),
+                                      shape: WidgetStateProperty.all<OutlinedBorder>(
+                                        RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                                      ),
+                                    ),
+                                    child: Text(viewModel.durationValue, style: const TextStyle(color: Colors.black, fontSize: 17)),
+                                  ),
+                                ) :
+                                Container(),
+                                viewModel.segmentWithFlow.index == 2 ? SizedBox(
+                                  width: 85,
+                                  child: TextField(
+                                    maxLength: 7,
+                                    controller: viewModel.flowLiter,
+                                    onChanged: (value) => viewModel.segmentSelectionCallbackFunction(viewModel.segmentWithFlow.index, value, viewModel.selectedIrLine),
+                                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                    inputFormatters: <TextInputFormatter>[
+                                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                                    ],
+                                    decoration: const InputDecoration(
+                                      labelText: 'Liters',
+                                      counterText: '',
+                                    ),
+                                  ),
+                                ):
+                                Container(),
+                              ],
+                            )
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                  const Divider(height: 0),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: displayLineOrSequence(widget.masterData, viewModel, viewModel.ddCurrentPosition),
+                    ),
+                  ),
+                  ListTile(
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(width: 10),
+                        MaterialButton(
+                          color: Colors.redAccent,
+                          textColor: Colors.white,
+                          onPressed:() => viewModel.stopAllManualOperation(context),
+                          child: const Text('Stop Manually'),
+                        ),
+                        const SizedBox(width: 16),
+                        MaterialButton(
+                          color: Colors.green,
+                          textColor: Colors.white,
+                          onPressed:() => viewModel.startManualOperation(context),
+                          child: const Text('Start Manually'),
+                        ),
+                        const SizedBox(width: 15),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+    );
+  }
+
+  Widget displayLineOrSequence(MasterControllerModel masterData, StandAloneViewModel vm, int ddPosition){
+
+    final sourcePumps = masterData.irrigationLine
+        .expand((line) => line.inletSources)
+        .expand((ws) => ws.outletPump ?? [])
+        .toList();
+
+    final allSourcePumps = sourcePumps.fold<Map<double, PumpModel>>({}, (map, pump) {
+      map[pump.sNo] = pump;
+      return map;
+    }).values.toList();
+
+    final irrigationPumps = masterData.irrigationLine
+        .expand((line) => line.outletSources)
+        .expand((ws) => ws.outletPump ?? [])
+        .toList();
+
+    final allIrrigationPumps = irrigationPumps.fold<Map<double, PumpModel>>({}, (map, pump) {
+      map[pump.sNo] = pump;
+      return map;
+    }).values.toList();
+
+    final filterSites = masterData.irrigationLine
+        .map((line) => line.centralFilterSite)
+        .whereType<FilterSiteModel>()
+        .toList();
+
+    final fertilizerSite = masterData.irrigationLine
+        .map((line) => line.centralFertilizerSite)
+        .whereType<FertilizerSiteModel>()
+        .toList();
+
+    return Column(
+      children: [
+        if(vm.ddCurrentPosition==0)...[
+          if (allSourcePumps.isNotEmpty)...[
+            CustomCardTable(
+              title: "Source Pump",
+              rows: allSourcePumps.map((pump) {
+                return CustomSwitchRow(
+                  iconPath: 'assets/png/dp_pump.png',
+                  label: pump.name,
+                  value: pump.selected,
+                  onChanged: (val) {
+                    setState(() => pump.selected = val);
+                  },
+                );
+              }).toList(),
+            ),
+          ],
+        ],
+
+        if (allIrrigationPumps.isNotEmpty)...[
+          CustomCardTable(
+            title: "Irrigation Pump",
+            rows: allIrrigationPumps.map((pump) {
+              return CustomSwitchRow(
+                iconPath: 'assets/png/dp_pump.png',
+                label: pump.name,
+                value: pump.selected,
+                onChanged: (val) {
+                  setState(() => pump.selected = val);
+                },
+              );
+            }).toList(),
+          ),
+        ],
+
+        if (filterSites.isNotEmpty)...[
+          Padding(
+            padding: const EdgeInsets.only(left: 8, right: 5, top: 8),
+            child: Column(
+              children: filterSites.map((site) {
+                final rows = site.filters.map((filter) {
+                  return CustomSwitchRow(
+                    iconPath: 'assets/png/filter.png',
+                    label: filter.name,
+                    value: filter.selected,
+                    onChanged: (value) {
+                      setState(() {
+                        filter.selected = value;
+                      });
+                    },
+                  );
+                }).toList();
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: CustomCardTable(
+                    title: site.name,
+                    rows: rows,
+                  ),
+                );
+              }).toList(),
+            ),
+          )
+        ],
+
+        if (fertilizerSite.isNotEmpty) ...[
+          Padding(
+            padding: const EdgeInsets.only(left: 8, right: 5, top: 8),
+            child: Column(
+              children: fertilizerSite.map((site) {
+                final rows = <DataRow>[];
+
+                rows.addAll(site.channel.map((channel) {
+                  return CustomSwitchRow(
+                    iconPath: 'assets/png/fert_chanel.png',
+                    label: channel.name,
+                    value: channel.selected,
+                    onChanged: (value) {
+                      setState(() {
+                        channel.selected = value;
+                      });
+                    },
+                  );
+                }));
+
+                rows.addAll(site.boosterPump.map((boosterPump) {
+                  return CustomSwitchRow(
+                    iconPath: 'assets/png/booster_pump.png',
+                    label: boosterPump.name,
+                    value: boosterPump.selected,
+                    onChanged: (value) {
+                      setState(() {
+                        boosterPump.selected = value;
+                      });
+                    },
+                  );
+                }));
+
+                rows.addAll(site.agitator.map((agitator) {
+                  return CustomSwitchRow(
+                    iconPath: 'assets/png/agitator_gray.png',
+                    label: agitator.name,
+                    value: agitator.selected,
+                    onChanged: (value) {
+                      setState(() {
+                        agitator.selected = value;
+                      });
+                    },
+                  );
+                }));
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: CustomCardTable(
+                    title: site.name,
+                    rows: rows,
+                  ),
+                );
+              }).toList(),
+            ),
+          )
+        ],
+
+        ddPosition == 0 ? Column(
+          children: masterData.irrigationLine.map((line) {
+            if (line.name == 'All irrigation line') return const SizedBox();
+
+            final rows = [
+
+              ...line.mainValveObjects.map((mainValve) {
+                return DataRow(cells: [
+                  DataCell(Image.asset('assets/png/m_main_valve_gray.png', width: 40, height: 40)),
+                  DataCell(Text(mainValve.name)),
+                  DataCell(Transform.scale(
+                    scale: 0.7,
+                    child: Switch(
+                      activeColor: Colors.teal,
+                      hoverColor: Colors.pink.shade100,
+                      value: mainValve.isOn,
+                      onChanged: (value) {
+                        setState(() => mainValve.isOn = value);
+                      },
+                    ),
+                  )),
+                ]);
+              }),
+
+              ...line.valveObjects.map((valve) {
+                return DataRow(cells: [
+                  DataCell(Image.asset('assets/png/m_valve_grey.png', width: 40, height: 40)),
+                  DataCell(Text(valve.name)),
+                  DataCell(Transform.scale(
+                    scale: 0.7,
+                    child: Switch(
+                      activeColor: Colors.teal,
+                      hoverColor: Colors.pink.shade100,
+                      value: valve.isOn,
+                      onChanged: (value) {
+                        setState(() => valve.isOn = value);
+                      },
+                    ),
+                  )),
+                ]);
+              }),
+            ];
+
+            return ValveCardTable(
+              title: line.name,
+              showSwitch: vm.ddCurrentPosition != 0,
+              switchValue: true,
+              onSwitchChanged: (_) {},
+              rows: rows,
+            );
+          }).toList(),
+        ):
+        vm.standAloneData != null ?
+        Column(
+          children: vm.standAloneData!.sequence.map((sequence) {
+            final rows = sequence.valve.map((valve) {
+              return DataRow(cells: [
+                DataCell(Image.asset('assets/png/m_valve_grey.png', width: 40, height: 40)),
+                DataCell(Text(valve.name)),
+                const DataCell(SizedBox()),
+              ]);
+            }).toList();
+
+            return ValveCardTable(
+              title: sequence.name,
+              showSwitch: vm.ddCurrentPosition != 0,
+              switchValue: sequence.selected,
+              onSwitchChanged: (value) {
+                setState(() {
+                  for (var seq in vm.standAloneData!.sequence) {
+                    seq.selected = false;
+                  }
+                  sequence.selected = value;
+                });
+              },
+              rows: rows,
+            );
+          }).toList(),
+        ) :
+        const SizedBox(),
+      ],
+    );
+  }
+}

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:oro_drip_irrigation/utils/helpers/mc_permission_helper.dart';
 import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
 
@@ -31,17 +32,14 @@ class CustomerHomeNarrow extends StatelessWidget {
     final viewedCustomer = context.read<UserProvider>().viewedCustomer;
 
     final viewModel = Provider.of<CustomerScreenControllerViewModel>(context);
-
-    final int controllerId = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].controllerId;
-    final int modelId = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].modelId;
-    final String deviceId = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId;
-
-    final irrigationLines = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine;
-    final scheduledProgram = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].programList;
+    final cM = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex];
 
     final linesToDisplay = (viewModel.myCurrentIrrLine == "All irrigation line" || viewModel.myCurrentIrrLine.isEmpty)
-        ? irrigationLines.where((line) => line.name != viewModel.myCurrentIrrLine).toList()
-        : irrigationLines.where((line) => line.name == viewModel.myCurrentIrrLine).toList();
+        ? cM.irrigationLine.where((line) => line.name != viewModel.myCurrentIrrLine).toList()
+        : cM.irrigationLine.where((line) => line.name == viewModel.myCurrentIrrLine).toList();
+
+    final hasProgramOnOff = cM.getPermissionStatus("Program On/Off Manually");
+    final hasLinePP = cM.getPermissionStatus("Irrigation Line Pause/Resume Manually");
 
 
     return Scaffold(
@@ -71,20 +69,21 @@ class CustomerHomeNarrow extends StatelessWidget {
                           ),
                           Container(
                               color: Colors.white,
-                              child: buildPumpStation(context, line, viewedCustomer!.id, controllerId, modelId, deviceId)
+                              child: buildPumpStation(context, line, viewedCustomer!.id, cM.controllerId, cM.modelId, cM.deviceId)
                           )
                         ],
                       ),
                     ),
                     Card(
                       color: Colors.white,
+                      surfaceTintColor: Colors.white,
                       elevation: 1,
                       child: Column(
                         children: [
                           Container(
                             width: MediaQuery.sizeOf(context).width,
                             height: 45,
-                            color: Colors.white70,
+                            color: Colors.white,
                             child: Row(
                               children: [
                                 const SizedBox(width: 16),
@@ -93,43 +92,46 @@ class CustomerHomeNarrow extends StatelessWidget {
                                   textAlign: TextAlign.left,
                                   style: const TextStyle(color: Colors.black54, fontSize: 17, fontWeight: FontWeight.bold),
                                 ),
-                                const Spacer(),
-                                MaterialButton(
-                                  color: line.linePauseFlag == 0 ? Theme.of(context).primaryColorLight :
-                                  Colors.orange.shade400,
-                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                                  onPressed: () async {
-                                    String payLoadFinal = jsonEncode({
-                                      "4900": {
-                                        "4901": "${line.sNo}, ${line.linePauseFlag == 0 ? 1 : 0}",
-                                      }
-                                    });
-        
-                                    final result = await context.read<CommunicationService>().sendCommand(
-                                      payload: payLoadFinal,
-                                      serverMsg: line.linePauseFlag == 0
-                                          ? 'Paused the ${line.name}'
-                                          : 'Resumed the ${line.name}',
-                                    );
-        
-                                    if (result['http'] == true) debugPrint("Payload sent to Server");
-                                    if (result['mqtt'] == true) debugPrint("Payload sent to MQTT Box");
-                                    if (result['bluetooth'] == true) debugPrint("Payload sent via Bluetooth");
-                                  },
-                                  child: Text(
-                                    line.linePauseFlag == 0 ? 'PAUSE THE LINE' : 'RESUME THE LINE',
-                                    style: const TextStyle(
-                                      color:Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
+                                if(hasLinePP)...[
+                                  const Spacer(),
+                                  MaterialButton(
+                                    color: line.linePauseFlag == 0 ? Theme.of(context).primaryColorLight :
+                                    Colors.orange.shade400,
+                                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                                    onPressed: () async {
+                                      String payLoadFinal = jsonEncode({
+                                        "4900": {
+                                          "4901": "${line.sNo}, ${line.linePauseFlag == 0 ? 1 : 0}",
+                                        }
+                                      });
+
+                                      final result = await context.read<CommunicationService>().sendCommand(
+                                        payload: payLoadFinal,
+                                        serverMsg: line.linePauseFlag == 0
+                                            ? 'Paused the ${line.name}'
+                                            : 'Resumed the ${line.name}',
+                                      );
+
+                                      if (result['http'] == true) debugPrint("Payload sent to Server");
+                                      if (result['mqtt'] == true) debugPrint("Payload sent to MQTT Box");
+                                      if (result['bluetooth'] == true) debugPrint("Payload sent via Bluetooth");
+                                    },
+                                    child: Text(
+                                      line.linePauseFlag == 0 ? 'PAUSE THE LINE' : 'RESUME THE LINE',
+                                      style: const TextStyle(
+                                        color:Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 5)
+                                  const SizedBox(width: 5)
+                                ]
+
                               ],
                             ),
                           ),
-                          buildIrrigationLine(context, line, viewedCustomer.id, controllerId, modelId, deviceId)
+                          buildIrrigationLine(context, line, viewedCustomer.id, cM.controllerId, cM.modelId, cM.deviceId)
                         ],
                       ),
                     ),
@@ -172,12 +174,12 @@ class CustomerHomeNarrow extends StatelessWidget {
 
                     if (vm.currentSchedule.isNotEmpty &&
                         vm.currentSchedule[0].isNotEmpty) {
-                      // Ensure buildCurrentSchedule produces a horizontally growing widget
                       return buildCurrentSchedule(
-                        context,
-                        vm.currentSchedule,
-                        scheduledProgram,
-                        modelId,
+                          context,
+                          vm.currentSchedule,
+                          cM.programList,
+                          cM.modelId,
+                          hasProgramOnOff
                       );
                     } else {
                       return const SizedBox();
@@ -185,7 +187,7 @@ class CustomerHomeNarrow extends StatelessWidget {
                   },
                 ),
               ),
-              buildNextScheduleCard(context, scheduledProgram),
+              buildNextScheduleCard(context, cM.programList),
             ],
           ),
         ),
@@ -198,7 +200,7 @@ class CustomerHomeNarrow extends StatelessWidget {
   }
 
   Widget buildCurrentSchedule(BuildContext context,
-      List<String> currentSchedule, List<ProgramList> scheduledPrograms, int modelId) {
+      List<String> currentSchedule, List<ProgramList> scheduledPrograms, int modelId, bool hasSkip) {
     return Row(
       children: List.generate(currentSchedule.length, (index) {
         List<String> values = currentSchedule[index].split(',');
@@ -215,7 +217,7 @@ class CustomerHomeNarrow extends StatelessWidget {
                   context: rowContext,
                   bodyBuilder: (context) =>  Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: buildScheduleRow(context, values, programName, scheduledPrograms, modelId),
+                    child: buildScheduleRow(context, values, programName, scheduledPrograms, modelId, hasSkip),
                   ),
                   onPop: () => print('Popover was popped!'),
                   direction: PopoverDirection.top,
@@ -262,7 +264,7 @@ class CustomerHomeNarrow extends StatelessWidget {
   }
 
   Widget buildScheduleRow(BuildContext context, List<String> values, String programName,
-      List<ProgramList> scheduledPrograms, int modelId) {
+      List<ProgramList> scheduledPrograms, int modelId, bool hasSkip) {
 
     return SizedBox(
       width: MediaQuery.sizeOf(context).width,
@@ -400,19 +402,21 @@ class CustomerHomeNarrow extends StatelessWidget {
                           const SizedBox(height: 2),
                         ],
                       ),
-                      SizedBox(
-                        width: 130,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Spacer(),
-                            if(![...AppConstants.ecoGemModelList].contains(modelId))...[
-                              buildActionButton(context, values, programName, programName == 'StandAlone - Manual' ? '--' :
-                              getSequenceName(int.parse(values[0]), values[1], scheduledPrograms) ?? '--',),
+                      if(hasSkip)...[
+                        SizedBox(
+                          width: 130,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Spacer(),
+                              if(![...AppConstants.ecoGemModelList].contains(modelId))...[
+                                buildActionButton(context, values, programName, programName == 'StandAlone - Manual' ? '--' :
+                                getSequenceName(int.parse(values[0]), values[1], scheduledPrograms) ?? '--',),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
-                      ),
+                      ]
                     ],
                   ),
                 ),
@@ -639,7 +643,7 @@ class CustomerHomeNarrow extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                     decoration: BoxDecoration(
-                      color: Colors.orange.shade400,
+                      color: Colors.orange.shade300,
                       borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(5),
                         topRight: Radius.circular(5),
@@ -969,7 +973,7 @@ class PumpStation extends StatelessWidget {
         ),
       ...site.filters.map((filter) => Padding(
         padding: EdgeInsets.only(top: isFertAvail? 38.5:8),
-        child: FilterWidget(filter: filter, siteSno: filter.sNo.toString()),
+        child: FilterWidget(filter: filter, siteSno: site.sNo.toString()),
       )),
       if (site.pressureOut != null)
         Padding(
@@ -1080,7 +1084,7 @@ class IrrigationLine extends StatelessWidget {
 
     final mainValveWidgets = mainValveWidgetEntries.map((entry) {
       final valve = entry.value;
-      return MainValveWidget(
+      return MainValveWidgetMobile(
         valve: valve,
         customerId: customerId,
         controllerId: controllerId,

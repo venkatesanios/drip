@@ -88,6 +88,4 @@ class SequenceModel {
         .toList(),
     mainValve: List<dynamic>.from(json["mainValve"]),
   );
-
-
 }

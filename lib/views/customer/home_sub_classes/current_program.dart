@@ -16,11 +16,13 @@ import '../../../view_models/customer/current_program_view_model.dart';
 
 class CurrentProgram extends StatelessWidget {
   const CurrentProgram({super.key, required this.scheduledPrograms, required this.deviceId,
-    required this.customerId, required this.controllerId, required this.currentLineSNo, required this.modelId});
+    required this.customerId, required this.controllerId, required this.currentLineSNo,
+    required this.modelId, required this.skipPermission});
   final List<ProgramList> scheduledPrograms;
   final String deviceId;
   final int customerId, controllerId, modelId;
   final double currentLineSNo;
+  final bool skipPermission;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +51,6 @@ class CurrentProgram extends StatelessWidget {
   }
 
   Widget buildWebTable(BuildContext context, List<String> schedule) {
-    print('schedule:$schedule');
     return Padding(
       padding: const EdgeInsets.only(left: 8, right: 8, top: 20),
       child: Column(
@@ -152,10 +153,15 @@ class CurrentProgram extends StatelessWidget {
                               : values[4],
                           style: const TextStyle(fontSize: 20),
                         ))),
-                        if(![...AppConstants.ecoGemModelList].contains(modelId))...[
-                          DataCell(Center(child: buildActionButton(context, values))),
+                        if(skipPermission)...[
+                          if(![...AppConstants.ecoGemModelList].contains(modelId))...[
+                            DataCell(Center(child: buildActionButton(context, values))),
+                          ]else...[
+                            const DataCell(Center(child: Text('...'))),
+                          ]
+                        ]else...[
+                          const DataCell(Center(child: Text('...'))),
                         ]
-
                       ]);
                     }),
                   ),

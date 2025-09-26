@@ -42,6 +42,7 @@ class SettingsScreenFactory {
             customerId: ctx.customerId,
             controllerId: ctx.controllerId,
             userId: ctx.userId,
+            isSubUser: ctx.isSubUser,
           );
         }
 
@@ -49,7 +50,7 @@ class SettingsScreenFactory {
         return PreferenceMainScreen(
           userId: ctx.userId,
           customerId: ctx.customerId,
-          masterData: ctx.master,
+          masterData: {"deviceId": ctx.master.deviceId, "modelId": ctx.master.modelId, "controllerId": ctx.master.controllerId},
           selectedIndex: 0,
         );
 

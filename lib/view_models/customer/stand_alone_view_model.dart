@@ -248,80 +248,81 @@ class StandAloneViewModel extends ChangeNotifier {
     }
   }
 
-  void updatePreviousSelection(StandAloneModel data){
+  void updatePreviousSelection(StandAloneModel data) {
     for (var item in standAloneData!.selection) {
-      int serialNo = 0;
-      if(item.sNo.runtimeType is double){
-        int serialNo = item.sNo.toInt();
+      if (item.sNo is num) {
+        final num fullNo = item.sNo as num;
+        final int serialNo = fullNo.floor();
 
-        if (serialNo == 5) {
-          for (var line in masterData.irrigationLine) {
-            for (var waterSource in line.outletSources) {
-              waterSource.outletPump
-                  .where((pump) => pump.sNo == item.sNo)
-                  .forEach((pump) => pump.selected = true);
+        switch (serialNo) {
+          case 5:
+            for (var line in masterData.irrigationLine) {
+              for (var waterSource in line.outletSources) {
+                waterSource.outletPump
+                    .where((pump) => pump.sNo == fullNo)
+                    .forEach((pump) => pump.selected = true);
+              }
             }
-          }
-        }
+            break;
 
-        if (serialNo == 7) {
-          for (var line in masterData.irrigationLine) {
-            var fertilizerSite = line.centralFertilizerSite;
-            if (fertilizerSite != null) {
-              fertilizerSite.boosterPump
-                  .where((booster) => booster.sNo == item.sNo)
+          case 7:
+            for (var line in masterData.irrigationLine) {
+              line.centralFertilizerSite?.boosterPump
+                  .where((booster) => booster.sNo == fullNo)
                   .forEach((booster) => booster.selected = true);
             }
-          }
-        }
+            break;
 
-        if (serialNo == 9) {
-          for (var line in masterData.irrigationLine) {
-            var fertilizerSite = line.centralFertilizerSite;
-            if (fertilizerSite != null) {
-              fertilizerSite.agitator
-                  .where((agitator) => agitator.sNo == item.sNo)
+          case 9:
+            for (var line in masterData.irrigationLine) {
+              line.centralFertilizerSite?.agitator
+                  .where((agitator) => agitator.sNo == fullNo)
                   .forEach((agitator) => agitator.selected = true);
             }
-          }
-        }
+            break;
 
-        if (serialNo == 10) {
-          for (var line in masterData.irrigationLine) {
-            var fertilizerSite = line.centralFertilizerSite;
-            if (fertilizerSite != null) {
-              fertilizerSite.channel
-                  .where((channel) => channel.sNo == item.sNo)
+          case 10:
+            for (var line in masterData.irrigationLine) {
+              line.centralFertilizerSite?.channel
+                  .where((channel) => channel.sNo == fullNo)
                   .forEach((channel) => channel.selected = true);
             }
-          }
-        }
+            break;
 
-        if (serialNo == 11) {
-          for (var line in masterData.irrigationLine) {
-            var filterSite = line.centralFilterSite;
-            if (filterSite != null) {
-              filterSite.filters
-                  .where((filter) => filter.sNo == item.sNo)
+          case 11:
+            for (var line in masterData.irrigationLine) {
+              line.centralFilterSite?.filters
+                  .where((filter) => filter.sNo == fullNo)
                   .forEach((filter) => filter.selected = true);
             }
+            break;
+
+          case 13:
+            if (ddCurrentPosition == 0) {
+              for (var line in masterData.irrigationLine) {
+                line.valveObjects
+                    .where((valve) => valve.sNo == fullNo)
+                    .forEach((valve) => valve.isOn = true); // valves use isOn
+              }
+            }
+            break;
+
+          case 14:
+            for (var line in masterData.irrigationLine) {
+              line.valveObjects
+                  .where((valve) => valve.sNo == fullNo)
+                  .forEach((valve) => valve.isOn = true);
+            }
+            break;
+        }
+      } else if (item.sNo is String) {
+        final String sequenceNo = item.sNo;
+        for (var seq in standAloneData!.sequence) {
+          if (seq.sNo == sequenceNo) {
+            seq.selected = true;
           }
         }
-
-        if (ddCurrentPosition == 0 && serialNo == 13) {
-          for (var line in masterData.irrigationLine) {
-            line.valveObjects
-                .where((valve) => valve.sNo == item.sNo)
-                .forEach((valve) => valve.isOn = true);
-          }
-        }
-
-      }else{
-        standAloneData!.sequence
-            .where((sq) => sq.sNo == item.sNo)
-            .forEach((sqc) => sqc.selected = true);
       }
-
     }
   }
 

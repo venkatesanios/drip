@@ -37,7 +37,7 @@ import '../customer/scheduled_program/scheduled_program_wide.dart';
 import '../customer/input_output_connection_details.dart';
 import '../customer/node_list/node_list.dart';
 import '../customer/send_and_received/sent_and_received.dart';
-import '../customer/stand_alone.dart';
+import '../customer/stand_alone/stand_alone_wide.dart';
 import '../customer/widgets/alarm_button.dart';
 import '../customer/widgets/irrigation_line_selector_widget.dart';
 import '../customer/widgets/master_selector_widget.dart';
@@ -616,7 +616,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                           context,
                           MaterialPageRoute(
                               builder: (BuildContext context) {
-                                return StandAlone(siteId: vm.mySiteList.data[vm.sIndex].groupId,
+                                return StandAloneWide(siteId: vm.mySiteList.data[vm.sIndex].groupId,
                                     controllerId: currentMaster.controllerId,
                                     customerId: viewedCustomer.id,
                                     deviceId: currentMaster.deviceId,
@@ -781,6 +781,7 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
                         modelId: currentMaster.modelId,
                         deviceName: currentMaster.deviceName,
                         categoryName: currentMaster.categoryName,
+                        prgOnOffPermission: false,
                       );
                     case 2:
                       return IrrigationAndPumpLog(

@@ -65,6 +65,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
   TextEditingController copyController = TextEditingController();
   String tempProgramName = '';
   String controllerReadStatus = "0";
+  String controllerReadStatusForDayCount = "0";
   final IrrigationProgramRepository repository = IrrigationProgramRepository(HttpService());
   DayCountRtcModel dayCountRtcModel = DayCountRtcModel.fromJson({});
   ProgramQueueModel programQueueModel = ProgramQueueModel.fromJson({});
@@ -246,7 +247,12 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
       )
           : const Center(child: CircularProgressIndicator(),),
       floatingActionButton: MaterialButton(
-        onPressed: () => createProgram(context),
+        onPressed: () {
+          if(AppConstants.ecoGemModelList.contains(widget.modelId)) {
+            irrigationProgramMainProvider.programLibrary!.programLimit = 4;
+          }
+          createProgram(context, irrigationProgramMainProvider);
+        },
         color: Theme.of(context).primaryColor,
         elevation: 10,
         shape: RoundedRectangleBorder(
@@ -512,13 +518,37 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                     ElevatedButton(
                       onPressed: () async{
                         try {
+
+                          final Map<String, dynamic> dataToMqtt = {"sentSms": "daycountrtctim,${dayCountRtcModel.dayCountRtc},${dayCountRtcModel.dayCountRtcTime}"};
+                          MqttService().topicToPublishAndItsMessage(jsonEncode(dataToMqtt), "${Environment.mqttPublishTopic}/${widget.deviceId}",);
+                          /*await validatePayloadSent(
+                              dialogContext: context,
+                              context: context,
+                              acknowledgedFunction: () {
+                                setState(() {
+                                  controllerReadStatusForDayCount = "1";
+                                });
+                                // showSnackBar(message: "${mqttPayloadProvider.messageFromHw['Name']} from controller", context: context);
+                              },
+                              payload: dataToMqtt,
+                              payloadCode: "2500",
+                              deviceId: widget.deviceId
+                          ).whenComplete(() async {
+                            if(MqttService().acknowledgementPayload!['cM']['4201']['Code'] != "200") {
+                              setState(() {
+                                controllerReadStatusForDayCount = "0";
+                              });
+                            }
+                          });*/
+
                           Map<String, dynamic> userData = {
                             "userId": widget.customerId,
                             "controllerId": widget.controllerId,
                             "dayCountRtc": {
                               "dayCountRtc": dayCountRtcModel.toJson()
                             },
-                            "createUser": widget.userId
+                            "createUser": widget.userId,
+                            "controllerReadStatus": controllerReadStatusForDayCount
                           };
 
                           var getUserDayCountRtcResult = await repository.createDayCountRtc(userData);
@@ -557,96 +587,125 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
     );
   }
 
-  void createProgram(BuildContext context) {
-    showAdaptiveDialog(
-      context: context,
-      builder: (BuildContext dialogContext) =>
-          Consumer<IrrigationProgramMainProvider>(
-            builder: (context, programProvider, child) {
-              if(programProvider.programLibrary!.program.where((element) => element.programName.isNotEmpty).length < programProvider.programLibrary!.programLimit){
-                return AlertDialog(
-                  title: Text("Select Program type", style: TextStyle(color: Theme.of(context).primaryColor),),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: programProvider.programLibrary!.programType.map((e) {
-                      return RadioListTile(
-                          title: Text(e),
-                          value: e,
-                          groupValue: programProvider.selectedProgramType,
-                          onChanged: (newValue) => programProvider.updateProgramName(newValue, 'programType'));
-                    }).toList(),
-                  ),
-                  actions: [
-                    TextButton(
-                        onPressed: () => Navigator.pop(dialogContext),
-                        child: const Text('Cancel', style: TextStyle(color: Colors.red),)),
-                    TextButton(
-                        onPressed: () {
-                          Navigator.pop(dialogContext);
-                          if (programProvider.selectedProgramType == 'Irrigation Program') {
-                            programProvider.updateIsIrrigationProgram();
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => IrrigationProgram(
-                                  userId:  widget.userId,
-                                  controllerId:  widget.controllerId,
-                                  serialNumber: programProvider.programLibrary!.program.any((element) => element.programName.isEmpty)
-                                      ? programProvider.programLibrary!.program.firstWhere((element) => element.programName.isEmpty).serialNumber : 0,
-                                  conditionsLibraryIsNotEmpty: programProvider.conditionsLibraryIsNotEmpty,
-                                  programType: irrigationProgramMainProvider.selectedProgramType, deviceId: widget.deviceId,
-                                  fromDealer: false,
-                                  // fromDealer: overAllUse.fromDealer,
-                                  customerId:  widget.customerId,
-                                  groupId:  widget.groupId,
-                                  categoryId:  widget.categoryId,
-                                  modelId: widget.modelId,
-                                  deviceName: widget.deviceName,
-                                  categoryName: widget.categoryName,
-                                ),
-                              ),
-                            );
-                          } else if (programProvider.selectedProgramType == 'Agitator Program') {
-                            programProvider.updateIsAgitatorProgram();
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => IrrigationProgram(
-                                  userId:  widget.userId,
-                                  controllerId:  widget.controllerId,
-                                  serialNumber: programProvider.programLibrary!.program.any((element) => element.programName.isEmpty)
-                                      ? programProvider.programLibrary!.program.firstWhere((element) => element.programName.isEmpty).serialNumber : 0,
-                                  conditionsLibraryIsNotEmpty: programProvider.conditionsLibraryIsNotEmpty,
-                                  programType: irrigationProgramMainProvider.selectedProgramType,
-                                  deviceId:  widget.deviceId,
-                                  fromDealer: false,
-                                  // fromDealer: overAllUse.fromDealer,
-                                  customerId:  widget.customerId,
-                                  groupId:  widget.groupId,
-                                  categoryId:  widget.categoryId,
-                                  modelId: widget.modelId,
-                                  deviceName: widget.deviceName,
-                                  categoryName: widget.categoryName,
-                                ),
-                              ),
-                            );
-                          }
-                        },
-                        child: const Text('OK')),
-                  ],
-                );
-              } else {
-                return CustomAlertDialog(
-                    title: "Alert",
-                    content: "The program limit is exceeded as defined in the Product limit!",
+  void createProgram(BuildContext context, IrrigationProgramMainProvider programProvider) {
+    if(programProvider.programLibrary!.program.where((element) => element.programName.isNotEmpty).length < programProvider.programLibrary!.programLimit){
+      if(programProvider.programLibrary!.agitatorCount > 0) {
+        showAdaptiveDialog(
+          context: context,
+          builder: (BuildContext dialogContext) =>
+              Consumer<IrrigationProgramMainProvider>(
+                builder: (context, programProvider, child) {
+                  return AlertDialog(
+                    title: Text("Select Program type", style: TextStyle(color: Theme.of(context).primaryColor),),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: programProvider.programLibrary!.programType.map((e) {
+                        return RadioListTile(
+                            title: Text(e),
+                            value: e,
+                            groupValue: programProvider.selectedProgramType,
+                            onChanged: (newValue) => programProvider.updateProgramName(newValue, 'programType'));
+                      }).toList(),
+                    ),
                     actions: [
-                      TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text("OK"))
-                    ]
-                );
-              }
-            },
+                      TextButton(
+                          onPressed: () => Navigator.pop(dialogContext),
+                          child: const Text('Cancel', style: TextStyle(color: Colors.red),)),
+                      TextButton(
+                          onPressed: () {
+                            Navigator.pop(dialogContext);
+                            if (programProvider.selectedProgramType == 'Irrigation Program') {
+                              programProvider.updateIsIrrigationProgram();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => IrrigationProgram(
+                                    userId:  widget.userId,
+                                    controllerId:  widget.controllerId,
+                                    serialNumber: programProvider.programLibrary!.program.any((element) => element.programName.isEmpty)
+                                        ? programProvider.programLibrary!.program.firstWhere((element) => element.programName.isEmpty).serialNumber : 0,
+                                    conditionsLibraryIsNotEmpty: programProvider.conditionsLibraryIsNotEmpty,
+                                    programType: irrigationProgramMainProvider.selectedProgramType, deviceId: widget.deviceId,
+                                    fromDealer: false,
+                                    // fromDealer: overAllUse.fromDealer,
+                                    customerId:  widget.customerId,
+                                    groupId:  widget.groupId,
+                                    categoryId:  widget.categoryId,
+                                    modelId: widget.modelId,
+                                    deviceName: widget.deviceName,
+                                    categoryName: widget.categoryName,
+                                  ),
+                                ),
+                              );
+                            } else if (programProvider.selectedProgramType == 'Agitator Program') {
+                              programProvider.updateIsAgitatorProgram();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => IrrigationProgram(
+                                    userId:  widget.userId,
+                                    controllerId:  widget.controllerId,
+                                    serialNumber: programProvider.programLibrary!.program.any((element) => element.programName.isEmpty)
+                                        ? programProvider.programLibrary!.program.firstWhere((element) => element.programName.isEmpty).serialNumber : 0,
+                                    conditionsLibraryIsNotEmpty: programProvider.conditionsLibraryIsNotEmpty,
+                                    programType: irrigationProgramMainProvider.selectedProgramType,
+                                    deviceId:  widget.deviceId,
+                                    fromDealer: false,
+                                    // fromDealer: overAllUse.fromDealer,
+                                    customerId:  widget.customerId,
+                                    groupId:  widget.groupId,
+                                    categoryId:  widget.categoryId,
+                                    modelId: widget.modelId,
+                                    deviceName: widget.deviceName,
+                                    categoryName: widget.categoryName,
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                          child: const Text('OK')),
+                    ],
+                  );
+                },
+              ),
+        );
+      } else {
+        programProvider.updateIsIrrigationProgram();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => IrrigationProgram(
+              userId:  widget.userId,
+              controllerId:  widget.controllerId,
+              serialNumber: programProvider.programLibrary!.program.any((element) => element.programName.isEmpty)
+                  ? programProvider.programLibrary!.program.firstWhere((element) => element.programName.isEmpty).serialNumber : 0,
+              conditionsLibraryIsNotEmpty: programProvider.conditionsLibraryIsNotEmpty,
+              programType: irrigationProgramMainProvider.selectedProgramType, deviceId: widget.deviceId,
+              fromDealer: false,
+              // fromDealer: overAllUse.fromDealer,
+              customerId:  widget.customerId,
+              groupId:  widget.groupId,
+              categoryId:  widget.categoryId,
+              modelId: widget.modelId,
+              deviceName: widget.deviceName,
+              categoryName: widget.categoryName,
+            ),
           ),
-    );
+        );
+      }
+    } else {
+      showAdaptiveDialog(
+        context: context,
+        builder: (BuildContext dialogContext) =>
+            CustomAlertDialog(
+                title: "Alert",
+                content: "The program limit is exceeded as defined in the Product limit!",
+                actions: [
+                  TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text("OK"))
+                ]
+            )
+      );
+    }
   }
 
   Widget buildProgramItem({

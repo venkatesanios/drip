@@ -11,20 +11,19 @@ import '../../../../services/communication_service.dart';
 import '../../../../utils/formatters.dart';
 import '../../../../utils/helpers/program_code_helper.dart';
 import '../../../../utils/my_function.dart';
-import '../../../../utils/snack_bar.dart';
 import 'ai_recommendation_button.dart';
 import 'clickable_submenu.dart';
 
 
 class ProgramTableHelper {
-  static List<DataColumn2> columns(TextStyle headerStyle) => [
+  static List<DataColumn2> columns(TextStyle headerStyle, bool prgOnOffPermission) => [
     DataColumn2(label: Text('Name', style: headerStyle), size: ColumnSize.M),
     DataColumn2(label: Text('Method', style: headerStyle), size: ColumnSize.M),
     DataColumn2(label: Text('Status or Reason', style: headerStyle), size: ColumnSize.L),
     DataColumn2(label: Center(child: Text('Zone', style: headerStyle)), fixedWidth: 50),
     DataColumn2(label: Center(child: Text('Start Date & Time', style: headerStyle)), size: ColumnSize.M),
     DataColumn2(label: Center(child: Text('End Date', style: headerStyle)), size: ColumnSize.S),
-    const DataColumn2(label: Text(''), fixedWidth: 315),
+    DataColumn2(label: const Text(''), fixedWidth: prgOnOffPermission? 315:100),
   ];
 
   static List<DataRow> rows({
@@ -33,15 +32,14 @@ class ProgramTableHelper {
     required AiAdvisoryService aiService,
     required double currentLineSNo,
     required Function showConditionDialog,
-    required bool Function(int sNo) getPermissionStatusBySNo,
     required String deviceId,
     required int userId,
     required int controllerId,
     required int customerId,
+    required bool prgOnOffPermission,
   }) {
-    var filteredPrograms = currentLineSNo == 0
-        ? programs
-        : programs.where((p) => p.irrigationLine.contains(currentLineSNo)).toList();
+    var filteredPrograms = currentLineSNo == 0 ? programs :
+    programs.where((p) => p.irrigationLine.contains(currentLineSNo)).toList();
 
     return List<DataRow>.generate(filteredPrograms.length, (index) {
       final program = filteredPrograms[index];
@@ -112,112 +110,115 @@ class ProgramTableHelper {
         DataCell(Center(child: Text('${Formatters().changeDateFormat(program.startDate)} :'
             ' ${MyFunction().convert24HourTo12Hour(program.startTime)}'))),
         DataCell(Center(child: Text(Formatters().changeDateFormat(program.endDate)))),
-        DataCell(
-          program.status == 1 ? Row(
-            children: [
-              MaterialButton(
-                color: int.parse(program.prgOnOff) >= 0 ? (isStop ? Colors.red : isBypass ? Colors.orange : Colors.green) : Colors.grey.shade300,
-                textColor: Colors.white,
-                onPressed: () {
-                  if (getPermissionStatusBySNo(3)) {
+
+        if(prgOnOffPermission)...[
+          DataCell(
+            program.status == 1 ? Row(
+              children: [
+                MaterialButton(
+                  color: int.parse(program.prgOnOff) >= 0 ? (isStop ? Colors.red : isBypass ? Colors.orange : Colors.green) : Colors.grey.shade300,
+                  textColor: Colors.white,
+                  onPressed: () {
                     final payload = '${program.serialNumber},${program.prgOnOff}';
                     final payLoadFinal = jsonEncode({"2900": {"2901": payload}});
                     Provider.of<CommunicationService>(context, listen: false)
                         .sendCommand(serverMsg: '${program.programName} ${ProgramCodeHelper.getDescription(int.parse(program.prgOnOff))}', payload: payLoadFinal);
-                  }
-                },
-                child: Text(buttonName, style: const TextStyle(color: Colors.white)),
-              ),
-              const SizedBox(width: 5),
-              MaterialButton(
-                color: ProgramCodeHelper.getDescription(int.parse(program.prgPauseResume)) == 'Pause'
-                    ? Colors.orange
-                    : Colors.yellow,
-                textColor: ProgramCodeHelper.getDescription(int.parse(program.prgPauseResume)) == 'Pause'
-                    ? Colors.white
-                    : Colors.black,
-                onPressed: () async {
-                  final confirmed = await showDialog<bool>(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text(
-                          'Are you sure you want to ${ProgramCodeHelper.getDescription(int.parse(program.prgPauseResume))} the ${program.programName}?'),
-                      actions: [
-                        TextButton(
-                            onPressed: () => Navigator.pop(context, false),
-                            child: const Text('Cancel')),
-                        TextButton(
-                            onPressed: () {
-                              if (getPermissionStatusBySNo(3)) {
+                  },
+                  child: Text(buttonName, style: const TextStyle(color: Colors.white)),
+                ),
+                const SizedBox(width: 5),
+                MaterialButton(
+                  color: ProgramCodeHelper.getDescription(int.parse(program.prgPauseResume)) == 'Pause'
+                      ? Colors.orange
+                      : Colors.yellow,
+                  textColor: ProgramCodeHelper.getDescription(int.parse(program.prgPauseResume)) == 'Pause'
+                      ? Colors.white
+                      : Colors.black,
+                  onPressed: () async {
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: Text(
+                            'Are you sure you want to ${ProgramCodeHelper.getDescription(int.parse(program.prgPauseResume))} the ${program.programName}?'),
+                        actions: [
+                          TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: const Text('Cancel')),
+                          TextButton(
+                              onPressed: () {
                                 final payload = '${program.serialNumber},${program.prgPauseResume}';
                                 final payLoadFinal = jsonEncode({"2900": {"2901": payload}});
                                 Provider.of<CommunicationService>(context, listen: false).sendCommand(
                                     serverMsg:
                                     '${program.programName} ${ProgramCodeHelper.getDescription(int.parse(program.prgPauseResume))}',
                                     payload: payLoadFinal);
-                              } else {
-                                GlobalSnackBar.show(context, 'Permission denied', 400);
-                              }
-                              Navigator.pop(context, true);
-                            },
-                            child: const Text('Yes')),
-                      ],
-                    ),
-                  );
-                },
-                child: Text(ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume))),
-              ),
-              const SizedBox(width: 5),
-              getPermissionStatusBySNo(3) ? PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert),
-                onSelected: (result) {
-                  if (result == 'Edit program') {
-                    bool hasConditions = program.conditions.isNotEmpty;
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => IrrigationProgram(
-                          deviceId: deviceId,
-                          userId: userId,
-                          controllerId: controllerId,
-                          serialNumber: program.serialNumber,
-                          programType: program.programType,
-                          conditionsLibraryIsNotEmpty: hasConditions,
-                          fromDealer: false,
-                          toDashboard: true,
-                          groupId: 0,
-                          categoryId: 0,
-                          customerId: customerId,
-                          modelId: 0,
-                          deviceName: deviceId,
-                          categoryName: '',
-                        ),
+
+                                Navigator.pop(context, true);
+                              },
+                              child: const Text('Yes')),
+                        ],
                       ),
                     );
-                  }
-                },
-                itemBuilder: (context) => [
-                  const PopupMenuItem(value: 'Edit program', child: Text('Edit program')),
-                  PopupMenuItem(
-                      value: 'Change to',
-                      child: ClickableSubmenu(
-                          title: 'Change to',
-                          submenuItems: program.sequence,
-                          onItemSelected: (selectedItem, selectedIndex) {
-                            final payload = '${program.serialNumber},${selectedIndex + 1}';
-                            final payLoadFinal = jsonEncode({"6700": {"6701": payload}});
-                            Provider.of<CommunicationService>(context, listen: false).sendCommand(
-                                serverMsg: '${program.programName} Changed to $selectedItem',
-                                payload: payLoadFinal);
-                            Navigator.pop(context);
-                          })),
-                ],
-              ) :
-              const Icon(Icons.more_vert, color: Colors.grey),
-              AiRecommendationButton(aiService: aiService, userId: userId, controllerId: controllerId),
-            ],
-          ) : const Center(child: Text('The program is not ready', style: TextStyle(color: Colors.red))),
-        ),
+                  },
+                  child: Text(ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume))),
+                ),
+                const SizedBox(width: 5),
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert),
+                  onSelected: (result) {
+                    if (result == 'Edit program') {
+                      bool hasConditions = program.conditions.isNotEmpty;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => IrrigationProgram(
+                            deviceId: deviceId,
+                            userId: userId,
+                            controllerId: controllerId,
+                            serialNumber: program.serialNumber,
+                            programType: program.programType,
+                            conditionsLibraryIsNotEmpty: hasConditions,
+                            fromDealer: false,
+                            toDashboard: true,
+                            groupId: 0,
+                            categoryId: 0,
+                            customerId: customerId,
+                            modelId: 0,
+                            deviceName: deviceId,
+                            categoryName: '',
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(value: 'Edit program', child: Text('Edit program')),
+                    PopupMenuItem(
+                        value: 'Change to',
+                        child: ClickableSubmenu(
+                            title: 'Change to',
+                            submenuItems: program.sequence,
+                            onItemSelected: (selectedItem, selectedIndex) {
+                              final payload = '${program.serialNumber},${selectedIndex + 1}';
+                              final payLoadFinal = jsonEncode({"6700": {"6701": payload}});
+                              Provider.of<CommunicationService>(context, listen: false).sendCommand(
+                                  serverMsg: '${program.programName} Changed to $selectedItem',
+                                  payload: payLoadFinal);
+                              Navigator.pop(context);
+                            })),
+                  ],
+                ),
+                AiRecommendationButton(aiService: aiService, userId: userId, controllerId: controllerId),
+              ],
+            ) :
+            const Center(child: Text('The program is not ready', style: TextStyle(color: Colors.red))),
+          ),
+        ]else...[
+          const DataCell(
+            Center(child: Text('....', style: TextStyle(color: Colors.red))),
+          ),
+        ]
+
       ]);
     });
   }

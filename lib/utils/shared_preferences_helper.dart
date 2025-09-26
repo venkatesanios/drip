@@ -23,8 +23,7 @@ class PreferenceHelper {
     required String countryCode,
     required String mobileNumber,
     required String email,
-    required String appVersion,
-  }) async {
+   }) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString(_authTokenKey, token);
     await prefs.setInt(_userIdKey, userId);
@@ -33,8 +32,7 @@ class PreferenceHelper {
     await prefs.setString(_countryCodeKey, countryCode);
     await prefs.setString(_mobileNumberKey, mobileNumber);
     await prefs.setString(_emailKey, email);
-    await prefs.setString(_appversionKey, appVersion);
-  }
+   }
 
   static Future<String?> getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

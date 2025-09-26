@@ -187,9 +187,6 @@ class NodeListViewModel extends ChangeNotifier {
     );
   }
 
-  bool getPermissionStatusBySNo(BuildContext context, int sNo) {
-    return true;
-  }
 
   void setSerialToAllNodes(deviceId, int customerId, int controllerId, int userId){
     Future.delayed(const Duration(milliseconds: 1000), () {

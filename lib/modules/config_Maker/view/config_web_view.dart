@@ -6,9 +6,13 @@ import 'package:oro_drip_irrigation/Constants/dialog_boxes.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/view/product_limit.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/view/site_configure.dart';
 import 'package:oro_drip_irrigation/Widgets/sized_image.dart';
+import 'package:oro_drip_irrigation/modules/constant/state_management/constant_provider.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:oro_drip_irrigation/utils/environment.dart';
 import 'package:provider/provider.dart';
+import '../../../Widgets/status_box.dart';
+import '../../Preferences/view/preference_main_screen.dart';
+import '../../constant/view/constant_base_page.dart';
 import '../model/device_model.dart';
 import '../model/fertigation_model.dart';
 import '../model/filtration_model.dart';
@@ -51,7 +55,8 @@ class _ConfigWebViewState extends State<ConfigWebView> {
   PayloadSendState payloadSendState = PayloadSendState.idle;
   MqttService mqttService = MqttService();
   bool isDataSaved = false;
-
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  HardwareAcknowledgementState payloadState = HardwareAcknowledgementState.notSent;
   @override
   void initState() {
     // TODO: implement initState
@@ -103,6 +108,71 @@ class _ConfigWebViewState extends State<ConfigWebView> {
     }
   }
 
+  Widget getHardwareAcknowledgementWidget(HardwareAcknowledgementState state){
+    print('state : $state');
+    if(state == HardwareAcknowledgementState.notSent){
+      return const StatusBox(color:  Colors.black87,child: Text('Do you want to send payload..',),);
+    }else if(state == HardwareAcknowledgementState.success){
+      return const StatusBox(color:  Colors.green,child: Text('Success..',),);
+    }else if(state == HardwareAcknowledgementState.failed){
+      return const StatusBox(color:  Colors.red,child: Text('Failed..',),);
+    }else if(state == HardwareAcknowledgementState.errorOnPayload){
+      return const StatusBox(color:  Colors.red,child: Text('Payload error..',),);
+    }else{
+      return const SizedBox(
+          width: double.infinity,
+          height: 5,
+          child: LinearProgressIndicator()
+      );
+    }
+  }
+
+  Map<String, dynamic> getConstantHardwarePayload(){
+    var constPvd = Provider.of<ConstantProvider>(context, listen: false);
+    var generalPayload = constPvd.getGeneralPayload();
+    print("generalPayload : $generalPayload");
+    var globalAlarmPayload = constPvd.getGlobalAlarmPayload();
+    print("globalAlarmPayload : $globalAlarmPayload");
+    var levelSensorPayload = constPvd.getObjectInConstantPayload(constPvd.level);
+    print("levelSensorPayload : $levelSensorPayload");
+    var pumpPayload = constPvd.getObjectInConstantPayload(constPvd.pump);
+    print("pumpPayload : $pumpPayload");
+    var channelPayload = constPvd.getObjectInConstantPayload(constPvd.channel);
+    print("channelPayload : $channelPayload");
+    var fertilizerSitePayload = constPvd.getFertilizerSitePayload();
+    print("fertilizerSitePayload : $fertilizerSitePayload");
+    var waterMeterPayload = constPvd.getObjectInConstantPayload(constPvd.waterMeter);
+    print("waterMeterPayload : $waterMeterPayload");
+    var mainValvePayload = constPvd.getObjectInConstantPayload(constPvd.mainValve);
+    print("mainValvePayload : $mainValvePayload");
+    var valvePayload = constPvd.getObjectInConstantPayload(constPvd.valve);
+    print("valvePayload : $valvePayload");
+    var normalCriticalPayload = AppConstants.ecoGemModelList.contains(configPvd.masterData['modelId']) ? constPvd.getNormalCriticalAlarmForEcoGem() : constPvd.getNormalCriticalAlarm();
+    print("normalCriticalPayload : $normalCriticalPayload");
+    var filterPayload = constPvd.getFilterSitePayload();
+    print("filterPayload : $filterPayload");
+    bool isGem = AppConstants.gemModelList.contains(constPvd.userData['modelId']);
+    var hardwarePayload = {
+      "300" : {
+        "301" : generalPayload,
+        if(isGem)
+          "302" : mainValvePayload,
+        "303" : valvePayload,
+        "304" : waterMeterPayload,
+        "305" : channelPayload,
+        if(isGem)
+          "306" : fertilizerSitePayload,
+        if(isGem)
+          "307" : levelSensorPayload,
+        "308" : normalCriticalPayload,
+        "309" : pumpPayload,
+        "310" : filterPayload,
+      }
+    };
+    return hardwarePayload;
+  }
+
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -118,6 +188,158 @@ class _ConfigWebViewState extends State<ConfigWebView> {
           spacing: 20,
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
+            if(configPvd.selectedTab == ConfigMakerTabs.deviceList)
+              ...[
+                FilledButton.icon(
+                  icon: const Icon(Icons.settings),
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context){
+                      return Scaffold(
+                        appBar: AppBar(
+                          title: const Text('Constant'),
+                          actions: [
+                            FilledButton.icon(
+                              icon: const Icon(Icons.send),
+                              onPressed: (){
+                                setState(() {
+                                  payloadState = HardwareAcknowledgementState.notSent;
+                                  mqttService.acknowledgementPayload = null;
+                                });
+                                showDialog(
+                                    barrierDismissible: false,
+                                    context: context,
+                                    builder: (context){
+                                      return StatefulBuilder(
+                                          builder: (context, stateSetter){
+                                            return AlertDialog(
+                                              title: Text('Send Payload', style: Theme.of(context).textTheme.labelLarge,),
+                                              content: getHardwareAcknowledgementWidget(payloadState),
+                                              actions: [
+                                                if(payloadState != HardwareAcknowledgementState.sending && payloadState != HardwareAcknowledgementState.notSent)
+                                                  CustomMaterialButton(),
+                                                if(payloadState == HardwareAcknowledgementState.notSent)
+                                                  CustomMaterialButton(title: 'Cancel',outlined: true,),
+                                                if(payloadState == HardwareAcknowledgementState.notSent)
+                                                  CustomMaterialButton(
+                                                    onPressed: ()async{
+                                                      sendToHttp();
+                                                      var payload = jsonEncode(getConstantHardwarePayload());
+                                                      int delayDuration = 50;
+                                                      for(var delay = 0; delay < delayDuration; delay++){
+                                                        if(delay == 0){
+                                                          stateSetter((){
+                                                            setState((){
+                                                              mqttService.topicToPublishAndItsMessage(payload, '${Environment.mqttPublishTopic}/${configPvd.masterData['deviceId']}');
+                                                              payloadState = HardwareAcknowledgementState.sending;
+                                                            });
+                                                          });
+                                                        }
+                                                        stateSetter((){
+                                                          setState((){
+                                                            if(mqttService.acknowledgementPayload != null){
+                                                              if(validatePayloadFromHardware(mqttService.acknowledgementPayload, ['cC'], configPvd.masterData['deviceId']) && validatePayloadFromHardware(mqttService.acknowledgementPayload!, ['cM', '4201', 'PayloadCode'], '300')){
+                                                                if(mqttService.acknowledgementPayload!['cM']['4201']['Code'] == '200'){
+                                                                  payloadState = HardwareAcknowledgementState.success;
+                                                                }else if(mqttService.acknowledgementPayload!['cM']['4201']['Code'] == '90'){
+                                                                  payloadState = HardwareAcknowledgementState.programRunning;
+                                                                }else if(mqttService.acknowledgementPayload!['cM']['4201']['Code'] == '1'){
+                                                                  payloadState = HardwareAcknowledgementState.hardwareUnknownError;
+                                                                }else{
+                                                                  payloadState = HardwareAcknowledgementState.errorOnPayload;
+                                                                }
+                                                                mqttService.acknowledgementPayload == null;
+                                                              }
+                                                            }
+                                                          });
+                                                        });
+                                                        await Future.delayed(const Duration(seconds: 1));
+                                                        if(delay == delayDuration-1){
+                                                          stateSetter((){
+                                                            setState((){
+                                                              payloadState = HardwareAcknowledgementState.failed;
+                                                            });
+                                                          });
+                                                        }
+                                                        if(payloadState != HardwareAcknowledgementState.sending){
+                                                          break;
+                                                        }
+                                                      }
+                                                    },
+                                                    title: 'Send',
+                                                  ),
+                                              ],
+                                            );
+                                          }
+                                      );
+                                    }
+                                );
+                              },
+                              label: const Text('Click to send constant'),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: Theme.of(context).primaryColor,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                                textStyle: const TextStyle(fontSize: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                        body: ConstantBasePage(userData: {
+                          "userId": configPvd.masterData['userId'],
+                          "customerId": configPvd.masterData['customerId'],
+                          "controllerId": configPvd.masterData['controllerId'],
+                          "deviceId": configPvd.masterData['deviceId'],
+                          "modelId": configPvd.masterData['modelId'],
+                          "deviceName": configPvd.masterData['deviceName'],
+                          "categoryId": configPvd.masterData['categoryId'],
+                          "categoryName": configPvd.masterData['categoryName'],
+                        }),
+                      );
+                    }));
+                  },
+                  label: const Text('Go To Constant'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    textStyle: const TextStyle(fontSize: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+                FilledButton.icon(
+                  icon: const Icon(Icons.settings),
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context){
+                      return Scaffold(
+                        appBar: AppBar(
+                          title: const Text('Preference'),
+                        ),
+                        body: PreferenceMainScreen(
+                          userId: configPvd.masterData['userId'],
+                          customerId: configPvd.masterData['customerId'],
+                          masterData: configPvd.masterData,
+                          selectedIndex: 0,
+                        ),
+                      );
+                    }));
+                  },
+                  label: const Text('Go To Preference'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    textStyle: const TextStyle(fontSize: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ],
             IconButton(
                 style: ButtonStyle(
                     backgroundColor: WidgetStateProperty.all(configPvd.selectedTab == ConfigMakerTabs.deviceList ? Colors.grey.shade500 : Theme.of(context).primaryColor)
@@ -205,19 +427,91 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                             });
                           },
                           onTap: (){
-                            simpleDialogBox(
-                                context: context,
-                                title: "Alert",
-                                message: "Do you want to clear config?",
-                                actionButton:[
-                                  CustomMaterialButton(
-                                    onPressed: (){
-                                      configPvd.clearData();
-                                      Navigator.of(context).pop();
-                                    },
-                                  )
-                                ]
+
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return StatefulBuilder(builder: (context, stateSetter) {
+                                  return AlertDialog(
+                                    title: Text('Clear Config'),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          'Password',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                            color: Color(0xff475467),
+                                          ),
+                                        ),
+                                        Form(
+                                          key: formKey,
+                                          child: TextFormField(
+                                            validator: (value) {
+                                              if (value == null || value.isEmpty) {
+                                                return 'Please enter your password';
+                                              } else if (value != 'LK@321') {
+                                                return 'Invalid password';
+                                              }
+                                              return null;
+                                            },
+                                            obscureText: true,
+                                            decoration: InputDecoration(
+                                              contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                                              hintText: 'Password',
+                                              hintStyle: const TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w500,
+                                                color: Color(0xff475467),
+                                              ),
+                                              prefixIcon: Icon(
+                                                Icons.password,
+                                                color: Theme.of(context).primaryColor,
+                                              ),
+                                              border: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(8),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                          onPressed: (){
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Text('Cancel')
+                                      ),
+                                      CustomMaterialButton(
+                                        onPressed: () {
+                                          if (formKey.currentState!.validate()) {
+                                            configPvd.clearData();
+                                            Navigator.of(context).pop();
+                                          }
+                                        },
+                                        child: Text('Ok', style: TextStyle(color: Colors.white),),
+                                      ),
+                                    ],
+                                  );
+                                });
+                              },
                             );
+                            // simpleDialogBox(
+                            //     context: context,
+                            //     title: "Alert",
+                            //     message: "Do you want to clear config?",
+                            //     actionButton:[
+                            //       CustomMaterialButton(
+                            //         onPressed: (){
+                            //           configPvd.clearData();
+                            //           Navigator.of(context).pop();
+                            //         },
+                            //       )
+                            //     ]
+                            // );
                           },
                           child:  Row(
                             spacing: 10,
@@ -259,8 +553,6 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                         const SizedBox(width: 10,)
                       ],
                     ),
-
-
                   ],
                 ),
               ),
@@ -279,7 +571,26 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                               : configPvd.selectedTab == ConfigMakerTabs.productLimit
                               ? ProductLimit(listOfDevices: widget.listOfDevices,configPvd: configPvd,)
                               : configPvd.selectedTab == ConfigMakerTabs.connection
-                              ? Connection(configPvd: configPvd,) : SiteConfigure(configPvd: configPvd)
+                              ? Connection(configPvd: configPvd,)
+                              : SiteConfigure(configPvd: configPvd)
+                          //     ? SiteConfigure(configPvd: configPvd)
+                          //     : configPvd.selectedTab == ConfigMakerTabs.constant
+                          //     ? ConstantBasePage(userData: {
+                          //         "userId": configPvd.masterData['userId'],
+                          //         "customerId": configPvd.masterData['customerId'],
+                          //         "controllerId": configPvd.masterData['controllerId'],
+                          //         "deviceId": configPvd.masterData['deviceId'],
+                          //         "modelId": configPvd.masterData['modelId'],
+                          //         "deviceName": configPvd.masterData['deviceName'],
+                          //         "categoryId": configPvd.masterData['categoryId'],
+                          //         "categoryName": configPvd.masterData['categoryName'],
+                          //       })
+                          //     : PreferenceMainScreen(
+                          //         userId: configPvd.masterData['userId'],
+                          //         customerId: configPvd.masterData['customerId'],
+                          //         masterData: configPvd.masterData,
+                          //         selectedIndex: 0,
+                          // )
                       ),
                     )
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/utils/helpers/mc_permission_helper.dart';
 import 'package:oro_drip_irrigation/views/customer/scheduled_program/scheduled_program_narrow.dart';
 import 'package:oro_drip_irrigation/views/customer/widgets/app_bar_action.dart';
 import 'package:oro_drip_irrigation/views/customer/widgets/app_bar_logo.dart';
@@ -59,8 +60,7 @@ class _CustomerNarrowLayoutState extends State<CustomerNarrowLayout> {
     }
 
     final cM = vm.mySiteList.data[vm.sIndex].master[vm.mIndex];
-    if (vm.mySiteList.data.isEmpty ||
-        vm.sIndex >= vm.mySiteList.data.length ||
+    if (vm.mySiteList.data.isEmpty || vm.sIndex >= vm.mySiteList.data.length ||
         vm.mIndex >= vm.mySiteList.data[vm.sIndex].master.length) {
       return const Scaffold(body: Center(child: Text("No site data available")));
     }
@@ -104,6 +104,10 @@ class _CustomerNarrowLayoutState extends State<CustomerNarrowLayout> {
       ];
     }
 
+    final hasPlanning = cM.getPermissionStatus("Planning");
+    final hasStandaloneOnOff = cM.getPermissionStatus("Standalone On/Off");
+    final hasViewLog = cM.getPermissionStatus("View Controller Log");
+
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.grey.shade100,
@@ -134,6 +138,7 @@ class _CustomerNarrowLayoutState extends State<CustomerNarrowLayout> {
         loggedInUser: loggedInUser,
         vm: vm,
         callbackFunction: callbackFunction,
+        myPermissionFlags: [hasPlanning, hasStandaloneOnOff, hasViewLog],
       ),
       body: Column(
         children: [
@@ -141,7 +146,11 @@ class _CustomerNarrowLayoutState extends State<CustomerNarrowLayout> {
             const NetworkConnectionBanner(),
             Consumer<CustomerProvider>(
               builder: (context, customerProvider, _) {
-                return _buildStatusBanner(context, vm, customerProvider.controllerCommMode!);
+                final mode = customerProvider.controllerCommMode;
+                if (mode == null) {
+                  return const SizedBox();
+                }
+                return _buildStatusBanner(context, vm, mode);
               },
             ),
           ],
