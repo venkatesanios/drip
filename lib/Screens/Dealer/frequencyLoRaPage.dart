@@ -64,6 +64,24 @@ class _FrequencyPageState extends State<FrequencyPage> {
     }
   }
 
+  String formatNumber(String input) {
+    if (input.isEmpty) {
+      return '0,0';
+    }
+    if (!input.contains('.')) {
+      input += '.0';
+    }
+    double number = double.parse(input);
+    number *= 10;
+    String result = number.toStringAsFixed(0);
+    while (result.length < 4) {
+      result = '0' + result;
+    }
+    String firstPart = result.substring(0, 2);
+    String secondPart = result.substring(2, 4);
+    return '$firstPart,$secondPart';
+  }
+
   String formatFrequencyFromDevice(String freq) => (int.parse(freq) / 10).toStringAsFixed(1);
   String formatFrequencyToDevice(String freq) => (double.parse(freq) * 10).toInt().toString();
 
@@ -76,6 +94,8 @@ class _FrequencyPageState extends State<FrequencyPage> {
   void _showSnackBar(String msg) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
 
   Future<void> _handleSend() async {
+    print('----_handleSend');
+
     String freq1 = frequency1Controller.text;
     String freq2 = frequency2Controller.text;
     String sf1 = sf1Controller.text.isEmpty ? '0' : sf1Controller.text;
@@ -87,8 +107,9 @@ class _FrequencyPageState extends State<FrequencyPage> {
     }
 
     Map<String, dynamic> payLoadFinal = {
-      "6500": {"6501": "${formatFrequencyToDevice(freq1)},$sf1,${formatFrequencyToDevice(freq2)},$sf2"}
+      "6500": {"6501": "${formatNumber(freq1)},$sf1,${formatNumber(freq2)},$sf2"}
     };
+    print('payLoadFinal----$payLoadFinal');
 
     Map<String, dynamic> body = {
       "userId": widget.userId,
@@ -107,8 +128,7 @@ class _FrequencyPageState extends State<FrequencyPage> {
     String topic = "${Environment.mqttPublishTopic}/${widget.deviceId}";
     MqttService().topicToPublishAndItsMessage(jsonEncode(payLoadFinal), topic);
 
-    Navigator.pop(context);
-  }
+   }
 
   void _handleView(int loraIndex) {
     setState(() => _isLoading = true);
@@ -116,6 +136,7 @@ class _FrequencyPageState extends State<FrequencyPage> {
     String val = loraIndex == 1 ? "29" : "30";
     Map<String, dynamic> payLoadFinal = {"5700": {"5701": val}};
     String topic = "${Environment.mqttPublishTopic}/${widget.deviceId}";
+    print('payLoadFinal----$payLoadFinal');
     MqttService().topicToPublishAndItsMessage(jsonEncode(payLoadFinal), topic);
 
     Future.delayed(const Duration(seconds: 4), () {

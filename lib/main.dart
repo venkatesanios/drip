@@ -51,7 +51,7 @@ FutureOr<void> main() async {
   });
   tz.initializeTimeZones();
   await NetworkUtils.initialize();
-
+  // F.appFlavor = Flavor.oroProduction;
   if(!kIsWeb){
     try {
       // Initialize Firebase
