@@ -1,8 +1,5 @@
-import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/custom_card_table.dart';
-import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/custom_switch_row.dart';
 import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/fertilizer_site_card.dart';
 import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/filter_site_card.dart';
 import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/irrigation_line_card.dart';
@@ -12,7 +9,6 @@ import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/valve_car
 import 'package:provider/provider.dart';
 
 import '../../../models/customer/site_model.dart';
-import '../../../models/customer/stand_alone_model.dart';
 import '../../../repository/repository.dart';
 import '../../../services/http_service.dart';
 import '../../../utils/constants.dart';
@@ -134,14 +130,14 @@ class _StandAloneNarrowState extends State<StandAloneNarrow> with SingleTickerPr
                           style: ButtonStyle(
                             backgroundColor:
                             WidgetStateProperty.resolveWith<Color?>((states) {
-                              if (states.contains(MaterialState.selected)) {
+                              if (states.contains(WidgetState.selected)) {
                                 return Theme.of(context).primaryColorLight;
                               }
                               return Colors.white;
                             }),
                             foregroundColor:
-                            MaterialStateProperty.resolveWith<Color?>((states) {
-                              if (states.contains(MaterialState.selected)) {
+                            WidgetStateProperty.resolveWith<Color?>((states) {
+                              if (states.contains(WidgetState.selected)) {
                                 return Colors.white;
                               }
                               return Colors.black;
@@ -298,7 +294,7 @@ class _StandAloneNarrowState extends State<StandAloneNarrow> with SingleTickerPr
 
     final sourcePumps = masterData.irrigationLine
         .expand((line) => line.inletSources)
-        .expand((ws) => ws.outletPump ?? [])
+        .expand((ws) => ws.outletPump)
         .toList();
 
     final allSourcePumps = sourcePumps.fold<Map<double, PumpModel>>({}, (map, pump) {
@@ -308,7 +304,7 @@ class _StandAloneNarrowState extends State<StandAloneNarrow> with SingleTickerPr
 
     final irrigationPumps = masterData.irrigationLine
         .expand((line) => line.outletSources)
-        .expand((ws) => ws.outletPump ?? [])
+        .expand((ws) => ws.outletPump)
         .toList();
 
     final allIrrigationPumps = irrigationPumps.fold<Map<double, PumpModel>>({}, (map, pump) {
@@ -385,213 +381,6 @@ class _StandAloneNarrowState extends State<StandAloneNarrow> with SingleTickerPr
             );
           }).toList(),
         ) : const SizedBox(),
-      ],
-    );
-
-    return Column(
-      children: [
-        if(!isNova && vm.ddCurrentPosition==0)...[
-          if (allSourcePumps.isNotEmpty)...[
-            CustomCardTable(
-              title: "Source Pump",
-              rows: allSourcePumps.map((pump) {
-                return CustomSwitchRow(
-                  iconPath: 'assets/png/dp_pump.png',
-                  label: pump.name,
-                  value: pump.selected,
-                  onChanged: (val) {
-                    setState(() => pump.selected = val);
-                  },
-                );
-              }).toList(),
-            ),
-          ],
-        ],
-
-        if (allIrrigationPumps.isNotEmpty)...[
-          CustomCardTable(
-            title: "Irrigation Pump",
-            rows: allIrrigationPumps.map((pump) {
-              return CustomSwitchRow(
-                iconPath: 'assets/png/dp_pump.png',
-                label: pump.name,
-                value: pump.selected,
-                onChanged: (val) {
-                  setState(() => pump.selected = val);
-                },
-              );
-            }).toList(),
-          ),
-        ],
-
-        if (filterSites.isNotEmpty)...[
-          Padding(
-            padding: const EdgeInsets.only(left: 8, right: 5, top: 8),
-            child: Column(
-              children: filterSites.map((site) {
-                final rows = site.filters.map((filter) {
-                  return CustomSwitchRow(
-                    iconPath: 'assets/png/filter.png',
-                    label: filter.name,
-                    value: filter.selected,
-                    onChanged: (value) {
-                      setState(() {
-                        filter.selected = value;
-                      });
-                    },
-                  );
-                }).toList();
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: CustomCardTable(
-                    title: site.name,
-                    rows: rows,
-                  ),
-                );
-              }).toList(),
-            ),
-          )
-        ],
-
-        if (fertilizerSite.isNotEmpty) ...[
-          Padding(
-            padding: const EdgeInsets.only(left: 8, right: 5, top: 8),
-            child: Column(
-              children: fertilizerSite.map((site) {
-                final rows = <DataRow>[];
-
-                rows.addAll(site.channel.map((channel) {
-                  return CustomSwitchRow(
-                    iconPath: 'assets/png/fert_chanel.png',
-                    label: channel.name,
-                    value: channel.selected,
-                    onChanged: (value) {
-                      setState(() {
-                        channel.selected = value;
-                      });
-                    },
-                  );
-                }));
-
-                rows.addAll(site.boosterPump.map((boosterPump) {
-                  return CustomSwitchRow(
-                    iconPath: 'assets/png/booster_pump.png',
-                    label: boosterPump.name,
-                    value: boosterPump.selected,
-                    onChanged: (value) {
-                      setState(() {
-                        boosterPump.selected = value;
-                      });
-                    },
-                  );
-                }));
-
-                rows.addAll(site.agitator.map((agitator) {
-                  return CustomSwitchRow(
-                    iconPath: 'assets/png/agitator_gray.png',
-                    label: agitator.name,
-                    value: agitator.selected,
-                    onChanged: (value) {
-                      setState(() {
-                        agitator.selected = value;
-                      });
-                    },
-                  );
-                }));
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: CustomCardTable(
-                    title: site.name,
-                    rows: rows,
-                  ),
-                );
-              }).toList(),
-            ),
-          )
-        ],
-
-        (!isNova && ddPosition == 0 ) ? Column(
-          children: masterData.irrigationLine.map((line) {
-            if (line.name == 'All irrigation line') return const SizedBox();
-
-            final rows = [
-
-              ...line.mainValveObjects.map((mainValve) {
-                return DataRow(cells: [
-                  DataCell(Image.asset('assets/png/m_main_valve_gray.png', width: 40, height: 40)),
-                  DataCell(Text(mainValve.name)),
-                  DataCell(Transform.scale(
-                    scale: 0.7,
-                    child: Switch(
-                      activeColor: Colors.teal,
-                      hoverColor: Colors.pink.shade100,
-                      value: mainValve.isOn,
-                      onChanged: (value) {
-                        setState(() => mainValve.isOn = value);
-                      },
-                    ),
-                  )),
-                ]);
-              }),
-
-              ...line.valveObjects.map((valve) {
-                return DataRow(cells: [
-                  DataCell(Image.asset('assets/png/m_valve_grey.png', width: 40, height: 40)),
-                  DataCell(Text(valve.name)),
-                  DataCell(Transform.scale(
-                    scale: 0.7,
-                    child: Switch(
-                      activeColor: Colors.teal,
-                      hoverColor: Colors.pink.shade100,
-                      value: valve.isOn,
-                      onChanged: (value) {
-                        setState(() => valve.isOn = value);
-                      },
-                    ),
-                  )),
-                ]);
-              }),
-            ];
-
-            return ValveCardTable(
-              title: line.name,
-              showSwitch: vm.ddCurrentPosition != 0,
-              switchValue: true,
-              onSwitchChanged: (_) {},
-              rows: rows,
-            );
-          }).toList(),
-        ) :
-        vm.standAloneData != null ?
-        Column(
-          children: vm.standAloneData!.sequence.map((sequence) {
-            final rows = sequence.valve.map((valve) {
-              return DataRow(cells: [
-                DataCell(Image.asset('assets/png/m_valve_grey.png', width: 40, height: 40)),
-                DataCell(Text(valve.name)),
-                const DataCell(SizedBox()),
-              ]);
-            }).toList();
-
-            return ValveCardTable(
-              title: sequence.name,
-              showSwitch: !isNova ? vm.ddCurrentPosition != 0 : true,
-              switchValue: sequence.selected,
-              onSwitchChanged: (value) {
-                setState(() {
-                  for (var seq in vm.standAloneData!.sequence) {
-                    seq.selected = false;
-                  }
-                  sequence.selected = value;
-                });
-              },
-              rows: rows,
-            );
-          }).toList(),
-        ) :
-        const SizedBox(),
       ],
     );
   }
