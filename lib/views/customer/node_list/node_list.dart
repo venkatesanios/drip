@@ -113,7 +113,7 @@ class NodeList extends StatelessWidget {
                 child: ListView.builder(
                   itemCount: vm.nodeList.length,
                   itemBuilder: (context, index) {
-                    return _buildNodeTile(context, vm.nodeList[index], vm, hasSetSerial);
+                    return _buildNodeTile(context, index, vm.nodeList[index], vm, hasSetSerial);
                   },
                 ),
               ),
@@ -424,7 +424,7 @@ class NodeList extends StatelessWidget {
     );
   }
 
-  Widget _buildNodeTile(BuildContext context, NodeListModel node, NodeListViewModel vm, bool hasSetSerial) {
+  Widget _buildNodeTile(BuildContext context, int index, NodeListModel node, NodeListViewModel vm, bool hasSetSerial) {
     return ExpansionTile(
       tilePadding: const EdgeInsets.symmetric(horizontal: 0),
       childrenPadding: const EdgeInsets.symmetric(horizontal: 0),
@@ -529,12 +529,10 @@ class NodeList extends StatelessWidget {
                     Text('${node.batVolt} - V'),
                     IconButton(
                       tooltip: 'Serial set',
-                      onPressed: hasSetSerial
-                          ? () {
-                        vm.actionSerialSet(0, masterData.deviceId, customerId, masterData.controllerId, userId);
+                      onPressed: hasSetSerial ? () {
+                        vm.actionSerialSet(index, masterData.deviceId, customerId, masterData.controllerId, userId);
                         GlobalSnackBar.show(context, 'Your comment sent successfully', 200);
-                      }
-                          : null,
+                      } : null,
                       icon: Icon(Icons.fact_check_outlined, color: Theme.of(context).primaryColor),
                     ),
                   ],

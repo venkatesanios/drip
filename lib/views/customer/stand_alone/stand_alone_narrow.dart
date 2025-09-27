@@ -3,12 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/custom_card_table.dart';
 import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/custom_switch_row.dart';
+import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/fertilizer_site_card.dart';
+import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/filter_site_card.dart';
+import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/irrigation_line_card.dart';
+import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/irrigation_pump_card.dart';
+import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/source_pump_card.dart';
+import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/valve_card_table.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/customer/site_model.dart';
 import '../../../models/customer/stand_alone_model.dart';
 import '../../../repository/repository.dart';
 import '../../../services/http_service.dart';
+import '../../../utils/constants.dart';
 import '../../../view_models/customer/stand_alone_view_model.dart';
 
 class StandAloneNarrow extends StatefulWidget {
@@ -41,11 +48,14 @@ class _StandAloneNarrowState extends State<StandAloneNarrow> with SingleTickerPr
         ..getProgramList(),
       child: Consumer<StandAloneViewModel>(
         builder: (context, viewModel, _) {
+
+          final bool isNova = [...AppConstants.ecoGemModelList].contains(widget.masterData.modelId);
+
           return Scaffold(
             resizeToAvoidBottomInset: true,
             appBar: AppBar(
               title: const Text('Manual'),
-              actions: [
+              actions : !isNova ? [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 5.0),
                   child: Row(
@@ -56,9 +66,8 @@ class _StandAloneNarrowState extends State<StandAloneNarrow> with SingleTickerPr
                         width: 175,
                         child: DropdownButtonFormField(
                           dropdownColor: Theme.of(context).primaryColorLight,
-                          value: viewModel.programList.isNotEmpty
-                              ? viewModel.programList[viewModel.ddCurrentPosition]
-                              : null,
+                          value: viewModel.programList.isNotEmpty ?
+                          viewModel.programList[viewModel.ddCurrentPosition] : null,
                           items: viewModel.programList.map((item) {
                             return DropdownMenuItem(
                               value: item,
@@ -79,12 +88,46 @@ class _StandAloneNarrowState extends State<StandAloneNarrow> with SingleTickerPr
                     ],
                   ),
                 ),
-              ],
+              ] : null,
               bottom: PreferredSize(
                 preferredSize: const Size.fromHeight(50),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  child: Row(
+                  child: isNova? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                    child: Row(
+                      children: [
+                        const Text('Select by : ', style: TextStyle(color: Colors.white, fontSize: 17)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: DropdownButtonFormField(
+                            dropdownColor: Theme.of(context).primaryColorLight,
+                            iconEnabledColor: Colors.white,
+                            iconDisabledColor: Colors.white,
+                            value: viewModel.programList.isNotEmpty
+                                ? viewModel.programList[viewModel.ddCurrentPosition]
+                                : null,
+                            items: viewModel.programList.map((item) {
+                              return DropdownMenuItem(
+                                value: item,
+                                child: Text(
+                                  item.programName,
+                                  style: const TextStyle(color: Colors.white, fontSize: 15),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              viewModel.fetchStandAloneSelection(
+                                value!.serialNumber,
+                                viewModel.programList.indexOf(value),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ) :
+                  Row(
                     children: [
                       Expanded(
                         child: SegmentedButton<SegmentWithFlow>(
@@ -251,6 +294,8 @@ class _StandAloneNarrowState extends State<StandAloneNarrow> with SingleTickerPr
 
   Widget displayLineOrSequence(MasterControllerModel masterData, StandAloneViewModel vm, int ddPosition){
 
+    bool isNova = [...AppConstants.ecoGemModelList].contains(masterData.modelId);
+
     final sourcePumps = masterData.irrigationLine
         .expand((line) => line.inletSources)
         .expand((ws) => ws.outletPump ?? [])
@@ -281,10 +326,71 @@ class _StandAloneNarrowState extends State<StandAloneNarrow> with SingleTickerPr
         .whereType<FertilizerSiteModel>()
         .toList();
 
+    return Column(
+      children: [
+        if (!isNova && vm.ddCurrentPosition == 0)
+          SourcePumpCard(
+            pumps: allSourcePumps,
+            onChanged: (pump, val) => setState(() => pump.selected = val),
+          ),
+        IrrigationPumpCard(
+          pumps: allIrrigationPumps,
+          onChanged: (pump, val) => setState(() => pump.selected = val),
+        ),
+        FilterSiteCard(
+          sites: filterSites,
+          onChanged: (filter, val) => setState(() => filter.selected = val),
+        ),
+        FertilizerSiteCard(
+          sites: fertilizerSite,
+          onChanged: (item, val) => setState(() => item.selected = val),
+        ),
+
+        (!isNova && ddPosition == 0) ? Column(
+          children: masterData.irrigationLine.map((line) {
+            return IrrigationLineCard(
+              line: line,
+              showSwitch: vm.ddCurrentPosition != 0,
+              onToggleMainValve: (mainValve, value) {
+                setState(() => mainValve.isOn = value);
+              },
+              onToggleValve: (valve, value) {
+                setState(() => valve.isOn = value);
+              },
+            );
+          }).toList(),
+        ) : vm.standAloneData != null ? Column(
+          children: vm.standAloneData!.sequence.map((sequence) {
+            final rows = sequence.valve.map((valve) {
+              return DataRow(cells: [
+                DataCell(Image.asset('assets/png/m_valve_grey.png', width: 40, height: 40)),
+                DataCell(Text(valve.name)),
+                const DataCell(SizedBox()),
+              ]);
+            }).toList();
+
+            return ValveCardTable(
+              title: sequence.name,
+              showSwitch: !isNova ? vm.ddCurrentPosition != 0 : true,
+              switchValue: sequence.selected,
+              onSwitchChanged: (value) {
+                setState(() {
+                  for (var seq in vm.standAloneData!.sequence) {
+                    seq.selected = false;
+                  }
+                  sequence.selected = value;
+                });
+              },
+              rows: rows,
+            );
+          }).toList(),
+        ) : const SizedBox(),
+      ],
+    );
 
     return Column(
       children: [
-        if(vm.ddCurrentPosition==0)...[
+        if(!isNova && vm.ddCurrentPosition==0)...[
           if (allSourcePumps.isNotEmpty)...[
             CustomCardTable(
               title: "Source Pump",
@@ -406,225 +512,84 @@ class _StandAloneNarrowState extends State<StandAloneNarrow> with SingleTickerPr
           )
         ],
 
-        ddPosition == 0 ? Column(
-          mainAxisSize: MainAxisSize.min,
-          children: List.generate(masterData.irrigationLine.length, (index) {
-            IrrigationLineModel line = masterData.irrigationLine[index];
+        (!isNova && ddPosition == 0 ) ? Column(
+          children: masterData.irrigationLine.map((line) {
             if (line.name == 'All irrigation line') return const SizedBox();
 
-            return Padding(
-              padding: const EdgeInsets.only(left: 12, right: 12, bottom: 5),
-              child: Card(
-                color: Colors.white,
-                elevation: 1,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      height: 35,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColorLight.withOpacity(0.1),
-                        borderRadius: const BorderRadius.only(
-                          topRight: Radius.circular(5),
-                          topLeft: Radius.circular(5),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 10, right: 5),
-                              child: Text(line.name, textAlign: TextAlign.left),
-                            ),
-                          ),
-                          if (vm.ddCurrentPosition != 0) ...[
-                            VerticalDivider(color: Theme.of(context).primaryColor.withOpacity(0.1)),
-                            Center(
-                              child: SizedBox(
-                                width: 60,
-                                child: Transform.scale(
-                                  scale: 0.7,
-                                  child: Switch(
-                                    value: true,
-                                    activeColor: Theme.of(context).primaryColorLight,
-                                    onChanged: (value) {},
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ]
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: ((line.mainValveObjects.length + line.valveObjects.length) * 40) + 3,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 3, right: 3, bottom: 3),
-                        child: DataTable2(
-                          columnSpacing: 12,
-                          horizontalMargin: 12,
-                          minWidth: 150,
-                          dataRowHeight: 40.0,
-                          headingRowHeight: 0,
-                          dataRowColor: WidgetStateProperty.all(Colors.white),
-                          columns: const [
-                            DataColumn2(label: Center(child: Text('')), fixedWidth: 40),
-                            DataColumn2(label: Text('Name'), size: ColumnSize.M),
-                            DataColumn2(
-                              label: Center(child: Text('Valve Status')),
-                              fixedWidth: 50,
-                            ),
-                          ],
-                          rows: [
-                            ...List<DataRow>.generate(line.mainValveObjects.length, (index) {
-                              final mainValve = line.mainValveObjects[index];
-                              return DataRow(cells: [
-                                DataCell(Center(
-                                  child: Image.asset(
-                                    'assets/png/m_main_valve_gray.png', // use a different icon for main valve
-                                    width: 40,
-                                    height: 40,
-                                  ),
-                                )),
-                                DataCell(Text(mainValve.name)),
-                                DataCell(Transform.scale(
-                                  scale: 0.8,
-                                  child: Tooltip(
-                                    message: mainValve.isOn ? 'Close' : 'Open',
-                                    child: Switch(
-                                      hoverColor: Colors.pink.shade100,
-                                      activeColor: Colors.teal,
-                                      value: mainValve.isOn,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          mainValve.isOn = value;
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                )),
-                              ]);
-                            }),
+            final rows = [
 
-                            ...List<DataRow>.generate(line.valveObjects.length, (index) {
-                              final valve = line.valveObjects[index];
-                              return DataRow(cells: [
-                                DataCell(Center(
-                                  child: Image.asset(
-                                    'assets/png/m_valve_grey.png',
-                                    width: 40,
-                                    height: 40,
-                                  ),
-                                )),
-                                DataCell(Text(valve.name)),
-                                DataCell(Transform.scale(
-                                  scale: 0.8,
-                                  child: Tooltip(
-                                    message: valve.isOn ? 'Close' : 'Open',
-                                    child: Switch(
-                                      hoverColor: Colors.pink.shade100,
-                                      activeColor: Colors.teal,
-                                      value: valve.isOn,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          valve.isOn = value;
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                )),
-                              ]);
-                            }),
-                          ],
-                        ),
-                      ),
+              ...line.mainValveObjects.map((mainValve) {
+                return DataRow(cells: [
+                  DataCell(Image.asset('assets/png/m_main_valve_gray.png', width: 40, height: 40)),
+                  DataCell(Text(mainValve.name)),
+                  DataCell(Transform.scale(
+                    scale: 0.7,
+                    child: Switch(
+                      activeColor: Colors.teal,
+                      hoverColor: Colors.pink.shade100,
+                      value: mainValve.isOn,
+                      onChanged: (value) {
+                        setState(() => mainValve.isOn = value);
+                      },
                     ),
-                  ],
-                ),
-              ),
+                  )),
+                ]);
+              }),
+
+              ...line.valveObjects.map((valve) {
+                return DataRow(cells: [
+                  DataCell(Image.asset('assets/png/m_valve_grey.png', width: 40, height: 40)),
+                  DataCell(Text(valve.name)),
+                  DataCell(Transform.scale(
+                    scale: 0.7,
+                    child: Switch(
+                      activeColor: Colors.teal,
+                      hoverColor: Colors.pink.shade100,
+                      value: valve.isOn,
+                      onChanged: (value) {
+                        setState(() => valve.isOn = value);
+                      },
+                    ),
+                  )),
+                ]);
+              }),
+            ];
+
+            return ValveCardTable(
+              title: line.name,
+              showSwitch: vm.ddCurrentPosition != 0,
+              switchValue: true,
+              onSwitchChanged: (_) {},
+              rows: rows,
             );
-          }),
-        ):
+          }).toList(),
+        ) :
         vm.standAloneData != null ?
         Column(
-          children: List.generate(vm.standAloneData!.sequence.length, (index) {
-            SequenceModel sequence = vm.standAloneData!.sequence[index];
-            return Padding(
-              padding: const EdgeInsets.only(left: 8, right: 5, bottom: 5),
-              child: Card(
-                elevation: 1,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      height: 40,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor.withOpacity(0.1),
-                        borderRadius: const BorderRadius.only(topRight: Radius.circular(5), topLeft: Radius.circular(5)),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 10, top: 10, right: 5),
-                              child: Text(sequence.name),
-                            ),
-                          ),
-                          if (vm.ddCurrentPosition != 0) ...[
-                            VerticalDivider(color: Theme.of(context).primaryColor.withOpacity(0.1)),
-                            SizedBox(
-                              width: 60,
-                              child: Transform.scale(
-                                scale: 0.8,
-                                child: Switch(
-                                  value: sequence.selected,
-                                  hoverColor: Colors.pink.shade100,
-                                  activeColor: Colors.teal,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      for (var sequence in vm.standAloneData!.sequence) {
-                                        sequence.selected = false;
-                                      }
-                                      sequence.selected = value;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: sequence.valve.length * 40,
-                      width: double.infinity,
-                      child: DataTable2(
-                        columnSpacing: 12,
-                        horizontalMargin: 12,
-                        minWidth: 150,
-                        dataRowHeight: 40,
-                        headingRowHeight: 0,
-                        dataRowColor: WidgetStateProperty.all(Colors.white),
-                        columns: const [
-                          DataColumn2(label: Center(child: Text('')), fixedWidth: 40),
-                          DataColumn2(label: Center(child: Text('Name')), size: ColumnSize.M),
-                        ],
-                        rows: List<DataRow>.generate(sequence.valve.length, (index) {
-                          return DataRow(cells: [
-                            DataCell(Center(child: Image.asset('assets/png/m_valve_gray.png', width: 40, height: 40))),
-                            DataCell(Text(sequence.valve[index].name)),
-                          ]);
-                        }),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+          children: vm.standAloneData!.sequence.map((sequence) {
+            final rows = sequence.valve.map((valve) {
+              return DataRow(cells: [
+                DataCell(Image.asset('assets/png/m_valve_grey.png', width: 40, height: 40)),
+                DataCell(Text(valve.name)),
+                const DataCell(SizedBox()),
+              ]);
+            }).toList();
+
+            return ValveCardTable(
+              title: sequence.name,
+              showSwitch: !isNova ? vm.ddCurrentPosition != 0 : true,
+              switchValue: sequence.selected,
+              onSwitchChanged: (value) {
+                setState(() {
+                  for (var seq in vm.standAloneData!.sequence) {
+                    seq.selected = false;
+                  }
+                  sequence.selected = value;
+                });
+              },
+              rows: rows,
             );
-          }),
+          }).toList(),
         ) :
         const SizedBox(),
       ],
