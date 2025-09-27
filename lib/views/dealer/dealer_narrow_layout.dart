@@ -43,19 +43,9 @@ class DealerNarrowLayout extends StatelessWidget {
         leadingWidth: Navigator.of(context).canPop() ? 50 :
         F.appFlavor!.name.contains('oro') ? 75 : 110,
 
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight((!F.appFlavor!.name.contains('oro') && viewModel.selectedIndex==1) ? 106 : 50),
-          child: Column(
-            children: [
-              if(! F.appFlavor!.name.contains('oro'))...[
-                MainMenuSegmentWidget(viewModel: viewModel),
-                const SizedBox(height: 8),
-              ],
-              if(viewModel.selectedIndex==1)...[
-                ProductSearchBar(viewModel: viewModel, barHeight: 44, barRadius: 10),
-              ],
-            ],
-          ),
+        bottom: (F.appFlavor!.name.contains('oro') && viewModel.selectedIndex == 0) ? null : PreferredSize(
+          preferredSize: Size.fromHeight((!F.appFlavor!.name.contains('oro') && viewModel.selectedIndex == 1) ? 106 : 50),
+          child: _buildBottomBar(viewModel),
         ),
 
         /*bottom: viewModel.selectedIndex==1 ? PreferredSize(
@@ -70,6 +60,20 @@ class DealerNarrowLayout extends StatelessWidget {
           ProductInventory(),
         ],
       ),
+    );
+  }
+
+  Widget _buildBottomBar(BaseHeaderViewModel viewModel) {
+    final isOro = F.appFlavor!.name.contains('oro');
+    return Column(
+      children: [
+        if (!isOro) ...[
+          MainMenuSegmentWidget(viewModel: viewModel),
+          const SizedBox(height: 8),
+        ],
+        if (viewModel.selectedIndex == 1)
+          ProductSearchBar(viewModel: viewModel, barHeight: 44, barRadius: 10),
+      ],
     );
   }
 }

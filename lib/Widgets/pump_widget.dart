@@ -267,7 +267,7 @@ class PumpWidget extends StatelessWidget {
       padding: const EdgeInsets.all(3.0),
       child: Container(
         width: 325,
-        height: 35,
+        height: isMobile? 40 : 35,
         decoration: BoxDecoration(
           color: Colors.deepOrange.shade50,
           borderRadius: const BorderRadius.only(
@@ -291,7 +291,7 @@ class PumpWidget extends StatelessWidget {
               ),
               if (!excludedReasons.contains(pump.reason))
                 SizedBox(
-                  height: 23,
+                  height: isMobile? 30 : 23,
                   child: TextButton(
                     style: TextButton.styleFrom(
                       backgroundColor: Colors.redAccent.shade200,
