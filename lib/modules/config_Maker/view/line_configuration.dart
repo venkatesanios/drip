@@ -97,7 +97,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
                                         }, icon: const Icon(Icons.dataset)
                                     ),
                                     if(widget.configPvd.pump.any((pump) => pump.pumpType == 1))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.irrigationPump, parameterType: LineParameter.irrigationPump, objectId: AppConstants.pumpObjectId, objectName: 'Source Pump', validateAllLine: false,
+                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.sourcePump, parameterType: LineParameter.sourcePump, objectId: AppConstants.pumpObjectId, objectName: 'Source Pump', validateAllLine: false,
                                           listOfObject: widget.configPvd.listOfGeneratedObject.where((pumpObject){
                                             return widget.configPvd.pump.any((pump) => pump.commonDetails.sNo == pumpObject.sNo && pump.pumpType == 1);
                                           }).toList()

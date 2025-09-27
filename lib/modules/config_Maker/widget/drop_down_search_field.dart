@@ -30,7 +30,7 @@ class _DropDownSearchFieldState extends State<DropDownSearchField> {
         .where((device) => device['modelId'] == widget.oldDevice["modelId"])
         .map((device) => device['deviceId'].toString())
         .toList());
-
+    print('matches : $matches');
     matches.retainWhere((s) => s.toLowerCase().contains(query.toLowerCase()));
     return matches;
   }
@@ -53,7 +53,7 @@ class _DropDownSearchFieldState extends State<DropDownSearchField> {
               const Text('Search Device to replace'),
               DropDownSearchFormField(
                 textFieldConfiguration: TextFieldConfiguration(
-                  decoration: const InputDecoration(labelText: 'Device'),
+                  decoration: InputDecoration(labelText: widget.oldDevice['categoryName']),
                   controller: _dropdownSearchFieldController,
                 ),
                 suggestionsCallback: (pattern) {
@@ -80,49 +80,62 @@ class _DropDownSearchFieldState extends State<DropDownSearchField> {
                 displayAllSuggestionWhenTap: true,
               ),
               const Spacer(),
-              FilledButton.icon(
-                icon: const Icon(Icons.find_replace_outlined),
-                label: const Text('Replace'),
-                onPressed: () async{
-                  if (_formKey.currentState!.validate()) {
-                    _formKey.currentState!.save();
-                    // Optionally use `_selectedFruit` here
-                  }
-                  int statusCode = await configPvd.replaceDevice(newDevice: widget.productStock.firstWhere((device) => device['deviceId'] == _dropdownSearchFieldController.text), oldDevice: widget.oldDevice, masterOrNode: widget.masterOrNode);
-                  if(statusCode == 200){
-                    for(var device in widget.productStock){
-                      if(device["deviceId"] == _dropdownSearchFieldController.text){
-                        setState(() {
-                          device["deviceId"] = widget.oldDevice["deviceId"];
-                        });
-                      }
-                    }
-                    Navigator.pop(context);
-                    simpleDialogBox(
-                        context: context,
-                        title: 'Success',
-                        message: "Device replace Successfully",
-                    );
-                  }else{
-                    Navigator.pop(context);
-                    simpleDialogBox(
-                      context: context,
-                      title: 'Alert',
-                      message: "Device replace failed",
-                    );
-                  }
-                },
-                style: FilledButton.styleFrom(
-                  backgroundColor: Theme.of(context).primaryColor,
-                  foregroundColor: Colors.white,
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                  textStyle: const TextStyle(fontSize: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  TextButton(
+                      onPressed: (){
+                        Navigator.pop(context);
+                      },
+                      child: const Text('Cancel')
                   ),
-                ),
+                  const SizedBox(width: 10,),
+                  FilledButton.icon(
+                    icon: const Icon(Icons.find_replace_outlined),
+                    label: const Text('Replace'),
+                    onPressed: () async{
+                      if (_formKey.currentState!.validate()) {
+                        _formKey.currentState!.save();
+                        // Optionally use `_selectedFruit` here
+                      }
+                      int statusCode = await configPvd.replaceDevice(newDevice: widget.productStock.firstWhere((device) => device['deviceId'] == _dropdownSearchFieldController.text), oldDevice: widget.oldDevice, masterOrNode: widget.masterOrNode);
+                      if(statusCode == 200){
+                        for(var device in widget.productStock){
+                          if(device["deviceId"] == _dropdownSearchFieldController.text){
+                            setState(() {
+                              device["deviceId"] = widget.oldDevice["deviceId"];
+                            });
+                          }
+                        }
+                        Navigator.pop(context);
+                        simpleDialogBox(
+                          context: context,
+                          title: 'Success',
+                          message: "Device replace Successfully",
+                        );
+                      }else{
+                        Navigator.pop(context);
+                        simpleDialogBox(
+                          context: context,
+                          title: 'Alert',
+                          message: "Device replace failed",
+                        );
+                      }
+                    },
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Theme.of(context).primaryColor,
+                      foregroundColor: Colors.white,
+                      padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                      textStyle: const TextStyle(fontSize: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ],
               ),
+
             ],
           ),
         ),

@@ -218,22 +218,22 @@ class _DeviceListState extends State<DeviceList> {
                                       }
                                     },
                                   ),
-                                  // if(["admin", "1"].contains(userRole))
-                                  editDeviceIdWidget(masterOrNode: 2, device: device),
-                                  // if(["dealer","2"].contains(userRole))
-                                  //   IconButton(
-                                  //       onPressed: (){
-                                  //         showDialog(
-                                  //             context: context,
-                                  //             builder: (context){
-                                  //               return AlertDialog(
-                                  //                 content: DropDownSearchField(productStock: configPvd.productStock,oldDevice: device.toJson(), masterOrNode: 2, ),
-                                  //               );
-                                  //             }
-                                  //         );
-                                  //       },
-                                  //       icon: Icon(Icons.find_replace)
-                                  //   )
+                                  if(["admin", "1"].contains(userRole) || F.title.contains('ORO'))
+                                    editDeviceIdWidget(masterOrNode: 2, device: device)
+                                  else
+                                    IconButton(
+                                        onPressed: (){
+                                          showDialog(
+                                              context: context,
+                                              builder: (context){
+                                                return AlertDialog(
+                                                  content: DropDownSearchField(productStock: configPvd.productStock,oldDevice: device.toJson(), masterOrNode: 2, ),
+                                                );
+                                              }
+                                          );
+                                        },
+                                        icon: Icon(Icons.find_replace)
+                                    )
                                 ],
                               ),
                             ),
@@ -478,22 +478,22 @@ class _DeviceListState extends State<DeviceList> {
           spacing: 20,
           children: [
             SelectableText('${configPvd.masterData['deviceId']}', style: themeData.textTheme.bodySmall,),
-            // if(["admin", "1"].contains(userRole))
-            editDeviceIdWidget(masterOrNode: 1),
-            // if(["dealer", "2"].contains(userRole))
-            //   IconButton(
-            //     onPressed: (){
-            //       showDialog(
-            //           context: context,
-            //           builder: (context){
-            //             return AlertDialog(
-            //               content: DropDownSearchField(productStock: configPvd.productStock,oldDevice: configPvd.masterData, masterOrNode: 1, ),
-            //             );
-            //           }
-            //       );
-            //     },
-            //     icon: Icon(Icons.find_replace)
-            // )
+            if(["admin", "1"].contains(userRole) || F.title.contains('ORO'))
+              editDeviceIdWidget(masterOrNode: 1)
+            else
+              IconButton(
+                onPressed: (){
+                  showDialog(
+                      context: context,
+                      builder: (context){
+                        return AlertDialog(
+                          content: DropDownSearchField(productStock: configPvd.productStock,oldDevice: configPvd.masterData, masterOrNode: 1, ),
+                        );
+                      }
+                  );
+                },
+                icon: const Icon(Icons.find_replace)
+            )
           ],
         ),
         trailing: ![...AppConstants.pumpWithValveModelList, ...AppConstants.pumpModelList].contains(configPvd.masterData['modelId']) ? IntrinsicWidth(

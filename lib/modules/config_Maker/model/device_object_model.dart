@@ -30,7 +30,6 @@ class DeviceObjectModel {
     this.location,
   });
 
-
   factory DeviceObjectModel.fromJson(Map<String, dynamic> data) {
     return DeviceObjectModel(
       objectId: data['objectId'],
@@ -68,5 +67,3 @@ class DeviceObjectModel {
     };
   }
 }
-
-

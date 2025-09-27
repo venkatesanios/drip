@@ -295,7 +295,7 @@ class ConstantProvider extends ChangeNotifier{
       fertilizerSite = generateObjectInConstantModel(listOfObject: listOfFertilizerSiteObject, defaultData: defaultData, constantOldData: constantOldData, keyName: 'fertilizerSite');
       for(var site in fertilizerSite){
         for(var setting in site.setting){
-          if(setting.sNo == 4 && setting.value.value == 4){
+          if(setting.sNo == 4 && (setting.value.value == 3 || setting.value.value == 4)){
             setting.value.value = 1;
           }
         }
@@ -311,7 +311,6 @@ class ConstantProvider extends ChangeNotifier{
       if (kDebugMode) {
         print('channel updated..');
       }
-
       // update ec ph
       if(listOfFertilizerSiteObject.isNotEmpty){
         // find out and filter the fertilizer site has ec or ph

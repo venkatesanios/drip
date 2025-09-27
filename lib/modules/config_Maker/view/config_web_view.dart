@@ -11,6 +11,7 @@ import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:oro_drip_irrigation/utils/environment.dart';
 import 'package:provider/provider.dart';
 import '../../../Widgets/status_box.dart';
+import '../../../flavors.dart';
 import '../../Preferences/view/preference_main_screen.dart';
 import '../../constant/view/constant_base_page.dart';
 import '../model/device_model.dart';
@@ -433,7 +434,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                               builder: (context) {
                                 return StatefulBuilder(builder: (context, stateSetter) {
                                   return AlertDialog(
-                                    title: Text('Clear Config'),
+                                    title: const Text('Clear Config'),
                                     content: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -452,7 +453,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                                             validator: (value) {
                                               if (value == null || value.isEmpty) {
                                                 return 'Please enter your password';
-                                              } else if (value != 'LK@321') {
+                                              } else if (value != (F.title.contains('ORO') ? 'Oro@321' : 'LK@321')) {
                                                 return 'Invalid password';
                                               }
                                               return null;

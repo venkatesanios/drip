@@ -896,6 +896,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         "controllerId": controllerId,
         "serialNumber": serialNumber
       };
+      print("userData : ${userData}");
       var getWaterAndFert = await repository.getUserProgramWaterAndFert(userData);
       var getRecipe = await repository.getUserFertilizerSet(userData);
       clearWaterFert();
@@ -1286,6 +1287,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     var myOldSeq = [];
     if(valSeqList.isNotEmpty){
       for(var i in valSeqList){
+        print("sequence sno == ${i['sNo']}");
         givenSeq.add(i['sNo']);
       }
     }
@@ -1364,6 +1366,9 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       segmentedControlCentralLocal = 0;
     }else if(sequenceData[selectedGroup]['localDosing'].isNotEmpty){
       segmentedControlCentralLocal = 1;
+    }
+    for(var seq in sequenceData){
+      print('seq ==== ${seq['sNo']}');
     }
 
     // print('after seq : ${sequenceData}');
@@ -1601,8 +1606,11 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
           getValve.add('0');
         }
       }
+      String sequenceSerialNo = sq['sNo'].toString();
+      // String valSerialNo = sq['valve'][v]['sNo'].toString().split('.')[1];
+      String zoneSerialNo = sequenceSerialNo.contains('.') ? sequenceSerialNo.split('.')[1] : sequenceSerialNo;
       Map<String, dynamic> jsonPayload = {
-        'Zone_No' : sq['sNo'].toString().split('.')[1],
+        'Zone_No' : zoneSerialNo,
         'Program_No' : serialNumber,
         'SequenceData' : getValve.join(','),
         'ValveFlowrate' : getNominalFlow(),

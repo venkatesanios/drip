@@ -525,7 +525,6 @@ class AppConstants {
       default:
         return 'No additional information available.';
     }
-
   }
 
   static dynamic findLocation({required data, required double objectSno, required String key}) {
