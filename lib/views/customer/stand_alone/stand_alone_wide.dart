@@ -1,14 +1,14 @@
-import 'package:data_table_2/data_table_2.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:oro_drip_irrigation/view_models/customer/stand_alone_view_model.dart';
-import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/custom_card_table.dart';
-import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/custom_switch_row.dart';
+import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/fertilizer_site_card.dart';
+import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/filter_site_card.dart';
+import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/irrigation_line_card.dart';
+import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/irrigation_pump_card.dart';
+import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/source_pump_card.dart';
 import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/valve_card_table.dart';
 import 'package:provider/provider.dart';
 import '../../../models/customer/site_model.dart';
-import '../../../models/customer/stand_alone_model.dart';
 import '../../../repository/repository.dart';
 import '../../../services/http_service.dart';
 import '../../../utils/constants.dart';
@@ -205,7 +205,8 @@ class _StandAloneWideState extends State<StandAloneWide> with SingleTickerProvid
                                   child: TextField(
                                     maxLength: 7,
                                     controller: viewModel.flowLiter,
-                                    onChanged: (value) => viewModel.segmentSelectionCallbackFunction(viewModel.segmentWithFlow.index, value, viewModel.selectedIrLine),
+                                    onChanged: (value) => viewModel.segmentSelectionCallbackFunction(
+                                        viewModel.segmentWithFlow.index, value, viewModel.selectedIrLine),
                                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                     inputFormatters: <TextInputFormatter>[
                                       FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
@@ -266,7 +267,7 @@ class _StandAloneWideState extends State<StandAloneWide> with SingleTickerProvid
 
     final sourcePumps = masterData.irrigationLine
         .expand((line) => line.inletSources)
-        .expand((ws) => ws.outletPump ?? [])
+        .expand((ws) => ws.outletPump)
         .toList();
 
     final allSourcePumps = sourcePumps.fold<Map<double, PumpModel>>({}, (map, pump) {
@@ -276,7 +277,7 @@ class _StandAloneWideState extends State<StandAloneWide> with SingleTickerProvid
 
     final irrigationPumps = masterData.irrigationLine
         .expand((line) => line.outletSources)
-        .expand((ws) => ws.outletPump ?? [])
+        .expand((ws) => ws.outletPump)
         .toList();
 
     final allIrrigationPumps = irrigationPumps.fold<Map<double, PumpModel>>({}, (map, pump) {
@@ -296,182 +297,38 @@ class _StandAloneWideState extends State<StandAloneWide> with SingleTickerProvid
 
     return Column(
       children: [
-        if(!isNova && vm.ddCurrentPosition==0)...[
-          if (allSourcePumps.isNotEmpty)...[
-            CustomCardTable(
-              title: "Source Pump",
-              rows: allSourcePumps.map((pump) {
-                return CustomSwitchRow(
-                  iconPath: 'assets/png/dp_pump.png',
-                  label: pump.name,
-                  value: pump.selected,
-                  onChanged: (val) {
-                    setState(() => pump.selected = val);
-                  },
-                );
-              }).toList(),
-            ),
-          ],
-        ],
-
-        if (allIrrigationPumps.isNotEmpty)...[
-          CustomCardTable(
-            title: "Irrigation Pump",
-            rows: allIrrigationPumps.map((pump) {
-              return CustomSwitchRow(
-                iconPath: 'assets/png/dp_pump.png',
-                label: pump.name,
-                value: pump.selected,
-                onChanged: (val) {
-                  setState(() => pump.selected = val);
-                },
-              );
-            }).toList(),
+        if (!isNova && vm.ddCurrentPosition == 0)
+          SourcePumpCard(
+            pumps: allSourcePumps,
+            onChanged: (pump, val) => setState(() => pump.selected = val),
           ),
-        ],
+        IrrigationPumpCard(
+          pumps: allIrrigationPumps,
+          onChanged: (pump, val) => setState(() => pump.selected = val),
+        ),
+        FilterSiteCard(
+          sites: filterSites,
+          onChanged: (filter, val) => setState(() => filter.selected = val),
+        ),
+        FertilizerSiteCard(
+          sites: fertilizerSite,
+          onChanged: (item, val) => setState(() => item.selected = val),
+        ),
 
-        if (filterSites.isNotEmpty)...[
-          Padding(
-            padding: const EdgeInsets.only(left: 8, right: 5, top: 8),
-            child: Column(
-              children: filterSites.map((site) {
-                final rows = site.filters.map((filter) {
-                  return CustomSwitchRow(
-                    iconPath: 'assets/png/filter.png',
-                    label: filter.name,
-                    value: filter.selected,
-                    onChanged: (value) {
-                      setState(() {
-                        filter.selected = value;
-                      });
-                    },
-                  );
-                }).toList();
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: CustomCardTable(
-                    title: site.name,
-                    rows: rows,
-                  ),
-                );
-              }).toList(),
-            ),
-          )
-        ],
-
-        if (fertilizerSite.isNotEmpty) ...[
-          Padding(
-            padding: const EdgeInsets.only(left: 8, right: 5, top: 8),
-            child: Column(
-              children: fertilizerSite.map((site) {
-                final rows = <DataRow>[];
-
-                rows.addAll(site.channel.map((channel) {
-                  return CustomSwitchRow(
-                    iconPath: 'assets/png/fert_chanel.png',
-                    label: channel.name,
-                    value: channel.selected,
-                    onChanged: (value) {
-                      setState(() {
-                        channel.selected = value;
-                      });
-                    },
-                  );
-                }));
-
-                rows.addAll(site.boosterPump.map((boosterPump) {
-                  return CustomSwitchRow(
-                    iconPath: 'assets/png/booster_pump.png',
-                    label: boosterPump.name,
-                    value: boosterPump.selected,
-                    onChanged: (value) {
-                      setState(() {
-                        boosterPump.selected = value;
-                      });
-                    },
-                  );
-                }));
-
-                rows.addAll(site.agitator.map((agitator) {
-                  return CustomSwitchRow(
-                    iconPath: 'assets/png/agitator_gray.png',
-                    label: agitator.name,
-                    value: agitator.selected,
-                    onChanged: (value) {
-                      setState(() {
-                        agitator.selected = value;
-                      });
-                    },
-                  );
-                }));
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: CustomCardTable(
-                    title: site.name,
-                    rows: rows,
-                  ),
-                );
-              }).toList(),
-            ),
-          )
-        ],
-
-        (!isNova && ddPosition == 0 ) ? Column(
+        (!isNova && ddPosition == 0) ? Column(
           children: masterData.irrigationLine.map((line) {
-            if (line.name == 'All irrigation line') return const SizedBox();
-
-            final rows = [
-
-              ...line.mainValveObjects.map((mainValve) {
-                return DataRow(cells: [
-                  DataCell(Image.asset('assets/png/m_main_valve_gray.png', width: 40, height: 40)),
-                  DataCell(Text(mainValve.name)),
-                  DataCell(Transform.scale(
-                    scale: 0.7,
-                    child: Switch(
-                      activeColor: Colors.teal,
-                      hoverColor: Colors.pink.shade100,
-                      value: mainValve.isOn,
-                      onChanged: (value) {
-                        setState(() => mainValve.isOn = value);
-                      },
-                    ),
-                  )),
-                ]);
-              }),
-
-              ...line.valveObjects.map((valve) {
-                return DataRow(cells: [
-                  DataCell(Image.asset('assets/png/m_valve_grey.png', width: 40, height: 40)),
-                  DataCell(Text(valve.name)),
-                  DataCell(Transform.scale(
-                    scale: 0.7,
-                    child: Switch(
-                      activeColor: Colors.teal,
-                      hoverColor: Colors.pink.shade100,
-                      value: valve.isOn,
-                      onChanged: (value) {
-                        setState(() => valve.isOn = value);
-                      },
-                    ),
-                  )),
-                ]);
-              }),
-            ];
-
-            return ValveCardTable(
-              title: line.name,
+            return IrrigationLineCard(
+              line: line,
               showSwitch: vm.ddCurrentPosition != 0,
-              switchValue: true,
-              onSwitchChanged: (_) {},
-              rows: rows,
+              onToggleMainValve: (mainValve, value) {
+                setState(() => mainValve.isOn = value);
+              },
+              onToggleValve: (valve, value) {
+                setState(() => valve.isOn = value);
+              },
             );
           }).toList(),
-        ) :
-        vm.standAloneData != null ?
-        Column(
+        ) : vm.standAloneData != null ? Column(
           children: vm.standAloneData!.sequence.map((sequence) {
             final rows = sequence.valve.map((valve) {
               return DataRow(cells: [
@@ -496,8 +353,7 @@ class _StandAloneWideState extends State<StandAloneWide> with SingleTickerProvid
               rows: rows,
             );
           }).toList(),
-        ) :
-        const SizedBox(),
+        ) : const SizedBox(),
       ],
     );
   }
