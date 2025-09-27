@@ -67,14 +67,6 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
       }
     }
     irrigationProgramProvider.calculateTotalFlowRate();
-   /* final selectedValves = irrigationProgramProvider.irrigationLine?.sequence.expand((e) => e['mainValve'].map((valve) => valve['sNo'])).toList() ?? [];
-    final availableValves = irrigationProgramProvider.mainValves?.map((e) => e.sNo).toList() ?? [];
-    bool allSelectedValvesExist = selectedValves.isNotEmpty && selectedValves.every((sNo) => availableValves.contains(sNo));
-
-    print("selected main valves :: $selectedValves");
-    print("available main valves :: $availableValves");
-    print(allSelectedValvesExist);*/
-    // print(irrigationProgramProvider.fertilizerSite!.map((e) => e.toJson()));
   }
 
   @override

@@ -64,6 +64,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
 
   List<DeviceObjectModel>? _selectedObjects;
   List<DeviceObjectModel>? get selectedObjects=> _selectedObjects;
+  List<Map<String, dynamic>> irrigationLineFromConfigMaker = [];
   int selectedPumpLocation = 0;
 
   List<dynamic> configObjects = [];
@@ -85,8 +86,6 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       };
       var getUserConfigMaker = await repository.getUserConfigMaker(userBody);
       var getUserProgramSequence = await repository.getUserProgramSequence(userData);
-      // var getUserProgramSequence = await httpService.postRequest('getUserProgramSequence', userData);
-      // print("getUserConfigMaker ::: ${jsonDecode(getUserConfigMaker.body)['data']}");
       apiData = null;
       ignoreValidation = false;
       _sampleIrrigationLine = null;
@@ -99,12 +98,23 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       _agitators = null;
       _mainValves = null;
       configObjects.clear();
+      irrigationLineFromConfigMaker.clear();
       if(getUserConfigMaker.statusCode == 200) {
         final responseJson = getUserProgramSequence.body;
         final sequenceJson = jsonDecode(responseJson);
         final configMakerJson = jsonDecode(getUserConfigMaker.body);
-        // print("convertedJson2 ::: ${Constants.payloadConversion(convertedJson2['data'])}");
         configObjects = configMakerJson['data']['configObject'];
+
+        for(var line in configMakerJson['data']['irrigationLine']){
+          irrigationLineFromConfigMaker.add(
+            {
+              'sNo' : line['sNo'],
+              'irrigationPump' : line['irrigationPump'],
+            }
+          );
+        }
+        // irrigationLineFromConfigMaker = List.from(configMakerJson['data']['irrigationLine']);
+
         final processedData = Constants.payloadConversion(configMakerJson['data']);
         apiData = processedData;
         _sampleIrrigationLine = (processedData['irrigationLine'] as List).map((e) => ProgramIrrigationLine.fromJson(e as Map<String, dynamic>)).toList();
@@ -113,6 +123,8 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         _waterSource = (processedData['waterSource'] as List).map((element) => ProgramWaterSource.fromJson(element as Map<String, dynamic>)).toList();
         _pump = (processedData['pump'] as List).map((element) => ProgramPump.fromJson(element as Map<String, dynamic>)).toList();
         _moistureSensor = (processedData['moistureSensor'] as List).map((element) => ProgramMoistureSensor.fromJson(element as Map<String, dynamic>)).toList();
+
+        // print("_sampleIrrigationLine :: ${_sampleIrrigationLine!.map((e) => e.irrigationLine.toJson())}");
         if(_fertilizerSite != null) {
           _agitators = fertilizerSite!.map((e) => e.agitator != null ? List<DeviceObjectModel>.from(e.agitator!) : [])
             .expand((list) => list)
@@ -125,10 +137,11 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
             .toList();
         Future.delayed(Duration.zero,() {
           _irrigationLine = SequenceModel.fromJson(sequenceJson);
-          // for (var element in _irrigationLine!.sequence) {
-          //   element['valve'].removeWhere((e) => configObjects.any((config) => config['sNo'] != e['sNo']));
-          //   element['mainValve'].removeWhere((e) => configObjects.any((config) => config['sNo'] != e['sNo']));
-          // }
+          for (var element in _irrigationLine!.sequence) {
+            print("element in sequence :: $element");
+           /* element['valve'].removeWhere((e) => configObjects.any((config) => config['sNo'] != e['sNo']));
+            element['mainValve'].removeWhere((e) => configObjects.any((config) => config['sNo'] != e['sNo']));*/
+          }
           updateGroup(valveGroup: _irrigationLine!.defaultData.group);
         }).then((value) {
           if(irrigationLine!.sequence.isEmpty) {
@@ -258,7 +271,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   }
 
   //TODO: adding sequence function
-  void addNewSequence({int? serialNumber, zoneSno}) {
+  void addNewSequence({required int serialNumber, required int zoneSno}) {
     irrigationLine!.sequence.add({
       "sNo": "${serialNumber == 0 ? serialNumberCreation : serialNumber}.$zoneSno",
       "id": 'SEQ${serialNumber == 0 ? serialNumberCreation : serialNumber}.$zoneSno',
@@ -2408,20 +2421,40 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       }
     }
 
-    if (constantSetting['pump'] != null && constantSetting['pump'].any((element) => element['setting'][0]['value'] == true)) {
-      pumpStationCanEnable = true;
+    double selectedHeadUnits = selectedObjects!.firstWhere((e) => e.objectId == 2).sNo ?? 0.0;
+
+    print("selectedHeadUnits :: $selectedHeadUnits");
+    List<double> availableIrrigationPumps = [];
+    // pumpStationFlowRate
+    if(constantSetting['pump'] != null) {
+      for (var line = 0; line < irrigationLineFromConfigMaker.length; line++) {
+        if(irrigationLineFromConfigMaker[line]['sNo'] == selectedHeadUnits) {
+          availableIrrigationPumps = List.from(irrigationLineFromConfigMaker[line]['irrigationPump']);
+        }
+      }
+      
+      for (int index = 0; index < constantSetting['pump'].length; index++) {
+        if(availableIrrigationPumps.contains(constantSetting['pump'][index]['sNo'])) {
+          if(constantSetting['pump'][index]['setting'][0]['value']){
+            pumpStationFlowRate.add(constantSetting['pump'][index]['setting'][1]['value']);
+          }
+        }
+      }
     }
+
+    print("pumpStationFlowRate :: $pumpStationFlowRate");
 
     if(valveFlowRate.isNotEmpty) {
       totalValveFlowRate = valveFlowRate.map((flowRate) => int.parse(flowRate)).reduce((a, b) => a + b);
     }
 
     if (pumpStationFlowRate.isNotEmpty) {
+      print("pumpStationFlowRate in the calculateTotalFlowRate :: $pumpStationFlowRate");
       pumpStationValveFlowRate = pumpStationFlowRate.map((flowRate) => int.parse(flowRate)).reduce((a, b) => a + b);
     }
 
-    // print('Total valve flow rate: $totalValveFlowRate');
-    // print('Total pump station valve flow rate: $pumpStationValveFlowRate');
+    print('Total valve flow rate: $totalValveFlowRate');
+    print('Total pump station valve flow rate: $pumpStationValveFlowRate');
 
     Future.delayed(Duration.zero, () {
       notifyListeners();

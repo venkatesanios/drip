@@ -40,7 +40,7 @@ class MainActivity : FlutterActivity() {
                 val rawBytes = result.scanRecord?.bytes
                 if (rawBytes != null) {
                     val hexString = rawBytes.joinToString("") { "%02X".format(it) }
-                    Log.d("BLE", "Raw Data: $hexString")
+//                    Log.d("BLE", "Raw Data: $hexString")
                     channel.invokeMethod("onRawAdv", hexString)
                 }
             }
