@@ -1,6 +1,12 @@
 
 import '../../modules/PumpController/model/pump_controller_data_model.dart';
 
+abstract class FertilizerItem {
+  String get name;
+  bool get selected;
+  set selected(bool value);
+}
+
 class SiteModel {
   final List<Group> data;
 
@@ -945,10 +951,15 @@ class FertilizerSiteModel {
   }
 }
 
-class Channel {
+class Channel implements FertilizerItem {
   final double sNo;
+
+  @override
   final String name;
+
+  @override
   bool selected;
+
   int status;
   String frtMethod;
   String duration;
@@ -960,13 +971,12 @@ class Channel {
   Channel({
     required this.sNo,
     required this.name,
-    this.status=0,
-    this.selected=false,
+    this.status = 0,
+    this.selected = false,
     this.frtMethod = '0',
     this.duration = '00:00:00',
     this.completedDrQ = '00:00:00',
     this.flowRateLpH = '-',
-
     this.onTime = '0',
     this.offTime = '0',
   });
@@ -980,8 +990,16 @@ class Channel {
 
   factory Channel.fromJson(Map<String, dynamic> json) {
     return Channel(
-      sNo: json['sNo'].toDouble(),
-      name: json['name'],
+      sNo: (json['sNo'] as num).toDouble(),
+      name: json['name'] ?? '',
+      status: json['status'] ?? 0,
+      selected: json['selected'] ?? false,
+      frtMethod: json['frtMethod'] ?? '0',
+      duration: json['duration'] ?? '00:00:00',
+      completedDrQ: json['completedDrQ'] ?? '00:00:00',
+      flowRateLpH: json['flowRateLpH'] ?? '-',
+      onTime: json['onTime'] ?? '0',
+      offTime: json['offTime'] ?? '0',
     );
   }
 
@@ -989,6 +1007,14 @@ class Channel {
     return {
       'sNo': sNo,
       'name': name,
+      'status': status,
+      'selected': selected,
+      'frtMethod': frtMethod,
+      'duration': duration,
+      'completedDrQ': completedDrQ,
+      'flowRateLpH': flowRateLpH,
+      'onTime': onTime,
+      'offTime': offTime,
     };
   }
 }
@@ -1054,16 +1080,21 @@ class Ph {
 
 }
 
-class BoosterPump {
+class BoosterPump implements FertilizerItem {
   final double sNo;
+
+  @override
   final String name;
+
+  @override
   bool selected;
+
   int status;
 
   BoosterPump({
     required this.sNo,
     required this.name,
-    this.selected=false,
+    this.selected = false,
     this.status = 0,
   });
 
@@ -1076,8 +1107,10 @@ class BoosterPump {
 
   factory BoosterPump.fromJson(Map<String, dynamic> json) {
     return BoosterPump(
-      sNo: json['sNo'].toDouble(),
-      name: json['name'],
+      sNo: (json['sNo'] as num).toDouble(),
+      name: json['name'] ?? '',
+      selected: json['selected'] ?? false,
+      status: json['status'] ?? 0,
     );
   }
 
@@ -1085,20 +1118,27 @@ class BoosterPump {
     return {
       'sNo': sNo,
       'name': name,
+      'selected': selected,
+      'status': status,
     };
   }
 }
 
-class Agitator {
+class Agitator implements FertilizerItem {
   final double sNo;
+
+  @override
   final String name;
+
+  @override
   bool selected;
+
   int status;
 
   Agitator({
     required this.sNo,
     required this.name,
-    this.selected=false,
+    this.selected = false,
     this.status = 0,
   });
 
@@ -1111,8 +1151,10 @@ class Agitator {
 
   factory Agitator.fromJson(Map<String, dynamic> json) {
     return Agitator(
-      sNo: json['sNo'].toDouble(),
-      name: json['name'],
+      sNo: (json['sNo'] as num).toDouble(),
+      name: json['name'] ?? '',
+      selected: json['selected'] ?? false,
+      status: json['status'] ?? 0,
     );
   }
 
@@ -1120,6 +1162,8 @@ class Agitator {
     return {
       'sNo': sNo,
       'name': name,
+      'selected': selected,
+      'status': status,
     };
   }
 }

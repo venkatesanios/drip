@@ -483,7 +483,7 @@ class _StandAloneWideState extends State<StandAloneWide> with SingleTickerProvid
 
             return ValveCardTable(
               title: sequence.name,
-              showSwitch: vm.ddCurrentPosition != 0,
+              showSwitch: !isNova ? vm.ddCurrentPosition != 0 : true,
               switchValue: sequence.selected,
               onSwitchChanged: (value) {
                 setState(() {

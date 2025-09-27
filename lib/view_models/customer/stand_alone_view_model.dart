@@ -65,7 +65,6 @@ class StandAloneViewModel extends ChangeNotifier {
       Map<String, Object> body = {"userId": customerId, "controllerId": controllerId};
       final response = await repository.fetchCustomerProgramList(body);
       if (response.statusCode == 200) {
-        print('Customer Program:${response.body}');
         final jsonData = jsonDecode(response.body);
         if (jsonData["code"] == 200) {
           List<dynamic> programsJson = jsonData['data'];
@@ -123,21 +122,33 @@ class StandAloneViewModel extends ChangeNotifier {
         print(response.body);
         if (jsonResponse['data'] != null){
           try{
+
+            bool isNova = [...AppConstants.ecoGemModelList].contains(masterData.modelId);
+
             dynamic data = jsonResponse['data'];
             startFlag = data['startFlag'];
             serialNumber = data['serialNumber'];
             try {
-              standAloneMethod = data['method'];
-              if (standAloneMethod == 0){
+              if(isNova){
                 standAloneMethod = 3;
+              }else{
+                standAloneMethod = data['method'];
+                if (standAloneMethod == 0){
+                  standAloneMethod = 3;
+                }
               }
+
             } catch (e) {
               debugPrint('Error: $e');
             }
-            strFlow = data['flow'];
-            strDuration = data['duration'];
 
-            bool isNova = [...AppConstants.ecoGemModelList].contains(masterData.modelId);
+            if(isNova){
+              strFlow = '0';
+              strDuration = '00:00:00';
+            }else{
+              strFlow = data['flow'];
+              strDuration = data['duration'];
+            }
 
             if(isNova && serialNumber==0) {
               serialNumber = programList[0].serialNumber;
@@ -446,9 +457,11 @@ class StandAloneViewModel extends ChangeNotifier {
   }
 
   void stopAllManualOperation(BuildContext context) {
+
+    bool isNova = [...AppConstants.ecoGemModelList].contains(masterData.modelId);
+
     final commService = Provider.of<CommunicationService>(context, listen: false);
-    print(ddCurrentPosition);
-    if(ddCurrentPosition==0){
+    if(ddCurrentPosition==0 && !isNova){
       String payLoadFinal = jsonEncode({
         "800": {"801": '0,0,0,0,0'}
       });
@@ -464,6 +477,10 @@ class StandAloneViewModel extends ChangeNotifier {
         }
       }
 
+      if (isNova) {
+        strSldSqnNo = strSldSqnNo.replaceAll(RegExp(r'[.]'), ',');
+      }
+
       String payLoadFinal = jsonEncode({
         "3900": {"3901": '0,${programList[ddCurrentPosition].serialNumber},$strSldSqnNo,0,0,0,0,0,0,0,0'}
       });
@@ -476,6 +493,8 @@ class StandAloneViewModel extends ChangeNotifier {
   void startManualOperation(context){
 
     standaloneSelection.clear();
+
+    bool isNova = [...AppConstants.ecoGemModelList].contains(masterData.modelId);
 
     String strSldSourcePumpSrlNo = extractRelaySrlNosFromSources(
       masterData.irrigationLine.expand((line) => line.inletSources).toList(),
@@ -490,7 +509,7 @@ class StandAloneViewModel extends ChangeNotifier {
     String strSldCtrlFrtAgitatorSrlNo = extractCFrtAgitatorSN(masterData.irrigationLine,'central');
 
 
-    if(ddCurrentPosition==0) {
+    if(ddCurrentPosition==0 && !isNova) {
       List<String> allPumpSrlNo = [];
       List<String> allRelaySrlNo = [];
       String strSldValveSrlNo = '';
@@ -578,58 +597,6 @@ class StandAloneViewModel extends ChangeNotifier {
       String sldCtrlFilterRelayOnOffStatus = '';
 
 
-     /*
-      if(dashBoardData[0].mainValve.isNotEmpty){
-        strSldMainValveId = getSelectedRelayId(dashBoardData[0].mainValve);
-      }
-
-
-
-      if(dashBoardData[0].centralFilterSite.isNotEmpty){
-        for(int i=0; i<dashBoardData[0].centralFilterSite.length; i++){
-          String concatenatedString = getSelectedRelaySrlNo(dashBoardData[0].centralFilterSite[i].filter);
-          if(concatenatedString.isNotEmpty){
-            strSldCtrlFilterId += '${dashBoardData[0].centralFilterSite[i].id};';
-            sldCtrlFilterRelayOnOffStatus += '${getRelayOnOffStatus(dashBoardData[0].centralFilterSite[i].filter)};';
-          }
-        }
-        if (strSldCtrlFilterId.isNotEmpty && strSldCtrlFilterId.endsWith(';')) {
-          strSldCtrlFilterId = strSldCtrlFilterId.replaceRange(strSldCtrlFilterId.length - 1, strSldCtrlFilterId.length, '');
-        }
-        if (sldCtrlFilterRelayOnOffStatus.isNotEmpty && sldCtrlFilterRelayOnOffStatus.endsWith(';')) {
-          sldCtrlFilterRelayOnOffStatus = sldCtrlFilterRelayOnOffStatus.replaceRange(sldCtrlFilterRelayOnOffStatus.length - 1, sldCtrlFilterRelayOnOffStatus.length, '');
-        }
-      }
-
-
-
-      if(dashBoardData[0].localFilterSite.isNotEmpty){
-        for(int i=0; i<dashBoardData[0].localFilterSite.length; i++){
-          String concatenatedString = getSelectedRelaySrlNo(dashBoardData[0].localFilterSite[i].filter);
-          if(concatenatedString.isNotEmpty){
-            strSldLocFilterId += '${dashBoardData[0].localFilterSite[i].id};';
-            sldLocFilterRelayOnOffStatus += '${getRelayOnOffStatus(dashBoardData[0].localFilterSite[i].filter)};';
-          }
-        }
-        if (strSldLocFilterId.isNotEmpty && strSldLocFilterId.endsWith(';')) {
-          strSldLocFilterId = strSldLocFilterId.replaceRange(strSldLocFilterId.length - 1, strSldLocFilterId.length, '');
-        }
-        if (sldLocFilterRelayOnOffStatus.isNotEmpty && sldLocFilterRelayOnOffStatus.endsWith(';')) {
-          sldLocFilterRelayOnOffStatus = sldLocFilterRelayOnOffStatus.replaceRange(sldLocFilterRelayOnOffStatus.length - 1, sldLocFilterRelayOnOffStatus.length, '');
-        }
-      }
-
-
-      if(dashBoardData[0].fan.isNotEmpty){
-        strSldFanId = getSelectedRelayId(dashBoardData[0].fan);
-      }
-
-
-      if(dashBoardData[0].fogger.isNotEmpty){
-        strSldFgrId = getSelectedRelayId(dashBoardData[0].fogger);
-      }*/
-
-
       for (var lineOrSq in standAloneData!.sequence) {
         if(lineOrSq.selected){
           strSldSqnNo = lineOrSq.sNo;
@@ -650,7 +617,7 @@ class StandAloneViewModel extends ChangeNotifier {
       }else if (strSldIrrigationPumpSrlNo.isEmpty) {
         displayAlert(context, 'You must select an irrigation pump.');
       }else{
-        if ([56, 57, 58, 59].contains(masterData.modelId)) {
+        if (isNova) {
           strSldIrrigationPumpSrlNo = strSldIrrigationPumpSrlNo.replaceAll(RegExp(r'[._]'), ',');
           strSldSqnNo = strSldSqnNo.replaceAll(RegExp(r'[.]'), ',');
         }
@@ -687,15 +654,9 @@ class StandAloneViewModel extends ChangeNotifier {
           commService.sendCommand(serverMsg: '', payload: payLoadFinal);
           sentManualModeToServer(programList[ddCurrentPosition].serialNumber, 1, standAloneMethod, strDuration, strFlow, standaloneSelection, payLoadFinal);
           Navigator.pop(context, 'OK');
-          //MQTTManager().publish(payLoadFinal, 'AppToFirmware/${widget.imeiNo}');
-          //sentManualModeToServer(programList[ddCurrentPosition].serialNumber, 1, standAloneMethod,strDuration, strFlow, standaloneSelection, payLoadFinal);
         }
-
-        /*sendCommandToControllerAndMqttProgram(dashBoardData[0].headUnits,strSldSqnNo,strSldIrrigationPumpId,strSldMainValveId,strSldCtrlFilterId,
-            sldCtrlFilterRelayOnOffStatus,strSldLocFilterId,sldLocFilterRelayOnOffStatus,strSldFanId,strSldFgrId);*/
       }
     }
-
   }
 
   String extractRelaySrlNosFromSources(List<dynamic> sources) {
