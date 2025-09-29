@@ -1,139 +1,103 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/modules/PumpController/state_management/pump_controller_provider.dart';
-import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/state_management/ble_service.dart';
-import 'package:oro_drip_irrigation/providers/user_provider.dart';
-import 'package:oro_drip_irrigation/services/bluetooth_service.dart';
-import 'package:oro_drip_irrigation/services/communication_service.dart';
-import 'package:oro_drip_irrigation/services/mqtt_service.dart';
-import 'package:oro_drip_irrigation/utils/network_utils.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
+
+import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/state_management/ble_service.dart';
+import 'package:oro_drip_irrigation/providers/user_provider.dart';
 import 'Constants/notifi_service.dart';
-import 'Screens/Constant/ConstantPageProvider/changeNotifier_constantProvider.dart';
-import 'StateManagement/search_provider.dart';
 import 'app/app.dart';
-import 'StateManagement/customer_provider.dart';
 import 'firebase_options.dart';
-import 'flavors.dart';
-import 'modules/IrrigationProgram/state_management/irrigation_program_provider.dart';
-import 'modules/Preferences/state_management/preference_provider.dart';
-import 'modules/SystemDefinitions/state_management/system_definition_provider.dart';
-import 'modules/config_Maker/state_management/config_maker_provider.dart';
-import 'StateManagement/mqtt_payload_provider.dart';
-import 'StateManagement/overall_use.dart';
-import 'modules/constant/state_management/constant_provider.dart';
-import 'package:flutter/services.dart';
-// Initialize local notifications plugin
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+import 'modules/PumpController/state_management/pump_controller_provider.dart';
+
+// Local notifications plugin
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+FlutterLocalNotificationsPlugin();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-// Background message handler for Firebase
+// Firebase background handler
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  print("Handling a background message: ${message.messageId}");
+  debugPrint("Handling background message: ${message.messageId}");
 }
 
+// Permissions request
+Future<void> requestAppPermissions() async {
+  debugPrint("Requesting permissions...");
 
+  // Notifications (iOS + Android 13+)
+  final notifStatus = await Permission.notification.request();
+  debugPrint("Notification permission: $notifStatus");
 
-FutureOr<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  const platform = MethodChannel("ble_raw");
-  platform.setMethodCallHandler((call) async {
-    if (call.method == "onRawAdv") {
-      // print("Raw adv bytes: ${call.arguments}");
-      // here you can parse advertisement bytes manually
-    }
-  });
-  tz.initializeTimeZones();
-  await NetworkUtils.initialize();
-  // F.appFlavor = Flavor.oroProduction;
-  if(!kIsWeb){
-    try {
-      // Initialize Firebase
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
+  if (Platform.isAndroid) {
+    final statuses = await [
+      Permission.bluetoothScan,
+      Permission.bluetoothConnect,
+      Permission.locationWhenInUse, // better than generic .location
+    ].request();
 
-      // Request notification permissions
-      FirebaseMessaging messaging = FirebaseMessaging.instance;
-      await messaging.requestPermission(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
+    debugPrint("BLE + Location permissions: $statuses");
 
-      // Initialize local notifications
-      const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('@mipmap/ic_launcher');
-      const InitializationSettings initializationSettings = InitializationSettings(
-        android: initializationSettingsAndroid,
-      );
-      await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-
-      // Set up Firebase background message handler
-      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        // print('Message received: ${message.messageId}');
-        if (message.notification != null) {
-          NotificationService().showNotification(
-            title: message.notification!.title,
-            body: message.notification!.body,
-          );
-        }
-      });
-
-      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-        print('Message received onMessageOpenedApp: ${message.messageId}');
-      });
-
-/*      messaging.getToken().then((String? token) async{
-        print("FCM Token: $token");
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('deviceToken', token ?? '' );
-      });*/
-
-      messaging.getAPNSToken().then((String? token) {
-        print("APN Token: $token");
-      });
-
-    } catch (e) {
-      debugPrint('Initialization error: $e');
+    // Handle permanently denied
+    if (notifStatus.isPermanentlyDenied ||
+        statuses.values.any((s) => s.isPermanentlyDenied)) {
+      await openAppSettings();
     }
   }
+}
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  tz.initializeTimeZones();
+
+  // Request runtime permissions before providers start
+  if (!kIsWeb && Platform.isAndroid) {
+    await requestAppPermissions();
+  }
+  // Firebase init
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Firebase Messaging
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+  await messaging.requestPermission(alert: true, badge: true, sound: true);
+
+  // Local notifications
+  const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
+  const initSettings = InitializationSettings(android: androidInit);
+  await flutterLocalNotificationsPlugin.initialize(initSettings);
+
+  // Background messaging
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  // Foreground
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    if (message.notification != null) {
+      NotificationService().showNotification(
+        title: message.notification!.title,
+        body: message.notification!.body,
+      );
+    }
+  });
+
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    debugPrint("Message clicked: ${message.messageId}");
+  });
+
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => UserProvider()),
-        ChangeNotifierProvider(create: (_) => CustomerProvider()),
-        ChangeNotifierProvider(create: (_) => ConfigMakerProvider()),
-        ChangeNotifierProvider(create: (_) => IrrigationProgramMainProvider()),
-        ChangeNotifierProvider(create: (_) => MqttPayloadProvider()),
-        ChangeNotifierProvider(create: (_) => OverAllUse()),
-        ChangeNotifierProvider(create: (_) => PreferenceProvider()),
-        ChangeNotifierProvider(create: (_) => SystemDefinitionProvider()),
-        ChangeNotifierProvider(create: (_) => ConstantProviderMani()),
-        ChangeNotifierProvider(create: (_) => ConstantProvider()),
         ChangeNotifierProvider(create: (_) => PumpControllerProvider()),
         ChangeNotifierProvider(create: (_) => BleProvider()),
-        ChangeNotifierProvider(create: (_) => SearchProvider()),
-
-        ProxyProvider2<MqttPayloadProvider, CustomerProvider, CommunicationService>(
-          update: (BuildContext context, MqttPayloadProvider mqttProvider,
-              CustomerProvider customer, CommunicationService? previous) {
-            return CommunicationService(
-              mqttService: MqttService(),
-              blueService: BluService(),
-              customerProvider: customer,
-            );
-          },
-        ),
       ],
       child: const MyApp(),
     ),
