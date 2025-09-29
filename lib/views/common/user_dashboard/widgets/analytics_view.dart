@@ -36,30 +36,45 @@ class AnalyticsView extends StatelessWidget {
   Widget buildHeader(BuildContext context, AnalyticsViewModel viewModel) {
     return ListTile(
       tileColor: Colors.white,
-      leading: Text.rich(
-        TextSpan(
-          text: 'Total Sales: ',
-          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
-          children: [
-            TextSpan(
-              text: viewModel.totalSales.toString().padLeft(2, '0'),
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
+      leading: isNarrow ? totalSalesText(viewModel.totalSales) :
+      const Text(
+        'Analytics Overview',
+        style: TextStyle(fontSize: 20),
       ),
+      title: !isNarrow ? Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          totalSalesText(viewModel.totalSales),
+        ],
+      ) : null,
       trailing: SegmentedButton<MySegment>(
         segments: const [
           ButtonSegment(value: MySegment.all, label: Text('All'), icon: Icon(Icons.calendar_view_day)),
           ButtonSegment(value: MySegment.year, label: Text('Year'), icon: Icon(Icons.calendar_view_month)),
         ],
         selected: {viewModel.segmentView},
-        onSelectionChanged: (Set<MySegment> newSelection) {
+        onSelectionChanged: viewModel.isLoadingSalesData
+            ? null
+            : (Set<MySegment> newSelection) {
           if (newSelection.isNotEmpty) {
-            final selectedSegment = newSelection.first;
-            viewModel.getMySalesData(selectedSegment, userType);
+            viewModel.getMySalesData(newSelection.first, userType);
           }
         },
+      ),
+    );
+  }
+
+  Widget totalSalesText(int totalSales) {
+    return Text.rich(
+      TextSpan(
+        text: 'Total Sales: ',
+        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
+        children: [
+          TextSpan(
+            text: totalSales.toString().padLeft(2, '0'),
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ],
       ),
     );
   }

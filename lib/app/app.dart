@@ -27,17 +27,18 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  late Future<String> _initialRouteFuture;
 
   @override
   void initState() {
     super.initState();
-    if(!kIsWeb){
+    if (!kIsWeb) {
       NotificationServiceCall().initialize();
       NotificationServiceCall().configureFirebaseMessaging();
     }
+    _initialRouteFuture = getInitialRoute();
   }
 
-  /// Decide the initial route based on whether a token exists
   Future<String> getInitialRoute() async {
     try {
       final token = await PreferenceHelper.getToken();
@@ -54,33 +55,36 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('Flavor is: ${F.appFlavor}');
-    bool isDarkMode = false;
-    return FutureBuilder<String>(
-      future: getInitialRoute(),
-      builder: (context, snapshot) {
-        var isOro = F.appFlavor?.name.contains('oro') ?? false;
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          theme: isOro ? OroTheme.lightTheme : SmartCommTheme.lightTheme,
-          darkTheme: isOro ? OroTheme.darkTheme : SmartCommTheme.darkTheme,
-          themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          home: navigateToInitialScreen(snapshot.data ?? Routes.login),
-          onGenerateRoute: Routes.generateRoute,
-        );
-      },
+    final isOro = F.appFlavor?.name.contains('oro') ?? false;
+    const isDarkMode = false;
+
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: isOro ? OroTheme.lightTheme : SmartCommTheme.lightTheme,
+      darkTheme: isOro ? OroTheme.darkTheme : SmartCommTheme.darkTheme,
+      themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      onGenerateRoute: Routes.generateRoute,
+      home: FutureBuilder<String>(
+        future: _initialRouteFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const SplashScreen();
+          }
+          return navigateToInitialScreen(snapshot.data ?? Routes.login);
+        },
+      ),
     );
   }
 }
 
-/// Helper function to navigate to the appropriate screen
+/// Helper function
 Widget navigateToInitialScreen(String route) {
-  var isOro = F.appFlavor?.name.contains('oro') ?? false;
+  final isOro = F.appFlavor?.name.contains('oro') ?? false;
   switch (route) {
     case Routes.login:
-       return kIsWeb ? LoginScreen() : isOro ? LandingScreen() : LoginScreen();
-     case Routes.dashboard:
-       return const ScreenController();
+      return kIsWeb ? const LoginScreen() : isOro ? const LandingScreen() : const LoginScreen();
+    case Routes.dashboard:
+      return const ScreenController();
     default:
       return const SplashScreen();
   }

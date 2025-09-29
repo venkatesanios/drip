@@ -130,7 +130,12 @@ Widget _buildProgramRunningIcon(CustomerScreenControllerViewModel vm) {
 }
 
 Widget _buildPauseResumeButton(BuildContext context, CustomerScreenControllerViewModel vm) {
-  bool allPaused = vm.lineLiveMessage.every((line) => line.split(',')[1] == '1');
+
+  bool allPaused = vm.lineLiveMessage.isNotEmpty && vm.lineLiveMessage.every((line) {
+        final parts = line.split(',');
+        return parts.length > 1 && parts[1] == '1';
+      });
+
   return TextButton(
     onPressed: () => vm.linePauseOrResume(vm.lineLiveMessage),
     style: ButtonStyle(

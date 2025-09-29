@@ -38,7 +38,7 @@ class BoosterWidget extends StatelessWidget {
                   children: [
                     AppConstants.getAsset('booster', fertilizerSite.boosterPump[0].status,''),
                     Positioned(
-                      top: 70,
+                      top: 77,
                       left: 15,
                       child: fertilizerSite.selector.isNotEmpty ? const SizedBox(
                         width: 50,
@@ -54,23 +54,23 @@ class BoosterWidget extends StatelessWidget {
                       const SizedBox(),
                     ),
                     Positioned(
-                      top: 85,
+                      top: 90,
                       left: 18,
                       child: fertilizerSite.selector.isNotEmpty ? Container(
                         decoration: BoxDecoration(
-                          color: fertilizerSite.selector[0]['Status']==0? Colors.grey.shade300:
-                          fertilizerSite.selector[0]['Status']==1? Colors.greenAccent:
-                          fertilizerSite.selector[0]['Status']==2? Colors.orangeAccent:Colors.redAccent,
+                          color: fertilizerSite.selector[0].status == 0? Colors.grey.shade300:
+                          fertilizerSite.selector[0].status == 1? Colors.greenAccent:
+                          fertilizerSite.selector[0].status == 2? Colors.orangeAccent:Colors.redAccent,
                           borderRadius: BorderRadius.circular(3),
                         ),
                         width: 45,
-                        height: 22,
+                        height: 20,
                       ):
                       const SizedBox(),
                     ),
 
                     Positioned(
-                      top: 55,
+                      top: 50,
                       left: 18,
                       child: fertilizerSite.ec!.isNotEmpty ?
                       Selector<MqttPayloadProvider, String?>(
@@ -103,7 +103,7 @@ class BoosterWidget extends StatelessWidget {
                       const SizedBox(),
                     ),
                     Positioned(
-                      top: 68,
+                      top: 63,
                       left: 18,
                       child: fertilizerSite.ph!.isNotEmpty ? Selector<MqttPayloadProvider, String?>(
                         selector: (_, provider) => provider.getSensorUpdatedValve(fertilizerSite.ph![0].sNo.toString()),
