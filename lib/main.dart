@@ -2,30 +2,42 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:oro_drip_irrigation/modules/PumpController/state_management/pump_controller_provider.dart';
+import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/state_management/ble_service.dart';
+import 'package:oro_drip_irrigation/providers/user_provider.dart';
+import 'package:oro_drip_irrigation/services/bluetooth_service.dart';
+import 'package:oro_drip_irrigation/services/communication_service.dart';
+import 'package:oro_drip_irrigation/services/mqtt_service.dart';
+import 'package:oro_drip_irrigation/utils/network_utils.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
-
-import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/state_management/ble_service.dart';
-import 'package:oro_drip_irrigation/providers/user_provider.dart';
 import 'Constants/notifi_service.dart';
+import 'Screens/Constant/ConstantPageProvider/changeNotifier_constantProvider.dart';
+import 'StateManagement/search_provider.dart';
 import 'app/app.dart';
+import 'StateManagement/customer_provider.dart';
 import 'firebase_options.dart';
-import 'modules/PumpController/state_management/pump_controller_provider.dart';
+import 'modules/IrrigationProgram/state_management/irrigation_program_provider.dart';
+import 'modules/Preferences/state_management/preference_provider.dart';
+import 'modules/SystemDefinitions/state_management/system_definition_provider.dart';
+import 'modules/config_Maker/state_management/config_maker_provider.dart';
+import 'StateManagement/mqtt_payload_provider.dart';
+import 'StateManagement/overall_use.dart';
+import 'modules/constant/state_management/constant_provider.dart';
 
-// Local notifications plugin
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-FlutterLocalNotificationsPlugin();
+
+// Initialize local notifications plugin
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-// Firebase background handler
+// Background message handler for Firebase
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  debugPrint("Handling background message: ${message.messageId}");
+  print("Handling a background message: ${message.messageId}");
 }
 
 // Permissions request
@@ -53,10 +65,11 @@ Future<void> requestAppPermissions() async {
   }
 }
 
-Future<void> main() async {
+FutureOr<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   tz.initializeTimeZones();
+  await NetworkUtils.initialize();
 
   // Request runtime permissions before providers start
   if (!kIsWeb && Platform.isAndroid) {
@@ -90,16 +103,38 @@ Future<void> main() async {
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
     debugPrint("Message clicked: ${message.messageId}");
   });
-
-
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => CustomerProvider()),
+        ChangeNotifierProvider(create: (_) => ConfigMakerProvider()),
+        ChangeNotifierProvider(create: (_) => IrrigationProgramMainProvider()),
+        ChangeNotifierProvider(create: (_) => MqttPayloadProvider()),
+        ChangeNotifierProvider(create: (_) => OverAllUse()),
+        ChangeNotifierProvider(create: (_) => PreferenceProvider()),
+        ChangeNotifierProvider(create: (_) => SystemDefinitionProvider()),
+        ChangeNotifierProvider(create: (_) => ConstantProviderMani()),
+        ChangeNotifierProvider(create: (_) => ConstantProvider()),
         ChangeNotifierProvider(create: (_) => PumpControllerProvider()),
         ChangeNotifierProvider(create: (_) => BleProvider()),
+        ChangeNotifierProvider(create: (_) => SearchProvider()),
+
+        ProxyProvider2<MqttPayloadProvider, CustomerProvider, CommunicationService>(
+          update: (BuildContext context, MqttPayloadProvider mqttProvider,
+              CustomerProvider customer, CommunicationService? previous) {
+            return CommunicationService(
+              mqttService: MqttService(),
+              blueService: BluService(),
+              customerProvider: customer,
+            );
+          },
+        ),
       ],
       child: const MyApp(),
     ),
   );
+
 }
+
+

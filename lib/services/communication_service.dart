@@ -82,11 +82,6 @@ class CommunicationService {
 
     int? userId = await PreferenceHelper.getUserId();
 
-    /*if(customerProvider.isSubUser!){
-      userId = customerProvider.userId;
-    }else{
-      userId = await PreferenceHelper.getUserId();
-    }*/
 
     final body = {
       "userId": customerProvider.customerId,
@@ -95,8 +90,6 @@ class CommunicationService {
       "hardware": hardware,
       "createUser": userId,
     };
-
-    print(body);
 
     final response = await Repository(HttpService()).sendManualOperationToServer(body);
 

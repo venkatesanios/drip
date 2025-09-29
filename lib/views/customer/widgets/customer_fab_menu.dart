@@ -55,13 +55,12 @@ class CustomerFabMenu extends StatelessWidget {
       children: [
         FloatingActionButton(
           heroTag: null,
-          backgroundColor: Theme.of(context).primaryColorLight,
           onPressed: null,
           child: PopupMenuButton<String>(
             offset: const Offset(0, -180),
             color: Colors.white,
             onSelected: (value) => _handleMenuSelection(value, context),
-            icon: const Icon(Icons.menu, color: Colors.white),
+            icon: const Icon(Icons.menu, color: Colors.black),
             itemBuilder: (context) => [
               _buildPopupItem(
                   context, 'Node Status', Icons.format_list_numbered, 'Node Status'),
@@ -92,9 +91,7 @@ class CustomerFabMenu extends StatelessWidget {
 
         FloatingActionButton(
           heroTag: null,
-          backgroundColor: commMode == 1 ? Theme.of(context).primaryColorLight :
-          (commMode == 2 && vm.blueService.isConnected) ? Theme.of(context).primaryColorLight :
-          Colors.redAccent,
+          backgroundColor: (commMode == 2 && vm.blueService.isNotConnected) ? Colors.redAccent : null,
           onPressed: () => _showBottomSheet(context,currentMaster, vm, viewedCustomer.id, loggedInUser.id),
           tooltip: 'Connectivity',
           child: commMode == 1
@@ -111,12 +108,12 @@ class CustomerFabMenu extends StatelessWidget {
                     : vm.wifiStrength <= 80
                     ? Icons.network_wifi_3_bar_outlined
                     : Icons.wifi,
-                color: Colors.white,
+                color: Colors.black,
               ),
               Text(
                 '${vm.wifiStrength} %',
                 style: const TextStyle(
-                    fontSize: 11.0, color: Colors.white70),
+                    fontSize: 11.0, color: Colors.black54),
               ),
             ],
           )

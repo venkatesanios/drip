@@ -38,7 +38,7 @@ class Group {
     required this.groupName, required this.master});
 
   factory Group.fromJson(Map<String, dynamic> json, String userType) {
-
+    print(json);
     return Group(
       customerId: json['customerId'],
       customerName:  json['customerName'],
@@ -851,7 +851,7 @@ class FertilizerSiteModel {
   final List<Channel> channel;
   final List<BoosterPump> boosterPump;
   final List<Agitator> agitator;
-  final List<dynamic> selector;
+  final List<CheSelector> selector;
 
   List<Ec>? ec;
   List<Ph>? ph;
@@ -894,6 +894,15 @@ class FertilizerSiteModel {
         .map(BoosterPump.fromConfigObject)
         .toList();
 
+    final selectorSNos = ((json['selector'] as List?) ?? []).map((e) => e).toSet();
+
+
+    final cheSelector = configObjects
+        .where((obj) => selectorSNos.contains(obj.sNo))
+        .map((obj) => CheSelector.fromConfigObject(obj))
+        .toList();
+
+
     final agitatorList = json['agitator'] as List?;
     final agitatorSNo = (agitatorList != null && agitatorList.isNotEmpty)
         ? agitatorList.first as num
@@ -924,7 +933,7 @@ class FertilizerSiteModel {
       channel: channel,
       boosterPump: boosterPump,
       agitator: agitator,
-      selector: json['selector'] ?? [],
+      selector: cheSelector,
       ec: ecSensor,
       ph: phSensor,
     );
@@ -953,10 +962,8 @@ class FertilizerSiteModel {
 
 class Channel implements FertilizerItem {
   final double sNo;
-
   @override
   final String name;
-
   @override
   bool selected;
 
@@ -1080,15 +1087,53 @@ class Ph {
 
 }
 
-class BoosterPump implements FertilizerItem {
+class CheSelector implements FertilizerItem {
   final double sNo;
-
   @override
   final String name;
-
   @override
   bool selected;
+  int status;
 
+  CheSelector({
+    required this.sNo,
+    required this.name,
+    this.selected = false,
+    this.status = 0,
+  });
+
+  factory CheSelector.fromConfigObject(ConfigObject obj) {
+    return CheSelector(
+      sNo: obj.sNo,
+      name: obj.name,
+    );
+  }
+
+  factory CheSelector.fromJson(Map<String, dynamic> json) {
+    return CheSelector(
+      sNo: (json['sNo'] as num).toDouble(),
+      name: json['name'] ?? '',
+      selected: json['selected'] ?? false,
+      status: json['status'] ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'sNo': sNo,
+      'name': name,
+      'selected': selected,
+      'status': status,
+    };
+  }
+}
+
+class BoosterPump implements FertilizerItem {
+  final double sNo;
+  @override
+  final String name;
+  @override
+  bool selected;
   int status;
 
   BoosterPump({
@@ -1126,13 +1171,10 @@ class BoosterPump implements FertilizerItem {
 
 class Agitator implements FertilizerItem {
   final double sNo;
-
   @override
   final String name;
-
   @override
   bool selected;
-
   int status;
 
   Agitator({

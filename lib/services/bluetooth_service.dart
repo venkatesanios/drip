@@ -198,60 +198,6 @@ class BluService {
     }
   }
 
-  void _parseBuffer11() {
-    print('_buffer----> $_buffer');
-    bool startlog = false;
-      if (_buffer.contains('LogFileSentSuccess')) {
-      print('LogFileSentSuccess------true');
-      providerState?.setTraceLoading(false);
-    }
-
-     if (_buffer.contains('*StartLog')) {
-      startlog = true;
-        if (_buffer.contains('LogFileSize')) {
-       String sizeStr = _buffer.split(':')[1];
-         final totalSize = int.tryParse(sizeStr ?? '0') ?? 0;
-        providerState?.setTotalTraceSize(totalSize);
-      }
-    }
-
-    providerState?.setTraceLoading(true);
-
-    // Only add current buffer to traceLog if startlog is true
-    if (startlog) {
-      traceLog.add(_buffer);
-      providerState?.updatetracelog(traceLog);
-      int sizeInBytes = getTraceLogSize();
-      print('TraceLog size in bytes: $sizeInBytes');
-      providerState?.setTraceLoadingsize(sizeInBytes);
-    }
-
-    if (_buffer.contains('#EndLog')) {
-      // print('#EndLog ----#EndLog');
-      startlog = false;
-    }
-
-    // Extract and process all JSON segments between *Start and #End
-    while (_buffer.contains('*Start') && _buffer.contains('#End')) {
-      final start = _buffer.indexOf('*Start');
-      final end = _buffer.indexOf('#End', start);
-
-      if (start != -1 && end != -1 && end > start) {
-        final jsonString = _buffer.substring(start + 6, end).trim();
-        _processData(jsonString);
-
-        // Remove processed part from _buffer
-        _buffer = _buffer.substring(end + 4); // skip past '#End'
-      } else {
-        break;
-      }
-    }
-
-    // Keep leftover data for next cycle, don't clear buffer prematurely
-    // Remove this line:
-    // _buffer = '';
-  }
-
   void _parseBuffer() {
     print('_buffer----> $_buffer');
 
