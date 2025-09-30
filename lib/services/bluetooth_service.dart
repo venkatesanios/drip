@@ -44,16 +44,12 @@ class BluService {
   List<String> traceLog = [];
   bool isLogging = false;
   String traceChunk = '';
+
   bool get isConnected => _connection != null && _connection!.isConnected;
   StreamSubscription<BluetoothDiscoveryResult>? _scanSubscription;
 
   Future<void> initializeBluService({MqttPayloadProvider? state}) async {
     providerState = state;
-
-    await requestPermissions();
-    await initPermissions();
-    await checkLocationServices();
-    _listenToData();
   }
 
   Future<void> initPermissions() async {
@@ -67,7 +63,32 @@ class BluService {
     }
   }
 
-  Future<void> requestPermissions() async {
+  Future<bool> requestPermissions() async {
+    if (Platform.isAndroid) {
+      final deviceInfo = DeviceInfoPlugin();
+      final androidInfo = await deviceInfo.androidInfo;
+      final sdkInt = androidInfo.version.sdkInt;
+
+      final List<Permission> permissions = [
+        if (sdkInt >= 31) ...[
+          Permission.bluetoothScan,
+          Permission.bluetoothConnect,
+        ] else ...[
+          Permission.bluetooth,
+        ],
+        Permission.locationWhenInUse,
+      ];
+
+      final statuses = await permissions.request();
+      if (statuses.values.any((status) => status.isDenied || status.isPermanentlyDenied)) {
+        print('❌ Permissions not granted');
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /*Future<void> requestPermissions() async {
     if (Platform.isAndroid) {
       final deviceInfo = DeviceInfoPlugin();
       final androidInfo = await deviceInfo.androidInfo;
@@ -90,7 +111,7 @@ class BluService {
         // Consider prompting user to go to settings
       }
     }
-  }
+  }*/
 
   int getTraceLogSize() {
     int totalBytes = 0;
@@ -113,6 +134,10 @@ class BluService {
   }
 
   Future<void> getDevices(String deviceId) async {
+
+    await requestPermissions();
+    await checkLocationServices();
+
     print(deviceId);
     _devices.clear();
     await FlutterBluetoothSerial.instance.cancelDiscovery();
@@ -156,9 +181,42 @@ class BluService {
     print("Bluetooth discovery stopped after 10 seconds.");
   }
 
-
-
   Future<void> connectToDevice(CustomDevice device) async {
+    try {
+      await requestPermissions();
+      await initPermissions();
+      await checkLocationServices();
+
+      providerState?.updateDeviceStatus(device.device.address, BlueConnectionSate.connecting.index);
+
+      if (isConnected) {
+        await disconnect();
+      }
+
+      _connectedAddress = device.device.address;
+      final connection = await BluetoothConnection.toAddress(device.device.address);
+      _connection = connection;
+
+      providerState?.updateDeviceStatus(device.device.address, BlueConnectionSate.connected.index);
+      providerState?.updateConnectedDeviceStatus(device);
+
+      connection.input?.listen((Uint8List data) {
+        _buffer += utf8.decode(data);
+        _parseBuffer();
+      }).onDone(() {
+        _connectedAddress = null;
+        _connection = null;
+        providerState?.updateDeviceStatus(device.device.address, BlueConnectionSate.disconnected.index);
+        providerState?.updateConnectedDeviceStatus(null);
+      });
+    } catch (e) {
+      print("Connection failed: $e");
+      providerState?.updateDeviceStatus(device.device.address, BlueConnectionSate.disconnected.index);
+      providerState?.updateConnectedDeviceStatus(null);
+    }
+  }
+
+  /*Future<void> connectToDevice(CustomDevice device) async {
     try {
       // Update to connecting
       providerState?.updateDeviceStatus(device.device.address, BlueConnectionSate.connecting.index);
@@ -196,7 +254,7 @@ class BluService {
       providerState?.updateDeviceStatus(device.device.address, BlueConnectionSate.disconnected.index);
       providerState?.updateConnectedDeviceStatus(null);
     }
-  }
+  }*/
 
   void _parseBuffer() {
     print('_buffer----> $_buffer');
@@ -339,9 +397,6 @@ class BluService {
     }
   }
 
-  void _listenToData() {
-    // This method was merged into connectToDevice logic
-  }
 
   BluetoothDevice? get connectedDevice {
     return _devices.firstWhere((d) => d.address == _connectedAddress);

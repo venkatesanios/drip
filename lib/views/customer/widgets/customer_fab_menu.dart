@@ -24,7 +24,7 @@ class CustomerFabMenu extends StatelessWidget {
   final dynamic currentMaster;
   final dynamic viewedCustomer;
   final dynamic loggedInUser;
-  final dynamic vm;
+  final CustomerScreenControllerViewModel vm;
   final void Function(String msg) callbackFunction;
   final List<bool> myPermissionFlags;
 
@@ -91,7 +91,7 @@ class CustomerFabMenu extends StatelessWidget {
 
         FloatingActionButton(
           heroTag: null,
-          backgroundColor: (commMode == 2 && vm.blueService.isNotConnected) ? Colors.redAccent : null,
+          backgroundColor: (commMode == 2 && !vm.blueService.isConnected) ? Colors.redAccent : null,
           onPressed: () => _showBottomSheet(context,currentMaster, vm, viewedCustomer.id, loggedInUser.id),
           tooltip: 'Connectivity',
           child: commMode == 1
@@ -99,15 +99,11 @@ class CustomerFabMenu extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
-                vm.wifiStrength == 0
-                    ? Icons.wifi_off
-                    : vm.wifiStrength <= 20
-                    ? Icons.network_wifi_1_bar_outlined
-                    : vm.wifiStrength <= 40
-                    ? Icons.network_wifi_2_bar_outlined
-                    : vm.wifiStrength <= 80
-                    ? Icons.network_wifi_3_bar_outlined
-                    : Icons.wifi,
+                vm.wifiStrength == 0 ? Icons.wifi_off :
+                vm.wifiStrength <= 20 ? Icons.network_wifi_1_bar_outlined :
+                vm.wifiStrength <= 40 ? Icons.network_wifi_2_bar_outlined :
+                vm.wifiStrength <= 80 ? Icons.network_wifi_3_bar_outlined :
+                Icons.wifi,
                 color: Colors.black,
               ),
               Text(
