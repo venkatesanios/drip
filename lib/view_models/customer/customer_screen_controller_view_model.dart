@@ -88,8 +88,13 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   }
 
   void _initializeMqttConnection() {
+
     mqttService.initializeMQTTClient(state: mqttProvider);
     mqttService.connect();
+
+    if (!kIsWeb) {
+      blueService.initializeBluService(state: mqttProvider);
+    }
 
     mqttSubscription = mqttService.mqttConnectionStream.listen((state) {
       switch (state) {
@@ -112,11 +117,6 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     });
   }
 
-  void initializeBluService() {
-    if (!kIsWeb) {
-      blueService.initializeBluService(state: mqttProvider);
-    }
-  }
 
   void _handleMqttReconnection() {
     if (_isConnecting || mqttService.isConnected) return;

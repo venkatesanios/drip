@@ -41,8 +41,8 @@ class LoginScreenLayout extends BaseScreenLayout {
   Widget buildWide(BuildContext context) => const LoginWeb();
 }
 
-class AdminScreenLayout extends BaseScreenLayout {
-  const AdminScreenLayout({super.key});
+class AdminLayout extends BaseScreenLayout {
+  const AdminLayout({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -84,8 +84,8 @@ class AdminDashboardLayout extends BaseScreenLayout {
   Widget buildWide(BuildContext context) => const AdminDashboardWide();
 }
 
-class DealerScreenLayout extends BaseScreenLayout {
-  const DealerScreenLayout({super.key});
+class DealerLayout extends BaseScreenLayout {
+  const DealerLayout({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -127,8 +127,8 @@ class DealerDashboardLayout extends BaseScreenLayout {
   Widget buildWide(BuildContext context) => const DealerDashboardWide();
 }
 
-class CustomerScreenLayout extends BaseScreenLayout {
-  const CustomerScreenLayout({super.key});
+class CustomerLayout extends BaseScreenLayout {
+  const CustomerLayout({super.key});
 
   @override
   Widget build(BuildContext context) {

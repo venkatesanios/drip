@@ -3,19 +3,19 @@ import 'package:oro_drip_irrigation/layouts/user_layout.dart';
 import '../utils/enums.dart';
 import 'base_layout.dart';
 
-class UserLayoutSelector extends StatelessWidget {
-  const UserLayoutSelector({super.key, required this.userRole});
+class LayoutSelector extends StatelessWidget {
+  const LayoutSelector({super.key, required this.userRole});
   final UserRole userRole;
 
   BaseScreenLayout getScreenLayout() {
     switch (userRole) {
       case UserRole.admin:
-        return const AdminScreenLayout();
+        return const AdminLayout();
       case UserRole.dealer:
-        return const DealerScreenLayout();
+        return const DealerLayout();
       case UserRole.customer:
       case UserRole.subUser:
-        return const CustomerScreenLayout();
+        return const CustomerLayout();
       case UserRole.superAdmin:
         throw UnimplementedError('Super Admin layout');
     }

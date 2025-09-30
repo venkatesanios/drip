@@ -72,7 +72,7 @@ class ScreenController extends StatelessWidget {
         }
 
         final userRole = context.read<UserProvider>().loggedInUser.role;
-        return UserLayoutSelector(userRole: userRole);
+        return LayoutSelector(userRole: userRole);
       },
     );
   }
