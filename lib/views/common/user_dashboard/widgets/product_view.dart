@@ -67,17 +67,17 @@ class ProductView extends StatelessWidget {
             ),
           );
         },
-      )
-          : ListView.builder(
+      ) : ListView.builder(
         shrinkWrap: true,
         padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
         itemCount: viewModel.categoryList.length,
         itemBuilder: (context, index) {
           final item = viewModel.categoryList[index];
+          final imagePath =
+              'assets/Images/Png/${F.name.toLowerCase().contains('oro') ? 'Oro' : 'SmartComm'}/category_${index + 1}.png';
           return ListTile(
             tileColor: Colors.white,
-            leading: Image.asset(
-              "assets/images/Png/${F.appFlavor!.name.contains('oro') ? 'Oro' : 'SmartComm'}/category_${index + 1}.png",
+            leading: Image.asset(imagePath,
               errorBuilder: (context, error, stackTrace) {
                 return const Icon(Icons.error);
               },

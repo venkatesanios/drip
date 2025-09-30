@@ -9,7 +9,7 @@ extension MasterControllerPermissionHelper on MasterControllerModel {
     try {
       final permission = userPermission.firstWhere(
             (p) => p.name.toLowerCase() == permissionName.toLowerCase(),
-        orElse: () => UserPermission(sNo: 0, name: '', status: true), // default true
+        orElse: () => UserPermission(sNo: 0, name: '', status: true),
       );
       return permission.status;
     } catch (_) {
