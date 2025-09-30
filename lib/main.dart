@@ -78,17 +78,31 @@ FutureOr<void> main() async {
   if (!kIsWeb && Platform.isAndroid) {
     await requestAppPermissions();
   }
+  if (!kIsWeb) {
   // Firebase init
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Firebase Messaging
   FirebaseMessaging messaging = FirebaseMessaging.instance;
   await messaging.requestPermission(alert: true, badge: true, sound: true);
-
+  const initializationSettingsIOS = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true);
   // Local notifications
   const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
-  const initSettings = InitializationSettings(android: androidInit);
+  const initSettings = InitializationSettings(
+      android: androidInit, iOS: initializationSettingsIOS);
   await flutterLocalNotificationsPlugin.initialize(initSettings);
+
+
+  await flutterLocalNotificationsPlugin.initialize(
+    initSettings,
+    onDidReceiveNotificationResponse: (details) {
+      debugPrint("Notification tapped: ${details.payload}");
+    },
+  );
+
 
   // Background messaging
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -106,6 +120,7 @@ FutureOr<void> main() async {
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
     debugPrint("Message clicked: ${message.messageId}");
   });
+}
   runApp(
     MultiProvider(
       providers: [
@@ -138,3 +153,5 @@ FutureOr<void> main() async {
     ),
   );
 }
+
+
