@@ -284,8 +284,6 @@ class CustomerView extends StatelessWidget {
   void _showDeviceList(BuildContext context, CustomerListModel customer,
       ProductStockViewModel stockVM) {
 
-    print(role.name);
-
     final loggedInUser = Provider.of<UserProvider>(context, listen: false).loggedInUser;
 
     if(role.name=='admin'){

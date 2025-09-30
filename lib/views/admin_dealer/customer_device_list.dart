@@ -282,7 +282,7 @@ class CustomerDeviceTable extends StatelessWidget {
               DataColumn2(label: Text('Model'), size: ColumnSize.M),
               DataColumn2(label: Text('IMEI'), size: ColumnSize.M),
               DataColumn2(label: Text('Status'), fixedWidth: 75),
-              DataColumn2(label: Text('Modify Date'), fixedWidth: 80),
+              DataColumn2(label: Text('Modify Date'), fixedWidth: 100),
             ],
             rows: List.generate(viewModel.customerDeviceList.length, (index) {
               final device = viewModel.customerDeviceList[index];

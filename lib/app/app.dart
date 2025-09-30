@@ -79,9 +79,9 @@ Widget navigateToInitialScreen(String route) {
   var isOro = F.appFlavor?.name.contains('oro') ?? false;
   switch (route) {
     case Routes.login:
-       return kIsWeb ? LoginScreen() : isOro ? LandingScreen() : LoginScreen();
-     case Routes.dashboard:
-       return const ScreenController();
+      return kIsWeb ? LoginScreen() : isOro ? LandingScreen() : LoginScreen();
+    case Routes.dashboard:
+      return const ScreenController();
     default:
       return const SplashScreen();
   }
