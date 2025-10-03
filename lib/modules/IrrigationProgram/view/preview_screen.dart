@@ -457,7 +457,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
     Map<String, dynamic> dataToMqttEcoGem = {};
     dynamic ecoGemWFPayload;
     List<String> ecoGemWFPayloadList = [];
-    if(AppConstants.ecoGemModelList.contains(widget.modelId)){
+    if(AppConstants.ecoGemAndPlusModelList.contains(widget.modelId)){
       dataToMqttEcoGem = mainProvider.dataToMqttForEcoGem(widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber, widget.programType);
       ecoGemWFPayload = mainProvider.ecoGemPayloadForWF(widget.serialNumber == 0 ? mainProvider.serialNumberCreation : widget.serialNumber);
       ecoGemWFPayloadList.add(jsonEncode(dataToMqttEcoGem));
@@ -498,14 +498,14 @@ class _PreviewScreenState extends State<PreviewScreen> {
         "incompleteRestart": mainProvider.isCompletionEnabled ? "1" : "0",
         "controllerReadStatus": '0',
         "programType": mainProvider.selectedProgramType,
-        "hardware": AppConstants.ecoGemModelList.contains(widget.modelId) ? ecoGemWFPayloadList : dataToMqtt
+        "hardware": AppConstants.ecoGemAndPlusModelList.contains(widget.modelId) ? ecoGemWFPayloadList : dataToMqtt
       };
       userData.addAll(dataToSend);
       // print("ecoGemWFPayloadList :: $ecoGemWFPayloadList");
       // print("dataToMqtt :: ${dataToMqtt['2500']['2501']}");
       // print("dataToMqtt :: ${dataToMqtt['2500']['2502']}");
       try {
-        if(AppConstants.ecoGemModelList.contains(widget.modelId)) {
+        if(AppConstants.ecoGemAndPlusModelList.contains(widget.modelId)) {
           final result = await showDialog<String>(
             context: context,
             barrierDismissible: false,

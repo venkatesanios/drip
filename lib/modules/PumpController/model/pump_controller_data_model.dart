@@ -26,6 +26,7 @@ class PumpControllerData {
   });
 
   factory PumpControllerData.fromJson(Map<String, dynamic> json, String key, int dataFetchingStatus) {
+    // print("json in the PumpControllerData :: $json");
     List<dynamic> pumpsJson = json[key] ?? [];
     dynamic lastElement = {};
 
@@ -39,13 +40,9 @@ class PumpControllerData {
     if (pumpsJson.isNotEmpty) {
       pumps.add(IndividualPumpData.fromJson(pumpsJson[0]));
       pumps.addAll(
-        pumpsJson
-            .skip(1)
-            .whereType<Map<String, dynamic>>()
-            .map((x) => x.containsKey("VOM")
+        pumpsJson.skip(1).whereType<Map<String, dynamic>>().map((x) => x.containsKey("VOM")
             ? PumpValveModel.fromJson(x)
-            : IndividualPumpData.fromJson(x))
-            .cast<IndividualPumpData>(),
+            : IndividualPumpData.fromJson(x)).cast<IndividualPumpData>(),
       );
     }
 

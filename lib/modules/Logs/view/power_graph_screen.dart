@@ -198,7 +198,7 @@ class _PowerGraphScreenState extends State<PowerGraphScreen> {
     ));
     return Scaffold(
       // backgroundColor: const Color(0xffF9FEFF),
-      appBar: [...AppConstants.ecoGemModelList, ...AppConstants.gemModelList].contains(widget.masterData.modelId) ? AppBar(
+      appBar: [...AppConstants.ecoGemAndPlusModelList, ...AppConstants.gemModelList].contains(widget.masterData.modelId) ? AppBar(
         title: const Text('Power graph'),
       ) : PreferredSize(preferredSize: const Size(0, 0), child: Container()),
       backgroundColor: Colors.white,

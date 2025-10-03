@@ -128,7 +128,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     final allowStopMethodCondition = irrigationProgramProvider.sampleScheduleModel!.defaultModel.allowStopMethod;
     final defaultOffTime = irrigationProgramProvider.sampleScheduleModel!.defaultModel.rtcOffTime;
     final defaultMaxTime = irrigationProgramProvider.sampleScheduleModel!.defaultModel.rtcMaxTime;
-    final isEcoGem = AppConstants.ecoGemModelList.contains(widget.modelId);
+    final isEcoGem = AppConstants.ecoGemAndPlusModelList.contains(widget.modelId);
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints){
           return SingleChildScrollView(

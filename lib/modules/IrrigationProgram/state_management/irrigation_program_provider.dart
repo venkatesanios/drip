@@ -222,7 +222,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       }
       selectedOption = deleteSelection[2];
     });
-    if(AppConstants.ecoGemModelList.contains(modelId)) {
+    if(AppConstants.ecoGemAndPlusModelList.contains(modelId)) {
       for(int i = 0; i < _irrigationLine!.sequence.length; i++) {
         _irrigationLine!.sequence[i]['sNo'] = '${i+1}';
       }
@@ -357,7 +357,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       final currentValves = irrigationLine!.sequence[sequenceIndex]['valve'].length;
       if (isGroup) {
         if (!valveExists) {
-          if (AppConstants.ecoGemModelList.contains(modelId)) {
+          if (AppConstants.ecoGemAndPlusModelList.contains(modelId)) {
             if (totalValves < 32 && currentValves < 4) {
               valvesToAdd.add(valves[i]);
             } else {
@@ -394,7 +394,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         }
 
         if (!valveExists) {
-          if (AppConstants.ecoGemModelList.contains(modelId)) {
+          if (AppConstants.ecoGemAndPlusModelList.contains(modelId)) {
             if (totalValves < 32 && currentValves < 4) {
               if (isMainValve) {
                 irrigationLine!.sequence[sequenceIndex]['mainValve'].add(valves[i]);
@@ -1549,7 +1549,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     var wf = '';
     var payload = '';
     editGroupSiteInjector('selectedGroup', 0);
-    int channelLimit = AppConstants.ecoGemModelList.contains(modelId) ? 1 : 8;
+    int channelLimit = AppConstants.ecoGemAndPlusModelList.contains(modelId) ? 1 : 8;
     for(var sq in sequenceData){
       editGroupSiteInjector('selectedGroup', sequenceData.indexOf(sq));
       var valId = '';
@@ -1667,7 +1667,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       var diff = (postValueInSec() + preValueInSec() + maxFertInSec);
       var quantity = diff * flowRate();
 
-      if(AppConstants.ecoGemModelList.contains(modelId)){
+      if(AppConstants.ecoGemAndPlusModelList.contains(modelId)){
         if(sequenceData[selectedGroup][segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'].isNotEmpty){
           for(var fert in sequenceData[selectedGroup][segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['fertilizer']){
             fert['method'] = value;
@@ -2550,7 +2550,6 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   String priority = '';
   List<String> priorityList = ["High", "Low"];
   bool isCompletionEnabled = false;
-  List<String> programTypes = [];
   String selectedProgramType = 'Irrigation Program';
   int serialNumberCreation = 0;
   bool irrigationProgramType = false;

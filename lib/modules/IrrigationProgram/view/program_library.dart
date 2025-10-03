@@ -138,7 +138,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
           },
         ),
         actions: [
-          if(AppConstants.ecoGemModelList.contains(widget.modelId))
+          if(AppConstants.ecoGemAndPlusModelList.contains(widget.modelId))
             IconButton(
                 onPressed: () async{
                   await getUserDayCountRtc();
@@ -248,7 +248,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
           : const Center(child: CircularProgressIndicator(),),
       floatingActionButton: MaterialButton(
         onPressed: () {
-          if(AppConstants.ecoGemModelList.contains(widget.modelId)) {
+          if(AppConstants.ecoGemAndPlusModelList.contains(widget.modelId)) {
             irrigationProgramMainProvider.programLibrary!.programLimit = 4;
           }
           createProgram(context, irrigationProgramMainProvider);
@@ -341,180 +341,182 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                       ),
                     ],
                     const SizedBox(height: 20),
-                    /*const Divider(),
-                    // Program Queue Section
-                    Text(
-                      'Program Queue',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: theme.primaryColor,
+                    if(AppConstants.ecoGemPlusModelList.contains(widget.modelId))...[
+                      const Divider(),
+                      // Program Queue Section
+                      Text(
+                        'Program Queue',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: theme.primaryColor,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    SwitchListTile(
-                      title: const Text('Enable Program Queue'),
-                      value: programQueueModel.programQueue,
-                      onChanged: (value) {
-                        setState(() {
-                          programQueueModel.programQueue = value;
-                        });
-                      },
-                      activeColor: theme.primaryColor,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                    ),
-                    if (programQueueModel.programQueue) ...[
+                      const SizedBox(height: 20),
                       SwitchListTile(
-                        title: const Text('Auto-Restart Queue'),
-                        value: programQueueModel.autoQueueRestart,
+                        title: const Text('Enable Program Queue'),
+                        value: programQueueModel.programQueue,
                         onChanged: (value) {
                           setState(() {
-                            programQueueModel.autoQueueRestart = value;
+                            programQueueModel.programQueue = value;
                           });
                         },
                         activeColor: theme.primaryColor,
                         contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                       ),
-                      const SizedBox(height: 8),
-                      ReorderableListView(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        onReorder: (oldIndex, newIndex) {
-                          setState(() {
-                            if (newIndex > oldIndex) newIndex--;
-                            final item = programQueueModel.queueOrder.removeAt(oldIndex);
-                            programQueueModel.queueOrder.insert(newIndex, item);
-                          });
-                        },
-                        children: programQueueModel.queueOrder.asMap().entries.map((entry) {
-                          final index = entry.key;
-                          return Column(
-                            key: ValueKey(index),
-                            children: [
-                              ListTile(
-                                leading: CircleAvatar(
-                                  child: Text('${index + 1}', style: const TextStyle(fontWeight: FontWeight.bold),),
-                                ),
-                                title: DropdownButtonFormField<String>(
-                                  value: programQueueModel.queueOrder[index] != '0' ? programQueueModel.queueOrder[index] : '0',
-                                  decoration: InputDecoration(
-                                    // labelText: 'Program ${index + 1}',
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                  items: [
-                                    const DropdownMenuItem<String>(
-                                      value: '0',
-                                      child: Text('None'),
-                                    ),
-                                    ...irrigationProgramMainProvider.programLibrary!.program.map((program) {
-                                      return DropdownMenuItem<String>(
-                                        value: program.serialNumber.toString(),
-                                        child: Text(program.programName),
-                                      );
-                                    }),
-                                  ],
-                                  onChanged: (newValue) {
-                                    setState(() {
-                                      programQueueModel.queueOrder[index] = newValue ?? '0';
-                                    });
-                                  },
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  side: BorderSide(color: Colors.grey[300]!),
-                                ),
-                              ),
-                              if(programQueueModel.autoQueueRestart)
-                                ListTile(
-                                  title: Text('Delay ${index + 1}→${index == 5 ? 1 : index + 2}'),
-                                  trailing: Text(programQueueModel.queueOrderRestartTimes[index]),
-                                  leading: Icon(Icons.timer, color: theme.primaryColor),
-                                  onTap: () async {
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        final overAllPvd = context.read<OverAllUse>();
-                                        return AlertDialog(
-                                          title: HoursMinutesSeconds(
-                                            initialTime: programQueueModel.queueOrderRestartTimes[index],
-                                            onPressed: () {
-                                              setState(() {
-                                                programQueueModel.queueOrderRestartTimes[index] =
-                                                '${overAllPvd.hrs.toString().padLeft(2, '0')}:${overAllPvd.min.toString().padLeft(2, '0')}:${overAllPvd.sec.toString().padLeft(2, '0')}';
-                                              });
-                                              Navigator.pop(context);
-                                            },
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  },
-                                )
-                            ],
-                          );
-                        }).toList(),
-                      ),
-                      const SizedBox(height: 16),
-                      SwitchListTile(
-                        title: const Text('Enable Skip Days'),
-                        value: programQueueModel.skipDays,
-                        onChanged: (value) {
-                          setState(() {
-                            programQueueModel.skipDays = value;
-                          });
-                        },
-                        activeColor: theme.primaryColor,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                      ),
-                      if (programQueueModel.skipDays) ...[
-                        const SizedBox(height: 16),
-                        ListTile(
-                          title: const Text('Number of Skip Days'),
-                          subtitle: Text('${programQueueModel.noOfSkipDays} days'),
-                          leading: Icon(Icons.calendar_today, color: theme.primaryColor),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            side: BorderSide(color: Colors.grey[300]!),
-                          ),
-                          onTap: () async {
-                            final days = await showDialog<int>(
-                              context: context,
-                              builder: (context) => NumberPickerDialog(
-                                initialValue: int.parse(programQueueModel.noOfSkipDays),
-                                minValue: 1,
-                                maxValue: 30,
-                              ),
-                            );
-                            if (days != null) {
-                              setState(() {
-                                programQueueModel.noOfSkipDays = days.toString();
-                              });
-                            }
+                      if (programQueueModel.programQueue) ...[
+                        SwitchListTile(
+                          title: const Text('Auto-Restart Queue'),
+                          value: programQueueModel.autoQueueRestart,
+                          onChanged: (value) {
+                            setState(() {
+                              programQueueModel.autoQueueRestart = value;
+                            });
                           },
+                          activeColor: theme.primaryColor,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                        ),
+                        const SizedBox(height: 8),
+                        ReorderableListView(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          onReorder: (oldIndex, newIndex) {
+                            setState(() {
+                              if (newIndex > oldIndex) newIndex--;
+                              final item = programQueueModel.queueOrder.removeAt(oldIndex);
+                              programQueueModel.queueOrder.insert(newIndex, item);
+                            });
+                          },
+                          children: programQueueModel.queueOrder.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            return Column(
+                              key: ValueKey(index),
+                              children: [
+                                ListTile(
+                                  leading: CircleAvatar(
+                                    child: Text('${index + 1}', style: const TextStyle(fontWeight: FontWeight.bold),),
+                                  ),
+                                  title: DropdownButtonFormField<String>(
+                                    value: programQueueModel.queueOrder[index] != '0' ? programQueueModel.queueOrder[index] : '0',
+                                    decoration: InputDecoration(
+                                      // labelText: 'Program ${index + 1}',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    items: [
+                                      const DropdownMenuItem<String>(
+                                        value: '0',
+                                        child: Text('None'),
+                                      ),
+                                      ...irrigationProgramMainProvider.programLibrary!.program.map((program) {
+                                        return DropdownMenuItem<String>(
+                                          value: program.serialNumber.toString(),
+                                          child: Text(program.programName),
+                                        );
+                                      }),
+                                    ],
+                                    onChanged: (newValue) {
+                                      setState(() {
+                                        programQueueModel.queueOrder[index] = newValue ?? '0';
+                                      });
+                                    },
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    side: BorderSide(color: Colors.grey[300]!),
+                                  ),
+                                ),
+                                if(programQueueModel.autoQueueRestart)
+                                  ListTile(
+                                    title: Text('Delay ${index + 1}→${index == 5 ? 1 : index + 2}'),
+                                    trailing: Text(programQueueModel.queueOrderRestartTimes[index]),
+                                    leading: Icon(Icons.timer, color: theme.primaryColor),
+                                    onTap: () async {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          final overAllPvd = context.read<OverAllUse>();
+                                          return AlertDialog(
+                                            title: HoursMinutesSeconds(
+                                              initialTime: programQueueModel.queueOrderRestartTimes[index],
+                                              onPressed: () {
+                                                setState(() {
+                                                  programQueueModel.queueOrderRestartTimes[index] =
+                                                  '${overAllPvd.hrs.toString().padLeft(2, '0')}:${overAllPvd.min.toString().padLeft(2, '0')}:${overAllPvd.sec.toString().padLeft(2, '0')}';
+                                                });
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                  )
+                              ],
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 16),
+                        SwitchListTile(
+                          title: const Text('Enable Skip Days'),
+                          value: programQueueModel.skipDays,
+                          onChanged: (value) {
+                            setState(() {
+                              programQueueModel.skipDays = value;
+                            });
+                          },
+                          activeColor: theme.primaryColor,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                        ),
+                        if (programQueueModel.skipDays) ...[
+                          const SizedBox(height: 16),
+                          ListTile(
+                            title: const Text('Number of Skip Days'),
+                            subtitle: Text('${programQueueModel.noOfSkipDays} days'),
+                            leading: Icon(Icons.calendar_today, color: theme.primaryColor),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              side: BorderSide(color: Colors.grey[300]!),
+                            ),
+                            onTap: () async {
+                              final days = await showDialog<int>(
+                                context: context,
+                                builder: (context) => NumberPickerDialog(
+                                  initialValue: int.parse(programQueueModel.noOfSkipDays),
+                                  minValue: 1,
+                                  maxValue: 30,
+                                ),
+                              );
+                              if (days != null) {
+                                setState(() {
+                                  programQueueModel.noOfSkipDays = days.toString();
+                                });
+                              }
+                            },
+                          ),
+                        ],
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Queue Preview',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            'Order: ${programQueueModel.queueOrder.map((sNo) => sNo == '0' ? "None" : irrigationProgramMainProvider.programLibrary!.program.firstWhere((p) => p.serialNumber.toString() == sNo).programName).join(" → ")}${programQueueModel.autoQueueRestart ? " (restarts)" : ""}${programQueueModel.skipDays ? ", skips every ${programQueueModel.noOfSkipDays} days" : ""}',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontSize: 14),
+                          ),
                         ),
                       ],
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Queue Preview',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey[300]!),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          'Order: ${programQueueModel.queueOrder.map((sNo) => sNo == '0' ? "None" : irrigationProgramMainProvider.programLibrary!.program.firstWhere((p) => p.serialNumber.toString() == sNo).programName).join(" → ")}${programQueueModel.autoQueueRestart ? " (restarts)" : ""}${programQueueModel.skipDays ? ", skips every ${programQueueModel.noOfSkipDays} days" : ""}',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                      ),
+                      const SizedBox(height: 20),
                     ],
-                    const SizedBox(height: 20),*/
                     ElevatedButton(
                       onPressed: () async{
                         try {
@@ -857,7 +859,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                             var dataToMqtt = programItem.hardwareData;
 
                             try {
-                              if(AppConstants.ecoGemModelList.contains(widget.modelId)) {
+                              if(AppConstants.ecoGemAndPlusModelList.contains(widget.modelId)) {
                                 final result = await showDialog<String>(
                                   context: context,
                                   barrierDismissible: false,

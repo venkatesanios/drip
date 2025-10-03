@@ -38,7 +38,6 @@ class Group {
     required this.groupName, required this.master});
 
   factory Group.fromJson(Map<String, dynamic> json, String userType) {
-    print(json);
     return Group(
       customerId: json['customerId'],
       customerName:  json['customerName'],

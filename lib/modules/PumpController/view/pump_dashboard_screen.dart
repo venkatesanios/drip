@@ -228,7 +228,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                                             borderRadius: BorderRadius.circular(10)
                                         ),
                                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                        child: Text('CVS : ${getCommunicationType(snapshot.data!.version.toString().split(',').length > 1
+                                        child: Text('CVS : ${(snapshot.data!.version.toString().split(',').length > 1
                                             ? snapshot.data!.version.toString().split(',')[0]
                                             : snapshot.data!.version)}', style: const TextStyle(fontSize: 8, color: Color(0xffEB7C17)),),
                                       ),
@@ -239,7 +239,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                                             borderRadius: BorderRadius.circular(10)
                                         ),
                                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                        child: Text('MVS : ${getCommunicationType(snapshot.data!.version.toString().split(',').length > 1
+                                        child: Text('MVS : ${(snapshot.data!.version.toString().split(',').length > 1
                                             ? snapshot.data!.version.toString().split(',')[1]
                                             : snapshot.data!.version)}', style: const TextStyle(fontSize: 8, color: Color(0xffEB7C17)),),
                                       ),

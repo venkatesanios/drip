@@ -80,7 +80,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
   @override
   Widget build(BuildContext context) {
     irrigationProgramProvider = Provider.of<IrrigationProgramMainProvider>(context);
-    final isEcoGem = AppConstants.ecoGemModelList.contains(widget.modelId);
+    final isEcoGem = AppConstants.ecoGemAndPlusModelList.contains(widget.modelId);
 
     return irrigationProgramProvider.sampleIrrigationLine != null ? LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {

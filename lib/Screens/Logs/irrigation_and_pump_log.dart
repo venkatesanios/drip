@@ -35,12 +35,12 @@ class _IrrigationAndPumpLogState extends State<IrrigationAndPumpLog> with Ticker
 
   int _calculateTabLength() {
     int length = 0;
-    if (AppConstants.ecoGemModelList.contains(widget.masterData.modelId)) {
+    if (AppConstants.ecoGemAndPlusModelList.contains(widget.masterData.modelId)) {
       length = 1;
     } else {
       length = 2;
     }
-    if (!AppConstants.ecoGemModelList.contains(widget.masterData.modelId) ? pumpList.isNotEmpty : true) {
+    if (!AppConstants.ecoGemAndPlusModelList.contains(widget.masterData.modelId) ? pumpList.isNotEmpty : true) {
       length += 1;
     }
     return length;
@@ -79,7 +79,7 @@ class _IrrigationAndPumpLogState extends State<IrrigationAndPumpLog> with Ticker
                   TabBar(
                       controller: tabController,
                       tabs: [
-                        if(AppConstants.ecoGemModelList.contains(widget.masterData.modelId))
+                        if(AppConstants.ecoGemAndPlusModelList.contains(widget.masterData.modelId))
                           ...[
                             const Tab(text: "Motor Cyclic Log",)
                           ]
@@ -88,7 +88,7 @@ class _IrrigationAndPumpLogState extends State<IrrigationAndPumpLog> with Ticker
                             const Tab(text: "Irrigation Log",),
                             const Tab(text: "Standalone Log",),
                           ],
-                        if(!AppConstants.ecoGemModelList.contains(widget.masterData.modelId) ? pumpList.isNotEmpty : true)
+                        if(!AppConstants.ecoGemAndPlusModelList.contains(widget.masterData.modelId) ? pumpList.isNotEmpty : true)
                           const Tab(text: "Pump Log",)
                       ]
                   ),
@@ -97,14 +97,14 @@ class _IrrigationAndPumpLogState extends State<IrrigationAndPumpLog> with Ticker
                       child: TabBarView(
                           controller: tabController,
                           children: [
-                            if(AppConstants.ecoGemModelList.contains(widget.masterData.modelId))
+                            if(AppConstants.ecoGemAndPlusModelList.contains(widget.masterData.modelId))
                               MotorCyclicLog(userData: widget.userData)
                             else
                               ...[
                                 ListOfLogConfig(userData: widget.userData,),
                                 StandaloneLog(userData: widget.userData,),
                               ],
-                            if(!AppConstants.ecoGemModelList.contains(widget.masterData.modelId) ? pumpList.isNotEmpty : true)
+                            if(!AppConstants.ecoGemAndPlusModelList.contains(widget.masterData.modelId) ? pumpList.isNotEmpty : true)
                               PumpList(
                                 pumpList: pumpList,
                                 userId: widget.userData['customerId'],

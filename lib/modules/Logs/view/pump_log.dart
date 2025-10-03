@@ -44,7 +44,7 @@ class _PumpLogScreenState extends State<PumpLogScreen> {
     final watchProvider = context.watch<PumpControllerProvider>();
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: [...AppConstants.ecoGemModelList, ...AppConstants.gemModelList].contains(widget.masterData.modelId) ? AppBar(
+      appBar: [...AppConstants.ecoGemAndPlusModelList, ...AppConstants.gemModelList].contains(widget.masterData.modelId) ? AppBar(
         title: const Text('Pump log'),
       ) : PreferredSize(preferredSize: const Size(0, 0), child: Container()),
       body: SafeArea(

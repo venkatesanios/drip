@@ -79,7 +79,7 @@ class _PumpVoltageLogScreenState extends State<PumpVoltageLogScreen> {
     pumpControllerProvider = Provider.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: [...AppConstants.ecoGemModelList, ...AppConstants.gemModelList].contains(widget.masterData.modelId) ? AppBar(
+      appBar: [...AppConstants.ecoGemAndPlusModelList, ...AppConstants.gemModelList].contains(widget.masterData.modelId) ? AppBar(
         title: const Text('Voltage log'),
       ) : PreferredSize(preferredSize: const Size(0, 0), child: Container()),
       body: SafeArea(
