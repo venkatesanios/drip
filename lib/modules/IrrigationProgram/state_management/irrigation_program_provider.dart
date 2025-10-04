@@ -3049,6 +3049,19 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       totalAgitators = agitators!.map((e) => e.sNo).toList();
     }
 
+    /*print("filter selection :: ${centralFilterSite.toList().isNotEmpty
+        ? centralFilterSite
+        .where((element) => selectedObjects!.any((ele) => ele.sNo == element.filterSite!.sNo))
+        .map((e) => e.filters != null ? List<DeviceObjectModel>.from(e.filters!) : [])
+        .expand((list) => list)
+        .whereType<DeviceObjectModel>()
+        .where((device) => selectedObjects!.any((selected) => selected.sNo == device.sNo))  // This ensures only selected devices are kept
+        .map((e) => e.sNo)
+        .join('_')
+        : ''}");
+
+    print("selectedObjects in the dataToMqtt :: ${selectedObjects!.map((e) => e.sNo)}");*/
+
     /*print("not selected agitators :: ${totalAgitators
         .where((agitator) => !(selectedAgitators ?? []).contains(agitator))
         .toList().join(',')}");
@@ -3141,7 +3154,11 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
                   ? centralFertilizerSite.map((e) => e.selector != null ? List<DeviceObjectModel>.from(e.selector!) : [])
                   .expand((list) => list)
                   .whereType<DeviceObjectModel>()
-                  .toList().map((e) => e.sNo).join('_')
+                  .where((device) => selectedObjects!.any((obj) => obj.sNo == device.sNo))
+                  .map((e) => e.sNo)
+                  .toSet()
+                  .toList()
+                  .join('_')
                   : "",/*CentralFertilizerTankSelection*/
               "LocalFertilizerTankSelection": localFertilizerSite.map((e) => e.selector != null ? List<DeviceObjectModel>.from(e.selector!) : [])
                   .expand((list) => list)
@@ -3150,7 +3167,11 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
                   ? localFertilizerSite.map((e) => e.selector != null ? List<DeviceObjectModel>.from(e.selector!) : [])
                   .expand((list) => list)
                   .whereType<DeviceObjectModel>()
-                  .toList().map((e) => e.sNo).join('_')
+                  .where((device) => selectedObjects!.any((obj) => obj.sNo == device.sNo))
+                  .map((e) => e.sNo)
+                  .toSet()
+                  .toList()
+                  .join('_')
                   : "",/*LocalFertilizerTankSelection*/
               "CentralFilterSite": centralFilterSite.toList().isNotEmpty
                   ? sampleIrrigationLine!.map((e) => e.centralFiltration != null ? [e.centralFiltration!] : [])
@@ -3158,7 +3179,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
                   .whereType<DeviceObjectModel>()
                   .where((device) => selectedObjects!.any((obj) => obj.sNo == device.sNo))
                   .map((e) => e.sNo)
-                  .toSet() // Convert to Set to remove duplicates
+                  .toSet()
                   .toList()
                   .join('_')
                   : "",/*CentralFilterSite*/
@@ -3168,7 +3189,10 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
                   .expand((list) => list)
                   .whereType<DeviceObjectModel>()
                   .where((device) => selectedObjects!.any((obj) => obj.sNo == device.sNo))
-                  .toList().map((e) => e.sNo).join('_')
+                  .map((e) => e.sNo)
+                  .toSet()
+                  .toList()
+                  .join('_')
                   : "",/*LocalFilterSite*/
               "CentralFilterSiteOperationMode": '${selectedCentralFiltrationMode == "TIME"
                   ? 1 : selectedCentralFiltrationMode == "DP"
@@ -3180,14 +3204,22 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
                   ? 2
                   : 3}',/*LocalFilterSiteOperationMode*/
               "CentralFilterSelection": centralFilterSite.toList().isNotEmpty
-                  ? centralFilterSite.where((element) => selectedObjects!.any((ele) => ele.sNo == element.filterSite!.sNo)).map((e) => e.filters != null ? List<DeviceObjectModel>.from(e.filters!) : [])
+                  ? centralFilterSite
+                  .where((element) => selectedObjects!.any((ele) => ele.sNo == element.filterSite!.sNo))
+                  .map((e) => e.filters != null ? List<DeviceObjectModel>.from(e.filters!) : [])
                   .expand((list) => list)
                   .whereType<DeviceObjectModel>()
-                  .toList().map((e) => e.sNo).join('_') : '',/*CentralFilterSelection*/
+                  .where((device) => selectedObjects!.any((selected) => selected.sNo == device.sNo))
+                  .map((e) => e.sNo)
+                  .join('_')
+                  : '',/*CentralFilterSelection*/
               "LocalFilterSelection": localFilterSite.toList().isNotEmpty
-                  ? localFilterSite.where((element) => selectedObjects!.any((ele) => ele.sNo == element.filterSite!.sNo)).map((e) => e.filters != null ? List<DeviceObjectModel>.from(e.filters!) : [])
+                  ? localFilterSite
+                  .where((element) => selectedObjects!.any((ele) => ele.sNo == element.filterSite!.sNo))
+                  .map((e) => e.filters != null ? List<DeviceObjectModel>.from(e.filters!) : [])
                   .expand((list) => list)
                   .whereType<DeviceObjectModel>()
+                  .where((device) => selectedObjects!.any((selected) => selected.sNo == device.sNo))
                   .toList().map((e) => e.sNo).join('_') : '',/*LocalFilterSelection*/
               "CentralFilterBeginningOnly": '${centralFiltBegin ? 1 : 0}',/*CentralFilterBeginningOnly*/
               "LocalFilterBeginningOnly": '${localFiltBegin ? 1 : 0}',/*LocalFilterBeginningOnly*/
