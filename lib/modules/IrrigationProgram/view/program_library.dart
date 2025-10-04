@@ -402,7 +402,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                                     child: Text('${index + 1}', style: const TextStyle(fontWeight: FontWeight.bold),),
                                   ),
                                   title: DropdownButtonFormField<String>(
-                                    initialValue: programQueueModel.queueOrder[index] != '0' ? programQueueModel.queueOrder[index] : '0',
+                                    value: programQueueModel.queueOrder[index] != '0' ? programQueueModel.queueOrder[index] : '0',
                                     decoration: InputDecoration(
                                       // labelText: 'Program ${index + 1}',
                                       border: OutlineInputBorder(
