@@ -76,7 +76,7 @@ class MasterControllerModel {
   List<NodeListModel> nodeList;
   final List<IrrigationLineModel> irrigationLine;
   List<ProgramList> programList;
-  late final LiveMessage? live;
+  LiveMessage? live;
   final List<Unit> units;
   final List<UserPermission> userPermission;
   List<RelayStatus> ioConnection;

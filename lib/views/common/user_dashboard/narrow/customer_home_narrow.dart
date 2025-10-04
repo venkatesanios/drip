@@ -362,7 +362,7 @@ class CustomerHomeNarrow extends StatelessWidget {
                         SizedBox(height: 2),
                         Text('Rtc & Cyclic', style: TextStyle(color: Colors.black45)),
                         SizedBox(height: 2),
-                        Text('Set Value', style: TextStyle(color: Colors.black45)),
+                        Text('Set (Dur/Flw)', style: TextStyle(color: Colors.black45)),
                         SizedBox(height: 2),
                       ],
                     ),
@@ -390,7 +390,7 @@ class CustomerHomeNarrow extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(convert24HourTo12Hour(values[11])),
+                          Text(MyFunction().convert24HourTo12Hour(values[11])),
                           const SizedBox(height: 2),
                           Text('${values[10]} of ${values[9]}'),
                           const SizedBox(height: 1),
@@ -460,14 +460,6 @@ class CustomerHomeNarrow extends StatelessWidget {
     }
   }
 
-  String convert24HourTo12Hour(String timeString) {
-    if(timeString=='-'){
-      return '-';
-    }
-    final parsedTime = DateFormat('HH:mm:ss').parse(timeString);
-    final formattedTime = DateFormat('hh:mm a').format(parsedTime);
-    return formattedTime;
-  }
 
   String getContentByCode(int code) {
     return GemProgramStartStopReasonCode.fromCode(code).content;
@@ -706,7 +698,7 @@ class CustomerHomeNarrow extends StatelessWidget {
               children: [
                 Text(programName),
                 const SizedBox(height: 1),
-                Text(convert24HourTo12Hour(values[6])),
+                Text(MyFunction().convert24HourTo12Hour(values[6])),
                 const SizedBox(height: 3),
                 Text(values[3]),
                 const SizedBox(height: 2),

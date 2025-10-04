@@ -226,6 +226,7 @@ class MyFunction {
 
 }
 
+
 class IrrigationParams {
   final String cropType;
   final String soilType;

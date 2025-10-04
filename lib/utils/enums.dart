@@ -14,7 +14,7 @@ enum GemProgramStartStopReasonCode {
   rs6(6, 'Zone Turned Off'),
   rs7(7, 'Stopped By Condition'),
   rs8(8, 'Disabled By Condition'),
-  rs9(9, 'StandAlone Program Started'),
+  rs9(9, 'Program started manually'),
   rs10(10, 'StandAlone Program Stopped'),
   rs11(11, 'StandAlone Program Stopped After Set Value'),
   rs12(12, 'StandAlone Manual Started'),
