@@ -524,6 +524,7 @@ class MasterListForSite extends StatelessWidget {
                             MaterialPageRoute(builder: (context) {
                               var masterData = site.master[mstIndex];
                               return ConfigBasePage(
+                                fromDashboard: false,
                                 masterData: {
                                   "userId": viewModel.userId,
                                   "customerId": viewModel.customerId,

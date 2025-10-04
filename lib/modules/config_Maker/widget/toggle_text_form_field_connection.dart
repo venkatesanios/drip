@@ -119,16 +119,21 @@ class _ToggleTextFormFieldForConnectionState extends State<ToggleTextFormFieldFo
         }
         fixedConnectionCount = phSensorConfigureToNodeCount + ecSensorConfigureToNodeCount;
       }
-    }else if(widget.object.type == '4'){
-      bool pressureSwitchConfigureToNode = false;
-      for(var object in widget.configPvd.listOfGeneratedObject){
-        if(object.objectId == AppConstants.pressureSwitchObjectId && object.controllerId == widget.selectedDevice.controllerId){
-          pressureSwitchConfigureToNode = true;;
+    }
+    else if(widget.object.type == '4'){
+      if(widget.selectedDevice.connectingObjectId.contains(AppConstants.pressureSwitchObjectId)){
+        bool pressureSwitchConfigureToNode = false;
+        for(var object in widget.configPvd.listOfGeneratedObject){
+
+          if(object.objectId == AppConstants.pressureSwitchObjectId && object.controllerId == widget.selectedDevice.controllerId){
+            pressureSwitchConfigureToNode = true;;
+          }
+        }
+        if(!pressureSwitchConfigureToNode){
+          fixedConnectionCount = 1;
         }
       }
-      if(!pressureSwitchConfigureToNode){
-        fixedConnectionCount = 1;
-      }
+
     }
     print('fixedConnectionCount : $fixedConnectionCount');
 

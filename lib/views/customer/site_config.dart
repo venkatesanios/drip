@@ -67,6 +67,7 @@ class SiteConfig extends StatelessWidget {
                                       context,
                                       MaterialPageRoute(builder: (context) {
                                         return ConfigBasePage(
+                                          fromDashboard: true,
                                           masterData: {
                                             "userId": userId,
                                             "customerId": customerId,

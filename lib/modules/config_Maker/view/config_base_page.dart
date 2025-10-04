@@ -10,7 +10,8 @@ enum ConfigMakerTabs {deviceList, productLimit, connection, siteConfigure}
 
 class ConfigBasePage extends StatefulWidget {
   final Map<String, dynamic> masterData;
-  const ConfigBasePage({super.key, required this.masterData});
+  final bool fromDashboard;
+  const ConfigBasePage({super.key, required this.masterData, required this.fromDashboard});
 
   @override
   State<ConfigBasePage> createState() => _ConfigBasePageState();
@@ -38,7 +39,7 @@ class _ConfigBasePageState extends State<ConfigBasePage> {
 
     // New Site
     // listOfDevices = configPvd.fetchData({"userId":3,"customerId":6,"controllerId":9,"productId":9,"deviceId":"2CCF6773D07D","deviceName":"xMm","categoryId":1,"categoryName":"xMm","modelId":1,"modelName":"xMm1000ROOO","groupId":2,"groupName":"Testing site","connectingObjectId":["1","2","3","4","-"]});
-    listOfDevices = configPvd.fetchData(widget.masterData);
+    listOfDevices = configPvd.fetchData(widget.masterData, widget.fromDashboard);
   }
 
   @override

@@ -126,7 +126,6 @@ class _DeviceListState extends State<DeviceList> {
                         fixedWidth: 150,
                         label: Text(''),
                       ),
-
                     ],
                     rows: widget.listOfDevices
                         .where((node) => node.masterId == configPvd.masterData['controllerId'])
