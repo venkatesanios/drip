@@ -478,7 +478,9 @@ class _MobileScreenControllerState extends State<MobileScreenController> with Wi
               child: TextButton.icon(
                 onPressed: () async {
                   await PreferenceHelper.clearAll();
-                  Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false,);
+                  const route = kIsWeb ? Routes.login : Routes.loginOtp;
+                  Navigator.pushNamedAndRemoveUntil(context, route, (route) => false,);
+                  // Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false,);
                 },
                 icon: const Icon(Icons.logout, color: Colors.red),
                 label: const Text("Logout", style: TextStyle(color: Colors

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 
 import '../repository/repository.dart';
 import '../utils/enums.dart';
@@ -55,7 +56,9 @@ class NavRailViewModel extends ChangeNotifier {
 
   Future<void> logout(context) async {
     await PreferenceHelper.clearAll();
-    Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false,);
+    const route = kIsWeb ? Routes.login : Routes.loginOtp;
+    Navigator.pushNamedAndRemoveUntil(context, route, (route) => false,);
+    // Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false,);
   }
 
   void clearSearch() {
