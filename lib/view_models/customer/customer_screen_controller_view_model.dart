@@ -71,11 +71,18 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     final liveDateAndTime = mqttProvider.liveDateAndTime;
     final wifiStrength = mqttProvider.wifiStrength;
     final currentSchedule = mqttProvider.currentSchedule;
+
     lineLiveMessage = mqttProvider.lineLiveMessage;
+
     powerSupply = mqttProvider.powerSupply;
     alarmDL = mqttProvider.alarmDL;
+
     isNotCommunicate = isDeviceNotCommunicating(mqttProvider.liveDateAndTime);
     if(activeDeviceId == mySiteList.data[sIndex].master[mIndex].deviceId){
+
+      final decoded = jsonDecode(mqttProvider.receivedPayload);
+      mySiteList.data[sIndex].master[mIndex].live = LiveMessage.fromJson(decoded);
+
       updateLivePayload(wifiStrength, liveDateAndTime, currentSchedule, lineLiveMessage);
     }
   }

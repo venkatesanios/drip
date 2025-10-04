@@ -41,8 +41,7 @@ class CurrentProgram extends StatelessWidget {
           }
 
           return vm.currentSchedule.isNotEmpty && vm.currentSchedule[0].isNotEmpty?
-          kIsWeb? buildWebTable(context, vm.currentSchedule):
-          buildMobileCard(context, vm.currentSchedule):
+          buildWebTable(context, vm.currentSchedule) :
           const SizedBox();
         },
       ),
@@ -189,44 +188,6 @@ class CurrentProgram extends StatelessWidget {
     );
   }
 
-  Widget buildMobileCard(BuildContext context, List<String> schedule) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: MediaQuery.sizeOf(context).width,
-          height: 25,
-          color: Colors.green.shade100,
-          child: const Padding(
-            padding: EdgeInsets.only(left: 8),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'CURRENT SCHEDULE',
-                style: TextStyle(color: Colors.black54, fontSize: 14),
-              ),
-            ),
-          ),
-        ),
-        Container(
-          color: Colors.white,
-          child: Column(
-            children: List.generate(schedule.length * 2 - 1, (index) {
-              if (index.isEven) {
-                List<String> values = schedule[index ~/ 2].split(',');
-                return buildScheduleRow(context, values);
-              } else {
-                return const Padding(
-                  padding: EdgeInsets.only(left: 8, right: 8),
-                  child: Divider(color: Colors.black12),
-                );
-              }
-            }),
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget buildActionButton(BuildContext context, List<String> values) {
     final programName = getProgramNameById(int.parse(values[0]));
@@ -406,7 +367,7 @@ class CurrentProgram extends StatelessWidget {
                         SizedBox(height: 2),
                         Text('Rtc & Cyclic', style: TextStyle(color: Colors.black45)),
                         SizedBox(height: 2),
-                        Text('Set Value', style: TextStyle(color: Colors.black45)),
+                        Text('Set (Dur/Flw)', style: TextStyle(color: Colors.black45)),
                         SizedBox(height: 2),
                       ],
                     ),
