@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import '../repository/repository.dart';
 import '../utils/enums.dart';
 import '../utils/routes.dart';
@@ -71,7 +72,9 @@ class BaseHeaderViewModel extends ChangeNotifier {
 
   Future<void> logout(BuildContext context) async {
     await PreferenceHelper.clearAll();
-    Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
+    const route = kIsWeb ? Routes.login : Routes.loginOtp;
+    Navigator.pushNamedAndRemoveUntil(context, route, (route) => false,);
+    // Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
   }
 
   void clearSearch() {

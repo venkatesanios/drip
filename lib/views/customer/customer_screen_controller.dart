@@ -464,7 +464,8 @@ class _CustomerScreenControllerState extends State<CustomerScreenController> {
                                 const SizedBox(height: 8),
                                 TextButton(onPressed: () async {
                                   await PreferenceHelper.clearAll();
-                                  Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false,);
+                                  const route = kIsWeb ? Routes.login : Routes.loginOtp;
+                                  Navigator.pushNamedAndRemoveUntil(context, route, (route) => false,);
                                 },
                                   child: const SizedBox(
                                     width:100,
