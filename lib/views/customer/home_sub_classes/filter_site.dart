@@ -80,11 +80,15 @@ class FilterWidget extends StatelessWidget {
         }
 
         int siteStatus = 0;
-        final otherParts = other?.split(',') ?? [];
-        if (otherParts.length >= 4) {
-          int value = int.parse(otherParts[1]);
-          siteStatus = value < 0 ? 0 : value;
-          filter.onDelayLeft = otherParts[2];
+        if(filter.status==1){
+          final otherParts = other?.split(',') ?? [];
+          if (otherParts.length >= 4) {
+            int value = int.parse(otherParts[1]);
+            siteStatus = value < 0 ? 0 : value;
+            filter.onDelayLeft = otherParts[2];
+          }
+        }else{
+          filter.onDelayLeft = '00:00:00';
         }
 
         return SizedBox(
