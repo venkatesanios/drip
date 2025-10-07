@@ -78,9 +78,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       };
       // print("userData ==> $userData");
       var userBody = {
-        "userId": userId,
-        "controllerId": controllerId,
-        "serialNumber": serialNumber,
+        ...userData,
         "groupId": groupId,
         "categoryId": categoryId
       };
@@ -133,10 +131,12 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
             .whereType<DeviceObjectModel>()
             .toList();
         }
+
         _mainValves = _sampleIrrigationLine!.map((e) => e.mainValve != null ? List<DeviceObjectModel>.from(e.mainValve!) : [])
             .expand((list) => list)
             .whereType<DeviceObjectModel>()
             .toList();
+
         Future.delayed(Duration.zero,() {
           _irrigationLine = SequenceModel.fromJson(sequenceJson);
           for (var element in _irrigationLine!.sequence) {
@@ -1513,7 +1513,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         'SequenceData' : sq['valve'].map((valve) => valve['sNo']).toList().join('_'),
         'MainValve' : sq['mainValve'].map((mainValve) => mainValve['sNo']).toList().join('_'),
         'Pump' : '',
-        'ValveFlowrate' : programType == "Irrigation Program" ? getNominalFlow() : 1,
+        'ValveFlowrate' : programType == _programLibrary!.defaultProgramTypes[0] ? getNominalFlow() : 1,
         'IrrigationMethod' : sq['method'] == 'Time' ? 1 : 2,
         'IrrigationDuration_Quantity' : sq['method'] == 'Time' ? sq['timeValue'] : sq['quantityValue'],
         'CentralFertOnOff' : sq['applyFertilizerForCentral'] == false ? 0 : sq['selectedCentralSite'] == -1 ? 0 : 1,
@@ -2472,7 +2472,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     try {
       final response = await repository.getUserProgramSelection(userData);
       final jsonData = json.decode(response.body);
-      print("selected objects :: ${jsonData['data']['selection']['selected']}");
+      // print("selected objects :: ${jsonData['data']['selection']['selected']}");
       _additionalData = null;
       _selectedObjects = [];
 
@@ -2481,8 +2481,8 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
             .map((e) => DeviceObjectModel.fromJson(e as Map<String, dynamic>))
             .toList();
 
-        print("configObjects: $configObjects");
-        print("selectedObjects before filter: ${_selectedObjects!.map((e) => e.toJson()).toList()}");
+        // print("configObjects: $configObjects");
+        // print("selectedObjects before filter: ${_selectedObjects!.map((e) => e.toJson()).toList()}");
 
         if (configObjects.isNotEmpty) {
           _selectedObjects!.removeWhere((element) => !configObjects.any((element2) {
@@ -2492,7 +2492,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
               irrigationPumpSnoList.contains(element.sNo);
               // sampleIrrigationLine!.map((e) => e.irrigationPump
             }
-            print("Comparing element.sNo: ${element.sNo} with configSNo: $configSNo");
+            // print("Comparing element.sNo: ${element.sNo} with configSNo: $configSNo");
             return element.objectId == 5
                 ? sampleIrrigationLine!.map((e) => e.irrigationPump ?? []).expand((list) => list).toList().map((ele) => ele.sNo).toList().contains(element.sNo)
                 : configSNo == element.sNo;
@@ -2503,7 +2503,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       } else {
         _selectedObjects = [];
       }
-      print("selected objects in the get function :: ${_selectedObjects!.map((e) => e.toJson()).toList()}");
+      // print("selected objects in the get function :: ${_selectedObjects!.map((e) => e.toJson()).toList()}");
       _additionalData = AdditionalData.fromJson(jsonData['data']);
     } catch (e) {
       log('Error: $e');
@@ -2606,7 +2606,6 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   }
 
   //TODO: PROGRAM LIBRARY
-  bool get getProgramType => _programDetails?.programType == "Irrigation Program" ? true : false;
   ProgramLibrary? _programLibrary;
   ProgramLibrary? get programLibrary => _programLibrary;
   final List<String> filterList = ["Active programs", "Inactive programs"];
@@ -2743,12 +2742,12 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     List<IconData> icons = [];
 
     final irrigationProgram = sno == 0
-        ? selectedProgramType == "Irrigation Program"
-        : programType == "Irrigation Program";
+        ? selectedProgramType == _programLibrary!.defaultProgramTypes[0]
+        : programType == _programLibrary!.defaultProgramTypes[0];
     // // print(irrigationProgram);
     if (irrigationProgram) {
-      commonLabels = commonLabels.map((label) => label == "Agitator" ? "Water & Fert" : label).toList();
-      commonIcons = commonIcons.map((icon) => icon == Icons.air ? Icons.local_florist_rounded : icon).toList();
+      commonLabels = commonLabels.map((label) => label == "Settings" ? "Water & Fert" : label).toList();
+      commonIcons = commonIcons.map((icon) => icon == Icons.settings ? Icons.local_florist_rounded : icon).toList();
       labels = (conditionLibrary ?? false)
           ? commonLabels
           : commonLabels.where((element) => !["Conditions"].contains(element)).toList();
@@ -2756,8 +2755,8 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
           ? commonIcons
           : commonIcons.where((element) => ![Icons.fact_check].contains(element)).toList();
     } else {
-      commonLabels = commonLabels.map((label) => label == "Water & Fert" ? "Agitator" : label).toList();
-      commonIcons = commonIcons.map((icon) => icon == Icons.local_florist_rounded ? Icons.air : icon).toList();
+      commonLabels = commonLabels.map((label) => label == "Water & Fert" ? "Settings" : label).toList();
+      commonIcons = commonIcons.map((icon) => icon == Icons.local_florist_rounded ? Icons.settings : icon).toList();
       labels = commonLabels.where((element) => !["Conditions", "Selection", "Preview"].contains(element)).toList();
       icons = commonIcons.where((element) => ![Icons.fact_check, Icons.checklist, Icons.preview].contains(element)).toList();
     }
@@ -3048,13 +3047,13 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         "2502": "${
             {
               "S_No": '$serialNumber',/*S_No*/
-              "ProgramType": '${programType == "Irrigation Program" ? 1 : 2}',/*ProgramType*/
-              "ProgramCategory": '${programType == "Irrigation Program"
+              "ProgramType": '${programType == _programLibrary!.defaultProgramTypes[0] ? 1 : 2}',/*ProgramType*/
+              "ProgramCategory": '${programType == _programLibrary!.defaultProgramTypes[0]
                   ? selectedObjects!.any((element) => element.objectId == 5)
                   ? sampleIrrigationLine!.where((line) => selectedObjects!
                   .any((element) => line.irrigationPump != null && line.irrigationPump!.any((pump) => element.sNo == pump.sNo)))
                   .map((line) => line.irrigationLine)
-                  .toList().map((e) => e.sNo).join("_")
+                  .toSet().toList().map((e) => e.sNo).join("_")
                   : sampleIrrigationLine!.where((headUnit) {
                 return irrigationLine!.sequence.any((sequenceItem) {
                   return sequenceItem['valve'].any((valve) {
@@ -3063,9 +3062,10 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
                     });
                   });
                 });
-              }).map((e) => e.irrigationLine).toList().map((e) => e.sNo).toList().join("_")
+              }).map((e) => e.irrigationLine)
+                  .toSet().toList().map((e) => e.sNo).toList().join("_")
                   : _irrigationLine?.sequence.map((e) {
-                List valveSerialNumbers = e['valve'].map((valve) => valve['sNo']).toList();
+                List valveSerialNumbers = e['valve'].map((valve) => valve['sNo']).toSet().toList();
                 return valveSerialNumbers.join('_');
               }).toList().join("+")}',/*ProgramCategory*/
               /*"Sequence": '${_irrigationLine?.sequence.map((e) {
@@ -3207,7 +3207,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
               "Conditions": conditionList.map((value) => value ?? '0').toList().join("_"),/*Conditions*/
               "AlarmOnOff": newAlarmList!.alarmList.map((e) => e.value == true ? 1 : 0).toList().join('_'),/*AlarmOnOff*/
               "PumpChangeOverFlag": '${isChangeOverMode ? 1 : 0}',/*PumpChangeOverFlag*/
-              "HeadUnit": '${programType == "Irrigation Program"
+              "HeadUnit": '${programType == _programLibrary!.defaultProgramTypes[0]
                   ? sampleIrrigationLine!.where((line) => selectedObjects!
                   .any((element) => line.irrigationLine.sNo == element.sNo))
                   .map((line) => line.irrigationLine)
@@ -3216,7 +3216,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
                 List valveSerialNumbers = e['valve'].map((valve) => valve['sNo']).toList();
                 return valveSerialNumbers.join('_');
               }).toList().join("+")}',/*HeadUnit*/
-              "HeadUnitToPause": programType == "Irrigation Program"
+              "HeadUnitToPause": programType == _programLibrary!.defaultProgramTypes[0]
                   ? selectedObjects!.any((element) => element.objectId == 5)
                   ? sampleIrrigationLine!.where((headUnit) {
                 sampleIrrigationLine!.map((element) => element.irrigationLine.sNo).toList();

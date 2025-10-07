@@ -1470,7 +1470,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
           userId:  widget.userId,
           controllerId:  widget.controllerId,
           serialNumber: program.serialNumber,
-          programType: program.defaultProgramTypes,
+          programType: program.programType,
           conditionsLibraryIsNotEmpty: irrigationProgramMainProvider.conditionsLibraryIsNotEmpty,
           deviceId:  widget.deviceId,
           fromDealer: false,

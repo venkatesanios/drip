@@ -187,6 +187,7 @@ class ProgramIrrigationLine with DiagnosticableTreeMixin {
   final List<DeviceObjectModel>? soilTemperature;
   final List<DeviceObjectModel>? humidity;
   final List<DeviceObjectModel>? co2;
+  final List<DeviceObjectModel>? light;
 
   ProgramIrrigationLine({
     required this.irrigationLine,
@@ -215,9 +216,10 @@ class ProgramIrrigationLine with DiagnosticableTreeMixin {
     this.soilTemperature,
     this.humidity,
     this.co2,
+    this.light,
   });
 
-  @override
+/*  @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<DeviceObjectModel>('irrigationLine', irrigationLine));
@@ -246,7 +248,7 @@ class ProgramIrrigationLine with DiagnosticableTreeMixin {
     properties.add(IterableProperty<DeviceObjectModel>('soilTemperature', soilTemperature));
     properties.add(IterableProperty<DeviceObjectModel>('humidity', humidity));
     properties.add(IterableProperty<DeviceObjectModel>('co2', co2));
-  }
+  }*/
 
   factory ProgramIrrigationLine.fromJson(Map<String, dynamic> json) {
     // print('irrigationPump in the model :: ${json['irrigationPump']}');
@@ -277,6 +279,7 @@ class ProgramIrrigationLine with DiagnosticableTreeMixin {
       soilTemperature: _parseList(json['soilTemperature']),
       humidity: _parseList(json['humidity']),
       co2: _parseList(json['co2']),
+      light: _parseList(json['light']),
     );
   }
 

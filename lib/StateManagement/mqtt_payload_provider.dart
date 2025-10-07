@@ -609,7 +609,7 @@ class MqttPayloadProvider with ChangeNotifier {
 
       try {
         Map<String, dynamic> data = _receivedPayload.isNotEmpty? jsonDecode(_receivedPayload) : {};
-          print('_receivedPayload------>:$_receivedPayload');
+          // print('_receivedPayload------>:$_receivedPayload');
 
         if(data['mC']=='2400'){
           liveDateAndTime = '${data['cD']} ${data['cT']}';

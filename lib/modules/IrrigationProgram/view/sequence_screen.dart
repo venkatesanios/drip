@@ -61,8 +61,6 @@ class _SequenceScreenState extends State<SequenceScreen> {
   @override
   Widget build(BuildContext context) {
     _provider = Provider.of<IrrigationProgramMainProvider>(context);
-    final isIrrigationProgram = _isIrrigationProgram;
-    final isAgitatorProgram = _isAgitatorProgram;
 
     if (_provider.sampleIrrigationLine == null) {
       return const Center(child: CircularProgressIndicator());
@@ -72,8 +70,8 @@ class _SequenceScreenState extends State<SequenceScreen> {
       builder: (context, constraints) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSequenceHeader(isIrrigationProgram),
-          _buildButtonRow(isAgitatorProgram),
+          _buildSequenceHeader(),
+          _buildButtonRow(),
           Expanded(
             child: SingleChildScrollView(
               child: Container(
@@ -92,13 +90,20 @@ class _SequenceScreenState extends State<SequenceScreen> {
     );
   }
 
-  bool get _isIrrigationProgram => _provider.programDetails!.programType == "Irrigation Program" ||
-      _provider.selectedProgramType == "Irrigation Program";
+  String get _irrProgram => _provider.programLibrary!.defaultProgramTypes[0];
+  String get _agiProgram => _provider.programLibrary!.defaultProgramTypes[1];
+  String get _othProgram => _provider.programLibrary!.defaultProgramTypes[2];
 
-  bool get _isAgitatorProgram => _provider.programDetails!.programType == "Agitator Program" ||
-      _provider.selectedProgramType == "Agitator Program";
+  bool get _isIrrigationProgram => _provider.programDetails!.programType == _irrProgram ||
+      _provider.selectedProgramType == _irrProgram;
 
-  Widget _buildSequenceHeader(bool isIrrigationProgram) {
+  bool get _isAgitatorProgram => _provider.programDetails!.programType == _agiProgram ||
+      _provider.selectedProgramType == _agiProgram;
+
+  bool get _isOtherProgram => _provider.programDetails!.programType == _othProgram ||
+      _provider.selectedProgramType == _othProgram;
+
+  Widget _buildSequenceHeader() {
     final sequence = _provider.irrigationLine!.sequence;
     final margin = MediaQuery.of(context).size.width >= 700
         ? EdgeInsets.symmetric(
@@ -114,8 +119,7 @@ class _SequenceScreenState extends State<SequenceScreen> {
       width: double.infinity,
       child: sequence.isNotEmpty
           ? GestureDetector(
-        onHorizontalDragUpdate: (details) =>
-            _scrollController.jumpTo(_scrollController.offset - details.primaryDelta! / 2),
+        onHorizontalDragUpdate: (details) => _scrollController.jumpTo(_scrollController.offset - details.primaryDelta! / 2),
         child: Center(
           child: ReorderableListView.builder(
             scrollController: sequence.isNotEmpty ? _scrollController : null,
@@ -196,7 +200,7 @@ class _SequenceScreenState extends State<SequenceScreen> {
       ? _provider.currentIndex + 1
       : _provider.currentIndex;
 
-  Widget _buildButtonRow(bool isAgitatorProgram) {
+  Widget _buildButtonRow() {
     final margin = MediaQuery.of(context).size.width >= 700
         ? EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.05)
         : const EdgeInsets.symmetric(horizontal: 15);
@@ -207,7 +211,7 @@ class _SequenceScreenState extends State<SequenceScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           _buildEditButton(),
-          buildButtonBar(context: context, isAgitatorProgram: isAgitatorProgram),
+          buildButtonBar(context: context),
         ],
       ),
     );
@@ -359,7 +363,7 @@ class _SequenceScreenState extends State<SequenceScreen> {
     );
   }
 
-  Widget buildButtonBar({required BuildContext context, required bool isAgitatorProgram}) {
+  Widget buildButtonBar({required BuildContext context}) {
     final sequence = _provider.irrigationLine!.sequence;
     final indexToShow = _getIndexToShow;
 
@@ -587,8 +591,37 @@ class _SequenceScreenState extends State<SequenceScreen> {
         context: context,
         title: 'Agitators',
         items: _provider.agitators!,
-        isAgitator: true,
       ));
+    }
+
+    // Others
+    if(_isOtherProgram && sampleIrrigationLine != null) {
+      final fans = sampleIrrigationLine.expand((e) => e.fan ?? []).toList();
+      if (fans.isNotEmpty) {
+        sections.add(_buildIrrigationSection(
+          context: context,
+          title: 'Fans',
+          items: fans,
+        ));
+      }
+
+      final fogger = sampleIrrigationLine.expand((e) => e.fogger ?? []).toList();
+      if (fogger.isNotEmpty) {
+        sections.add(_buildIrrigationSection(
+          context: context,
+          title: 'Foggers',
+          items: fogger,
+        ));
+      }
+
+      final lights = sampleIrrigationLine.expand((e) => e.light ?? []).toList();
+      if (lights.isNotEmpty) {
+        sections.add(_buildIrrigationSection(
+          context: context,
+          title: 'Lights',
+          items: lights,
+        ));
+      }
     }
 
     return sections;
@@ -600,7 +633,6 @@ class _SequenceScreenState extends State<SequenceScreen> {
     required List<dynamic> items,
     bool isGroup = false,
     bool isMainValve = false,
-    bool isAgitator = false,
     int lineIndex = 0,
     Widget? leading,
     Widget? trailing,
@@ -686,10 +718,10 @@ class _SequenceScreenState extends State<SequenceScreen> {
     final sequence = _provider.irrigationLine!.sequence;
 
     final groupId = isGroup ? item.id : '';
-    final onConfirm = () {
+    void onConfirm() {
       sequence[indexToShow]['modified'] = true;
       _addValvesToSequence(isGroup, dataList, lineIndex, isMainValve, indexToShow, groupId, item);
-    };
+    }
 
     if (sequence[indexToShow]['modified'] ?? false) {
       _showModifySequenceDialog(onConfirm);
