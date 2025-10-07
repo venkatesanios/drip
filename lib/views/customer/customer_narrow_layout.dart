@@ -134,7 +134,6 @@ class _CustomerNarrowLayoutState extends State<CustomerNarrowLayout> {
       ),
       floatingActionButton: CustomerFabMenu(
         currentMaster: cM,
-        viewedCustomer: viewedCustomer,
         loggedInUser: loggedInUser,
         vm: vm,
         callbackFunction: callbackFunction,

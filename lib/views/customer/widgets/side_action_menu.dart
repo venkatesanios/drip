@@ -26,7 +26,6 @@ class SideActionMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     final vm = context.watch<CustomerScreenControllerViewModel>();
     final loggedInUser = context.read<UserProvider>().loggedInUser;
-    final viewedCustomer = context.read<UserProvider>().viewedCustomer;
 
     final cM = vm.mySiteList.data[vm.sIndex].master[vm.mIndex];
 
@@ -60,7 +59,7 @@ class SideActionMenu extends StatelessWidget {
           ),
 
           const SizedBox(height: 15),
-          _buildNodeStatus(context, viewedCustomer!.id, loggedInUser.id, cM),
+          _buildNodeStatus(context, vm.mySiteList.data[vm.sIndex].customerId, loggedInUser.id, cM),
 
           if (![56, 57, 58, 59].contains(cM.modelId)) ...[
             const SizedBox(height: 15),

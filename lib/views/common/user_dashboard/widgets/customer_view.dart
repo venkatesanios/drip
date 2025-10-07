@@ -280,12 +280,36 @@ class CustomerView extends StatelessWidget {
     }
   }
 
-  void _showDeviceList(BuildContext context, CustomerListModel customer,
-      ProductStockViewModel stockVM) {
-
+  void _showDeviceList(
+      BuildContext context,
+      CustomerListModel customer,
+      ProductStockViewModel stockVM,
+      ) {
     final loggedInUser = Provider.of<UserProvider>(context, listen: false).loggedInUser;
+    final isAdmin = role.name == 'admin';
 
-    if(role.name=='admin'){
+    final Widget deviceListWidget = isAdmin ? UserDeviceList(
+      userId: loggedInUser.id,
+      customerName: customer.name,
+      customerId: customer.id,
+      userRole: 'Dealer',
+      productStockList: stockVM.productStockList,
+      onDeviceListAdded: stockVM.removeStockList,
+    ) : CustomerDeviceList(
+      userId: loggedInUser.id,
+      customerName: customer.name,
+      customerId: customer.id,
+      userRole: 'Customer',
+      productStockList: stockVM.productStockList,
+      onCustomerProductChanged: onCustomerProductChanged,
+    );
+
+    if (isNarrow) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => deviceListWidget),
+      );
+    } else {
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
@@ -293,48 +317,8 @@ class CustomerView extends StatelessWidget {
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(5)),
         ),
-        builder: (_) => UserDeviceList(
-          userId: loggedInUser.id,
-          customerName: customer.name,
-          customerId: customer.id,
-          userRole: 'Dealer',
-          productStockList: stockVM.productStockList,
-          onDeviceListAdded: stockVM.removeStockList,
-        ),
+        builder: (_) => deviceListWidget,
       );
-    }else{
-
-      if(isNarrow){
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => CustomerDeviceList(
-            customerName: customer.name,
-            customerId: customer.id,
-            onCustomerProductChanged: onCustomerProductChanged,
-            productStockList: stockVM.productStockList,
-            userId: loggedInUser.id,
-            userRole:'Customer',
-          )),
-        );
-      }else{
-        showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          elevation: 10,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(5)),
-          ),
-          builder: (_) => CustomerDeviceList(
-            customerName: customer.name,
-            customerId: customer.id,
-            onCustomerProductChanged: onCustomerProductChanged,
-            productStockList: stockVM.productStockList,
-            userId: loggedInUser.id,
-            userRole:'Customer',
-          ),
-        );
-      }
-
     }
   }
 

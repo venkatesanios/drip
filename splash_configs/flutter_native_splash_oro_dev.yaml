@@ -3,10 +3,10 @@ flutter_native_splash:
   android: true
   ios: true
 
-  image: assets/splash/oro_production.png   # main splash logo
+  image: assets/splash/oro_production.png
 
   android_12:
-    image: assets/splash/transparent.png # must be square, no transparent-only
+    image: assets/splash/transparent.png
     color: "#036673"
 
   ios_content_mode: scaleAspectFit

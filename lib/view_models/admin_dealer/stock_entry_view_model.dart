@@ -206,7 +206,8 @@ class StockEntryViewModel extends ChangeNotifier {
             'data': jsonData["data"],
             'products': addedProductList,
           };
-          //onStockCreatedCallbackFunction(result);
+          addedProductList.clear();
+          notifyListeners();
         }else{
           errorMsg = jsonData["message"];
         }

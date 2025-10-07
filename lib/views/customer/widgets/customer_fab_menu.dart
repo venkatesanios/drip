@@ -23,7 +23,6 @@ import 'bluetooth_scan_tile.dart';
 
 class CustomerFabMenu extends StatelessWidget {
   final dynamic currentMaster;
-  final dynamic viewedCustomer;
   final dynamic loggedInUser;
   final CustomerScreenControllerViewModel vm;
   final void Function(String msg) callbackFunction;
@@ -32,7 +31,6 @@ class CustomerFabMenu extends StatelessWidget {
   const CustomerFabMenu({
     super.key,
     required this.currentMaster,
-    required this.viewedCustomer,
     required this.loggedInUser,
     required this.vm,
     required this.callbackFunction,
@@ -93,7 +91,7 @@ class CustomerFabMenu extends StatelessWidget {
         FloatingActionButton(
           heroTag: null,
           backgroundColor: (commMode == 2 && !vm.blueService.isConnected) ? Colors.redAccent : null,
-          onPressed: () => _showBottomSheet(context,currentMaster, vm, viewedCustomer.id, loggedInUser.id),
+          onPressed: () => _showBottomSheet(context,currentMaster, vm, vm.mySiteList.data[vm.sIndex].customerId, loggedInUser.id),
           tooltip: 'Connectivity',
           child: commMode == 1
               ? Column(
@@ -118,7 +116,7 @@ class CustomerFabMenu extends StatelessWidget {
             (commMode == 2 && vm.blueService.isConnected)
                 ? Icons.bluetooth
                 : Icons.bluetooth_disabled,
-            color: Colors.white,
+            color: Colors.black,
           ),
         ),
       ],
@@ -132,7 +130,7 @@ class CustomerFabMenu extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => NodeList(
-              customerId: viewedCustomer.id,
+              customerId: vm.mySiteList.data[vm.sIndex].customerId,
               nodes: currentMaster.nodeList,
               userId: loggedInUser.id,
               configObjects: currentMaster.configObjects,
@@ -172,7 +170,7 @@ class CustomerFabMenu extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => ProgramLibraryScreenNew(
-              customerId: viewedCustomer.id,
+              customerId: vm.mySiteList.data[vm.sIndex].customerId,
               controllerId: currentMaster.controllerId,
               deviceId: currentMaster.deviceId,
               userId: loggedInUser.id,
@@ -195,7 +193,7 @@ class CustomerFabMenu extends StatelessWidget {
               deviceId: currentMaster.deviceId,
               userId: loggedInUser.id,
               controllerId: currentMaster.controllerId,
-              customerId: viewedCustomer.id,
+              customerId: vm.mySiteList.data[vm.sIndex].customerId,
               groupId: vm.mySiteList.data[vm.sIndex].groupId,
             ),
           ),
@@ -209,7 +207,7 @@ class CustomerFabMenu extends StatelessWidget {
             builder: (context) => StandAloneNarrow(
               siteId: vm.mySiteList.data[vm.sIndex].groupId,
               controllerId: currentMaster.controllerId,
-              customerId: viewedCustomer.id,
+              customerId: vm.mySiteList.data[vm.sIndex].customerId,
               deviceId: currentMaster.deviceId,
               callbackFunction: callbackFunction,
               userId: loggedInUser.id,
@@ -284,7 +282,7 @@ class CustomerFabMenu extends StatelessWidget {
                             style: TextStyle(fontWeight: FontWeight.bold)),
                         subtitle: const Text('Stay close to the controller near by 10 meters',
                             style: TextStyle(color: Colors.black45)),
-                        trailing: Icon(CupertinoIcons.arrow_right_circle),
+                        trailing: const Icon(CupertinoIcons.arrow_right_circle),
                         onTap: (){
                           final Map<String, dynamic> data = {
                             'controllerId': currentMaster.controllerId,
