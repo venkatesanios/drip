@@ -90,9 +90,9 @@ class _SequenceScreenState extends State<SequenceScreen> {
     );
   }
 
-  String get _irrProgram => _provider.programLibrary!.defaultProgramTypes[0];
-  String get _agiProgram => _provider.programLibrary!.defaultProgramTypes.length > 1 ? _provider.programLibrary!.defaultProgramTypes[1] : "";
-  String get _othProgram => _provider.programLibrary!.defaultProgramTypes.length > 2 ? _provider.programLibrary!.defaultProgramTypes[2] : '';
+  String get _irrProgram => "Irrigation Program";
+  String get _agiProgram => "Agitator Program";
+  String get _othProgram => "Other Programs";
 
   bool get _isIrrigationProgram => _provider.programDetails!.programType == _irrProgram ||
       _provider.selectedProgramType == _irrProgram;

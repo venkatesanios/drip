@@ -76,7 +76,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
     // overAllUse = Provider.of<OverAllUse>(context, listen: false);
     irrigationProgramMainProvider = Provider.of<IrrigationProgramMainProvider>(context, listen: false);
     // MqttService().topicToSubscribe('${Environment.mqttSubscribeTopic}/${widget.deviceId}');
-    irrigationProgramMainProvider.programLibraryData(widget.customerId,  widget.controllerId);
+    irrigationProgramMainProvider.programLibraryData(widget.customerId, widget.controllerId);
     // print("init state called");
     // print("customerId :: ${widget.customerId}, ${widget.userId}");
     super.initState();
