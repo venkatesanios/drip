@@ -305,7 +305,7 @@ class PumpStationWithLine extends StatelessWidget {
     }).toList();
 
     final lightWidgets = lights.asMap().entries.map((entry) {
-      return LightWidget(objLight: entry.value);
+      return LightWidget(objLight: entry.value, isWide: true);
     }).toList();
 
     final allItems = [
@@ -1815,7 +1815,8 @@ class ValveWidget extends StatelessWidget {
 
 class LightWidget extends StatelessWidget {
   final LightModel objLight;
-  const LightWidget({super.key, required this.objLight});
+  final bool isWide;
+  const LightWidget({super.key, required this.objLight, required this.isWide});
 
   @override
   Widget build(BuildContext context) {
@@ -1830,16 +1831,16 @@ class LightWidget extends StatelessWidget {
 
         return SizedBox(
           width: 70,
-          height: 100,
+          height: isWide? 100 : 70,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
-                width: 70,
-                height: 70,
-                child: AppConstants.getAsset('light', objLight.status, ''),
+                width: isWide? 70 : 40,
+                height: isWide? 70 : 40,
+                child: AppConstants.getAsset(isWide ? 'light':'light_mbl', objLight.status, ''),
               ),
               Text(
                 objLight.name,

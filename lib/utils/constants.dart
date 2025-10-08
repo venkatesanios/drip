@@ -106,6 +106,11 @@ class AppConstants {
   static const String lightOFF = "light_gray.png";
   static const String lightON = "light_yellow.png";
 
+  static const String mblLightOFF = "m_light_gray.png";
+  static const String mblLightON = "m_light_yellow.png";
+  static const String mblLightNotOFF = "m_light_orange.png";
+  static const String mblLightNotON = "m_light_red.png";
+
   static const String gateOFF = "gate_close.png";
   static const String gateON = "gate_open.png";
 
@@ -234,6 +239,9 @@ class AppConstants {
         break;
       case 'light':
         imagePathFinal = _getLightImagePath(keyTwo);
+        break;
+      case 'light_mbl':
+        imagePathFinal = _getLightImagePathMobile(keyTwo);
         break;
       case 'gate':
         imagePathFinal = _getGateImagePath(keyTwo);
@@ -485,10 +493,30 @@ class AppConstants {
         return lightOFF;
       case 1:
         return lightON;
+      case 2:
+        return lightOFF;
+      case 3:
+        return lightOFF;
       default:
         return '';
     }
   }
+
+  static String _getLightImagePathMobile(int status) {
+    switch (status) {
+      case 0:
+        return mblLightOFF;
+      case 1:
+        return mblLightON;
+      case 2:
+        return mblLightNotOFF;
+      case 3:
+        return mblLightNotON;
+      default:
+        return '';
+    }
+  }
+
 
   static String _getGateImagePath(int status) {
     switch (status) {

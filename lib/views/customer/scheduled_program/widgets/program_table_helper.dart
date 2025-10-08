@@ -38,8 +38,11 @@ class ProgramTableHelper {
     required int customerId,
     required bool prgOnOffPermission,
   }) {
-    var filteredPrograms = currentLineSNo == 0 ? programs :
-    programs.where((p) => p.irrigationLine.contains(currentLineSNo)).toList();
+
+    var filteredPrograms = currentLineSNo == 0 ? programs : programs.where((p) {
+      final irrigationLine = p.irrigationLine ?? [];
+      return irrigationLine.contains(currentLineSNo) || irrigationLine.isEmpty;
+    }).toList();
 
     return List<DataRow>.generate(filteredPrograms.length, (index) {
       final program = filteredPrograms[index];

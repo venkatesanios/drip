@@ -58,7 +58,8 @@ class _ScheduledProgramNarrowState extends State<ScheduledProgramNarrow> {
 
     var filteredScheduleProgram = widget.currentLineSNo == 0 ? master.programList :
     master.programList.where((program) {
-      return program.irrigationLine.contains(widget.currentLineSNo);
+      final irrigationLine = program.irrigationLine ?? [];
+      return irrigationLine.contains(widget.currentLineSNo) || irrigationLine.isEmpty;
     }).toList();
 
     return Padding(
@@ -322,11 +323,7 @@ class _ScheduledProgramNarrowState extends State<ScheduledProgramNarrow> {
     );
   }
 
-  void showConditionDialog(
-      BuildContext context,
-      String prgName,
-      List<ConditionModel> conditions,
-      ) {
+  void showConditionDialog(BuildContext context, String prgName, List<ConditionModel> conditions) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
