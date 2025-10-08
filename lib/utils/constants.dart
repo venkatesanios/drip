@@ -684,7 +684,7 @@ class AppConstants {
   static List<int> shine2V = [48, 49];
   static List<int> shine4V = [52, 53];
   static List<int> elite10V = [54, 55];
-  static List<int> ecoGemModelList = [56, 57, 58, 59];
+  static List<int> ecoGemModelList = [56, 57, 58, 59, 60, 61, 62, 63];
   static List<int> ecoGemPlusModelList = [60, 61, 62, 63];
   static List<int> ecoGemAndPlusModelList = [...ecoGemModelList, ...ecoGemPlusModelList];
   static List<int> gemModelList = [1, 2, 4, ];

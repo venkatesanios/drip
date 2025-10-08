@@ -22,14 +22,15 @@ class HttpService implements ApiService {
 
   @override
   Future<http.Response> postRequest(String endpoint, Map<String, dynamic> bodyData) async {
+    print('bodyData : ${bodyData}');
+    print('${AppConstants.apiUrl}$endpoint');
     final token = await PreferenceHelper.getToken();
 
     final headers = {
       'Content-Type': 'application/json',
       'auth_token': token?.isNotEmpty == true ? token! : 'default_token',
     };
-    //print('${bodyData}');
-    //print('${AppConstants.apiUrl}$endpoint');
+
     return http.post(
       Uri.parse('${AppConstants.apiUrl}$endpoint'),
       headers: headers,

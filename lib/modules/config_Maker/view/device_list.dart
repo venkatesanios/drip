@@ -508,10 +508,12 @@ class _DeviceListState extends State<DeviceList> {
                     });
                   }
                 }
+                print('configPvd.masterData ::: ${configPvd.masterData}');
 
                 List<DeviceModel> possibleNodeToConfigUnderMaster = listOfDevices.where((node) {
                   List<int> nodeUnderPumpWithValveModel = [15, 17, 23, 25, 42];
                   List<int> nodeNotUnderGemModel = [48, 49];
+                  print("node => ${node.modelId} == ${node.modelDescription} == ${node.modelName}");
                   if(AppConstants.pumpWithValveModelList.contains(configPvd.masterData['modelId']) && nodeUnderPumpWithValveModel.contains(node.modelId)){
                     /* this condition filter node for pump with valve model */
                     return true;
@@ -525,6 +527,7 @@ class _DeviceListState extends State<DeviceList> {
                     return false;
                   }
                 }).toList();
+                print('possibleNodeToConfigUnderMaster : $possibleNodeToConfigUnderMaster');
                 bool isThereNodeToConfigure = possibleNodeToConfigUnderMaster.any((node) => node.masterId == null);
                 if(isThereNodeToConfigure){
                   showDialog(
