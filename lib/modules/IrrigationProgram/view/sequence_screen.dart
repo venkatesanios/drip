@@ -591,6 +591,7 @@ class _SequenceScreenState extends State<SequenceScreen> {
         context: context,
         title: 'Agitators',
         items: _provider.agitators!,
+        leading: _buildLeadingIcon('assets/png/dp_agitator_right.png'),
       ));
     }
 
@@ -602,6 +603,7 @@ class _SequenceScreenState extends State<SequenceScreen> {
           context: context,
           title: 'Fans',
           items: fans,
+          leading: _buildLeadingIcon('assets/Images/Png/objectId_15.png'),
         ));
       }
 
@@ -611,6 +613,7 @@ class _SequenceScreenState extends State<SequenceScreen> {
           context: context,
           title: 'Foggers',
           items: fogger,
+          leading: _buildLeadingIcon('assets/Images/Png/objectId_16.png'),
         ));
       }
 
@@ -620,6 +623,7 @@ class _SequenceScreenState extends State<SequenceScreen> {
           context: context,
           title: 'Lights',
           items: lights,
+          leading: _buildLeadingIcon('assets/Images/Png/objectId_19.png'),
         ));
       }
     }
