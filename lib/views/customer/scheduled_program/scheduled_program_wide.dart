@@ -49,7 +49,8 @@ class _ScheduledProgramWideState extends State<ScheduledProgramWide> {
 
     var filteredScheduleProgram = widget.currentLineSNo == 0 ? widget.scheduledPrograms :
     widget.scheduledPrograms.where((program) {
-      return program.irrigationLine.contains(widget.currentLineSNo);
+      final irrigationLine = program.irrigationLine ?? [];
+      return irrigationLine.contains(widget.currentLineSNo) || irrigationLine.isEmpty;
     }).toList();
 
     return Padding(

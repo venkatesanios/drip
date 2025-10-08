@@ -531,7 +531,9 @@ class CustomerHomeNarrow extends StatelessWidget {
           if (result['mqtt'] == true) debugPrint("Payload sent to MQTT Box");
           if (result['bluetooth'] == true) debugPrint("Payload sent via Bluetooth");
 
+          Navigator.pop(context);
           GlobalSnackBar.show(context, 'Comment sent successfully', 200);
+
         } : null,
         child: const Text('Skip', style: TextStyle(color: Colors.white, fontSize: 13)),
       );
@@ -550,7 +552,8 @@ class CustomerHomeNarrow extends StatelessWidget {
     );
   }
 
-  Widget buildPumpStation(BuildContext context, IrrigationLineModel irrLine, int customerId, int controllerId, int modelId, String deviceId) {
+  Widget buildPumpStation(BuildContext context, IrrigationLineModel irrLine,
+      int customerId, int controllerId, int modelId, String deviceId) {
 
     final inletWaterSources = {
       for (var source in irrLine.inletSources) source.sNo: source
@@ -1088,7 +1091,12 @@ class IrrigationLine extends StatelessWidget {
       pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor.png',
     );
 
+    final lightWidgets = lights.asMap().entries.map((entry) {
+      return LightWidget(objLight: entry.value, isWide: false);
+    }).toList();
+
     final allItems = [
+      ...lightWidgets,
       ...mainValveWidgets,
       ...valveWidgets,
       ...pressureOutWidgets,
