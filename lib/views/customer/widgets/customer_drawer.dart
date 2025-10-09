@@ -14,14 +14,18 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 
 class CustomerDrawer extends StatelessWidget {
-  final dynamic viewedCustomer;
+  final int customerId;
+  final String customerName;
+  final String customerMobileNo;
+  final String customerEmailId;
   final dynamic loggedInUser;
   final CustomerScreenControllerViewModel vm;
   const CustomerDrawer({
     super.key,
-    required this.viewedCustomer,
+    required this.customerId,
     required this.loggedInUser,
     required this.vm,
+    required this.customerName, required this.customerMobileNo, required this.customerEmailId,
   });
 
   @override
@@ -60,9 +64,9 @@ class CustomerDrawer extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (context) => UserChatScreen(
-                  userId: viewedCustomer.id,
-                  userName: viewedCustomer.name,
-                  phoneNumber: viewedCustomer.mobileNo,
+                  userId: customerId,
+                  userName: customerName,
+                  phoneNumber: customerMobileNo,
                 ),
               ),
             ),
@@ -127,15 +131,15 @@ class CustomerDrawer extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  viewedCustomer!.name,
+                  customerName,
                   style: const TextStyle(color: Colors.white),
                 ),
                 Text(
-                  viewedCustomer.mobileNo,
+                  customerMobileNo,
                   style: const TextStyle(color: Colors.white, fontSize: 14),
                 ),
                 Text(
-                  viewedCustomer.email,
+                  customerEmailId,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(color: Colors.white, fontSize: 14),

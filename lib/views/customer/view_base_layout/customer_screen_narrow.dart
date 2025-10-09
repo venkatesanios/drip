@@ -37,6 +37,7 @@ class _CustomerScreenNarrowState extends BaseCustomerScreenState<CustomerScreenN
     final userProvider = context.read<UserProvider>();
     final loggedInUser = userProvider.loggedInUser;
     final viewedCustomer = userProvider.viewedCustomer;
+
     final navModel = context.watch<BottomNavViewModel>();
     final vm = context.watch<CustomerScreenControllerViewModel>();
 
@@ -58,7 +59,7 @@ class _CustomerScreenNarrowState extends BaseCustomerScreenState<CustomerScreenN
 
           return ScheduledProgramNarrow(
             userId: loggedInUser.id,
-            customerId: viewedCustomer!.id,
+            customerId: vm.mySiteList.data[vm.sIndex].customerId,
             currentLineSNo: lineSNo.toDouble(),
             groupId: viewModel.mySiteList.data[viewModel.sIndex].groupId,
             master: master,
@@ -69,7 +70,7 @@ class _CustomerScreenNarrowState extends BaseCustomerScreenState<CustomerScreenN
         userData: {
           'userId': loggedInUser.id,
           'controllerId': cM.controllerId,
-          'customerId': viewedCustomer!.id,
+          'customerId': vm.mySiteList.data[vm.sIndex].customerId,
         },
         masterData: cM,
       ),
@@ -78,7 +79,7 @@ class _CustomerScreenNarrowState extends BaseCustomerScreenState<CustomerScreenN
     [
       PumpControllerHome(
         userId: loggedInUser.id,
-        customerId: viewedCustomer!.id,
+        customerId: vm.mySiteList.data[vm.sIndex].customerId,
         masterData: cM,
       ),
     ];
@@ -86,7 +87,9 @@ class _CustomerScreenNarrowState extends BaseCustomerScreenState<CustomerScreenN
     return BaseCustomerLayout(
       scaffoldKey: scaffoldKey,
       appBar: buildCustomerAppBar(context, vm, cM, scaffoldKey, showMenu: true, isNarrow: true),
-      drawer: CustomerDrawer(viewedCustomer: viewedCustomer, loggedInUser: loggedInUser, vm: vm),
+      drawer: CustomerDrawer(customerName: vm.mySiteList.data[vm.sIndex].customerName, loggedInUser : loggedInUser, vm: vm,
+        customerId: vm.mySiteList.data[vm.sIndex].customerId, customerEmailId: viewedCustomer!.email,
+          customerMobileNo: viewedCustomer.mobileNo),
       floatingActionButton: CustomerFabMenu(
         currentMaster: cM,
         loggedInUser: loggedInUser,

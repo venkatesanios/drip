@@ -43,7 +43,7 @@ List<Widget> appBarActions(
       AlarmButton(
         alarmPayload: vm.alarmDL,
         deviceID: master.deviceId,
-        customerId: viewedCustomer!.id,
+        customerId: vm.mySiteList.data[vm.sIndex].customerId,
         controllerId: master.controllerId,
         irrigationLine: master.irrigationLine,
         isNarrow: isNarrow,
@@ -60,7 +60,7 @@ List<Widget> appBarActions(
 
   List<Widget> nonGemActions() {
     return [
-      _buildNonGemActions(context, master, loggedInUser, viewedCustomer),
+      _buildNonGemActions(context, master, loggedInUser, vm.mySiteList.data[vm.sIndex].customerId),
     ];
   }
 
@@ -92,7 +92,7 @@ List<Widget> appBarActions(
               onPressed: () => showModalBottomSheet(
                 context: context,
                 builder: (_) => NodeSettings(
-                  userId: viewedCustomer!.id,
+                  userId: loggedInUser.id,
                   controllerId: master.controllerId,
                   customerId: vm.mySiteList.data[vm.sIndex].customerId,
                   nodeList: master.nodeList,
@@ -334,7 +334,7 @@ Widget _buildAccountMenu(BuildContext context, CustomerScreenControllerViewModel
 }
 
 Widget _buildNonGemActions(BuildContext context, dynamic master,
-    dynamic loggedInUser, dynamic viewedCustomer) {
+    dynamic loggedInUser, int customerId) {
   return Container(
     height: 35,
     decoration: BoxDecoration(
@@ -354,9 +354,9 @@ Widget _buildNonGemActions(BuildContext context, dynamic master,
               showModalBottomSheet(
                 context: context,
                 builder: (context) => NodeSettings(
-                  userId: viewedCustomer!.id,
+                  userId: loggedInUser!.id,
                   controllerId: master.controllerId,
-                  customerId: viewedCustomer.id,
+                  customerId: customerId,
                   nodeList: master.nodeList,
                   deviceId: master.deviceId,
                 ),
@@ -373,7 +373,7 @@ Widget _buildNonGemActions(BuildContext context, dynamic master,
               context,
               MaterialPageRoute(
                 builder: (context) => SentAndReceived(
-                  customerId: viewedCustomer!.id,
+                  customerId: customerId,
                   controllerId: master.controllerId,
                   isWide: ScreenHelper.getScreenType(MediaQuery.of(context).size.width) == ScreenType.wide,
                 ),
@@ -410,7 +410,7 @@ Widget _buildNonGemActions(BuildContext context, dynamic master,
                     nodeData: data,
                     masterData: {
                       "userId": loggedInUser.id,
-                      "customerId": viewedCustomer!.id,
+                      "customerId": customerId,
                       "controllerId": master.controllerId,
                     },
                   ),

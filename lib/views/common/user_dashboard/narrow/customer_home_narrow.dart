@@ -29,8 +29,6 @@ class CustomerHomeNarrow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final viewedCustomer = context.read<UserProvider>().viewedCustomer;
-
     final viewModel = Provider.of<CustomerScreenControllerViewModel>(context);
     final cM = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex];
 
@@ -69,7 +67,8 @@ class CustomerHomeNarrow extends StatelessWidget {
                           ),
                           Container(
                               color: Colors.white,
-                              child: buildPumpStation(context, line, viewedCustomer!.id, cM.controllerId, cM.modelId, cM.deviceId)
+                              child: buildPumpStation(context, line, viewModel.mySiteList.data[viewModel.sIndex].customerId,
+                                  cM.controllerId, cM.modelId, cM.deviceId)
                           )
                         ],
                       ),
@@ -131,7 +130,8 @@ class CustomerHomeNarrow extends StatelessWidget {
                               ],
                             ),
                           ),
-                          buildIrrigationLine(context, line, viewedCustomer.id, cM.controllerId, cM.modelId, cM.deviceId)
+                          buildIrrigationLine(context, line, viewModel.mySiteList.data[viewModel.sIndex].customerId,
+                              cM.controllerId, cM.modelId, cM.deviceId)
                         ],
                       ),
                     ),
