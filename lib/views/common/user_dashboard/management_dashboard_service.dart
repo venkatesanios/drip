@@ -40,9 +40,8 @@ class ManagementDashboardService extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => ProductCategoryViewModel(Repository(HttpService()))
-            ..getProductCategory(),
+            ..getMyProductCategory(),
         ),
-
         ChangeNotifierProvider(
           create: (_) => BottomNavViewModel(),
         ),

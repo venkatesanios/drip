@@ -454,7 +454,7 @@ class Constant extends StatelessWidget {
                                 rows: List.generate(  vm.userConstant.constant.irrigationLineList!.length, (index) {
                                   return DataRow(
                                       color: MaterialStateProperty.resolveWith<Color?>(
-                                            (Set<MaterialState> states) {
+                                            (Set<WidgetState> states) {
                                           return index.isEven ? const Color(0xFFF6F6F6) : const Color(0xFFFDFDFD) ; // Alternating row colors
                                         },
                                       ),

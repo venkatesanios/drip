@@ -1,21 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import 'package:oro_drip_irrigation/views/customer/customer_narrow_layout.dart';
-import 'package:oro_drip_irrigation/views/customer/customer_middle_layout.dart';
-import 'package:oro_drip_irrigation/views/customer/customer_wide_layout.dart';
-import '../providers/user_provider.dart';
-import '../repository/repository.dart';
-import '../services/http_service.dart';
-import '../views/admin/admin_middle_layout.dart';
-import '../views/admin/admin_narrow_layout.dart';
-import '../views/admin/admin_wide_layout.dart';
+import 'package:oro_drip_irrigation/views/customer/view_base_layout/customer_screen_narrow.dart';
+import 'package:oro_drip_irrigation/views/customer/view_base_layout/customer_screen_middle.dart';
+import '../utils/my_helper_class.dart';
+import '../views/admin/admin_screen_middle.dart';
+import '../views/admin/admin_screen_narrow.dart';
+import '../views/admin/admin_screen_wide.dart';
 import '../views/common/login/middle/login_tablet.dart';
 import '../views/common/login/narrow/login_mobile.dart';
 import '../views/common/login/wide/login_web.dart';
 import '../views/common/user_dashboard/customer_dashboard_service.dart';
-import '../views/common/user_dashboard/management_dashboard_service.dart';
-import '../view_models/base_header_view_model.dart';
 import '../views/common/user_dashboard/middle/admin_dashboard_middle.dart';
 import '../views/common/user_dashboard/middle/customer_home_middle.dart';
 import '../views/common/user_dashboard/middle/dealer_dashboard_middle.dart';
@@ -25,9 +19,10 @@ import '../views/common/user_dashboard/narrow/dealer_dashboard_narrow.dart';
 import '../views/common/user_dashboard/wide/admin_dashboard_wide.dart';
 import '../views/common/user_dashboard/wide/customer_home_wide.dart';
 import '../views/common/user_dashboard/wide/dealer_dashboard_wide.dart';
-import '../views/dealer/dealer_middle_layout.dart';
-import '../views/dealer/dealer_narrow_layout.dart';
-import '../views/dealer/dealer_wide_layout.dart';
+import '../views/customer/view_base_layout/customer_screen_wide.dart';
+import '../views/dealer/dealer_screen_middle.dart';
+import '../views/dealer/dealer_screen_narrow.dart';
+import '../views/dealer/dealer_screen_wide.dart';
 import 'base_layout.dart';
 
 class LoginScreenLayout extends BaseScreenLayout {
@@ -41,40 +36,27 @@ class LoginScreenLayout extends BaseScreenLayout {
   Widget buildWide(BuildContext context) => const LoginWeb();
 }
 
-class AdminLayout extends BaseScreenLayout {
-  const AdminLayout({super.key});
+class AdminScreenLayout extends BaseScreenLayout with LayoutHelpers {
+  const AdminScreenLayout({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final viewedCustomer = context.read<UserProvider>().viewedCustomer!;
-    return ChangeNotifierProvider<BaseHeaderViewModel>(
-      create: (_) => BaseHeaderViewModel(menuTitles: ['Dashboard', 'Inventory', 'Stock'],
-          repository: Repository(HttpService()))..fetchCategoryModelList(
-          viewedCustomer.id, viewedCustomer.role),
-      child: super.build(context),
-    );
-  }
+  Widget build(BuildContext context) =>
+      wrapWithBaseHeader(context, menuTitles: ['Dashboard', 'Inventory', 'Stock'], child: super.build(context));
 
   @override
-  Widget buildNarrow(BuildContext context) => const AdminNarrowLayout();
+  Widget buildNarrow(BuildContext context) => const AdminScreenNarrow();
   @override
-  Widget buildMiddle(BuildContext context) => const AdminMiddleLayout();
+  Widget buildMiddle(BuildContext context) => const AdminScreenMiddle();
   @override
-  Widget buildWide(BuildContext context) => const AdminWideLayout();
+  Widget buildWide(BuildContext context) => const AdminScreenWide();
 }
 
-class AdminDashboardLayout extends BaseScreenLayout {
+class AdminDashboardLayout extends BaseScreenLayout with LayoutHelpers {
   const AdminDashboardLayout({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final viewedCustomer = context.read<UserProvider>().viewedCustomer!;
-    return ManagementDashboardService(
-      userId: viewedCustomer.id,
-      userType: 1,
-      child: super.build(context),
-    );
-  }
+  Widget build(BuildContext context) =>
+      wrapWithDashboardService(userType: 1, context: context, child: super.build(context));
 
   @override
   Widget buildNarrow(BuildContext context) => const AdminDashboardNarrow();
@@ -84,40 +66,27 @@ class AdminDashboardLayout extends BaseScreenLayout {
   Widget buildWide(BuildContext context) => const AdminDashboardWide();
 }
 
-class DealerLayout extends BaseScreenLayout {
-  const DealerLayout({super.key});
+class DealerScreenLayout extends BaseScreenLayout with LayoutHelpers {
+  const DealerScreenLayout({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final viewedCustomer = context.read<UserProvider>().viewedCustomer!;
-    return ChangeNotifierProvider<BaseHeaderViewModel>(
-      create: (_) => BaseHeaderViewModel(menuTitles: ['Dashboard', 'Inventory'],
-          repository: Repository(HttpService()))..fetchCategoryModelList(
-          viewedCustomer.id, viewedCustomer.role),
-      child: super.build(context),
-    );
-  }
+  Widget build(BuildContext context) =>
+      wrapWithBaseHeader(context, menuTitles: ['Dashboard', 'Inventory'], child: super.build(context));
 
   @override
-  Widget buildNarrow(BuildContext context) => const DealerNarrowLayout();
+  Widget buildNarrow(BuildContext context) => const DealerScreenNarrow();
   @override
-  Widget buildMiddle(BuildContext context) => const DealerMiddleLayout();
+  Widget buildMiddle(BuildContext context) => const DealerScreenMiddle();
   @override
-  Widget buildWide(BuildContext context) => const DealerWideLayout();
+  Widget buildWide(BuildContext context) => const DealerScreenWide();
 }
 
-class DealerDashboardLayout extends BaseScreenLayout {
+class DealerDashboardLayout extends BaseScreenLayout with LayoutHelpers {
   const DealerDashboardLayout({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final viewedCustomer = context.read<UserProvider>().viewedCustomer!;
-    return ManagementDashboardService(
-      userId: viewedCustomer.id,
-      userType: 2,
-      child: super.build(context),
-    );
-  }
+  Widget build(BuildContext context) =>
+      wrapWithDashboardService(userType: 2, context: context, child: super.build(context));
 
   @override
   Widget buildNarrow(BuildContext context) => const DealerDashboardNarrow();
@@ -127,12 +96,12 @@ class DealerDashboardLayout extends BaseScreenLayout {
   Widget buildWide(BuildContext context) => const DealerDashboardWide();
 }
 
-class CustomerLayout extends BaseScreenLayout {
-  const CustomerLayout({super.key});
+class CustomerScreenLayout extends BaseScreenLayout with LayoutHelpers {
+  const CustomerScreenLayout({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final viewedCustomer = context.read<UserProvider>().viewedCustomer!;
+    final viewedCustomer = getUserProvider(context).viewedCustomer!;
     return CustomerDashboardService(
       customerId: viewedCustomer.id,
       child: super.build(context),
@@ -140,11 +109,11 @@ class CustomerLayout extends BaseScreenLayout {
   }
 
   @override
-  Widget buildNarrow(BuildContext context) => const CustomerNarrowLayout();
+  Widget buildNarrow(BuildContext context) => const CustomerScreenNarrow();
   @override
-  Widget buildMiddle(BuildContext context) => const CustomerMiddleLayout();
+  Widget buildMiddle(BuildContext context) => const CustomerScreenMiddle();
   @override
-  Widget buildWide(BuildContext context) => const CustomerWideLayout();
+  Widget buildWide(BuildContext context) => const CustomerScreenWide();
 }
 
 

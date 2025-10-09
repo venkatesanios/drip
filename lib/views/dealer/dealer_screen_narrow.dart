@@ -13,8 +13,8 @@ import '../common/product_search_bar.dart';
 import '../common/user_dashboard/widgets/main_menu_segment.dart';
 
 
-class DealerNarrowLayout extends StatelessWidget {
-  const DealerNarrowLayout({super.key});
+class DealerScreenNarrow extends StatelessWidget {
+  const DealerScreenNarrow({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class DealerNarrowLayout extends StatelessWidget {
             final viewedCustomer = context.read<UserProvider>().viewedCustomer;
             Navigator.pop(context, viewedCustomer);
           },
-        ):
+        ) :
         const Padding(
           padding: EdgeInsets.only(left: 15),
           child: AppLogo(),
@@ -47,11 +47,6 @@ class DealerNarrowLayout extends StatelessWidget {
           preferredSize: Size.fromHeight((!F.appFlavor!.name.contains('oro') && viewModel.selectedIndex == 1) ? 106 : 50),
           child: _buildBottomBar(viewModel),
         ),
-
-        /*bottom: viewModel.selectedIndex==1 ? PreferredSize(
-          preferredSize: const Size.fromHeight(56),
-          child: ProductSearchBar(viewModel: viewModel, barHeight: 44, barRadius: 10),
-        ): null,*/
       ),
       body: IndexedStack(
         index: viewModel.selectedIndex,

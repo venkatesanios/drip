@@ -10,8 +10,8 @@ import '../common/product_inventory.dart';
 import '../common/product_search_bar.dart';
 import '../common/user_dashboard/widgets/main_menu.dart';
 
-class DealerWideLayout extends StatelessWidget {
-  const DealerWideLayout({super.key});
+class DealerScreenWide extends StatelessWidget {
+  const DealerScreenWide({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +21,7 @@ class DealerWideLayout extends StatelessWidget {
         automaticallyImplyLeading: true,
         leading: Navigator.of(context).canPop() ? IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () =>Navigator.pop(context),
+          onPressed: () => Navigator.pop(context),
         ) :
         const Padding(
           padding: EdgeInsets.only(left: 15),
@@ -32,8 +32,8 @@ class DealerWideLayout extends StatelessWidget {
             MainMenu(viewModel: viewModel),
             if(viewModel.selectedIndex==1)...[
               const Spacer(),
-              SizedBox(width : 420, child: ProductSearchBar(
-                  viewModel: viewModel, barHeight: 40, barRadius: 20)),
+              SizedBox(width : 420,
+                  child: ProductSearchBar(viewModel: viewModel, barHeight: 40, barRadius: 20)),
               const Spacer(),
             ]
           ],
@@ -55,5 +55,4 @@ class DealerWideLayout extends StatelessWidget {
       ),
     );
   }
-
 }

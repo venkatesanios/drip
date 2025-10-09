@@ -337,8 +337,8 @@ class CustomerView extends StatelessWidget {
     userProvider.pushViewedCustomer(user);
 
     final route = role.name == 'admin'
-        ? const DealerLayout()
-        : const CustomerLayout();
+        ? const DealerScreenLayout()
+        : const CustomerScreenLayout();
 
     Navigator.push(
       context,

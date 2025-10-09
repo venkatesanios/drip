@@ -108,7 +108,6 @@ enum PumpReasonCode {
   motorOffRTC6(20, 'Motor off due to RTC 6'),
   motorOffKeyOff(21, 'Motor off due to auto mobile key off'),
 
-
   // Motor ON reasons
   motorOnCyclicTime(22, 'Motor on due to cyclic time'),
   motorOnRTC1(23, 'Motor on due to RTC 1'),
@@ -123,7 +122,8 @@ enum PumpReasonCode {
   motorOffTN(32,'Motor off due to trip to normal'),
   motorOff2P(33,'Motor off due to 2phase'),
   motorOffPOn(34,'Motor off due to other pump is on'),
-  motorOffPOff(35,'Motor off due to waiting for other pump to turn off');
+  motorOffPOff(35,'Motor off due to waiting for other pump to turn off'),
+  motorOffPrsSwtHigh(36,'Motor off due to pressure switch high');
 
 
   final int code;

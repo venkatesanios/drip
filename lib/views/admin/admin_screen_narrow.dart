@@ -11,8 +11,8 @@ import '../common/stock_entry.dart';
 import '../common/product_search_bar.dart';
 import '../common/user_dashboard/widgets/main_menu_segment.dart';
 
-class AdminNarrowLayout extends StatelessWidget {
-  const AdminNarrowLayout({super.key});
+class AdminScreenNarrow extends StatelessWidget {
+  const AdminScreenNarrow({super.key});
 
   @override
   Widget build(BuildContext context) {

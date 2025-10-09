@@ -224,15 +224,12 @@ class _ScheduledProgramNarrowState extends State<ScheduledProgramNarrow> {
                           Tooltip(
                             message: ProgramCodeHelper.getDescription(int.parse(program.prgOnOff)),
                             child: MaterialButton(
-                              color: int.parse(program.prgOnOff) >= 0
-                                  ? isStop
-                                  ? Colors.red
-                                  : isBypass
-                                  ? Colors.orange
-                                  : Colors.green
-                                  : Colors.grey.shade300,
+                              color: int.parse(program.prgOnOff) >= 0 ? isStop ? Colors.red :
+                              isBypass ? Colors.orange :
+                              Colors.green : Colors.grey.shade300,
                               textColor: Colors.white,
                               onPressed: () {
+
                                 String payload = '${program.serialNumber},${program.prgOnOff}';
                                 String payLoadFinal = jsonEncode({
                                   "2900": {"2901": payload}

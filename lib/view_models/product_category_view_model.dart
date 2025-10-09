@@ -10,7 +10,7 @@ class ProductCategoryViewModel extends ChangeNotifier {
 
   ProductCategoryViewModel(this.repository);
 
-  Future<void> getProductCategory() async {
+  Future<void> getMyProductCategory() async {
     setCategoryLoading(true);
     try {
       var response = await repository.fetchCategory();

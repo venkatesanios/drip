@@ -14,11 +14,11 @@ class SiteSelectorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if ((vm.mySiteList.data.length ?? 0) > 1) {
+    if ((vm.mySiteList.data.length) > 1) {
       return DropdownButton(
         isExpanded: false,
         underline: Container(),
-        items: (vm.mySiteList.data ?? []).map((site) {
+        items: (vm.mySiteList.data).map((site) {
           return DropdownMenuItem(
             value: site.groupName,
             child: Text(

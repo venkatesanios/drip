@@ -183,6 +183,7 @@ class InventoryViewModel extends ChangeNotifier {
                           ),
                           onSelected: (ProductModel? mdl) {
                             mdlId = mdl!.modelId;
+                            mdlName = mdl.modelName;
                           },
                         ),
                         const SizedBox(height: 15,),
@@ -253,12 +254,18 @@ class InventoryViewModel extends ChangeNotifier {
                   if (formKey.currentState!.validate())
                   {
                     try {
-                      final body = {"productId": productId, "modelId": mdlId, "deviceId": ctrlIMI.text.trim(), "warrantyMonths": ctrlWrM.text, 'modifyUser': userId};
+                      final body = {
+                        "productId": productId,
+                        "modelId": mdlId,
+                        "modelName": mdlName,
+                        "deviceId": ctrlIMI.text.trim(),
+                        "warrantyMonths": ctrlWrM.text,
+                        'modifyUser': userId
+                      };
                       var response = await repository.updateProduct(body);
                       if (response.statusCode == 200) {
                         final Map<String, dynamic> jsonData = jsonDecode(response.body);
                         if (jsonData["code"] == 200) {
-
                           for (var item in productInventoryList) {
                             if (item.productId == productId) {
                               item.deviceId = ctrlIMI.text.trim();
@@ -266,10 +273,8 @@ class InventoryViewModel extends ChangeNotifier {
                               break;
                             }
                           }
-
                           GlobalSnackBar.show(context, jsonData["message"], 200);
                           Navigator.pop(context);
-
                         } else {
                           debugPrint("API Error: ${jsonData['message']}");
                           GlobalSnackBar.show(context, jsonData["message"], jsonData["code"]);
