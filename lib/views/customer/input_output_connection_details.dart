@@ -148,59 +148,6 @@ class Tile extends StatelessWidget {
                         }),
                       ),
                     ),
-                    /*SizedBox(
-                      height: int.parse(parts[1])*35+30,
-                      child: DataTable2(
-                        columnSpacing: 12,
-                        horizontalMargin: 12,
-                        minWidth: 350,
-                        dataRowHeight: 35.0,
-                        headingRowHeight: 30.0,
-                        headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withValues(alpha: 0.1)),
-                        columns: const [
-                          DataColumn2(
-                            label: Text('Input', style: TextStyle(fontSize: 13)),
-                            fixedWidth: 90,
-                          ),
-                          DataColumn2(
-                              label: Text('Id', style: TextStyle(fontSize: 13),),
-                              size: ColumnSize.S
-                          ),
-                          DataColumn2(
-                              label: Text('Name', style: TextStyle(fontSize: 13),),
-                              size: ColumnSize.M
-                          ),
-                        ],
-                        rows: List<DataRow>.generate(int.parse(parts[1]), (index) {
-
-                          final SensorStatus snr = sensorStatusList.firstWhere(
-                                (sr) => sr.angIpNo == (index + 1),
-                            orElse: () => SensorStatus(
-                              sNo: -1,
-                              name: 'N/A',
-                              swName: 'N/A',
-                              angIpNo: -1,
-                              pulseIpNo: -1,
-                              value: '',
-                              latLong: '',
-                            ),
-                          );
-
-                          return DataRow(cells: [
-                            DataCell(Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                IconButton(onPressed: () { }, icon: const Icon(Icons.add_circle, color: Colors.black54,),),
-                                Text('DI-${index+1}', style: const TextStyle(fontSize: 10),),
-                              ],
-                            )),
-                            DataCell(Text(snr.angIpNo!=-1?snr.name:'--', style: TextStyle(fontSize: 12),)),
-                            DataCell(Text(snr.swName!='N/A'?'${snr.swName}':'--', style: TextStyle(fontSize: 12),)),
-                          ]);
-                        }),
-                      ),
-                    ),*/
                   ],
                 ),
               )

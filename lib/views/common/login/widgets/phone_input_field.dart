@@ -13,7 +13,7 @@ class PhoneInputField extends StatelessWidget {
     final viewModel = Provider.of<LoginViewModel>(context);
     return IntlPhoneField(
       decoration: InputDecoration(
-        hintText: 'Enter phone number',
+        hintText: 'Mobile number',
         border: const OutlineInputBorder(),
         suffixIcon: IconButton(
           icon: const Icon(Icons.clear, color: Colors.red),

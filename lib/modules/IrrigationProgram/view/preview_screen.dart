@@ -8,7 +8,6 @@ import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-import '../../../views/customer/program_schedule.dart';
 import '../model/sequence_model.dart';
 import '../../config_Maker/model/device_object_model.dart';
 import '../repository/irrigation_program_repo.dart';
