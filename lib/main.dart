@@ -65,6 +65,7 @@ Future<void> requestAppPermissions() async {
   }
 }
 
+
 FutureOr<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 

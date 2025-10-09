@@ -86,7 +86,11 @@ class _LoginScreenState extends State<LoginScreenOTP> {
 
 
           if (mounted) {
-            Navigator.pushReplacementNamed(context, '/dashboard');
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              '/dashboard',
+                  (Route<dynamic> route) => false,
+            );
           }
           return 'true';
         } else {

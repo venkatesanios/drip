@@ -14,7 +14,11 @@ class LoginScreen extends StatelessWidget {
       create: (_) => LoginViewModel(
         repository: RepositoryImpl(HttpService()),
         onLoginSuccess: (message) {
-          Navigator.pushReplacementNamed(context, '/dashboard');
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/dashboard',
+                (Route<dynamic> route) => false, // remove all previous routes
+          );
         },
       ),
       child: const LoginScreenLayout(),

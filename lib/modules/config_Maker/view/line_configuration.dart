@@ -97,7 +97,13 @@ class _LineConfigurationState extends State<LineConfiguration> {
                                         }, icon: const Icon(Icons.dataset)
                                     ),
                                     if(widget.configPvd.pump.any((pump) => pump.pumpType == 1))
-                                      getLineParameter(line: selectedIrrigationLine, currentParameterValue: selectedIrrigationLine.sourcePump, parameterType: LineParameter.sourcePump, objectId: AppConstants.pumpObjectId, objectName: 'Source Pump', validateAllLine: false,
+                                      getLineParameter(
+                                          line: selectedIrrigationLine,
+                                          currentParameterValue: selectedIrrigationLine.sourcePump,
+                                          parameterType: LineParameter.sourcePump,
+                                          objectId: AppConstants.pumpObjectId,
+                                          objectName: 'Source Pump',
+                                          validateAllLine: false,
                                           listOfObject: widget.configPvd.listOfGeneratedObject.where((pumpObject){
                                             return widget.configPvd.pump.any((pump) => pump.commonDetails.sNo == pumpObject.sNo && pump.pumpType == 1);
                                           }).toList()
@@ -496,6 +502,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
         return Container();
       }
     }
+
     return InkWell(
       onTap: (){
         setState(() {
@@ -631,6 +638,8 @@ class _LineConfigurationState extends State<LineConfiguration> {
     )
         .map((source) => source.copy())
         .toList();
+
+    print("Suitable source :: ${widget.configPvd.source.map((e) => e.toJson()).toList()}");
 
     for(var src in suitableSource){
       src.inletPump = src.inletPump.where((pumpSno) => selectedIrrigationLine.sourcePump.contains(pumpSno) || selectedIrrigationLine.irrigationPump.contains(pumpSno)).toList();
