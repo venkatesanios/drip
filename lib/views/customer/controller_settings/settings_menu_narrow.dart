@@ -15,14 +15,13 @@ class SettingsMenuNarrow extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final loggedInUser = Provider.of<UserProvider>(context).loggedInUser;
-    final vCustomer = Provider.of<UserProvider>(context).viewedCustomer;
 
     final cVM = context.watch<CustomerScreenControllerViewModel>();
     final master = cVM.mySiteList.data[cVM.sIndex].master[cVM.mIndex];
 
     final ctx = ControllerContext(
       userId: loggedInUser.id,
-      customerId: vCustomer!.id,
+      customerId: cVM.mySiteList.data[cVM.sIndex].customerId,
       controllerId: master.controllerId,
       categoryId: master.categoryId,
       modelId: master.modelId,

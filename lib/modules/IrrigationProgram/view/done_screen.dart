@@ -7,7 +7,6 @@ import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/schedule_scre
 import 'package:provider/provider.dart';
 import '../../../services/mqtt_service.dart';
 import '../../../utils/constants.dart';
-import '../../../views/customer/program_schedule.dart';
 import '../repository/irrigation_program_repo.dart';
 import '../state_management/irrigation_program_provider.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';

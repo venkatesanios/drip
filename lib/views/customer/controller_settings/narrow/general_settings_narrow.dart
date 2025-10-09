@@ -11,8 +11,8 @@ import '../../../../services/http_service.dart';
 import '../../../../view_models/customer/general_setting_view_model.dart';
 
 class GeneralSettingsNarrow extends StatefulWidget {
-  const GeneralSettingsNarrow({super.key, required this.controllerId});
-  final int controllerId;
+  const GeneralSettingsNarrow({super.key, required this.controllerId, required this.customerId});
+  final int customerId, controllerId;
 
   @override
   State<GeneralSettingsNarrow> createState() => _GeneralSettingsNarrowState();
@@ -23,13 +23,12 @@ class _GeneralSettingsNarrowState extends State<GeneralSettingsNarrow> {
   Widget build(BuildContext context) {
 
     final loggedInUser = Provider.of<UserProvider>(context).loggedInUser;
-    final vCustomer = Provider.of<UserProvider>(context).viewedCustomer;
 
 
     return ChangeNotifierProvider(
       create: (_) => GeneralSettingViewModel(Repository(HttpService()))
-        ..getControllerInfo(vCustomer!.id, widget.controllerId)
-        ..getSubUserList(vCustomer.id)
+        ..getControllerInfo(widget.customerId, widget.controllerId)
+        ..getSubUserList(widget.customerId)
         ..getLanguage(),
       child: Consumer<GeneralSettingViewModel>(
         builder: (context, viewModel, _) {
@@ -45,7 +44,7 @@ class _GeneralSettingsNarrowState extends State<GeneralSettingsNarrow> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => ResetVerssion(
-                          userId: vCustomer!.id, controllerId: widget.controllerId,
+                          userId: widget.customerId, controllerId: widget.controllerId,
                           deviceID: viewModel.deviceId),
                     ),
                   );
@@ -80,7 +79,7 @@ class _GeneralSettingsNarrowState extends State<GeneralSettingsNarrow> {
                     padding: const EdgeInsets.only(top: 5, bottom: 5),
                     child: Column(
                       children: List.generate(5, (index) => getSettingTile(
-                        context, viewModel, index, vCustomer!.id, widget.controllerId, loggedInUser.id)),
+                        context, viewModel, index, widget.customerId, widget.controllerId, loggedInUser.id)),
                     ),
                   ),
                 ),
@@ -108,7 +107,7 @@ class _GeneralSettingsNarrowState extends State<GeneralSettingsNarrow> {
                     padding: const EdgeInsets.only(top: 5, bottom: 5),
                     child: Column(
                       children: List.generate(isEcoMdl? 7 : 6, (index) => getSettingTile(context,
-                          viewModel, isEcoMdl? index + 5 : index + 6, vCustomer!.id, widget.controllerId, loggedInUser.id)),
+                          viewModel, isEcoMdl? index + 5 : index + 6, widget.customerId, widget.controllerId, loggedInUser.id)),
                     ),
                   ),
                 ),
