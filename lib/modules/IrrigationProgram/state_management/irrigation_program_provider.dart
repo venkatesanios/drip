@@ -2504,7 +2504,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         _selectedObjects = [];
       }
       // print("selected objects in the get function :: ${_selectedObjects!.map((e) => e.toJson()).toList()}");
-      _additionalData = AdditionalData.fromJson(jsonData['data']);
+      _additionalData = AdditionalData.fromJson(jsonData['data']['selection']);
     } catch (e) {
       log('Error: $e');
     }
