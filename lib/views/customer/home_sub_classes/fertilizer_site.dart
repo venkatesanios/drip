@@ -38,23 +38,7 @@ class BoosterWidget extends StatelessWidget {
                   children: [
                     AppConstants.getAsset('booster', fertilizerSite.boosterPump[0].status,''),
                     Positioned(
-                      top: 77,
-                      left: 15,
-                      child: fertilizerSite.selector.isNotEmpty ? const SizedBox(
-                        width: 50,
-                        child: Center(
-                          child: Text('Selector' , style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 10,
-                            fontWeight: FontWeight.normal,
-                          ),
-                          ),
-                        ),
-                      ) :
-                      const SizedBox(),
-                    ),
-                    Positioned(
-                      top: 90,
+                      top: 85,
                       left: 18,
                       child: fertilizerSite.selector.isNotEmpty ? Container(
                         decoration: BoxDecoration(
@@ -63,8 +47,15 @@ class BoosterWidget extends StatelessWidget {
                           fertilizerSite.selector[0].status == 2? Colors.orangeAccent:Colors.redAccent,
                           borderRadius: BorderRadius.circular(3),
                         ),
-                        width: 45,
-                        height: 20,
+                        width: 50,
+                        height: 25,
+                        child: Center(
+                          child: Text(fertilizerSite.selector[0].name , style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 9,
+                            fontWeight: FontWeight.normal,
+                          )),
+                        ),
                       ):
                       const SizedBox(),
                     ),
@@ -192,6 +183,7 @@ class ChannelWidget extends StatelessWidget {
         provider.getChannelOnOffStatus(channel.sNo.toString()),
         provider.getChannelOtherData(channel.sNo.toString()),
       ),
+
       builder: (_, data, __) {
         final status = data.item1;
         final other = data.item2;

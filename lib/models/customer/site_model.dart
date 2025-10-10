@@ -855,7 +855,6 @@ class FertilizerSiteModel {
   List<Ec>? ec;
   List<Ph>? ph;
 
-
   FertilizerSiteModel({
     required this.objectId,
     required this.sNo,

@@ -44,6 +44,13 @@ class FertilizerSiteCard extends StatelessWidget {
           onChanged: (val) => onChanged(a, val),
         )));
 
+        rows.addAll(site.selector.map((a) => CustomSwitchRow(
+          iconPath: 'assets/png/selector.png',
+          label: a.name,
+          value: a.selected,
+          onChanged: (val) => onChanged(a, val),
+        )));
+
         return Padding(
           padding: const EdgeInsets.only(bottom: 8),
           child: CustomCardTable(

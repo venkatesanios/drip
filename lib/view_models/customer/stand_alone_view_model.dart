@@ -28,18 +28,9 @@ class StandAloneViewModel extends ChangeNotifier {
 
 
   List<ProgramModel> programList = [];
- /* StandAloneModel standAloneData = StandAloneModel(
-    startTogether: false,
-    time: '',
-    flow: '',
-    method: 0,
-    selection: [],
-    sequence: [],
-  );*/
 
   StandAloneModel? standAloneData;
 
-  //StandAloneModel standAloneData = StandAloneModel();
   bool visibleLoading = false;
   int ddCurrentPosition = 0;
   int serialNumber = 0;
@@ -507,6 +498,7 @@ class StandAloneViewModel extends ChangeNotifier {
     String strSldCtrlFrtBoosterSrlNo = extractCFrtBoosterSNos(masterData.irrigationLine,'central');
     String strSldCtrlFrtChannelSrlNo = extractCFrtChannelSNos(masterData.irrigationLine,'central');
     String strSldCtrlFrtAgitatorSrlNo = extractCFrtAgitatorSN(masterData.irrigationLine,'central');
+    String strSldCtrlFrtSelectorSrlNo = extractCFrtSelectorSN(masterData.irrigationLine,'central');
 
 
     if(ddCurrentPosition==0 && !isNova) {
@@ -552,6 +544,7 @@ class StandAloneViewModel extends ChangeNotifier {
         strSldCtrlFrtBoosterSrlNo,
         strSldCtrlFrtChannelSrlNo,
         strSldCtrlFrtAgitatorSrlNo,
+        strSldCtrlFrtSelectorSrlNo,
       ];
 
       print(allRelaySrlNo);
@@ -726,6 +719,22 @@ class StandAloneViewModel extends ChangeNotifier {
           final agitatorSrlNo = getSelectedRelaySrlNo(line.centralFertilizerSite!.agitator);
           if (agitatorSrlNo.isNotEmpty) {
             result.add(agitatorSrlNo);
+          }
+        }
+      }else{
+      }
+    }
+    return result.join('_');
+  }
+
+  String extractCFrtSelectorSN(List<IrrigationLineModel> lines, String type) {
+    final List<String> result = [];
+    for (var line in lines) {
+      if(type=='central'){
+        if (line.centralFertilizerSite != null && line.centralFertilizerSite!.selector.isNotEmpty) {
+          final selectorSrlNo = getSelectedRelaySrlNo(line.centralFertilizerSite!.selector);
+          if (selectorSrlNo.isNotEmpty) {
+            result.add(selectorSrlNo);
           }
         }
       }else{
