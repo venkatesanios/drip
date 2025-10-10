@@ -866,13 +866,13 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                                   if(pumpItem.float.split(':')[i] != "-")
                                     _buildColumn(
                                         title1: i == 0
-                                            ? "Sump Low"
+                                            ? "Sump Bottom Float"//Changed as requested from Subash.D
                                             : i == 1
-                                            ? "Sump High"
+                                            ? "Sump Top Float"
                                             : i == 2
-                                            ? "Tank Low"
+                                            ? "Tank Top Float"
                                             : i == 3
-                                            ? "Tank High"
+                                            ? "Tank Bottom Float"
                                             : "Unknown",
                                         value1: pumpItem.float.split(':')[i].toString() == "1" ? "High" : "Low",
                                         constraints: constraints,
