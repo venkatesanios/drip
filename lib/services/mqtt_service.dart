@@ -7,12 +7,17 @@ import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart' if (dart.library.html) 'package:mqtt_client/mqtt_browser_client.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:oro_drip_irrigation/utils/environment.dart';
+import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import '../Constants/constants.dart';
 import '../StateManagement/mqtt_payload_provider.dart';
+import '../app/app.dart';
 import '../modules/PumpController/model/pump_controller_data_model.dart';
+import '../providers/button_loading_provider.dart';
 import '../utils/constants.dart';
 import 'package:rxdart/rxdart.dart';
+
+import '../utils/my_helper_class.dart';
 
 class MqttService {
   static MqttService? _instance;
@@ -203,18 +208,51 @@ class MqttService {
         case 'SMS':
           preferenceAck = payloadMessage;
           break;
+
         case 'LD01':
-          pumpDashboardPayload = PumpControllerData.fromJson(payloadMessage, "cM", 1);
+          pumpDashboardPayload =
+              PumpControllerData.fromJson(payloadMessage, "cM", 1);
           providerState?.updateLastSyncDateFromPumpControllerPayload(payload);
           break;
+
         case '3600':
-          schedulePayload = Constants.dataConversionForScheduleView(payloadMessage['cM']['3601']);
+          schedulePayload =
+              Constants.dataConversionForScheduleView(payloadMessage['cM']['3601']);
           break;
+
+        case '4200':
+          _handleAcknowledgement(payloadMessage);
+          break;
+
         default:
           providerState?.updateReceivedPayload(payload, true);
       }
     } catch (e, stackTrace) {
       debugPrint('MQTT Payload Parsing Error: $e\n$stackTrace');
+    }
+  }
+
+
+  void _handleAcknowledgement(Map<String, dynamic> message) {
+    final content = message['cM']?['4201'];
+    final code = content?['Code'];
+    final payloadCode = content?['PayloadCode'];
+
+    if (code == '200') {
+      final buttonId = MqttAckTracker.findButtonByPayload(payloadCode);
+      if (buttonId != null) {
+        final buttonProvider = Provider.of<ButtonLoadingProvider>(
+          navigatorKey.currentContext!,
+          listen: false,
+        );
+        buttonProvider.setLoading(buttonId, false);
+        MqttAckTracker.remove(buttonId);
+        debugPrint('✅ ACK received for buttonId=$buttonId payloadCode=$payloadCode');
+      } else {
+        debugPrint('⚠️No matching button found for payloadCode=$payloadCode');
+      }
+    } else {
+      debugPrint('⚠️ACK error: $code');
     }
   }
 

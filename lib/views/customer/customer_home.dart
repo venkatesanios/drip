@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:oro_drip_irrigation/utils/helpers/mc_permission_helper.dart';
 import 'package:oro_drip_irrigation/views/customer/home_sub_classes/current_program.dart';
+import 'package:oro_drip_irrigation/views/customer/widgets/my_material_button.dart';
 import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -116,31 +117,18 @@ class CustomerHome extends StatelessWidget {
                               ),
                               if(hasLinePP)...[
                                 const Spacer(),
-                                MaterialButton(
-                                  color: line.linePauseFlag==0? Colors.amber : Colors.green,
-                                  textColor: Colors.black87,
-                                  onPressed: () async {
-                                    String payLoadFinal = jsonEncode({
-                                      "4900": {
-                                        "4901": "${line.sNo}, ${line.linePauseFlag==0?1:0}",
-                                      }
-                                    });
-                                    final result = await context.read<CommunicationService>().sendCommand(payload: payLoadFinal,
-                                        serverMsg: line.linePauseFlag==0 ? 'Paused the ${line.name}' : 'Resumed the ${line.name}');
-                                    if (result['http'] == true) {
-                                      debugPrint("Payload sent to Server");
-                                    }
-                                    if (result['mqtt'] == true) {
-                                      debugPrint("Payload sent to MQTT Box");
-                                    }
-                                    if (result['bluetooth'] == true) {
-                                      debugPrint("Payload sent via Bluetooth");
-                                    }
-                                  },
-                                  child: Text(
-                                    line.linePauseFlag==0?'PAUSE THE LINE':
-                                    'RESUME THE LINE',
-                                    style: const TextStyle(color: Colors.black54),
+                                SizedBox(
+                                  height: 27,
+                                  child: MyMaterialButton(
+                                    buttonId: 'line_${line.sNo}_4900',
+                                    label: line.linePauseFlag == 0 ? 'Pause the line' : 'Resume the line',
+                                    payloadKey: "4900",
+                                    payloadValue: "${line.sNo},${line.linePauseFlag == 0 ? 1 : 0}",
+                                    color: line.linePauseFlag == 0 ? Colors.orangeAccent : Colors.green,
+                                    textColor: Colors.white,
+                                    serverMsg: line.linePauseFlag == 0
+                                        ? 'Paused the ${line.name}'
+                                        : 'Resumed the ${line.name}',
                                   ),
                                 ),
                                 const SizedBox(width: 10)

@@ -64,3 +64,23 @@ mixin ProgramRefreshMixin<T extends StatefulWidget> on State<T> {
     }
   }
 }
+
+class MqttAckTracker {
+  static final Map<String, String> _pending = {};
+
+  static void registerPending(String buttonId, String payloadKey) {
+    _pending[buttonId] = payloadKey;
+  }
+
+  static String? findButtonByPayload(String payloadKey) {
+    try {
+      return _pending.entries.firstWhere((entry) => entry.value == payloadKey).key;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static void remove(String buttonId) {
+    _pending.remove(buttonId);
+  }
+}

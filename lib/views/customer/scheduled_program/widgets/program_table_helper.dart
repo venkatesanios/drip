@@ -11,6 +11,7 @@ import '../../../../services/communication_service.dart';
 import '../../../../utils/formatters.dart';
 import '../../../../utils/helpers/program_code_helper.dart';
 import '../../../../utils/my_function.dart';
+import '../../widgets/my_material_button.dart';
 import 'ai_recommendation_button.dart';
 import 'clickable_submenu.dart';
 
@@ -120,52 +121,36 @@ class ProgramTableHelper {
           DataCell(
             program.status == 1 ? Row(
               children: [
-                MaterialButton(
-                  color: int.parse(program.prgOnOff) >= 0 ? (isStop ? Colors.red : isBypass ? Colors.orange : Colors.green) : Colors.grey.shade300,
-                  textColor: Colors.white,
-                  onPressed: () {
-                    final payload = '${program.serialNumber},${program.prgOnOff}';
-                    final payLoadFinal = jsonEncode({"2900": {"2901": payload}});
-                    Provider.of<CommunicationService>(context, listen: false)
-                        .sendCommand(serverMsg: '${program.programName} ${ProgramCodeHelper.getDescription(int.parse(program.prgOnOff))}', payload: payLoadFinal);
-                  },
-                  child: Text(buttonName, style: const TextStyle(color: Colors.white)),
+                SizedBox(
+                  height: 27,
+                  child: MyMaterialButton(
+                    buttonId: '${program.serialNumber}_2900_ss',
+                    label: buttonName,
+                    payloadKey: "2900",
+                    payloadValue: '${program.serialNumber},${program.prgOnOff}',
+                    color: int.parse(program.prgOnOff) >= 0 ? isStop ? Colors.red :
+                    isBypass ? Colors.orange :
+                    Colors.green : Colors.black26,
+                    textColor: Colors.white,
+                    serverMsg:
+                    '${program.programName} ${ProgramCodeHelper.getDescription(int.parse(program.prgOnOff))}',
+                  ),
                 ),
                 const SizedBox(width: 5),
-                MaterialButton(
-                  color: ProgramCodeHelper.getDescription(int.parse(program.prgPauseResume)) == 'Pause'
-                      ? Colors.orange
-                      : Colors.yellow,
-                  textColor: ProgramCodeHelper.getDescription(int.parse(program.prgPauseResume)) == 'Pause'
-                      ? Colors.white
-                      : Colors.black,
-                  onPressed: () async {
-                    final confirmed = await showDialog<bool>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: Text(
-                            'Are you sure you want to ${ProgramCodeHelper.getDescription(int.parse(program.prgPauseResume))} the ${program.programName}?'),
-                        actions: [
-                          TextButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              child: const Text('Cancel')),
-                          TextButton(
-                              onPressed: () {
-                                final payload = '${program.serialNumber},${program.prgPauseResume}';
-                                final payLoadFinal = jsonEncode({"2900": {"2901": payload}});
-                                Provider.of<CommunicationService>(context, listen: false).sendCommand(
-                                    serverMsg:
-                                    '${program.programName} ${ProgramCodeHelper.getDescription(int.parse(program.prgPauseResume))}',
-                                    payload: payLoadFinal);
-
-                                Navigator.pop(context, true);
-                              },
-                              child: const Text('Yes')),
-                        ],
-                      ),
-                    );
-                  },
-                  child: Text(ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume))),
+                SizedBox(
+                  height: 27,
+                  child: MyMaterialButton(
+                    buttonId: '${program.serialNumber}_2900_pr',
+                    label: ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume)),
+                    payloadKey: "2900",
+                    payloadValue: '${program.serialNumber},${program.prgPauseResume}',
+                    color: ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume)) == 'Pause'
+                        ? Colors.orange : Colors.yellow,
+                    textColor: ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume)) == 'Pause'
+                        ? Colors.white : Colors.black,
+                    serverMsg:
+                    '${program.programName} ${ProgramCodeHelper.getDescription(int.parse(program.prgPauseResume))}',
+                  ),
                 ),
                 const SizedBox(width: 5),
                 PopupMenuButton<String>(

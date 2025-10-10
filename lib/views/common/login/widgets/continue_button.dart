@@ -18,7 +18,7 @@ class ContinueButton extends StatelessWidget {
         textColor: Colors.white,
         onPressed: viewModel.login,
         child: viewModel.isLoading 
-            ? const LoadingIndicator(indicatorType: Indicator.ballPulse, colors: [Colors.white],)
+            ? const LoadingIndicator(indicatorType: Indicator.ballPulse, colors: [Colors.white])
             : const Text('CONTINUE', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
       ),
     );

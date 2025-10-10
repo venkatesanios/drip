@@ -21,6 +21,7 @@ import '../../../../view_models/customer/customer_screen_controller_view_model.d
 import '../../../customer/customer_home.dart';
 import '../../../customer/home_sub_classes/fertilizer_site.dart';
 import '../../../customer/home_sub_classes/filter_site.dart';
+import '../../../customer/widgets/my_material_button.dart';
 import '../../../customer/widgets/sensor_widget_mobile.dart';
 
 class CustomerHomeNarrow extends StatelessWidget {
@@ -93,35 +94,18 @@ class CustomerHomeNarrow extends StatelessWidget {
                                 ),
                                 if(hasLinePP)...[
                                   const Spacer(),
-                                  MaterialButton(
-                                    color: line.linePauseFlag == 0 ? Theme.of(context).primaryColorLight :
-                                    Colors.orange.shade400,
-                                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                                    onPressed: () async {
-                                      String payLoadFinal = jsonEncode({
-                                        "4900": {
-                                          "4901": "${line.sNo}, ${line.linePauseFlag == 0 ? 1 : 0}",
-                                        }
-                                      });
-
-                                      final result = await context.read<CommunicationService>().sendCommand(
-                                        payload: payLoadFinal,
-                                        serverMsg: line.linePauseFlag == 0
-                                            ? 'Paused the ${line.name}'
-                                            : 'Resumed the ${line.name}',
-                                      );
-
-                                      if (result['http'] == true) debugPrint("Payload sent to Server");
-                                      if (result['mqtt'] == true) debugPrint("Payload sent to MQTT Box");
-                                      if (result['bluetooth'] == true) debugPrint("Payload sent via Bluetooth");
-                                    },
-                                    child: Text(
-                                      line.linePauseFlag == 0 ? 'PAUSE THE LINE' : 'RESUME THE LINE',
-                                      style: const TextStyle(
-                                        color:Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12,
-                                      ),
+                                  SizedBox(
+                                    height: 35,
+                                    child: MyMaterialButton(
+                                      buttonId: 'line_${line.sNo}_4900',
+                                      label: line.linePauseFlag == 0 ? 'Pause the line' : 'Resume the line',
+                                      payloadKey: "4900",
+                                      payloadValue: "${line.sNo},${line.linePauseFlag == 0 ? 1 : 0}",
+                                      color: line.linePauseFlag == 0 ? Colors.orangeAccent : Colors.green,
+                                      textColor: Colors.white,
+                                      serverMsg: line.linePauseFlag == 0
+                                          ? 'Paused the ${line.name}'
+                                          : 'Resumed the ${line.name}',
                                     ),
                                   ),
                                   const SizedBox(width: 5)

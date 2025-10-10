@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/PumpController/state_management/pump_controller_provider.dart';
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/state_management/ble_service.dart';
+import 'package:oro_drip_irrigation/providers/button_loading_provider.dart';
 import 'package:oro_drip_irrigation/providers/user_provider.dart';
 import 'package:oro_drip_irrigation/services/bluetooth_service.dart';
 import 'package:oro_drip_irrigation/services/communication_service.dart';
@@ -32,7 +33,6 @@ import 'modules/constant/state_management/constant_provider.dart';
 
 // Initialize local notifications plugin
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 // Background message handler for Firebase
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -122,6 +122,7 @@ FutureOr<void> main() async {
         ChangeNotifierProvider(create: (_) => PumpControllerProvider()),
         ChangeNotifierProvider(create: (_) => BleProvider()),
         ChangeNotifierProvider(create: (_) => SearchProvider()),
+        ChangeNotifierProvider(create: (_) => ButtonLoadingProvider()),
 
         ProxyProvider2<MqttPayloadProvider, CustomerProvider, CommunicationService>(
           update: (BuildContext context, MqttPayloadProvider mqttProvider,

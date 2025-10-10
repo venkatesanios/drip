@@ -22,7 +22,7 @@ class ConnectionBanner extends StatelessWidget {
         ),
       );
     }else if (vm.isNotCommunicate) {
-      return _buildBanner('NO COMMUNICATION TO CONTROLLER', Colors.red.shade200);
+      return _buildBanner('NO COMMUNICATION TO CONTROLLER', Colors.red.shade300);
     }else if (vm.powerSupply == 0) {
       return _buildBanner('NO POWER SUPPLY TO CONTROLLER', Colors.red.shade300);
     }
