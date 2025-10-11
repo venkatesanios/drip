@@ -408,8 +408,12 @@ class ConfigMakerProvider extends ChangeNotifier{
       source = (configMakerData['waterSource'] as List<dynamic>).map((sourceObject) => SourceModel.fromJson(sourceObject)).toList();
       pump = (configMakerData['pump'] as List<dynamic>).map((pumpObject) => PumpModel.fromJson(pumpObject)).toList();
       moisture = (configMakerData['moistureSensor'] as List<dynamic>).map((moistureObject) => MoistureModel.fromJson(moistureObject)).toList();
-      ec = (configMakerData['ecSensor'] as List<dynamic>).map((ecObject) => EcModel.fromJson(ecObject)).toList();
-      ph = (configMakerData['phSensor'] as List<dynamic>).map((phObject) => PhModel.fromJson(phObject)).toList();
+      if(configMakerData.containsKey('ecSensor')){
+        ec = (configMakerData['ecSensor'] as List<dynamic>).map((ecObject) => EcModel.fromJson(ecObject)).toList();
+      }
+      if(configMakerData.containsKey('phSensor')){
+        ph = (configMakerData['phSensor'] as List<dynamic>).map((phObject) => PhModel.fromJson(phObject)).toList();
+      }
       line = (configMakerData['irrigationLine'] as List<dynamic>).map((lineObject) => IrrigationLineModel.fromJson(lineObject)).toList();
     } catch (e, stackTrace){
       print('Error on converting to device model :: $e');
