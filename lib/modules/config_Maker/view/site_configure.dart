@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/modules/config_Maker/view/ec_configuration.dart';
+import 'package:oro_drip_irrigation/modules/config_Maker/view/ph_configuration.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/view/pump_configuration.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/view/source_configuration.dart';
 import '../model/device_object_model.dart';
@@ -51,7 +53,11 @@ class _SiteConfigureState extends State<SiteConfigure> {
                     ? FertilizationConfiguration(configPvd: widget.configPvd)
                     : widget.configPvd.selectedConfigurationTab == 4 
                     ? MoistureConfiguration(configPvd: widget.configPvd)
-                    : LineConfiguration(configPvd: widget.configPvd)
+                    : widget.configPvd.selectedConfigurationTab == 5
+                    ? LineConfiguration(configPvd: widget.configPvd)
+                    : widget.configPvd.selectedConfigurationTab == 6
+                    ? EcConfiguration(configPvd: widget.configPvd,)
+                    : PhConfiguration()
               )
             ],
           ),

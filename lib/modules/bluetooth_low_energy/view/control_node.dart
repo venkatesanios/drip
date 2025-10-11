@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/node_not_get_live.dart';
+import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 import '../../../Constants/dialog_boxes.dart';
@@ -46,7 +47,7 @@ class _ControlNodeState extends State<ControlNode> {
                 versionRow(),
               if(bleService.nodeDataFromHw.containsKey('R-VOLT'))
                 voltageWidget(),
-              if(bleService.nodeDataFromHw.containsKey('RLY'))
+              if(bleService.nodeDataFromHw.containsKey('RLY') && !AppConstants.ecoGemModelList.contains(bleService.nodeData['modelId']))
                 relayWidget(),
               viewDetailsWidget(),
               if(bleService.nodeDataFromServer['analogInput'] != '-' && bleService.nodeDataFromHw.keys.any((key) => key.contains('AD')))
@@ -153,6 +154,7 @@ class _ControlNodeState extends State<ControlNode> {
   }
 
   bool getRelayStatus(int relayNo){
+    print("relayNo : $relayNo");
     print("bleService.nodeDataFromHw['RLY'] : ${bleService.nodeDataFromHw['RLY']}");
     var relayStatusList = bleService.nodeDataFromHw['RLY'].split(',');
     return relayStatusList[relayNo] == '1' ? true : false;

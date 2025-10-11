@@ -125,9 +125,9 @@ class BleProvider extends ChangeNotifier {
   Map<String, dynamic> nodeData = {};
   List<String> loraModel = ['40', '41', '42'];
 
-  void editNodeDataFromServer(data, nodeData){
+  void editNodeDataFromServer(data, nodeDataFromNodeStatus){
     nodeDataFromServer = data;
-    nodeData = nodeData;
+    nodeData = nodeDataFromNodeStatus;
     // if(AppConstants.ecoGemModelList.contains(nodeData['modelId'])){
     //   nodeDataFromServer['pathSetting']['downloadDirectory'] = "/home/ubuntu/FTP/download/EC25/";
     // }else if(AppConstants.pumpWithValveModelList.contains(nodeData['modelId'])){

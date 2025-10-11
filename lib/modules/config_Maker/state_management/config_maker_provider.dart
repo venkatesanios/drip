@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
+import 'package:oro_drip_irrigation/modules/config_Maker/model/ec_model.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/repository/config_maker_repository.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import '../model/device_model.dart';
@@ -9,6 +10,7 @@ import '../model/fertigation_model.dart';
 import '../model/filtration_model.dart';
 import '../model/irrigationLine_model.dart';
 import '../model/moisture_model.dart';
+import '../model/ph_model.dart';
 import '../model/pump_model.dart';
 import '../model/source_model.dart';
 import '../view/config_base_page.dart';
@@ -27,6 +29,8 @@ class ConfigMakerProvider extends ChangeNotifier{
     3 : 'Fertilization Configuration',
     4 : 'Moisture Configuration',
     5 : 'Line Configuration',
+    6 : 'Ec Configuration',
+    7 : 'Ph Configuration',
   };
   int selectedConfigurationTab = 0;
   int rangeStart = -1;
@@ -39,6 +43,8 @@ class ConfigMakerProvider extends ChangeNotifier{
     3 : AppConstants.fertilizerSiteObjectId,
     4 : AppConstants.moistureObjectId,
     5 : AppConstants.irrigationLineObjectId,
+    6 : AppConstants.ecObjectId,
+    7 : AppConstants.phObjectId,
   };
 
   SelectionMode selectedSelectionMode = SelectionMode.auto;
@@ -61,6 +67,8 @@ class ConfigMakerProvider extends ChangeNotifier{
   List<SourceModel> source = [];
   List<PumpModel> pump = [];
   List<MoistureModel> moisture = [];
+  List<EcModel> ec = [];
+  List<PhModel> ph = [];
   List<IrrigationLineModel> line = [];
   List<dynamic> productStock = [];
 
@@ -95,6 +103,8 @@ class ConfigMakerProvider extends ChangeNotifier{
     source.clear();
     pump.clear();
     moisture.clear();
+    ec.clear();
+    ph.clear();
     line.clear();
     selectedSelectionMode = SelectionMode.auto;
     selectedConnectionNo = 0;
@@ -120,6 +130,8 @@ class ConfigMakerProvider extends ChangeNotifier{
     source.clear();
     pump.clear();
     moisture.clear();
+    ec.clear();
+    ph.clear();
     line.clear();
     selectedSelectionMode = SelectionMode.auto;
     selectedConnectionNo = 0;
@@ -256,7 +268,7 @@ class ConfigMakerProvider extends ChangeNotifier{
       else{
         print('get product list');
         var productListResponse = await ConfigMakerRepository().getProductStock({'userId' : masterDataFromSiteConfigure['customerId']});
-        print("productListResponse : $productListResponse");
+        print("productListResponse : ${productListResponse.body}");
         Map<String, dynamic> productListJsonData = jsonDecode(productListResponse.body);
         productStock = productListJsonData['data'];
       }
@@ -396,6 +408,8 @@ class ConfigMakerProvider extends ChangeNotifier{
       source = (configMakerData['waterSource'] as List<dynamic>).map((sourceObject) => SourceModel.fromJson(sourceObject)).toList();
       pump = (configMakerData['pump'] as List<dynamic>).map((pumpObject) => PumpModel.fromJson(pumpObject)).toList();
       moisture = (configMakerData['moistureSensor'] as List<dynamic>).map((moistureObject) => MoistureModel.fromJson(moistureObject)).toList();
+      ec = (configMakerData['ecSensor'] as List<dynamic>).map((ecObject) => EcModel.fromJson(ecObject)).toList();
+      ph = (configMakerData['phSensor'] as List<dynamic>).map((phObject) => PhModel.fromJson(phObject)).toList();
       line = (configMakerData['irrigationLine'] as List<dynamic>).map((lineObject) => IrrigationLineModel.fromJson(lineObject)).toList();
     } catch (e, stackTrace){
       print('Error on converting to device model :: $e');
@@ -491,6 +505,14 @@ class ConfigMakerProvider extends ChangeNotifier{
               moisture.add(
                   MoistureModel(commonDetails: deviceObjectModel, valves: [])
               );
+            }else if(deviceObjectModel.objectId == AppConstants.ecObjectId){
+              ec.add(
+                  EcModel(commonDetails: deviceObjectModel, controllerId: null)
+              );
+            }else if(deviceObjectModel.objectId == AppConstants.phObjectId){
+              ph.add(
+                  PhModel(commonDetails: deviceObjectModel, controllerId: null)
+              );
             }else if(deviceObjectModel.objectId == AppConstants.irrigationLineObjectId){
               line.add(
                   IrrigationLineModel(
@@ -530,6 +552,8 @@ class ConfigMakerProvider extends ChangeNotifier{
           fertilization.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
           source.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
           moisture.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
+          ec.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
+          ph.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
           line.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
           pump.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
 
@@ -968,6 +992,16 @@ class ConfigMakerProvider extends ChangeNotifier{
       for(var moisture in moisture){
         if(moisture.commonDetails.sNo == obj.sNo){
           moisture.commonDetails.name = obj.name;
+        }
+      }
+      for(var ec in ec){
+        if(ec.commonDetails.sNo == obj.sNo){
+          ec.commonDetails.name = obj.name;
+        }
+      }
+      for(var ph in ph){
+        if(ph.commonDetails.sNo == obj.sNo){
+          ph.commonDetails.name = obj.name;
         }
       }
     }
