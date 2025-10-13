@@ -179,6 +179,7 @@ class MasterControllerModel {
     List<WaterSourceModel> waterSources = waterSourcesRaw
         .map((item) => WaterSourceModel.fromJson(item, configObjects))
         .toList();
+    WaterSourceModel.assignFloatSwitchesToWaterSources(waterSources, config, configObjects);
 
     List<FilterSiteModel> filterSites =
     filterSiteRaw.map((item) => FilterSiteModel.fromJson(item, configObjects)).toList();
@@ -262,6 +263,8 @@ class WaterSourceModel {
   final bool isWaterInAndOut;
   final List<SensorModel> level;
 
+  final List<SensorModel> floatSwitches;
+
   WaterSourceModel({
     required this.sNo,
     required this.name,
@@ -274,6 +277,8 @@ class WaterSourceModel {
     required this.outletPump,
     required this.isWaterInAndOut,
     required this.level,
+
+    required this.floatSwitches,
   });
 
   factory WaterSourceModel.fromJson(Map<String, dynamic> json, List<ConfigObject> configObjects) {
@@ -314,9 +319,53 @@ class WaterSourceModel {
       inletPumpSno: List<double>.from(json['inletPump'].map((e) => e.toDouble())),
       outletPumpSno: List<double>.from(json['outletPump'].map((e) => e.toDouble())),
       level: levelSensor,
+      floatSwitches: [],
     );
   }
 
+  static void assignFloatSwitchesToWaterSources(
+      List<WaterSourceModel> waterSources,
+      Map<String, dynamic> config,
+      List<ConfigObject> configObjects,
+      ) {
+    final floatObjects = configObjects
+        .where((obj) => obj.objectName == 'Float')
+        .toList();
+
+    final waterSourcesRaw = config['waterSource'] as List? ?? [];
+
+    for (final wsJson in waterSourcesRaw) {
+      final wsSno = (wsJson['sNo'] as num?)?.toDouble();
+      if (wsSno == null) continue;
+
+      final source = waterSources.where((ws) => ws.sNo == wsSno).firstOrNull;
+      if (source == null) continue;
+
+      final floatFields = [
+        'topFloatForInletPump',
+        'bottomFloatForInletPump',
+        'topFloatForOutletPump',
+        'bottomFloatForOutletPump',
+      ];
+
+      final List<SensorModel> assignedFloats = [];
+
+      for (final field in floatFields) {
+        final floatSno = wsJson[field];
+        if (floatSno != null && floatSno != 0) {
+          final match = floatObjects.firstWhere(
+                (obj) => obj.sNo == (floatSno as num).toDouble(),
+            orElse: () => ConfigObject.empty(),
+          );
+          if (match.sNo != 0) {
+            assignedFloats.add(SensorModel.fromConfigObject(match));
+          }
+        }
+      }
+
+      source.floatSwitches.addAll(assignedFloats);
+    }
+  }
 }
 
 class IrrigationLineModel {
@@ -631,6 +680,18 @@ class ConfigObject {
       'location': location,
     };
   }
+
+  factory ConfigObject.empty() => ConfigObject(
+    objectId: 0,
+    sNo: 0,
+    name: '',
+    objectName: '',
+    connectionNo: 0,
+    assignObject: [],
+    location: 0.0,
+    objectType: '',
+  );
+
 }
 
 class PumpModel {
@@ -1819,6 +1880,7 @@ class WaterSourceUtils {
         outletPump: matchingOutletPumps,
         isWaterInAndOut: false,
         level: source.level,
+        floatSwitches: source.floatSwitches,
       );
     }).whereType<WaterSourceModel>().toList();
   }

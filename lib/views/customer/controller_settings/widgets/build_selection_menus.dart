@@ -8,14 +8,18 @@ import '../../../../view_models/customer/condition_library_view_model.dart';
 import 'component_selection_menu.dart';
 import 'condition_labels_column.dart';
 import 'delay_time_selection_menu.dart';
+import 'irri_line_selection_menu.dart';
 
 Widget buildSelectionMenus(
     BuildContext context, ConditionLibraryViewModel vm, int index) {
+
+  final component = vm.clData.cnLibrary.condition[index].component;
+
   return Padding(
     padding: const EdgeInsets.only(left: 8, top: 8),
     child: Row(
       children: [
-        const ConditionLabelsColumn(),
+        ConditionLabelsColumn(vm: vm, index: index),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -32,6 +36,8 @@ Widget buildSelectionMenus(
                 ],
               ),
               const SizedBox(height: 5),
+              (component == "Any irrigation program" || component == "Any fertilizer program") ?
+              LineNameSelectionMenu(index: index, vm: vm) :
               ReasonSelectionMenu(index: index, vm: vm),
               const SizedBox(height: 5),
               DelayTimeSelectionMenu(index: index, vm: vm),

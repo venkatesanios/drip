@@ -26,6 +26,7 @@ class SensorWidgetMobile extends StatelessWidget {
       selector: (_, provider) => provider.getSensorUpdatedValve(sensor.sNo.toString()),
       builder: (_, status, __) {
         final statusParts = status?.split(',') ?? [];
+        print('SensorUpdatedValve:$statusParts');
         if (statusParts.isNotEmpty) {
           sensor.value = statusParts[1];
         }
