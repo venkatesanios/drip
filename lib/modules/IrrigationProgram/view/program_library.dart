@@ -774,6 +774,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
     required int index,
     required BoxConstraints constraints,})
   {
+
     final scheduleByDays = programItem.schedule['selected'] == irrigationProgramMainProvider.scheduleTypes[1];
     final scheduleAsRunList = programItem.schedule['selected'] == irrigationProgramMainProvider.scheduleTypes[2];
     final ScrollController scrollController = ScrollController();
@@ -811,11 +812,12 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
 
       return weekdays[adjustedWeekday];
     }
+
     List<String> days = List.generate(
       scheduleByDays
           ? int.parse(programItem.schedule['scheduleAsRunList']['schedule']['noOfDays'].toString().isNotEmpty ? programItem.schedule['scheduleAsRunList']['schedule']['noOfDays'].toString() : "1")
           : scheduleAsRunList
-          ? int.parse(programItem.schedule['scheduleByDays']['schedule']['runDays'].toString()) + int.parse(programItem.schedule['scheduleByDays']['schedule']['skipDays'].toString())
+          ? int.parse(programItem.schedule['scheduleByDays']['schedule']['runDays'].toString().isNotEmpty ? programItem.schedule['scheduleByDays']['schedule']['runDays'].toString() : '0') + int.parse(programItem.schedule['scheduleByDays']['schedule']['skipDays'].toString())
           : 0,
           (index) {
         DateTime currentDate = DateTime.parse(startDate).add(Duration(days: index));
@@ -1036,7 +1038,8 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                                           : const Color(0xffEEEBFF)
                                   )
                               else if(programItem.schedule['selected'] == irrigationProgramMainProvider.scheduleTypes[2])
-                                for (var index = 0; index < (int.parse(programItem.schedule['scheduleByDays']['schedule']['runDays'].toString()) + int.parse(programItem.schedule['scheduleByDays']['schedule']['skipDays'].toString())); index++)
+                                for (var index = 0; index < (int.parse(programItem.schedule['scheduleByDays']['schedule']['runDays'].toString().isNotEmpty ? programItem.schedule['scheduleByDays']['schedule']['runDays'].toString() : '0')
+                                    + int.parse(programItem.schedule['scheduleByDays']['schedule']['skipDays'].toString().isNotEmpty ? programItem.schedule['scheduleByDays']['schedule']['skipDays'].toString() : '0')); index++)
                                   buildScheduleMethodOfDay(
                                     method: days[index],
                                     color: index >= int.parse(programItem.schedule['scheduleByDays']['schedule']['runDays'].toString()) ? const Color(0xffFFEFE1) : const Color(0xffE1F2FF),

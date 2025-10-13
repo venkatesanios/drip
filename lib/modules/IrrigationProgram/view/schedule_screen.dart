@@ -115,22 +115,22 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   @override
   Widget build(BuildContext context) {
     irrigationProgramProvider = Provider.of<IrrigationProgramMainProvider>(context, listen: true);
-    final noScheduleCondition = irrigationProgramProvider.selectedScheduleType != irrigationProgramProvider.scheduleTypes[0]
-        && irrigationProgramProvider.selectedScheduleType != irrigationProgramProvider.scheduleTypes[3];
-    final rtcType = irrigationProgramProvider.selectedScheduleType == irrigationProgramProvider.scheduleTypes[1]
-        ? irrigationProgramProvider.sampleScheduleModel!.scheduleAsRunList
-        : irrigationProgramProvider.selectedScheduleType == irrigationProgramProvider.scheduleTypes[2]
-        ? irrigationProgramProvider.sampleScheduleModel!.scheduleByDays
-        : irrigationProgramProvider.sampleScheduleModel!.scheduleAsRunList;
-    final functionCondition = irrigationProgramProvider.selectedScheduleType == irrigationProgramProvider.scheduleTypes[1]
-        ? irrigationProgramProvider.sampleScheduleModel!.scheduleAsRunList.rtc
-        : irrigationProgramProvider.sampleScheduleModel!.scheduleByDays.rtc;
-    final allowStopMethodCondition = irrigationProgramProvider.sampleScheduleModel!.defaultModel.allowStopMethod;
-    final defaultOffTime = irrigationProgramProvider.sampleScheduleModel!.defaultModel.rtcOffTime;
-    final defaultMaxTime = irrigationProgramProvider.sampleScheduleModel!.defaultModel.rtcMaxTime;
-    final isEcoGem = AppConstants.ecoGemAndPlusModelList.contains(widget.modelId);
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints){
+          final noScheduleCondition = irrigationProgramProvider.selectedScheduleType != irrigationProgramProvider.scheduleTypes[0]
+              && irrigationProgramProvider.selectedScheduleType != irrigationProgramProvider.scheduleTypes[3];
+          final rtcType = irrigationProgramProvider.selectedScheduleType == irrigationProgramProvider.scheduleTypes[1]
+              ? irrigationProgramProvider.sampleScheduleModel!.scheduleAsRunList
+              : irrigationProgramProvider.selectedScheduleType == irrigationProgramProvider.scheduleTypes[2]
+              ? irrigationProgramProvider.sampleScheduleModel!.scheduleByDays
+              : irrigationProgramProvider.sampleScheduleModel!.scheduleAsRunList;
+          final functionCondition = irrigationProgramProvider.selectedScheduleType == irrigationProgramProvider.scheduleTypes[1]
+              ? irrigationProgramProvider.sampleScheduleModel!.scheduleAsRunList.rtc
+              : irrigationProgramProvider.sampleScheduleModel!.scheduleByDays.rtc;
+          final allowStopMethodCondition = irrigationProgramProvider.sampleScheduleModel!.defaultModel.allowStopMethod;
+          final defaultOffTime = irrigationProgramProvider.sampleScheduleModel!.defaultModel.rtcOffTime;
+          final defaultMaxTime = irrigationProgramProvider.sampleScheduleModel!.defaultModel.rtcMaxTime;
+          final isEcoGem = AppConstants.ecoGemAndPlusModelList.contains(widget.modelId);
           return SingleChildScrollView(
             child: Container(
               margin: MediaQuery.of(context).size.width >= 700 ? EdgeInsets.symmetric(
