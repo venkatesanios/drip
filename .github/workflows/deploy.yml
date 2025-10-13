@@ -3,8 +3,8 @@ name: 🛠 Android CI / Build & Release AAB
 #  workflow_dispatch:
 on:
   push:
-    branches: [ release ]
-    tags: [ 'v*.*.*' ]
+    branches: [ main ]
+#    tags: [ 'v*.*.*' ]
 permissions:
   contents: write
   actions: read
