@@ -77,7 +77,7 @@ jobs:
       - name: 📦 Prepare artifacts
         run: |
           mkdir -p artifacts
-          cp build/app/outputs/apk/oroProduction/release/app-oroProduction-release.apk artifacts/
+#          cp build/app/outputs/apk/oroProduction/release/app-oroProduction-release.apk artifacts/
           if [[ "${{ github.ref }}" =~ ^refs/tags/v ]]; then
             cp build/app/outputs/bundle/oroProductionRelease/app-oroProduction-release.aab artifacts/
           fi
