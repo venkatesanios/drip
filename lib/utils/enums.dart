@@ -123,8 +123,8 @@ enum PumpReasonCode {
   motorOff2P(33,'Motor off due to 2phase'),
   motorOffPOn(34,'Motor off due to other pump is on'),
   motorOffPOff(35,'Motor off due to waiting for other pump to turn off'),
-  motorOffPrsSwtHigh(36,'Motor off due to pressure switch high');
-
+  motorOffPrsSwtHigh(36,'Motor off due to pressure switch high'),
+  noComm(37,'Motor off due to no communication to nodes');
 
   final int code;
   final String content;
