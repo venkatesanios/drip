@@ -255,7 +255,6 @@ class PumpWidget extends StatelessWidget {
         const SizedBox(height: 5),
         _buildPhaseInfo(),
         const SizedBox(height: 7),
-
         if (voltages.length == 6) ...[
           _buildVoltageCurrentInfo('Voltage', voltages.sublist(0, 3), ['RY', 'YB', 'BR']),
           const SizedBox(height: 7),
@@ -263,7 +262,6 @@ class PumpWidget extends StatelessWidget {
         ] else ...[
           _buildVoltageCurrentInfo('Voltage', voltages.sublist(0, 3), ['RY', 'YB', 'BR']),
         ],
-
         const SizedBox(height: 7),
         _buildVoltageCurrentInfo('Current', columns, ['RC', 'YC', 'BC']),
         const SizedBox(height: 7),
