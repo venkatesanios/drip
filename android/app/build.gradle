@@ -80,10 +80,10 @@ android {
         applicationId = "com.niagaraautomations.oroDripirrigation"
         //minSdk = flutter.minSdkVersion
         //minSdkVersion = flutter.minSdkVersion
-        minSdkVersion = flutter.minSdkVersion
+        minSdkVersion = 23
         targetSdk = flutter.targetSdkVersion
-        versionCode = 12
-        versionName = "1.1.0"
+        versionCode = 1558
+        versionName = "1.2.44"
     }
 
     buildTypes {
