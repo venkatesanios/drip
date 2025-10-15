@@ -2,11 +2,11 @@ import 'device_object_model.dart';
 
 class EcModel{
   DeviceObjectModel commonDetails;
-  int? controllerId;
+  int controllerId;
 
   EcModel({
     required this.commonDetails,
-    required this.controllerId,
+    this.controllerId = 0,
   });
 
   factory EcModel.fromJson(dynamic data){

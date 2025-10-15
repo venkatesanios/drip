@@ -6,7 +6,7 @@ class PhModel{
 
   PhModel({
     required this.commonDetails,
-    required this.controllerId,
+    this.controllerId = 0,
   });
 
   factory PhModel.fromJson(dynamic data){

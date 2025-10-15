@@ -19,7 +19,7 @@ import '../view/connection.dart';
 
 class ConfigMakerProvider extends ChangeNotifier{
   double ratio = 1.0;
-  ConfigMakerTabs selectedTab = ConfigMakerTabs.deviceList;
+  ConfigMakerTabs selectedTab = ConfigMakerTabs.siteConfigure;
   Map<String, dynamic> configMakerDataFromHttp = {};
   Map<String, dynamic> defaultDataFromHttp = {};
   Map<int, String> configurationTab = {
@@ -32,7 +32,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     6 : 'Ec Configuration',
     7 : 'Ph Configuration',
   };
-  int selectedConfigurationTab = 0;
+  int selectedConfigurationTab = 6;
   int rangeStart = -1;
   int rangeEnd = -1;
   bool rangeMode = false;
@@ -511,11 +511,11 @@ class ConfigMakerProvider extends ChangeNotifier{
               );
             }else if(deviceObjectModel.objectId == AppConstants.ecObjectId){
               ec.add(
-                  EcModel(commonDetails: deviceObjectModel, controllerId: null)
+                  EcModel(commonDetails: deviceObjectModel)
               );
             }else if(deviceObjectModel.objectId == AppConstants.phObjectId){
               ph.add(
-                  PhModel(commonDetails: deviceObjectModel, controllerId: null)
+                  PhModel(commonDetails: deviceObjectModel)
               );
             }else if(deviceObjectModel.objectId == AppConstants.irrigationLineObjectId){
               line.add(
@@ -1613,5 +1613,4 @@ class ConfigMakerProvider extends ChangeNotifier{
     }
     return listOfPumpPayload;
   }
-
 }
