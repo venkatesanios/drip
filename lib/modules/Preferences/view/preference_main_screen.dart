@@ -1318,7 +1318,6 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
       if (preferenceProvider.commonPumpSettings!.isNotEmpty && !(isLevelSettingChanged && !isAnyOtherChanged)) {
         if((isToGem ? preferenceProvider.generalData!.controllerReadStatus == "1" : true) && payloadForGem.any((item) => item.trim().isNotEmpty)) {
           for (var i = 0; i < payloadForGem.length; i++) {
-            print("payloadForGem :: $payloadForGem");
             var payloadToDecode = isToGem ? payloadForGem[i].split('+')[4] : payloadForGem[i];
             // print("payloadToDecode :: $payloadToDecode");
             var decodedData = jsonDecode(payloadToDecode);

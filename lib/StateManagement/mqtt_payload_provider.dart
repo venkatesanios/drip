@@ -699,7 +699,7 @@ class MqttPayloadProvider with ChangeNotifier {
            }
         }
         }
-        if (data.containsKey("cM") && data["cM"] is! List) {
+        if (data.containsKey("cM") && data["cM"] is! List && data["cM"] is! String) {
           Map cM = data["cM"];
           if (cM.containsKey("6601")) {
             String msg = cM["6601"];
