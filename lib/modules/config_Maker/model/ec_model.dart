@@ -1,28 +1,29 @@
-import 'device_object_model.dart';
 
 class EcModel{
-  DeviceObjectModel commonDetails;
-  int controllerId;
+  double sNo;
+  String name;
+  int ecControllerId;
 
   EcModel({
-    required this.commonDetails,
-    this.controllerId = 0,
+    required this.sNo,
+    required this.name,
+    this.ecControllerId = 0,
   });
 
   factory EcModel.fromJson(dynamic data){
-    DeviceObjectModel deviceObjectModel = DeviceObjectModel.fromJson(data);
     return EcModel(
-        commonDetails: deviceObjectModel,
-        controllerId: data['controllerId']
+        sNo: data['sNo'],
+        name: data['name'],
+        ecControllerId: data['ecControllerId']
     );
   }
 
   Map<String, dynamic> toJson(){
-    var commonInfo = commonDetails.toJson();
-    commonInfo.addAll({
-      'controllerId' : controllerId,
-    });
-    return commonInfo;
+    return {
+      'sNo' : sNo,
+      'name' : name,
+      'ecControllerId' : ecControllerId,
+    };
   }
 
 }

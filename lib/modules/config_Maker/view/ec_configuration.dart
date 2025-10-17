@@ -20,7 +20,6 @@ class EcConfiguration extends StatefulWidget {
 class _EcConfigurationState extends State<EcConfiguration> {
   @override
   Widget build(BuildContext context) {
-    print(widget.configPvd.ec.length);
     return Padding(
       padding: const EdgeInsets.all(8),
       child: LayoutBuilder(builder: (context, constraint){
@@ -56,7 +55,7 @@ class _EcConfigurationState extends State<EcConfiguration> {
                                   imagePath: '${AppConstants.svgObjectPath}objectId_${AppConstants.ecObjectId}.svg',
                                   color: Colors.black,
                                 ),
-                                title: Text(widget.configPvd.ec[ecSensor].commonDetails.name!),
+                                title: Text(widget.configPvd.ec[ecSensor].name!),
                               ),
                             ),
                             ListTile(
@@ -67,14 +66,14 @@ class _EcConfigurationState extends State<EcConfiguration> {
                                     spacing: 10,
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      widget.configPvd.ec[ecSensor].controllerId == 0
+                                      widget.configPvd.ec[ecSensor].ecControllerId == 0
                                           ? const Text(' - ')
                                           : Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text(widget.configPvd.listOfDeviceModel.firstWhere((node) => node.controllerId == widget.configPvd.ec[ecSensor].controllerId).deviceName),
-                                          Text(widget.configPvd.listOfDeviceModel.firstWhere((node) => node.controllerId == widget.configPvd.ec[ecSensor].controllerId).deviceId, style: const TextStyle(fontSize: 10, color: Colors.black45),),
+                                          Text(widget.configPvd.listOfDeviceModel.firstWhere((node) => node.controllerId == widget.configPvd.ec[ecSensor].ecControllerId).deviceName),
+                                          Text(widget.configPvd.listOfDeviceModel.firstWhere((node) => node.controllerId == widget.configPvd.ec[ecSensor].ecControllerId).deviceId, style: const TextStyle(fontSize: 10, color: Colors.black45),),
                                         ],
                                       ),
                                       const Icon(Icons.arrow_drop_down_circle)
@@ -83,14 +82,14 @@ class _EcConfigurationState extends State<EcConfiguration> {
                                   onSelected: (value){
                                     setState(() {
                                       for(var node in widget.configPvd.listOfDeviceModel){
-                                        if(node.controllerId == widget.configPvd.ec[ecSensor].controllerId){
+                                        if(node.controllerId == widget.configPvd.ec[ecSensor].ecControllerId){
                                           node.masterId = null;
                                         }
                                         if(value == node.controllerId){
                                           node.masterId = widget.configPvd.masterData['controllerId'];
                                         }
                                       }
-                                      widget.configPvd.ec[ecSensor].controllerId = value;
+                                      widget.configPvd.ec[ecSensor].ecControllerId = value;
                                     });
                                   },
                                     itemBuilder: (context){
@@ -110,8 +109,8 @@ class _EcConfigurationState extends State<EcConfiguration> {
                                           if(AppConstants.ecModel.contains(node.modelId)){
                                             bool showNode = true;
                                             for(var ec in widget.configPvd.ec){
-                                              if(ec.commonDetails.sNo != widget.configPvd.ec[ecSensor].commonDetails.sNo){
-                                                if(ec.controllerId == node.controllerId){
+                                              if(ec.sNo != widget.configPvd.ec[ecSensor].sNo){
+                                                if(ec.ecControllerId == node.controllerId){
                                                   showNode = false;
                                                 }
                                               }

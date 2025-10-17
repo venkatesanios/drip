@@ -511,11 +511,17 @@ class ConfigMakerProvider extends ChangeNotifier{
               );
             }else if(deviceObjectModel.objectId == AppConstants.ecObjectId){
               ec.add(
-                  EcModel(commonDetails: deviceObjectModel)
+                EcModel(
+                    sNo: deviceObjectModel.sNo!,
+                    name: deviceObjectModel.name!,
+                )
               );
             }else if(deviceObjectModel.objectId == AppConstants.phObjectId){
               ph.add(
-                  PhModel(commonDetails: deviceObjectModel)
+                  PhModel(
+                      sNo: deviceObjectModel.sNo!,
+                      name: deviceObjectModel.name!,
+                  )
               );
             }else if(deviceObjectModel.objectId == AppConstants.irrigationLineObjectId){
               line.add(
@@ -556,8 +562,8 @@ class ConfigMakerProvider extends ChangeNotifier{
           fertilization.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
           source.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
           moisture.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
-          ec.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
-          ph.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
+          ec.removeWhere((e) => filteredList.contains(e.sNo));
+          ph.removeWhere((e) => filteredList.contains(e.sNo));
           line.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
           pump.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
 
@@ -999,13 +1005,13 @@ class ConfigMakerProvider extends ChangeNotifier{
         }
       }
       for(var ec in ec){
-        if(ec.commonDetails.sNo == obj.sNo){
-          ec.commonDetails.name = obj.name;
+        if(ec.sNo == obj.sNo){
+          ec.name = obj.name!;
         }
       }
       for(var ph in ph){
-        if(ph.commonDetails.sNo == obj.sNo){
-          ph.commonDetails.name = obj.name;
+        if(ph.sNo == obj.sNo){
+          ph.name = obj.name!;
         }
       }
     }

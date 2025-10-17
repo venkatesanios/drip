@@ -55,7 +55,7 @@ class _PhConfigurationState extends State<PhConfiguration> {
                                   imagePath: '${AppConstants.svgObjectPath}objectId_${AppConstants.phObjectId}.svg',
                                   color: Colors.black,
                                 ),
-                                title: Text(widget.configPvd.ph[phSensor].commonDetails.name!),
+                                title: Text(widget.configPvd.ph[phSensor].name),
                               ),
                             ),
                             ListTile(
@@ -66,31 +66,30 @@ class _PhConfigurationState extends State<PhConfiguration> {
                                     spacing: 10,
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      widget.configPvd.ph[phSensor].controllerId == 0
+                                      widget.configPvd.ph[phSensor].phControllerId == 0
                                           ? const Text(' - ')
                                           : Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text(widget.configPvd.listOfDeviceModel.firstWhere((node) => node.controllerId == widget.configPvd.ph[phSensor].controllerId).deviceName),
-                                          Text(widget.configPvd.listOfDeviceModel.firstWhere((node) => node.controllerId == widget.configPvd.ph[phSensor].controllerId).deviceId, style: const TextStyle(fontSize: 10, color: Colors.black45),),
+                                          Text(widget.configPvd.listOfDeviceModel.firstWhere((node) => node.controllerId == widget.configPvd.ph[phSensor].phControllerId).deviceName),
+                                          Text(widget.configPvd.listOfDeviceModel.firstWhere((node) => node.controllerId == widget.configPvd.ph[phSensor].phControllerId).deviceId, style: const TextStyle(fontSize: 10, color: Colors.black45),),
                                         ],
                                       ),
                                       const Icon(Icons.arrow_drop_down_circle)
                                     ],
                                   ),
                                   onSelected: (value){
-                                    print('value => $value');
                                     setState(() {
                                       for(var node in widget.configPvd.listOfDeviceModel){
-                                        if(node.controllerId == widget.configPvd.ph[phSensor].controllerId){
+                                        if(node.controllerId == widget.configPvd.ph[phSensor].phControllerId){
                                           node.masterId = null;
                                         }
                                         if(value == node.controllerId){
                                           node.masterId = widget.configPvd.masterData['controllerId'];
                                         }
                                       }
-                                      widget.configPvd.ph[phSensor].controllerId = value;
+                                      widget.configPvd.ph[phSensor].phControllerId = value;
                                     });
                                   },
                                   itemBuilder: (context){
@@ -110,8 +109,8 @@ class _PhConfigurationState extends State<PhConfiguration> {
                                         if(AppConstants.phModel.contains(node.modelId)){
                                           bool showNode = true;
                                           for(var ph in widget.configPvd.ph){
-                                            if(ph.commonDetails.sNo != widget.configPvd.ph[phSensor].commonDetails.sNo){
-                                              if(ph.controllerId == node.controllerId){
+                                            if(ph.sNo != widget.configPvd.ph[phSensor].sNo){
+                                              if(ph.phControllerId == node.controllerId){
                                                 showNode = false;
                                               }
                                             }

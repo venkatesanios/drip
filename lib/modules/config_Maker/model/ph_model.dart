@@ -1,28 +1,29 @@
-import 'device_object_model.dart';
 
 class PhModel{
-  DeviceObjectModel commonDetails;
-  int? controllerId;
+  double sNo;
+  String name;
+  int phControllerId;
 
   PhModel({
-    required this.commonDetails,
-    this.controllerId = 0,
+    required this.sNo,
+    required this.name,
+    this.phControllerId = 0,
   });
 
   factory PhModel.fromJson(dynamic data){
-    DeviceObjectModel deviceObjectModel = DeviceObjectModel.fromJson(data);
     return PhModel(
-        commonDetails: deviceObjectModel,
-        controllerId: data['controllerId']
+        sNo: data['sNo'],
+        name: data['name'],
+        phControllerId: data['phControllerId']
     );
   }
 
   Map<String, dynamic> toJson(){
-    var commonInfo = commonDetails.toJson();
-    commonInfo.addAll({
-      'controllerId' : controllerId,
-    });
-    return commonInfo;
+    return {
+      'sNo' : sNo,
+      'name' : name,
+      'phControllerId' : phControllerId,
+    };
   }
 
 }
