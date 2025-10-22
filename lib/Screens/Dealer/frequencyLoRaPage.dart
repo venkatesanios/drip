@@ -137,6 +137,7 @@ class _FrequencyPageState extends State<FrequencyPage> {
     Map<String, dynamic> payLoadFinal = {"5700": {"5701": val}};
     String topic = "${Environment.mqttPublishTopic}/${widget.deviceId}";
     print('payLoadFinal----$payLoadFinal');
+    print('topic----$topic');
     MqttService().topicToPublishAndItsMessage(jsonEncode(payLoadFinal), topic);
 
     Future.delayed(const Duration(seconds: 4), () {
@@ -180,6 +181,7 @@ class _FrequencyPageState extends State<FrequencyPage> {
     required TextEditingController sfCtrl,
     required int loraIndex,
   }) {
+    print("loRa1VersionState:$loRa1VersionState,$loRa2VersionState");
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 3,
