@@ -104,9 +104,9 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
         if(convertedJson['data']['dayCountRtc'] != null) {
           setState(() {
             dayCountRtcModel = DayCountRtcModel.fromJson(convertedJson['data']['dayCountRtc']);
-            if(AppConstants.ecoGemPlusModelList.contains(widget.modelId)) {
+            // if(AppConstants.ecoGemPlusModelList.contains(widget.modelId)) {
               programQueueModel = ProgramQueueModel.fromJson(convertedJson['data']['programQueue']);
-            }
+            // }
           });
         }
       } else {
@@ -346,8 +346,8 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                       ),
                     ],
                     const SizedBox(height: 20),
-                    // if(AppConstants.ecoGemAndPlusModelList.contains(widget.modelId))...[
-                    if(AppConstants.ecoGemPlusModelList.contains(widget.modelId))...[
+                    if(AppConstants.ecoGemAndPlusModelList.contains(widget.modelId))...[
+                    // if(AppConstants.ecoGemPlusModelList.contains(widget.modelId))...[
                       const Divider(),
                       // Program Queue Section
                       Text(
@@ -625,7 +625,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                             "controllerId": widget.controllerId,
                             "dayCountRtc": {
                               "dayCountRtc": dayCountRtcModel.toJson(),
-                              if(AppConstants.ecoGemPlusModelList.contains(widget.modelId))
+                              // if(AppConstants.ecoGemPlusModelList.contains(widget.modelId))
                                 "programQueue": programQueueModel.toJson()
                             },
                             "createUser": widget.userId,

@@ -182,7 +182,9 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
                             ),
                             color: Colors.white,
                             surfaceTintColor: Colors.white,
-                            child: _getSelectedScreen(),
+                            child: context.read<PumpControllerProvider>().isLoading
+                                ? const Center(child: CircularProgressIndicator(),)
+                                : _getSelectedScreen(),
                           )
                         )
                     ),

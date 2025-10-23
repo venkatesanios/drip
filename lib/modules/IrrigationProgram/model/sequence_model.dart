@@ -801,7 +801,7 @@ class ProgramQueueModel {
       autoQueueRestart: json["autoQueueRestart"] ?? false,
       queueOrderRestartTimes: _listToString(
         json["queueOrderRestartTimes"],
-        ['00:00:00', '00:00:00', '00:00:00', '00:00:00'],
+        ['00:03:00', '00:03:00', '00:03:00', '00:03:00'],
       ),
       skipDays: json["skipDays"] ?? false,
       noOfSkipDays: json["noOfSkipDays"] ?? '0',
