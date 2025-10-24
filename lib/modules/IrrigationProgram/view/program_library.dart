@@ -598,7 +598,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
 
                           final List<String> payloadList = [
                             jsonEncode(dayCountRtcToNova),
-                            // if(AppConstants.ecoGemPlusModelList.contains(widget.modelId))
+                            if(AppConstants.ecoGemPlusModelList.contains(widget.modelId))
                               jsonEncode(programQueueToNova)
                           ];
 
