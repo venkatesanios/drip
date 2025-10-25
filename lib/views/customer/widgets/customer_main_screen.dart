@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/views/customer/widgets/password_protected_site_config.dart';
-
 import '../../../Screens/Dealer/sevicecustomer.dart';
 import '../../../Screens/Logs/irrigation_and_pump_log.dart';
 import '../../../Screens/planning/WeatherScreen.dart';
@@ -82,7 +81,7 @@ Widget buildCustomerMainScreen({required int index, required UserRole role, requ
         customerId: vm.mySiteList.data[vm.sIndex].customerId,
         masterController: vm.mySiteList.data[vm.sIndex].master[vm.mIndex],
       ) :
-      role == UserRole.admin ? SiteConfig(
+      (role == UserRole.admin || role == UserRole.dealer) ? SiteConfig(
         userId: userId,
         customerId: vm.mySiteList.data[vm.sIndex].customerId,
         customerName: vm.mySiteList.data[vm.sIndex].customerName,
@@ -99,7 +98,7 @@ Widget buildCustomerMainScreen({required int index, required UserRole role, requ
       );
 
     case 5:
-      return (isGem || isNova) ? (role == UserRole.admin ? SiteConfig(
+      return (isGem || isNova) ? ((role == UserRole.admin || role == UserRole.dealer) ? SiteConfig(
         userId: userId,
         customerId: vm.mySiteList.data[vm.sIndex].customerId,
         customerName: vm.mySiteList.data[vm.sIndex].customerName,
