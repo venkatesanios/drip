@@ -59,7 +59,7 @@ class _PhConfigurationState extends State<PhConfiguration> {
                               ),
                             ),
                             ListTile(
-                              title: const Text('Controller'),
+                              title: const Text('Ph Controller'),
                               trailing: IntrinsicWidth(
                                 child: PopupMenuButton<int>(
                                   child: Row(

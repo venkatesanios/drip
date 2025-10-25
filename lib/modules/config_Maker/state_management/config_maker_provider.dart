@@ -668,7 +668,7 @@ class ConfigMakerProvider extends ChangeNotifier{
                 }
               }
             }
-            else if(object.objectId == AppConstants.ecObjectId){
+            else if(object.objectId == AppConstants.phObjectId){
               for(var phConfig in ph){
                 if(phConfig.sNo == object.sNo){
                   phConfig.controllerId = object.controllerId!;

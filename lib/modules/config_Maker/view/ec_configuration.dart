@@ -59,7 +59,7 @@ class _EcConfigurationState extends State<EcConfiguration> {
                               ),
                             ),
                             ListTile(
-                              title: const Text('Controller'),
+                              title: const Text('Ec Controller'),
                               trailing: IntrinsicWidth(
                                 child: PopupMenuButton<int>(
                                   child: Row(
