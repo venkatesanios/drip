@@ -424,7 +424,8 @@ class NodeList extends StatelessWidget {
     );
   }
 
-  Widget _buildNodeTile(BuildContext context, int index, NodeListModel node, NodeListViewModel vm, bool hasSetSerial) {
+  Widget _buildNodeTile(BuildContext context, int index, NodeListModel node,
+      NodeListViewModel vm, bool hasSetSerial) {
     return ExpansionTile(
       tilePadding: const EdgeInsets.symmetric(horizontal: 0),
       childrenPadding: const EdgeInsets.symmetric(horizontal: 0),
@@ -432,25 +433,39 @@ class NodeList extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           node.rlyStatus.any((rly) => rly.status == 2 || rly.status == 3) ?
-          const Icon(Icons.warning, color: Colors.orangeAccent) : InkWell(
+          const Icon(Icons.warning, color: Colors.orangeAccent) :
+          InkWell(
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => NodeConnectionPage(
-                nodeData: node.toJson(),
-                masterData: {
-                  "userId": userId,
-                  "customerId": customerId,
-                  "controllerId": masterData.controllerId,
-                },
-              )));
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NodeConnectionPage(
+                    nodeData: node.toJson(),
+                    masterData: {
+                      "userId": userId,
+                      "customerId": customerId,
+                      "controllerId": masterData.controllerId,
+                    },
+                  ),
+                ),
+              );
             },
             child: const Icon(Icons.bluetooth),
           ),
           IconButton(
             onPressed: () {
-              vm.showEditProductDialog(context, node.deviceName, node.controllerId, 0,
-                  customerId, userId, masterData.controllerId);
+              vm.showEditProductDialog(
+                context,
+                node.deviceName,
+                node.controllerId,
+                0,
+                customerId,
+                userId,
+                masterData.controllerId,
+              );
             },
-            icon: Icon(Icons.edit_outlined, color: Theme.of(context).primaryColorDark),
+            icon:
+            Icon(Icons.edit_outlined, color: Theme.of(context).primaryColorDark),
           ),
         ],
       ),
@@ -462,7 +477,8 @@ class NodeList extends StatelessWidget {
             const SizedBox(width: 5),
             SizedBox(
               width: 45,
-              child: Text('${node.serialNumber}-${node.referenceNumber}', style: const TextStyle(fontSize: 13)),
+              child: Text('${node.serialNumber}-${node.referenceNumber}',
+                  style: const TextStyle(fontSize: 13)),
             ),
             Expanded(
               child: Column(
@@ -478,11 +494,13 @@ class NodeList extends StatelessWidget {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 17),
-                    child: Text(node.deviceId, style: const TextStyle(fontSize: 11)),
+                    child: Text(node.deviceId,
+                        style: const TextStyle(fontSize: 11)),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 17),
-                    child: Text('${node.modelName} - v:${node.version}', style: const TextStyle(fontSize: 10)),
+                    child: Text('${node.modelName} - v:${node.version}',
+                        style: const TextStyle(fontSize: 10)),
                   ),
                 ],
               ),
@@ -504,11 +522,15 @@ class NodeList extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 5),
                   child: Row(
                     children: [
-                      const Text('Missed communication', style: TextStyle(color: Colors.black54)),
+                      const Text('Missed communication',
+                          style: TextStyle(color: Colors.black54)),
                       const Spacer(),
-                      Text('Total : ${node.communicationCount.split(',').first}', style: const TextStyle(fontSize: 12)),
+                      Text('Total : ${node.communicationCount.split(',').first}',
+                          style: const TextStyle(fontSize: 12)),
                       const SizedBox(width: 8),
-                      Text('Continuous : ${node.communicationCount.split(',').last}', style: const TextStyle(fontSize: 12)),
+                      Text(
+                          'Continuous : ${node.communicationCount.split(',').last}',
+                          style: const TextStyle(fontSize: 12)),
                     ],
                   ),
                 ),
@@ -516,8 +538,10 @@ class NodeList extends StatelessWidget {
               ListTile(
                 contentPadding: const EdgeInsets.only(left: 8),
                 tileColor: Theme.of(context).primaryColor,
-                title: const Text('Last feedback', style: TextStyle(fontSize: 12)),
-                subtitle: Text(vm.formatDateTime(node.lastFeedbackReceivedTime), style: const TextStyle(fontSize: 10)),
+                title: const Text('Last feedback',
+                    style: TextStyle(fontSize: 12)),
+                subtitle: Text(vm.formatDateTime(node.lastFeedbackReceivedTime),
+                    style: const TextStyle(fontSize: 10)),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -528,11 +552,16 @@ class NodeList extends StatelessWidget {
                     Text('${node.batVolt} - V'),
                     IconButton(
                       tooltip: 'Serial set',
-                      onPressed: hasSetSerial ? () {
-                        vm.actionSerialSet(index, masterData.deviceId, customerId, masterData.controllerId, userId);
-                        GlobalSnackBar.show(context, 'Your comment sent successfully', 200);
-                      } : null,
-                      icon: Icon(Icons.fact_check_outlined, color: Theme.of(context).primaryColor),
+                      onPressed: hasSetSerial
+                          ? () {
+                        vm.actionSerialSet(index, masterData.deviceId,
+                            customerId, masterData.controllerId, userId);
+                        GlobalSnackBar.show(
+                            context, 'Your comment sent successfully', 200);
+                      }
+                          : null,
+                      icon: Icon(Icons.fact_check_outlined,
+                          color: Theme.of(context).primaryColor),
                     ),
                   ],
                 ),
@@ -541,13 +570,62 @@ class NodeList extends StatelessWidget {
                 _buildLegendRow(),
                 const SizedBox(height: 5),
                 _buildRelayGrid(node.rlyStatus, vm),
-              ]
+              ],
             ],
           ),
         ),
+        if (node.subNode.isNotEmpty) ...[
+          Container(
+            width: double.infinity,
+            color: Colors.teal.shade100,
+            padding: const EdgeInsets.all(8),
+            child: const Text(
+              'Sub Nodes',
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+            ),
+          ),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: node.subNode.length,
+            itemBuilder: (context, subIndex) {
+              final sub = node.subNode[subIndex];
+
+              final deviceName = sub.device.deviceName;
+              final deviceId = sub.device.deviceId;
+
+              return ListTile(
+                dense: true,
+                contentPadding: const EdgeInsets.only(left: 8, right: 8),
+                leading: const Icon(Icons.developer_board),
+                title: Text('$deviceName  | $deviceId'),
+                subtitle: Text('Connected In : ${sub.name}'),
+                trailing: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => NodeConnectionPage(
+                          nodeData: sub.device.toJson(),
+                          masterData: {
+                            "userId": userId,
+                            "customerId": customerId,
+                            "controllerId": masterData.controllerId,
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Icon(Icons.bluetooth),
+                ),
+              );
+            },
+          ),
+        ],
       ],
     );
   }
+
 
   Widget statusIndicator(int status, {double radius = 7}) {
     Color color;

@@ -147,8 +147,7 @@ class CustomerHomeNarrow extends StatelessWidget {
                 ),
                 child: Consumer<CurrentProgramViewModel>(
                   builder: (context, vm, _) {
-                    final currentSchedule =
-                        context.watch<MqttPayloadProvider>().currentSchedule;
+                    final currentSchedule = context.watch<MqttPayloadProvider>().currentSchedule;
 
                     if (currentSchedule.isNotEmpty) {
                       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -158,13 +157,8 @@ class CustomerHomeNarrow extends StatelessWidget {
 
                     if (vm.currentSchedule.isNotEmpty &&
                         vm.currentSchedule[0].isNotEmpty) {
-                      return buildCurrentSchedule(
-                          context,
-                          vm.currentSchedule,
-                          cM.programList,
-                          cM.modelId,
-                          hasProgramOnOff
-                      );
+                      return buildCurrentSchedule(context, vm.currentSchedule,
+                          cM.programList, cM.modelId, hasProgramOnOff);
                     } else {
                       return const SizedBox();
                     }

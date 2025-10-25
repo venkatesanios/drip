@@ -52,10 +52,13 @@ Widget buildCustomerMainScreen({required int index, required UserRole role, requ
       return CustomerProduct(customerId: vm.mySiteList.data[vm.sIndex].customerId);
 
     case 2:
-      return SentAndReceived(
-        customerId: vm.mySiteList.data[vm.sIndex].customerId,
-        controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
-        isWide: true,
+      return KeyedSubtree(
+        key: ValueKey(DateTime.now().millisecondsSinceEpoch),
+        child: SentAndReceived(
+          customerId: vm.mySiteList.data[vm.sIndex].customerId,
+          controllerId: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].controllerId,
+          isWide: true,
+        ),
       );
 
     case 3:

@@ -89,7 +89,6 @@ class MqttPayloadProvider with ChangeNotifier {
    String get receivedPayload => _receivedPayload;
 
   int powerSupply = 0;
-  bool onRefresh = false;
   int wifiStrength = 0;
   String liveDateAndTime = '';
   String activeDeviceId = '';
@@ -190,8 +189,6 @@ class MqttPayloadProvider with ChangeNotifier {
      _ipAddress = ip;
      notifyListeners();
    }
-
-
 
    void updateWifiStatus(String status, bool loading) {
      _wifiStatus = status;
@@ -786,11 +783,6 @@ class MqttPayloadProvider with ChangeNotifier {
      notifyListeners();
    }
 
-
-  void liveSyncCall(status){
-    onRefresh = status;
-    notifyListeners();
-  }
 
   void updateNodeLiveMessage(List<String> message) {
     nodeLiveMessage = message;

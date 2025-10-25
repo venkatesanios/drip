@@ -6,8 +6,9 @@ import '../../repository/repository.dart';
 import '../../utils/shared_preferences_helper.dart';
 
 class SentAndReceivedViewModel extends ChangeNotifier {
-
   final Repository repository;
+
+  bool _disposed = false;
   bool isLoading = false;
   String errorMessage = "";
   List<SentAndReceivedModel> sentAndReceivedList = [];
@@ -20,34 +21,68 @@ class SentAndReceivedViewModel extends ChangeNotifier {
 
   SentAndReceivedViewModel(this.repository);
 
-  Future<void> getSentAndReceivedData(customerId, controllerId, date) async {
+  @override
+  void dispose() {
+    _disposed = true;
+    passwordController.dispose(); // 👈 also dispose controller
+    super.dispose();
+  }
+
+  void safeNotify() {
+    if (!_disposed) notifyListeners();
+  }
+
+  void setLoading(bool value) {
+    isLoading = value;
+    safeNotify(); // 👈 safe version only
+  }
+
+  Future<void> getSentAndReceivedData(
+      int customerId, int controllerId, String date) async {
     setLoading(true);
     String? userRole = await PreferenceHelper.getUserRole();
-    if(userRole != 'customer'){
+    if (userRole != 'customer') {
       hasPayloadViewPermission = true;
     }
+
     try {
-      Map<String, Object> body = {"userId": customerId, "controllerId": controllerId, "fromDate":date, "toDate":date};
+      final body = {
+        "userId": customerId,
+        "controllerId": controllerId,
+        "fromDate": date,
+        "toDate": date,
+      };
+
       final response = await repository.fetchSentAndReceivedData(body);
+
+      if (_disposed) return; // 👈 prevent updates after dispose
+
       if (response.statusCode == 200) {
         sentAndReceivedList.clear();
         final jsonData = jsonDecode(response.body);
+
         if (jsonData["code"] == 200) {
-          sentAndReceivedList = [
-            ...jsonData['data'].map((programJson) => SentAndReceivedModel.fromJson(programJson)).toList(),
-          ];
+          sentAndReceivedList = (jsonData['data'] as List)
+              .map((programJson) =>
+              SentAndReceivedModel.fromJson(programJson))
+              .toList();
         }
       }
     } catch (error) {
-      debugPrint('Error fetching country list: $error');
+      debugPrint('Error fetching sent/received data: $error');
     } finally {
-      setLoading(false);
+      if (!_disposed) setLoading(false);
     }
   }
 
-  Future<void> getUserSoftwareOrHardwarePayload(context,customerId, controllerId,
-      int sentAndReceivedId, String aTitle, String pyTitle) async
-  {
+  Future<void> getUserSoftwareOrHardwarePayload(
+      BuildContext context,
+      int customerId,
+      int controllerId,
+      int sentAndReceivedId,
+      String aTitle,
+      String pyTitle,
+      ) async {
     var body = {
       "userId": customerId,
       "controllerId": controllerId,
@@ -55,27 +90,33 @@ class SentAndReceivedViewModel extends ChangeNotifier {
     };
 
     try {
-      final response = await repository.fetchSentAndReceivedHardwarePayload(body);
+      final response =
+      await repository.fetchSentAndReceivedHardwarePayload(body);
+
+      if (_disposed) return; // 👈 prevent updates after dispose
+
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
         print(response.body);
+
         if (jsonData["code"] == 200) {
-          final message = jsonData?['data']?['message'];
+          final message = jsonData['data']?['message'];
+
           if (message != null) {
-            displayJsonData(context, jsonData['data'] ?? 'Empty message', aTitle, pyTitle);
-          }else{
+            displayJsonData(
+                context, jsonData['data'], aTitle, pyTitle);
+          } else {
+            if (!context.mounted) return; // 👈 ensure safe UI usage
             showDialog(
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
                   title: Text(aTitle),
                   content: const Text("No data available."),
-                  actions: <Widget>[
+                  actions: [
                     TextButton(
                       child: const Text("Close"),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
+                      onPressed: () => Navigator.of(context).pop(),
                     ),
                   ],
                 );
@@ -85,13 +126,20 @@ class SentAndReceivedViewModel extends ChangeNotifier {
         }
       }
     } catch (error) {
-      debugPrint('Error fetching country list: $error');
+      debugPrint('Error fetching payload: $error');
     } finally {
-      setLoading(false);
+      if (!_disposed) setLoading(false);
     }
   }
 
-  void displayJsonData(BuildContext context, Map<String, dynamic> jsonData, String aTitle, String pyTitle,) {
+  void displayJsonData(
+      BuildContext context,
+      Map<String, dynamic> jsonData,
+      String aTitle,
+      String pyTitle,
+      ) {
+    if (!context.mounted) return; // 👈 safety guard
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -109,27 +157,18 @@ class SentAndReceivedViewModel extends ChangeNotifier {
                     jsonEncode(jsonData['message']),
                     style: const TextStyle(color: Colors.black54),
                     showCursor: true,
-                    toolbarOptions: const ToolbarOptions(
-                      copy: true,
-                      selectAll: true,
-                    ),
                   ),
-
-                  if(jsonData['changedPayload']!=null)...[
+                  if (jsonData['changedPayload'] != null) ...[
                     const SizedBox(height: 8),
-                    const Text('Modified Settings', style: TextStyle(color: Colors.teal)),
+                    const Text('Modified Settings',
+                        style: TextStyle(color: Colors.teal)),
                     const Divider(),
                     SelectableText(
                       jsonEncode(jsonData['changedPayload']),
                       style: const TextStyle(color: Colors.black54),
                       showCursor: true,
-                      toolbarOptions: const ToolbarOptions(
-                        copy: true,
-                        selectAll: true,
-                      ),
                     ),
                   ],
-
                 ],
               ),
             ),
@@ -146,21 +185,15 @@ class SentAndReceivedViewModel extends ChangeNotifier {
   }
 
   String convertTo12hrs(String timeString) {
-    DateTime dateTime = DateFormat("HH:mm:ss").parse(timeString);
-    String formattedTime = DateFormat("h:mm a").format(dateTime);
-    return formattedTime;
+    final dateTime = DateFormat("HH:mm:ss").parse(timeString);
+    return DateFormat("h:mm a").format(dateTime);
   }
 
-  void setLoading(bool value) {
-    isLoading = value;
-    notifyListeners();
-  }
-
-  void onDateChanged(customerId, controllerId, DateTime sDate, DateTime fDate) {
+  void onDateChanged(
+      int customerId, int controllerId, DateTime sDate, DateTime fDate) {
     selectedDay = sDate;
     focusedDay = fDate;
     String formattedDate = DateFormat('yyyy-MM-dd').format(sDate);
     getSentAndReceivedData(customerId, controllerId, formattedDate);
   }
-
 }

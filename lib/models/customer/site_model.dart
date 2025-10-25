@@ -82,6 +82,9 @@ class MasterControllerModel {
   List<RelayStatus> ioConnection;
   final bool isSubUser;
 
+  final List<EcSensorModel> ecSensors;
+  final List<PhSensorModel> phSensors;
+
   MasterControllerModel({
     required this.controllerId,
     required this.deviceId,
@@ -108,6 +111,9 @@ class MasterControllerModel {
     required this.configObjects,
     required this.ioConnection,
     required this.isSubUser,
+
+    required this.ecSensors,
+    required this.phSensors,
 
   });
 
@@ -203,6 +209,29 @@ class MasterControllerModel {
       line.linkReferences(matchedFilterSite, matchedFertilizerSite);
     }
 
+    final ecSensorRaw = (config['ecSensor'] as List?) ?? [];
+    final phSensorRaw = (config['phSensor'] as List?) ?? [];
+
+    //sub nodes
+    final nodeListForSensors = (json['nodeList'] as List?)?.where((item) {
+      final serialStr = item['serialNumber']?.toString();
+      final serial = int.tryParse(serialStr ?? '0') ?? 0;
+      return serial == 0 || serialStr == null;
+    }).map((item) => NodeListModel.fromJson(item, configObjects,[],[])).toList()
+        .cast<NodeListModel>() ?? <NodeListModel>[];
+
+    final ecSensors = ecSensorRaw.map((e) => EcSensorModel.fromJson(e, nodeListForSensors)).toList();
+    final phSensors = phSensorRaw.map((e) => PhSensorModel.fromJson(e, nodeListForSensors)).toList();
+
+    //master nodes
+    final nodeList = (json['nodeList'] as List?)?.where((item) {
+      final serialStr = item['serialNumber']?.toString();
+      final serial = int.tryParse(serialStr ?? '0') ?? 0;
+      return serial != 0 && serialStr != null;
+    }).map((item) => NodeListModel.fromJson(item, configObjects, ecSensors, phSensors)).toList()
+        .cast<NodeListModel>() ?? <NodeListModel>[];
+
+
     List<ConfigObject> filteredConfigObjects =
     configObjects.where((config) => config.controllerId == json['controllerId']).toList();
     List<RelayStatus> ioConnection = filteredConfigObjects.map((config) => RelayStatus.fromJson(config.toJson())).toList();
@@ -233,9 +262,9 @@ class MasterControllerModel {
           : [],
       live: json['liveMessage'] != null ? LiveMessage.fromJson(json['liveMessage']) : null,
       irrigationLine: irrigationLines,
-      nodeList: json['nodeList'] != null ? (json['nodeList'] as List)
-          .map((item) => NodeListModel.fromJson(item, configObjects)).toList()
-          : [],
+
+      nodeList : nodeList,
+
       programList: json['program'] != null ? (json['program'] as List)
           .map((prgList) => ProgramList.fromJson(prgList))
           .toList()
@@ -243,6 +272,9 @@ class MasterControllerModel {
 
       ioConnection: ioConnection,
       isSubUser: isSubUser,
+
+      ecSensors: ecSensors,
+      phSensors: phSensors,
 
     );
   }
@@ -1136,6 +1168,77 @@ class Ph {
 
 }
 
+class EcSensorModel {
+  final double sNo;
+  final String name;
+  final int? controllerId;
+  final int? ecControllerId;
+  final NodeListModel? device;
+
+  EcSensorModel({
+    required this.sNo,
+    required this.name,
+    required this.controllerId,
+    this.ecControllerId,
+    this.device,
+  });
+
+  factory EcSensorModel.fromJson(Map<String, dynamic> json, List<NodeListModel> nodes) {
+    final ecCtrlId = json['ecControllerId'];
+    NodeListModel? linkedNode;
+
+    if (ecCtrlId != null) {
+      linkedNode = nodes.firstWhere((node) => node.controllerId == ecCtrlId,
+        orElse: () => NodeListModel.empty(),
+      );
+    }
+
+    return EcSensorModel(
+      sNo: (json['sNo'] as num?)?.toDouble() ?? 0.0,
+      name: json['name'] ?? '',
+      controllerId: json['controllerId'] ?? 0,
+      ecControllerId: ecCtrlId,
+      device: linkedNode,
+    );
+  }
+}
+
+class PhSensorModel {
+  final double sNo;
+  final String name;
+  final int? controllerId;
+  final int? phControllerId;
+  final NodeListModel? device;
+
+  PhSensorModel({
+    required this.sNo,
+    required this.name,
+    required this.controllerId,
+    this.phControllerId,
+    this.device,
+  });
+
+  factory PhSensorModel.fromJson(Map<String, dynamic> json, List<NodeListModel> nodes) {
+    final phCtrlId = json['phControllerId'];
+    NodeListModel? linkedNode;
+
+    if (phCtrlId != null) {
+      linkedNode = nodes.firstWhere(
+            (node) => node.controllerId == phCtrlId,
+        orElse: () => NodeListModel.empty(),
+      );
+    }
+
+    return PhSensorModel(
+      sNo: (json['sNo'] as num?)?.toDouble() ?? 0.0,
+      name: json['name'] ?? '',
+      controllerId: json['controllerId'] ?? 0,
+      phControllerId: phCtrlId,
+      device: linkedNode,
+    );
+  }
+}
+
 class CheSelector implements FertilizerItem {
   final double sNo;
   @override
@@ -1566,6 +1669,8 @@ class NodeListModel{
   String digitalInput;
   String version;
 
+  List<dynamic> subNode;
+
 
   NodeListModel({
     required this.controllerId,
@@ -1593,25 +1698,49 @@ class NodeListModel{
     required this.digitalInput,
     this.version = '0.0.0',
 
+    this.subNode = const [],
+
   });
 
-  factory NodeListModel.fromJson(Map<String, dynamic> json, List<ConfigObject> configObjects) {
+  factory NodeListModel.fromJson(
+      Map<String, dynamic> json,
+      List<ConfigObject> configObjects,
+      List<EcSensorModel> ecSensors,
+      List<PhSensorModel> phSensors,
+      ) {
+    final controllerId = json['controllerId'];
+
+    final matchedEcSensors = ecSensors
+        .where((ec) => ec.controllerId == controllerId)
+        .toList();
+
+    final matchedPhSensors = phSensors
+        .where((ph) => ph.controllerId == controllerId)
+        .toList();
+
+    final List<dynamic> subNodeList = [
+      ...matchedEcSensors,
+      ...matchedPhSensors,
+    ];
 
     List<ConfigObject> filteredConfigObjects =
-    configObjects.where((config) => config.controllerId == json['controllerId']).toList();
-    List<RelayStatus> rlyStatus = filteredConfigObjects.map((config) => RelayStatus.fromJson(config.toJson())).toList();
+    configObjects.where((config) => config.controllerId == controllerId).toList();
+
+    List<RelayStatus> rlyStatus = filteredConfigObjects
+        .map((config) => RelayStatus.fromJson(config.toJson()))
+        .toList();
 
     return NodeListModel(
-      controllerId: json['controllerId'],
-      deviceId: json['deviceId'],
-      deviceName: json['deviceName'],
-      categoryId: json['categoryId'],
-      categoryName: json['categoryName'],
-      modelId: json['modelId'],
-      modelName: json['modelName'],
-      modelDescription: json['modelDescription'],
+      controllerId: controllerId,
+      deviceId: json['deviceId'] ?? '',
+      deviceName: json['deviceName'] ?? '',
+      categoryId: json['categoryId'] ?? 0,
+      categoryName: json['categoryName'] ?? '',
+      modelId: json['modelId'] ?? 0,
+      modelName: json['modelName'] ?? '',
+      modelDescription: json['modelDescription'] ?? '',
       serialNumber: json['serialNumber'] ?? 0,
-      referenceNumber: json['referenceNumber'],
+      referenceNumber: json['referenceNumber'] ?? 0,
       interfaceTypeId: json['interfaceTypeId'] ?? 0,
       interface: json['interface'] ?? '',
       extendControllerId: json['extendControllerId'] ?? 0,
@@ -1620,6 +1749,7 @@ class NodeListModel{
       latchOutput: json['latchOutput'] ?? '',
       analogInput: json['analogInput'] ?? '',
       digitalInput: json['digitalInput'] ?? '',
+      subNode: subNodeList,
     );
   }
 
@@ -1643,6 +1773,36 @@ class NodeListModel{
       'analogInput': analogInput,
       'digitalInput': digitalInput,
     };
+  }
+
+  factory NodeListModel.empty() {
+    return NodeListModel(
+      controllerId: 0,
+      deviceId: '',
+      deviceName: '',
+      categoryId: 0,
+      categoryName: '',
+      modelId: 0,
+      modelName: '',
+      modelDescription: '',
+      serialNumber: 0,
+      referenceNumber: 0,
+      interfaceTypeId: 0,
+      interface: '',
+      extendControllerId: 0,
+      status: 0,
+      communicationCount: '0,0',
+      lastFeedbackReceivedTime: '',
+      sVolt: 0.0,
+      batVolt: 0.0,
+      rlyStatus: [],
+      relayOutput: '',
+      latchOutput: '',
+      analogInput: '',
+      digitalInput: '',
+      version: '0.0.0',
+      subNode: [],
+    );
   }
 }
 

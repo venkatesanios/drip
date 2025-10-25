@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:oro_drip_irrigation/views/customer/view_base_layout/customer_screen_narrow.dart';
-import 'package:oro_drip_irrigation/views/customer/view_base_layout/customer_screen_middle.dart';
 import '../utils/my_helper_class.dart';
 import '../views/admin/admin_screen_middle.dart';
 import '../views/admin/admin_screen_narrow.dart';
@@ -19,6 +17,8 @@ import '../views/common/user_dashboard/narrow/dealer_dashboard_narrow.dart';
 import '../views/common/user_dashboard/wide/admin_dashboard_wide.dart';
 import '../views/common/user_dashboard/wide/customer_home_wide.dart';
 import '../views/common/user_dashboard/wide/dealer_dashboard_wide.dart';
+import '../views/customer/view_base_layout/customer_screen_middle.dart';
+import '../views/customer/view_base_layout/customer_screen_narrow.dart';
 import '../views/customer/view_base_layout/customer_screen_wide.dart';
 import '../views/dealer/dealer_screen_middle.dart';
 import '../views/dealer/dealer_screen_narrow.dart';

@@ -51,8 +51,7 @@ class _CustomerScreenNarrowState extends BaseCustomerScreenState<CustomerScreenN
       const DashboardLayoutSelector(userRole: UserRole.customer),
       Consumer<CustomerScreenControllerViewModel>(
         builder: (context, viewModel, _) {
-          final master =
-          viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex];
+          final master = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex];
           final lines = master.irrigationLine;
 
           final lineSNo = (viewModel.lIndex < lines.length) ? lines[viewModel.lIndex].sNo : 0;

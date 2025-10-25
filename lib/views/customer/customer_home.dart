@@ -18,13 +18,11 @@ import '../../models/customer/site_model.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../Widgets/pump_widget.dart';
 import '../../repository/repository.dart';
-import '../../services/communication_service.dart';
 import '../../services/http_service.dart';
 import '../../utils/constants.dart';
 import '../../utils/my_function.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
 import 'home_sub_classes/fertilizer_site.dart';
-import 'home_sub_classes/filter_site.dart';
 import 'home_sub_classes/next_schedule.dart';
 import 'scheduled_program/scheduled_program_wide.dart';
 
@@ -33,6 +31,8 @@ class CustomerHome extends StatelessWidget {
     required this.deviceId, required this.modelId});
   final int customerId, controllerId, modelId;
   final String deviceId;
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +64,6 @@ class CustomerHome extends StatelessWidget {
   Widget _buildWebLayout(BuildContext context, List<IrrigationLineModel> irrigationLine,
       scheduledProgram, CustomerScreenControllerViewModel viewModel) {
 
-
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: Consumer<CustomerScreenControllerViewModel>(
@@ -81,7 +80,19 @@ class CustomerHome extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
 
-              context.watch<MqttPayloadProvider>().onRefresh ? displayLinearProgressIndicator() : const SizedBox(),
+              /*Consumer<CustomerScreenControllerViewModel>(
+                builder: (context, viewModel, _) {
+                  return viewModel.onRefresh ? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3),
+                    child: LinearProgressIndicator(
+                      valueColor: const AlwaysStoppedAnimation<Color>(Colors.blueAccent),
+                      backgroundColor: Colors.grey[200],
+                      minHeight: 4,
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                  ) : const SizedBox();
+                },
+              ),*/
 
               ...irrigationLine.map((line) => Padding(
                 padding: const EdgeInsets.only(left: 8, right: 8, top:8, bottom: 5),
@@ -156,6 +167,8 @@ class CustomerHome extends StatelessWidget {
                 modelId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].modelId,
                 skipPermission: hasProgramOnOff,
               ),
+
+
               if (scheduledProgram.isNotEmpty)
                 NextSchedule(scheduledPrograms: scheduledProgram),
 
@@ -174,6 +187,7 @@ class CustomerHome extends StatelessWidget {
                   categoryName: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].categoryName,
                   prgOnOffPermission: hasProgramOnOff,
                 ),
+
               const SizedBox(height: 8),
             ],
           );
