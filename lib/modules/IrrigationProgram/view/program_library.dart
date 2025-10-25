@@ -104,9 +104,9 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
         if(convertedJson['data']['dayCountRtc'] != null) {
           setState(() {
             dayCountRtcModel = DayCountRtcModel.fromJson(convertedJson['data']['dayCountRtc']);
-            if(AppConstants.ecoGemPlusModelList.contains(widget.modelId)) {
+            // if(AppConstants.ecoGemPlusModelList.contains(widget.modelId)) {
               programQueueModel = ProgramQueueModel.fromJson(convertedJson['data']['programQueue']);
-            }
+            // }
           });
         }
       } else {
@@ -346,8 +346,8 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                       ),
                     ],
                     const SizedBox(height: 20),
-                    // if(AppConstants.ecoGemAndPlusModelList.contains(widget.modelId))...[
-                    if(AppConstants.ecoGemPlusModelList.contains(widget.modelId))...[
+                    if(AppConstants.ecoGemAndPlusModelList.contains(widget.modelId))...[
+                    // if(AppConstants.ecoGemPlusModelList.contains(widget.modelId))...[
                       const Divider(),
                       // Program Queue Section
                       Text(
@@ -465,82 +465,6 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                         ),
                         const SizedBox(height: 16),
                         SwitchListTile(
-                          title: const Text('Enable Skip Days'),
-                          value: programQueueModel.skipDays,
-                          onChanged: (value) {
-                            setState(() {
-                              programQueueModel.skipDays = value;
-                            });
-                          },
-                          activeColor: theme.primaryColor,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                        ),
-                        if (programQueueModel.skipDays) ...[
-                          const SizedBox(height: 16),
-                          ListTile(
-                            title: const Text('Number of Skip Days'),
-                            subtitle: Text('${programQueueModel.noOfSkipDays} days'),
-                            leading: Icon(Icons.calendar_today, color: theme.primaryColor),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              side: BorderSide(color: Colors.grey[300]!),
-                            ),
-                            onTap: () async {
-                              final days = await showDialog<int>(
-                                context: context,
-                                builder: (context) => NumberPickerDialog(
-                                  initialValue: int.parse(programQueueModel.noOfSkipDays),
-                                  minValue: 1,
-                                  maxValue: 30,
-                                ),
-                              );
-                              if (days != null) {
-                                setState(() {
-                                  programQueueModel.noOfSkipDays = days.toString();
-                                });
-                              }
-                            },
-                          ),
-                        ],
-                        SwitchListTile(
-                          title: const Text('Enable Run Days'),
-                          value: programQueueModel.runDays,
-                          onChanged: (value) {
-                            setState(() {
-                              programQueueModel.runDays = value;
-                            });
-                          },
-                          activeColor: theme.primaryColor,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                        ),
-                        if (programQueueModel.runDays) ...[
-                          const SizedBox(height: 16),
-                          ListTile(
-                            title: const Text('Number of Run Days'),
-                            subtitle: Text('${programQueueModel.noOfRunDays} days'),
-                            leading: Icon(Icons.calendar_today, color: theme.primaryColor),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              side: BorderSide(color: Colors.grey[300]!),
-                            ),
-                            onTap: () async {
-                              final days = await showDialog<int>(
-                                context: context,
-                                builder: (context) => NumberPickerDialog(
-                                  initialValue: int.parse(programQueueModel.noOfRunDays),
-                                  minValue: 1,
-                                  maxValue: 30,
-                                ),
-                              );
-                              if (days != null) {
-                                setState(() {
-                                  programQueueModel.noOfRunDays = days.toString();
-                                });
-                              }
-                            },
-                          ),
-                        ],
-                        SwitchListTile(
                           title: const Text('Queue Reset'),
                           value: programQueueModel.queueReset,
                           onChanged: (value) {
@@ -571,6 +495,91 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                       ],
                       const SizedBox(height: 20),
                     ],
+                    Text(
+                      'Skip days',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: theme.primaryColor,
+                      ),
+                    ),
+                    SwitchListTile(
+                      title: const Text('Enable Skip Days'),
+                      value: programQueueModel.skipDays,
+                      onChanged: (value) {
+                        setState(() {
+                          programQueueModel.skipDays = value;
+                        });
+                      },
+                      activeColor: theme.primaryColor,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                    ),
+                    if (programQueueModel.skipDays) ...[
+                      const SizedBox(height: 16),
+                      ListTile(
+                        title: const Text('Number of Skip Days'),
+                        subtitle: Text('${programQueueModel.noOfSkipDays} days'),
+                        leading: Icon(Icons.calendar_today, color: theme.primaryColor),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          side: BorderSide(color: Colors.grey[300]!),
+                        ),
+                        onTap: () async {
+                          final days = await showDialog<int>(
+                            context: context,
+                            builder: (context) => NumberPickerDialog(
+                              initialValue: int.parse(programQueueModel.noOfSkipDays),
+                              minValue: 1,
+                              maxValue: 30,
+                            ),
+                          );
+                          if (days != null) {
+                            setState(() {
+                              programQueueModel.noOfSkipDays = days.toString();
+                            });
+                          }
+                        },
+                      ),
+                    ],
+                   /* SwitchListTile(
+                      title: const Text('Enable Run Days'),
+                      value: programQueueModel.runDays,
+                      onChanged: (value) {
+                        setState(() {
+                          programQueueModel.runDays = value;
+                        });
+                      },
+                      activeColor: theme.primaryColor,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                    ),
+                    if (programQueueModel.runDays) ...[
+                      const SizedBox(height: 16),
+                      ListTile(
+                        title: const Text('Number of Run Days'),
+                        subtitle: Text('${programQueueModel.noOfRunDays} days'),
+                        leading: Icon(Icons.calendar_today, color: theme.primaryColor),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          side: BorderSide(color: Colors.grey[300]!),
+                        ),
+                        onTap: () async {
+                          final days = await showDialog<int>(
+                            context: context,
+                            builder: (context) => NumberPickerDialog(
+                              initialValue: int.parse(programQueueModel.noOfRunDays),
+                              minValue: 1,
+                              maxValue: 30,
+                            ),
+                          );
+                          if (days != null) {
+                            setState(() {
+                              programQueueModel.noOfRunDays = days.toString();
+                            });
+                          }
+                        },
+                      ),
+                    ],*/
+                    const SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: () async{
                         try {
@@ -598,7 +607,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
 
                           final List<String> payloadList = [
                             jsonEncode(dayCountRtcToNova),
-                            if(AppConstants.ecoGemPlusModelList.contains(widget.modelId))
+                            // if(AppConstants.ecoGemPlusModelList.contains(widget.modelId))
                               jsonEncode(programQueueToNova)
                           ];
 
@@ -625,7 +634,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                             "controllerId": widget.controllerId,
                             "dayCountRtc": {
                               "dayCountRtc": dayCountRtcModel.toJson(),
-                              if(AppConstants.ecoGemPlusModelList.contains(widget.modelId))
+                              // if(AppConstants.ecoGemPlusModelList.contains(widget.modelId))
                                 "programQueue": programQueueModel.toJson()
                             },
                             "createUser": widget.userId,
