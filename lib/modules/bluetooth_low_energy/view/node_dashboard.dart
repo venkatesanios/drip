@@ -176,11 +176,13 @@ class _NodeDashboardState extends State<NodeDashboard> {
     }else if(bleService.nodeDataFromServer['hardwareLoraModel'].contains(bleService.nodeDataFromHw['MID'])){
       show = false;
     }else if(
-        AppConstants.pumpWithValveModelList.contains(bleService.nodeData['modelId'])
-        &&
-        AppConstants.ecoGemModelList.contains(bleService.nodeData['modelId'])
-        &&
-        AppConstants.smartPlusEcPhModel.contains(bleService.nodeData['modelId'])
+      [
+        ...AppConstants.pumpWithValveModelList,
+        ...AppConstants.ecoGemModelList,
+        ...AppConstants.smartPlusEcPhModel,
+        ...AppConstants.ecModel,
+        ...AppConstants.phModel,
+      ].contains(bleService.nodeData['modelId'])
     ){
       show = false;
     }
@@ -197,7 +199,11 @@ class _NodeDashboardState extends State<NodeDashboard> {
 
   bool showInterfaceSetting(){
     bool show = true;
-    if(AppConstants.smartPlusEcPhModel.contains(bleService.nodeData['modelId'])){
+    if([
+      ...AppConstants.smartPlusEcPhModel,
+      ...AppConstants.ecModel,
+      ...AppConstants.phModel,
+    ].contains(bleService.nodeData['modelId'])){
       show = false;
     }
     return show;

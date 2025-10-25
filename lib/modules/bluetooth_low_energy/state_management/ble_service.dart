@@ -162,6 +162,7 @@ class BleProvider extends ChangeNotifier {
       for(var result in _scanResults){
         var adv = result.advertisementData;
         String upComingMacAddress = result.device.remoteId.toString().split(':').join('');
+        print("upComingMacAddress : ${upComingMacAddress}");
         if(macAddressToConnect == upComingMacAddress){
           device = result.device;
           bleNodeState = BleNodeState.deviceFound;
