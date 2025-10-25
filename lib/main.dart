@@ -83,16 +83,31 @@ FutureOr<void> main() async {
   }
   // Firebase init
   if (!kIsWeb) {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    // Firebase init
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform);
 
     // Firebase Messaging
     FirebaseMessaging messaging = FirebaseMessaging.instance;
     await messaging.requestPermission(alert: true, badge: true, sound: true);
-
+    const initializationSettingsIOS = DarwinInitializationSettings(
+        requestAlertPermission: true,
+        requestBadgePermission: true,
+        requestSoundPermission: true);
     // Local notifications
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const initSettings = InitializationSettings(android: androidInit);
+    const initSettings = InitializationSettings(
+        android: androidInit, iOS: initializationSettingsIOS);
     await flutterLocalNotificationsPlugin.initialize(initSettings);
+
+
+    await flutterLocalNotificationsPlugin.initialize(
+      initSettings,
+      onDidReceiveNotificationResponse: (details) {
+        debugPrint("Notification tapped: ${details.payload}");
+      },
+    );
+
 
     // Background messaging
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -112,38 +127,41 @@ FutureOr<void> main() async {
     });
   }
 
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => UserProvider()),
-        ChangeNotifierProvider(create: (_) => CustomerProvider()),
-        ChangeNotifierProvider(create: (_) => ConfigMakerProvider()),
-        ChangeNotifierProvider(create: (_) => IrrigationProgramMainProvider()),
-        ChangeNotifierProvider(create: (_) => MqttPayloadProvider()),
-        ChangeNotifierProvider(create: (_) => OverAllUse()),
-        ChangeNotifierProvider(create: (_) => PreferenceProvider()),
-        ChangeNotifierProvider(create: (_) => SystemDefinitionProvider()),
-        ChangeNotifierProvider(create: (_) => ConstantProviderMani()),
-        ChangeNotifierProvider(create: (_) => ConstantProvider()),
-        ChangeNotifierProvider(create: (_) => PumpControllerProvider()),
-        ChangeNotifierProvider(create: (_) => BleProvider()),
-        ChangeNotifierProvider(create: (_) => SearchProvider()),
-        ChangeNotifierProvider(create: (_) => ButtonLoadingProvider()),
-        ProxyProvider2<MqttPayloadProvider, CustomerProvider, CommunicationService>(
-          update: (BuildContext context, MqttPayloadProvider mqttProvider,
-              CustomerProvider customer, CommunicationService? previous) {
-            return CommunicationService(
-              mqttService: MqttService(),
-              blueService: BluService(),
-              customerProvider: customer,
-            );
-          },
-        ),
-      ],
-      child: const MyApp(),
-    ),
-  );
+    runApp(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => UserProvider()),
+          ChangeNotifierProvider(create: (_) => CustomerProvider()),
+          ChangeNotifierProvider(create: (_) => ConfigMakerProvider()),
+          ChangeNotifierProvider(
+              create: (_) => IrrigationProgramMainProvider()),
+          ChangeNotifierProvider(create: (_) => MqttPayloadProvider()),
+          ChangeNotifierProvider(create: (_) => OverAllUse()),
+          ChangeNotifierProvider(create: (_) => PreferenceProvider()),
+          ChangeNotifierProvider(create: (_) => SystemDefinitionProvider()),
+          ChangeNotifierProvider(create: (_) => ConstantProviderMani()),
+          ChangeNotifierProvider(create: (_) => ConstantProvider()),
+          ChangeNotifierProvider(create: (_) => PumpControllerProvider()),
+          ChangeNotifierProvider(create: (_) => BleProvider()),
+          ChangeNotifierProvider(create: (_) => SearchProvider()),
+          ChangeNotifierProvider(create: (_) => ButtonLoadingProvider()),
+          ProxyProvider2<MqttPayloadProvider,
+              CustomerProvider,
+              CommunicationService>(
+            update: (BuildContext context, MqttPayloadProvider mqttProvider,
+                CustomerProvider customer, CommunicationService? previous) {
+              return CommunicationService(
+                mqttService: MqttService(),
+                blueService: BluService(),
+                customerProvider: customer,
+              );
+            },
+          ),
+        ],
+        child: const MyApp(),
+      ),
+    );
+  }
 
-}
 
 

@@ -519,7 +519,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.8;
+				MARKETING_VERSION = 1.1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.niagaraautomations.oroDevelopment;
 				PRODUCT_NAME = oroDevelopment;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -714,7 +714,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.8;
+				MARKETING_VERSION = 1.1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.niagaraautomations.oroDevelopment;
 				PRODUCT_NAME = oroDevelopment;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -745,7 +745,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.8;
+				MARKETING_VERSION = 1.1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.niagaraautomations.oroDevelopment;
 				PRODUCT_NAME = oroDevelopment;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -834,7 +834,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.8;
+				MARKETING_VERSION = 1.1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.niagaraautomations.smartComm;
 				PRODUCT_NAME = smartComm;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -942,7 +942,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.8;
+				MARKETING_VERSION = 1.1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.niagaraautomations.oroDripirrigation;
 				PRODUCT_NAME = oro;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1047,7 +1047,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.8;
+				MARKETING_VERSION = 1.1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.niagaraautomations.smartComm;
 				PRODUCT_NAME = smartComm;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1149,7 +1149,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.8;
+				MARKETING_VERSION = 1.1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.niagaraautomations.oroDripirrigation;
 				PRODUCT_NAME = oro;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1249,7 +1249,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.8;
+				MARKETING_VERSION = 1.1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.niagaraautomations.oroDripirrigation;
 				PRODUCT_NAME = oro;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1349,7 +1349,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.8;
+				MARKETING_VERSION = 1.1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.niagaraautomations.smartComm;
 				PRODUCT_NAME = smartComm;
 				PROVISIONING_PROFILE_SPECIFIER = "";
