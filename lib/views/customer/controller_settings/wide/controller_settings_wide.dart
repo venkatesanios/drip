@@ -5,7 +5,7 @@ import '../../../../models/customer/controller_context.dart';
 import '../../../../models/customer/site_model.dart';
 import '../../../../repository/repository.dart';
 import '../../../../services/http_service.dart';
-import '../../../common/centered_loading_indicator.dart';
+import '../../../common/widgets/build_loading_indicator.dart';
 import '../widgets/settings_screen_factory.dart';
 
 class ControllerSettingWide extends StatelessWidget {
@@ -40,7 +40,7 @@ class ControllerSettingWide extends StatelessWidget {
       child: Consumer<ControllerSettingsViewModel>(
         builder: (context, viewModel, _) {
           if (viewModel.isLoading) {
-            return const CenteredLoadingIndicator();
+            return buildLoadingIndicator(context);
           }
           return Scaffold(
             backgroundColor: Colors.white,

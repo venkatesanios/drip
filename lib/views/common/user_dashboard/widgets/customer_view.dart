@@ -1,11 +1,11 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart' hide Badge;
 import 'package:loading_indicator/loading_indicator.dart';
-import 'package:oro_drip_irrigation/views/common/user_dashboard/widgets/user_device_list.dart';
 import 'package:provider/provider.dart';
 import '../../../../Screens/Dealer/sevicerequestdealer.dart';
 import '../../../../layouts/user_layout.dart';
 import '../../../../models/admin_dealer/customer_list_model.dart';
+import '../../../../models/admin_dealer/stock_model.dart';
 import '../../../../models/user_model.dart';
 import '../../../../modules/UserChat/view/user_chat.dart';
 import '../../../../providers/user_provider.dart';
@@ -13,13 +13,15 @@ import '../../../../utils/enums.dart';
 import '../../../../view_models/customer_list_view_model.dart';
 import '../../../../view_models/product_stock_view_model.dart';
 import '../../../admin_dealer/customer_device_list.dart';
+import '../../../admin_dealer/dealer_device_list.dart';
 import '../../user_profile/create_account.dart';
 
 class CustomerView extends StatelessWidget {
   const CustomerView({super.key, required this.role, required this.isNarrow, required this.onCustomerProductChanged});
   final UserRole role;
   final bool isNarrow;
-  final void Function(String action) onCustomerProductChanged;
+  final void Function(String action, List<StockModel> updatedProducts) onCustomerProductChanged;
+
 
   @override
   Widget build(BuildContext context) {
@@ -288,13 +290,14 @@ class CustomerView extends StatelessWidget {
     final loggedInUser = Provider.of<UserProvider>(context, listen: false).loggedInUser;
     final isAdmin = role.name == 'admin';
 
-    final Widget deviceListWidget = isAdmin ? UserDeviceList(
+
+    final Widget deviceListWidget = isAdmin ? DealerDeviceList(
       userId: loggedInUser.id,
       customerName: customer.name,
       customerId: customer.id,
       userRole: 'Dealer',
       productStockList: stockVM.productStockList,
-      onDeviceListAdded: stockVM.removeStockList,
+      //onDeviceListAdded: stockVM.removeStockList,
     ) : CustomerDeviceList(
       userId: loggedInUser.id,
       customerName: customer.name,

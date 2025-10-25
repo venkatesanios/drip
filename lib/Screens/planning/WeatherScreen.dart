@@ -63,6 +63,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   @override
   void dispose() {
+    //_timer.cancel();
     super.dispose();
   }
 

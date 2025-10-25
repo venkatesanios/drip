@@ -26,7 +26,8 @@ class CustomerDeviceList extends StatefulWidget {
   final String userRole, customerName;
   final List<StockModel> productStockList;
 
-  final void Function(String action) onCustomerProductChanged;
+  final void Function(String action, List<StockModel> updatedProducts) onCustomerProductChanged;
+
 
   @override
   State<CustomerDeviceList> createState() => _CustomerDeviceListState();
@@ -41,15 +42,18 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
   @override
   void initState() {
     super.initState();
+
     viewModel = CustomerDeviceListViewModel(
       Repository(HttpService()),
       widget.userId,
       widget.customerId,
       widget.productStockList.length,
-      onProductUpdatedCallback: (result) {
-        widget.onCustomerProductChanged(result);
+      onProductUpdatedCallback: (action, updatedProducts) {
+        widget.onCustomerProductChanged(action, updatedProducts);
+        viewModel.getMasterProduct();
       },
     );
+
     tabController = TabController(length: tabList.length, vsync: this);
     tabController.addListener(() {
       if (mounted) setState(() {});
@@ -71,9 +75,9 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
 
           return Scaffold(
             appBar: AppBar(
-              title: Text(widget.customerName, style: const TextStyle(fontSize: 16)),
+              title: Text(widget.customerName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               leading: IconButton(
-                icon: const Icon(Icons.close, color: Colors.redAccent),
+                icon: const Icon(Icons.close, color: Colors.white),
                 tooltip: "Close",
                 onPressed: () => Navigator.of(context).pop(),
               ),
@@ -116,29 +120,34 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
   }
 
   Widget _buildActionPopup(BuildContext context) {
-    print(tabController.index);
     return PopupMenuButton(
       tooltip: tabController.index == 0
           ? 'Add new product to ${widget.customerName}'
           : 'Create new site for ${widget.customerName}',
-      child: MaterialButton(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(3),
-          side: const BorderSide(color: Colors.white54, width: 0.5),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(5),
         ),
-        onPressed: null,
-        textColor: Colors.white,
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(tabController.index == 0 ? 'Add New Product' : 'Create New Site'),
-            const SizedBox(width: 3),
-            const Icon(Icons.arrow_drop_down, color: Colors.white),
+            Text(
+              tabController.index == 0 ? 'Add New Product' : 'Create New Site',
+              style: const TextStyle(color: Colors.black),
+            ),
+            const SizedBox(width: 5),
+            const Icon(Icons.arrow_drop_down, color: Colors.black54),
           ],
         ),
       ),
+
       onCanceled: () {
-        viewModel.selectedProducts = List<bool>.filled(widget.productStockList.length, false);
+        viewModel.selectedProducts =
+        List<bool>.filled(widget.productStockList.length, false);
       },
+
       itemBuilder: (context) {
         return tabController.index == 0
             ? _buildProductListPopup(context)
@@ -280,9 +289,9 @@ class CustomerDeviceTable extends StatelessWidget {
               DataColumn2(label: Text('S.No'), fixedWidth: 40),
               DataColumn2(label: Text('Category'), size: ColumnSize.M),
               DataColumn2(label: Text('Model'), size: ColumnSize.M),
-              DataColumn2(label: Text('IMEI'), size: ColumnSize.M),
+              DataColumn2(label: Text('IMEI'), fixedWidth: 127),
               DataColumn2(label: Text('Status'), fixedWidth: 75),
-              DataColumn2(label: Text('Modify Date'), fixedWidth: 100),
+              DataColumn2(label: Text('Modify Date'), fixedWidth: 113),
             ],
             rows: List.generate(viewModel.customerDeviceList.length, (index) {
               final device = viewModel.customerDeviceList[index];
@@ -309,6 +318,7 @@ class CustomerDeviceTable extends StatelessWidget {
                         style: viewModel.commonTextStyle,
                       ),
                       if (device.productStatus == 3) ...[
+                        const Spacer(),
                         Tooltip(
                           message: 'Remove this product',
                           child: IconButton(
@@ -344,7 +354,7 @@ class CustomerDeviceTable extends StatelessWidget {
       case 2:
         return Colors.blue;
       case 3:
-        return Colors.purple;
+        return Colors.orange;
       default:
         return Colors.green;
     }

@@ -33,10 +33,16 @@ class CustomerDeviceListViewModel extends ChangeNotifier {
   final TextEditingController textFieldSiteDisc = TextEditingController();
   final formKey = GlobalKey<FormState>();
 
-  final Function(String) onProductUpdatedCallback;
+  final void Function(String action, List<StockModel> updatedProducts) onProductUpdatedCallback;
 
-  CustomerDeviceListViewModel(this.repository, this.userId, this.customerId,
-      this.stockLength, {required this.onProductUpdatedCallback}) {
+
+  CustomerDeviceListViewModel(
+      this.repository,
+      this.userId,
+      this.customerId,
+      this.stockLength, {
+        required this.onProductUpdatedCallback,
+      }) {
     _initialize();
   }
 
@@ -147,14 +153,23 @@ class CustomerDeviceListViewModel extends ChangeNotifier {
           final Map<String, dynamic> jsonData = jsonDecode(response.body);
           if(jsonData["code"] == 200){
             customerDeviceList.insertAll(0, newDevices);
-            onProductUpdatedCallback('added');
+
+            onProductUpdatedCallback(
+              'added',
+              newDevices.map((d) => StockModel(
+                productId: d.productId,
+                categoryName: d.categoryName,
+                model: d.model,
+                imeiNo: d.deviceId,
+                dtOfMnf: d.modifyDate,
+              )).toList(),
+            );
           }
         }
       } catch (error, stackTrace) {
         debugPrint('Error fetching Product stock: $error');
         debugPrint(stackTrace.toString());
       } finally {
-        //isLoadingSalesData = false;
         notifyListeners();
       }
     }
@@ -343,9 +358,33 @@ class CustomerDeviceListViewModel extends ChangeNotifier {
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonData = jsonDecode(response.body);
         if(jsonData["code"] == 200){
+
+          final removedDevice = customerDeviceList.firstWhere(
+                (device) => device.productId == productId,
+            orElse: () => DeviceListModel(
+              categoryName: '',
+              deviceId: '',
+              model: '',
+              modifyDate: '',
+              productId: productId,
+              productStatus: 0,
+              siteName: '',
+            ),
+          );
+
           customerDeviceList.removeWhere((device) => device.productId == productId);
           notifyListeners();
-          onProductUpdatedCallback('removed');
+
+          onProductUpdatedCallback(
+            'removed',
+            [StockModel(
+              productId: removedDevice.productId,
+              categoryName: removedDevice.categoryName,
+              model: removedDevice.model,
+              imeiNo: removedDevice.deviceId,
+              dtOfMnf: removedDevice.modifyDate,
+            )],
+          );
         }
       }
     } catch (error, stackTrace) {
