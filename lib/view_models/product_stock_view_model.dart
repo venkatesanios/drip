@@ -31,11 +31,14 @@ class ProductStockViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> removeStockList(Map<String, dynamic> json) async {
-    if (json['status'] != 'success') return;
-    for (var p in json['products']) {
-      productStockList.removeWhere((item) => item.productId == p['productId']);
-    }
+  void removeStockModels(List<StockModel> productsToRemove) {
+    final idsToRemove = productsToRemove.map((p) => p.productId).toSet();
+    productStockList.removeWhere((p) => idsToRemove.contains(p.productId));
+    notifyListeners();
+  }
+
+  void addStockModels(List<StockModel> productsToAdd) {
+    productStockList.insertAll(0, productsToAdd);
     notifyListeners();
   }
 

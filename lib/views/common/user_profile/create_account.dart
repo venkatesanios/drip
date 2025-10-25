@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:oro_drip_irrigation/utils/Theme/oro_theme.dart';
 import 'package:provider/provider.dart';
 
@@ -82,7 +83,7 @@ class CreateAccount extends StatelessWidget {
                           const SizedBox(height: 15),
 
                           // Mobile Number
-                          TextFormField(
+                         /* TextFormField(
                             controller: viewModel.mobileNoController,
                             keyboardType: TextInputType.phone,
                             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -104,6 +105,52 @@ class CreateAccount extends StatelessWidget {
                             onSaved: (value) {
                               viewModel.dialCode = '+91'; // static for now, dynamic if needed
                             },
+                          ),*/
+
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: IntlPhoneField(
+                              controller: viewModel.mobileNoController,
+                              focusNode: FocusNode(),
+                              decoration: InputDecoration(
+                                labelText: AppConstants.mobileNumber,
+                                icon: Icon(Icons.phone_outlined, color: primaryDark),
+                                filled: true,
+                                fillColor: Colors.white,
+                                contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                                enabledBorder: const UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.grey, width: 0.5),
+                                ),
+                                focusedBorder: const UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                                ),
+                                errorStyle: const TextStyle(fontSize: 12, color: Colors.redAccent),
+                              ),
+                              initialCountryCode: 'IN', // default India, but user can change
+                              showDropdownIcon: true, // show country dropdown
+                              dropdownIconPosition: IconPosition.trailing,
+                              dropdownIcon: const Icon(Icons.arrow_drop_down, color: Colors.black54),
+                              languageCode: "en",
+                              keyboardType: TextInputType.phone,
+
+                              validator: (phone) {
+                                final value = phone?.number ?? '';
+                                if (value.isEmpty) {
+                                  return AppConstants.getMobileError(role);
+                                }
+                                if (value.length < 6) {
+                                  return 'Enter a valid phone number';
+                                }
+                                return null;
+                              },
+
+                              onChanged: (phone) {
+                                print(phone.completeNumber);
+                              },
+                              onCountryChanged: (country) {
+                                viewModel.dialCode = country.dialCode;
+                              },
+                            ),
                           ),
 
                           const SizedBox(height: 15),

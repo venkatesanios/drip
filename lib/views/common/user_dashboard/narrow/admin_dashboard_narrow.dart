@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/utils/enums.dart';
 import 'package:provider/provider.dart';
+import '../../../../models/admin_dealer/stock_model.dart';
 import '../../../../view_models/bottom_nav_view_model.dart';
 import '../widgets/analytics_view.dart';
 import '../widgets/customer_view.dart';
@@ -14,7 +15,11 @@ class AdminDashboardNarrow extends StatelessWidget {
     final navModel = context.watch<BottomNavViewModel>();
 
     final pages = [const AnalyticsView(screenType: 'Narrow', userType: 1),
-      CustomerView(role: UserRole.admin, isNarrow: true, onCustomerProductChanged: (String action) {}),
+      CustomerView(role: UserRole.admin, isNarrow: true,
+          onCustomerProductChanged: (String action, List<StockModel> updatedProducts) {
+        print('Action: $action');
+        print('Updated products count: ${updatedProducts.length}');
+      }),
       const ProductView(isWideScreen: false)];
 
     return Scaffold(

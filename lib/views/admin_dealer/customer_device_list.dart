@@ -26,7 +26,8 @@ class CustomerDeviceList extends StatefulWidget {
   final String userRole, customerName;
   final List<StockModel> productStockList;
 
-  final void Function(String action) onCustomerProductChanged;
+  final void Function(String action, List<StockModel> updatedProducts) onCustomerProductChanged;
+
 
   @override
   State<CustomerDeviceList> createState() => _CustomerDeviceListState();
@@ -41,15 +42,18 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
   @override
   void initState() {
     super.initState();
+
     viewModel = CustomerDeviceListViewModel(
       Repository(HttpService()),
       widget.userId,
       widget.customerId,
       widget.productStockList.length,
-      onProductUpdatedCallback: (result) {
-        widget.onCustomerProductChanged(result);
+      onProductUpdatedCallback: (action, updatedProducts) {
+        widget.onCustomerProductChanged(action, updatedProducts);
+        viewModel.getMasterProduct();
       },
     );
+
     tabController = TabController(length: tabList.length, vsync: this);
     tabController.addListener(() {
       if (mounted) setState(() {});
@@ -71,9 +75,9 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
 
           return Scaffold(
             appBar: AppBar(
-              title: Text(widget.customerName, style: const TextStyle(fontSize: 16)),
+              title: Text(widget.customerName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               leading: IconButton(
-                icon: const Icon(Icons.close, color: Colors.redAccent),
+                icon: const Icon(Icons.close, color: Colors.white),
                 tooltip: "Close",
                 onPressed: () => Navigator.of(context).pop(),
               ),
@@ -116,48 +120,34 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
   }
 
   Widget _buildActionPopup(BuildContext context) {
-
-    /*return PopupMenuButton(
-      icon: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: Theme.of(context).primaryColorLight,
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Row(
-          children: const [
-            Text('Add New Product', style: TextStyle(color: Colors.white)),
-            SizedBox(width: 3),
-            Icon(Icons.arrow_drop_down, color: Colors.white),
-          ],
-        ),
-      ),
-      itemBuilder: (context) => _buildProductListPopup(context),
-    );*/
-
     return PopupMenuButton(
       tooltip: tabController.index == 0
           ? 'Add new product to ${widget.customerName}'
           : 'Create new site for ${widget.customerName}',
-      child: MaterialButton(
-        color: Colors.redAccent,
-        /*shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(3),
-          side: const BorderSide(color: Colors.white54, width: 0.5),
-        ),*/
-        onPressed: () {},
-        textColor: Colors.white,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(5),
+        ),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(tabController.index == 0 ? 'Add New Product' : 'Create New Site'),
-            const SizedBox(width: 3),
-            const Icon(Icons.arrow_drop_down, color: Colors.white),
+            Text(
+              tabController.index == 0 ? 'Add New Product' : 'Create New Site',
+              style: const TextStyle(color: Colors.black),
+            ),
+            const SizedBox(width: 5),
+            const Icon(Icons.arrow_drop_down, color: Colors.black54),
           ],
         ),
       ),
+
       onCanceled: () {
-        viewModel.selectedProducts = List<bool>.filled(widget.productStockList.length, false);
+        viewModel.selectedProducts =
+        List<bool>.filled(widget.productStockList.length, false);
       },
+
       itemBuilder: (context) {
         return tabController.index == 0
             ? _buildProductListPopup(context)
@@ -165,7 +155,6 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
       },
     );
   }
-
 
   List<PopupMenuEntry> _buildProductListPopup(BuildContext context) {
     if (widget.productStockList.isEmpty) {

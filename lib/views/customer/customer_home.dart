@@ -33,7 +33,6 @@ class CustomerHome extends StatelessWidget {
   final String deviceId;
 
 
-
   @override
   Widget build(BuildContext context) {
 
@@ -79,20 +78,6 @@ class CustomerHome extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-
-              /*Consumer<CustomerScreenControllerViewModel>(
-                builder: (context, viewModel, _) {
-                  return viewModel.onRefresh ? Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 3),
-                    child: LinearProgressIndicator(
-                      valueColor: const AlwaysStoppedAnimation<Color>(Colors.blueAccent),
-                      backgroundColor: Colors.grey[200],
-                      minHeight: 4,
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ) : const SizedBox();
-                },
-              ),*/
 
               ...irrigationLine.map((line) => Padding(
                 padding: const EdgeInsets.only(left: 8, right: 8, top:8, bottom: 5),
@@ -140,8 +125,7 @@ class CustomerHome extends StatelessWidget {
                                     payloadValue: "${line.sNo},${line.linePauseFlag == 0 ? 1 : 0}",
                                     color: line.linePauseFlag == 0 ? Colors.orangeAccent : Colors.green,
                                     textColor: Colors.white,
-                                    serverMsg: line.linePauseFlag == 0
-                                        ? 'Paused the ${line.name}'
+                                    serverMsg: line.linePauseFlag == 0 ? 'Paused the ${line.name}'
                                         : 'Resumed the ${line.name}',
                                   ),
                                 ),
@@ -167,7 +151,6 @@ class CustomerHome extends StatelessWidget {
                 modelId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].modelId,
                 skipPermission: hasProgramOnOff,
               ),
-
 
               if (scheduledProgram.isNotEmpty)
                 NextSchedule(scheduledPrograms: scheduledProgram),
