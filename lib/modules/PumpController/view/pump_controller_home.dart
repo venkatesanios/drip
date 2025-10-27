@@ -174,18 +174,22 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
                       ),
                     Expanded(
                       flex: 2,
-                        child: SizedBox(
-                          height: constraints.maxHeight - (constraints.maxHeight * 0.1),
-                          child: Card(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15)
-                            ),
-                            color: Colors.white,
-                            surfaceTintColor: Colors.white,
-                            child: context.read<PumpControllerProvider>().isLoading
-                                ? const Center(child: CircularProgressIndicator(),)
-                                : _getSelectedScreen(),
-                          )
+                        child: Consumer<PumpControllerProvider>(
+                            builder: (context, provider, child) {
+                            return SizedBox(
+                              height: constraints.maxHeight - (constraints.maxHeight * 0.1),
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15)
+                                ),
+                                color: Colors.white,
+                                surfaceTintColor: Colors.white,
+                                child: provider.isLoading
+                                    ? const Center(child: CircularProgressIndicator(),)
+                                    : _getSelectedScreen(),
+                              )
+                            );
+                          }
                         )
                     ),
                   ],
