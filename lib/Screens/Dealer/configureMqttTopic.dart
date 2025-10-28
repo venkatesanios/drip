@@ -517,25 +517,25 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
               ),
               const SizedBox(height: 20),
 
-              if (formattedConfig != null)
-                widget.communicationType == "MQTT" ? Container(
-                  padding: const EdgeInsets.all(12.0),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Text(
-                      formattedConfig!,
-                      style: const TextStyle(
-                        fontFamily: 'monospace',
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                ):Container(),
+              // if (formattedConfig != null)
+              //   widget.communicationType == "MQTT" ? Container(
+              //     padding: const EdgeInsets.all(12.0),
+              //     decoration: BoxDecoration(
+              //       color: Colors.grey[100],
+              //       border: Border.all(color: Colors.grey),
+              //       borderRadius: BorderRadius.circular(8),
+              //     ),
+              //     child: SingleChildScrollView(
+              //       scrollDirection: Axis.horizontal,
+              //       child: Text(
+              //         formattedConfig!,
+              //         style: const TextStyle(
+              //           fontFamily: 'monospace',
+              //           fontSize: 14,
+              //         ),
+              //       ),
+              //     ),
+              //   ):Container(),
               const SizedBox(height: 20),
 
               Row(
@@ -625,10 +625,10 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
                   ),
                 ],
               ),
-             widget.communicationType == "MQTT" ? Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(mqttPayloadProvider.receivedPayload),
-              ) : Container(),
+             // widget.communicationType == "MQTT" ? Padding(
+             //    padding: const EdgeInsets.all(8.0),
+             //    child: Text(mqttPayloadProvider.receivedPayload),
+             //  ) : Container(),
             ],
           ),
         ),
