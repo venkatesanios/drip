@@ -38,7 +38,7 @@ class _EcConfigurationState extends State<EcConfiguration> {
                     physics: const NeverScrollableScrollPhysics(),
                   ),
                   children: [
-                    for(var moistureSensor in widget.configPvd.moisture)
+                    for(var ecSensor = 0; ecSensor < widget.configPvd.ec.length;ecSensor++)
                       Container(
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
@@ -52,34 +52,90 @@ class _EcConfigurationState extends State<EcConfiguration> {
                               stepWidth: 300,
                               child: ListTile(
                                 leading: SizedImage(
-                                  imagePath: '${AppConstants.svgObjectPath}objectId_25.svg',
+                                  imagePath: '${AppConstants.svgObjectPath}objectId_${AppConstants.ecObjectId}.svg',
                                   color: Colors.black,
                                 ),
-                                title: Text(moistureSensor.commonDetails.name!),
+                                title: Text(widget.configPvd.ec[ecSensor].name!),
                               ),
                             ),
-                            // Container(
-                            //   width: double.infinity,
-                            //   alignment: Alignment.center,
-                            //   child: Stack(
-                            //     children: [
-                            //       SvgPicture.asset(
-                            //         'assets/Images/Source/pump_1.svg',
-                            //         width: 120,
-                            //         height: 120,
-                            //       ),
-                            //       ...getWaterMeterAndPressure(
-                            //           pump.pressure,
-                            //           pump.waterMeter,
-                            //           widget.configPvd
-                            //       ),
-                            //     ],
-                            //   ),
-                            // ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: getValve(moistureSensor: moistureSensor, valveList: moistureSensor.valves),
-                            ),
+                            ListTile(
+                              title: const Text('Ec Controller'),
+                              trailing: IntrinsicWidth(
+                                child: PopupMenuButton<int>(
+                                  child: Row(
+                                    spacing: 10,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      widget.configPvd.ec[ecSensor].ecControllerId == 0
+                                          ? const Text(' - ')
+                                          : Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(widget.configPvd.listOfDeviceModel.firstWhere((node) => node.controllerId == widget.configPvd.ec[ecSensor].ecControllerId).deviceName),
+                                          Text(widget.configPvd.listOfDeviceModel.firstWhere((node) => node.controllerId == widget.configPvd.ec[ecSensor].ecControllerId).deviceId, style: const TextStyle(fontSize: 10, color: Colors.black45),),
+                                        ],
+                                      ),
+                                      const Icon(Icons.arrow_drop_down_circle)
+                                    ],
+                                  ),
+                                  onSelected: (value){
+                                    setState(() {
+                                      for(var node in widget.configPvd.listOfDeviceModel){
+                                        if(node.controllerId == widget.configPvd.ec[ecSensor].ecControllerId){
+                                          node.masterId = null;
+                                        }
+                                        if(value == node.controllerId){
+                                          node.masterId = widget.configPvd.masterData['controllerId'];
+                                        }
+                                      }
+                                      widget.configPvd.ec[ecSensor].ecControllerId = value;
+                                    });
+                                  },
+                                    itemBuilder: (context){
+                                      return [
+                                        const PopupMenuItem(
+                                            value: 0,
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text('-'),
+                                                Text('', style: TextStyle(fontSize: 10, color: Colors.black45),),
+                                              ],
+                                            )
+                                        ),
+                                        for(var node in widget.configPvd.listOfDeviceModel.where((node) {
+                                          if(AppConstants.ecModel.contains(node.modelId)){
+                                            bool showNode = true;
+                                            for(var ec in widget.configPvd.ec){
+                                              if(ec.sNo != widget.configPvd.ec[ecSensor].sNo){
+                                                if(ec.ecControllerId == node.controllerId){
+                                                  showNode = false;
+                                                }
+                                              }
+                                            }
+                                            return showNode;
+                                          }else{
+                                            return false;
+                                          }
+                                        }))
+                                            PopupMenuItem(
+                                              value: node.controllerId,
+                                                child: Column(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(node.deviceName),
+                                                    Text(node.deviceId, style: const TextStyle(fontSize: 10, color: Colors.black45),),
+                                                  ],
+                                                )
+                                            )
+                                      ];
+                                    },
+                                ),
+                              ),
+                            )
                           ],
                         ),
                       )
@@ -88,58 +144,8 @@ class _EcConfigurationState extends State<EcConfiguration> {
               ],
             ),
           ),
-
         );
       }),
     );
   }
-
-  Widget getValve({
-    required MoistureModel moistureSensor,
-    required List<double> valveList
-  }){
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: Theme.of(context).primaryColorLight.withOpacity(0.1),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedImage(
-            imagePath: '${AppConstants.svgObjectPath}objectId_13.svg',
-            color: Colors.black,
-          ),
-          const SizedBox(width: 20,),
-          const Text('Valves : ', style: AppProperties.listTileBlackBoldStyle,),
-          Center(
-            child: Text(valveList.isEmpty ? '-' : valveList.map((sNo) => getObjectName(sNo, widget.configPvd).name!).join(', '), style: TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold),),
-          ),
-          IconButton(
-              onPressed: (){
-                setState(() {
-                  widget.configPvd.listOfSelectedSno.clear();
-                  widget.configPvd.listOfSelectedSno.addAll(valveList);
-                });
-                selectionDialogBox(
-                    context: context,
-                    title: 'Select Valve',
-                    singleSelection: false,
-                    listOfObject: widget.configPvd.listOfGeneratedObject.where((object) => object.objectId == AppConstants.valveObjectId).toList(),
-                    onPressed: (){
-                      setState(() {
-                        widget.configPvd.updateSelectionInMoisture(moistureSensor.commonDetails.sNo!,);
-                      });
-                      Navigator.pop(context);
-                    }
-                );
-              },
-              icon: Icon(Icons.touch_app, color: Theme.of(context).primaryColor, size: 20,)
-          )
-        ],
-      ),
-    );
-  }
-
 }

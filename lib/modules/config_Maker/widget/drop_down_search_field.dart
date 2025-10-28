@@ -38,7 +38,6 @@ class _DropDownSearchFieldState extends State<DropDownSearchField> {
   @override
   Widget build(BuildContext context) {
     var configPvd = Provider.of<ConfigMakerProvider>(context, listen: true);
-
     return GestureDetector(
       onTap: () {
         suggestionBoxController.close();

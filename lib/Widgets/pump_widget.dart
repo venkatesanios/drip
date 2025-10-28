@@ -244,6 +244,7 @@ class PumpWidget extends StatelessWidget {
   }
 
   Widget _buildVoltagePopoverContent(BuildContext context, voltages, columns) {
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -254,7 +255,13 @@ class PumpWidget extends StatelessWidget {
         const SizedBox(height: 5),
         _buildPhaseInfo(),
         const SizedBox(height: 7),
-        _buildVoltageCurrentInfo('Voltage', voltages, ['RN', 'YN', 'BN']),
+        if (voltages.length == 6) ...[
+          _buildVoltageCurrentInfo('Voltage', voltages.sublist(0, 3), ['RY', 'YB', 'BR']),
+          const SizedBox(height: 7),
+          _buildVoltageCurrentInfo('', voltages.sublist(3, 6), ['RN', 'YN', 'BN']),
+        ] else ...[
+          _buildVoltageCurrentInfo('Voltage', voltages.sublist(0, 3), ['RY', 'YB', 'BR']),
+        ],
         const SizedBox(height: 7),
         _buildVoltageCurrentInfo('Current', columns, ['RC', 'YC', 'BC']),
         const SizedBox(height: 7),

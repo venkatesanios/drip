@@ -508,9 +508,8 @@ class ConstantProvider extends ChangeNotifier{
         return filter.location == site.sNo;
       }).toList();
       String ecoGemFilterSetting =
-          '${payloadValidate(filterList.isNotEmpty ? filterList[0].setting[0].value.value : '')}'
-          ',${payloadValidate(filterList.length > 1 ? filterList[1].setting[0].value.value : '')}';
-
+          '${filterList.isNotEmpty ? payloadValidate(filterList[0].setting[0].value.value) : '00,00,00'}'
+          ',${filterList.length > 1 ? payloadValidate(filterList[1].setting[0].value.value) : '00,00,00'}';
       bool isGem = AppConstants.gemModelList.contains(userData['modelId']);
       var siteSno = isGem ? site.sNo : site.sNo.toString().split('.').join(',');
       return [
@@ -533,5 +532,4 @@ class ConstantProvider extends ChangeNotifier{
       ].join(',');
     }).join(';');
   }
-
 }

@@ -37,6 +37,7 @@ class ConditionLibraryViewModel extends ChangeNotifier {
 
         if (response.statusCode == 200) {
           final jsonData = jsonDecode(response.body);
+          print(response.body);
 
           if (jsonData["code"] == 200) {
             clData = ConditionLibraryModel.fromJson(jsonData['data']);
@@ -89,7 +90,6 @@ class ConditionLibraryViewModel extends ChangeNotifier {
     clData.cnLibrary.condition[index].parameter = param;
     updateRule(index);
     notifyListeners();
-
   }
 
   void thresholdOnChange(String valT, int index){
@@ -116,10 +116,38 @@ class ConditionLibraryViewModel extends ChangeNotifier {
     '${clData.cnLibrary.condition[index].reason} detected in '
         '${clData.cnLibrary.condition[index].component}';
     amTEVControllers[index].text = clData.cnLibrary.condition[index].alertMessage;
+    updateRule(index);
+    amTEVControllers[index].text = clData.cnLibrary.condition[index].alertMessage;
+
+    notifyListeners();
+  }
+
+  void updateLineName(String lineName, String lineSno, int index) {
+    final condition = clData.cnLibrary.condition[index];
+
+    condition.reason = lineName;
+    condition.componentSNo = lineSno;
+
+    condition.alertMessage = '';
+    amTEVControllers[index].text = condition.alertMessage;
 
     updateRule(index);
+    notifyListeners();
+  }
 
-    amTEVControllers[index].text = clData.cnLibrary.condition[index].alertMessage;
+  void lineReasonOnChange(String reason, int index) {
+    final condition = clData.cnLibrary.condition[index];
+
+    condition.reason = reason;
+
+    final lineName = condition.name.isNotEmpty ? condition.name
+        : 'Unknown Line';
+
+    condition.alertMessage = '$reason detected in $lineName';
+
+    amTEVControllers[index].text = condition.alertMessage;
+
+    updateRule(index);
 
     notifyListeners();
   }
@@ -275,16 +303,11 @@ class ConditionLibraryViewModel extends ChangeNotifier {
           'StartTime': '00:01:00',
           'StopTime': '23:59:00',
           'notify': 1,
-
           'category': getConditionCategory(condition),
-
-          'object': condition.type == 'Combined'? serialNo[0]: condition.componentSNo,
-
+          'object': condition.type == 'Combined'? serialNo[0] : condition.componentSNo,
           'operator': condition.type == 'Sensor' ? getOperatorOfSensor(condition) :
           condition.type == 'Program' ? getOperatorOfProgram(condition) : getOperatorOfCombined(condition),
-
           'setValue': condition.type == 'Combined'? serialNo[1] : numberOnly ?? 0,
-
           'Bypass': 0,
         });
       }
@@ -321,6 +344,10 @@ class ConditionLibraryViewModel extends ChangeNotifier {
 
   int getConditionCategory(Condition condition) {
     if (condition.type == 'Program') {
+      if(condition.component == 'Any irrigation program'
+          || condition.component == 'Any fertilizer program'){
+        return 11;
+      }
       return 1;
     }
     else if (condition.type == 'Sensor' && condition.parameter=='Level') {
@@ -337,7 +364,6 @@ class ConditionLibraryViewModel extends ChangeNotifier {
       return 7;
     }
     return 5;
-
   }
 
   int getOperatorOfSensor(Condition condition) {
@@ -350,17 +376,31 @@ class ConditionLibraryViewModel extends ChangeNotifier {
   }
 
   int getOperatorOfProgram(Condition condition) {
-    if (condition.threshold == 'is Starting') {
-      return 8;
-    }else if (condition.threshold == 'is Ending') {
-      return 9;
+    if(condition.component == 'Any irrigation program'){
+      if (condition.threshold == 'is Running' && condition.value=='True') {
+        return 19;
+      }
+      return 20;
     }
-    else if (condition.threshold == 'is Running' && condition.value=='True') {
-      return 10;
-    }else if (condition.threshold == 'is Running' && condition.value=='False') {
-      return 11;
+    else if(condition.component == 'Any fertilizer program'){
+      if (condition.threshold == 'is Running' && condition.value=='True') {
+        return 21;
+      }
+      return 22;
     }
-    return 0;
+    else{
+      if (condition.threshold == 'is Starting') {
+        return 8;
+      }else if (condition.threshold == 'is Ending') {
+        return 9;
+      }
+      else if (condition.threshold == 'is Running' && condition.value=='True') {
+        return 10;
+      }else if (condition.threshold == 'is Running' && condition.value=='False') {
+        return 11;
+      }
+      return 0;
+    }
   }
 
   int getOperatorOfCombined(Condition condition) {

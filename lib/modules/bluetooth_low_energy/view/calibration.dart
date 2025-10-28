@@ -20,6 +20,14 @@ class _CalibrationState extends State<Calibration> {
   List<dynamic> phSensorList = [];
   List<dynamic> waterMeter = [];
   bool loading = false;
+  String ec1 = '';
+  String ec_1 = '';
+  String ec2 = '';
+  String ec_2 = '';
+  String ph1 = '';
+  String ph_1 = '';
+  String ph2 = '';
+  String ph_2 = '';
 
   final inputDecoration = InputDecoration(
     filled: true,
@@ -31,7 +39,7 @@ class _CalibrationState extends State<Calibration> {
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(16),
-      borderSide: BorderSide(color: Colors.black54),
+      borderSide: const BorderSide(color: Colors.black54),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(16),
@@ -318,8 +326,6 @@ class _CalibrationState extends State<Calibration> {
                     )
                   ],
                 ),
-
-
               ],
             ),
           ),
@@ -425,6 +431,7 @@ class _CalibrationState extends State<Calibration> {
                     )
                   ],
                 ),
+                Text('Last Updated Value : ${sensorCount == 0 ? ec1 : ec2}'),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -479,6 +486,7 @@ class _CalibrationState extends State<Calibration> {
                     )
                   ],
                 ),
+                Text('Last Updated Value : ${sensorCount == 0 ? ec_1 : ec_2}'),
                 Align(
                   alignment: Alignment.bottomRight,
                   child: SizedBox(
@@ -487,6 +495,15 @@ class _CalibrationState extends State<Calibration> {
                       onPressed: (){
                         var one = sensorCount == 0 ? bleService.ec1Controller.text : bleService.ec2Controller.text;
                         var two = sensorCount == 0 ? bleService.ec1_Controller.text : bleService.ec2_Controller.text;
+                        setState(() {
+                          if(sensorCount == 0){
+                            ec1 = one;
+                            ec_1 = two;
+                          }else{
+                            ec2 = one;
+                            ec_2 = two;
+                          }
+                        });
                         var payload = '${bleService.nodeDataFromServer['calibrationSetting']['ec${sensorCount+1}Submit']}$one:$two:';
                         var sumOfAscii = 0;
                         for(var i in payload.split('')){
@@ -572,22 +589,26 @@ class _CalibrationState extends State<Calibration> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    SizedBox(
-                      width: 150,
-                      child: TextFormField(
-                        controller: sensorCount == 0 ? bleService.ph1Controller : bleService.ph2Controller,
-                        keyboardType: TextInputType.number,
-                        decoration: inputDecoration.copyWith(
-                          prefixIcon: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: SvgPicture.asset(
-                              'assets/Images/Svg/objectId_${AppConstants.phObjectId}.svg',
-                              height: 40,
-                              color: Colors.black,
+                    Column(
+                      children: [
+                        SizedBox(
+                          width: 150,
+                          child: TextFormField(
+                            controller: sensorCount == 0 ? bleService.ph1Controller : bleService.ph2Controller,
+                            keyboardType: TextInputType.number,
+                            decoration: inputDecoration.copyWith(
+                              prefixIcon: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: SvgPicture.asset(
+                                  'assets/Images/Svg/objectId_${AppConstants.phObjectId}.svg',
+                                  height: 40,
+                                  color: Colors.black,
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
                     SizedBox(
                       width: 150,
@@ -611,7 +632,7 @@ class _CalibrationState extends State<Calibration> {
                           }
                         },
                         icon: const Icon(Icons.refresh, color: Colors.white,),
-                        label: const Text("Get @0", style: TextStyle(color: Colors.white),),
+                        label: const Text("Get 0", style: TextStyle(color: Colors.white),),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Theme.of(context).primaryColor,
                           padding: const EdgeInsets.symmetric(vertical: 14),
@@ -623,6 +644,7 @@ class _CalibrationState extends State<Calibration> {
                     )
                   ],
                 ),
+                Text('Last Updated Value : ${sensorCount == 0 ? ph1 : ph2}'),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -666,7 +688,7 @@ class _CalibrationState extends State<Calibration> {
                           }
                         },
                         icon: const Icon(Icons.refresh, color: Colors.white,),
-                        label: const Text("Get @ 1.413", style: TextStyle(color: Colors.white),),
+                        label: const Text("Get 7.01", style: TextStyle(color: Colors.white),),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Theme.of(context).primaryColor,
                           padding: const EdgeInsets.symmetric(vertical: 14),
@@ -678,12 +700,22 @@ class _CalibrationState extends State<Calibration> {
                     )
                   ],
                 ),
+                Text('Last Updated Value : ${sensorCount == 1 ? ph_1 : ph_2}'),
                 SizedBox(
                   width: 150,
                   child: ElevatedButton.icon(
                     onPressed: (){
                       var one = sensorCount == 0 ? bleService.ph1Controller.text : bleService.ph2Controller.text;
                       var two = sensorCount == 0 ? bleService.ph1_Controller.text : bleService.ph2_Controller.text;
+                      setState(() {
+                        if(sensorCount == 0){
+                          ph1 = one;
+                          ph_1 = two;
+                        }else{
+                          ph2 = one;
+                          ph_2 = two;
+                        }
+                      });
                       var payload = '${bleService.nodeDataFromServer['calibrationSetting']['ph${sensorCount+1}Submit']}$one:$two:';
                       var sumOfAscii = 0;
                       for(var i in payload.split('')){
@@ -718,7 +750,6 @@ class _CalibrationState extends State<Calibration> {
                     ),
                   ),
                 )
-
               ],
             ),
           ),

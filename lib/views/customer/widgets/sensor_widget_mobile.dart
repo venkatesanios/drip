@@ -52,16 +52,24 @@ class SensorWidgetMobile extends StatelessWidget {
               trailing: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.yellow.shade400,
+                  color: sensorType != 'Pressure Switch' ? Colors.yellow.shade400:
+                  statusParts[1] == "1" ? Colors.green.shade300 : Colors.red.shade300,
                   borderRadius: BorderRadius.circular(4),
                   border: Border.all(color: Colors.grey, width: 0.5),
                 ),
-                child: Text(
+                child: sensorType != 'Pressure Switch' ? Text(
                   MyFunction().getUnitByParameter(context, sensorType, sensor.value.toString(),) ?? '',
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
+                  ),
+                ) : Text(
+                  statusParts[1] == "1" ? 'Normal' : 'High',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: sensorType != 'Pressure Switch' ? Colors.black87 : Colors.white,
                   ),
                 ),
               ),

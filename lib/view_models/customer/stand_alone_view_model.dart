@@ -457,7 +457,7 @@ class StandAloneViewModel extends ChangeNotifier {
         "800": {"801": '0,0,0,0,0'}
       });
       commService.sendCommand(serverMsg: '', payload: payLoadFinal);
-      print(payLoadFinal);
+      sentManualModeToServer(0, 0, standAloneMethod, strDuration, strFlow, standaloneSelection, payLoadFinal);
       Navigator.of(context).pop();
     }else{
       String strSldSqnNo = '';
@@ -476,7 +476,8 @@ class StandAloneViewModel extends ChangeNotifier {
         "3900": {"3901": '0,${programList[ddCurrentPosition].serialNumber},$strSldSqnNo,0,0,0,0,0,0,0,0'}
       });
       commService.sendCommand(serverMsg: '', payload: payLoadFinal);
-      print(payLoadFinal);
+      sentManualModeToServer(0, 0, standAloneMethod, strDuration, strFlow, standaloneSelection, payLoadFinal);
+
       Navigator.pop(context, 'OK');
     }
   }
@@ -810,7 +811,6 @@ class StandAloneViewModel extends ChangeNotifier {
         var response = await repository.updateStandAloneData(body);
         if (response.statusCode == 200) {
           standaloneSelection.clear();
-          //callbackFunction(jsonResponse['message']);
         }
       } catch (error, stackTrace) {
         debugPrint('Error fetching Product stock: $error');

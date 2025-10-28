@@ -16,7 +16,6 @@ class NextSchedule extends StatelessWidget {
     var nextSchedule =  context.watch<MqttPayloadProvider>().nextSchedule;
 
     return nextSchedule.isNotEmpty && nextSchedule[0].isNotEmpty?
-    kIsWeb?
     Padding(
       padding: const EdgeInsets.only(left: 8, right: 8),
       child: Column(
@@ -119,101 +118,8 @@ class NextSchedule extends StatelessWidget {
           ),
         ],
       ),
-    ):
-    buildMobileCard(context, nextSchedule):
+    ) :
     const SizedBox();
-  }
-
-  Widget buildMobileCard(BuildContext context, List<String> nxtSchedule) {
-    return Card(
-      color: Colors.white,
-      surfaceTintColor: Colors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: MediaQuery.sizeOf(context).width,
-            height: 25,
-            color: Colors.orange.shade100,
-            child: const Padding(
-              padding: EdgeInsets.only(left: 8),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'NEXT IN QUEUE',
-                  style: TextStyle(color: Colors.black54, fontSize: 14),
-                ),
-              ),
-            ),
-          ),
-          Column(
-            children: List.generate(nxtSchedule.length * 2 - 1, (index) {
-              if (index.isEven) {
-                List<String> values = nxtSchedule[index ~/ 2].split(',');
-                return buildNextScheduleRow(context, values);
-              } else {
-                return const Padding(
-                  padding: EdgeInsets.only(left: 8, right: 8),
-                  child: Divider(color: Colors.black12),
-                );
-              }
-            }),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildNextScheduleRow(BuildContext context, List<String> values) {
-    final programName = getProgramNameById(int.parse(values[0]));
-    return Row(
-      children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 10),
-          child: SizedBox(
-            width: 170,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Program Name & Method', style: TextStyle(color: Colors.black45)),
-                SizedBox(height: 2),
-                Text('Next Zone & Name', style: TextStyle(color: Colors.black45)),
-                SizedBox(height: 2),
-                Text('Start time & Set (Dur/Flw)', style: TextStyle(color: Colors.black45)),
-                SizedBox(height: 2),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(
-          width: 10,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(':'),
-              SizedBox(height: 2),
-              Text(':'),
-              SizedBox(height: 2),
-              Text(':'),
-              SizedBox(height: 2),
-            ],
-          ),
-        ),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('$programName - ${scheduledPrograms[0].selectedSchedule}'),
-              const SizedBox(height: 1),
-              Text('${values[7]} - ${getSequenceName(int.parse(values[0]), values[1]) ?? '--'}'),
-              const SizedBox(height: 3),
-              Text('${convert24HourTo12Hour(values[6])} - ${values[3]}'),
-              const SizedBox(height: 2),
-            ],
-          ),
-        )
-      ],
-    );
   }
 
   String getProgramNameById(int id) {

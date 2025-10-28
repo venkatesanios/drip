@@ -54,7 +54,7 @@ class _DeviceListState extends State<DeviceList> {
     setState(() {
       userRole = role!;
     });
-    print("userRole :: ${userRole}");
+    print("userRole :: $userRole");
   }
 
   @override
@@ -231,7 +231,7 @@ class _DeviceListState extends State<DeviceList> {
                                               }
                                           );
                                         },
-                                        icon: Icon(Icons.find_replace)
+                                        icon: const Icon(Icons.find_replace)
                                     )
                                 ],
                               ),
@@ -397,7 +397,6 @@ class _DeviceListState extends State<DeviceList> {
           Navigator.pop(context);
           await Future.delayed(const Duration(milliseconds: 100));
           simpleDialogBox(context: context, title: 'Failed', message: 'Product not updated..');
-
         }
         return 404;
       }
@@ -726,8 +725,19 @@ class _DeviceListState extends State<DeviceList> {
         throw ArgumentError('Invalid ConfigMakerTabs value: $configMakerTabs');
     }
   }
-
 }
 
 Color textColorInCell = const Color(0xff667085);
 TextStyle textStyleInCell = TextStyle(color: textColorInCell, fontWeight: FontWeight.bold, fontSize: 13);
+
+/*
+mda - 50
+ata - 30
+4-6 - 12
+5-7 - 12
+idr - 20
+ull - 20
+pk - 10
+cnt - 60
+skr - 10
+*/

@@ -511,11 +511,17 @@ class ConfigMakerProvider extends ChangeNotifier{
               );
             }else if(deviceObjectModel.objectId == AppConstants.ecObjectId){
               ec.add(
-                  EcModel(commonDetails: deviceObjectModel, controllerId: null)
+                EcModel(
+                    sNo: deviceObjectModel.sNo!,
+                    name: deviceObjectModel.name!,
+                )
               );
             }else if(deviceObjectModel.objectId == AppConstants.phObjectId){
               ph.add(
-                  PhModel(commonDetails: deviceObjectModel, controllerId: null)
+                  PhModel(
+                      sNo: deviceObjectModel.sNo!,
+                      name: deviceObjectModel.name!,
+                  )
               );
             }else if(deviceObjectModel.objectId == AppConstants.irrigationLineObjectId){
               line.add(
@@ -556,8 +562,8 @@ class ConfigMakerProvider extends ChangeNotifier{
           fertilization.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
           source.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
           moisture.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
-          ec.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
-          ph.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
+          ec.removeWhere((e) => filteredList.contains(e.sNo));
+          ph.removeWhere((e) => filteredList.contains(e.sNo));
           line.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
           pump.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
 
@@ -655,6 +661,20 @@ class ConfigMakerProvider extends ChangeNotifier{
           if(object.sNo == filteredByNotConfigured[notConfiguredObject].sNo){
             object.connectionNo = selectedModelDefaultConnectionList[notConfiguredObject];
             object.controllerId = selectedDevice.controllerId;
+            if(object.objectId == AppConstants.ecObjectId){
+              for(var ecConfig in ec){
+                if(ecConfig.sNo == object.sNo){
+                  ecConfig.controllerId = object.controllerId!;
+                }
+              }
+            }
+            else if(object.objectId == AppConstants.phObjectId){
+              for(var phConfig in ph){
+                if(phConfig.sNo == object.sNo){
+                  phConfig.controllerId = object.controllerId!;
+                }
+              }
+            }
             print('configuring object.sNo : ${object.toJson()}');
             break inner;
           }
@@ -999,13 +1019,13 @@ class ConfigMakerProvider extends ChangeNotifier{
         }
       }
       for(var ec in ec){
-        if(ec.commonDetails.sNo == obj.sNo){
-          ec.commonDetails.name = obj.name;
+        if(ec.sNo == obj.sNo){
+          ec.name = obj.name!;
         }
       }
       for(var ph in ph){
-        if(ph.commonDetails.sNo == obj.sNo){
-          ph.commonDetails.name = obj.name;
+        if(ph.sNo == obj.sNo){
+          ph.name = obj.name!;
         }
       }
     }
@@ -1613,5 +1633,4 @@ class ConfigMakerProvider extends ChangeNotifier{
     }
     return listOfPumpPayload;
   }
-
 }

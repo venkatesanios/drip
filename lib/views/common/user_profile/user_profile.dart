@@ -57,7 +57,6 @@ class UserProfile extends StatelessWidget {
                               padding: const EdgeInsets.only(left: 16, right: 16),
                               child: Column(
                                 children: [
-                                  /// Full Name
                                   Padding(
                                     padding: const EdgeInsets.only(top: 10),
                                     child: TextFormField(
@@ -66,7 +65,7 @@ class UserProfile extends StatelessWidget {
                                         labelText: 'Full Name',
                                         prefixIcon: Icon(Icons.account_circle, color: Colors.black38),
                                         filled: true,
-                                        fillColor: Colors.white70,
+                                        fillColor: Colors.white,
                                         enabledBorder: UnderlineInputBorder(
                                           borderSide: BorderSide(color: Colors.grey, width: 0.5),
                                         ),
@@ -79,8 +78,6 @@ class UserProfile extends StatelessWidget {
                                       },
                                     ),
                                   ),
-
-                                  /// Mobile Number
                                   Padding(
                                     padding: const EdgeInsets.only(top: 10),
                                     child: IntlPhoneField(
@@ -93,7 +90,7 @@ class UserProfile extends StatelessWidget {
                                           onPressed: () => viewModel.controllerMblNo.clear(),
                                         ),
                                         filled: true,
-                                        fillColor: Colors.white70,
+                                        fillColor: Colors.white,
                                         contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
                                         counterText: '',
                                         enabledBorder: const UnderlineInputBorder(
@@ -110,8 +107,6 @@ class UserProfile extends StatelessWidget {
                                       viewModel.countryCode = country.dialCode,
                                     ),
                                   ),
-
-                                  /// Email
                                   Padding(
                                     padding: const EdgeInsets.only(top: 10),
                                     child: TextFormField(
@@ -121,7 +116,7 @@ class UserProfile extends StatelessWidget {
                                         labelText: 'Email Address',
                                         prefixIcon: Icon(Icons.email, color: Colors.black38),
                                         filled: true,
-                                        fillColor: Colors.white70,
+                                        fillColor: Colors.white,
                                         enabledBorder: UnderlineInputBorder(
                                           borderSide: BorderSide(color: Colors.grey, width: 0.5),
                                         ),
@@ -166,7 +161,7 @@ class UserProfile extends StatelessWidget {
                                 onPressed: () => viewModel.onIsObscureChangedToNpw(),
                               ),
                               filled: true,
-                              fillColor: Colors.white70,
+                              fillColor: Colors.white,
                               enabledBorder: const UnderlineInputBorder(
                                 borderSide: BorderSide(color: Colors.grey, width: 0.5),
                               ),
@@ -199,7 +194,7 @@ class UserProfile extends StatelessWidget {
                                 onPressed: () => viewModel.onIsObscureChangedToCpw(),
                               ),
                               filled: true,
-                              fillColor: Colors.white70,
+                              fillColor: Colors.white,
                               enabledBorder: const UnderlineInputBorder(
                                 borderSide: BorderSide(color: Colors.grey, width: 0.5),
                               ),
@@ -228,8 +223,7 @@ class UserProfile extends StatelessWidget {
                     ),
                   ),
                 ),
-                Container(
-                  color: Colors.white,
+                SizedBox(
                   width: MediaQuery.sizeOf(context).width,
                   height: 45,
                   child: Row(

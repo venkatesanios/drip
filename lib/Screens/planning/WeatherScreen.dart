@@ -27,7 +27,6 @@ class WeatherScreen extends StatefulWidget {
 class _WeatherScreenState extends State<WeatherScreen> {
   //  0aa7f59482130e8e8384ae8270d79097 // API KEY
   Map<String, dynamic> weatherData = {};
-  late Timer _timer;
   late DateTime _currentTime;
   String sunrise = '06:00 AM';
   String sunset = '06:00 PM';
@@ -64,7 +63,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   @override
   void dispose() {
-    _timer.cancel();
+    //_timer.cancel();
     super.dispose();
   }
 

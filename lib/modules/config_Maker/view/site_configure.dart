@@ -57,7 +57,7 @@ class _SiteConfigureState extends State<SiteConfigure> {
                     ? LineConfiguration(configPvd: widget.configPvd)
                     : widget.configPvd.selectedConfigurationTab == 6
                     ? EcConfiguration(configPvd: widget.configPvd,)
-                    : PhConfiguration()
+                    : PhConfiguration(configPvd: widget.configPvd,)
               )
             ],
           ),

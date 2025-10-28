@@ -1515,9 +1515,6 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         }
       }
       payload += payload.isNotEmpty ? ';' : '';
-      print('sq :: ${sq}');
-      print('sq moisture :: ${sq['moistureSno']}');
-      print('sq level :: ${sq['levelSno']}');
       Map<String, dynamic> jsonPayload = {
         'S_No' : sq['sNo'],
         'ProgramS_No' : serialNumber,
@@ -1552,7 +1549,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         'ImmediateStopByCondition' : sq['levelSno'],
         'Name' : sq['seqName'],
       };
-      print('jsonPayload :: $jsonPayload');
+      // print('jsonPayload :: $jsonPayload');
       payload += jsonPayload.values.toList().join(',');
     }
     return payload;
@@ -2643,9 +2640,9 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         final responseJson = getUserProgramName.body;
         final convertedJson = jsonDecode(responseJson);
         _programLibrary = ProgramLibrary.fromJson(convertedJson);
-        print("program library data => ${convertedJson['data']}");
+        print("program library data => ${convertedJson['data']['conditionLibraryCount']}");
         priority = _programDetails?.priority != "" ? _programDetails?.priority ?? "None" : "None";
-        conditionsLibraryIsNotEmpty = convertedJson['data']['conditionLibraryCount'] != 0 ? true : false;
+        conditionsLibraryIsNotEmpty = convertedJson['data']['conditionLibraryCount'] != 0;
         // irrigationProgramType = _programLibrary?.program[serialNumber].programType == "Irrigation Program" ? true : false;
         notifyListeners();
         return convertedJson['message'];
@@ -2748,31 +2745,71 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     Icons.preview,
   ];
 
-  Tuple<List<String>, List<IconData>> getLabelAndIcon({required int sno, String? programType, bool? conditionLibrary}) {
+  Tuple<List<String>, List<IconData>> getLabelAndIcon({
+    required int sno,
+    String? programType,
+    bool? conditionLibrary,
+  }) {
+    print("conditionLibrary :: $conditionLibrary");
     List<String> labels = [];
     List<IconData> icons = [];
 
     final irrigationProgram = sno == 0
         ? selectedProgramType == "Irrigation Program"
         : programType == "Irrigation Program";
-    // // print(irrigationProgram);
+
     if (irrigationProgram) {
-      commonLabels = commonLabels.map((label) => label == "Settings" ? "Water & Fert" : label).toList();
-      commonIcons = commonIcons.map((icon) => icon == Icons.settings ? Icons.local_florist_rounded : icon).toList();
-      labels = (conditionLibrary ?? false)
+      // --- Irrigation Program ---
+      commonLabels = commonLabels
+          .map((label) => label == "Settings" ? "Water & Fert" : label)
+          .toList();
+      commonIcons = commonIcons
+          .map((icon) =>
+      icon == Icons.settings ? Icons.local_florist_rounded : icon)
+          .toList();
+
+      final showConditions = conditionLibrary ?? false;
+      labels = showConditions
           ? commonLabels
-          : commonLabels.where((element) => !["Conditions"].contains(element)).toList();
-      icons = (conditionLibrary ?? false)
+          : commonLabels.where((e) => e != "Conditions").toList();
+      icons = showConditions
           ? commonIcons
-          : commonIcons.where((element) => ![Icons.fact_check].contains(element)).toList();
+          : commonIcons.where((e) => e != Icons.fact_check).toList();
     } else {
-      commonLabels = commonLabels.map((label) => label == "Water & Fert" ? "Settings" : label).toList();
-      commonIcons = commonIcons.map((icon) => icon == Icons.local_florist_rounded ? Icons.settings : icon).toList();
-      labels = commonLabels.where((element) => !["Conditions", "Selection", "Preview"].contains(element)).toList();
-      icons = commonIcons.where((element) => ![Icons.fact_check, Icons.checklist, Icons.preview].contains(element)).toList();
+      // --- Non-Irrigation Program ---
+      commonLabels = commonLabels
+          .map((label) => label == "Water & Fert" ? "Settings" : label)
+          .toList();
+      commonIcons = commonIcons
+          .map((icon) =>
+      icon == Icons.local_florist_rounded ? Icons.settings : icon)
+          .toList();
+
+      final showConditions = conditionLibrary ?? false;
+
+      if (showConditions) {
+        labels = commonLabels
+            .where((e) => !["Selection", "Preview"].contains(e))
+            .toList();
+        icons = commonIcons
+            .where((e) => ![Icons.checklist, Icons.preview].contains(e))
+            .toList();
+      } else {
+        labels = commonLabels
+            .where(
+                (e) => !["Conditions", "Selection", "Preview"].contains(e))
+            .toList();
+        icons = commonIcons
+            .where((e) =>
+        ![Icons.fact_check, Icons.checklist, Icons.preview]
+            .contains(e))
+            .toList();
+      }
     }
+
     return Tuple(labels, icons);
   }
+
 
   //TODO: UPDATE PROGRAM DETAILS
   Future<String> updateUserProgramDetails(
@@ -3262,14 +3299,20 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     };
   }
 
-  List<int> getPayloadForEcoGemPumpAndFilter({required objectId}) {
+  List<int> _getPayloadForEcoGemPumpAndFilter({required objectId}) {
     final configObject = configObjects.where((pump) => pump['objectId'] == objectId).map((e) => e['sNo']).toList();
     final selectedObject = selectedObjects!.where((pump) => pump.objectId == objectId).map((e) => e.sNo).toList();
+    print("configObject in the _getPayloadForEcoGemPumpAndFilter :: $configObject");
+    print("selectedObject in the _getPayloadForEcoGemPumpAndFilter :: $selectedObject");
     var payload = [0,0];
     for(var obj in selectedObject){
+      print("obj in the for loop :: $obj");
+      print("index in the for loop :: ${configObject.indexOf(obj)}");
       int indexOfObject = configObject.indexOf(obj);
       payload[indexOfObject] = 1;
+      print("payload[indexOfObject] :: ${payload[indexOfObject]}");
     }
+    print("payload in _getPayloadForEcoGemPumpAndFilter :: $payload");
     return payload;
   }
 
@@ -3279,8 +3322,10 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         ? sampleScheduleModel!.scheduleAsRunList.schedule
         : sampleScheduleModel!.scheduleByDays.schedule;
 
+    print("selectedObjects :: ${selectedObjects!.map((e) => e.objectId)}");
+    print("selectedObjects :: ${selectedObjects!.map((e) => e.sNo)}");
     final centralFilterSite = filterSite!.where((site) {
-      // print("Central filter site ==> ${site.filterSite?.sNo}");
+      print("Central filter site ==> ${site.filterSite?.sNo}");
       for (var i = 0; i < selectedObjects!.length; i++) {
         if (site.siteMode == 1 && selectedObjects![i].objectId == 4 && selectedObjects![i].sNo == site.filterSite?.sNo) {
           return true;
@@ -3301,8 +3346,9 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         + int.parse(runDays != '' ? runDays : "1") + int.parse(skipDays != '' ? skipDays : "0")
         ? firstDate
         : DateTime.parse(endDate);
-    var pumpPayload = getPayloadForEcoGemPumpAndFilter(objectId: AppConstants.pumpObjectId);
-    var filterPayload = getPayloadForEcoGemPumpAndFilter(objectId: AppConstants.filterObjectId);
+    var pumpPayload = _getPayloadForEcoGemPumpAndFilter(objectId: AppConstants.pumpObjectId);
+    var filterPayload = _getPayloadForEcoGemPumpAndFilter(objectId: AppConstants.filterObjectId);
+    print("filterPayload :: $filterPayload");
     return {
       "2500" : {
         "2502": {

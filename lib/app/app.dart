@@ -83,7 +83,6 @@ Widget navigateToInitialScreen(String route) {
   switch (route) {
     case Routes.login:
        return kIsWeb ? const LoginScreen() : LoginScreenOTP();
-       // return kIsWeb ? const LoginScreen() : isOro ? const LandingScreen() : const LoginScreen();
      case Routes.dashboard:
        return const ScreenController();
     default:

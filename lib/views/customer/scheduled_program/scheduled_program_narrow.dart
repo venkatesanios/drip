@@ -279,18 +279,62 @@ class _ScheduledProgramNarrowState extends State<ScheduledProgramNarrow> {
                             itemBuilder: (context) => [
                               const PopupMenuItem(value: 'Edit program', child: Text('Edit program')),
                               PopupMenuItem(
-                                  value: 'Change to',
-                                  child: ClickableSubmenu(
-                                      title: 'Change to',
-                                      submenuItems: program.sequence,
-                                      onItemSelected: (selectedItem, selectedIndex) {
-                                        final payload = '${program.serialNumber},${selectedIndex + 1}';
-                                        final payLoadFinal = jsonEncode({"6700": {"6701": payload}});
-                                        Provider.of<CommunicationService>(context, listen: false).sendCommand(
-                                            serverMsg: '${program.programName} Changed to $selectedItem',
-                                            payload: payLoadFinal);
-                                        Navigator.pop(context);
-                                      })),
+                                padding: EdgeInsets.zero,
+                                child: Builder(
+                                  builder: (context) {
+                                    return InkWell(
+                                      onTap: () async {
+                                        final RenderBox button = context.findRenderObject() as RenderBox;
+                                        final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+                                        final RelativeRect position = RelativeRect.fromRect(
+                                          Rect.fromPoints(
+                                            button.localToGlobal(Offset.zero, ancestor: overlay),
+                                            button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay),
+                                          ),
+                                          Offset.zero & overlay.size,
+                                        );
+
+                                        final selected = await showMenu<String>(
+                                          context: context,
+                                          position: position,
+                                          items: program.sequence.asMap().entries.map((entry) {
+                                            final index = entry.key;
+                                            final seq = entry.value;
+                                            final seqName = seq.name; // or whatever your display property is
+
+                                            return PopupMenuItem<String>(
+                                              value: seqName,
+                                              child: Text(seqName),
+                                              onTap: () {
+                                                final payload = '${program.serialNumber},${index + 1}';
+                                                final payLoadFinal = jsonEncode({"6700": {"6701": payload}});
+                                                Provider.of<CommunicationService>(context, listen: false)
+                                                    .sendCommand(
+                                                  serverMsg: '${program.programName} Changed to $seqName',
+                                                  payload: payLoadFinal,
+                                                );
+                                              },
+                                            );
+                                          }).toList(),
+                                        );
+
+                                        Navigator.pop(context); // close parent popup
+                                      },
+                                      child: Container(
+                                        width: double.infinity,
+                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                        child: const Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text('Change to'),
+                                            Icon(Icons.chevron_right),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
                             ],
                           ),
                           AiRecommendationButton(aiService: aiService, userId: widget.userId, controllerId: widget.master.controllerId),

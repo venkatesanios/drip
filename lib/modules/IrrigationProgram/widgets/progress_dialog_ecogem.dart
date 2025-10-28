@@ -149,7 +149,7 @@ class _EcoGemProgressDialogState extends State<EcoGemProgressDialog> {
     });
 
     for (int i = 0; i < payloadStatuses.length && !breakLoop; i++) {
-      if (payloadStatuses[i]['status'] == 'Failed' && payloadStatuses[i]['selected']) {
+      if (payloadStatuses[i]['selected'] && payloadStatuses[i]['status'] == 'Failed') {
         var payload = payloadStatuses[i]['payload'];
         var key = payloadStatuses[i]['key'];
 
@@ -234,7 +234,7 @@ class _EcoGemProgressDialogState extends State<EcoGemProgressDialog> {
                             ),
                           ),
                         ),
-                        if (status['status'] == 'Sending')
+                        if (status['status'] == 'Sending' || status['status'] == 'Retrying')
                           const SizedBox(
                             height: 30,
                             width: 30,

@@ -174,16 +174,22 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
                       ),
                     Expanded(
                       flex: 2,
-                        child: SizedBox(
-                          height: constraints.maxHeight - (constraints.maxHeight * 0.1),
-                          child: Card(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15)
-                            ),
-                            color: Colors.white,
-                            surfaceTintColor: Colors.white,
-                            child: _getSelectedScreen(),
-                          )
+                        child: Consumer<PumpControllerProvider>(
+                            builder: (context, provider, child) {
+                            return SizedBox(
+                              height: constraints.maxHeight - (constraints.maxHeight * 0.1),
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15)
+                                ),
+                                color: Colors.white,
+                                surfaceTintColor: Colors.white,
+                                child: provider.isLoading
+                                    ? const Center(child: CircularProgressIndicator(),)
+                                    : _getSelectedScreen(),
+                              )
+                            );
+                          }
                         )
                     ),
                   ],
@@ -245,7 +251,7 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
       ),
       focusedDay: _focusedDay,
       firstDay: DateTime.utc(2020, 10, 16),
-      lastDay: DateTime.utc(2100, 12, 31),
+      lastDay: DateTime.now(),
       calendarFormat: CalendarFormat.month,
       calendarStyle: CalendarStyle(
         cellMargin: const EdgeInsets.all(4),

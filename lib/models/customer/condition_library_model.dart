@@ -125,6 +125,7 @@ class DefaultData {
   final List<String> parameter;
   final List<String> action;
   List<Program> program;
+  List<IrrigationLine> irrigationLine;
   List<Sequence> sequence;
   List<Sensor> sensors;
   List<SensorParameter> sensorParameter;
@@ -137,6 +138,7 @@ class DefaultData {
     required this.parameter,
     required this.action,
     required this.program,
+    required this.irrigationLine,
     required this.sequence,
     required this.sensors,
     required this.sensorParameter,
@@ -145,16 +147,49 @@ class DefaultData {
 
   factory DefaultData.fromJson(Map<String, dynamic> json) {
 
+    List<Program> programs = (json['program'] as List<dynamic>?)
+        ?.map((e) => Program.fromJson(e)).toList() ?? [];
+
+    if (programs.length > 1) {
+
+      final hasFrtDefault = programs.any((p) => p.name == 'Any fertilizer program');
+      if (!hasFrtDefault) {
+        programs.insert(0,
+          Program(
+            sNo: 0,
+            id: '0',
+            name: 'Any fertilizer program',
+            location: 'Global',
+          ),
+        );
+      }
+
+      final hasIrrDefault = programs.any((p) => p.name == 'Any irrigation program');
+      if (!hasIrrDefault) {
+        programs.insert(0,
+          Program(
+            sNo: 0,
+            id: '0',
+            name: 'Any irrigation program',
+            location: 'Global',
+          ),
+        );
+      }
+    }
+
     return DefaultData(
       conditionLimit: json['conditionLimit'] ?? 0,
       dropdown: List<String>.from(json['dropdown'] ?? []),
       reason: List<String>.from(json['reason'] ?? []),
       parameter: List<String>.from(json['parameter'] ?? []),
       action: List<String>.from(json['action'] ?? []),
-      program: (json['program'] as List<dynamic>?)
-          ?.map((e) => Program.fromJson(e))
+      program: programs,
+
+      irrigationLine: (json['irrigationLine'] as List<dynamic>?)
+          ?.map((e) => IrrigationLine.fromJson(e))
           .toList() ??
           [],
+
       sequence: (json['sequence'] as List<dynamic>?)
           ?.map((e) => Sequence.fromJson(e))
           .toList() ??
@@ -221,6 +256,42 @@ class Program {
       'id': id,
       'name': name,
       'location': location,
+    };
+  }
+}
+
+class IrrigationLine {
+  final int objectId;
+  final double sNo;
+  final String name;
+  final double centralFertilization;
+  final double localFertilization;
+
+  IrrigationLine({
+    required this.objectId,
+    required this.sNo,
+    required this.name,
+    required this.centralFertilization,
+    required this.localFertilization,
+  });
+
+  factory IrrigationLine.fromJson(Map<String, dynamic> json) {
+    return IrrigationLine(
+      objectId: json['objectId'] ?? 0,
+      sNo: (json['sNo'] as num?)?.toDouble() ?? 0.0,
+      name: json['name'] ?? '',
+      centralFertilization: (json['centralFertilization'] as num?)?.toDouble() ?? 0.0,
+      localFertilization: (json['localFertilization'] as num?)?.toDouble() ?? 0.0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objectId': objectId,
+      'sNo': sNo,
+      'name': name,
+      'centralFertilization': centralFertilization,
+      'localFertilization': localFertilization,
     };
   }
 }

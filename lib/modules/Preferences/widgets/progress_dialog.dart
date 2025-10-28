@@ -75,8 +75,8 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
   }
 
   void _checkAllProcessed() {
-    bool allProcessed = payloadStatuses.every((p) => p['status'] != 'Pending');
-    bool allSent = payloadStatuses.every((p) => p['status'] == 'Sent');
+    bool allProcessed = payloadStatuses.where((s) => s['selected']).every((p) => p['status'] != 'Pending');
+    bool allSent = payloadStatuses.where((s) => s['selected']).every((p) => p['status'] == 'Sent');
 
     if(mounted){
       setState(() {
@@ -142,9 +142,12 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
       )) {
         if (elapsedTime >= maxWaitTime || breakLoop) break;
 
-        if (mqttMessage!['cM'].contains(key) &&
-            (widget.isToGem ? mqttMessage['cC'] == payload.split('+')[2] : true)) {
-          context.read<PreferenceProvider>().updateControllerReaStatus(key: key, oroPumpIndex: oroPumpIndex, failed: widget.shouldSendFailedPayloads);
+        if (mqttMessage!['cM'].contains(key) && (widget.isToGem ? mqttMessage['cC'] == payload.split('+')[2] : true)) {
+          context.read<PreferenceProvider>().updateControllerReaStatus(
+              key: key,
+              oroPumpIndex: oroPumpIndex,
+              failed: widget.shouldSendFailedPayloads
+          );
           isAcknowledged = true;
           break;
         }
@@ -167,7 +170,7 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
     });
 
     for (int i = 0; i < payloadStatuses.length; i++) {
-      if (payloadStatuses[i]['status'] == 'Failed') {
+      if (payloadStatuses[i]['selected'] && payloadStatuses[i]['status'] == 'Failed') {
         var payload = payloadStatuses[i]['payload'];
         var payloadToDecode = widget.isToGem ? payload.split('+')[4] : payload;
         var decodedData = jsonDecode(payloadToDecode);
@@ -194,18 +197,21 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
         mqttError = 'MQTT Disconnected. Reconnecting...';
       });
 
-      await widget.mqttService.connect().then((_) {
-        if (widget.mqttService.isConnected) {
-          setState(() {
-            mqttError = '';
-          });
-          retryFailedPayloads();
-        } else {
-          setState(() {
-            mqttError = 'MQTT Reconnection Failed!';
-          });
-        }
+      await widget.mqttService.connect();
+      setState(() {
+        mqttError = 'Trying to reconnect...';
       });
+      await Future.delayed(const Duration(seconds: 3));
+      if (widget.mqttService.isConnected) {
+        setState(() {
+          mqttError = '';
+        });
+        retryFailedPayloads();
+      } else {
+        setState(() {
+          mqttError = 'MQTT Reconnection Failed!';
+        });
+      }
     } else {
       retryFailedPayloads();
     }
@@ -252,7 +258,7 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
                             ),
                           ),
                         ),
-                        if (status['status'] == 'Sending')
+                        if (status['status'] == 'Sending' || status['status'] == 'Retrying')
                           const SizedBox(
                             height: 30,
                             width: 30,

@@ -15,10 +15,12 @@ import '../../../flavors.dart';
 import '../../Preferences/view/preference_main_screen.dart';
 import '../../constant/view/constant_base_page.dart';
 import '../model/device_model.dart';
+import '../model/ec_model.dart';
 import '../model/fertigation_model.dart';
 import '../model/filtration_model.dart';
 import '../model/irrigationLine_model.dart';
 import '../model/moisture_model.dart';
+import '../model/ph_model.dart';
 import '../model/pump_model.dart';
 import '../model/source_model.dart';
 import '../repository/config_maker_repository.dart';
@@ -58,6 +60,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
   bool isDataSaved = false;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   HardwareAcknowledgementState payloadState = HardwareAcknowledgementState.notSent;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -110,7 +113,6 @@ class _ConfigWebViewState extends State<ConfigWebView> {
   }
 
   Widget getHardwareAcknowledgementWidget(HardwareAcknowledgementState state){
-    print('state : $state');
     if(state == HardwareAcknowledgementState.notSent){
       return const StatusBox(color:  Colors.black87,child: Text('Do you want to send payload..',),);
     }else if(state == HardwareAcknowledgementState.success){
@@ -172,7 +174,6 @@ class _ConfigWebViewState extends State<ConfigWebView> {
     };
     return hardwarePayload;
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -428,7 +429,6 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                             });
                           },
                           onTap: (){
-
                             showDialog(
                               context: context,
                               builder: (context) {
@@ -855,6 +855,14 @@ class _ConfigWebViewState extends State<ConfigWebView> {
     var line = configPvd.line.cast<IrrigationLineModel>().map((object){
       return object.toJson();
     }).toList();
+    var ecSensor = configPvd.ec.cast<EcModel>().map((object){
+      return object.toJson();
+    }).toList();
+    var phSensor = configPvd.ph.cast<PhModel>().map((object){
+      return object.toJson();
+    }).toList();
+    print('ecSensor : ${ecSensor}');
+    print('phSensor : ${phSensor}');
     var body = {
       "userId" : configPvd.masterData['customerId'],
       "controllerId" : configPvd.masterData['controllerId'],
@@ -869,6 +877,8 @@ class _ConfigWebViewState extends State<ConfigWebView> {
       "fertilizerSite" : fertilization,
       "moistureSensor" : moisture,
       "irrigationLine" : line,
+      "ecSensor" : ecSensor,
+      "phSensor" : phSensor,
       "deviceList" : configPvd.listOfDeviceModel
           .where((device) => device.controllerId != configPvd.masterData['controllerId'])
           .map((device) {

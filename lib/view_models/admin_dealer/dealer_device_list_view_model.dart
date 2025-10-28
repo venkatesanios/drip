@@ -95,7 +95,7 @@ class DealerDeviceListViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> addProductToDealer(BuildContext context, List<StockModel> productStockList, Function(Map<String, dynamic>) onDeviceListAdded) async {
+  Future<void> addProductToDealer(BuildContext context, List<StockModel> productStockList/*, Function(Map<String, dynamic>) onDeviceListAdded*/) async {
     List<Map<String, dynamic>> selectedProductList = [];
     List<DeviceListModel> newDevices = [];
 
@@ -135,10 +135,10 @@ class DealerDeviceListViewModel extends ChangeNotifier {
           final Map<String, dynamic> jsonData = jsonDecode(response.body);
           if(jsonData["code"] == 200){
             dealerDeviceList.insertAll(0, newDevices);
-            onDeviceListAdded({
+           /* onDeviceListAdded({
               "status" :'success',
               "products": selectedProductList,
-            });
+            });*/
           }
         }
       } catch (error, stackTrace) {

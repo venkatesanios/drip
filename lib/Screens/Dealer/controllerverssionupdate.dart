@@ -325,7 +325,8 @@ class _ResetVerssionState extends State<ResetVerssion> {
                                       builder: (context) => FrequencyPage(
                                         userId: widget.userId,
                                         controllerId:  widget.controllerId,
-                                        deviceId:  widget.deviceID,
+                                        // deviceId:  widget.deviceID,
+                                        deviceId:  mergedList[index]['deviceId'] ?? widget.deviceID,
                                         plusTrue: true,
                                         loraValue: mergedList[index]['loraFrequency'] ?? '',
                                         loara1Version: mqttPayloadProvider.Loara1verssion,

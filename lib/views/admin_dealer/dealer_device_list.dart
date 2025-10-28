@@ -15,13 +15,13 @@ class DealerDeviceList extends StatelessWidget {
     required this.customerId,
     required this.userRole,
     required this.productStockList,
-    required this.onDeviceListAdded,
+    //required this.onDeviceListAdded,
   });
 
   final int userId, customerId;
   final String userRole, customerName;
   final List<StockModel> productStockList;
-  final Function(Map<String, dynamic>) onDeviceListAdded;
+  //final Function(Map<String, dynamic>) onDeviceListAdded;
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +93,7 @@ class DealerDeviceList extends StatelessWidget {
                                 color: Colors.green,
                                 textColor: Colors.white,
                                 child: const Text('ADD'),
-                                onPressed: () => viewModel.addProductToDealer(context, productStockList, onDeviceListAdded),
+                                onPressed: () => viewModel.addProductToDealer(context, productStockList, /*onDeviceListAdded*/),
                               ),
                             ],
                           ),

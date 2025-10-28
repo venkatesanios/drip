@@ -279,10 +279,45 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
   }
 
   Widget _buildPhaseWidget(AsyncSnapshot<PumpControllerData?> snapshot) {
-    String phaseForPump = '';
-    if(AppConstants.pumpModelList.contains(widget.masterData.modelId)) {
-      // phaseForPump = ;
+    final List<String> voltage = snapshot.data!.voltage.split(',');
+    final List<String> powerFactor = snapshot.data!.powerFactor != null ? snapshot.data!.powerFactor.split(',') : [];
+    final List<String> power = snapshot.data!.power != null ? snapshot.data!.power.split(',') : [];
+    dynamic title;
+    dynamic value;
+    dynamic value2;
+    if(F.name.contains('oro')) {
+      title = !(double.parse(voltage[0]) > 300 && double.parse(voltage[1]) > 300 && double.parse(voltage[2]) > 300)
+          ? ["RN ${double.parse(voltage[0]).toStringAsFixed(0)}",
+        "YN ${double.parse(voltage[1]).toStringAsFixed(0)}",
+        "BN ${double.parse(voltage[2]).toStringAsFixed(0)}"] : null;
+      if(snapshot.data!.power != null) {
+        value2 = ["RP ${double.parse(power[0]).toStringAsFixed(0)}",
+          "YP ${double.parse(power[1]).toStringAsFixed(0)}",
+          "BP ${double.parse(power[2]).toStringAsFixed(0)}"];
+      } else {
+        value2 = (double.parse(voltage[0]) > 300 && double.parse(voltage[1]) > 300 && double.parse(voltage[2]) > 300)
+            ? ["RY ${double.parse(voltage[0]).toStringAsFixed(0)}",
+          "YB ${double.parse(voltage[0]).toStringAsFixed(0)}",
+          "BR ${double.parse(voltage[0]).toStringAsFixed(0)}"]
+            : ["RY ${calculatePhToPh(double.parse(voltage[0]), double.parse(voltage[1]))}",
+          "YB ${calculatePhToPh(double.parse(voltage[1]), double.parse(voltage[2]))}",
+          "BR ${calculatePhToPh(double.parse(voltage[2]), double.parse(voltage[0]))}"];
+      }
+      if(snapshot.data!.powerFactor != null) {
+        value = ["RPF ${double.parse(powerFactor[0]).toStringAsFixed(0)}",
+          "YPF ${double.parse(powerFactor[1]).toStringAsFixed(0)}",
+          "BPF ${double.parse(powerFactor[2]).toStringAsFixed(0)}"];
+      }
+    } else {
+      value2 = !(double.parse(voltage[0]) > 300 || double.parse(voltage[1]) > 300 || double.parse(voltage[2]) > 300)
+          ? ["RN ${double.parse(voltage[0]).toStringAsFixed(0)}",
+        "YN ${double.parse(voltage[1]).toStringAsFixed(0)}",
+        "BN ${double.parse(voltage[2]).toStringAsFixed(0)}"]
+          : ["RY ${double.parse(voltage[0]).toStringAsFixed(0)}",
+        "YB ${double.parse(voltage[1]).toStringAsFixed(0)}",
+        "BR ${double.parse(voltage[2]).toStringAsFixed(0)}"];
     }
+
     return Container(
       color: Colors.white,
       width: MediaQuery.of(context).size.width <= 500 ? MediaQuery.of(context).size.width : 400,
@@ -296,33 +331,9 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
               children: [
                 for(var index = 0; index < 3; index++)
                   buildContainer(
-                    title: AppConstants.pumpWithValveModelList.contains(widget.masterData.modelId)
-                        ? ["RN ${double.parse(snapshot.data!.voltage.split(',')[0]).toStringAsFixed(0)}",
-                      "YN ${double.parse(snapshot.data!.voltage.split(',')[1]).toStringAsFixed(0)}",
-                      "BN ${double.parse(snapshot.data!.voltage.split(',')[2]).toStringAsFixed(0)}"][index]
-                        : null,
-                    value: (!AppConstants.pumpWithValveModelList.contains(widget.masterData.modelId) && snapshot.data!.powerFactor != null)
-                        ? ["RPF ${double.parse(snapshot.data!.powerFactor.split(',')[0]).toStringAsFixed(0)}",
-                      "YPF ${double.parse(snapshot.data!.powerFactor.split(',')[1]).toStringAsFixed(0)}",
-                      "BPF ${double.parse(snapshot.data!.powerFactor.split(',')[2]).toStringAsFixed(0)}"][index]
-                        : (!AppConstants.pumpWithValveModelList.contains(widget.masterData.modelId)) && F.name.contains('oro')
-                        ? ["RN ${double.parse(snapshot.data!.voltage.split(',')[0]).toStringAsFixed(0)}",
-                      "YN ${double.parse(snapshot.data!.voltage.split(',')[1]).toStringAsFixed(0)}",
-                      "BN ${double.parse(snapshot.data!.voltage.split(',')[2]).toStringAsFixed(0)}"][index]
-                        : null,
-                    value2: !AppConstants.pumpWithValveModelList.contains(widget.masterData.modelId)
-                        ? (snapshot.data!.power != null)
-                        ? ["RP ${double.parse(snapshot.data!.power.split(',')[0]).toStringAsFixed(0)}",
-                      "YP ${double.parse(snapshot.data!.power.split(',')[1]).toStringAsFixed(0)}",
-                      "BP ${double.parse(snapshot.data!.power.split(',')[2]).toStringAsFixed(0)}"][index]
-                        : F.name.contains('oro')
-                        ? ["RY ${calculatePhToPh(double.parse(snapshot.data!.voltage.split(',')[0]), double.parse(snapshot.data!.voltage.split(',')[1]))}",
-                      "YB ${calculatePhToPh(double.parse(snapshot.data!.voltage.split(',')[1]), double.parse(snapshot.data!.voltage.split(',')[2]))}",
-                      "BR ${calculatePhToPh(double.parse(snapshot.data!.voltage.split(',')[2]), double.parse(snapshot.data!.voltage.split(',')[0]))}"][index]
-                        : ["RY ${double.parse(snapshot.data!.voltage.split(',')[0]).toStringAsFixed(0)}",
-                      "YB ${double.parse(snapshot.data!.voltage.split(',')[1]).toStringAsFixed(0)}",
-                      "BR ${double.parse(snapshot.data!.voltage.split(',')[2]).toStringAsFixed(0)}"][index]
-                        :  null,
+                    title: title != null ? title[index] : null,
+                    value: value != null ? value[index] : null,
+                    value2: value2 != null ? value2[index] : null,
                     // value: snapshot.data!.voltage.split(',')[index],
                     color1: [
                       Colors.redAccent.shade100,
@@ -1138,6 +1149,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
         Text(
           title.toUpperCase(),
           textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.normal, color: Colors.black38),
         ),
         IntrinsicWidth(
           child: Container(
@@ -1150,7 +1162,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
             child: CountdownTimerWidget(
               initialSeconds: initialSeconds,
               fontColor: Colors.black,
-              fontSize: 16,
+              fontSize: 14,
               fontWeight: FontWeight.bold,
             ),
           ),

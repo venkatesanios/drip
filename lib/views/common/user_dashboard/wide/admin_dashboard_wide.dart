@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../models/admin_dealer/stock_model.dart';
 import '../../../../utils/enums.dart';
 import '../widgets/analytics_view.dart';
 import '../widgets/customer_view.dart';
@@ -31,8 +32,20 @@ class AdminDashboardWide extends StatelessWidget {
           SizedBox(
             width: 325,
             height: MediaQuery.sizeOf(context).height,
-            child: CustomerView(role: UserRole.admin, isNarrow: false, onCustomerProductChanged: (String action) {})
-          ),
+            child: CustomerView(
+              role: UserRole.admin,
+              isNarrow: false,
+              onCustomerProductChanged: (String action, List<StockModel> updatedProducts) {
+                print('Action: $action');
+                print('Updated products count: ${updatedProducts.length}');
+
+                // Optional: update the stock list in viewModel
+                //final viewModel = context.read<ProductStockViewModel>();
+                //viewModel.updateStockList(updatedProducts);
+              },
+            ),
+          )
+
         ],
       ),
     );

@@ -89,7 +89,6 @@ class MqttPayloadProvider with ChangeNotifier {
    String get receivedPayload => _receivedPayload;
 
   int powerSupply = 0;
-  bool onRefresh = false;
   int wifiStrength = 0;
   String liveDateAndTime = '';
   String activeDeviceId = '';
@@ -190,8 +189,6 @@ class MqttPayloadProvider with ChangeNotifier {
      _ipAddress = ip;
      notifyListeners();
    }
-
-
 
    void updateWifiStatus(String status, bool loading) {
      _wifiStatus = status;
@@ -609,7 +606,7 @@ class MqttPayloadProvider with ChangeNotifier {
 
       try {
         Map<String, dynamic> data = _receivedPayload.isNotEmpty? jsonDecode(_receivedPayload) : {};
-          // print('_receivedPayload------>:$_receivedPayload');
+          print('_receivedPayload------>:$_receivedPayload');
 
         if(data['mC']=='2400'){
           liveDateAndTime = '${data['cD']} ${data['cT']}';
@@ -699,7 +696,7 @@ class MqttPayloadProvider with ChangeNotifier {
            }
         }
         }
-        if (data.containsKey("cM") && data["cM"] is! List) {
+        if (data.containsKey("cM") && data["cM"] is! List && data["cM"] is! String) {
           Map cM = data["cM"];
           if (cM.containsKey("6601")) {
             String msg = cM["6601"];
@@ -786,11 +783,6 @@ class MqttPayloadProvider with ChangeNotifier {
      notifyListeners();
    }
 
-
-  void liveSyncCall(status){
-    onRefresh = status;
-    notifyListeners();
-  }
 
   void updateNodeLiveMessage(List<String> message) {
     nodeLiveMessage = message;

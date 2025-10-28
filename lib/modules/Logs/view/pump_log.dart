@@ -28,6 +28,7 @@ class _PumpLogScreenState extends State<PumpLogScreen> {
 
   @override
   void initState() {
+    super.initState();
     if(mounted) {
       context.read<PumpControllerProvider>().getUserPumpLog(
           widget.userId,
@@ -35,7 +36,6 @@ class _PumpLogScreenState extends State<PumpLogScreen> {
           widget.nodeControllerId,
       );
     }
-    super.initState();
   }
 
   @override

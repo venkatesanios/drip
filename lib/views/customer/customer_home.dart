@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:oro_drip_irrigation/utils/helpers/mc_permission_helper.dart';
 import 'package:oro_drip_irrigation/views/customer/home_sub_classes/current_program.dart';
+import 'package:oro_drip_irrigation/views/customer/widgets/filter_builder.dart';
+import 'package:oro_drip_irrigation/views/customer/widgets/main_valve_widget.dart';
 import 'package:oro_drip_irrigation/views/customer/widgets/my_material_button.dart';
+import 'package:oro_drip_irrigation/views/customer/widgets/source_column_widget.dart';
 import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -15,13 +18,11 @@ import '../../models/customer/site_model.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../Widgets/pump_widget.dart';
 import '../../repository/repository.dart';
-import '../../services/communication_service.dart';
 import '../../services/http_service.dart';
 import '../../utils/constants.dart';
 import '../../utils/my_function.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
 import 'home_sub_classes/fertilizer_site.dart';
-import 'home_sub_classes/filter_site.dart';
 import 'home_sub_classes/next_schedule.dart';
 import 'scheduled_program/scheduled_program_wide.dart';
 
@@ -30,6 +31,7 @@ class CustomerHome extends StatelessWidget {
     required this.deviceId, required this.modelId});
   final int customerId, controllerId, modelId;
   final String deviceId;
+
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +63,6 @@ class CustomerHome extends StatelessWidget {
   Widget _buildWebLayout(BuildContext context, List<IrrigationLineModel> irrigationLine,
       scheduledProgram, CustomerScreenControllerViewModel viewModel) {
 
-
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: Consumer<CustomerScreenControllerViewModel>(
@@ -77,8 +78,6 @@ class CustomerHome extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-
-              context.watch<MqttPayloadProvider>().onRefresh ? displayLinearProgressIndicator() : const SizedBox(),
 
               ...irrigationLine.map((line) => Padding(
                 padding: const EdgeInsets.only(left: 8, right: 8, top:8, bottom: 5),
@@ -126,8 +125,7 @@ class CustomerHome extends StatelessWidget {
                                     payloadValue: "${line.sNo},${line.linePauseFlag == 0 ? 1 : 0}",
                                     color: line.linePauseFlag == 0 ? Colors.orangeAccent : Colors.green,
                                     textColor: Colors.white,
-                                    serverMsg: line.linePauseFlag == 0
-                                        ? 'Paused the ${line.name}'
+                                    serverMsg: line.linePauseFlag == 0 ? 'Paused the ${line.name}'
                                         : 'Resumed the ${line.name}',
                                   ),
                                 ),
@@ -153,6 +151,7 @@ class CustomerHome extends StatelessWidget {
                 modelId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].modelId,
                 skipPermission: hasProgramOnOff,
               ),
+
               if (scheduledProgram.isNotEmpty)
                 NextSchedule(scheduledPrograms: scheduledProgram),
 
@@ -171,6 +170,7 @@ class CustomerHome extends StatelessWidget {
                   categoryName: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].categoryName,
                   prgOnOffPermission: hasProgramOnOff,
                 ),
+
               const SizedBox(height: 8),
             ],
           );
@@ -239,7 +239,8 @@ class PumpStationWithLine extends StatelessWidget {
   final List<SensorModel> waterMeter;
   final double containerWidth;
 
-  const PumpStationWithLine({
+
+  PumpStationWithLine({
     super.key,
     required this.inletWaterSources,
     required this.outletWaterSources,
@@ -260,17 +261,20 @@ class PumpStationWithLine extends StatelessWidget {
     required this.modelId,
   });
 
+  final ValueNotifier<int> popoverUpdateNotifier = ValueNotifier<int>(0);
+
   @override
   Widget build(BuildContext context) {
 
     final allValveWidgets = [
       ...mainValves.asMap().entries.map((entry) {
         final valve = entry.value;
-        return MainValveWidget(
+        return BuildMainValve(
           valve: valve,
           customerId: customerId,
           controllerId: controllerId,
           modelId: modelId,
+          isNarrow: false,
         );
       }),
 
@@ -304,7 +308,7 @@ class PumpStationWithLine extends StatelessWidget {
         ..._buildWaterSource(context, outletWaterSources, inletWaterSources.isNotEmpty? true : false, false,fertilizerSite.isNotEmpty?true:false),
 
       if (filterSite.isNotEmpty)
-        ..._buildFilter(context, filterSite, fertilizerSite.isNotEmpty),
+        ...buildFilter(context, filterSite, fertilizerSite.isNotEmpty),
 
       if (fertilizerSite.isNotEmpty)
         ..._buildFertilizer(context, fertilizerSite),
@@ -331,7 +335,7 @@ class PumpStationWithLine extends StatelessWidget {
             if(fertilizerSite.isNotEmpty){
               int itemsPerRow = ((MediaQuery.sizeOf(context).width - 140) / 67).floor();
 
-              if (((item is ValveWidget)||(item is MainValveWidget)
+              if (((item is ValveWidget) || (item is BuildMainValve)
                   ||(item is LightWidget)||(item is SensorWidget))
                   && index < itemsPerRow) {
                 return Padding(
@@ -360,7 +364,18 @@ class PumpStationWithLine extends StatelessWidget {
       final source = waterSources[index];
       gridItems.add(Padding(
         padding: EdgeInsets.only(top: isAvailFertilizer? 38.5:8),
-        child: _buildSourceColumn(context, source, index, waterSources.length, isAvailInlet, isInlet),
+        child: SourceColumnWidget(
+          source: source,
+          isInletSource: isInlet,
+          isAvailInlet: isAvailInlet,
+          index: index,
+          total: waterSources.length,
+          popoverUpdateNotifier: popoverUpdateNotifier,
+          deviceId: deviceId,
+          customerId: customerId,
+          controllerId: controllerId,
+          modelId: modelId,
+        ),
       ));
       gridItems.addAll(source.outletPump.map((pump) => Padding(
         padding: EdgeInsets.only(top: isAvailFertilizer? 38.5:8),
@@ -378,114 +393,6 @@ class PumpStationWithLine extends StatelessWidget {
     return gridItems;
   }
 
-  Widget _buildSourceColumn(BuildContext context, WaterSourceModel source,
-      int index, int total, bool isAvailInlet, bool isInletSource) {
-
-    String position = isInletSource ? (index == 0) ? 'First' : 'Center':
-    (index == 0 && isAvailInlet) ? 'Last' : (index == 0 && !isAvailInlet)? 'First':
-    (index == total - 1)? 'Last' : 'Center';
-
-    final bool hasLevel = source.level.isNotEmpty;
-
-
-    return SizedBox(
-      width: 70,
-      height: 100,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 70,
-            height: 70,
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: AppConstants.getAsset('source', source.sourceType, position),
-                ),
-                if (hasLevel) ...[
-                  Positioned(
-                    top: 50,
-                    left: 2,
-                    right: 2,
-                    child: Consumer<MqttPayloadProvider>(
-                      builder: (_, provider, __) {
-                        final sensorUpdate = provider.getSensorUpdatedValve(source.level[0].sNo.toString());
-                        final statusParts = sensorUpdate?.split(',') ?? [];
-
-                        if (statusParts.length > 1) {
-                          source.level.first.value = statusParts[1];
-                        }
-
-                        return Container(
-                          height: 17,
-                          decoration: BoxDecoration(
-                            color: Colors.yellow,
-                            borderRadius: BorderRadius.circular(2),
-                            border: Border.all(color: Colors.grey, width: 0.5),
-                          ),
-                          child: Center(
-                            child: Text(
-                              MyFunction().getUnitByParameter(context, 'Level Sensor', source.level.first.value.toString()) ?? '',
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  Positioned(
-                    top: 33,
-                    left: 18,
-                    right: 18,
-                    child: Consumer<MqttPayloadProvider>(
-                      builder: (_, provider, __) {
-                        final sensorUpdate = provider.getSensorUpdatedValve(source.level[0].sNo.toString());
-                        final statusParts = sensorUpdate?.split(',') ?? [];
-
-                        if (statusParts.length > 2) {
-                          source.level.first.value = statusParts[2];
-                        }
-
-                        return Container(
-                          height: 17,
-                          decoration: BoxDecoration(
-                            color: Colors.yellow,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: Colors.grey, width: 0.5),
-                          ),
-                          child: Center(
-                            child: Text(
-                              '${source.level.first.value}%',
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        );
-
-                      },
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          Text(
-            source.name,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 10, color: Colors.black54),
-          ),
-        ],
-      ),
-    );
-  }
-
   List<Widget> _buildSensorItems(List<SensorModel> sensors, String type, String imagePath, bool isAvailFertilizer) {
     return sensors.map((sensor) {
       return Padding(
@@ -499,25 +406,6 @@ class PumpStationWithLine extends StatelessWidget {
         ),
       );
     }).toList();
-  }
-
-  List<Widget> _buildFilter(BuildContext context, List<FilterSiteModel> filterSite, bool isFertAvail) {
-    return filterSite.expand((site) => [
-      if (site.pressureIn != null)
-        Padding(
-          padding: EdgeInsets.only(top: isFertAvail? 38.5:8),
-          child: PressureSensorWidget(sensor: site.pressureIn!),
-        ),
-      ...site.filters.map((filter) => Padding(
-        padding: EdgeInsets.only(top: isFertAvail? 38.5:8),
-        child: FilterWidget(filter: filter, siteSno: site.sNo.toString()),
-      )),
-      if (site.pressureOut != null)
-        Padding(
-          padding: EdgeInsets.only(top: isFertAvail? 38.5:8),
-          child: PressureSensorWidget(sensor: site.pressureOut!),
-        ),
-    ]).toList();
   }
 
   List<Widget> _buildFertilizer(BuildContext context, List<FertilizerSiteModel> fertilizerSite) {
@@ -591,192 +479,6 @@ class PumpStationWithLine extends StatelessWidget {
 
 }
 
-class BuildInletSource extends StatelessWidget {
-  final List<WaterSourceModel> waterSources;
-  final String deviceId;
-  final int customerId, controllerId, modelId;
-
-  const BuildInletSource({
-    super.key,
-    required this.waterSources,
-    required this.deviceId,
-    required this.customerId,
-    required this.controllerId,
-    required this.modelId,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final List<Widget> gridItems = [];
-
-    for (int index = 0; index < waterSources.length; index++) {
-      final source = waterSources[index];
-      gridItems.add(_buildSourceColumn(context, source, index, waterSources.length));
-      for (final pump in source.outletPump) {
-        gridItems.add(PumpWidget(pump: pump, isSourcePump: !source.isWaterInAndOut, deviceId: deviceId,
-            customerId: customerId, controllerId: controllerId, isMobile: false, modelId: modelId));
-      }
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(left: 8, top: 8, right: 0),
-      child: Container(
-        width: MediaQuery.sizeOf(context).width,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(
-            color: Colors.grey.shade400,
-            width: 0.5,
-          ),
-          borderRadius: const BorderRadius.only(
-            topRight: Radius.circular(0),
-            topLeft: Radius.circular(5),
-            bottomLeft: Radius.circular(5),
-            bottomRight: Radius.circular(0),
-          ),
-        ),
-        child: ScrollConfiguration(
-          behavior: const ScrollBehavior(),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 8, right: 8),
-              child: Row(
-                children: [
-                  Row(
-                    children: gridItems.map<Widget>((item) {
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 10),
-                        child: SizedBox(
-                          width: 70,
-                          height: 100,
-                          child: item,
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  bool isTimeFormat(String value) {
-    final timeRegExp = RegExp(r'^([0-1]?\d|2[0-3]):[0-5]\d:[0-5]\d$');
-    return timeRegExp.hasMatch(value);
-  }
-
-  Widget _buildSourceColumn(BuildContext context, WaterSourceModel source, int index, int total) {
-    final String position = (index == 0)
-        ? 'First'
-        : (index == total - 1)
-        ? 'Last'
-        : 'Center';
-
-    final bool hasLevel = source.level.isNotEmpty;
-
-    return SizedBox(
-      width: 70,
-      height: 70,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 70,
-            height: 55,
-            child: Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 0),
-                  child: AppConstants.getAsset('source', 0, position),
-                ),
-                if (hasLevel) ...[
-                  Positioned(
-                    top: 50,
-                    left: 2,
-                    right: 2,
-                    child: Consumer<MqttPayloadProvider>(
-                      builder: (_, provider, __) {
-                        final sensorUpdate = provider.getSensorUpdatedValve(source.level[0].sNo.toString());
-                        final statusParts = sensorUpdate?.split(',') ?? [];
-
-                        if (statusParts.length > 1) {
-                          source.level.first.value = statusParts[1];
-                        }
-
-                        return Container(
-                          height: 17,
-                          decoration: BoxDecoration(
-                            color: Colors.yellow,
-                            borderRadius: BorderRadius.circular(2),
-                            border: Border.all(color: Colors.grey, width: 0.5),
-                          ),
-                          child: Center(
-                            child: Text(
-                              MyFunction().getUnitByParameter(context, 'Level Sensor', source.level.first.value.toString()) ?? '',
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  Positioned(
-                    top: 33,
-                    left: 18,
-                    right: 18,
-                    child: Consumer<MqttPayloadProvider>(
-                      builder: (_, provider, __) {
-                        final sensorUpdate = provider.getSensorUpdatedValve(source.level[0].sNo.toString());
-                        final statusParts = sensorUpdate?.split(',') ?? [];
-
-                        if (statusParts.length > 2) {
-                          source.level.first.value = statusParts[2];
-                        }
-
-                        return Container(
-                          height: 17,
-                          decoration: BoxDecoration(
-                            color: Colors.yellow,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: Colors.grey, width: 0.5),
-                          ),
-                          child: Center(
-                            child: Text(
-                              '${source.level.first.value}%',
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          Text(
-            source.name,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 10, color: Colors.black54),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class SensorWidget extends StatelessWidget {
   final SensorModel sensor;
   final String sensorType;
@@ -810,9 +512,35 @@ class SensorWidget extends StatelessWidget {
             children: [
               if (sensorType != 'Pressure Switch')
                 _buildSensorButton(context)
-              else...[
+              else ...[
                 const SizedBox(height: 1),
-                Image.asset(imagePath, width: 70, height: 70)
+                Stack(
+                  children: [
+                    Image.asset(
+                      imagePath,
+                      width: 70,
+                      height: 70,
+                    ),
+                    Positioned(
+                      top: 36,
+                      left: 17.5,
+                      child: Container(
+                        height: 18,
+                        width: 45,
+                        decoration: BoxDecoration(
+                          color: statusParts[1] == "1" ? Colors.green.shade300 : Colors.red.shade300,
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                        child: Center(
+                          child: Text(
+                            statusParts[1] == "1" ? 'Normal' : 'High',
+                            style: const TextStyle(fontSize: 10, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
               Text(
                 sensor.name,
@@ -1161,56 +889,6 @@ class _SensorPopoverContentState extends State<SensorPopoverContent> {
   }
 }
 
-class MainValveWidget extends StatelessWidget {
-  final ValveModel valve;
-  final int customerId, controllerId, modelId;
-  const MainValveWidget({super.key, required this.valve, required this.customerId,
-    required this.controllerId, required this.modelId});
-
-  @override
-  Widget build(BuildContext context) {
-    return Selector<MqttPayloadProvider, String?>(
-      selector: (_, provider) => provider.getValveOnOffStatus([56, 57, 58, 59].contains(modelId) ?
-      double.parse(valve.sNo.toString()).toStringAsFixed(3): valve.sNo.toString()),
-      builder: (_, status, __) {
-
-        final statusParts = status?.split(',') ?? [];
-        if(statusParts.isNotEmpty){
-          valve.status = int.parse(statusParts[1]);
-        }
-
-        return SizedBox(
-          width: 70,
-          height: 100,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 70,
-                    height: 70,
-                    child: AppConstants.getAsset('main_valve', valve.status, ''),
-                  ),
-                  Text(
-                    valve.name,
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 10, color: Colors.black54),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
 
 class ValveWidget extends StatelessWidget {
   final ValveModel valve;
@@ -1893,9 +1571,8 @@ class GateWidget extends StatelessWidget {
 class ValveWidgetMobile extends StatelessWidget {
   final ValveModel valve;
   final int customerId, controllerId, modelId;
-  final bool isLastValve;
   const ValveWidgetMobile({super.key, required this.valve, required this.customerId,
-    required this.controllerId, required this.isLastValve, required this.modelId});
+    required this.controllerId, required this.modelId});
 
   @override
   Widget build(BuildContext context) {
@@ -1908,9 +1585,7 @@ class ValveWidgetMobile extends StatelessWidget {
         if(statusParts.isNotEmpty){
           valve.status = int.parse(statusParts[1]);
         }
-
         bool hasMoisture = valve.moistureSensors.isNotEmpty;
-
         bool hasWaterSource = valve.waterSources.isNotEmpty;
 
         return hasWaterSource ? SizedBox(
@@ -1935,7 +1610,10 @@ class ValveWidgetMobile extends StatelessWidget {
                         SizedBox(
                           width: 40,
                           height: 40,
-                          child: AppConstants.getAsset('valveToMobile', valve.status, ''),
+                          child : Image.asset('assets/png/m_valve_grey.png',
+                            color: valve.status == 0 ? Colors.grey : valve.status == 1 ? Colors.green
+                                : valve.status == 1 ? Colors.orange : Colors.red,
+                          ),
                         ),
                         Text(
                           valve.name,
@@ -2217,7 +1895,10 @@ class ValveWidgetMobile extends StatelessWidget {
                   SizedBox(
                     width: 40,
                     height: 40,
-                    child: AppConstants.getAsset('valveToMobile', valve.status, ''),
+                    child : Image.asset('assets/png/m_valve_grey.png',
+                      color: valve.status == 0 ? Colors.grey : valve.status == 1 ? Colors.green
+                          : valve.status == 1 ? Colors.orange : Colors.red,
+                    ),
                   ),
                   Text(
                     valve.name,
@@ -2473,55 +2154,3 @@ class ValveWidgetMobile extends StatelessWidget {
     return result;
   }
 }
-
-class MainValveWidgetMobile extends StatelessWidget {
-  final ValveModel valve;
-  final int customerId, controllerId, modelId;
-  const MainValveWidgetMobile({super.key, required this.valve, required this.customerId,
-    required this.controllerId, required this.modelId});
-
-  @override
-  Widget build(BuildContext context) {
-    return Selector<MqttPayloadProvider, String?>(
-      selector: (_, provider) => provider.getValveOnOffStatus([56, 57, 58, 59].contains(modelId) ?
-      double.parse(valve.sNo.toString()).toStringAsFixed(3): valve.sNo.toString()),
-      builder: (_, status, __) {
-
-        final statusParts = status?.split(',') ?? [];
-        if(statusParts.isNotEmpty){
-          valve.status = int.parse(statusParts[1]);
-        }
-
-        return SizedBox(
-          width: 70,
-          height: 60,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 40,
-                    height: 40,
-                    child: AppConstants.getAsset('mainValveToMobile', valve.status, ''),
-                  ),
-                  Text(
-                    valve.name,
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 10, color: Colors.black54),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-

@@ -73,16 +73,6 @@ class AppConstants {
   static const String agitatorNotON = "dp_agitator_right_y.png";
   static const String agitatorNotOFF = "dp_agitator_right_r.png";
 
-  static const String mblValveOFF = "m_valve_grey.png";
-  static const String mblValveON = "m_valve_green.png";
-  static const String mblValveNotON = "m_valve_orange.png";
-  static const String mblValveNotOFF = "m_valve_red.png";
-
-  static const String mblMainValveOFF = "m_main_valve_gray.png";
-  static const String mblMainValveON = "m_main_valve_green.png";
-  static const String mblMainValveNotON = "m_main_valve_orange.png";
-  static const String mblMainValveNotOFF = "m_main_valve_red.png";
-
   static const String mainValveOFF = "main_valve_gray.png";
   static const String mainValveON = "main_valve_green.png";
   static const String mainValveNotON = "main_valve_orange.png";
@@ -224,12 +214,6 @@ class AppConstants {
         imagePathFinal = _getMainValveImagePath(keyTwo);
       case 'valve':
         imagePathFinal = _getValveImagePath(keyTwo);
-        break;
-      case 'valveToMobile':
-        imagePathFinal = _getMobileValveImagePath(keyTwo);
-        break;
-      case 'mainValveToMobile':
-        imagePathFinal = _getMobileMainValveImagePath(keyTwo);
         break;
       case 'valve_lj':
         imagePathFinal = _getValveLjImagePath(keyTwo);
@@ -427,35 +411,7 @@ class AppConstants {
     }
   }
 
-  static String _getMobileValveImagePath(int status) {
-    switch (status) {
-      case 0:
-        return mblValveOFF;
-      case 1:
-        return mblValveON;
-      case 2:
-        return mblValveNotON;
-      case 3:
-        return mblValveNotOFF;
-      default:
-        return '';
-    }
-  }
 
-  static String _getMobileMainValveImagePath(int status) {
-    switch (status) {
-      case 0:
-        return mblMainValveOFF;
-      case 1:
-        return mblMainValveON;
-      case 2:
-        return mblMainValveNotON;
-      case 3:
-        return mblMainValveNotOFF;
-      default:
-        return '';
-    }
-  }
 
   static String _getValveLjImagePath(int status) {
     switch (status) {
@@ -680,6 +636,8 @@ class AppConstants {
   static int gateObjectId = 43;
 
   static List<int> smartPlusEcPhModel = [33];
+  static List<int> ecModel = [64];
+  static List<int> phModel = [65];
   static List<int> pumpWithValveModelList = [48, 49, 52, 53, 54, 55];
   static List<int> shine2V = [48, 49];
   static List<int> shine4V = [52, 53];

@@ -26,6 +26,7 @@ class PumpControllerProvider extends ChangeNotifier {
   List<MotorDataHourly> motorDataList = [];
   List<PageController> pageController= [];
   List<MotorData> chartData = [];
+  bool isLoading = false;
 
   List<Map<String, dynamic>> voltageData = [];
 
@@ -40,59 +41,62 @@ class PumpControllerProvider extends ChangeNotifier {
 
     print("data from getUserPumpLog :: $data");
     try {
+      isLoading = true;
       final getPumpController = await repository.getUserPumpLog(data, nodeControllerId != 0);
-      // final getPumpController = await HttpService().postRequest(widget.nodeControllerId == 0 ? "getUserPumpLog" : "getUserNodePumpLog", data);
       final response = jsonDecode(getPumpController.body);
       pumpLogData.clear();
       segments.clear();
       selectedIndex = 0;
       message = "";
-      // showGraph = false;
-      // print(data);
       if (getPumpController.statusCode == 200) {
-        await Future.delayed(Duration.zero, () {
-          if (response['data'] is List) {
-            pumpLogData = (response['data'] as List).map((i) => PumpLogData.fromJson(i)).toList();
-            for(var i = 0; i < pumpLogData.length; i++) {
-              if(pumpLogData[i].motor1.isNotEmpty) {
-                segments.addAll({0: "Motor 1"});
-              }
-              if(pumpLogData[i].motor2.isNotEmpty) {
-                segments.addAll({1: "Motor 2"});
-              }
-              if(pumpLogData[i].motor3.isNotEmpty) {
-                segments.addAll({2: "Motor 3"});
-              }
-              if(pumpLogData[i].motor2.isNotEmpty) {
-                selectedIndex = 1;
-              } else if(pumpLogData[i].motor3.isNotEmpty) {
-                selectedIndex = 2;
-              } else {
-                selectedIndex = 0;
-              }
+        if (response['data'] is List) {
+          pumpLogData = (response['data'] as List).map((i) => PumpLogData.fromJson(i)).toList();
+          for (var i = 0; i < pumpLogData.length; i++) {
+            if (pumpLogData[i].motor1.isNotEmpty) {
+              segments.addAll({0: "Motor 1"});
             }
-          } else {
-            message = '${response['message']}';
-            print('Data is not a List');
+            if (pumpLogData[i].motor2.isNotEmpty) {
+              segments.addAll({1: "Motor 2"});
+            }
+            if (pumpLogData[i].motor3.isNotEmpty) {
+              segments.addAll({2: "Motor 3"});
+            }
+            if (pumpLogData[i].motor2.isNotEmpty) {
+              selectedIndex = 1;
+            } else if (pumpLogData[i].motor3.isNotEmpty) {
+              selectedIndex = 2;
+            } else {
+              selectedIndex = 0;
+            }
           }
-        });
-        if (pumpLogData.isNotEmpty) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            scrollController.animateTo(
-              scrollController.position.maxScrollExtent,
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeInOut,
-            );
-          });
+        } else {
+          message = '${response['message']}';
+          print('Data is not a List');
         }
 
+        if (pumpLogData.isNotEmpty) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (scrollController.hasClients) {
+              scrollController.animateTo(
+                scrollController.position.maxScrollExtent,
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeInOut,
+              );
+            }
+          });
+        }
       } else {
         print('Failed to load data');
       }
+      await Future.delayed(const Duration(seconds: 1));
+      isLoading = false;
       notifyListeners();
+      print("isLoading in the pump log : $isLoading");
     } catch (e, stackTrace) {
       print("$e");
       print("stackTrace ==> $stackTrace");
+      isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -117,13 +121,13 @@ class PumpControllerProvider extends ChangeNotifier {
       "needSum" : selectedIndex != 0
     };
     try {
+      chartData.clear();
+      isLoading = true;
       final getPumpController = await repository.getUserPumpHourlyLog(data, nodeControllerId != 0);
       final response = jsonDecode(getPumpController.body);
       if (getPumpController.statusCode == 200) {
-        print("response in the getPumpControllerData :: $response");
         // print(data);
         Future.delayed(const Duration(microseconds: 1000));
-        chartData.clear();
         if (response['data'] is List) {
           List<dynamic> dataList = response['data'];
           motorDataList = dataList.map((item) => MotorDataHourly.fromJson(item)).toList();
@@ -147,6 +151,9 @@ class PumpControllerProvider extends ChangeNotifier {
         chartData.clear();
         log('Failed to load data');
       }
+      await Future.delayed(const Duration(seconds: 1));
+      isLoading = false;
+      notifyListeners();
     } catch (e, stackTrace) {
       chartData.clear();
       log("Error ==> $e");
@@ -168,6 +175,7 @@ class PumpControllerProvider extends ChangeNotifier {
 
     print("getUserVoltageLog :: $data");
     try {
+      isLoading = true;
       final getPumpController = await repository.getUserVoltageLog(data, nodeControllerId != 0);
       final response = jsonDecode(getPumpController.body);
       if (getPumpController.statusCode == 200) {
@@ -188,6 +196,8 @@ class PumpControllerProvider extends ChangeNotifier {
       } else {
         message = 'Failed to load data: ${response['message']}';
       }
+      await Future.delayed(const Duration(seconds: 1));
+      isLoading = false;
     } catch (e, stackTrace) {
       message = 'Error occurred: $e';
       print("$e");
