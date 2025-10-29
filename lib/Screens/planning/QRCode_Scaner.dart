@@ -1,3 +1,4 @@
+/*
 import 'package:flutter/material.dart';
 import 'package:vibration/vibration.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -256,3 +257,4 @@ class HolePainter extends CustomPainter {
   @override
   bool shouldRepaint(HolePainter oldDelegate) => oldDelegate.rect != rect;
 }
+*/

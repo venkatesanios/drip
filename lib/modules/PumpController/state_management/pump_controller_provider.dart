@@ -91,6 +91,7 @@ class PumpControllerProvider extends ChangeNotifier {
       await Future.delayed(const Duration(seconds: 1));
       isLoading = false;
       notifyListeners();
+      print("isLoading in the pump log : $isLoading");
     } catch (e, stackTrace) {
       print("$e");
       print("stackTrace ==> $stackTrace");
