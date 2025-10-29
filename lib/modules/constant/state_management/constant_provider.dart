@@ -376,6 +376,9 @@ class ConstantProvider extends ChangeNotifier{
       }
       return value.isEmpty ? 0 : value;
     }else{
+      if(value is String && value.isEmpty){
+        return '0';
+      }
       return value;
     }
   }
