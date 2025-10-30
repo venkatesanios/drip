@@ -35,6 +35,8 @@ class MyMaterialButton extends StatelessWidget {
     final customerProvider = context.read<CustomerProvider>();
     final vm = context.read<CustomerScreenControllerViewModel>();
 
+    print(customerProvider.controllerCommMode);
+
     if (customerProvider.controllerCommMode == 2) {
       GlobalSnackBar.show(context, 'Bluetooth mode enabled. Please connect the device', 500);
       return;
