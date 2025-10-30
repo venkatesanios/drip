@@ -20,21 +20,25 @@ Widget appBarDropDownMenu(BuildContext context,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(width: 15),
+            const SizedBox(width: 5),
 
             SiteSelectorWidget(vm: vm, context: context),
-            const VerticalDividerWhite(),
+            if (vm.mySiteList.data.length > 1)...[
+              const VerticalDividerWhite(),
+            ],
 
             MasterSelectorWidget(vm: vm, sIndex: vm.sIndex, mIndex: vm.mIndex),
             if (vm.mySiteList.data[vm.sIndex].master.length > 1)...[
               const VerticalDividerWhite(),
             ],
+
             IrrigationLineSelectorWidget(vm: vm),
             if ([...AppConstants.gemModelList, ...AppConstants.ecoGemModelList]
                 .contains(master.modelId) &&
                 master.irrigationLine.length > 1)...[
               const VerticalDividerWhite(),
             ],
+
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(5),
