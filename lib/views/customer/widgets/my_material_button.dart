@@ -35,6 +35,8 @@ class MyMaterialButton extends StatelessWidget {
     final customerProvider = context.read<CustomerProvider>();
     final vm = context.read<CustomerScreenControllerViewModel>();
 
+    print(customerProvider.controllerCommMode);
+
     if (customerProvider.controllerCommMode == 2) {
       GlobalSnackBar.show(context, 'Bluetooth mode enabled. Please connect the device', 500);
       return;
@@ -58,7 +60,8 @@ class MyMaterialButton extends StatelessWidget {
 
       // Optional delay
       await Future.delayed(const Duration(milliseconds: 100));
-
+      print("serverMsg:$serverMsg");
+      print("payLoadFinal:$payLoadFinal");
       await commService.sendCommand(
         serverMsg: serverMsg,
         payload: payLoadFinal,

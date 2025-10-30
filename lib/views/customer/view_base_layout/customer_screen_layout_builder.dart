@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/utils/enums.dart';
 import 'package:provider/provider.dart';
 
 import '../../../StateManagement/customer_provider.dart';
@@ -68,19 +69,25 @@ class CustomerScreenLayoutBuilder extends StatelessWidget {
             labelType: NavigationRailLabelType.all,
             elevation: 5,
             onDestinationSelected: (index) async {
-              // Determine which index needs password check based on isGemRNova
-              if(isGemRNova && index == 5) {
-                final authorized = await _askPassword(context);
-                if (authorized == true) {
+              // Determine which index needs password check based on isGemRNova\
+                if(loggedInUser.role == UserRole.customer) {
+                if (isGemRNova && index == 5) {
+                  final authorized = await _askPassword(context);
+                  if (authorized == true) {
+                    navRail.onDestinationSelectingChange(index);
+                  }
+                } else if (!isGemRNova && index == 4) {
+                  final authorized = await _askPassword(context);
+                  if (authorized == true) {
+                    navRail.onDestinationSelectingChange(index);
+                  }
+                } else {
                   navRail.onDestinationSelectingChange(index);
                 }
-              } else if (!isGemRNova && index == 4) {
-                final authorized = await _askPassword(context);
-                if (authorized == true) {
-                  navRail.onDestinationSelectingChange(index);
-                }
-              } else {
-                navRail.onDestinationSelectingChange(index);
+              }
+              else{
+                print("else call UserRole---->$UserRole");
+              navRail.onDestinationSelectingChange(index);
               }
             },
             destinations: NavigationDestinationsBuilder.build(context, cMaster),

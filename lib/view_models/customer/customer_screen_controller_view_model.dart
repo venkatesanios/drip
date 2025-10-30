@@ -348,6 +348,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
       controllerId: master.controllerId,
       device: master.deviceId,
       customerId: mySiteList.data[sIdx].customerId,
+      commMode:  master.communicationMode!,
     );
 
     if ([1, 2, 3, 4, 56, 57, 58, 59].contains(master.modelId)) {

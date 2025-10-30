@@ -67,7 +67,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
         }
       }
     }
-    irrigationProgramProvider.calculateTotalFlowRate();
+    // irrigationProgramProvider.calculateTotalFlowRate();
   }
 
   @override

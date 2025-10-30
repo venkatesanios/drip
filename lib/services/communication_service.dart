@@ -33,34 +33,32 @@ class CommunicationService {
         throw Exception('Payload is empty');
       }
 
-      if(customerProvider.controllerCommMode==1 || kIsWeb){
-        if (mqttService.isConnected) {
-          try {
-            final topic = '${AppConstants.publishTopic}/${customerProvider.deviceId}';
-            debugPrint('Publishing to topic: $topic with payload: $payload');
-            await mqttService.topicToPublishAndItsMessage(payload, topic);
-            result['mqtt'] = true;
-          } catch (e) {
-            debugPrint('Failed to send via MQTT: $e');
-          }
+      if (mqttService.isConnected) {
+        try {
+          final topic = '${AppConstants.publishTopic}/${customerProvider.deviceId}';
+          debugPrint('Publishing to topic: $topic with payload: $payload');
+          await mqttService.topicToPublishAndItsMessage(payload, topic);
+          result['mqtt'] = true;
+        } catch (e) {
+          debugPrint('Failed to send via MQTT: $e');
         }
+      }
 
-        if (NetworkUtils.isOnline && serverMsg.isNotEmpty) {
-          try {
-            await sendCommandToServer(serverMsg, payload);
-            result['http'] = true;
-          } catch (e) {
-            debugPrint('Failed to send via HTTP: $e');
-          }
+      if (NetworkUtils.isOnline && serverMsg.isNotEmpty) {
+        try {
+          await sendCommandToServer(serverMsg, payload);
+          result['http'] = true;
+        } catch (e) {
+          debugPrint('Failed to send via HTTP: $e');
         }
-      }else{
-        if (blueService.isConnected == true) {
-          try {
-            blueService.write(payload);
-            result['bluetooth'] = true;
-          } catch (e) {
-            debugPrint('Failed to send via Bluetooth: $e');
-          }
+      }
+
+      if (blueService.isConnected == true) {
+        try {
+          blueService.write(payload);
+          result['bluetooth'] = true;
+        } catch (e) {
+          debugPrint('Failed to send via Bluetooth: $e');
         }
       }
 

@@ -12,10 +12,12 @@ class CustomerProvider with ChangeNotifier {
   int? get controllerCommMode => _communicationMode;
 
 
-  void updateControllerInfo({required int controllerId, required String device, required int customerId}) {
+  void updateControllerInfo({required int controllerId, required String device,
+    required int customerId, required int commMode}) {
     _controllerId = controllerId;
     _deviceId = device;
     _customerId = customerId;
+    _communicationMode = commMode;
     notifyListeners();
   }
 
