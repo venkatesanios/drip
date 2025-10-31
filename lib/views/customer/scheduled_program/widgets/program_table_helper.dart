@@ -17,14 +17,14 @@ import 'clickable_submenu.dart';
 
 
 class ProgramTableHelper {
-  static List<DataColumn2> columns(TextStyle headerStyle, bool prgOnOffPermission) => [
+  static List<DataColumn2> columns(TextStyle headerStyle, bool prgOnOffPermission, bool isNova) => [
     DataColumn2(label: Text('Name', style: headerStyle), size: ColumnSize.M),
     DataColumn2(label: Text('Method', style: headerStyle), size: ColumnSize.M),
     DataColumn2(label: Text('Status or Reason', style: headerStyle), size: ColumnSize.L),
     DataColumn2(label: Center(child: Text('Zone', style: headerStyle)), fixedWidth: 50),
     DataColumn2(label: Center(child: Text('Start Date & Time', style: headerStyle)), size: ColumnSize.M),
     DataColumn2(label: Center(child: Text('End Date', style: headerStyle)), size: ColumnSize.S),
-    DataColumn2(label: const Text(''), fixedWidth: prgOnOffPermission? 315:100),
+    DataColumn2(label: const Text(''), fixedWidth: prgOnOffPermission ? isNova ? 230 : 315 : 100),
   ];
 
   static List<DataRow> rows({
@@ -40,6 +40,7 @@ class ProgramTableHelper {
     required int categoryId,
     required String deviceId,
     required bool prgOnOffPermission,
+    required bool isNova,
   }) {
 
     var filteredPrograms = currentLineSNo == 0 ? programs : programs.where((p) {
@@ -59,20 +60,22 @@ class ProgramTableHelper {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(program.programName),
-            Row(
-              children: [
-                Expanded(
-                  child: LinearProgressIndicator(
-                    value: program.programStatusPercentage / 100.0,
-                    color: Colors.blue.shade300,
-                    backgroundColor: Colors.grey.shade200,
-                    minHeight: 2.5,
+            if(!isNova)...[
+              Row(
+                children: [
+                  Expanded(
+                    child: LinearProgressIndicator(
+                      value: program.programStatusPercentage / 100.0,
+                      color: Colors.blue.shade300,
+                      backgroundColor: Colors.grey.shade200,
+                      minHeight: 2.5,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 7),
-                Text('${program.programStatusPercentage}%', style: const TextStyle(fontSize: 12, color: Colors.black45)),
-              ],
-            ),
+                  const SizedBox(width: 7),
+                  Text('${program.programStatusPercentage}%', style: const TextStyle(fontSize: 12, color: Colors.black45)),
+                ],
+              ),
+            ],
           ],
         )),
         DataCell(Text(program.selectedSchedule, style: const TextStyle(fontSize: 11))),
@@ -136,22 +139,26 @@ class ProgramTableHelper {
                     '${program.programName} ${ProgramCodeHelper.getDescription(int.parse(program.prgOnOff))}',
                   ),
                 ),
-                const SizedBox(width: 5),
-                SizedBox(
-                  height: 27,
-                  child: MyMaterialButton(
-                    buttonId: '${program.serialNumber}_2900_pr',
-                    label: ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume)),
-                    payloadKey: "2900",
-                    payloadValue: '${program.serialNumber},${program.prgPauseResume}',
-                    color: ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume)) == 'Pause'
-                        ? Colors.orange : Colors.yellow,
-                    textColor: ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume)) == 'Pause'
-                        ? Colors.white : Colors.black,
-                    serverMsg:
-                    '${program.programName} ${ProgramCodeHelper.getDescription(int.parse(program.prgPauseResume))}',
+
+                if(!isNova)...[
+                  const SizedBox(width: 5),
+                  SizedBox(
+                    height: 27,
+                    child: MyMaterialButton(
+                      buttonId: '${program.serialNumber}_2900_pr',
+                      label: ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume)),
+                      payloadKey: "2900",
+                      payloadValue: '${program.serialNumber},${program.prgPauseResume}',
+                      color: ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume)) == 'Pause'
+                          ? Colors.orange : Colors.yellow,
+                      textColor: ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume)) == 'Pause'
+                          ? Colors.white : Colors.black,
+                      serverMsg:
+                      '${program.programName} ${ProgramCodeHelper.getDescription(int.parse(program.prgPauseResume))}',
+                    ),
                   ),
-                ),
+                ],
+
                 const SizedBox(width: 5),
                 PopupMenuButton<String>(
                   icon: const Icon(Icons.more_vert),

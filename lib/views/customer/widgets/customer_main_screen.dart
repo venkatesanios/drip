@@ -53,13 +53,10 @@ Widget buildCustomerMainScreen({required int index, required UserRole role, requ
       return CustomerProduct(customerId: cSite.customerId);
 
     case 2:
-      return KeyedSubtree(
-        key: ValueKey(DateTime.now().millisecondsSinceEpoch),
-        child: SentAndReceived(
-          customerId: cSite.customerId,
-          controllerId: cMaster.controllerId,
-          isWide: true,
-        ),
+      return SentAndReceived(
+        customerId: cSite.customerId,
+        controllerId: cMaster.controllerId,
+        isWide: true,
       );
 
     case 3:

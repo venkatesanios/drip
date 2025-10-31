@@ -13,6 +13,7 @@ import '../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../modules/IrrigationProgram/view/irrigation_program_main.dart';
 import '../../../services/ai_advisory_service.dart';
 import '../../../services/communication_service.dart';
+import '../../../utils/constants.dart';
 import '../../../utils/helpers/program_code_helper.dart';
 import '../../../utils/my_function.dart';
 import '../../../utils/snack_bar.dart';
@@ -48,6 +49,7 @@ class _ScheduledProgramNarrowState extends State<ScheduledProgramNarrow> {
   Widget build(BuildContext context) {
     final viewModel = context.watch<CustomerScreenControllerViewModel>();
     final master = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex];
+    bool isNova = [...AppConstants.ecoGemModelList].contains(master.modelId);
     final hasProgramOnOff = master.getPermissionStatus("Program On/Off Manually");
 
     final spLive = context.watch<MqttPayloadProvider>().scheduledProgramPayload;
@@ -135,26 +137,30 @@ class _ScheduledProgramNarrowState extends State<ScheduledProgramNarrow> {
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(program.programName),
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: LinearProgressIndicator(
-                                              value: program.programStatusPercentage / 100.0,
-                                              borderRadius: const BorderRadius.all(Radius.circular(3)),
-                                              color: Colors.blue.shade300,
-                                              backgroundColor: Colors.grey.shade200,
-                                              minHeight: 3,
+                                      if(!isNova)...[
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: LinearProgressIndicator(
+                                                value: program.programStatusPercentage / 100.0,
+                                                borderRadius: const BorderRadius.all(Radius.circular(3)),
+                                                color: Colors.blue.shade300,
+                                                backgroundColor: Colors.grey.shade200,
+                                                minHeight: 3,
+                                              ),
                                             ),
-                                          ),
-                                          const SizedBox(width: 7),
-                                          Text(
-                                            '${program.programStatusPercentage}%',
-                                            style: const TextStyle(fontSize: 12, color: Colors.black45),
-                                          ),
-                                        ],
-                                      ),
+                                            const SizedBox(width: 7),
+                                            Text(
+                                              '${program.programStatusPercentage}%',
+                                              style: const TextStyle(fontSize: 12, color: Colors.black45),
+                                            ),
+                                          ],
+                                        ),
+                                      ]
+
                                     ],
                                   ),
                                 ),

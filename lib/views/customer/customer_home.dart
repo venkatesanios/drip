@@ -37,6 +37,7 @@ class CustomerHome extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final viewModel = context.read<CustomerScreenControllerViewModel>();
+    bool isNova = [...AppConstants.ecoGemModelList].contains(modelId);
 
     final irrigationLines = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].irrigationLine;
     final scheduledProgram = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].programList;
@@ -45,7 +46,7 @@ class CustomerHome extends StatelessWidget {
         ? irrigationLines.where((line) => line.name != viewModel.myCurrentIrrLine).toList()
         : irrigationLines.where((line) => line.name == viewModel.myCurrentIrrLine).toList();
 
-    return _buildWebLayout(context, linesToDisplay, scheduledProgram, viewModel);
+    return _buildWebLayout(context, linesToDisplay, scheduledProgram, viewModel, isNova);
   }
 
   Widget displayLinearProgressIndicator() {
@@ -61,7 +62,7 @@ class CustomerHome extends StatelessWidget {
   }
 
   Widget _buildWebLayout(BuildContext context, List<IrrigationLineModel> irrigationLine,
-      scheduledProgram, CustomerScreenControllerViewModel viewModel) {
+      scheduledProgram, CustomerScreenControllerViewModel viewModel, bool isNova) {
 
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
@@ -114,23 +115,27 @@ class CustomerHome extends StatelessWidget {
                                 textAlign: TextAlign.left,
                                 style: const TextStyle(color: Colors.black54, fontSize: 15, fontWeight: FontWeight.bold),
                               ),
-                              if(hasLinePP)...[
-                                const Spacer(),
-                                SizedBox(
-                                  height: 27,
-                                  child: MyMaterialButton(
-                                    buttonId: 'line_${line.sNo}_4900',
-                                    label: line.linePauseFlag == 0 ? 'Pause the line' : 'Resume the line',
-                                    payloadKey: "4900",
-                                    payloadValue: "${line.sNo},${line.linePauseFlag == 0 ? 1 : 0}",
-                                    color: line.linePauseFlag == 0 ? Colors.orangeAccent : Colors.green,
-                                    textColor: Colors.white,
-                                    serverMsg: line.linePauseFlag == 0 ? 'Paused the ${line.name}'
-                                        : 'Resumed the ${line.name}',
+
+                              if(!isNova)...[
+                                if(hasLinePP)...[
+                                  const Spacer(),
+                                  SizedBox(
+                                    height: 27,
+                                    child: MyMaterialButton(
+                                      buttonId: 'line_${line.sNo}_4900',
+                                      label: line.linePauseFlag == 0 ? 'Pause the line' : 'Resume the line',
+                                      payloadKey: "4900",
+                                      payloadValue: "${line.sNo},${line.linePauseFlag == 0 ? 1 : 0}",
+                                      color: line.linePauseFlag == 0 ? Colors.orangeAccent : Colors.green,
+                                      textColor: Colors.white,
+                                      serverMsg: line.linePauseFlag == 0 ? 'Paused the ${line.name}'
+                                          : 'Resumed the ${line.name}',
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 10)
+                                  const SizedBox(width: 10)
+                                ]
                               ]
+
                             ],
                           ),
                         ),
@@ -969,7 +974,7 @@ class ValveWidget extends StatelessWidget {
                                     markerSettings: const MarkerSettings(isVisible: true),
                                     dataLabelSettings: const DataLabelSettings(isVisible: false),
                                     color: Colors.blueAccent,
-                                    name: valve.moistureSensors[0].name ?? 'Sensor',
+                                    name: valve.moistureSensors[0].name,
                                   ),
                                 ];
                                 return Column(

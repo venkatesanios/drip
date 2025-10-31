@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../../models/customer/site_model.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../services/ai_advisory_service.dart';
+import '../../../utils/constants.dart';
 
 
 class ScheduledProgramWide extends StatefulWidget {
@@ -39,6 +40,8 @@ class _ScheduledProgramWideState extends State<ScheduledProgramWide> {
 
   @override
   Widget build(BuildContext context) {
+
+    bool isNova = [...AppConstants.ecoGemModelList].contains(widget.modelId);
 
     final spLive = Provider.of<MqttPayloadProvider>(context).scheduledProgramPayload;
     final conditionPayload = Provider.of<MqttPayloadProvider>(context, listen: false).conditionPayload;
@@ -81,7 +84,8 @@ class _ScheduledProgramWideState extends State<ScheduledProgramWide> {
                       dataRowHeight: 45,
                       headingRowHeight: 40,
                       headingRowColor: WidgetStateProperty.all(Colors.yellow.shade50),
-                      columns: ProgramTableHelper.columns(ScheduledProgramWide.headerStyle, widget.prgOnOffPermission),
+                      columns: ProgramTableHelper.columns(ScheduledProgramWide.headerStyle,
+                          widget.prgOnOffPermission, isNova),
                       rows: ProgramTableHelper.rows(
                         programs: filteredScheduleProgram,
                         context: context,
@@ -96,6 +100,7 @@ class _ScheduledProgramWideState extends State<ScheduledProgramWide> {
                         modelId: widget.modelId,
                         categoryId: widget.categoryId,
                         prgOnOffPermission: widget.prgOnOffPermission,
+                        isNova: isNova,
                       ),
                     ),
                   ),
