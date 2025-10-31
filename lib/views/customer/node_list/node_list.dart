@@ -136,8 +136,9 @@ class NodeList extends StatelessWidget {
               icon: const Icon(Icons.close, color: Colors.redAccent),
               onPressed: () => Navigator.of(context).pop(),
             ): null,
-            title: Text(masterData.deviceName, style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text(masterData.deviceId, style: const TextStyle(fontWeight: FontWeight.normal, color: Colors.black54, fontSize: 12)),
+            title: Text(masterData.modelDescription, style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text('${masterData.deviceId}\n${masterData.modelName}',
+                style: const TextStyle(fontWeight: FontWeight.normal, color: Colors.black54, fontSize: 11)),
             trailing: Consumer<MqttPayloadProvider>(
               builder: (context, provider, _) {
                 List<Widget> children = [
@@ -146,6 +147,7 @@ class NodeList extends StatelessWidget {
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ];
+
                 if (provider.activeLoraData.isNotEmpty) {
                   List<String> parts = provider.activeLoraData.split(',');
                   List<String> versions = [];

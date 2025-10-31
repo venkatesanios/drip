@@ -136,14 +136,14 @@ class _LoginScreenState extends State<LoginScreenOTP> {
   void _handleTap() {
     setState(() {
       _clickCount++;
-      if (_clickCount >= 7) {
+      // if (_clickCount >= 7) {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => LoginScreen()),
         );
         // Reset click count after navigation
         _clickCount = 0;
-      }
+      // }
     });
   }
 
@@ -256,7 +256,7 @@ class _LoginScreenState extends State<LoginScreenOTP> {
                     child: Column(
                       children: [
                         SizedBox(
-                          width: 430,
+                          width: 450,
                           height: 77,
                           child:    Column(
                             children: [
@@ -284,12 +284,32 @@ class _LoginScreenState extends State<LoginScreenOTP> {
 
                         ),
                         const SizedBox(
-                          height: 20,
+                          height: 10,
                         ),
-                        CustomButton(clickOnLogin)
+                        CustomButton(clickOnLogin),
+                         const Text(
+                          'or',
+                         ),
+                        TextButton(
+                          onPressed: _handleTap,
+                          style: ElevatedButton.styleFrom(
+                            // backgroundColor: Colors.grey.shade400,
+                            // backgroundColor:const Color.fromARGB(255, 28, 123, 137),
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                          ),
+                          child: const Text(
+                            'Login with Password',
+                            style: TextStyle(fontSize: 18, color: Color.fromARGB(255, 28, 123, 137)),
+                          ),
+                        )
+
                       ],
                     ),
                   ),
+
                 ]),
           ),
         ),

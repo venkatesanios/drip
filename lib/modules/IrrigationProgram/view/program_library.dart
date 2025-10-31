@@ -464,7 +464,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                           }).toList(),
                         ),
                         const SizedBox(height: 16),
-                        SwitchListTile(
+                        /*SwitchListTile(
                           title: const Text('Queue Reset'),
                           value: programQueueModel.queueReset,
                           onChanged: (value) {
@@ -474,7 +474,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                           },
                           activeColor: theme.primaryColor,
                           contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                        ),
+                        ),*/
                         const Text(
                           'Queue Preview',
                           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
@@ -595,13 +595,14 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                               "8001":
                               "${programQueueModel.programQueue ? 1 : 0},"
                                   "${programQueueModel.queueOrder.join(',')},"
-                                  "${programQueueModel.queueReset ? 1 : 0},"
+                                  "${programQueueModel.autoQueueRestart ? 1 : 0},"
                                   "${programQueueModel.queueOrderRestartTimes.join(',').replaceAll(':', ',')},"
                                   "${programQueueModel.skipDays ? 1 : 0},"
                                   "${programQueueModel.noOfSkipDays},"
                                   "${programQueueModel.runDays ? 1 : 0},"
                                   "${programQueueModel.noOfRunDays},"
-                                  "${programQueueModel.queueReset ? 1 : 0}"
+                                  "${0}"
+                                  // "${programQueueModel.queueReset ? 1 : 0}"
                             }
                           };
 

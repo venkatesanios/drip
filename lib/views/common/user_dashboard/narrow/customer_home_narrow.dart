@@ -32,6 +32,7 @@ class CustomerHomeNarrow extends StatelessWidget {
 
     final viewModel = Provider.of<CustomerScreenControllerViewModel>(context);
     final cM = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex];
+    bool isNova = [...AppConstants.ecoGemModelList].contains(cM.modelId);
 
     final linesToDisplay = (viewModel.myCurrentIrrLine == "All irrigation line" || viewModel.myCurrentIrrLine.isEmpty)
         ? cM.irrigationLine.where((line) => line.name != viewModel.myCurrentIrrLine).toList()
@@ -92,25 +93,27 @@ class CustomerHomeNarrow extends StatelessWidget {
                                   textAlign: TextAlign.left,
                                   style: const TextStyle(color: Colors.black54, fontSize: 17, fontWeight: FontWeight.bold),
                                 ),
-                                if(hasLinePP)...[
-                                  const Spacer(),
-                                  SizedBox(
-                                    height: 35,
-                                    child: MyMaterialButton(
-                                      buttonId: 'line_${line.sNo}_4900',
-                                      label: line.linePauseFlag == 0 ? 'Pause the line' : 'Resume the line',
-                                      payloadKey: "4900",
-                                      payloadValue: "${line.sNo},${line.linePauseFlag == 0 ? 1 : 0}",
-                                      color: line.linePauseFlag == 0 ? Colors.orangeAccent : Colors.green,
-                                      textColor: Colors.white,
-                                      serverMsg: line.linePauseFlag == 0
-                                          ? 'Paused the ${line.name}'
-                                          : 'Resumed the ${line.name}',
-                                    ),
-                                  ),
-                                  const SizedBox(width: 5)
-                                ]
 
+                                if(!isNova)...[
+                                  if(hasLinePP)...[
+                                    const Spacer(),
+                                    SizedBox(
+                                      height: 35,
+                                      child: MyMaterialButton(
+                                        buttonId: 'line_${line.sNo}_4900',
+                                        label: line.linePauseFlag == 0 ? 'Pause the line' : 'Resume the line',
+                                        payloadKey: "4900",
+                                        payloadValue: "${line.sNo},${line.linePauseFlag == 0 ? 1 : 0}",
+                                        color: line.linePauseFlag == 0 ? Colors.orangeAccent : Colors.green,
+                                        textColor: Colors.white,
+                                        serverMsg: line.linePauseFlag == 0
+                                            ? 'Paused the ${line.name}'
+                                            : 'Resumed the ${line.name}',
+                                      ),
+                                    ),
+                                    const SizedBox(width: 5)
+                                  ]
+                                ]
                               ],
                             ),
                           ),

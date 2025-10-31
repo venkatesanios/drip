@@ -581,7 +581,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   }
 
   List<String> scheduleTypes = ['NO SCHEDULE', 'SCHEDULE BY DAYS', 'SCHEDULE BY RUN LIST', 'SCHEDULE BY PROGRAM'];
-  List<String> scheduleTypesForEcoGem = ['NO SCHEDULE', 'SCHEDULE BY PROGRAM'];
+  List<String> scheduleTypesForEcoGem = ['NO SCHEDULE'];
 
   String get selectedScheduleType => sampleScheduleModel?.selected ?? scheduleTypes[0];
 
