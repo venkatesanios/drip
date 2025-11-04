@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
 
+import '../../../Constants/dialog_boxes.dart';
 import '../state_management/ble_service.dart';
 import 'node_not_get_live.dart';
 
@@ -54,6 +55,30 @@ class _CalibrationState extends State<Calibration> {
     ecSensorList = (bleService.nodeDataFromServer['configObject'] as List<dynamic>).where((e) => e['objectId'] == AppConstants.ecObjectId).toList();
     phSensorList = (bleService.nodeDataFromServer['configObject'] as List<dynamic>).where((e) => e['objectId'] == AppConstants.phObjectId).toList();
     waterMeter = (bleService.nodeDataFromServer['configObject'] as List<dynamic>).where((e) => e['objectId'] == AppConstants.waterMeterObjectId).toList();
+  }
+
+  void loadingDialog(String message)async{
+    showDialog(
+        barrierDismissible: false,
+        context: context, builder: (context){
+      return const PopScope(
+        canPop: false,
+        child: AlertDialog(
+          content: Row(
+            spacing: 20,
+            children: [
+              CircularProgressIndicator(),
+              Text('Please wait...')
+            ],
+          ),
+        ),
+      );
+    }
+    );
+    await Future.delayed(const Duration(seconds: 2), (){
+      Navigator.pop(context);
+    });
+    simpleDialogBox(context: context, title: 'Success', message: message);
   }
 
   @override
@@ -205,6 +230,7 @@ class _CalibrationState extends State<Calibration> {
                           print('fullData : ${fullData}');
                           print('payload : ${payload}');
                           bleService.sendDataToHw(fullData);
+                          loadingDialog('Cumulative setting sent successfully...');
                         },
                         icon: const Icon(Icons.send, color: Colors.white,),
                         label: const Text("Send", style: TextStyle(color: Colors.white),),
@@ -238,7 +264,7 @@ class _CalibrationState extends State<Calibration> {
               borderRadius: BorderRadius.only(topLeft: Radius.circular(5) ,topRight: Radius.circular(27.5), ),
               color: Theme.of(context).primaryColorLight
           ),
-          child: Center(
+          child: const Center(
             child: Text('Battery Calibration',style: TextStyle(color: Colors.white, fontSize: 14),),
           ),
         ),
@@ -312,6 +338,7 @@ class _CalibrationState extends State<Calibration> {
                           print('fullData : ${fullData}');
                           print('payload : ${payload}');
                           bleService.sendDataToHw(fullData);
+                          loadingDialog('Battery calibration setting sent successfully...');
                         },
                         icon: const Icon(Icons.send, color: Colors.white,),
                         label: const Text("Send", style: TextStyle(color: Colors.white),),

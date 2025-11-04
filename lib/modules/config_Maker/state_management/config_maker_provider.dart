@@ -1465,8 +1465,8 @@ class ConfigMakerProvider extends ChangeNotifier{
         int sumpHighConnectionNo = 0;
         int sumpLowConnectionNo = 0;
         int levelConnectionNo = 0;
-        int availableOfWaterMeter = listOfWaterMeter.isNotEmpty ? 1 : 0;
-        int availableOfPressure = listOfPressure.isNotEmpty ? 1 : 0;
+        int availableOfWaterMeter = pumpModel.waterMeter != 0.0 ? 1 : 0;
+        int availableOfPressure = pumpModel.pressureIn != 0.0 ? 1 : 0;
         for(var float in listOfFloat){
           if(pumpModel.topSumpFloat == float.sNo){
             sumpPinCount += 1;
