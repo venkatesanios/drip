@@ -13,6 +13,7 @@ class SourceModel {
   List<double> inletPump;
   List<double> outletPump;
   List<double> valves;
+  List<double> outletValves;
 
   SourceModel({
     required this.commonDetails,
@@ -25,12 +26,14 @@ class SourceModel {
     required this.inletPump,
     required this.outletPump,
     required this.valves,
+    required this.outletValves,
   });
 
   void updateObjectIdIfDeletedInProductLimit(List<double> objectIdToBeDeleted){
     inletPump = inletPump.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
     outletPump = outletPump.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
     valves = valves.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
+    outletValves = outletValves.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
     level = objectIdToBeDeleted.contains(level) ? 0.0 : level;
     topFloatForInletPump = objectIdToBeDeleted.contains(topFloatForInletPump) ? 0.0 : topFloatForInletPump;
     bottomFloatForInletPump = objectIdToBeDeleted.contains(bottomFloatForInletPump) ? 0.0 : bottomFloatForInletPump;
@@ -52,6 +55,7 @@ class SourceModel {
         inletPump: (data['inletPump'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         outletPump: (data['outletPump'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         valves: (data['valves'] as List<dynamic>).map((sNo) => sNo as double).toList(),
+        outletValves: data['outletValves'] != null ? (data['outletValves'] as List<dynamic>).map((sNo) => sNo as double).toList() : [],
     );
   }
 
@@ -67,6 +71,7 @@ class SourceModel {
       'inletPump' : inletPump,
       'outletPump' : outletPump,
       'valves' : valves,
+      'outletValves' : outletValves,
     });
     return commonInfo;
   }
@@ -76,5 +81,3 @@ class SourceModel {
   }
 
 }
-
-// tank type

@@ -499,7 +499,7 @@ class ConfigMakerProvider extends ChangeNotifier{
               );
             }else if(deviceObjectModel.objectId == AppConstants.sourceObjectId){
               source.add(
-                  SourceModel(commonDetails: deviceObjectModel, inletPump: [], outletPump: [], valves: [])
+                  SourceModel(commonDetails: deviceObjectModel, inletPump: [], outletPump: [], valves: [], outletValves: [])
               );
             }else if(deviceObjectModel.objectId == AppConstants.pumpObjectId){
               pump.add(
@@ -1068,7 +1068,6 @@ class ConfigMakerProvider extends ChangeNotifier{
         "SumpTankFloatLow" : serialNoOrEmpty(pumpModelObject.bottomSumpFloat),
         "IrrigationLine" : line.where((line) => (line.sourcePump.contains(pumpModelObject.commonDetails.sNo) || line.irrigationPump.contains(pumpModelObject.commonDetails.sNo))).map((line) => line.commonDetails.sNo).join('_'),
       };
-
       pumpPayload.add(payload.entries.map((e) => e.value).join(","));
     }
 
@@ -1527,6 +1526,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         //     }
         //   }
         // }
+
         listOfTankPayload.add({
           "No.of sump pins" : sumpPinCount,
           "Sump low pin float" : sumpLowConnectionNo,
@@ -1539,6 +1539,7 @@ class ConfigMakerProvider extends ChangeNotifier{
           "pressureIn" : availableOfPressure
         }.entries.map((e) => e.value).join(','));
       }
+
       int fixedLengthOfTankPayload = 3;
       if(listOfTankPayload.length != fixedLengthOfTankPayload){
         for(var flp = 0;flp < fixedLengthOfTankPayload - listOfTankPayload.length;flp++){
