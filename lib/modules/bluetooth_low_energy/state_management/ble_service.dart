@@ -409,9 +409,9 @@ class BleProvider extends ChangeNotifier {
       sendToHardwareSubscription =
           characteristic.lastValueStream.listen((value) {
             String convertToString = String.fromCharCodes(value);
-            print('AppToHardware =>  ${convertToString}');
+            print('AppToHardware =>  $convertToString');
             if(fileMode != FileMode.sendingToHardware){
-              sentAndReceive.add('AppToHardware =>  ${convertToString}');
+              sentAndReceive.add('AppToHardware =>  $convertToString');
             }
 
             // if (fileTraceControl != 'File') {

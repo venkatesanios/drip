@@ -34,6 +34,7 @@ class _CustomerScreenNarrowState extends BaseCustomerScreenState<CustomerScreenN
 
   @override
   Widget build(BuildContext context) {
+
     final userProvider = context.read<UserProvider>();
     final loggedInUser = userProvider.loggedInUser;
     final viewedCustomer = userProvider.viewedCustomer;
@@ -76,8 +77,7 @@ class _CustomerScreenNarrowState extends BaseCustomerScreenState<CustomerScreenN
       const SettingsMenuNarrow(),
     ] :
     [
-      vm.isChanged
-          ? PumpControllerHome(
+      vm.isChanged ? PumpControllerHome(
         userId: loggedInUser.id,
         customerId: vm.mySiteList.data[vm.sIndex].customerId,
         masterData: cM,
@@ -98,9 +98,13 @@ class _CustomerScreenNarrowState extends BaseCustomerScreenState<CustomerScreenN
     return BaseCustomerLayout(
       scaffoldKey: scaffoldKey,
       appBar: buildCustomerAppBar(context, vm, cM, scaffoldKey, showMenu: true, isNarrow: true),
-      drawer: CustomerDrawer(customerName: vm.mySiteList.data[vm.sIndex].customerName, loggedInUser : loggedInUser, vm: vm,
-        customerId: vm.mySiteList.data[vm.sIndex].customerId, customerEmailId: viewedCustomer!.email,
-          customerMobileNo: viewedCustomer.mobileNo),
+      drawer: CustomerDrawer(
+          customerName: vm.mySiteList.data[vm.sIndex].customerName,
+          loggedInUser : loggedInUser, vm: vm,
+          customerId: vm.mySiteList.data[vm.sIndex].customerId, customerEmailId: viewedCustomer!.email,
+          customerMobileNo: viewedCustomer.mobileNo
+      ),
+
       floatingActionButton: CustomerFabMenu(
         currentMaster: cM,
         loggedInUser: loggedInUser,

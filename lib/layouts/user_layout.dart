@@ -117,8 +117,8 @@ class CustomerScreenLayout extends BaseScreenLayout with LayoutHelpers {
 }
 
 
-class CustomerHomeLayout extends BaseScreenLayout {
-  const CustomerHomeLayout({super.key});
+class CustomerDashboardLayout extends BaseScreenLayout {
+  const CustomerDashboardLayout({super.key});
 
   @override
   Widget buildNarrow(BuildContext context) => const CustomerHomeNarrow();

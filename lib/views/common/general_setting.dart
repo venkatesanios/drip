@@ -469,7 +469,7 @@ class _GeneralSettingState extends State<GeneralSetting> {
                             ),
                           ),
                           Divider(color: Colors.grey.shade200),
-                          if([1, 2, 3, 4].contains(viewModel.modelId))...[
+                          if([...AppConstants.gemModelList].contains(viewModel.modelId))...[
                             const ListTile(
                               title: Text('Unit'),
                               leading: Icon(Icons.ac_unit_rounded),

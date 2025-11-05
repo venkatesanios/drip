@@ -905,9 +905,10 @@ class ValveWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Selector<MqttPayloadProvider, String?>(
-      selector: (_, provider) => provider.getValveOnOffStatus([56, 57, 58, 59].contains(modelId) ?
+      selector: (_, provider) => provider.getValveOnOffStatus([...AppConstants.ecoGemModelList].contains(modelId) ?
       double.parse(valve.sNo.toString()).toStringAsFixed(3): valve.sNo.toString()),
       builder: (_, status, __) {
+
 
         final statusParts = status?.split(',') ?? [];
         if(statusParts.isNotEmpty){
@@ -1582,7 +1583,7 @@ class ValveWidgetMobile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Selector<MqttPayloadProvider, String?>(
-      selector: (_, provider) => provider.getValveOnOffStatus([56, 57, 58, 59].contains(modelId) ?
+      selector: (_, provider) => provider.getValveOnOffStatus([...AppConstants.ecoGemModelList].contains(modelId) ?
       double.parse(valve.sNo.toString()).toStringAsFixed(3): valve.sNo.toString()),
       builder: (_, status, __) {
 

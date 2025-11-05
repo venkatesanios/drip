@@ -47,6 +47,7 @@ class _ScheduledProgramNarrowState extends State<ScheduledProgramNarrow> {
 
   @override
   Widget build(BuildContext context) {
+
     final viewModel = context.watch<CustomerScreenControllerViewModel>();
     final master = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex];
     bool isNova = [...AppConstants.ecoGemModelList].contains(master.modelId);
@@ -241,19 +242,21 @@ class _ScheduledProgramNarrowState extends State<ScheduledProgramNarrow> {
                             '${program.programName} ${ProgramCodeHelper.getDescription(int.parse(program.prgOnOff))}',
                           ),
                           const SizedBox(width: 8),
-                          MyMaterialButton(
-                            buttonId: '${program.serialNumber}_2900_pr',
-                            label: ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume)),
-                            payloadKey: "2900",
-                            payloadValue: '${program.serialNumber},${program.prgPauseResume}',
-                            color: ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume)) == 'Pause'
-                                ? Colors.orange : Colors.yellow,
-                            textColor: ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume)) == 'Pause'
-                                ? Colors.white : Colors.black,
-                            serverMsg:
-                            '${program.programName} ${ProgramCodeHelper.getDescription(int.parse(program.prgPauseResume))}',
-                          ),
-                          const SizedBox(width: 5),
+                          if(!isNova)...[
+                            MyMaterialButton(
+                              buttonId: '${program.serialNumber}_2900_pr',
+                              label: ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume)),
+                              payloadKey: "2900",
+                              payloadValue: '${program.serialNumber},${program.prgPauseResume}',
+                              color: ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume)) == 'Pause'
+                                  ? Colors.orange : Colors.yellow,
+                              textColor: ProgramCodeHelper.getButtonName(int.parse(program.prgPauseResume)) == 'Pause'
+                                  ? Colors.white : Colors.black,
+                              serverMsg:
+                              '${program.programName} ${ProgramCodeHelper.getDescription(int.parse(program.prgPauseResume))}',
+                            ),
+                            const SizedBox(width: 5),
+                          ],
                           PopupMenuButton<String>(
                             icon: const Icon(Icons.more_vert),
                             onSelected: (result) {

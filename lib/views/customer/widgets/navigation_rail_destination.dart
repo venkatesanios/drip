@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../models/customer/site_model.dart';
+import '../../../utils/constants.dart';
 import '../../../view_models/customer/customer_screen_controller_view_model.dart';
 
 class NavigationDestinationsBuilder {
@@ -23,7 +24,7 @@ class NavigationDestinationsBuilder {
         selectedIcon: Icon(Icons.question_answer, color: Colors.white),
         label: Text(''),
       ),
-      if ([1, 2, 3, 4, 56, 57, 58, 59].contains(master.modelId))
+      if ([...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(master.modelId))
         const NavigationRailDestination(
           icon: Tooltip(message: 'Controller Logs', child: Icon(Icons.receipt_outlined)),
           selectedIcon: Icon(Icons.receipt, color: Colors.white),
@@ -44,7 +45,7 @@ class NavigationDestinationsBuilder {
         selectedIcon: Icon(Icons.support_agent_sharp, color: Colors.white),
         label: Text(''),
       ),
-      if ([1, 2, 3, 4].contains(master.modelId))
+      if ([...AppConstants.gemModelList].contains(master.modelId))
         const NavigationRailDestination(
           icon: Tooltip(message: 'Weather', child: Icon(Icons.sunny_snowing)),
           selectedIcon: Icon(Icons.wb_sunny_rounded, color: Colors.white),

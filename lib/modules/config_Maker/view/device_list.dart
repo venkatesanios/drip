@@ -729,15 +729,3 @@ class _DeviceListState extends State<DeviceList> {
 
 Color textColorInCell = const Color(0xff667085);
 TextStyle textStyleInCell = TextStyle(color: textColorInCell, fontWeight: FontWeight.bold, fontSize: 13);
-
-/*
-mda - 50
-ata - 30
-4-6 - 12
-5-7 - 12
-idr - 20
-ull - 20
-pk - 10
-cnt - 60
-skr - 10
-*/

@@ -351,7 +351,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
       commMode:  master.communicationMode!,
     );
 
-    if ([1, 2, 3, 4, 56, 57, 58, 59].contains(master.modelId)) {
+    if ([...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(master.modelId)) {
       updateMasterLine(sIdx, mIdx, lIdx);
       mqttProvider.updateReceivedPayload(
         master.live != null ? jsonEncode(master.live) : _defaultPayload(),

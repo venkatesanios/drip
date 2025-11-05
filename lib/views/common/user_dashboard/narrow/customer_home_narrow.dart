@@ -729,8 +729,10 @@ class PumpStation extends StatelessWidget {
     final wsAndFilterItems = [
       if (inletWaterSources.isNotEmpty)
         ..._buildWaterSource(context, inletWaterSources, true, true, false),
+
       if (outletWaterSources.isNotEmpty)
         ..._buildWaterSource(context, outletWaterSources, inletWaterSources.isNotEmpty, false, false),
+
       if (filterSite.isNotEmpty)
         ...buildFilter(context, filterSite, false),
     ];
@@ -797,7 +799,9 @@ class PumpStation extends StatelessWidget {
 
   List<Widget> _buildWaterSource(BuildContext context, List<WaterSourceModel> waterSources,
       bool isAvailInlet, bool isInlet, bool isAvailFertilizer) {
+
     final List<Widget> gridItems = [];
+
     for (int index = 0; index < waterSources.length; index++) {
       final source = waterSources[index];
       gridItems.add(Padding(
@@ -815,6 +819,7 @@ class PumpStation extends StatelessWidget {
           modelId: modelId,
         ),
       ));
+
       gridItems.addAll(source.outletPump.map((pump) => Padding(
         padding: EdgeInsets.only(top: isAvailFertilizer? 38.5:8),
         child: PumpWidget(
@@ -828,6 +833,7 @@ class PumpStation extends StatelessWidget {
         ),
       )));
     }
+
     return gridItems;
   }
 

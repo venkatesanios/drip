@@ -23,7 +23,7 @@ class BuildMainValve extends StatelessWidget {
   Widget build(BuildContext context) {
     return Selector<MqttPayloadProvider, String?>(
       selector: (_, provider) => provider.getValveOnOffStatus(
-        [56, 57, 58, 59].contains(modelId)
+        [...AppConstants.ecoGemModelList].contains(modelId)
             ? double.parse(valve.sNo.toString()).toStringAsFixed(3)
             : valve.sNo.toString(),
       ),

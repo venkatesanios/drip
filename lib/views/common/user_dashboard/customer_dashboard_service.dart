@@ -32,16 +32,16 @@ class CustomerDashboardService extends StatelessWidget {
         ChangeNotifierProxyProvider<CustomerScreenControllerViewModel, ControllerSettingsViewModel>(
           create: (_) => ControllerSettingsViewModel(Repository(HttpService())),
           update: (_, customerVm, settingsVm) {
+
             settingsVm ??= ControllerSettingsViewModel(Repository(HttpService()));
 
             if (customerVm.mySiteList.data.isNotEmpty &&
                 customerVm.sIndex < customerVm.mySiteList.data.length &&
                 customerVm.mIndex < customerVm.mySiteList.data[customerVm.sIndex].master.length) {
 
-              final controllerId = customerVm.mySiteList.data[customerVm.sIndex].master[customerVm.mIndex].controllerId;
-              final modelId = customerVm.mySiteList.data[customerVm.sIndex].master[customerVm.mIndex].modelId;
-
-              settingsVm.getSettingsMenu(customerVm.mySiteList.data[customerVm.sIndex].customerId, controllerId, modelId);
+              settingsVm.getSettingsMenu(customerVm.mySiteList.data[customerVm.sIndex].customerId,
+                  customerVm.mySiteList.data[customerVm.sIndex].master[customerVm.mIndex].controllerId,
+                  customerVm.mySiteList.data[customerVm.sIndex].master[customerVm.mIndex].modelId);
             }
 
             return settingsVm;

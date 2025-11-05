@@ -9,6 +9,7 @@ import 'package:oro_drip_irrigation/views/customer/widgets/relay_status_avatar.d
 import 'package:provider/provider.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../repository/repository.dart';
+import '../../../utils/constants.dart';
 import '../../../utils/snack_bar.dart';
 import '../../../view_models/customer/node_list_view_model.dart';
 import '../hourly_log/node_hourly_logs.dart';
@@ -45,7 +46,7 @@ class NodeList extends StatelessWidget {
 
   Widget nodeListBody(BuildContext context) {
 
-    final isNova = [56, 57, 58, 59].contains(masterData.modelId);
+    final isNova = [...AppConstants.ecoGemModelList].contains(masterData.modelId);
 
 
     return Consumer2<NodeListViewModel, MqttPayloadProvider>(

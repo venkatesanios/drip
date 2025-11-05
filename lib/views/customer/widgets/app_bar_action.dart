@@ -207,7 +207,6 @@ Widget _buildHelpMenu(BuildContext context, CustomerScreenControllerViewModel vm
                     showPasswordDialog(context,'Oro@321',vm.mySiteList.data[vm.sIndex].customerId,
                         master.controllerId, master.deviceId,1);
                   }
-
                 },
               ),
               ListTile(

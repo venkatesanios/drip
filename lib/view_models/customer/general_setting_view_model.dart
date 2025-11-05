@@ -6,6 +6,7 @@ import 'package:timezone/standalone.dart' as tz;
 import '../../models/admin_dealer/language_list.dart';
 import '../../models/customer/notification_list_model.dart';
 import '../../repository/repository.dart';
+import '../../utils/constants.dart';
 import '../../utils/snack_bar.dart';
 
 class GeneralSettingViewModel extends ChangeNotifier {
@@ -150,8 +151,8 @@ class GeneralSettingViewModel extends ChangeNotifier {
         "controllerLocation": controllerLocation,
         "groupId": groupId,
         "groupName": farmName,
-        "countryCode": ([56, 57, 58, 59].contains(modelId)) ? countryCode : null,
-        "simNumber":  ([56, 57, 58, 59].contains(modelId)) ? simNumber : null,
+        "countryCode": ([...AppConstants.ecoGemModelList].contains(modelId)) ? countryCode : null,
+        "simNumber":  ([...AppConstants.ecoGemModelList].contains(modelId)) ? simNumber : null,
         "modifyUser": modifyUser,
       };
 

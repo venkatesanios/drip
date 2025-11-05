@@ -6,6 +6,7 @@ import '../../../models/customer/site_model.dart';
 import '../../../modules/IrrigationProgram/view/program_library.dart';
 import '../../../modules/ScheduleView/view/schedule_view_screen.dart';
 import '../../../providers/user_provider.dart';
+import '../../../utils/constants.dart';
 import '../../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../input_output_connection_details.dart';
 import '../node_list/node_list.dart';
@@ -61,7 +62,7 @@ class SideActionMenu extends StatelessWidget {
           const SizedBox(height: 15),
           _buildNodeStatus(context, vm.mySiteList.data[vm.sIndex].customerId, loggedInUser.id, cM),
 
-          if (![56, 57, 58, 59].contains(cM.modelId)) ...[
+          if (![...AppConstants.ecoGemModelList].contains(cM.modelId)) ...[
             const SizedBox(height: 15),
             _buildIoDetails(context, vm, cM),
           ],
@@ -72,7 +73,7 @@ class SideActionMenu extends StatelessWidget {
           ],
 
           if(hasViewLog)...[
-            if ([1, 2, 3, 4].contains(cM.modelId)) ...[
+            if ([...AppConstants.gemModelList].contains(cM.modelId)) ...[
               const SizedBox(height: 15),
               _buildScheduleView(context, vm, loggedInUser.id, cM),
             ],

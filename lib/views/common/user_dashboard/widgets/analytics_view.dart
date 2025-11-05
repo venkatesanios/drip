@@ -35,9 +35,6 @@ class AnalyticsView extends StatelessWidget {
 
   Widget buildHeader(BuildContext context, AnalyticsViewModel viewModel) {
 
-    final screenWidth = MediaQuery.sizeOf(context).width;
-    print(screenWidth);
-
     return ListTile(
       tileColor: Colors.white,
       leading: (screenType=='Narrow' || screenType=='Middle') ? totalSalesText(viewModel.totalSales) :
