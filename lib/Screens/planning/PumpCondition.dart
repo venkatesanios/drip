@@ -238,7 +238,7 @@ class _PumpConditionScreenState extends State<PumpConditionScreen> {
       GlobalSnackBar.show(
         context,
         jsonDataResponse['message'],
-        jsonDataResponse['statusCode'],
+        jsonDataResponse['code'],
       );
     } catch (e ,stacktrace) {
       print("Error in _sendData: $e");
