@@ -9,7 +9,7 @@ import '../../../Constants/dialog_boxes.dart';
 import '../../../Constants/properties.dart';
 import '../model/device_object_model.dart';
 import '../model/filtration_model.dart';
-import '../model/irrigationLine_model.dart';
+import '../model/irrigation_line_model.dart';
 import '../model/source_model.dart';
 import '../state_management/config_maker_provider.dart';
 import '../../../Widgets/sized_image.dart';

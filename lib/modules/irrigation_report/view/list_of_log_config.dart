@@ -155,7 +155,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
     }
     try{
       var body = {
-        'userId' : widget.userData['userId'],
+        'userId' : widget.userData['customerId'],
         'controllerId' : widget.userData['controllerId'],
       };
       var response = await IrrigationRepository().getUserLogConfig(body);

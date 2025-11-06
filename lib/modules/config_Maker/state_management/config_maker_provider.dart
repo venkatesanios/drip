@@ -8,7 +8,7 @@ import '../model/device_model.dart';
 import '../model/device_object_model.dart';
 import '../model/fertigation_model.dart';
 import '../model/filtration_model.dart';
-import '../model/irrigationLine_model.dart';
+import '../model/irrigation_line_model.dart';
 import '../model/moisture_model.dart';
 import '../model/ph_model.dart';
 import '../model/pump_model.dart';
@@ -1102,7 +1102,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     List<dynamic> devicePayload = [];
     for (var i = 0; i < listOfDeviceModel.length; i++) {
       var device = listOfDeviceModel[i];
-      if (device.masterId != null) {
+      if (device.masterId != null && device.serialNumber != null) {
         devicePayload.add({
           "S_No": device.serialNumber,
           "DeviceTypeNumber": validateDeviceTypeNumber(device),
