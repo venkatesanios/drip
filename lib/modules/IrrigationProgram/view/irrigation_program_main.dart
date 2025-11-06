@@ -24,7 +24,6 @@ class IrrigationProgram extends StatefulWidget {
   final String deviceId;
   final int serialNumber;
   final String? programType;
-  final bool? conditionsLibraryIsNotEmpty;
   final bool fromDealer;
   final bool toDashboard;
   final int modelId;
@@ -37,7 +36,6 @@ class IrrigationProgram extends StatefulWidget {
     required this.controllerId,
     required this.serialNumber,
     this.programType,
-    this.conditionsLibraryIsNotEmpty,
     required this.deviceId,
     required this.fromDealer,
     required this.groupId,
@@ -68,7 +66,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
     final result = irrigationProvider.getLabelAndIcon(
       sno: widget.serialNumber,
       programType: widget.programType,
-      conditionLibrary: widget.conditionsLibraryIsNotEmpty,
+      conditionLibrary: irrigationProvider.conditionsLibraryIsNotEmpty,
     );
     labels = result.labels;
     icons = result.icons;
@@ -405,7 +403,7 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
                           _buildTabContent(
                             index: i,
                             isIrrigationProgram: isIrrigationProgram,
-                            conditionsLibraryIsNotEmpty: (widget.conditionsLibraryIsNotEmpty ?? false),
+                            conditionsLibraryIsNotEmpty: (mainProvider.conditionsLibraryIsNotEmpty),
                           ),
                       ],
                     ),
@@ -577,7 +575,6 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
           toDashboard: widget.toDashboard,
           fromDealer: widget.fromDealer,
           programType: widget.programType,
-          conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,
           isIrrigationProgram: isIrrigationProgram,
           customerId: widget.customerId,
           groupId: widget.groupId,
@@ -598,7 +595,6 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
           toDashboard: widget.toDashboard,
           fromDealer: widget.fromDealer,
           programType: widget.programType,
-          conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,
           isIrrigationProgram: isIrrigationProgram,
           customerId: widget.customerId,
           groupId: widget.groupId,
@@ -615,7 +611,6 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
           toDashboard: widget.toDashboard,
           fromDealer: widget.fromDealer,
           programType: widget.programType,
-          conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,
           isIrrigationProgram: isIrrigationProgram,
           customerId: widget.customerId,
           groupId: widget.groupId,
@@ -634,7 +629,6 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
           toDashboard: widget.toDashboard,
           fromDealer: widget.fromDealer,
           programType: widget.programType,
-          conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,
           isIrrigationProgram: isIrrigationProgram,
           customerId: widget.customerId,
           groupId: widget.groupId,
@@ -651,7 +645,6 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
           toDashboard: widget.toDashboard,
           fromDealer: widget.fromDealer,
           programType: widget.programType,
-          conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,
           customerId: widget.customerId,
           groupId: widget.groupId,
           categoryId: widget.categoryId,
@@ -669,7 +662,6 @@ class _IrrigationProgramState extends State<IrrigationProgram> with SingleTicker
           toDashboard: widget.toDashboard,
           fromDealer: widget.fromDealer,
           programType: widget.programType,
-          conditionsLibraryIsNotEmpty: widget.conditionsLibraryIsNotEmpty,
           customerId: widget.customerId,
           groupId: widget.groupId,
           categoryId: widget.categoryId,

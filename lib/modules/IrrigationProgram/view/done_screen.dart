@@ -28,7 +28,6 @@ class AdditionalDataScreen extends StatefulWidget {
   final String deviceId;
   final bool toDashboard;
   final String? programType;
-  final bool? conditionsLibraryIsNotEmpty;
   final bool fromDealer;
   final int groupId, categoryId;
   final int modelId;
@@ -36,7 +35,7 @@ class AdditionalDataScreen extends StatefulWidget {
   final String categoryName;
   const AdditionalDataScreen({super.key, required this.serialNumber,
     required this.isIrrigationProgram, required this.userId, required this.controllerId,
-    required this.deviceId, required this.toDashboard, this.programType, this.conditionsLibraryIsNotEmpty,
+    required this.deviceId, required this.toDashboard, this.programType,
     required this.fromDealer, required this.customerId, required this.groupId, required this.categoryId,
     required this.modelId,
     required this.deviceName,
