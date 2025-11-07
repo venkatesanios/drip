@@ -24,13 +24,13 @@ class SftpService {
       // print("Environment.sftpPort : ${Environment.sftpPort}");
       final rawPem = await rootBundle.loadString(Environment.privateKeyPath);
       final pem = rawPem.replaceAll('\r\n', '\n').trim();
-      for(var line in pem.split('\n')){
-        print(line);
-      }
+      // for(var line in pem.split('\n')){
+      //   print(line);
+      // }
       final privateKey = SSHKeyPair.fromPem(pem);
-      for(var line in pem.split('\n')){
-        print(line);
-      }
+      // for(var line in pem.split('\n')){
+      //   print(line);
+      // }
       final socket = await SSHSocket.connect(
         Environment.sftpIpAddress,
         Environment.sftpPort,

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/view/site_configure.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
-
 import '../../../Constants/communication_codes.dart';
 import '../../../Constants/dialog_boxes.dart';
 import '../../../Constants/properties.dart';
@@ -126,52 +125,98 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
                                         getPumpSelection(source, pumpMode),
                                     ],
                                   if(![4,5].contains(source.sourceType) && widget.configPvd.listOfGeneratedObject.any((object) => object.objectId == AppConstants.valveObjectId))
-                                    Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      color: Theme.of(context).primaryColorLight.withOpacity(0.1),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_${AppConstants.valveObjectId}.svg', color: Colors.black,),
-                                        const SizedBox(width: 20,),
-                                        const Text('Valve : ', style: AppProperties.listTileBlackBoldStyle,),
-                                        Expanded(
-                                          child: Center(
-                                            child: Text(source.valves.map((sNo) => getObjectName(sNo, widget.configPvd).name!).join(', '), style: TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),),
-                                          ),
+                                    ...[
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(8),
+                                          color: Theme.of(context).primaryColorLight.withOpacity(0.1),
                                         ),
-                                        IconButton(
-                                            onPressed: (){
-                                              setState(() {
-                                                widget.configPvd.listOfSelectedSno.clear();
-                                                widget.configPvd.listOfSelectedSno.addAll(source.valves);
-                                              });
-                                              selectionDialogBox(
-                                                  context: context,
-                                                  title: 'Select Valve',
-                                                  singleSelection: false,
-                                                  listOfObject: widget.configPvd.listOfGeneratedObject.where((object) => (object.objectId == AppConstants.valveObjectId)).toList(),
-                                                  onPressed: (){
-                                                    setState(() {
-                                                      source.valves.clear();
-                                                      source.valves.addAll(widget.configPvd.listOfSelectedSno);
-                                                      widget.configPvd.updateAssignObject(sNo: source.commonDetails.sNo!, objectId: AppConstants.valveObjectId,listOfSerialNo: widget.configPvd.listOfSelectedSno);
-                                                      widget.configPvd.listOfSelectedSno.clear();
-                                                    });
-                                                    Navigator.pop(context);
-                                                  }
-                                              );
-                                            },
-                                            icon: Icon(Icons.touch_app, color: Theme.of(context).primaryColor, size: 20,)
-                                        )
-                                      ],
-                                    ),
-                                  ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_${AppConstants.valveObjectId}.svg', color: Colors.black,),
+                                            const SizedBox(width: 20,),
+                                            const Text('Inlet Valve : ', style: AppProperties.listTileBlackBoldStyle,),
+                                            Expanded(
+                                              child: Center(
+                                                child: Text(source.valves.map((sNo) => getObjectName(sNo, widget.configPvd).name!).join(', '), style: const TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),),
+                                              ),
+                                            ),
+                                            IconButton(
+                                                onPressed: (){
+                                                  setState(() {
+                                                    widget.configPvd.listOfSelectedSno.clear();
+                                                    widget.configPvd.listOfSelectedSno.addAll(source.valves);
+                                                  });
+                                                  selectionDialogBox(
+                                                      context: context,
+                                                      title: 'Select Valve',
+                                                      singleSelection: false,
+                                                      listOfObject: widget.configPvd.listOfGeneratedObject.where((object) => (object.objectId == AppConstants.valveObjectId && !widget.configPvd.source.any((src) => src.outletValves.contains(object.sNo)))).toList(),
+                                                      onPressed: (){
+                                                        setState(() {
+                                                          source.valves.clear();
+                                                          source.valves.addAll(widget.configPvd.listOfSelectedSno);
+                                                          widget.configPvd.updateAssignObject(sNo: source.commonDetails.sNo!, objectId: AppConstants.valveObjectId,listOfSerialNo: widget.configPvd.listOfSelectedSno);
+                                                          widget.configPvd.listOfSelectedSno.clear();
+                                                        });
+                                                        Navigator.pop(context);
+                                                      }
+                                                  );
+                                                },
+                                                icon: Icon(Icons.touch_app, color: Theme.of(context).primaryColor, size: 20,)
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(8),
+                                          color: Theme.of(context).primaryColorLight.withOpacity(0.1),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_${AppConstants.valveObjectId}.svg', color: Colors.black,),
+                                            const SizedBox(width: 20,),
+                                            const Text('Outlet Valve : ', style: AppProperties.listTileBlackBoldStyle,),
+                                            Expanded(
+                                              child: Center(
+                                                child: Text(source.outletValves.map((sNo) => getObjectName(sNo, widget.configPvd).name!).join(', '), style: TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),),
+                                              ),
+                                            ),
+                                            IconButton(
+                                                onPressed: (){
+                                                  setState(() {
+                                                    widget.configPvd.listOfSelectedSno.clear();
+                                                    widget.configPvd.listOfSelectedSno.addAll(source.outletValves);
+                                                  });
+                                                  selectionDialogBox(
+                                                      context: context,
+                                                      title: 'Select Outlet Valve',
+                                                      singleSelection: false,
+                                                      listOfObject: widget.configPvd.listOfGeneratedObject.where((object) => (object.objectId == AppConstants.valveObjectId && !widget.configPvd.source.any((src) => src.valves.contains(object.sNo)))).toList(),
+                                                      onPressed: (){
+                                                        setState(() {
+                                                          source.outletValves.clear();
+                                                          source.outletValves.addAll(widget.configPvd.listOfSelectedSno);
+                                                          widget.configPvd.updateAssignObject(sNo: source.commonDetails.sNo!, objectId: AppConstants.valveObjectId,listOfSerialNo: widget.configPvd.listOfSelectedSno);
+                                                          widget.configPvd.listOfSelectedSno.clear();
+                                                        });
+                                                        Navigator.pop(context);
+                                                      }
+                                                  );
+                                                },
+                                                icon: Icon(Icons.touch_app, color: Theme.of(context).primaryColor, size: 20,)
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   if(![4,5].contains(source.sourceType))
-                                    for(var mode in [1,2,3,4,5])
+                                    for(var mode in [1,2,3,4,5,6])
                                       getLevelAndFloatSelection(source, mode)
                                 ],
                               ),
@@ -241,13 +286,14 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
   }
 
   Widget getLevelAndFloatSelection(SourceModel source, int mode){
-    int objectId = mode == 1 ? AppConstants.levelObjectId : AppConstants.floatObjectId;
+    int objectId = mode == 1 ? AppConstants.levelObjectId : mode == 6 ? AppConstants.waterMeterObjectId : AppConstants.floatObjectId;
     Map<int, String> currentObjectName = {
       1: 'Level',
       2: 'Top Float For Inlet Pumps',
       3: 'Bottom Float For Inlet Pumps',
       4: 'Top Float For Outlet Pumps',
       5: 'Bottom Float For Outlet Pumps',
+      6: 'Outlet Water Meter',
     };
     Map<int, double> currentSno = {
       1: source.level,
@@ -255,6 +301,7 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
       3: source.bottomFloatForInletPump,
       4: source.topFloatForOutletPump,
       5: source.bottomFloatForOutletPump,
+      6: source.outletWaterMeter,
     };
 
     return Container(
@@ -277,6 +324,7 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
                 List<double> validateSensorFromOtherSource = [];
                 for(var src in widget.configPvd.source){
                   validateSensorFromOtherSource.add(src.level);
+                  validateSensorFromOtherSource.add(src.outletWaterMeter);
                   validateSensorFromOtherSource.add(src.topFloatForInletPump);
                   validateSensorFromOtherSource.add(src.bottomFloatForInletPump);
                   validateSensorFromOtherSource.add(src.topFloatForOutletPump);
@@ -310,8 +358,10 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
                           source.bottomFloatForInletPump = widget.configPvd.selectedSno;
                         }else if(mode == 4){
                           source.topFloatForOutletPump = widget.configPvd.selectedSno;
-                        }else{
+                        }else if(mode == 5){
                           source.bottomFloatForOutletPump = widget.configPvd.selectedSno;
+                        }else{
+                          source.outletWaterMeter = widget.configPvd.selectedSno;
                         }
                         widget.configPvd.selectedSno = 0.0;
                       });
@@ -476,6 +526,8 @@ Widget getTankImage(SourceModel source ,ConfigMakerProvider configPvd, {bool das
   bool bottomFloatAvailableForOutlet = source.bottomFloatForOutletPump != 0.0;
   bool topFloatAvailableForInlet = source.topFloatForInletPump != 0.0;
   bool bottomFloatAvailableForInlet = source.bottomFloatForInletPump != 0.0;
+  bool outletWaterMeter = source.outletWaterMeter != 0.0;
+  bool outletValve = source.outletValves.isNotEmpty;
   if(source.sourceType == 1){
     return Stack(
       children: [
@@ -506,16 +558,6 @@ Widget getTankImage(SourceModel source ,ConfigMakerProvider configPvd, {bool das
               ),
             ),
           ),
-        // if(levelAvailable || topFloatAvailable || bottomFloatAvailable)
-        //   Positioned(
-        //     right: 42,
-        //     bottom: 23,
-        //     child: SvgPicture.asset(
-        //       'assets/Images/Source/water_view.svg',
-        //       width: 55,
-        //       height: 55,
-        //     ),
-        //   ),
         if(topFloatAvailableForOutlet)
           Positioned(
             right: 40,
@@ -554,6 +596,16 @@ Widget getTankImage(SourceModel source ,ConfigMakerProvider configPvd, {bool das
               'assets/Images/Source/bottom_float.svg',
               width: 70,
               height: 70,
+            ),
+          ),
+        if(outletWaterMeter)
+          Positioned(
+            right: 0,
+            bottom: 20,
+            child: Image.asset(
+              'assets/Images/Png/objectId_${AppConstants.waterMeterObjectId}.png',
+              width: 30,
+              height: 30,
             ),
           )
       ],
@@ -607,6 +659,16 @@ Widget getTankImage(SourceModel source ,ConfigMakerProvider configPvd, {bool das
               'assets/Images/Source/bottom_float.svg',
               width: 50,
               height: 50,
+            ),
+          ),
+        if(outletWaterMeter)
+          Positioned(
+            right: 0,
+            bottom: 20,
+            child: Image.asset(
+              'assets/Images/Png/objectId_${AppConstants.waterMeterObjectId}.png',
+              width: 30,
+              height: 30,
             ),
           )
       ],
@@ -670,6 +732,16 @@ Widget getTankImage(SourceModel source ,ConfigMakerProvider configPvd, {bool das
               'assets/Images/Source/bottom_float.svg',
               width: 50,
               height: 50,
+            ),
+          ),
+        if(outletWaterMeter)
+          Positioned(
+            right: 0,
+            bottom: 20,
+            child: Image.asset(
+              'assets/Images/Png/objectId_${AppConstants.waterMeterObjectId}.png',
+              width: 30,
+              height: 30,
             ),
           )
       ],

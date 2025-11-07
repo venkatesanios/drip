@@ -614,6 +614,7 @@ class StandAloneViewModel extends ChangeNotifier {
         if (isNova) {
           strSldIrrigationPumpSrlNo = strSldIrrigationPumpSrlNo.replaceAll(RegExp(r'[._]'), ',');
           strSldSqnNo = strSldSqnNo.replaceAll(RegExp(r'[.]'), ',');
+          strSldSqnNo = '0,$strSldSqnNo';
         }
 
         String payload = '';

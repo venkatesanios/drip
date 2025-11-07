@@ -155,7 +155,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
     }
     try{
       var body = {
-        'userId' : widget.userData['userId'],
+        'userId' : widget.userData['customerId'],
         'controllerId' : widget.userData['controllerId'],
       };
       var response = await IrrigationRepository().getUserLogConfig(body);
@@ -168,10 +168,6 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
             names = configJsonData['data']['configObject'];
           });
         }
-      }
-
-      if (kDebugMode) {
-        // print('getUserLogConfig jsonData => $jsonData');
       }
       if(jsonData['code'] == 200){
         setState(() {

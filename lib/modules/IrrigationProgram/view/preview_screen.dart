@@ -34,7 +34,6 @@ class PreviewScreen extends StatefulWidget {
   final int serialNumber;
   final bool toDashboard;
   final String? programType;
-  final bool? conditionsLibraryIsNotEmpty;
   final bool fromDealer;
   final int modelId;
   final String deviceName;
@@ -47,7 +46,6 @@ class PreviewScreen extends StatefulWidget {
     required this.serialNumber,
     required this.toDashboard,
     this.programType,
-    this.conditionsLibraryIsNotEmpty,
     required this.fromDealer,
     required this.customerId,
     required this.groupId,

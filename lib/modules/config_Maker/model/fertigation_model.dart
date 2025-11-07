@@ -1,5 +1,5 @@
 import 'device_object_model.dart';
-import 'irrigationLine_model.dart';
+import 'irrigation_line_model.dart';
 
 class FertilizationModel{
   DeviceObjectModel commonDetails;

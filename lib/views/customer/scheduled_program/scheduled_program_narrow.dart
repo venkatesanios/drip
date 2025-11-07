@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/modules/IrrigationProgram/state_management/irrigation_program_provider.dart';
 import 'package:oro_drip_irrigation/utils/formatters.dart';
 import 'package:oro_drip_irrigation/utils/helpers/mc_permission_helper.dart';
 import 'package:oro_drip_irrigation/views/customer/scheduled_program/widgets/ai_recommendation_button.dart';
@@ -259,9 +260,11 @@ class _ScheduledProgramNarrowState extends State<ScheduledProgramNarrow> {
                           ],
                           PopupMenuButton<String>(
                             icon: const Icon(Icons.more_vert),
-                            onSelected: (result) {
+                            onSelected: (result) async{
                               if (result == 'Edit program') {
                                 bool hasConditions = program.conditions.isNotEmpty;
+                                print("hasConditions :: $hasConditions");
+                                await context.read<IrrigationProgramMainProvider>().programLibraryData(widget.customerId, widget.master.controllerId);
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -271,7 +274,6 @@ class _ScheduledProgramNarrowState extends State<ScheduledProgramNarrow> {
                                       controllerId: widget.master.controllerId,
                                       serialNumber: widget.master.programList[index].serialNumber,
                                       programType: filteredScheduleProgram[index].programType,
-                                      conditionsLibraryIsNotEmpty: hasConditions,
                                       fromDealer: false,
                                       toDashboard: true,
                                       groupId: widget.groupId,

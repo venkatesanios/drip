@@ -18,7 +18,7 @@ import '../model/device_model.dart';
 import '../model/ec_model.dart';
 import '../model/fertigation_model.dart';
 import '../model/filtration_model.dart';
-import '../model/irrigationLine_model.dart';
+import '../model/irrigation_line_model.dart';
 import '../model/moisture_model.dart';
 import '../model/ph_model.dart';
 import '../model/pump_model.dart';

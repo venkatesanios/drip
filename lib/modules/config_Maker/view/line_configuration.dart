@@ -9,7 +9,7 @@ import '../../../Constants/dialog_boxes.dart';
 import '../../../Constants/properties.dart';
 import '../model/device_object_model.dart';
 import '../model/filtration_model.dart';
-import '../model/irrigationLine_model.dart';
+import '../model/irrigation_line_model.dart';
 import '../model/source_model.dart';
 import '../state_management/config_maker_provider.dart';
 import '../../../Widgets/sized_image.dart';
@@ -356,9 +356,18 @@ class _LineConfigurationState extends State<LineConfiguration> {
                           ],
                       ],
                     ),
-                    const Text('Valve used to fill the tank : ', style: TextStyle(fontWeight: FontWeight.bold),),
-                    Text(source.valves.map((valSno) => getObjectName(valSno, widget.configPvd).name).join(','), style: TextStyle(color: Theme.of(context).primaryColor),)
-
+                    Row(
+                      children: [
+                        const Text('Inlet Valve : ', style: TextStyle(fontWeight: FontWeight.bold),),
+                        Text(source.valves.map((valSno) => getObjectName(valSno, widget.configPvd).name).join(','), style: TextStyle(color: Theme.of(context).primaryColor),),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Text('Outlet Valve : ', style: TextStyle(fontWeight: FontWeight.bold),),
+                        Text(source.outletValves.map((valSno) => getObjectName(valSno, widget.configPvd).name).join(','), style: TextStyle(color: Theme.of(context).primaryColor),)
+                      ],
+                    )
                   ],
                 ),
               ),

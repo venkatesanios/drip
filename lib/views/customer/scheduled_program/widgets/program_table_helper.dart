@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../models/customer/site_model.dart';
+import '../../../../modules/IrrigationProgram/state_management/irrigation_program_provider.dart';
 import '../../../../modules/IrrigationProgram/view/irrigation_program_main.dart';
 import '../../../../services/ai_advisory_service.dart';
 import '../../../../services/communication_service.dart';
@@ -162,9 +163,10 @@ class ProgramTableHelper {
                 const SizedBox(width: 5),
                 PopupMenuButton<String>(
                   icon: const Icon(Icons.more_vert),
-                  onSelected: (result) {
+                  onSelected: (result) async{
                     if (result == 'Edit program') {
                       bool hasConditions = program.conditions.isNotEmpty;
+                      await context.read<IrrigationProgramMainProvider>().programLibraryData(customerId, controllerId);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -175,7 +177,6 @@ class ProgramTableHelper {
                             controllerId: controllerId,
                             serialNumber: program.serialNumber,
                             programType: program.programType,
-                            conditionsLibraryIsNotEmpty: hasConditions,
                             fromDealer: false,
                             toDashboard: true,
                             groupId: groupId,

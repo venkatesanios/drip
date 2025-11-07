@@ -1,4 +1,4 @@
-import 'package:oro_drip_irrigation/modules/config_Maker/model/irrigationLine_model.dart';
+import 'package:oro_drip_irrigation/modules/config_Maker/model/irrigation_line_model.dart';
 import 'device_object_model.dart';
 
 class PumpModel{

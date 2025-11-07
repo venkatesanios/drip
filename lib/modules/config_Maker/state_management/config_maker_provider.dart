@@ -8,7 +8,7 @@ import '../model/device_model.dart';
 import '../model/device_object_model.dart';
 import '../model/fertigation_model.dart';
 import '../model/filtration_model.dart';
-import '../model/irrigationLine_model.dart';
+import '../model/irrigation_line_model.dart';
 import '../model/moisture_model.dart';
 import '../model/ph_model.dart';
 import '../model/pump_model.dart';
@@ -499,7 +499,7 @@ class ConfigMakerProvider extends ChangeNotifier{
               );
             }else if(deviceObjectModel.objectId == AppConstants.sourceObjectId){
               source.add(
-                  SourceModel(commonDetails: deviceObjectModel, inletPump: [], outletPump: [], valves: [])
+                  SourceModel(commonDetails: deviceObjectModel, inletPump: [], outletPump: [], valves: [], outletValves: [])
               );
             }else if(deviceObjectModel.objectId == AppConstants.pumpObjectId){
               pump.add(
@@ -1068,7 +1068,6 @@ class ConfigMakerProvider extends ChangeNotifier{
         "SumpTankFloatLow" : serialNoOrEmpty(pumpModelObject.bottomSumpFloat),
         "IrrigationLine" : line.where((line) => (line.sourcePump.contains(pumpModelObject.commonDetails.sNo) || line.irrigationPump.contains(pumpModelObject.commonDetails.sNo))).map((line) => line.commonDetails.sNo).join('_'),
       };
-
       pumpPayload.add(payload.entries.map((e) => e.value).join(","));
     }
 
@@ -1103,7 +1102,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     List<dynamic> devicePayload = [];
     for (var i = 0; i < listOfDeviceModel.length; i++) {
       var device = listOfDeviceModel[i];
-      if (device.masterId != null) {
+      if (device.masterId != null && device.serialNumber != null) {
         devicePayload.add({
           "S_No": device.serialNumber,
           "DeviceTypeNumber": validateDeviceTypeNumber(device),
@@ -1527,6 +1526,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         //     }
         //   }
         // }
+
         listOfTankPayload.add({
           "No.of sump pins" : sumpPinCount,
           "Sump low pin float" : sumpLowConnectionNo,
@@ -1539,6 +1539,7 @@ class ConfigMakerProvider extends ChangeNotifier{
           "pressureIn" : availableOfPressure
         }.entries.map((e) => e.value).join(','));
       }
+
       int fixedLengthOfTankPayload = 3;
       if(listOfTankPayload.length != fixedLengthOfTankPayload){
         for(var flp = 0;flp < fixedLengthOfTankPayload - listOfTankPayload.length;flp++){

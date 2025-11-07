@@ -133,9 +133,6 @@ ConfigMakerTabs updateConfigMakerTabs({
       if(!pumpAvailable){
         notice.add(pumpObject.objectId);
       }
-      // if(!valveAvailable){
-      //   notice.add(valveObject.objectId);
-      // }
       configPvd.noticeObjectForTemporary(notice);
     }else if(dosingAvailable && !channelAvailable){
       update = false;
