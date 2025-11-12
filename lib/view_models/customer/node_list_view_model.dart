@@ -17,7 +17,7 @@ class NodeListViewModel extends ChangeNotifier {
 
   late MqttPayloadProvider payloadProvider;
 
-  final List<NodeListModel> nodeList;
+  List<NodeListModel> nodeList;
 
   List<dynamic> _previousLiveMessage = [];
   List<dynamic> _previousRelayStatus = [];
@@ -27,17 +27,16 @@ class NodeListViewModel extends ChangeNotifier {
     payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
   }
 
-  bool shouldUpdate(List<dynamic> newLiveMessage, List<dynamic> newRelayStatus) {
-    if (!listEquals(_previousLiveMessage, newLiveMessage) ||
-        !listEquals(_previousRelayStatus, newRelayStatus)) {
-      _previousLiveMessage = List.from(newLiveMessage);
-      _previousRelayStatus = List.from(newRelayStatus);
-      return true;
-    }
-    return false;
+  bool shouldUpdate(List<String> newLiveMessage, List<String> newRelayStatus) {
+    return newLiveMessage.join() != _previousLiveMessage.join() ||
+        newRelayStatus.join() != _previousRelayStatus.join();
   }
 
   void onLivePayloadReceived(List<String> nodeLiveMeg, List<String> inputOutputStatus) {
+
+    print('nodeLiveMeg:$nodeLiveMeg');
+    print('inputOutputStatus:$inputOutputStatus');
+
     try {
       for (String group in nodeLiveMeg) {
         List<String> values = group.split(",");
@@ -59,7 +58,7 @@ class NodeListViewModel extends ChangeNotifier {
             node.status = status;
             node.lastFeedbackReceivedTime = lastFeedback;
             node.version = version;
-            break; // stop once matched
+            break;
           }
         }
       }
@@ -82,12 +81,18 @@ class NodeListViewModel extends ChangeNotifier {
           }
         }
       }
+
+      nodeList = List.from(nodeList);
+
+      _previousLiveMessage = nodeLiveMeg;
+      _previousRelayStatus = inputOutputStatus;
+
+      notifyListeners();
+
     } catch (e, st) {
       print("Error parsing payload: $e");
       print(st);
     }
-
-    notifyListeners();
   }
 
 

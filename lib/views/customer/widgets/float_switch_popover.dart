@@ -7,11 +7,13 @@ import '../../../models/customer/site_model.dart';
 class FloatSwitchPopover extends StatelessWidget {
   final WaterSourceModel source;
   final ValueNotifier<int> popoverUpdateNotifier;
+  final bool isMobile;
 
   const FloatSwitchPopover({
     super.key,
     required this.source,
     required this.popoverUpdateNotifier,
+    required this.isMobile,
   });
 
   @override
@@ -26,33 +28,33 @@ class FloatSwitchPopover extends StatelessWidget {
           children: floatSwitches.map((fs) {
             final update = provider.getSensorUpdatedValve(fs.sNo.toString());
             final parts = update?.split(',') ?? [];
-            final status = parts.length > 2 ? parts[2] : null;
+            final status = parts.length > 2 ? parts[1] : null;
             final text = status == '0' ? 'Low' : 'High';
 
             if (fs.value == "topFloatForInletPump") {
               return Positioned(
-                top: 20,
-                left: 13,
+                top: isMobile ? 13 : 20,
+                left: isMobile ? 10 : 13,
                 child: _buildFloatSwitchIcon(text),
               );
             }
             else if (fs.value == "bottomFloatForInletPump") {
               return Positioned(
-                top: 40,
-                left: 17.5,
+                top: isMobile ? 33 : 40,
+                left: isMobile ? 14.5 : 17.5,
                 child: _buildFloatSwitchIcon(text),
               );
             }
             else if (fs.value == "topFloatForOutletPump") {
               return Positioned(
-                top: 20,
-                left: 42,
+                top: isMobile ? 13 : 20,
+                left: isMobile ? 39 : 42,
                 child: _buildFloatSwitchIcon(text),
               );
             } else {
               return Positioned(
-                top: 40,
-                left: 37,
+                top: isMobile ? 33 : 40,
+                left: isMobile ? 34 : 37,
                 child: _buildFloatSwitchIcon(text),
               );
             }

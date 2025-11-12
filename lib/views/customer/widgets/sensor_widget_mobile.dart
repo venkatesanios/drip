@@ -30,41 +30,31 @@ class SensorWidgetMobile extends StatelessWidget {
           sensor.value = statusParts[1];
         }
 
-        return Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(left: 10, right: 8),
-              child: Divider(height: 1, thickness: 1, color: Colors.black12),
+        return ListTile(
+          minVerticalPadding: 0,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+          visualDensity: const VisualDensity(vertical: -4),
+          title: Text(
+            sensor.name,
+            textAlign: TextAlign.right,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: Colors.black54,
             ),
-            ListTile(
-              minVerticalPadding: 0,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-              visualDensity: const VisualDensity(vertical: -4),
-              leading: Image.asset(imagePath, width: 25, height: 25),
-              title: Text(
-                sensor.name,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black54,
-                ),
-              ),
-              trailing: Container(
+          ),
+          trailing: sensorType == 'Pressure Switch' ?
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: sensorType != 'Pressure Switch' ? Colors.yellow.shade400:
-                  statusParts[1] == "1" ? Colors.green.shade300 : Colors.red.shade300,
+                  color: statusParts[1] == "1" ? Colors.green.shade300 : Colors.red.shade300,
                   borderRadius: BorderRadius.circular(4),
                   border: Border.all(color: Colors.grey, width: 0.5),
                 ),
-                child: sensorType != 'Pressure Switch' ? Text(
-                  MyFunction().getUnitByParameter(context, sensorType, sensor.value.toString(),) ?? '',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ) : Text(
+                child: Text(
                   statusParts[1] == "1" ? 'Normal' : 'High',
                   style: TextStyle(
                     fontSize: 12,
@@ -73,8 +63,30 @@ class SensorWidgetMobile extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(width: 5),
+              const SizedBox(
+                width: 25,
+                height: 25,
+                child: Image(image: AssetImage('assets/png/mobile/m_pressure_switch.png')),
+              )
+            ],
+          ) :
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.yellow.shade400,
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: Colors.grey, width: 0.5),
             ),
-          ],
+            child: Text(
+              MyFunction().getUnitByParameter(context, sensorType, sensor.value.toString(),) ?? '',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+          ),
         );
       },
     );

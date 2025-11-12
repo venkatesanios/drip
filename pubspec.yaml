@@ -104,6 +104,7 @@ flutter:
     - assets/Images/Png/Oro/
     - assets/Images/Png/SmartComm/
     - assets/png/
+    - assets/png/mobile/
     - assets/svg_images/
     - assets/SVGPicture/
     - assets/Images/Source/
